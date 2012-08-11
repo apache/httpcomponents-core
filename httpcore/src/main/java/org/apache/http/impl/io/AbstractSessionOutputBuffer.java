@@ -53,39 +53,78 @@ import org.apache.http.util.CharArrayBuffer;
  * Abstract base class for session output buffers that stream data to
  * an arbitrary {@link OutputStream}. This class buffers small chunks of
  * output data in an internal byte array for optimal output performance.
- * <p>
+ * </p>
  * {@link #writeLine(CharArrayBuffer)} and {@link #writeLine(String)} methods
  * of this class use CR-LF as a line delimiter.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
- * </ul>
- * <p>
  *
  * @since 4.0
  */
 @NotThreadSafe
 public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer, BufferInfo {
 
-    private static final Charset ASCII = Charset.forName("US-ASCII");
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
+    // TODO: make final
     private OutputStream outstream;
     private ByteArrayBuffer buffer;
-
     private Charset charset;
+    private boolean ascii;
+    private int minChunkLimit;
+    private HttpTransportMetricsImpl metrics;
+    private CodingErrorAction onMalformedCharAction;
+    private CodingErrorAction onUnmappableCharAction;
+
     private CharsetEncoder encoder;
     private ByteBuffer bbuf;
-    private boolean ascii = true;
-    private int minChunkLimit = 512;
 
-    private HttpTransportMetricsImpl metrics;
+    /**
+     * Creates new instance of AbstractSessionOutputBuffer.
+     *
+     * @param outstream output stream.
+     * @param buffersize buffer size. Must be a positive number.
+     * @param charset charset to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> US-ASCII will be used.
+     * @param minChunkLimit size limit below which data chunks should be buffered in memory
+     *   in order to minimize native method invocations on the underlying network socket.
+     *   The optimal value of this parameter can be platform specific and defines a trade-off
+     *   between performance of memory copy operations and that of native method invocation.
+     *   If negative default chunk limited will be used.
+     * @param malformedCharAction action to perform upon receiving a malformed input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT} will be used.
+     * @param unmappableCharAction action to perform upon receiving an unmappable input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT}  will be used.
+     *
+     * @since 4.3
+     */
+    protected AbstractSessionOutputBuffer(
+            final OutputStream outstream,
+            int buffersize,
+            final Charset charset,
+            int minChunkLimit,
+            final CodingErrorAction malformedCharAction,
+            final CodingErrorAction unmappableCharAction) {
+        super();
+        Args.notNull(outstream, "Input stream");
+        Args.notNegative(buffersize, "Buffer size");
+        this.outstream = outstream;
+        this.buffer = new ByteArrayBuffer(buffersize);
+        this.charset = charset != null ? charset : Consts.ASCII;
+        this.ascii = this.charset.equals(Consts.ASCII);
+        this.encoder = null;
+        this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
+        this.metrics = createTransportMetrics();
+        this.onMalformedCharAction = malformedCharAction != null ? malformedCharAction :
+            CodingErrorAction.REPORT;
+        this.onUnmappableCharAction = unmappableCharAction != null? unmappableCharAction :
+            CodingErrorAction.REPORT;
+    }
 
-    private CodingErrorAction onMalformedInputAction;
-    private CodingErrorAction onUnMappableInputAction;
+    /**
+     * @deprecated (4.3)
+     */
+    @Deprecated
+    protected AbstractSessionOutputBuffer() {
+    }
 
     /**
      * Initializes this session output buffer.
@@ -93,7 +132,11 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
      * @param outstream the destination output stream.
      * @param buffersize the size of the internal buffer.
      * @param params HTTP parameters.
+     *
+     * @deprecated (4.3) use constructor
+     *   {@link AbstractSessionOutputBuffer#AbstractSessionOutputBuffer(OutputStream, int, HttpParams)}
      */
+    @Deprecated
     protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
         Args.notNull(outstream, "Input stream");
         Args.notNegative(buffersize, "Buffer size");
@@ -102,16 +145,16 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.buffer = new ByteArrayBuffer(buffersize);
         String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
-        this.ascii = this.charset.equals(ASCII);
+        this.ascii = this.charset.equals(Consts.ASCII);
         this.encoder = null;
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
         CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-        this.onMalformedInputAction = a1 != null ? a1 : CodingErrorAction.REPORT;
+        this.onMalformedCharAction = a1 != null ? a1 : CodingErrorAction.REPORT;
         CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-        this.onUnMappableInputAction = a2 != null? a2 : CodingErrorAction.REPORT;
+        this.onUnmappableCharAction = a2 != null? a2 : CodingErrorAction.REPORT;
     }
 
     /**
@@ -262,8 +305,8 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         }
         if (this.encoder == null) {
             this.encoder = this.charset.newEncoder();
-            this.encoder.onMalformedInput(this.onMalformedInputAction);
-            this.encoder.onUnmappableCharacter(this.onUnMappableInputAction);
+            this.encoder.onMalformedInput(this.onMalformedCharAction);
+            this.encoder.onUnmappableCharacter(this.onUnmappableCharAction);
         }
         if (this.bbuf == null) {
             this.bbuf = ByteBuffer.allocate(1024);

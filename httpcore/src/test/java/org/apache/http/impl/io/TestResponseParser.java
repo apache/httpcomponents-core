@@ -29,6 +29,7 @@ package org.apache.http.impl.io;
 
 import java.io.InterruptedIOException;
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -91,7 +92,7 @@ public class TestResponseParser {
             "Date: some date\r\n" +
             "Set-Cookie: c1=stuff\r\n" +
             "\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, "US-ASCII");
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
 
         DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 inbuffer,

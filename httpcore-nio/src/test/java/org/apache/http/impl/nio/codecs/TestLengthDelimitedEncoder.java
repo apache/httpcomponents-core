@@ -40,8 +40,6 @@ import java.nio.channels.WritableByteChannel;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -63,8 +61,7 @@ public class TestLengthDelimitedEncoder {
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -82,8 +79,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingBeyondContentLimit() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -101,8 +97,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -126,8 +121,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -147,8 +141,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingBeyondContentLimitFromFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -188,8 +181,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingEmptyFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -223,8 +215,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingCompletedFromFile() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -256,8 +247,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFromFileSmaller() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
@@ -290,8 +280,7 @@ public class TestLengthDelimitedEncoder {
     public void testInvalidConstructor() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         try {

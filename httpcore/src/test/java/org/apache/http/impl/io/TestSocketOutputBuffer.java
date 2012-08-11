@@ -35,11 +35,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
+import org.apache.http.Consts;
 import org.apache.http.util.CharArrayBuffer;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -51,7 +51,6 @@ public class TestSocketOutputBuffer {
 
     @Mock private Socket socket;
     @Mock private OutputStream os;
-    @Mock private HttpParams params;
     private byte[] b;
     private CharArrayBuffer cb;
 
@@ -62,13 +61,24 @@ public class TestSocketOutputBuffer {
         when(socket.getOutputStream()).thenReturn(os);
     }
 
-    private void create(int buffSize, int arraySize, int minChunkLimit) throws Exception {
+    private void create(int buffSize, int arraySize, Charset charset, int minChunkLimit) throws Exception {
         b = new byte[arraySize];
         cb = new CharArrayBuffer(arraySize);
 
-        when(params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512)).thenReturn(minChunkLimit);
+        sob = SocketOutputBuffer.create(socket, buffSize, charset, minChunkLimit, null, null);
+    }
 
-        sob = new SocketOutputBuffer(socket, buffSize, params);
+    private void create(int buffSize, int arraySize, int minChunkLimit) throws Exception {
+        create(buffSize, arraySize, null, minChunkLimit);
+    }
+
+    @Test
+    public void testInvalidConstruction() throws Exception {
+        try {
+            SocketOutputBuffer.create(null, 0);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException ex) {
+        }
     }
 
     @Test
@@ -128,8 +138,7 @@ public class TestSocketOutputBuffer {
 
     @Test
     public void testWriteLineStringEncode() throws Exception {
-        when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
-        create(2048, 2048, 2048);
+        create(2048, 2048, Consts.UTF_8, 2048);
 
         sob.writeLine("test");
     }
@@ -143,8 +152,7 @@ public class TestSocketOutputBuffer {
 
     @Test
     public void testWriteLineEmptyStringEncode() throws Exception {
-        when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
-        create(2048, 2048, 2048);
+        create(2048, 2048, Consts.UTF_8, 2048);
 
         sob.writeLine("");
     }
@@ -158,8 +166,7 @@ public class TestSocketOutputBuffer {
 
     @Test
     public void testWriteLineNullStringEncode() throws Exception {
-        when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
-        create(2048, 2048, 2048);
+        create(2048, 2048, Consts.UTF_8, 2048);
 
         sob.writeLine((String)null);
     }
@@ -173,8 +180,7 @@ public class TestSocketOutputBuffer {
 
     @Test
     public void testWriteLineCharArrayBufferEncode() throws Exception {
-        when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
-        create(2048, 2048, 2048);
+        create(2048, 2048, Consts.UTF_8, 2048);
 
         sob.writeLine(cb);
     }
@@ -188,8 +194,7 @@ public class TestSocketOutputBuffer {
 
     @Test
     public void testWriteLineEmptyCharArrayBufferEncode() throws Exception {
-        when(params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET)).thenReturn("UTF-8");
-        create(2048, 0, 2048);
+        create(2048, 0, Consts.UTF_8, 2048);
 
         sob.writeLine(cb);
     }

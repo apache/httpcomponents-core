@@ -34,6 +34,7 @@ package org.apache.http.impl.io;
 import java.io.InterruptedIOException;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
@@ -95,7 +96,7 @@ public class TestRequestParser {
             "User-Agent: whatever\r\n" +
             "Cookie: c1=stuff\r\n" +
             "\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, "US-ASCII");
+        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
 
         DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 inbuffer,

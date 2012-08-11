@@ -29,6 +29,7 @@ package org.apache.http.impl.entity;
 
 import java.io.InputStream;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.ProtocolException;
@@ -63,7 +64,7 @@ public class TestEntityDeserializer {
 
     @Test
     public void testEntityWithTransferEncoding() throws Exception {
-        SessionInputBuffer inbuffer = new SessionInputBufferMock("0\r\n", "US-ASCII");
+        SessionInputBuffer inbuffer = new SessionInputBufferMock("0\r\n", Consts.ASCII);
         HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
@@ -109,7 +110,7 @@ public class TestEntityDeserializer {
 
     @Test
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
-        SessionInputBuffer inbuffer = new SessionInputBufferMock("0\r\n", "US-ASCII");
+        SessionInputBuffer inbuffer = new SessionInputBufferMock("0\r\n", Consts.ASCII);
         HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
@@ -137,7 +138,7 @@ public class TestEntityDeserializer {
 
     @Test
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
-        SessionInputBuffer inbuffer = new SessionInputBufferMock("0\r\n", "US-ASCII");
+        SessionInputBuffer inbuffer = new SessionInputBufferMock("0\r\n", Consts.ASCII);
         HttpMessage message = new DummyHttpMessage();
 
         // lenient mode

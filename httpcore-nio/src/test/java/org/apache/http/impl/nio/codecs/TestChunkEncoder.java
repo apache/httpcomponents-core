@@ -37,8 +37,6 @@ import java.nio.channels.WritableByteChannel;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,8 +58,7 @@ public class TestChunkEncoder {
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -82,8 +79,7 @@ public class TestChunkEncoder {
     public void testChunkNoExceed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
         encoder.write(wrap("1234"));
@@ -100,8 +96,7 @@ public class TestChunkEncoder {
     @Test
     public void testHttpCore239() throws Exception {
         FixedByteChannel channel = new FixedByteChannel(16);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -139,8 +134,7 @@ public class TestChunkEncoder {
     public void testChunkExceed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -168,8 +162,7 @@ public class TestChunkEncoder {
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -196,8 +189,7 @@ public class TestChunkEncoder {
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -224,8 +216,7 @@ public class TestChunkEncoder {
     public void testInvalidConstructor() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
 
         try {
             new ChunkEncoder(null, null, null);

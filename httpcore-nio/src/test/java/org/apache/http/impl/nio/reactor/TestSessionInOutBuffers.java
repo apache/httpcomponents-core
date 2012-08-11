@@ -37,11 +37,9 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.Consts;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -71,9 +69,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadLineChunks() throws Exception {
-
-        HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16);
 
         ReadableByteChannel channel = newChannel("One\r\nTwo\r\nThree");
 
@@ -111,10 +107,8 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteLineChunks() throws Exception {
-
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, params);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16);
 
         ReadableByteChannel inChannel = newChannel("One\r\nTwo\r\nThree");
 
@@ -181,9 +175,7 @@ public class TestSessionInOutBuffers {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
 
-        HttpParams params = new BasicHttpParams();
-
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         for (int i = 0; i < teststrs.length; i++) {
             outbuf.writeLine(teststrs[i]);
         }
@@ -197,7 +189,7 @@ public class TestSessionInOutBuffers {
 
         ReadableByteChannel channel = newChannel(outstream.toByteArray());
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16);
         inbuf.fill(channel);
 
         for (int i = 0; i < teststrs.length; i++) {
@@ -209,9 +201,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testComplexReadWriteLine() throws Exception {
-        HttpParams params = new BasicHttpParams();
-
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         outbuf.write(ByteBuffer.wrap(new byte[] {'a', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\r', '\n'}));
@@ -249,7 +239,7 @@ public class TestSessionInOutBuffers {
 
         ReadableByteChannel channel = newChannel(outstream.toByteArray());
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16);
         inbuf.fill(channel);
 
         Assert.assertEquals("a", inbuf.readLine(true));
@@ -272,8 +262,7 @@ public class TestSessionInOutBuffers {
             out[i] = (byte)('0' + i);
         }
         ReadableByteChannel channel = newChannel(out);
-        HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -290,8 +279,7 @@ public class TestSessionInOutBuffers {
     public void testReadByteBuffer() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
-        HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024);
         while (inbuf.fill(channel) > 0) {
         }
         ByteBuffer dst = ByteBuffer.allocate(10);
@@ -308,8 +296,7 @@ public class TestSessionInOutBuffers {
     public void testReadByteBufferWithMaxLen() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
-        HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024);
         while (inbuf.fill(channel) > 0) {
         }
         ByteBuffer dst = ByteBuffer.allocate(16);
@@ -329,8 +316,7 @@ public class TestSessionInOutBuffers {
     public void testReadToChannel() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
-        HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -345,8 +331,7 @@ public class TestSessionInOutBuffers {
     public void testReadToChannelWithMaxLen() throws Exception {
         byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
         ReadableByteChannel channel = newChannel(pattern);
-        HttpParams params = new BasicHttpParams();
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -363,8 +348,7 @@ public class TestSessionInOutBuffers {
     public void testWriteByteBuffer() throws Exception {
         byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
 
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024);
         ReadableByteChannel src = newChannel(pattern);
         outbuf.write(src);
 
@@ -379,8 +363,7 @@ public class TestSessionInOutBuffers {
     public void testWriteFromChannel() throws Exception {
         byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
 
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024);
         outbuf.write(ByteBuffer.wrap(pattern, 0, 16));
         outbuf.write(ByteBuffer.wrap(pattern, 16, 10));
         outbuf.write(ByteBuffer.wrap(pattern, 26, 6));
@@ -417,11 +400,7 @@ public class TestSessionInOutBuffers {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
 
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setHttpElementCharset("UTF-8")
-            .build();
-
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, Consts.UTF_8, null, null);
 
         for (int i = 0; i < 10; i++) {
             outbuf.writeLine(s1);
@@ -436,7 +415,7 @@ public class TestSessionInOutBuffers {
         byte[] tmp = outstream.toByteArray();
 
         ReadableByteChannel channel = newChannel(tmp);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, Consts.UTF_8, null, null);
 
         while (inbuf.fill(channel) > 0) {
         }
@@ -450,9 +429,8 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testMalformedCharacters() throws Exception {
-        HttpParams params = new BasicHttpParams();
         String s1 = constructString(SWISS_GERMAN_HELLO);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         try {
             outbuf.writeLine(s1);
             Assert.fail("Expected CharacterCodingException");
@@ -461,7 +439,7 @@ public class TestSessionInOutBuffers {
 
         byte[] tmp = s1.getBytes("ISO-8859-1");
         ReadableByteChannel channel = newChannel(tmp);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -474,90 +452,86 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testInputMatchesBufferLength() throws Exception {
-        HttpParams params = new BasicHttpParams();
         String s1 = "abcde";
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5);
         outbuf.writeLine(s1);
     }
 
-    @Test
-    public void testMalformedInputAction() throws Exception {
-        String s1 = constructString(SWISS_GERMAN_HELLO);
-        byte[] tmp = s1.getBytes("ISO-8859-1");
+    @Test(expected=CharacterCodingException.class)
+    public void testMalformedInputActionReport() throws Exception {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        byte[] tmp = s.getBytes("ISO-8859-1");
 
-        // Action with report
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setMalformedInputAction(CodingErrorAction.REPORT)
-            .build();
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, Consts.ASCII,
+                CodingErrorAction.REPORT, CodingErrorAction.IGNORE);
         ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
-        try {
-            String s = inbuf.readLine(true);
-            Assert.fail("Expected CharacterCodingException, got '" + s + "'");
-        } catch (CharacterCodingException expected) {
-        }
-
-        // Action with ignore
-        params = new HttpCoreConfigBuilder()
-            .setMalformedInputAction(CodingErrorAction.IGNORE)
-            .build();
-        inbuf = new SessionInputBufferImpl(16, 16, params);
-        channel = newChannel(tmp);
-        while (inbuf.fill(channel) > 0) {
-        }
-        String s2 = inbuf.readLine(true);
-        Assert.assertEquals("Grezi_zm", s2);
-
-        // Action with replace
-        params = new HttpCoreConfigBuilder()
-            .setMalformedInputAction(CodingErrorAction.REPLACE)
-            .build();
-        inbuf = new SessionInputBufferImpl(16, 16, params);
-        channel = newChannel(tmp);
-        while (inbuf.fill(channel) > 0) {
-        }
-        String s3 = inbuf.readLine(true);
-        Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", s3);
+        inbuf.readLine(true);
     }
 
     @Test
-    public void testUnmappableInputAction() throws Exception {
-        String s1 = constructString(SWISS_GERMAN_HELLO);
+    public void testMalformedInputActionIgnore() throws Exception {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        byte[] tmp = s.getBytes("ISO-8859-1");
 
-        // Action with report
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setUnmappableInputAction(CodingErrorAction.REPORT)
-            .build();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, params);
-        try {
-            outbuf.writeLine(s1);
-            Assert.fail("Expected CharacterCodingException");
-        } catch (CharacterCodingException expected) {
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, Consts.ASCII,
+                CodingErrorAction.IGNORE, CodingErrorAction.IGNORE);
+        ReadableByteChannel channel = newChannel(tmp);
+        while (inbuf.fill(channel) > 0) {
         }
+        String result = inbuf.readLine(true);
+        Assert.assertEquals("Grezi_zm", result);
+    }
 
-        // Action with ignore
-        params = new HttpCoreConfigBuilder()
-            .setUnmappableInputAction(CodingErrorAction.IGNORE)
-            .build();
-        outbuf = new SessionOutputBufferImpl(1024, 16, params);
-        try {
-            outbuf.writeLine(s1);
-        } catch (CharacterCodingException e) {
-            Assert.fail("Unexpected CharacterCodingException");
-        }
+    @Test
+    public void testMalformedInputActionReplace() throws Exception {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        byte[] tmp = s.getBytes("ISO-8859-1");
 
-        // Action with replace
-        params = new HttpCoreConfigBuilder()
-            .setUnmappableInputAction(CodingErrorAction.REPLACE)
-            .build();
-        outbuf = new SessionOutputBufferImpl(1024, 16, params);
-        try {
-            outbuf.writeLine(s1);
-        } catch (CharacterCodingException e) {
-            Assert.fail("Unexpected CharacterCodingException");
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, Consts.ASCII,
+                CodingErrorAction.REPLACE, CodingErrorAction.IGNORE);
+        ReadableByteChannel channel = newChannel(tmp);
+        while (inbuf.fill(channel) > 0) {
         }
+        String result = inbuf.readLine(true);
+        Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", result);
+    }
+
+    @Test(expected=CharacterCodingException.class)
+    public void testUnmappableInputActionReport() throws Exception {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, Consts.ASCII,
+                CodingErrorAction.IGNORE, CodingErrorAction.REPORT);
+        outbuf.writeLine(s);
+    }
+
+    @Test
+    public void testUnmappableInputActionIgnore() throws Exception {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, Consts.ASCII,
+                CodingErrorAction.IGNORE, CodingErrorAction.IGNORE);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WritableByteChannel channel = newChannel(baos);
+        outbuf.writeLine(s);
+        outbuf.flush(channel);
+
+        String result = new String(baos.toByteArray(), "US-ASCII");
+        Assert.assertEquals("Grezi_zm\r\n", result);
+    }
+
+    @Test
+    public void testUnmappableInputActionReplace() throws Exception {
+        String s = constructString(SWISS_GERMAN_HELLO);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, Consts.ASCII,
+                CodingErrorAction.IGNORE, CodingErrorAction.REPLACE);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        WritableByteChannel channel = newChannel(baos);
+        outbuf.writeLine(s);
+        outbuf.flush(channel);
+
+        String result = new String(baos.toByteArray(), "US-ASCII");
+        Assert.assertEquals("Gr?ezi_z?m?\r\n", result);
     }
 
 }

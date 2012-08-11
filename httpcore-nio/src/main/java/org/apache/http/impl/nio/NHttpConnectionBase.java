@@ -34,8 +34,11 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
@@ -71,10 +74,12 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
+import org.apache.http.util.CharsetUtils;
 
 /**
  * This class serves as a base for all {@link NHttpConnection} implementations
@@ -140,8 +145,20 @@ public class NHttpConnectionBase
             linebuffersize = 512;
         }
 
-        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, allocator, params);
-        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, allocator, params);
+        Charset charset = CharsetUtils.lookup(
+                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
+        if (charset == null) {
+            charset = Consts.ASCII;
+        }
+        CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+
+        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize,
+                charset, malformedCharAction, unmappableCharAction, allocator);
+        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize,
+                charset, malformedCharAction, unmappableCharAction, allocator);
 
         this.incomingContentStrategy = createIncomingContentStrategy();
         this.outgoingContentStrategy = createOutgoingContentStrategy();
@@ -477,7 +494,7 @@ public class NHttpConnectionBase
         buffer.append("]");
         return buffer.toString();
     }
-    
+
     public Socket getSocket() {
         if (this.session instanceof SocketAccessor) {
             return ((SocketAccessor) this.session).getSocket();

@@ -27,10 +27,7 @@
 
 package org.apache.http.impl.io;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CodingErrorAction;
 
@@ -38,59 +35,11 @@ import org.apache.http.Consts;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.HttpTransportMetrics;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSessionBuffers {
-
-    @Test
-    public void testInit() throws Exception {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        new SessionOutputBufferMock(out);
-        try {
-            new SessionOutputBufferMock(null, new BasicHttpParams());
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        try {
-            new SessionOutputBufferMock(out, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-        new SessionInputBufferMock(in, 10);
-        try {
-            new SessionInputBufferMock(in, -10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        try {
-            new SessionOutputBufferMock(out, -10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        try {
-            new SessionInputBufferMock((InputStream)null, 1024);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-        try {
-            new SessionInputBufferMock(in, 10, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            //expected
-        }
-    }
+public class TestSessionInOutBuffers {
 
     @Test
     public void testBasicBufferProperties() throws Exception {
@@ -377,19 +326,16 @@ public class TestSessionBuffers {
 
     @Test
     public void testLineLimit() throws Exception {
-        HttpParams params = new BasicHttpParams();
         String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
         byte[] tmp = s.getBytes("US-ASCII");
         // no limit
-        params.setIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, 0);
-        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5, params);
+        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5, 0);
         Assert.assertNotNull(inbuffer1.readLine());
         long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(60, bytesRead);
 
         // 15 char limit
-        params.setIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, 15);
-        SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5, params);
+        SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5, 15);
         try {
             inbuffer2.readLine();
             Assert.fail("IOException should have been thrown");
@@ -402,10 +348,9 @@ public class TestSessionBuffers {
 
     @Test
     public void testReadLineFringeCase1() throws Exception {
-        HttpParams params = new BasicHttpParams();
         String s = "abc\r\n";
         byte[] tmp = s.getBytes("US-ASCII");
-        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 128, params);
+        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 128);
         Assert.assertEquals('a', inbuffer1.read());
         Assert.assertEquals('b', inbuffer1.read());
         Assert.assertEquals('c', inbuffer1.read());
@@ -438,9 +383,7 @@ public class TestSessionBuffers {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
 
-        HttpParams params = new HttpCoreConfigBuilder().setHttpElementCharset("UTF-8").build();
-
-        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(Consts.UTF_8);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         for (int i = 0; i < 10; i++) {
@@ -462,7 +405,7 @@ public class TestSessionBuffers {
         Assert.assertEquals(expected, bytesWritten);
 
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData(), params);
+                outbuffer.getData(), Consts.UTF_8);
 
         for (int i = 0; i < 10; i++) {
             Assert.assertEquals(s1, inbuffer.readLine());
@@ -486,9 +429,7 @@ public class TestSessionBuffers {
         }
         String s = buf.toString();
 
-        HttpParams params = new HttpCoreConfigBuilder().setHttpElementCharset("UTF-8").build();
-
-        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(Consts.UTF_8);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s);
@@ -496,7 +437,7 @@ public class TestSessionBuffers {
         outbuffer.flush();
 
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData(), params);
+                outbuffer.getData(), Consts.UTF_8);
 
         Assert.assertEquals(s, inbuffer.readLine());
     }
@@ -505,9 +446,7 @@ public class TestSessionBuffers {
     public void testNonAsciiReadWriteLine() throws Exception {
         String s1 = constructString(SWISS_GERMAN_HELLO);
 
-        HttpParams params = new HttpCoreConfigBuilder().setHttpElementCharset("ISO-8859-1").build();
-
-        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(params);
+        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(Consts.ISO_8859_1);
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         for (int i = 0; i < 5; i++) {
@@ -526,8 +465,7 @@ public class TestSessionBuffers {
         Assert.assertEquals(expected, bytesWritten);
 
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData(),
-                params);
+                outbuffer.getData(), Consts.ISO_8859_1);
 
         CharArrayBuffer buf = new CharArrayBuffer(64);
         for (int i = 0; i < 10; i++) {
@@ -544,88 +482,60 @@ public class TestSessionBuffers {
         Assert.assertEquals(expected, bytesRead);
     }
 
-    @Test
-    public void testUnmappableInputAction() throws Exception {
-        String s = "In valid ISO-8859-1 character string because  of Ŵ and ŵ";
-        
-        // Action with report
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setHttpElementCharset("ISO-8859-1")
-            .setUnmappableInputAction(CodingErrorAction.REPORT)
-            .build();
-
-        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(params);
-        try {
-            outbuf.writeLine(s);
-            Assert.fail("Expected CharacterCodingException");
-        } catch (CharacterCodingException expected) {
-        }
-
-        // Action with ignore
-        params = new HttpCoreConfigBuilder()
-            .setHttpElementCharset("ISO-8859-1")
-            .setUnmappableInputAction(CodingErrorAction.IGNORE)
-            .build();
-        outbuf = new SessionOutputBufferMock(params);
-        try {
-            outbuf.writeLine(s);
-        } catch (CharacterCodingException e) {
-            Assert.fail("Unexpected CharacterCodingException");
-        }
-
-        // Action with replace
-        params = new HttpCoreConfigBuilder()
-            .setHttpElementCharset("ISO-8859-1")
-            .setUnmappableInputAction(CodingErrorAction.REPLACE)
-            .build();
-        outbuf = new SessionOutputBufferMock(params);
-        try {
-            outbuf.writeLine(s);
-        } catch (IOException e) {
-            Assert.fail("Unexpected CharacterCodingException");
-        }
+    @Test(expected=CharacterCodingException.class)
+    public void testUnmappableInputActionReport() throws Exception {
+        String s = "This text contains a circumflex \u0302!!!";
+        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(Consts.ISO_8859_1,
+                CodingErrorAction.IGNORE, CodingErrorAction.REPORT);
+        outbuf.writeLine(s);
     }
 
     @Test
-    public void testMalformedInputAction() throws Exception {
-        byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes("UTF-16");
-        CharArrayBuffer buf = new CharArrayBuffer(1);
+    public void testUnmappableInputActionReplace() throws Exception {
+        String s = "This text contains a circumflex \u0302 !!!";
+        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(Consts.ISO_8859_1,
+                CodingErrorAction.IGNORE, CodingErrorAction.REPLACE);
+        outbuf.writeLine(s);
+        outbuf.flush();
+        String result = new String(outbuf.getData(), "ISO-8859-1");
+        Assert.assertEquals("This text contains a circumflex ? !!!\r\n", result);
+    }
 
-        // Action with report
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setHttpElementCharset("UTF-8")
-            .setMalformedInputAction(CodingErrorAction.REPORT)
-            .build();
-        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, params);
-        try {
-            inbuffer.readLine(buf);
-            Assert.fail("Expected CharacterCodingException");
-        } catch (CharacterCodingException e) {
-        }
+    @Test
+    public void testUnmappableInputActionIgnore() throws Exception {
+        String s = "This text contains a circumflex \u0302 !!!";
+        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(Consts.ISO_8859_1,
+                CodingErrorAction.IGNORE, CodingErrorAction.IGNORE);
+        outbuf.writeLine(s);
+        outbuf.flush();
+        String result = new String(outbuf.getData(), "ISO-8859-1");
+        Assert.assertEquals("This text contains a circumflex  !!!\r\n", result);
+    }
 
-        // Action with replace
-        params = new HttpCoreConfigBuilder()
-            .setHttpElementCharset("UTF-8")
-            .setMalformedInputAction(CodingErrorAction.REPLACE)
-            .build();
-        inbuffer = new SessionInputBufferMock(tmp, params);
-        try {
-            inbuffer.readLine(buf);
-        } catch (CharacterCodingException e) {
-            Assert.fail("Unexpected CharacterCodingException");
-        }
+    @Test(expected=CharacterCodingException.class)
+    public void testMalformedInputActionReport() throws Exception {
+        byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, Consts.UTF_8,
+                CodingErrorAction.REPORT, CodingErrorAction.IGNORE);
+        inbuffer.readLine();
+    }
 
-        // Action with ignore
-        params = new HttpCoreConfigBuilder()
-            .setHttpElementCharset("UTF-8")
-            .setMalformedInputAction(CodingErrorAction.IGNORE)
-            .build();
-        inbuffer = new SessionInputBufferMock(tmp, params);
-        try {
-            inbuffer.readLine();
-        } catch (IOException e) {
-            Assert.fail("Unexpected CharacterCodingException");
-        }
+    @Test
+    public void testMalformedInputActionReplace() throws Exception {
+        byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, Consts.UTF_8,
+                CodingErrorAction.REPLACE, CodingErrorAction.IGNORE);
+        String s = inbuffer.readLine();
+        Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", s);
+    }
+
+    @Test
+    public void testBufferMalformedInputActionIgnore() throws Exception {
+        byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, Consts.UTF_8,
+                CodingErrorAction.IGNORE, CodingErrorAction.IGNORE);
+        String s = inbuffer.readLine();
+        Assert.assertEquals("Grezi_zm", s);
     }
 
     @Test

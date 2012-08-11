@@ -33,7 +33,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.SocketInputBuffer;
@@ -41,8 +44,10 @@ import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
+import org.apache.http.util.CharsetUtils;
 
 /**
  * Implementation of a client-side HTTP connection that can be bound to an
@@ -105,7 +110,19 @@ public class SocketHttpClientConnection
             final Socket socket,
             int buffersize,
             final HttpParams params) throws IOException {
-        return new SocketInputBuffer(socket, buffersize, params);
+        Charset charset = CharsetUtils.get(
+                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
+        if (charset == null) {
+            charset = Consts.ASCII;
+        }
+        int maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
+        int minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, -1);
+        CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        return SocketInputBuffer.create(socket, buffersize, charset, maxLineLen, minChunkLimit,
+                malformedCharAction, unmappableCharAction);
     }
 
     /**
@@ -127,7 +144,18 @@ public class SocketHttpClientConnection
             final Socket socket,
             int buffersize,
             final HttpParams params) throws IOException {
-        return new SocketOutputBuffer(socket, buffersize, params);
+        Charset charset = CharsetUtils.get(
+                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
+        if (charset == null) {
+            charset = Consts.ASCII;
+        }
+        int minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, -1);
+        CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        return SocketOutputBuffer.create(socket, buffersize, charset, minChunkLimit,
+                malformedCharAction, unmappableCharAction);
     }
 
     /**

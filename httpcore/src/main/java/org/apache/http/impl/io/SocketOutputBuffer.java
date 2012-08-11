@@ -29,6 +29,8 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
@@ -37,13 +39,6 @@ import org.apache.http.util.Args;
 
 /**
  * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -59,7 +54,10 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
      *   {@link Socket#getSendBufferSize()}. If resultant number is less
      *   than <code>1024</code> it is set to <code>1024</code>.
      * @param params HTTP parameters.
+     *
+     * @deprecated (4.3) use {@link SocketOutputBuffer#create(Socket, int, Charset, int, CodingErrorAction, CodingErrorAction)}
      */
+    @Deprecated
     public SocketOutputBuffer(
             final Socket socket,
             int buffersize,
@@ -73,6 +71,72 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
             buffersize = 1024;
         }
         init(socket.getOutputStream(), buffersize, params);
+    }
+
+    SocketOutputBuffer(
+            final Socket socket,
+            int buffersize,
+            final Charset charset,
+            int minChunkLimit,
+            final CodingErrorAction malformedCharAction,
+            final CodingErrorAction unmappableCharAction) throws IOException {
+        super(socket.getOutputStream(), buffersize, charset, minChunkLimit,
+                malformedCharAction, unmappableCharAction);
+    }
+
+    /**
+     * Creates SocketOutputBuffer instance.
+     *
+     * @param socket socket
+     * @param buffersize buffer size. If this number is negative it is set to the value of
+     *   {@link Socket#getSendBufferSize()}. If resultant number is less than
+     *   <code>1024</code> it is set to <code>1024</code>.
+     * @param charset charset to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> US-ASCII will be used.
+     * @param minChunkLimit size limit below which data chunks should be buffered in memory
+     *   in order to minimize native method invocations on the underlying network socket.
+     *   The optimal value of this parameter can be platform specific and defines a trade-off
+     *   between performance of memory copy operations and that of native method invocation.
+     *   If negative default chunk limited will be used.
+     * @param malformedCharAction action to perform upon receiving a malformed input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT} will be used.
+     * @param unmappableCharAction action to perform upon receiving an unmappable input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT}  will be used.
+     *
+     * @since 4.3
+     */
+    public static SocketOutputBuffer create(
+            final Socket socket,
+            int buffersize,
+            final Charset charset,
+            int minChunkLimit,
+            final CodingErrorAction malformedCharAction,
+            final CodingErrorAction unmappableCharAction) throws IOException {
+        Args.notNull(socket, "Socket");
+        if (buffersize < 0) {
+            buffersize = socket.getSendBufferSize();
+        }
+        if (buffersize < 1024) {
+            buffersize = 1024;
+        }
+        return new SocketOutputBuffer(socket, buffersize, charset, minChunkLimit,
+                malformedCharAction, unmappableCharAction);
+    }
+
+    /**
+     * Creates SocketOutputBuffer instance.
+     *
+     * @param socket socket
+     * @param buffersize buffer size. If this number is negative it is set to the value of
+     *   {@link Socket#getSendBufferSize()}. If resultant number is less than
+     *   <code>1024</code> it is set to <code>1024</code>.
+     *
+     * @since 4.3
+     */
+    public static SocketOutputBuffer create(
+            final Socket socket,
+            int buffersize) throws IOException {
+        return create(socket, buffersize, null, -1, null, null);
     }
 
 }

@@ -31,10 +31,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.Consts;
 import org.apache.http.impl.io.AbstractSessionInputBuffer;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 
 /**
  * {@link org.apache.http.io.SessionInputBuffer} mockup implementation.
@@ -44,73 +45,71 @@ public class SessionInputBufferMock extends AbstractSessionInputBuffer {
     public static final int BUFFER_SIZE = 16;
 
     public SessionInputBufferMock(
-            final InputStream instream,
-            int buffersize,
-            final HttpParams params) {
-        super();
-        init(instream, buffersize, params);
+            final InputStream instream, 
+            int buffersize, 
+            final Charset charset,
+            int maxLineLen,
+            int minChunkLimit,
+            final CodingErrorAction malformedInputAction,
+            final CodingErrorAction unmappableInputAction) {
+        super(instream, buffersize, charset, maxLineLen, minChunkLimit, 
+                malformedInputAction, unmappableInputAction);
     }
 
     public SessionInputBufferMock(
             final InputStream instream,
             int buffersize) {
-        this(instream, buffersize, new BasicHttpParams());
+        this(instream, buffersize, null, -1, -1, null, null);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes,
-            final HttpParams params) {
-        this(bytes, BUFFER_SIZE, params);
+            int buffersize,
+            final Charset charset,
+            int maxLineLen,
+            int minChunkLimit,
+            final CodingErrorAction malformedInputAction,
+            final CodingErrorAction unmappableInputAction) {
+        this(new ByteArrayInputStream(bytes), buffersize, charset, maxLineLen, minChunkLimit, 
+                malformedInputAction, unmappableInputAction);
+    }
+
+    public SessionInputBufferMock(
+            final byte[] bytes,
+            int buffersize,
+            int maxLineLen) {
+        this(new ByteArrayInputStream(bytes), buffersize, Consts.ASCII, maxLineLen, -1, null, null);
+    }
+
+    public SessionInputBufferMock(
+            final byte[] bytes,
+            int buffersize) {
+        this(new ByteArrayInputStream(bytes), buffersize);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes) {
-        this(bytes, BUFFER_SIZE, new BasicHttpParams());
+        this(bytes, BUFFER_SIZE);
     }
 
     public SessionInputBufferMock(
-            final byte[] bytes,
-            int buffersize,
-            final HttpParams params) {
-        this(new ByteArrayInputStream(bytes), buffersize, params);
+            final byte[] bytes, final Charset charset) {
+        this(bytes, BUFFER_SIZE, charset, -1, -1, null, null);
     }
 
     public SessionInputBufferMock(
-            final byte[] bytes,
-            int buffersize) {
-        this(new ByteArrayInputStream(bytes), buffersize, new BasicHttpParams());
-    }
-
-    public SessionInputBufferMock(
-            final String s,
-            final String charset,
-            int buffersize,
-            final HttpParams params)
-        throws UnsupportedEncodingException {
-        this(s.getBytes(charset), buffersize, params);
+            final byte[] bytes, 
+            final Charset charset,
+            final CodingErrorAction malformedInputAction,
+            final CodingErrorAction unmappableInputAction) {
+        this(bytes, BUFFER_SIZE, charset, -1, -1, malformedInputAction, unmappableInputAction);
     }
 
     public SessionInputBufferMock(
             final String s,
-            final String charset,
-            int buffersize)
+            final Charset charset)
         throws UnsupportedEncodingException {
-        this(s.getBytes(charset), buffersize, new BasicHttpParams());
-    }
-
-    public SessionInputBufferMock(
-            final String s,
-            final String charset,
-            final HttpParams params)
-        throws UnsupportedEncodingException {
-        this(s.getBytes(charset), params);
-    }
-
-    public SessionInputBufferMock(
-            final String s,
-            final String charset)
-        throws UnsupportedEncodingException {
-        this(s.getBytes(charset), new BasicHttpParams());
+        this(s.getBytes(charset.name()), BUFFER_SIZE, charset, -1, -1, null, null);
 
     }
 

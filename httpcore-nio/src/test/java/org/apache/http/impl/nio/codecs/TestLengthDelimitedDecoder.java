@@ -41,8 +41,6 @@ import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -95,9 +93,8 @@ public class TestLengthDelimitedDecoder {
     public void testBasicDecoding() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
@@ -130,9 +127,8 @@ public class TestLengthDelimitedDecoder {
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
@@ -163,9 +159,8 @@ public class TestLengthDelimitedDecoder {
     public void testBasicDecodingSmallBuffer() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
@@ -217,9 +212,8 @@ public class TestLengthDelimitedDecoder {
     public void testDecodingFromSessionBuffer1() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         inbuf.fill(channel);
@@ -257,9 +251,8 @@ public class TestLengthDelimitedDecoder {
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         inbuf.fill(channel);
@@ -289,9 +282,8 @@ public class TestLengthDelimitedDecoder {
     public void testBasicDecodingFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 36);
@@ -318,9 +310,8 @@ public class TestLengthDelimitedDecoder {
     public void testDecodingFileWithBufferedSessionData() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 36);
@@ -350,9 +341,8 @@ public class TestLengthDelimitedDecoder {
     public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 36);
@@ -396,9 +386,8 @@ public class TestLengthDelimitedDecoder {
     public void testWriteBeyondFileSize() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"a"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 1);
@@ -424,9 +413,8 @@ public class TestLengthDelimitedDecoder {
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
@@ -459,9 +447,8 @@ public class TestLengthDelimitedDecoder {
     public void testInvalidConstructor() {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         try {
             new LengthDelimitedDecoder(null, null, null, 10);
@@ -494,9 +481,8 @@ public class TestLengthDelimitedDecoder {
         String s = "stuff";
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 3);
@@ -513,9 +499,8 @@ public class TestLengthDelimitedDecoder {
     public void testZeroLengthDecoding() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 0);
@@ -532,9 +517,8 @@ public class TestLengthDelimitedDecoder {
     public void testTruncatedContent() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 20);
@@ -550,9 +534,8 @@ public class TestLengthDelimitedDecoder {
     public void testTruncatedContentWithFile() throws Exception {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, "US-ASCII");
-        HttpParams params = new BasicHttpParams();
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, params);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 20);

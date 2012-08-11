@@ -58,39 +58,82 @@ import org.apache.http.util.CharArrayBuffer;
  * class treat a lone LF as valid line delimiters in addition to CR-LF required
  * by the HTTP specification.
  *
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
- * </ul>
  * @since 4.0
  */
 @NotThreadSafe
 public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, BufferInfo {
 
-    private static final Charset ASCII = Charset.forName("US-ASCII");
-
+    // TODO: make final
     private InputStream instream;
     private byte[] buffer;
+    private ByteArrayBuffer linebuffer;
+    private Charset charset;
+    private boolean ascii;
+    private int maxLineLen;
+    private int minChunkLimit;
+    private HttpTransportMetricsImpl metrics;
+    private CodingErrorAction onMalformedCharAction;
+    private CodingErrorAction onUnmappableCharAction;
+
     private int bufferpos;
     private int bufferlen;
-
-    private ByteArrayBuffer linebuffer = null;
-
-    private Charset charset;
     private CharsetDecoder decoder;
     private CharBuffer cbuf;
-    private boolean ascii = true;
-    private int maxLineLen = -1;
-    private int minChunkLimit = 512;
 
-    private HttpTransportMetricsImpl metrics;
+    /**
+     * Creates new instance of AbstractSessionInputBuffer.
+     *
+     * @param instream input stream.
+     * @param buffersize buffer size. Must be a positive number.
+     * @param charset charset to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> US-ASCII will be used.
+     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
+     *   this limit will cause an I/O error. A negative value will disable the check.
+     * @param minChunkLimit size limit below which data chunks should be buffered in memory
+     *   in order to minimize native method invocations on the underlying network socket.
+     *   The optimal value of this parameter can be platform specific and defines a trade-off
+     *   between performance of memory copy operations and that of native method invocation.
+     *   If negative default chunk limited will be used.
+     * @param malformedCharAction action to perform upon receiving a malformed input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT} will be used.
+     * @param unmappableCharAction action to perform upon receiving an unmappable input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT}  will be used.
+     *
+     * @since 4.3
+     */
+    protected AbstractSessionInputBuffer(
+            final InputStream instream,
+            int buffersize,
+            final Charset charset,
+            int maxLineLen,
+            int minChunkLimit,
+            final CodingErrorAction malformedCharAction,
+            final CodingErrorAction unmappableCharAction) {
+        Args.notNull(instream, "Input stream");
+        Args.positive(buffersize, "Buffer size");
+        this.instream = instream;
+        this.buffer = new byte[buffersize];
+        this.bufferpos = 0;
+        this.bufferlen = 0;
+        this.linebuffer = new ByteArrayBuffer(buffersize);
+        this.charset = charset != null ? charset : Consts.ASCII;
+        this.ascii = this.charset.equals(Consts.ASCII);
+        this.decoder = null;
+        this.maxLineLen = maxLineLen >= 0 ? maxLineLen : -1;
+        this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
+        this.metrics = createTransportMetrics();
+        this.onMalformedCharAction = malformedCharAction != null ? malformedCharAction :
+            CodingErrorAction.REPORT;
+        this.onUnmappableCharAction = unmappableCharAction != null? unmappableCharAction :
+            CodingErrorAction.REPORT;
+    }
 
-    private CodingErrorAction onMalformedInputAction;
-    private CodingErrorAction onUnMappableInputAction;
+    /**
+     * @deprecated (4.3)
+     */
+    @Deprecated
+    protected AbstractSessionInputBuffer() {
+    }
 
     /**
      * Initializes this session input buffer.
@@ -98,7 +141,11 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
      * @param instream the source input stream.
      * @param buffersize the size of the internal buffer.
      * @param params HTTP parameters.
+     *
+     * @deprecated (4.3) use constructor
+     *     {@link AbstractSessionInputBuffer#AbstractSessionInputBuffer(InputStream, int, HttpParams)}
      */
+    @Deprecated
     protected void init(final InputStream instream, int buffersize, final HttpParams params) {
         Args.notNull(instream, "Input stream");
         Args.notNegative(buffersize, "Buffer size");
@@ -110,17 +157,17 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         this.linebuffer = new ByteArrayBuffer(buffersize);
         String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
-        this.ascii = this.charset.equals(ASCII);
+        this.ascii = this.charset.equals(Consts.ASCII);
         this.decoder = null;
         this.maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
         CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-        this.onMalformedInputAction = a1 != null ? a1 : CodingErrorAction.REPORT;
+        this.onMalformedCharAction = a1 != null ? a1 : CodingErrorAction.REPORT;
         CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-        this.onUnMappableInputAction = a2 != null? a2 : CodingErrorAction.REPORT;
+        this.onUnmappableCharAction = a2 != null? a2 : CodingErrorAction.REPORT;
     }
 
     /**
@@ -357,8 +404,8 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         }
         if (this.decoder == null) {
             this.decoder = this.charset.newDecoder();
-            this.decoder.onMalformedInput(this.onMalformedInputAction);
-            this.decoder.onUnmappableCharacter(this.onUnMappableInputAction);
+            this.decoder.onMalformedInput(this.onMalformedCharAction);
+            this.decoder.onUnmappableCharacter(this.onUnmappableCharAction);
         }
         if (this.cbuf == null) {
             this.cbuf = CharBuffer.allocate(1024);

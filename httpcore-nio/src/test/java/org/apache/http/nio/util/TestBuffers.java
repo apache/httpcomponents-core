@@ -41,8 +41,6 @@ import org.apache.http.io.BufferInfo;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -90,8 +88,7 @@ public class TestBuffers {
     public void testOutputBufferOperations() throws IOException {
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel channel = Channels.newChannel(outstream);
-        HttpParams params = new BasicHttpParams();
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, params);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);
