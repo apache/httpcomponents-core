@@ -64,7 +64,7 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
         if (entity != null) {
             long len = entity.getContentLength();
             if (len > Integer.MAX_VALUE) {
-                throw new ContentTooLongException("Entity content is not long: " + len);
+                throw new ContentTooLongException("Entity content is too long: " + len);
             }
             if (len < 0) {
                 len = 4096;
