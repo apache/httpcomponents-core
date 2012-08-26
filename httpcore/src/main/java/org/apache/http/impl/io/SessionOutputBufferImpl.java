@@ -41,11 +41,9 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 import org.apache.http.util.ByteArrayBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -57,106 +55,94 @@ import org.apache.http.util.CharArrayBuffer;
  * {@link #writeLine(CharArrayBuffer)} and {@link #writeLine(String)} methods
  * of this class use CR-LF as a line delimiter.
  *
- * @since 4.0
- * 
- * @deprecated (4.3) use {@link SessionOutputBufferImpl}
+ * @since 4.3
  */
 @NotThreadSafe
-@Deprecated
-public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer, BufferInfo {
+public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
-    private OutputStream outstream;
-    private ByteArrayBuffer buffer;
-    private Charset charset;
-    private boolean ascii;
-    private int minChunkLimit;
-    private HttpTransportMetricsImpl metrics;
-    private CodingErrorAction onMalformedCharAction;
-    private CodingErrorAction onUnmappableCharAction;
+    private final HttpTransportMetricsImpl metrics;
+    private final ByteArrayBuffer buffer;
+    private final Charset charset;
+    private final boolean ascii;
+    private final int minChunkLimit;
+    private final CodingErrorAction onMalformedCharAction;
+    private final CodingErrorAction onUnmappableCharAction;
 
+    private OutputStream outstream;
     private CharsetEncoder encoder;
     private ByteBuffer bbuf;
 
-    protected AbstractSessionOutputBuffer(
-            final OutputStream outstream,
+    /**
+     * Creates new instance of SessionOutputBufferImpl.
+     *
+     * @param metrics HTTP transport metrics.
+     * @param buffersize buffer size. Must be a positive number.
+     * @param charset charset to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> US-ASCII will be used.
+     * @param minChunkLimit size limit below which data chunks should be buffered in memory
+     *   in order to minimize native method invocations on the underlying network socket.
+     *   The optimal value of this parameter can be platform specific and defines a trade-off
+     *   between performance of memory copy operations and that of native method invocation.
+     *   If negative default chunk limited will be used.
+     * @param malformedCharAction action to perform upon receiving a malformed input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT} will be used.
+     * @param unmappableCharAction action to perform upon receiving an unmappable input.
+     *   If <code>null</code> {@link CodingErrorAction#REPORT}  will be used.
+     */
+    public SessionOutputBufferImpl(
+            final HttpTransportMetricsImpl metrics,
             int buffersize,
-            final Charset charset,
             int minChunkLimit,
+            final Charset charset,
             final CodingErrorAction malformedCharAction,
             final CodingErrorAction unmappableCharAction) {
         super();
-        Args.notNull(outstream, "Input stream");
-        Args.notNegative(buffersize, "Buffer size");
-        this.outstream = outstream;
+        Args.positive(buffersize, "Buffer size");
+        Args.notNull(metrics, "HTTP transport metrcis");
+        this.metrics = metrics;
         this.buffer = new ByteArrayBuffer(buffersize);
         this.charset = charset != null ? charset : Consts.ASCII;
         this.ascii = this.charset.equals(Consts.ASCII);
         this.encoder = null;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
-        this.metrics = createTransportMetrics();
         this.onMalformedCharAction = malformedCharAction != null ? malformedCharAction :
             CodingErrorAction.REPORT;
         this.onUnmappableCharAction = unmappableCharAction != null? unmappableCharAction :
             CodingErrorAction.REPORT;
     }
 
-    protected AbstractSessionOutputBuffer() {
-    }
-
-    protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
-        Args.notNull(outstream, "Input stream");
-        Args.notNegative(buffersize, "Buffer size");
-        Args.notNull(params, "HTTP parameters");
+    public void bind(final OutputStream outstream) {
         this.outstream = outstream;
-        this.buffer = new ByteArrayBuffer(buffersize);
-        String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
-        this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
-        this.ascii = this.charset.equals(Consts.ASCII);
-        this.encoder = null;
-        this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
-        this.metrics = createTransportMetrics();
-        CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
-                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-        this.onMalformedCharAction = a1 != null ? a1 : CodingErrorAction.REPORT;
-        CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
-                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-        this.onUnmappableCharAction = a2 != null? a2 : CodingErrorAction.REPORT;
     }
 
-    /**
-     * @since 4.1
-     */
-    protected HttpTransportMetricsImpl createTransportMetrics() {
-        return new HttpTransportMetricsImpl();
-    }
-
-    /**
-     * @since 4.1
-     */
     public int capacity() {
         return this.buffer.capacity();
     }
 
-    /**
-     * @since 4.1
-     */
     public int length() {
         return this.buffer.length();
     }
 
-    /**
-     * @since 4.1
-     */
     public int available() {
         return capacity() - length();
     }
 
-    protected void flushBuffer() throws IOException {
+    private void streamWrite(final byte[] b, int off, int len) throws IOException {
+        Asserts.notNull(outstream, "Output stream");
+        this.outstream.write(b, off, len);
+    }
+
+    private void flushStream() throws IOException {
+        Asserts.notNull(outstream, "Output stream");
+        this.outstream.flush();
+    }
+
+    private void flushBuffer() throws IOException {
         int len = this.buffer.length();
         if (len > 0) {
-            this.outstream.write(this.buffer.buffer(), 0, len);
+            streamWrite(this.buffer.buffer(), 0, len);
             this.buffer.clear();
             this.metrics.incrementBytesTransferred(len);
         }
@@ -164,7 +150,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
 
     public void flush() throws IOException {
         flushBuffer();
-        this.outstream.flush();
+        flushStream();
     }
 
     public void write(final byte[] b, int off, int len) throws IOException {
@@ -178,7 +164,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
             // flush the buffer
             flushBuffer();
             // write directly to the out stream
-            this.outstream.write(b, off, len);
+            streamWrite(b, off, len);
             this.metrics.incrementBytesTransferred(len);
         } else {
             // Do not let the buffer grow unnecessarily

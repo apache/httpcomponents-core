@@ -35,31 +35,33 @@ import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
-import org.apache.http.impl.io.AbstractSessionInputBuffer;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.io.SessionInputBufferImpl;
 
 /**
  * {@link org.apache.http.io.SessionInputBuffer} mockup implementation.
  */
-public class SessionInputBufferMock extends AbstractSessionInputBuffer {
+public class SessionInputBufferMock extends SessionInputBufferImpl {
 
     public static final int BUFFER_SIZE = 16;
 
     public SessionInputBufferMock(
             final InputStream instream, 
             int buffersize, 
-            final Charset charset,
             int maxLineLen,
             int minChunkLimit,
+            final Charset charset,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction) {
-        super(instream, buffersize, charset, maxLineLen, minChunkLimit, 
-                malformedInputAction, unmappableInputAction);
+        super(new HttpTransportMetricsImpl(), buffersize, maxLineLen, minChunkLimit, 
+                charset, malformedInputAction, unmappableInputAction);
+        bind(instream);
     }
 
     public SessionInputBufferMock(
             final InputStream instream,
             int buffersize) {
-        this(instream, buffersize, null, -1, -1, null, null);
+        this(instream, buffersize, -1, -1, null, null, null);
     }
 
     public SessionInputBufferMock(
@@ -70,15 +72,15 @@ public class SessionInputBufferMock extends AbstractSessionInputBuffer {
             int minChunkLimit,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction) {
-        this(new ByteArrayInputStream(bytes), buffersize, charset, maxLineLen, minChunkLimit, 
-                malformedInputAction, unmappableInputAction);
+        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, minChunkLimit, 
+                charset, malformedInputAction, unmappableInputAction);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes,
             int buffersize,
             int maxLineLen) {
-        this(new ByteArrayInputStream(bytes), buffersize, Consts.ASCII, maxLineLen, -1, null, null);
+        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, -1, Consts.ASCII, null, null);
     }
 
     public SessionInputBufferMock(

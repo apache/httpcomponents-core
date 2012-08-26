@@ -33,26 +33,37 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.Consts;
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpInetConnection;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.impl.io.SocketInputBuffer;
-import org.apache.http.impl.io.SocketOutputBuffer;
-import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.io.SessionInputBufferImpl;
+import org.apache.http.impl.io.SessionOutputBufferImpl;
+import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
+import org.apache.http.util.CharsetUtils;
 
 /**
- * Implementation of a server-side HTTP connection that can be bound to a
- * network Socket in order to receive and transmit data.
+ * Implementation of a client-side HTTP connection that can be bound to an
+ * arbitrary {@link Socket} for receiving data from and transmitting data to
+ * a remote server.
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:
  * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_MALFORMED_INPUT_ACTION}</li>
+ *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_UNMAPPABLE_INPUT_ACTION}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
@@ -62,111 +73,90 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class SocketHttpServerConnection extends
-        AbstractHttpServerConnection implements HttpInetConnection {
+public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
+
+    private final SessionInputBufferImpl inbuffer;
+    private final SessionOutputBufferImpl outbuffer;
+    private final HttpTransportMetricsImpl inTransportMetrics;
+    private final HttpTransportMetricsImpl outTransportMetrics;
+    private final HttpConnectionMetricsImpl connMetrics;
 
     private volatile boolean open;
     private volatile Socket socket = null;
 
-    public SocketHttpServerConnection() {
+    public BHttpConnectionBase(final HttpParams params) {
         super();
+        Args.notNull(params, "HTTP parameters");
+        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
+        if (buffersize <= 0) {
+            buffersize = 4096;
+        }
+        Charset charset = CharsetUtils.lookup(
+                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
+        if (charset == null) {
+            charset = Consts.ASCII;
+        }
+        int maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
+        int minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, -1);
+        CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
+                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        this.inTransportMetrics = createTransportMetrics();
+        this.outTransportMetrics = createTransportMetrics();
+        this.inbuffer = new SessionInputBufferImpl(
+                this.inTransportMetrics, buffersize, maxLineLen, minChunkLimit,
+                charset, malformedCharAction, unmappableCharAction);
+        this.outbuffer = new SessionOutputBufferImpl(
+                this.outTransportMetrics, buffersize, minChunkLimit,
+                charset, malformedCharAction, unmappableCharAction);
+        this.connMetrics = createConnectionMetrics(
+                this.inTransportMetrics,
+                this.outTransportMetrics);
     }
 
     protected void assertNotOpen() {
-        if (this.open) {
-            throw new IllegalStateException("Connection is already open");
-        }
+        Asserts.check(!this.open, "Connection is already open");
     }
 
-    @Override
     protected void assertOpen() {
-        if (!this.open) {
-            throw new IllegalStateException("Connection is not open");
-        }
-    }
-
-    /**
-     * Creates an instance of {@link SocketInputBuffer} to be used for
-     * receiving data from the given {@link Socket}.
-     * <p>
-     * This method can be overridden in a super class in order to provide
-     * a custom implementation of {@link SessionInputBuffer} interface.
-     *
-     * @see SocketInputBuffer#SocketInputBuffer(Socket, int, HttpParams)
-     *
-     * @param socket the socket.
-     * @param buffersize the buffer size.
-     * @param params HTTP parameters.
-     * @return session input buffer.
-     * @throws IOException in case of an I/O error.
-     */
-    protected SessionInputBuffer createSessionInputBuffer(
-            final Socket socket,
-            int buffersize,
-            final HttpParams params) throws IOException {
-        return new SocketInputBuffer(socket, buffersize, params);
-    }
-
-    /**
-     * Creates an instance of {@link SessionOutputBuffer} to be used for
-     * sending data to the given {@link Socket}.
-     * <p>
-     * This method can be overridden in a super class in order to provide
-     * a custom implementation of {@link SocketOutputBuffer} interface.
-     *
-     * @see SocketOutputBuffer#SocketOutputBuffer(Socket, int, HttpParams)
-     *
-     * @param socket the socket.
-     * @param buffersize the buffer size.
-     * @param params HTTP parameters.
-     * @return session output buffer.
-     * @throws IOException in case of an I/O error.
-     */
-    protected SessionOutputBuffer createSessionOutputBuffer(
-            final Socket socket,
-            int buffersize,
-            final HttpParams params) throws IOException {
-        return new SocketOutputBuffer(socket, buffersize, params);
+        Asserts.check(this.open, "Connection is not open");
     }
 
     /**
      * Binds this connection to the given {@link Socket}. This socket will be
      * used by the connection to send and receive data.
-     * <p>
-     * This method will invoke {@link #createSessionInputBuffer(Socket, int, HttpParams)}
-     * and {@link #createSessionOutputBuffer(Socket, int, HttpParams)} methods
-     * to create session input / output buffers bound to this socket and then
-     * will invoke {@link #init(SessionInputBuffer, SessionOutputBuffer, HttpParams)}
-     * method to pass references to those buffers to the underlying HTTP message
-     * parser and formatter.
-     * <p>
+     * <p/>
      * After this method's execution the connection status will be reported
      * as open and the {@link #isOpen()} will return <code>true</code>.
      *
      * @param socket the socket.
-     * @param params HTTP parameters.
      * @throws IOException in case of an I/O error.
      */
-    protected void bind(final Socket socket, final HttpParams params) throws IOException {
+    protected void bind(final Socket socket) throws IOException {
         Args.notNull(socket, "Socket");
-        Args.notNull(params, "HTTP parameters");
         this.socket = socket;
-
-        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
-        init(
-                createSessionInputBuffer(socket, buffersize, params),
-                createSessionOutputBuffer(socket, buffersize, params),
-                params);
-
         this.open = true;
+        this.inbuffer.bind(socket.getInputStream());
+        this.outbuffer.bind(socket.getOutputStream());
+    }
+
+    public boolean isOpen() {
+        return this.open;
     }
 
     protected Socket getSocket() {
         return this.socket;
     }
 
-    public boolean isOpen() {
-        return this.open;
+    protected HttpTransportMetricsImpl createTransportMetrics() {
+        return new HttpTransportMetricsImpl();
+    }
+
+    protected HttpConnectionMetricsImpl createConnectionMetrics(
+            final HttpTransportMetrics inTransportMetric,
+            final HttpTransportMetrics outTransportMetric) {
+        return new HttpConnectionMetricsImpl(inTransportMetric, outTransportMetric);
     }
 
     public InetAddress getLocalAddress() {
@@ -239,10 +229,9 @@ public class SocketHttpServerConnection extends
             return;
         }
         this.open = false;
-        this.open = false;
         Socket sock = this.socket;
         try {
-            doFlush();
+            this.outbuffer.flush();
             try {
                 try {
                     sock.shutdownOutput();
@@ -258,6 +247,35 @@ public class SocketHttpServerConnection extends
         } finally {
             sock.close();
         }
+    }
+
+    public boolean isStale() {
+        if (!isOpen()) {
+            return true;
+        }
+        if (this.inbuffer.hasBufferedData()) {
+            return false;
+        }
+        try {
+            int oldtimeout = this.socket.getSoTimeout();
+            try {
+                this.socket.setSoTimeout(1);
+                int i = this.inbuffer.fillBuffer();
+                return i == -1;
+            } catch (SocketTimeoutException ex) {
+                throw ex;
+            } finally {
+                this.socket.setSoTimeout(oldtimeout);
+            }
+        } catch (SocketTimeoutException ex) {
+            return false;
+        } catch (IOException ex) {
+            return true;
+        }
+    }
+
+    public HttpConnectionMetrics getMetrics() {
+        return this.connMetrics;
     }
 
     private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {

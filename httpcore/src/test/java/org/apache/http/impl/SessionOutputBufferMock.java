@@ -31,13 +31,14 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 
-import org.apache.http.impl.io.AbstractSessionOutputBuffer;
+import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.io.SessionOutputBufferImpl;
 
 /**
  * {@link org.apache.http.io.SessionOutputBuffer} mockup implementation.
  *
  */
-public class SessionOutputBufferMock extends AbstractSessionOutputBuffer {
+public class SessionOutputBufferMock extends SessionOutputBufferImpl {
 
     public static final int BUFFER_SIZE = 16;
 
@@ -46,36 +47,37 @@ public class SessionOutputBufferMock extends AbstractSessionOutputBuffer {
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer, 
             int buffersize, 
-            final Charset charset,
             int minChunkLimit,
+            final Charset charset,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction) {
-        super(buffer, buffersize, charset, 
-                minChunkLimit, malformedInputAction, unmappableInputAction);
+        super(new HttpTransportMetricsImpl(), buffersize, minChunkLimit, 
+                charset, malformedInputAction, unmappableInputAction);
+        bind(buffer);
         this.buffer = buffer;
     }
 
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
             int buffersize) {
-        this(buffer, buffersize, null, -1, null, null);
+        this(buffer, buffersize, -1, null, null, null);
     }
 
     public SessionOutputBufferMock(
             final Charset charset,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction) {
-        this(new ByteArrayOutputStream(), BUFFER_SIZE, charset, -1, 
-                malformedInputAction, unmappableInputAction);
+        this(new ByteArrayOutputStream(), BUFFER_SIZE, -1, 
+                charset, malformedInputAction, unmappableInputAction);
     }
     
     public SessionOutputBufferMock(
             final Charset charset) {
-        this(new ByteArrayOutputStream(), BUFFER_SIZE, charset, -1, null, null);
+        this(new ByteArrayOutputStream(), BUFFER_SIZE, -1, charset, null, null);
     }
 
     public SessionOutputBufferMock(final ByteArrayOutputStream buffer) {
-        this(buffer, BUFFER_SIZE, null, -1, null, null);
+        this(buffer, BUFFER_SIZE, -1, null, null, null);
     }
 
     public SessionOutputBufferMock() {
