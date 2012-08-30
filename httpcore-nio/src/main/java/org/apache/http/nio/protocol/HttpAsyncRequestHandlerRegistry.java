@@ -47,8 +47,10 @@ import org.apache.http.protocol.UriPatternMatcher;
  * will be used to process the request with the specified request URI.
  *
  * @since 4.2
+ * @deprecated (4.3) use {@link UriHttpAsyncRequestHandlerMapper}
  */
 @ThreadSafe
+@Deprecated
 public class HttpAsyncRequestHandlerRegistry implements HttpAsyncRequestHandlerResolver {
 
     private final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher;

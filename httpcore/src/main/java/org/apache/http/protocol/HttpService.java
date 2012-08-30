@@ -60,7 +60,7 @@ import org.apache.http.util.EntityUtils;
  * individual {@link HttpRequestHandler}s are expected to implement
  * application specific content generation and processing.
  * <p/>
- * <tt>HttpService</tt> uses {@link HttpRequestHandlerResolver} to resolve
+ * <tt>HttpService</tt> uses {@link HttpRequestHandlerMapper} to map
  * matching request handler for a particular request URI of an incoming HTTP
  * request.
  * <p/>
@@ -77,10 +77,38 @@ public class HttpService {
      */
     private volatile HttpParams params = null;
     private volatile HttpProcessor processor = null;
-    private volatile HttpRequestHandlerResolver handlerResolver = null;
+    private volatile HttpRequestHandlerMapper handlerMapper = null;
     private volatile ConnectionReuseStrategy connStrategy = null;
     private volatile HttpResponseFactory responseFactory = null;
     private volatile HttpExpectationVerifier expectationVerifier = null;
+
+    /**
+     * Create a new HTTP service.
+     *
+     * @param processor            the processor to use on requests and responses
+     * @param connStrategy         the connection reuse strategy
+     * @param responseFactory      the response factory
+     * @param handlerMapper        the handler mapper. May be null.
+     * @param expectationVerifier  the expectation verifier. May be null.
+     * @param params               the HTTP parameters
+     *
+     * @since 4.3
+     */
+    public HttpService(
+            final HttpProcessor processor,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory,
+            final HttpRequestHandlerMapper handlerMapper,
+            final HttpExpectationVerifier expectationVerifier,
+            final HttpParams params) {
+        super();
+        this.processor =  Args.notNull(processor, "HTTP processor");
+        this.connStrategy =  Args.notNull(connStrategy, "Connection reuse strategy");
+        this.responseFactory =  Args.notNull(responseFactory, "Response factory");
+        this.params = Args.notNull(params, "HTTP parameters");
+        this.handlerMapper = handlerMapper;
+        this.expectationVerifier = expectationVerifier;
+    }
 
     /**
      * Create a new HTTP service.
@@ -93,7 +121,10 @@ public class HttpService {
      * @param params               the HTTP parameters
      *
      * @since 4.1
+     * @deprecated (4.3) use {@link HttpService#HttpService(HttpProcessor,
+     *  ConnectionReuseStrategy, HttpResponseFactory, HttpRequestHandlerMapper, HttpExpectationVerifier, HttpParams)}
      */
+    @Deprecated
     public HttpService(
             final HttpProcessor processor,
             final ConnectionReuseStrategy connStrategy,
@@ -101,13 +132,32 @@ public class HttpService {
             final HttpRequestHandlerResolver handlerResolver,
             final HttpExpectationVerifier expectationVerifier,
             final HttpParams params) {
-        super();
-        this.processor =  Args.notNull(processor, "HTTP processor");
-        this.connStrategy =  Args.notNull(connStrategy, "Connection reuse strategy");
-        this.responseFactory =  Args.notNull(responseFactory, "Response factory");
-        this.params = Args.notNull(params, "HTTP parameters");
-        this.handlerResolver = handlerResolver;
-        this.expectationVerifier = expectationVerifier;
+        this(processor,
+             connStrategy,
+             responseFactory,
+             new HttpRequestHandlerResolverAdapter(handlerResolver),
+             expectationVerifier,
+             params);
+    }
+
+    /**
+     * Create a new HTTP service.
+     *
+     * @param processor            the processor to use on requests and responses
+     * @param connStrategy         the connection reuse strategy
+     * @param responseFactory      the response factory
+     * @param handlerMapper        the handler mapper. May be null.
+     * @param params               the HTTP parameters
+     *
+     * @since 4.3
+     */
+    public HttpService(
+            final HttpProcessor processor,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory,
+            final HttpRequestHandlerMapper handlerMapper,
+            final HttpParams params) {
+        this(processor, connStrategy, responseFactory, handlerMapper, null, params);
     }
 
     /**
@@ -120,6 +170,8 @@ public class HttpService {
      * @param params               the HTTP parameters
      *
      * @since 4.1
+     * @deprecated (4.3) use {@link HttpService#HttpService(HttpProcessor,
+     *  ConnectionReuseStrategy, HttpResponseFactory, HttpRequestHandlerMapper, HttpParams)}
      */
     public HttpService(
             final HttpProcessor processor,
@@ -127,7 +179,12 @@ public class HttpService {
             final HttpResponseFactory responseFactory,
             final HttpRequestHandlerResolver handlerResolver,
             final HttpParams params) {
-        this(processor, connStrategy, responseFactory, handlerResolver, null, params);
+        this(processor,
+             connStrategy,
+             responseFactory,
+             new HttpRequestHandlerResolverAdapter(handlerResolver),
+             null,
+             params);
     }
 
     /**
@@ -191,7 +248,7 @@ public class HttpService {
      */
     @Deprecated
     public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
-        this.handlerResolver = handlerResolver;
+        this.handlerMapper = new HttpRequestHandlerResolverAdapter(handlerResolver);
     }
 
     /**
@@ -350,15 +407,31 @@ public class HttpService {
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
         HttpRequestHandler handler = null;
-        if (this.handlerResolver != null) {
-            String requestURI = request.getRequestLine().getUri();
-            handler = this.handlerResolver.lookup(requestURI);
+        if (this.handlerMapper != null) {
+            handler = this.handlerMapper.lookup(request);
         }
         if (handler != null) {
             handler.handle(request, response, context);
         } else {
             response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
         }
+    }
+    
+    /**
+     * Adaptor class to transition from HttpRequestHandlerResolver to HttpRequestHandlerMapper.
+     */
+    private static class HttpRequestHandlerResolverAdapter implements HttpRequestHandlerMapper {
+        
+        private final HttpRequestHandlerResolver resolver;
+        
+        public HttpRequestHandlerResolverAdapter(final HttpRequestHandlerResolver resolver) {
+            this.resolver = resolver;
+        }
+
+        public HttpRequestHandler lookup(HttpRequest request) {
+            return resolver.lookup(request.getRequestLine().getUri());
+        }
+        
     }
 
 }

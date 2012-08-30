@@ -48,8 +48,10 @@ import org.apache.http.util.Args;
  * specified request URI.
  *
  * @since 4.0
+ * @deprecated (4.3) use {@link UriHttpRequestHandlerMapper}
  */
 @ThreadSafe // provided injected dependencies are thread-safe
+@Deprecated
 public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
 
     private final UriPatternMatcher<HttpRequestHandler> matcher;

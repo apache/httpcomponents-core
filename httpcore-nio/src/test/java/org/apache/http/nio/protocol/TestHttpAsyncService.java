@@ -110,22 +110,22 @@ public class TestHttpAsyncService {
     @Test
     public void testInvalidConstruction() throws Exception {
         try {
-            new HttpAsyncService(null, this.reuseStrategy, this.responseFactory, null, null, this.params);
+            new HttpAsyncService(null, this.reuseStrategy, this.responseFactory, (HttpAsyncRequestHandlerMapper)null, null, this.params);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncService(this.httpProcessor, null, this.responseFactory, null, null, this.params);
+            new HttpAsyncService(this.httpProcessor, null, this.responseFactory, (HttpAsyncRequestHandlerMapper)null, null, this.params);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncService(this.httpProcessor, this.reuseStrategy, null, null, null, this.params);
+            new HttpAsyncService(this.httpProcessor, this.reuseStrategy, null, (HttpAsyncRequestHandlerMapper)null, null, this.params);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
         try {
-            new HttpAsyncService(this.httpProcessor, this.reuseStrategy, this.responseFactory, null, null, null);
+            new HttpAsyncService(this.httpProcessor, this.reuseStrategy, this.responseFactory, (HttpAsyncRequestHandlerMapper)null, null, null);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }

@@ -28,13 +28,15 @@
 package org.apache.http.nio.protocol;
 
 /**
- * <tt>HttpAsyncRequestHandlerResolver</tt> can be used to resolve an instance
+ * <tt>HttpAsyncRequestHandlerResolver</tt> can be used to map an instance
  * of {@link HttpAsyncRequestHandler} matching a particular request URI.
- * Usually the resolved request handler will be used to process the request
+ * Usually the mapped request handler will be used to process the request
  * with the specified request URI.
  *
  * @since 4.2
+ * @deprecated see {@link HttpAsyncRequestHandlerMapper}
  */
+@Deprecated
 public interface HttpAsyncRequestHandlerResolver {
 
     /**
