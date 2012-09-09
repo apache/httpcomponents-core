@@ -65,7 +65,7 @@ import org.mockito.Mockito;
 
 public class TestHttpAsyncService {
 
-    private HttpAsyncRequestHandlerRegistry handlerResolver;
+    private UriHttpAsyncRequestHandlerMapper handlerResolver;
     private HttpAsyncService protocolHandler;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy reuseStrategy;
@@ -86,7 +86,7 @@ public class TestHttpAsyncService {
         this.requestHandler = Mockito.mock(HttpAsyncRequestHandler.class);
         this.requestConsumer = Mockito.mock(HttpAsyncRequestConsumer.class);
         this.responseProducer = Mockito.mock(HttpAsyncResponseProducer.class);
-        this.handlerResolver = new HttpAsyncRequestHandlerRegistry();
+        this.handlerResolver = new UriHttpAsyncRequestHandlerMapper();
         this.handlerResolver.register("/", this.requestHandler);
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);

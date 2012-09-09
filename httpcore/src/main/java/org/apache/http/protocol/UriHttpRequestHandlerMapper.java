@@ -95,8 +95,6 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
     /**
      * Get the handler map.
      * @return The map of handlers and their associated URI patterns.
-     *
-     * @since 4.3
      */
     public Map<String, HttpRequestHandler> getHandlers() {
         return matcher.getObjects();

@@ -51,13 +51,13 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 
 public class HttpServer {
 
@@ -65,7 +65,7 @@ public class HttpServer {
     private final HttpProcessor httpproc;
     private final ConnectionReuseStrategy connStrategy;
     private final HttpResponseFactory responseFactory;
-    private final HttpRequestHandlerRegistry reqistry;
+    private final UriHttpRequestHandlerMapper reqistry;
     private final ServerSocket serversocket;
 
     private HttpExpectationVerifier expectationVerifier;
@@ -91,7 +91,7 @@ public class HttpServer {
                 });
         this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
         this.responseFactory = DefaultHttpResponseFactory.INSTANCE;
-        this.reqistry = new HttpRequestHandlerRegistry();
+        this.reqistry = new UriHttpRequestHandlerMapper();
         this.serversocket = new ServerSocket(0);
     }
 

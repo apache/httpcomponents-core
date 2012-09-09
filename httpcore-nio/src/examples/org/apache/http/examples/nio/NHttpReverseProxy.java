@@ -70,13 +70,13 @@ import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncRequestHandlerRegistry;
-import org.apache.http.nio.protocol.HttpAsyncRequestHandlerResolver;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncService;
+import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
@@ -160,7 +160,7 @@ public class NHttpReverseProxy {
         connPool.setMaxTotal(100);
         connPool.setDefaultMaxPerRoute(20);
 
-        HttpAsyncRequestHandlerRegistry handlerRegistry = new HttpAsyncRequestHandlerRegistry();
+        UriHttpAsyncRequestHandlerMapper handlerRegistry = new UriHttpAsyncRequestHandlerMapper();
         handlerRegistry.register("*", new ProxyRequestHandler(targetHost, executor, connPool));
 
         ProxyServiceHandler serviceHandler = new ProxyServiceHandler(
@@ -795,7 +795,7 @@ public class NHttpReverseProxy {
         public ProxyServiceHandler(
                 final HttpProcessor httpProcessor,
                 final ConnectionReuseStrategy reuseStrategy,
-                final HttpAsyncRequestHandlerResolver handlerResolver,
+                final HttpAsyncRequestHandlerMapper handlerResolver,
                 final HttpParams params) {
             super(httpProcessor, reuseStrategy, handlerResolver, params);
         }

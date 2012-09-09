@@ -840,6 +840,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     /**
      * Adaptor class to transition from HttpAsyncRequestHandlerResolver to HttpAsyncRequestHandlerMapper.
      */
+    @Deprecated
     private static class HttpAsyncRequestHandlerResolverAdapter implements HttpAsyncRequestHandlerMapper {
         
         private final HttpAsyncRequestHandlerResolver resolver;

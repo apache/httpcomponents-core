@@ -37,6 +37,7 @@ import org.apache.http.HttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
 
+@Deprecated
 public class TestHttpRequestHandlerRegistry {
 
     private static class DummyHttpRequestHandler implements HttpRequestHandler {

@@ -57,7 +57,6 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerRegistry;
 import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
@@ -69,6 +68,7 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 
 /**
  * Rudimentary HTTP/1.1 reverse proxy.
@@ -208,7 +208,7 @@ public class ElementalReverseProxy {
             HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
             // Set up incoming request handler
-            HttpRequestHandlerRegistry reqistry = new HttpRequestHandlerRegistry();
+            UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
             reqistry.register("*", new ProxyHandler(
                     this.target,
                     outhttpproc,
