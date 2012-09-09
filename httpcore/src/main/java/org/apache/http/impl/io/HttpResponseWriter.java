@@ -40,8 +40,11 @@ import org.apache.http.params.HttpParams;
  * of {@link SessionOutputBuffer}.
  *
  * @since 4.0
+ * 
+ * @deprecated (4.3) use {@link DefaultHttpResponseWriter}
  */
 @NotThreadSafe
+@Deprecated
 public class HttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
 
     public HttpResponseWriter(final SessionOutputBuffer buffer,

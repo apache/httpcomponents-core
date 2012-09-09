@@ -49,13 +49,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Abstract base class for HTTP message parsers that obtain input from
  * an instance of {@link SessionInputBuffer}.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -75,12 +68,15 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
     private T message;
 
     /**
-     * Creates an instance of this class.
+     * Creates an instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
      * @param parser the line parser.
      * @param params HTTP parameters.
+     * 
+     * @deprecated (4.3)
      */
+    @Deprecated
     public AbstractMessageParser(
             final SessionInputBuffer buffer,
             final LineParser parser,
@@ -94,6 +90,34 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         this.maxLineLen = params.getIntParameter(
                 CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
+        this.headerLines = new ArrayList<CharArrayBuffer>();
+        this.state = HEAD_LINE;
+    }
+
+    /**
+     * Creates new instance of AbstractMessageParser.
+     *
+     * @param buffer the session input buffer.
+     * @param maxHeaderCount maximum header count limit. If set to a positive value, total number of 
+     *   headers in a message exceeding this limit will cause an I/O error. A negative value will 
+     *   disable the check.
+     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
+     *   this limit will cause an I/O error. A negative value will disable the check.
+     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} 
+     *   will be used
+     * 
+     * @since 4.3
+     */
+    public AbstractMessageParser(
+            final SessionInputBuffer buffer,
+            int maxHeaderCount,
+            int maxLineLen,
+            final LineParser parser) {
+        super();
+        this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
+        this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
+        this.maxHeaderCount = maxHeaderCount;
+        this.maxLineLen = maxLineLen;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
     }

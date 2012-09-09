@@ -33,6 +33,8 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.nio.NHttpMessageParser;
@@ -43,13 +45,6 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Default {@link NHttpMessageParser} implementation for {@link HttpResponse}s.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @since 4.1
  */
@@ -58,6 +53,11 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
 
     private final HttpResponseFactory responseFactory;
 
+    /**
+     * @deprecated (4.3) use 
+     *   {@link DefaultHttpResponseParser#DefaultHttpResponseParser(SessionInputBuffer, int, int, LineParser, HttpResponseFactory)}
+     */
+    @Deprecated
     public DefaultHttpResponseParser(
             final SessionInputBuffer buffer,
             final LineParser parser,
@@ -66,6 +66,40 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
         super(buffer, parser, params);
         Args.notNull(responseFactory, "Response factory");
         this.responseFactory = responseFactory;
+    }
+
+    /**
+     * Creates an instance of DefaultHttpResponseParser.
+     *
+     * @param buffer the session input buffer.
+     * @param maxHeaderCount maximum header count limit. If set to a positive value, total number of 
+     *   headers in a message exceeding this limit will cause an I/O error. A negative value will 
+     *   disable the check.
+     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
+     *   this limit will cause an I/O error. A negative value will disable the check.
+     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} will
+     *   be used. 
+     * @param responseFactory the response factory. If <code>null</code> 
+     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used. 
+     * 
+     * @since 4.3
+     */
+    public DefaultHttpResponseParser(
+            final SessionInputBuffer buffer,
+            int maxHeaderCount,
+            int maxLineLen,
+            final LineParser parser,
+            final HttpResponseFactory responseFactory) {
+        super(buffer, maxHeaderCount, maxLineLen, parser);
+        this.responseFactory = responseFactory != null ? responseFactory : 
+            DefaultHttpResponseFactory.INSTANCE;
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultHttpResponseParser(final SessionInputBuffer buffer) {
+        this(buffer, -1, -1, null, null);
     }
 
     @Override

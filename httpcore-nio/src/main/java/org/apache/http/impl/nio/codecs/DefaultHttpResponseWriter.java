@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -45,10 +46,30 @@ import org.apache.http.util.CharArrayBuffer;
 @NotThreadSafe
 public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
 
+    /**
+     * @deprecated (4.3) use 
+     *   {@link DefaultHttpResponseWriter#DefaultHttpResponseWriter(SessionOutputBuffer, LineFormatter)}
+     */
+    @Deprecated
     public DefaultHttpResponseWriter(final SessionOutputBuffer buffer,
                               final LineFormatter formatter,
                               final HttpParams params) {
         super(buffer, formatter, params);
+    }
+
+    /**
+     * Creates an instance of DefaultHttpResponseWriter.
+     *
+     * @param buffer the session output buffer.
+     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
+     *   will be used.
+     * 
+     * @since 4.3
+     */
+    public DefaultHttpResponseWriter(
+            final SessionOutputBuffer buffer,
+            final LineFormatter formatter) {
+        super(buffer, formatter);
     }
 
     @Override

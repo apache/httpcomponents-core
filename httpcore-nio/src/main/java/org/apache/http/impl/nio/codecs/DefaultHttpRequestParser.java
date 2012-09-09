@@ -33,6 +33,8 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.nio.NHttpMessageParser;
@@ -43,13 +45,6 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Default {@link NHttpMessageParser} implementation for {@link HttpRequest}s.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @since 4.1
  */
@@ -58,6 +53,17 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
 
     private final HttpRequestFactory requestFactory;
 
+    /**
+     * Creates an instance of this class.
+     *
+     * @param buffer the session input buffer.
+     * @param parser the line parser.
+     * @param params HTTP parameters.
+     * 
+     * @deprecated (4.3) use 
+     *   {@link DefaultHttpRequestParser#DefaultHttpRequestParser(SessionInputBuffer, int, int, LineParser, HttpRequestFactory)}
+     */
+    @Deprecated
     public DefaultHttpRequestParser(
             final SessionInputBuffer buffer,
             final LineParser parser,
@@ -68,6 +74,39 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
         this.requestFactory = requestFactory;
     }
 
+    /**
+     * Creates an instance of DefaultHttpRequestParser.
+     *
+     * @param buffer the session input buffer.
+     * @param maxHeaderCount maximum header count limit. If set to a positive value, total number of 
+     *   headers in a message exceeding this limit will cause an I/O error. A negative value will 
+     *   disable the check.
+     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
+     *   this limit will cause an I/O error. A negative value will disable the check.
+     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} will
+     *   be used. 
+     * @param requestFactory the request factory. If <code>null</code> 
+     *   {@link DefaultHttpRequestFactory#INSTANCE} will be used.
+     * 
+     * @since 4.3
+     */
+    public DefaultHttpRequestParser(
+            final SessionInputBuffer buffer,
+            int maxHeaderCount,
+            int maxLineLen,
+            final LineParser parser,
+            final HttpRequestFactory requestFactory) {
+        super(buffer, maxHeaderCount, maxLineLen, parser);
+        this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
+    }
+
+    /**
+    * @since 4.3
+    */
+    public DefaultHttpRequestParser(final SessionInputBuffer buffer) {
+        this(buffer, -1, -1, null, null);
+    }
+    
     @Override
     protected HttpRequest createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {

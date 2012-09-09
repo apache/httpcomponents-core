@@ -43,7 +43,6 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
-import org.apache.http.params.BasicHttpParams;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -57,31 +56,9 @@ public class TestRequestParser {
         try {
             new DefaultHttpRequestParser(
                     null,
+                    -1, -1,
                     BasicLineParser.INSTANCE,
-                    DefaultHttpRequestFactory.INSTANCE,
-                    new BasicHttpParams());
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
-            new DefaultHttpRequestParser(
-                    inbuffer,
-                    BasicLineParser.INSTANCE,
-                    null,
-                    new BasicHttpParams());
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
-            new DefaultHttpRequestParser(
-                    inbuffer,
-                    BasicLineParser.INSTANCE,
-                    DefaultHttpRequestFactory.INSTANCE,
-                    null);
+                    DefaultHttpRequestFactory.INSTANCE);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
             // expected
@@ -100,9 +77,9 @@ public class TestRequestParser {
 
         DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 inbuffer,
+                -1, -1,
                 BasicLineParser.INSTANCE,
-                DefaultHttpRequestFactory.INSTANCE,
-                new BasicHttpParams());
+                DefaultHttpRequestFactory.INSTANCE);
 
         HttpRequest httprequest = parser.parse();
 
@@ -121,9 +98,9 @@ public class TestRequestParser {
 
         DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 inbuffer,
+                -1, -1,
                 BasicLineParser.INSTANCE,
-                DefaultHttpRequestFactory.INSTANCE,
-                new BasicHttpParams());
+                DefaultHttpRequestFactory.INSTANCE);
 
         try {
             parser.parse();
@@ -145,9 +122,9 @@ public class TestRequestParser {
 
         DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 inbuffer,
+                -1, -1,
                 BasicLineParser.INSTANCE,
-                DefaultHttpRequestFactory.INSTANCE,
-                new BasicHttpParams());
+                DefaultHttpRequestFactory.INSTANCE);
 
         int timeoutCount = 0;
 

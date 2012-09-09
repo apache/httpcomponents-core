@@ -49,13 +49,6 @@ import org.apache.http.util.CharArrayBuffer;
 /**
  * Abstract {@link NHttpMessageParser} that serves as a base for all message
  * parser implementations.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -85,8 +78,13 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      * @param buffer the session input buffer.
      * @param parser the line parser.
      * @param params HTTP parameters.
+     * 
+     * @deprecated (4.3) use 
+     *   {@link AbstractMessageParser#AbstractMessageParser(SessionInputBuffer, int, int, LineParser)}
      */
-    public AbstractMessageParser(final SessionInputBuffer buffer, final LineParser parser, final HttpParams params) {
+    @Deprecated
+    public AbstractMessageParser(final SessionInputBuffer buffer, final LineParser parser, 
+            final HttpParams params) {
         super();
         Args.notNull(buffer, "Session input buffer");
         Args.notNull(params, "HTTP parameters");
@@ -99,6 +97,35 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         this.maxHeaderCount = params.getIntParameter(
                 CoreConnectionPNames.MAX_HEADER_COUNT, -1);
         this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
+    }
+
+    /**
+     * Creates an instance of AbstractMessageParser.
+     *
+     * @param buffer the session input buffer.
+     * @param maxHeaderCount maximum header count limit. If set to a positive value, total number of 
+     *   headers in a message exceeding this limit will cause an I/O error. A negative value will 
+     *   disable the check.
+     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
+     *   this limit will cause an I/O error. A negative value will disable the check.
+     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} will
+     *   be used. 
+     * 
+     * @since 4.3
+     */
+    public AbstractMessageParser(
+            final SessionInputBuffer buffer, 
+            int maxHeaderCount,
+            int maxLineLen,
+            final LineParser parser) {
+        super();
+        this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
+        this.maxHeaderCount = maxHeaderCount;
+        this.maxLineLen = maxLineLen;
+        this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
+        this.headerBufs = new ArrayList<CharArrayBuffer>();
+        this.state = READ_HEAD_LINE;
+        this.endOfStream = false;
     }
 
     public void reset() {

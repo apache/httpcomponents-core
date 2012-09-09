@@ -32,25 +32,28 @@ import java.io.IOException;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
-import org.apache.http.params.HttpParams;
 
 /**
- * HTTP request writer that serializes its output to an instance
- * of {@link SessionOutputBuffer}.
+ * HTTP request writer that serializes its output to an instance of {@link SessionOutputBuffer}.
  *
- * @since 4.0
- * 
- * @deprecated (4.3) use {@link DefaultHttpRequestWriter}
+ * @since 4.3
  */
 @NotThreadSafe
-@Deprecated
-public class HttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
+public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
 
-    public HttpRequestWriter(final SessionOutputBuffer buffer,
-                             final LineFormatter formatter,
-                             final HttpParams params) {
-        super(buffer, formatter, params);
+    /**
+     * Creates an instance of DefaultHttpRequestWriter.
+     *
+     * @param buffer the session output buffer.
+     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
+     *   will be used.
+     */
+    public DefaultHttpRequestWriter(
+            final SessionOutputBuffer buffer,
+            final LineFormatter formatter) {
+        super(buffer, formatter);
     }
 
     @Override

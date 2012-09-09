@@ -61,7 +61,11 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
      * @param buffer the session output buffer.
      * @param formatter the line formatter.
      * @param params HTTP parameters.
+     * 
+     * @deprecated (4.3) use 
+     *   {@link AbstractMessageWriter#AbstractMessageWriter(SessionOutputBuffer, LineFormatter)}
      */
+    @Deprecated
     public AbstractMessageWriter(final SessionOutputBuffer buffer,
                                  final LineFormatter formatter,
                                  final HttpParams params) {
@@ -70,6 +74,24 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
         this.sessionBuffer = buffer;
         this.lineBuf = new CharArrayBuffer(128);
         this.lineFormatter = (formatter != null) ? formatter : BasicLineFormatter.INSTANCE;
+    }
+
+    /**
+     * Creates an instance of AbstractMessageWriter.
+     *
+     * @param buffer the session output buffer.
+     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
+     *   will be used.
+     * 
+     * @since 4.3
+     */
+    public AbstractMessageWriter(
+            final SessionOutputBuffer buffer,
+            final LineFormatter formatter) {
+        super();
+        this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
+        this.lineFormatter = (formatter != null) ? formatter : BasicLineFormatter.INSTANCE;
+        this.lineBuf = new CharArrayBuffer(128);
     }
 
     /**

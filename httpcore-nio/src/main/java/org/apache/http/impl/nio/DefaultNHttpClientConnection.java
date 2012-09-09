@@ -50,6 +50,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -111,7 +112,9 @@ public class DefaultNHttpClientConnection
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
         // override in derived class to specify a line parser
-        return new DefaultHttpResponseParser(buffer, null, responseFactory, params);
+        int maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
+        int maxHeaderCount = params.getIntParameter(CoreConnectionPNames.MAX_HEADER_COUNT, -1);
+        return new DefaultHttpResponseParser(buffer, maxHeaderCount, maxLineLen, null, responseFactory);
     }
 
     /**
@@ -127,7 +130,7 @@ public class DefaultNHttpClientConnection
             final SessionOutputBuffer buffer,
             final HttpParams params) {
         // override in derived class to specify a line formatter
-        return new DefaultHttpRequestWriter(buffer, null, params);
+        return new DefaultHttpRequestWriter(buffer, null);
     }
 
     /**
