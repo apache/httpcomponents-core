@@ -60,22 +60,20 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
     @Override
     protected void onResponseReceived(final HttpResponse response) throws IOException {
         this.response = response;
-        HttpEntity entity = this.response.getEntity();
-        if (entity != null) {
-            long len = entity.getContentLength();
-            if (len > Integer.MAX_VALUE) {
-                throw new ContentTooLongException("Entity content is too long: " + len);
-            }
-            if (len < 0) {
-                len = 4096;
-            }
-            this.buf = new SimpleInputBuffer((int) len, HeapByteBufferAllocator.INSTANCE);
-            response.setEntity(new ContentBufferEntity(entity, this.buf));
-        }
     }
 
     @Override
-    protected void onEntityEnclosed(final HttpEntity entity, final ContentType contentType) {
+    protected void onEntityEnclosed(
+            final HttpEntity entity, final ContentType contentType) throws IOException {
+        long len = entity.getContentLength();
+        if (len > Integer.MAX_VALUE) {
+            throw new ContentTooLongException("Entity content is too long: " + len);
+        }
+        if (len < 0) {
+            len = 4096;
+        }
+        this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
+        this.response.setEntity(new ContentBufferEntity(entity, this.buf));
     }
 
     @Override

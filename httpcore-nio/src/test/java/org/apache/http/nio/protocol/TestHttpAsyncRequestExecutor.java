@@ -38,6 +38,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
@@ -443,6 +444,7 @@ public class TestHttpAsyncRequestExecutor {
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
                 HttpStatus.SC_NOT_MODIFIED, "Not modified");
+        response.setEntity(new BasicHttpEntity());
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.when(this.reuseStrategy.keepAlive(response, this.exchangeContext)).thenReturn(true);
 
@@ -452,6 +454,7 @@ public class TestHttpAsyncRequestExecutor {
         Assert.assertEquals(MessageState.READY, state.getRequestState());
         Assert.assertNull(state.getRequest());
         Assert.assertNull(state.getResponse());
+        Assert.assertNull(response.getEntity());
         Mockito.verify(this.exchangeHandler).responseReceived(response);
         Mockito.verify(this.conn).resetInput();
         Mockito.verify(this.conn, Mockito.never()).close();
