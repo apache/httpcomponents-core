@@ -1,5 +1,9 @@
 Changes since 4.2.1
 
+* [HTTPCORE-309] Fixed regression causing HttpAsyncRequestExecutor to handle 204, 205, 304 
+  responses incorrectly by returning a message with an enclosed content body.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-306] I/O reactor TCP_NODELAY parameter now defaults to true.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

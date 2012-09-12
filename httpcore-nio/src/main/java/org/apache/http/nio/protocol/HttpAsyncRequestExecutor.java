@@ -235,6 +235,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
         state.setResponseState(MessageState.BODY_STREAM);
         if (!canResponseHaveBody(request, response)) {
+            response.setEntity(null);
             conn.resetInput();
             processResponse(conn, state, handler);
         }

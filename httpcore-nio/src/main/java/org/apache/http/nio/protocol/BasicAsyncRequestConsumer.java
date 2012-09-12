@@ -61,25 +61,21 @@ public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<Http
     @Override
     protected void onRequestReceived(final HttpRequest request) throws IOException {
         this.request = request;
-        if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) this.request).getEntity();
-            if (entity != null) {
-                long len = entity.getContentLength();
-                if (len > Integer.MAX_VALUE) {
-                    throw new ContentTooLongException("Entity content is too long: " + len);
-                }
-                if (len < 0) {
-                    len = 4096;
-                }
-                this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
-                ((HttpEntityEnclosingRequest) this.request).setEntity(
-                        new ContentBufferEntity(entity, this.buf));
-            }
-        }
     }
 
     @Override
-    protected void onEntityEnclosed(final HttpEntity entity, final ContentType contentType) {
+    protected void onEntityEnclosed(
+            final HttpEntity entity, final ContentType contentType) throws IOException {
+        long len = entity.getContentLength();
+        if (len > Integer.MAX_VALUE) {
+            throw new ContentTooLongException("Entity content is too long: " + len);
+        }
+        if (len < 0) {
+            len = 4096;
+        }
+        this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
+        ((HttpEntityEnclosingRequest) this.request).setEntity(
+                new ContentBufferEntity(entity, this.buf));
     }
 
     @Override
