@@ -1,4 +1,11 @@
-Changes since 4.2.1
+Release 4.2.2
+-------------------
+
+This is a maintenance release that fixes a number of bugs and regressions found since 4.2.1. 
+Users of HttpCore 4.2 are encouraged to upgrade.
+
+Changelog
+-------------------
 
 * [HTTPCORE-310] Fixed regression in DefaultConnectionReuseStrategy causing it to incorrectly 
   flag connections as non-reusable after a 204, 205 or 304 response. 
@@ -17,6 +24,8 @@ Changes since 4.2.1
 
 * [HTTPCORE-303] ContentType made Serializable. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 
 Release 4.2.1
 -------------------
