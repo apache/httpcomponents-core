@@ -74,6 +74,7 @@ import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -784,6 +785,44 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             HttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+        }
+    }
+
+    @Test
+    public void testResponseNoContent() throws Exception {
+        HttpAsyncRequestHandlerRegistry registry = new HttpAsyncRequestHandlerRegistry();
+        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+            
+            public void handle(
+                    final HttpRequest request, 
+                    final HttpResponse response, 
+                    final HttpContext context) throws HttpException, IOException {
+                response.setStatusCode(HttpStatus.SC_NO_CONTENT);
+            }
+        
+        }));
+        InetSocketAddress address = start(registry, null);
+
+        this.connpool.setDefaultMaxPerRoute(3);
+        this.connpool.setMaxTotal(3);
+
+        HttpHost target = new HttpHost("localhost", address.getPort());
+
+        Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < 30; i++) {
+            BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+            Future<HttpResponse> future = this.executor.execute(
+                    new BasicAsyncRequestProducer(target, request),
+                    new BasicAsyncResponseConsumer(),
+                    this.connpool);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            Future<HttpResponse> future = queue.remove();
+            HttpResponse response = future.get();
+            Assert.assertNotNull(response);
+            Assert.assertNull(response.getEntity());
         }
     }
 

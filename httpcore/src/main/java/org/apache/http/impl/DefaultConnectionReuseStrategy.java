@@ -31,6 +31,7 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
@@ -86,19 +87,22 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 return false;
             }
         } else {
-            Header[] clhs = response.getHeaders(HTTP.CONTENT_LEN);
-            // Do not reuse if not properly content-length delimited
-            if (clhs == null || clhs.length != 1) {
-                return false;
-            }
-            Header clh = clhs[0];
-            try {
-                int contentLen = Integer.parseInt(clh.getValue());
-                if (contentLen < 0) {
+            if (canResponseHaveBody(response)) {
+                Header[] clhs = response.getHeaders(HTTP.CONTENT_LEN);
+                // Do not reuse if not properly content-length delimited
+                if (clhs.length == 1) {
+                    Header clh = clhs[0];
+                    try {
+                        int contentLen = Integer.parseInt(clh.getValue());
+                        if (contentLen < 0) {
+                            return false;
+                        }
+                    } catch (NumberFormatException ex) {
+                        return false;
+                    }
+                } else {
                     return false;
                 }
-            } catch (NumberFormatException ex) {
-                return false;
             }
         }
 
@@ -173,4 +177,13 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     protected TokenIterator createTokenIterator(HeaderIterator hit) {
         return new BasicTokenIterator(hit);
     }
+
+    private boolean canResponseHaveBody(final HttpResponse response) {
+        int status = response.getStatusLine().getStatusCode();
+        return status >= HttpStatus.SC_OK
+            && status != HttpStatus.SC_NO_CONTENT
+            && status != HttpStatus.SC_NOT_MODIFIED
+            && status != HttpStatus.SC_RESET_CONTENT;
+    }
+
 }

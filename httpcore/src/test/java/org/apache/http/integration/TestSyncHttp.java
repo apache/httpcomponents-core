@@ -940,4 +940,53 @@ public class TestSyncHttp {
         }
     }
 
+    @Test
+    public void testNoContentResponse() throws Exception {
+
+        int reqNo = 20;
+
+        // Initialize the server-side request handler
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setStatusCode(HttpStatus.SC_NO_CONTENT);
+            }
+
+        });
+
+        this.server.start();
+
+        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        HttpHost host = new HttpHost("localhost", this.server.getPort());
+
+        try {
+            for (int r = 0; r < reqNo; r++) {
+                if (!conn.isOpen()) {
+                    Socket socket = new Socket(host.getHostName(), host.getPort());
+                    conn.bind(socket, this.client.getParams());
+                }
+
+                BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
+                HttpResponse response = this.client.execute(get, host, conn);
+                Assert.assertNull(response.getEntity());
+                if (!this.client.keepAlive(response)) {
+                    conn.close();
+                    Assert.fail("Connection expected to be re-usable");
+                }
+            }
+
+            //Verify the connection metrics
+            HttpConnectionMetrics cm = conn.getMetrics();
+            Assert.assertEquals(reqNo, cm.getRequestCount());
+            Assert.assertEquals(reqNo, cm.getResponseCount());
+
+        } finally {
+            conn.close();
+            this.server.shutdown();
+        }
+    }
+
 }
