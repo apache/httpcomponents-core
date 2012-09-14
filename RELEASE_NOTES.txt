@@ -1,7 +1,11 @@
 Changes since 4.2.1
 
-* [HTTPCORE-309] Fixed regression causing HttpAsyncRequestExecutor to handle 204, 205, 304 
-  responses incorrectly by returning a message with an enclosed content body.
+* [HTTPCORE-310] Fixed regression in DefaultConnectionReuseStrategy causing it to incorrectly 
+  flag connections as non-reusable after a 204, 205 or 304 response. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-309] Fixed regression in HttpAsyncRequestExecutor causing it to handle 204, 205 
+  and 304 responses incorrectly by returning a message with an enclosed content body.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-306] I/O reactor TCP_NODELAY parameter now defaults to true.
@@ -13,7 +17,6 @@ Changes since 4.2.1
 
 * [HTTPCORE-303] ContentType made Serializable. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
-
 
 Release 4.2.1
 -------------------

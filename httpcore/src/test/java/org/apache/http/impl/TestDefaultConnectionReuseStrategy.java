@@ -29,6 +29,7 @@ package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.BasicHttpContext;
@@ -240,6 +241,22 @@ public class TestDefaultConnectionReuseStrategy {
         // Use HTTP 1.1
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Content-Length", "-10");
+        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
+    @Test
+    public void testNoContentResponse() throws Exception {
+        // Use HTTP 1.1
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
+                HttpStatus.SC_NO_CONTENT, "No Content");
+        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+    }
+
+    @Test
+    public void testNoContentResponseHttp10() throws Exception {
+        // Use HTTP 1.0
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 
+                HttpStatus.SC_NO_CONTENT, "No Content");
         Assert.assertFalse(reuseStrategy.keepAlive(response, context));
     }
 
