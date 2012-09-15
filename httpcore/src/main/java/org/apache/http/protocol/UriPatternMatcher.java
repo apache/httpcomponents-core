@@ -85,7 +85,7 @@ public class UriPatternMatcher<T> {
     }
 
     /**
-     * @deprecated (4.1) use {@link #setObjects(Map)}
+     * @deprecated (4.1) do not use
      */
     @Deprecated
     public synchronized void setHandlers(final Map<String, T> map) {
@@ -95,9 +95,9 @@ public class UriPatternMatcher<T> {
     }
 
     /**
-     * Sets objects from the given map.
-     * @param map the map containing objects keyed by their URI patterns.
+     * @deprecated (4.1) do not use
      */
+    @Deprecated
     public synchronized void setObjects(final Map<String, T> map) {
         Args.notNull(map, "Map of handlers");
         this.map.clear();
@@ -105,11 +105,9 @@ public class UriPatternMatcher<T> {
     }
 
     /**
-     * Returns the objects map.
-     * @return The map of objects.
-     *
-     * @since 4.2
+     * @deprecated (4.1) do not use
      */
+    @Deprecated
     public synchronized Map<String, T> getObjects() {
         return this.map;
     }
@@ -117,25 +115,19 @@ public class UriPatternMatcher<T> {
     /**
      * Looks up an object matching the given request URI.
      *
-     * @param requestURI the request URI
+     * @param requestURI the request path
      * @return object or <code>null</code> if no match is found.
      */
-    public synchronized T lookup(String requestURI) {
-        Args.notNull(requestURI, "Request URI");
-        //Strip away the query part part if found
-        int index = requestURI.indexOf("?");
-        if (index != -1) {
-            requestURI = requestURI.substring(0, index);
-        }
-
+    public synchronized T lookup(final String path) {
+        Args.notNull(path, "Request path");
         // direct match?
-        T obj = this.map.get(requestURI);
+        T obj = this.map.get(path);
         if (obj == null) {
             // pattern match?
             String bestMatch = null;
             for (Iterator<String> it = this.map.keySet().iterator(); it.hasNext();) {
                 String pattern = it.next();
-                if (matchUriRequestPattern(pattern, requestURI)) {
+                if (matchUriRequestPattern(pattern, path)) {
                     // we have a match. is it any better?
                     if (bestMatch == null
                             || (bestMatch.length() < pattern.length())
@@ -157,13 +149,13 @@ public class UriPatternMatcher<T> {
      * @return <code>true</code> if the request URI matches the pattern,
      *   <code>false</code> otherwise.
      */
-    protected boolean matchUriRequestPattern(final String pattern, final String requestUri) {
+    protected boolean matchUriRequestPattern(final String pattern, final String path) {
         if (pattern.equals("*")) {
             return true;
         } else {
             return
-            (pattern.endsWith("*") && requestUri.startsWith(pattern.substring(0, pattern.length() - 1))) ||
-            (pattern.startsWith("*") && requestUri.endsWith(pattern.substring(1, pattern.length())));
+            (pattern.endsWith("*") && path.startsWith(pattern.substring(0, pattern.length() - 1))) ||
+            (pattern.startsWith("*") && path.endsWith(pattern.substring(1, pattern.length())));
         }
     }
 

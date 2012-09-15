@@ -27,11 +27,10 @@
 
 package org.apache.http.nio.protocol;
 
-import java.util.Map;
-
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.protocol.UriPatternMatcher;
+import org.apache.http.util.Args;
 
 /**
  * Maintains a map of HTTP request handlers keyed by a request URI pattern.
@@ -54,8 +53,13 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
 
     private final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher;
 
+    protected UriHttpAsyncRequestHandlerMapper(final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher) {
+        super();
+        this.matcher = Args.notNull(matcher, "Pattern matcher");
+    }
+
     public UriHttpAsyncRequestHandlerMapper() {
-        matcher = new UriPatternMatcher<HttpAsyncRequestHandler<?>>();
+        this(new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
     }
 
     /**
@@ -79,23 +83,30 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
     }
 
     /**
-     * Sets handlers from the given map.
-     * @param map the map containing handlers keyed by their URI patterns.
+     * Extracts request path from the given {@link HttpRequest}
      */
-    public void setHandlers(final Map<String, HttpAsyncRequestHandler<?>> map) {
-        matcher.setObjects(map);
+    protected String getRequestPath(final HttpRequest request) {
+        String uriPath = request.getRequestLine().getUri();
+        int index = uriPath.indexOf("?");
+        if (index != -1) {
+            uriPath = uriPath.substring(0, index);
+        } else {
+            index = uriPath.indexOf("#");
+            if (index != -1) {
+                uriPath = uriPath.substring(0, index);
+            }
+        }
+        return uriPath;
     }
-
+    
     /**
-     * Get the handler map.
-     * @return The map of handlers and their associated URI patterns.
+     * Looks up a handler matching the given request URI.
+     *
+     * @param requestURI the request path
+     * @return handler or <code>null</code> if no match is found.
      */
-    public Map<String, HttpAsyncRequestHandler<?>> getHandlers() {
-        return matcher.getObjects();
-    }
-
     public HttpAsyncRequestHandler<?> lookup(final HttpRequest request) {
-        return matcher.lookup(request.getRequestLine().getUri());
+        return matcher.lookup(getRequestPath(request));
     }
 
 }

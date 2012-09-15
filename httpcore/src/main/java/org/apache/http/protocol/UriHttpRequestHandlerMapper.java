@@ -27,10 +27,9 @@
 
 package org.apache.http.protocol;
 
-import java.util.Map;
-
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.util.Args;
 
 /**
  * Maintains a map of HTTP request handlers keyed by a request URI pattern.
@@ -54,8 +53,13 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
 
     private final UriPatternMatcher<HttpRequestHandler> matcher;
 
+    protected UriHttpRequestHandlerMapper(final UriPatternMatcher<HttpRequestHandler> matcher) {
+        super();
+        this.matcher = Args.notNull(matcher, "Pattern matcher");
+    }
+
     public UriHttpRequestHandlerMapper() {
-        matcher = new UriPatternMatcher<HttpRequestHandler>();
+        this(new UriPatternMatcher<HttpRequestHandler>());
     }
 
     /**
@@ -66,12 +70,8 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
      * @param handler the handler.
      */
     public void register(final String pattern, final HttpRequestHandler handler) {
-        if (pattern == null) {
-            throw new IllegalArgumentException("URI request pattern may not be null");
-        }
-        if (handler == null) {
-            throw new IllegalArgumentException("Request handler may not be null");
-        }
+        Args.notNull(pattern, "Pattern");
+        Args.notNull(handler, "Handler");
         matcher.register(pattern, handler);
     }
 
@@ -85,23 +85,31 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
     }
 
     /**
-     * Sets handlers from the given map.
-     * @param map the map containing handlers keyed by their URI patterns.
+     * Extracts request path from the given {@link HttpRequest}
      */
-    public void setHandlers(final Map<String, HttpRequestHandler> map) {
-        matcher.setObjects(map);
+    protected String getRequestPath(final HttpRequest request) {
+        String uriPath = request.getRequestLine().getUri();
+        int index = uriPath.indexOf("?");
+        if (index != -1) {
+            uriPath = uriPath.substring(0, index);
+        } else {
+            index = uriPath.indexOf("#");
+            if (index != -1) {
+                uriPath = uriPath.substring(0, index);
+            }
+        }
+        return uriPath;
     }
-
+    
     /**
-     * Get the handler map.
-     * @return The map of handlers and their associated URI patterns.
+     * Looks up a handler matching the given request URI.
+     *
+     * @param requestURI the request path
+     * @return handler or <code>null</code> if no match is found.
      */
-    public Map<String, HttpRequestHandler> getHandlers() {
-        return matcher.getObjects();
-    }
-
     public HttpRequestHandler lookup(final HttpRequest request) {
-        return matcher.lookup(request.getRequestLine().getUri());
+        Args.notNull(request, "HTTP request");
+        return matcher.lookup(getRequestPath(request));
     }
 
 }
