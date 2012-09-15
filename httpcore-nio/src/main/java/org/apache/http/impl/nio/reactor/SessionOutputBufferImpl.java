@@ -61,9 +61,10 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
-    private CharBuffer charbuffer = null;
-    private Charset charset = null;
-    private CharsetEncoder charencoder = null;
+    private final CharBuffer charbuffer;
+    private final Charset charset;
+    private final boolean ascii;
+    private final CharsetEncoder charencoder;
 
     /**
      *  Creates SessionOutputBufferImpl instance.
@@ -91,6 +92,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
         this.charset = charset != null ? charset : Consts.ASCII;
+        this.ascii = this.charset.equals(Consts.ASCII);
         this.charencoder = this.charset.newEncoder();
         this.charencoder.onMalformedInput(malformedCharAction != null ? malformedCharAction :
             CodingErrorAction.REPORT);
@@ -112,6 +114,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         this.charbuffer = CharBuffer.allocate(linebuffersize);
         String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
+        this.ascii = this.charset.equals(Consts.ASCII);
         this.charencoder = this.charset.newEncoder();
         CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
@@ -203,27 +206,60 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         if (linebuffer == null) {
             return;
         }
+        setInputMode();
         // Do not bother if the buffer is empty
         if (linebuffer.length() > 0 ) {
-            setInputMode();
-            this.charencoder.reset();
-            // transfer the string in small chunks
-            int remaining = linebuffer.length();
-            int offset = 0;
-            while (remaining > 0) {
-                int l = this.charbuffer.remaining();
-                boolean eol = false;
-                if (remaining <= l) {
-                    l = remaining;
-                    // terminate the encoding process
-                    eol = true;
+            if (this.ascii) {
+                int requiredCapacity = this.buffer.position() + linebuffer.length();
+                ensureCapacity(requiredCapacity);
+                if (this.buffer.hasArray()) {
+                    byte[] b = this.buffer.array();
+                    int len = linebuffer.length();
+                    int off = this.buffer.position();
+                    for (int i = 0; i < len; i++) {
+                        b[off + i]  = (byte) linebuffer.charAt(i);
+                    }
+                    this.buffer.position(off + len);
+                } else {
+                    for (int i = 0; i < linebuffer.length(); i++) {
+                        this.buffer.put((byte) linebuffer.charAt(i));
+                    }
                 }
-                this.charbuffer.put(linebuffer.buffer(), offset, l);
-                this.charbuffer.flip();
+            } else {
+                this.charencoder.reset();
+                // transfer the string in small chunks
+                int remaining = linebuffer.length();
+                int offset = 0;
+                while (remaining > 0) {
+                    int l = this.charbuffer.remaining();
+                    boolean eol = false;
+                    if (remaining <= l) {
+                        l = remaining;
+                        // terminate the encoding process
+                        eol = true;
+                    }
+                    this.charbuffer.put(linebuffer.buffer(), offset, l);
+                    this.charbuffer.flip();
 
+                    boolean retry = true;
+                    while (retry) {
+                        CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
+                        if (result.isError()) {
+                            result.throwException();
+                        }
+                        if (result.isOverflow()) {
+                            expand();
+                        }
+                        retry = !result.isUnderflow();
+                    }
+                    this.charbuffer.compact();
+                    offset += l;
+                    remaining -= l;
+                }
+                // flush the encoder
                 boolean retry = true;
                 while (retry) {
-                    CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
+                    CoderResult result = this.charencoder.flush(this.buffer);
                     if (result.isError()) {
                         result.throwException();
                     }
@@ -232,21 +268,6 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                     }
                     retry = !result.isUnderflow();
                 }
-                this.charbuffer.compact();
-                offset += l;
-                remaining -= l;
-            }
-            // flush the encoder
-            boolean retry = true;
-            while (retry) {
-                CoderResult result = this.charencoder.flush(this.buffer);
-                if (result.isError()) {
-                    result.throwException();
-                }
-                if (result.isOverflow()) {
-                    expand();
-                }
-                retry = !result.isUnderflow();
             }
         }
         writeCRLF();

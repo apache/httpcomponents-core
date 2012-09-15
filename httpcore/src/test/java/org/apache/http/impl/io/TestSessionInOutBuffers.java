@@ -484,7 +484,7 @@ public class TestSessionInOutBuffers {
 
     @Test(expected=CharacterCodingException.class)
     public void testUnmappableInputActionReport() throws Exception {
-        String s = "This text contains a circumflex \u0302!!!";
+        String s = "This text contains a circumflex \u0302 !!!";
         SessionOutputBufferMock outbuf = new SessionOutputBufferMock(Consts.ISO_8859_1,
                 CodingErrorAction.IGNORE, CodingErrorAction.REPORT);
         outbuf.writeLine(s);
@@ -530,7 +530,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testBufferMalformedInputActionIgnore() throws Exception {
+    public void testMalformedInputActionIgnore() throws Exception {
         byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, Consts.UTF_8,
                 CodingErrorAction.IGNORE, CodingErrorAction.IGNORE);

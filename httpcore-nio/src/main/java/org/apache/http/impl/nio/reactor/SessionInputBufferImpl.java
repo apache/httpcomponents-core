@@ -59,9 +59,10 @@ import org.apache.http.util.CharArrayBuffer;
 @NotThreadSafe
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
-    private CharBuffer charbuffer = null;
-    private Charset charset = null;
-    private CharsetDecoder chardecoder = null;
+    private final CharBuffer charbuffer;
+    private final Charset charset;
+    private final boolean ascii;
+    private final CharsetDecoder chardecoder;
 
     /**
      *  Creates SessionInputBufferImpl instance.
@@ -89,6 +90,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
         this.charbuffer = CharBuffer.allocate(linebuffersize);
         this.charset = charset != null ? charset : Consts.ASCII;
+        this.ascii = this.charset.equals(Consts.ASCII);
         this.chardecoder = this.charset.newDecoder();
         this.chardecoder.onMalformedInput(malformedCharAction != null ? malformedCharAction :
             CodingErrorAction.REPORT);
@@ -110,6 +112,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         this.charbuffer = CharBuffer.allocate(linebuffersize);
         String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
+        this.ascii = this.charset.equals(Consts.ASCII);
         this.chardecoder = this.charset.newDecoder();
         CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
@@ -242,44 +245,59 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         int origLimit = this.buffer.limit();
         this.buffer.limit(pos);
 
-        int len = this.buffer.limit() - this.buffer.position();
+        int requiredCapacity = this.buffer.limit() - this.buffer.position();
         // Ensure capacity of len assuming ASCII as the most likely charset
-        linebuffer.ensureCapacity(len);
+        linebuffer.ensureCapacity(requiredCapacity);
 
-        this.chardecoder.reset();
-
-        for (;;) {
-            CoderResult result = this.chardecoder.decode(
-                    this.buffer,
-                    this.charbuffer,
-                    true);
-            if (result.isError()) {
-                result.throwException();
+        if (this.ascii) {
+            if (this.buffer.hasArray()) {
+                byte[] b = this.buffer.array();
+                int off = this.buffer.position();
+                int len = this.buffer.remaining();
+                linebuffer.append(b, off, len);
+                this.buffer.position(off + len);
+            } else {
+                while (this.buffer.hasRemaining()) {
+                    linebuffer.append((char) (this.buffer.get() & 0xff));
+                }
             }
-            if (result.isOverflow()) {
-                this.charbuffer.flip();
+        } else {
+            this.chardecoder.reset();
+
+            for (;;) {
+                CoderResult result = this.chardecoder.decode(
+                        this.buffer,
+                        this.charbuffer,
+                        true);
+                if (result.isError()) {
+                    result.throwException();
+                }
+                if (result.isOverflow()) {
+                    this.charbuffer.flip();
+                    linebuffer.append(
+                            this.charbuffer.array(),
+                            this.charbuffer.position(),
+                            this.charbuffer.remaining());
+                    this.charbuffer.clear();
+                }
+                if (result.isUnderflow()) {
+                    break;
+                }
+            }
+
+            // flush the decoder
+            this.chardecoder.flush(this.charbuffer);
+            this.charbuffer.flip();
+            // append the decoded content to the line buffer
+            if (this.charbuffer.hasRemaining()) {
                 linebuffer.append(
                         this.charbuffer.array(),
                         this.charbuffer.position(),
                         this.charbuffer.remaining());
-                this.charbuffer.clear();
             }
-            if (result.isUnderflow()) {
-                break;
-            }
+
         }
         this.buffer.limit(origLimit);
-
-        // flush the decoder
-        this.chardecoder.flush(this.charbuffer);
-        this.charbuffer.flip();
-        // append the decoded content to the line buffer
-        if (this.charbuffer.hasRemaining()) {
-            linebuffer.append(
-                    this.charbuffer.array(),
-                    this.charbuffer.position(),
-                    this.charbuffer.remaining());
-        }
 
         // discard LF if found
         int l = linebuffer.length();
