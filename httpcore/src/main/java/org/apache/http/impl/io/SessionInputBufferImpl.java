@@ -31,12 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 
-import org.apache.http.Consts;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.HttpTransportMetrics;
@@ -64,17 +61,13 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
     private final HttpTransportMetricsImpl metrics;
     private final byte[] buffer;
     private final ByteArrayBuffer linebuffer;
-    private final Charset charset;
-    private final boolean ascii;
     private final int maxLineLen;
     private final int minChunkLimit;
-    private final CodingErrorAction onMalformedCharAction;
-    private final CodingErrorAction onUnmappableCharAction;
+    private final CharsetDecoder decoder;
 
     private InputStream instream;
     private int bufferpos;
     private int bufferlen;
-    private CharsetDecoder decoder;
     private CharBuffer cbuf;
 
     /**
@@ -89,21 +82,15 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      *   The optimal value of this parameter can be platform specific and defines a trade-off
      *   between performance of memory copy operations and that of native method invocation.
      *   If negative default chunk limited will be used.
-     * @param charset charset to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> US-ASCII will be used.
-     * @param malformedCharAction action to perform upon receiving a malformed input.
-     *   If <code>null</code> {@link CodingErrorAction#REPORT} will be used.
-     * @param unmappableCharAction action to perform upon receiving an unmappable input.
-     *   If <code>null</code> {@link CodingErrorAction#REPORT}  will be used.
+     * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
      */
     public SessionInputBufferImpl(
             final HttpTransportMetricsImpl metrics,
             int buffersize,
             int maxLineLen,
             int minChunkLimit,
-            final Charset charset,
-            final CodingErrorAction malformedCharAction,
-            final CodingErrorAction unmappableCharAction) {
+            final CharsetDecoder chardecoder) {
         Args.positive(buffersize, "Buffer size");
         Args.notNull(metrics, "HTTP transport metrcis");
         this.metrics = metrics;
@@ -113,13 +100,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         this.maxLineLen = maxLineLen >= 0 ? maxLineLen : -1;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
         this.linebuffer = new ByteArrayBuffer(buffersize);
-        this.charset = charset != null ? charset : Consts.ASCII;
-        this.ascii = this.charset.equals(Consts.ASCII);
-        this.decoder = null;
-        this.onMalformedCharAction = malformedCharAction != null ? malformedCharAction :
-            CodingErrorAction.REPORT;
-        this.onUnmappableCharAction = unmappableCharAction != null? unmappableCharAction :
-            CodingErrorAction.REPORT;
+        this.decoder = chardecoder;
     }
 
     public void bind(final InputStream instream) {
@@ -313,7 +294,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
                 }
             }
         }
-        if (this.ascii) {
+        if (this.decoder == null) {
             charbuffer.append(this.linebuffer, 0, len);
         } else {
             ByteBuffer bbuf =  ByteBuffer.wrap(this.linebuffer.buffer(), 0, len);
@@ -333,7 +314,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
             pos--;
         }
         len = pos - off;
-        if (this.ascii) {
+        if (this.decoder == null) {
             charbuffer.append(this.buffer, off, len);
         } else {
             ByteBuffer bbuf =  ByteBuffer.wrap(this.buffer, off, len);
@@ -346,11 +327,6 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
             final CharArrayBuffer charbuffer, final ByteBuffer bbuf) throws IOException {
         if (!bbuf.hasRemaining()) {
             return 0;
-        }
-        if (this.decoder == null) {
-            this.decoder = this.charset.newDecoder();
-            this.decoder.onMalformedInput(this.onMalformedCharAction);
-            this.decoder.onUnmappableCharacter(this.onUnmappableCharAction);
         }
         if (this.cbuf == null) {
             this.cbuf = CharBuffer.allocate(1024);

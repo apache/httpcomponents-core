@@ -35,6 +35,8 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
@@ -91,25 +93,31 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         if (buffersize <= 0) {
             buffersize = 4096;
         }
-        Charset charset = CharsetUtils.lookup(
-                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
-        if (charset == null) {
-            charset = Consts.ASCII;
-        }
         int maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         int minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, -1);
-        CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
-                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-        CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
-                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        CharsetDecoder decoder = null;
+        CharsetEncoder encoder = null;
+        Charset charset = CharsetUtils.lookup(
+                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
+        if (charset != null) {
+            charset = Consts.ASCII;
+            decoder = charset.newDecoder();
+            encoder = charset.newEncoder();
+            CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
+                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+            CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
+                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+            decoder.onMalformedInput(malformedCharAction);
+            decoder.onUnmappableCharacter(unmappableCharAction);
+            encoder.onMalformedInput(malformedCharAction);
+            encoder.onUnmappableCharacter(unmappableCharAction);
+        }
         this.inTransportMetrics = createTransportMetrics();
         this.outTransportMetrics = createTransportMetrics();
         this.inbuffer = new SessionInputBufferImpl(
-                this.inTransportMetrics, buffersize, maxLineLen, minChunkLimit,
-                charset, malformedCharAction, unmappableCharAction);
+                this.inTransportMetrics, buffersize, maxLineLen, minChunkLimit, decoder);
         this.outbuffer = new SessionOutputBufferImpl(
-                this.outTransportMetrics, buffersize, minChunkLimit,
-                charset, malformedCharAction, unmappableCharAction);
+                this.outTransportMetrics, buffersize, minChunkLimit, encoder);
         this.connMetrics = createConnectionMetrics(
                 this.inTransportMetrics,
                 this.outTransportMetrics);

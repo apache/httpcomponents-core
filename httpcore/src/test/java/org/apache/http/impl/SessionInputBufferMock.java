@@ -32,9 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.CodingErrorAction;
+import java.nio.charset.CharsetDecoder;
 
-import org.apache.http.Consts;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 
@@ -50,37 +49,31 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
             int buffersize, 
             int maxLineLen,
             int minChunkLimit,
-            final Charset charset,
-            final CodingErrorAction malformedInputAction,
-            final CodingErrorAction unmappableInputAction) {
-        super(new HttpTransportMetricsImpl(), buffersize, maxLineLen, minChunkLimit, 
-                charset, malformedInputAction, unmappableInputAction);
+            final CharsetDecoder decoder) {
+        super(new HttpTransportMetricsImpl(), buffersize, maxLineLen, minChunkLimit, decoder);
         bind(instream);
     }
 
     public SessionInputBufferMock(
             final InputStream instream,
             int buffersize) {
-        this(instream, buffersize, -1, -1, null, null, null);
+        this(instream, buffersize, -1, -1, null);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes,
             int buffersize,
-            final Charset charset,
             int maxLineLen,
             int minChunkLimit,
-            final CodingErrorAction malformedInputAction,
-            final CodingErrorAction unmappableInputAction) {
-        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, minChunkLimit, 
-                charset, malformedInputAction, unmappableInputAction);
+            final CharsetDecoder decoder) {
+        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, minChunkLimit, decoder);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes,
             int buffersize,
             int maxLineLen) {
-        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, -1, Consts.ASCII, null, null);
+        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, -1, null);
     }
 
     public SessionInputBufferMock(
@@ -96,23 +89,19 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
 
     public SessionInputBufferMock(
             final byte[] bytes, final Charset charset) {
-        this(bytes, BUFFER_SIZE, charset, -1, -1, null, null);
+        this(bytes, BUFFER_SIZE, -1, -1, charset != null ? charset.newDecoder() : null);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes, 
-            final Charset charset,
-            final CodingErrorAction malformedInputAction,
-            final CodingErrorAction unmappableInputAction) {
-        this(bytes, BUFFER_SIZE, charset, -1, -1, malformedInputAction, unmappableInputAction);
+            final CharsetDecoder decoder) {
+        this(bytes, BUFFER_SIZE, -1, -1, decoder);
     }
 
     public SessionInputBufferMock(
             final String s,
-            final Charset charset)
-        throws UnsupportedEncodingException {
-        this(s.getBytes(charset.name()), BUFFER_SIZE, charset, -1, -1, null, null);
-
+            final Charset charset) throws UnsupportedEncodingException {
+        this(s.getBytes(charset.name()), charset);
     }
 
     public boolean isDataAvailable(int timeout) throws IOException {

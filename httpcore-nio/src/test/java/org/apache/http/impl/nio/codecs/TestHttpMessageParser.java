@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -60,7 +61,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testSimpleParsing() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
         HttpRequest request = requestParser.parse();
@@ -71,7 +72,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingChunkedMessages() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
@@ -91,7 +92,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingFoldedHeaders() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
@@ -120,7 +121,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingBadlyFoldedFirstHeader() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
@@ -146,7 +147,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingEmptyFoldedHeader() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         requestParser.fillBuffer(newChannel("GET /whatev"));
@@ -175,7 +176,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingIncompleteRequestLine() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0");
@@ -188,7 +189,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingIncompleteHeader() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: whatever");
@@ -202,7 +203,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingInvalidRequestLine() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         ReadableByteChannel channel = newChannel("GET garbage\r\n");
@@ -217,7 +218,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingInvalidStatusLine() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser(inbuf);
 
         ReadableByteChannel channel = newChannel("HTTP 200 OK\r\n");
@@ -232,7 +233,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testParsingInvalidHeader() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser(inbuf);
 
         ReadableByteChannel channel = newChannel("HTTP/1.0 200 OK\r\nstuff\r\n\r\n");
@@ -247,7 +248,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testResetParser() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
 
         ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n");
@@ -279,7 +280,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testLineLimitForStatus() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, -1, 0, null, null);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
         requestParser.parse();
@@ -296,7 +297,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testLineLimitForHeader() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
 
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, -1, 0, null, null);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
@@ -317,7 +318,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testLineLimitForFoldedHeader() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
 
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, 2, 15, null, null);
         try {
@@ -330,7 +331,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testMaxHeaderCount() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
 
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, 2, -1, null, null);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\n\r\n"));
@@ -347,7 +348,7 @@ public class TestHttpMessageParser {
 
     @Test
     public void testDetectLineLimitEarly() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(2, 128);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(2, 128, Consts.ASCII);
 
         NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, -1, 2, null, null);
         ReadableByteChannel channel = newChannel("GET / HTTP/1.0\r\nHeader: one\r\n\r\n");

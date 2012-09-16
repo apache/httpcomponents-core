@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.Consts;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -58,7 +59,7 @@ public class TestChunkEncoder {
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -79,7 +80,7 @@ public class TestChunkEncoder {
     public void testChunkNoExceed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
         encoder.write(wrap("1234"));
@@ -96,7 +97,7 @@ public class TestChunkEncoder {
     @Test
     public void testHttpCore239() throws Exception {
         FixedByteChannel channel = new FixedByteChannel(16);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -134,7 +135,7 @@ public class TestChunkEncoder {
     public void testChunkExceed() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -162,7 +163,7 @@ public class TestChunkEncoder {
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -189,7 +190,7 @@ public class TestChunkEncoder {
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
@@ -216,7 +217,7 @@ public class TestChunkEncoder {
     public void testInvalidConstructor() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
 
         try {
             new ChunkEncoder(null, null, null);

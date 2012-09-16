@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.Consts;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -56,7 +57,7 @@ public class TestIdentityEncoder {
     public void testBasicCoding() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
@@ -73,7 +74,7 @@ public class TestIdentityEncoder {
     public void testCodingEmptyBuffer() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
@@ -96,7 +97,7 @@ public class TestIdentityEncoder {
     public void testCodingCompleted() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
@@ -115,7 +116,7 @@ public class TestIdentityEncoder {
     public void testInvalidConstructor() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
 
         try {
             new IdentityEncoder(null, null, null);

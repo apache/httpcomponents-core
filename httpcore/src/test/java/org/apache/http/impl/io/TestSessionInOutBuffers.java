@@ -29,6 +29,8 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
@@ -485,16 +487,20 @@ public class TestSessionInOutBuffers {
     @Test(expected=CharacterCodingException.class)
     public void testUnmappableInputActionReport() throws Exception {
         String s = "This text contains a circumflex \u0302 !!!";
-        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(Consts.ISO_8859_1,
-                CodingErrorAction.IGNORE, CodingErrorAction.REPORT);
+        CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
+        encoder.onMalformedInput(CodingErrorAction.IGNORE);
+        encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
+        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(encoder);
         outbuf.writeLine(s);
     }
 
     @Test
     public void testUnmappableInputActionReplace() throws Exception {
         String s = "This text contains a circumflex \u0302 !!!";
-        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(Consts.ISO_8859_1,
-                CodingErrorAction.IGNORE, CodingErrorAction.REPLACE);
+        CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
+        encoder.onMalformedInput(CodingErrorAction.IGNORE);
+        encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
+        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(encoder);
         outbuf.writeLine(s);
         outbuf.flush();
         String result = new String(outbuf.getData(), "ISO-8859-1");
@@ -504,8 +510,10 @@ public class TestSessionInOutBuffers {
     @Test
     public void testUnmappableInputActionIgnore() throws Exception {
         String s = "This text contains a circumflex \u0302 !!!";
-        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(Consts.ISO_8859_1,
-                CodingErrorAction.IGNORE, CodingErrorAction.IGNORE);
+        CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
+        encoder.onMalformedInput(CodingErrorAction.IGNORE);
+        encoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
+        SessionOutputBufferMock outbuf = new SessionOutputBufferMock(encoder);
         outbuf.writeLine(s);
         outbuf.flush();
         String result = new String(outbuf.getData(), "ISO-8859-1");
@@ -515,16 +523,20 @@ public class TestSessionInOutBuffers {
     @Test(expected=CharacterCodingException.class)
     public void testMalformedInputActionReport() throws Exception {
         byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
-        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, Consts.UTF_8,
-                CodingErrorAction.REPORT, CodingErrorAction.IGNORE);
+        CharsetDecoder decoder = Consts.UTF_8.newDecoder();
+        decoder.onMalformedInput(CodingErrorAction.REPORT);
+        decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, decoder);
         inbuffer.readLine();
     }
 
     @Test
     public void testMalformedInputActionReplace() throws Exception {
         byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
-        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, Consts.UTF_8,
-                CodingErrorAction.REPLACE, CodingErrorAction.IGNORE);
+        CharsetDecoder decoder = Consts.UTF_8.newDecoder();
+        decoder.onMalformedInput(CodingErrorAction.REPLACE);
+        decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, decoder);
         String s = inbuffer.readLine();
         Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", s);
     }
@@ -532,8 +544,10 @@ public class TestSessionInOutBuffers {
     @Test
     public void testMalformedInputActionIgnore() throws Exception {
         byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
-        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, Consts.UTF_8,
-                CodingErrorAction.IGNORE, CodingErrorAction.IGNORE);
+        CharsetDecoder decoder = Consts.UTF_8.newDecoder();
+        decoder.onMalformedInput(CodingErrorAction.IGNORE);
+        decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
+        SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, decoder);
         String s = inbuffer.readLine();
         Assert.assertEquals("Grezi_zm", s);
     }

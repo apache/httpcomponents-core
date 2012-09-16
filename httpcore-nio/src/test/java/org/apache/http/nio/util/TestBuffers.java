@@ -34,6 +34,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.Consts;
 import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
@@ -88,7 +89,7 @@ public class TestBuffers {
     public void testOutputBufferOperations() throws IOException {
         ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         WritableByteChannel channel = Channels.newChannel(outstream);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);

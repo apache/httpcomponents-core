@@ -36,6 +36,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.Consts;
 import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
@@ -78,7 +79,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 
@@ -115,7 +116,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         inbuf.fill(channel);
@@ -158,7 +159,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
@@ -195,7 +196,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
@@ -230,7 +231,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
@@ -272,7 +273,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"a"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
@@ -297,7 +298,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         try {
             new IdentityDecoder(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -324,7 +325,7 @@ public class TestIdentityDecoder {
         ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256);
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 

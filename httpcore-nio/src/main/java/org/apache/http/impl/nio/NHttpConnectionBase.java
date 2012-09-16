@@ -35,6 +35,8 @@ import java.net.SocketAddress;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.ConnectionClosedException;
@@ -145,20 +147,25 @@ public class NHttpConnectionBase
             linebuffersize = 512;
         }
 
+        CharsetDecoder decoder = null;
+        CharsetEncoder encoder = null;
         Charset charset = CharsetUtils.lookup(
                 (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
-        if (charset == null) {
+        if (charset != null) {
             charset = Consts.ASCII;
+            decoder = charset.newDecoder();
+            encoder = charset.newEncoder();
+            CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
+                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+            CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
+                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+            decoder.onMalformedInput(malformedCharAction);
+            decoder.onUnmappableCharacter(unmappableCharAction);
+            encoder.onMalformedInput(malformedCharAction);
+            encoder.onUnmappableCharacter(unmappableCharAction);
         }
-        CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
-                CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-        CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
-                CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-
-        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize,
-                charset, malformedCharAction, unmappableCharAction, allocator);
-        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize,
-                charset, malformedCharAction, unmappableCharAction, allocator);
+        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, decoder, allocator);
+        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, encoder, allocator);
 
         this.incomingContentStrategy = createIncomingContentStrategy();
         this.outgoingContentStrategy = createOutgoingContentStrategy();
