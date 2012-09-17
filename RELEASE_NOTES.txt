@@ -2,7 +2,7 @@ Release 4.2.2
 -------------------
 
 This is a maintenance release that fixes a number of bugs and regressions found since 4.2.1
-including a major bug in NIO module causing incorrectly handling of outgoing Content-Length
+including a major bug in the NIO module causing incorrect handling of outgoing Content-Length
 delimited messages larger than 2GB.
 
 Users of HttpCore 4.2 are advised to upgrade.
