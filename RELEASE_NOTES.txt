@@ -1,5 +1,8 @@
 Changes since 4.2.1
 
+* [HTTPCORE-312] NIO length delimited content encoder incorrectly handles messages larger than 2GB.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-310] Fixed regression in DefaultConnectionReuseStrategy causing it to incorrectly 
   flag connections as non-reusable after a 204, 205 or 304 response. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
@@ -17,6 +20,7 @@ Changes since 4.2.1
 
 * [HTTPCORE-303] ContentType made Serializable. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 
 Release 4.2.1
 -------------------

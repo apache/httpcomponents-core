@@ -75,12 +75,12 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        int lenRemaining = (int) (this.contentLength - this.len);
+        int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
         int bytesWritten;
-        if (src.remaining() > lenRemaining) {
+        if (src.remaining() > chunk) {
             int oldLimit = src.limit();
-            int newLimit = oldLimit - (src.remaining() - lenRemaining);
+            int newLimit = oldLimit - (src.remaining() - chunk);
             src.limit(newLimit);
             bytesWritten = this.channel.write(src);
             src.limit(oldLimit);
@@ -106,13 +106,8 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        int lenRemaining = (int) (this.contentLength - this.len);
-
-        long bytesWritten;
-        if (count > lenRemaining) {
-            count = lenRemaining;
-        }
-        bytesWritten = src.transferTo(position, count, this.channel);
+        long chunk = Math.min((this.contentLength - this.len), count);
+        long bytesWritten = src.transferTo(position, chunk, this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }
