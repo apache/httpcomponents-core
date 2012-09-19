@@ -28,8 +28,9 @@
 package org.apache.http.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -40,20 +41,38 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
+import org.apache.http.Header;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpInetConnection;
+import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.io.ChunkedInputStream;
+import org.apache.http.impl.io.ChunkedOutputStream;
+import org.apache.http.impl.io.ContentLengthInputStream;
+import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.impl.io.IdentityInputStream;
+import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.apache.http.impl.io.SessionOutputBufferImpl;
 import org.apache.http.io.HttpTransportMetrics;
+import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 import org.apache.http.util.CharsetUtils;
+import org.apache.http.util.NetUtils;
 
 /**
  * Implementation of a client-side HTTP connection that can be bound to an
@@ -82,9 +101,14 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     private final HttpTransportMetricsImpl inTransportMetrics;
     private final HttpTransportMetricsImpl outTransportMetrics;
     private final HttpConnectionMetricsImpl connMetrics;
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
+
+    private InputStream instream;
+    private OutputStream outstream;
 
     private volatile boolean open;
-    private volatile Socket socket = null;
+    private volatile Socket socket;
 
     public BHttpConnectionBase(final HttpParams params) {
         super();
@@ -121,6 +145,8 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         this.connMetrics = createConnectionMetrics(
                 this.inTransportMetrics,
                 this.outTransportMetrics);
+        this.incomingContentStrategy = createIncomingContentStrategy();
+        this.outgoingContentStrategy = createOutgoingContentStrategy();
     }
 
     protected void assertNotOpen() {
@@ -165,6 +191,104 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             final HttpTransportMetrics inTransportMetric,
             final HttpTransportMetrics outTransportMetric) {
         return new HttpConnectionMetricsImpl(inTransportMetric, outTransportMetric);
+    }
+
+    protected ContentLengthStrategy createIncomingContentStrategy() {
+        return new LaxContentLengthStrategy();
+    }
+
+    protected ContentLengthStrategy createOutgoingContentStrategy() {
+        return new StrictContentLengthStrategy();
+    }
+
+    protected OutputStream getOutputStream() {
+        Asserts.check(this.outstream != null, "Output stream");
+        return this.outstream;
+    }
+
+    protected InputStream getInputStream() {
+        Asserts.check(this.instream != null, "Input stream");
+        return this.instream;
+    }
+
+    protected OutputStream createOutputStream(
+            final long len,
+            final SessionOutputBuffer outbuffer) {
+        if (len == ContentLengthStrategy.CHUNKED) {
+            return new ChunkedOutputStream(2048, outbuffer);
+        } else if (len == ContentLengthStrategy.IDENTITY) {
+            return new IdentityOutputStream(outbuffer);
+        } else {
+            return new ContentLengthOutputStream(outbuffer, len);
+        }
+    }
+
+    protected HttpEntity prepareOutputStream(final HttpMessage message) throws HttpException {
+        BasicHttpEntity entity = new BasicHttpEntity();
+        long len = this.outgoingContentStrategy.determineLength(message);
+        this.outstream = createOutputStream(len, this.outbuffer);
+        if (len == ContentLengthStrategy.CHUNKED) {
+            entity.setChunked(true);
+            entity.setContentLength(-1);
+        } else if (len == ContentLengthStrategy.IDENTITY) {
+            entity.setChunked(false);
+            entity.setContentLength(-1);
+        } else {
+            entity.setChunked(false);
+            entity.setContentLength(len);
+        }
+
+        Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
+        if (contentTypeHeader != null) {
+            entity.setContentType(contentTypeHeader);
+        }
+        Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
+        if (contentEncodingHeader != null) {
+            entity.setContentEncoding(contentEncodingHeader);
+        }
+        return entity;
+    }
+
+    protected InputStream createInputStream(
+            final long len,
+            final SessionInputBuffer inbuffer) {
+        if (len == ContentLengthStrategy.CHUNKED) {
+            return new ChunkedInputStream(inbuffer);
+        } else if (len == ContentLengthStrategy.IDENTITY) {
+            return new IdentityInputStream(inbuffer);
+        } else {
+            return new ContentLengthInputStream(inbuffer, len);
+        }
+    }
+
+    protected HttpEntity prepareInputStream(final HttpMessage message) throws HttpException {
+        BasicHttpEntity entity = new BasicHttpEntity();
+
+        long len = this.incomingContentStrategy.determineLength(message);
+        this.instream = createInputStream(len, this.inbuffer);
+        if (len == ContentLengthStrategy.CHUNKED) {
+            entity.setChunked(true);
+            entity.setContentLength(-1);
+            entity.setContent(this.instream);
+        } else if (len == ContentLengthStrategy.IDENTITY) {
+            entity.setChunked(false);
+            entity.setContentLength(-1);
+            entity.setContent(this.instream);
+        } else {
+            entity.setChunked(false);
+            entity.setContentLength(len);
+            entity.setContent(this.instream);
+        }
+
+        Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
+        if (contentTypeHeader != null) {
+            entity.setContentType(contentTypeHeader);
+        }
+        Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
+        if (contentEncodingHeader != null) {
+            entity.setContentEncoding(contentEncodingHeader);
+        }
+        return entity;
     }
 
     public InetAddress getLocalAddress() {
@@ -286,18 +410,6 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         return this.connMetrics;
     }
 
-    private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
-        if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = ((InetSocketAddress) socketAddress);
-            buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
-                addr.getAddress())
-            .append(':')
-            .append(addr.getPort());
-        } else {
-            buffer.append(socketAddress);
-        }
-    }
-
     @Override
     public String toString() {
         if (this.socket != null) {
@@ -305,9 +417,9 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             SocketAddress remoteAddress = this.socket.getRemoteSocketAddress();
             SocketAddress localAddress = this.socket.getLocalSocketAddress();
             if (remoteAddress != null && localAddress != null) {
-                formatAddress(buffer, localAddress);
+                NetUtils.formatAddress(buffer, localAddress);
                 buffer.append("<->");
-                formatAddress(buffer, remoteAddress);
+                NetUtils.formatAddress(buffer, remoteAddress);
             }
             return buffer.toString();
         } else {

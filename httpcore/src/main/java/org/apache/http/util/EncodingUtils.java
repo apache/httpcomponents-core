@@ -107,7 +107,7 @@ public final class EncodingUtils {
         try {
             return data.getBytes(Consts.ASCII.name());
         } catch (UnsupportedEncodingException e) {
-            throw new Error("HttpClient requires ASCII support");
+            throw new Error("ASCII not supported");
         }
     }
 
@@ -126,7 +126,7 @@ public final class EncodingUtils {
         try {
             return new String(data, offset, length, Consts.ASCII.name());
         } catch (UnsupportedEncodingException e) {
-            throw new Error("HttpClient requires ASCII support");
+            throw new Error("ASCII not supported");
         }
     }
 

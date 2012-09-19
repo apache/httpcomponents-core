@@ -82,6 +82,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharsetUtils;
+import org.apache.http.util.NetUtils;
 
 /**
  * This class serves as a base for all {@link NHttpConnection} implementations
@@ -464,27 +465,15 @@ public class NHttpConnectionBase
         return this.connMetrics;
     }
 
-    private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
-        if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = ((InetSocketAddress) socketAddress);
-            buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
-                addr.getAddress())
-            .append(':')
-            .append(addr.getPort());
-        } else {
-            buffer.append(socketAddress);
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         SocketAddress remoteAddress = this.session.getRemoteAddress();
         SocketAddress localAddress = this.session.getLocalAddress();
         if (remoteAddress != null && localAddress != null) {
-            formatAddress(buffer, localAddress);
+            NetUtils.formatAddress(buffer, localAddress);
             buffer.append("<->");
-            formatAddress(buffer, remoteAddress);
+            NetUtils.formatAddress(buffer, remoteAddress);
         }
         buffer.append("[");
         switch (this.status) {

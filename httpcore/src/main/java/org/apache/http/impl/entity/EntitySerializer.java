@@ -35,6 +35,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.BHttpConnectionBase;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
@@ -55,8 +56,11 @@ import org.apache.http.util.Args;
  * using a transfer coding based on properties on the HTTP message.
  *
  * @since 4.0
+ * 
+ * @deprecated (4.3) use {@link BHttpConnectionBase}
  */
 @Immutable // assuming injected dependencies are immutable
+@Deprecated
 public class EntitySerializer {
 
     private final ContentLengthStrategy lenStrategy;

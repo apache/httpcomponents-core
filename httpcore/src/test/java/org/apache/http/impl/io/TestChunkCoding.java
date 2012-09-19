@@ -183,7 +183,7 @@ public class TestChunkCoding {
     @Test
     public void testChunkedOutputStreamClose() throws IOException {
         ChunkedOutputStream out = new ChunkedOutputStream(
-                new SessionOutputBufferMock());
+                2048, new SessionOutputBufferMock());
         out.close();
         out.close();
         try {
@@ -329,7 +329,7 @@ public class TestChunkCoding {
     public void testChunkedConsistence() throws IOException {
         String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        OutputStream out = new ChunkedOutputStream(new SessionOutputBufferMock(buffer));
+        OutputStream out = new ChunkedOutputStream(2048, new SessionOutputBufferMock(buffer));
         out.write(EncodingUtils.getBytes(input, CONTENT_CHARSET));
         out.flush();
         out.close();
@@ -353,7 +353,7 @@ public class TestChunkCoding {
     @Test
     public void testChunkedOutputStream() throws IOException {
         SessionOutputBufferMock buffer = new SessionOutputBufferMock();
-        ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
+        ChunkedOutputStream out = new ChunkedOutputStream(2, buffer);
         out.write('1');
         out.write('2');
         out.write('3');
@@ -388,7 +388,7 @@ public class TestChunkCoding {
     @Test
     public void testChunkedOutputStreamLargeChunk() throws IOException {
         SessionOutputBufferMock buffer = new SessionOutputBufferMock();
-        ChunkedOutputStream out = new ChunkedOutputStream(buffer, 2);
+        ChunkedOutputStream out = new ChunkedOutputStream(2, buffer);
         out.write(new byte[] {'1', '2', '3', '4'});
         out.finish();
         out.close();
@@ -415,8 +415,7 @@ public class TestChunkCoding {
     @Test
     public void testChunkedOutputStreamSmallChunk() throws IOException {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        ChunkedOutputStream out = new ChunkedOutputStream(
-                new SessionOutputBufferMock(buffer), 2);
+        ChunkedOutputStream out = new ChunkedOutputStream(2, new SessionOutputBufferMock(buffer));
         out.write('1');
         out.finish();
         out.close();

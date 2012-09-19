@@ -60,19 +60,19 @@ public class ChunkedOutputStream extends OutputStream {
     /** True if the stream is closed. */
     private boolean closed = false;
 
-    // ----------------------------------------------------------- Constructors
     /**
      * Wraps a session output buffer and chunk-encodes the output.
      *
      * @param out The session output buffer
      * @param bufferSize The minimum chunk size (excluding last chunk)
-     * @throws IOException in case of an I/O error
+     * @throws IOException not thrown
+     * 
+     * @deprecated (4.3) use {@link ChunkedOutputStream#ChunkedOutputStream(int, SessionOutputBuffer)} 
      */
+    @Deprecated
     public ChunkedOutputStream(final SessionOutputBuffer out, int bufferSize)
             throws IOException {
-        super();
-        this.cache = new byte[bufferSize];
-        this.out = out;
+        this(bufferSize, out);
     }
 
     /**
@@ -80,14 +80,28 @@ public class ChunkedOutputStream extends OutputStream {
      * size of 2048 was chosen because the chunk overhead is less than 0.5%
      *
      * @param out       the output buffer to wrap
-     * @throws IOException in case of an I/O error
+     * @throws IOException not thrown
+     * 
+     * @deprecated (4.3) use {@link ChunkedOutputStream#ChunkedOutputStream(int, SessionOutputBuffer)} 
      */
+    @Deprecated
     public ChunkedOutputStream(final SessionOutputBuffer out)
             throws IOException {
-        this(out, 2048);
+        this(2048, out);
     }
 
-    // ----------------------------------------------------------- Internal methods
+    /**
+     * Wraps a session output buffer and chunk-encodes the output.
+     *
+     * @param bufferSize The minimum chunk size (excluding last chunk)
+     * @param out The session output buffer
+     */
+    public ChunkedOutputStream(int bufferSize, final SessionOutputBuffer out) {
+        super();
+        this.cache = new byte[bufferSize];
+        this.out = out;
+    }
+    
     /**
      * Writes the cache out onto the underlying stream
      */
