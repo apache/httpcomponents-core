@@ -1,3 +1,10 @@
+Changes since Release 4.2.2
+
+* [HTTPCORE-313] ContentType#parse now ignores empty attributes. HttpEntityUtils#toString now 
+  throws checked I/O exception if it  encounters an unsupported charset. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.2.2
 -------------------
 

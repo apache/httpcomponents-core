@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
@@ -209,8 +211,13 @@ public final class EntityUtils {
             if (i < 0) {
                 i = 4096;
             }
-            ContentType contentType = ContentType.getOrDefault(entity);
-            Charset charset = contentType.getCharset();
+            Charset charset = null;
+            try {
+                ContentType contentType = ContentType.getOrDefault(entity);
+                charset = contentType.getCharset();
+            } catch (UnsupportedCharsetException ex) {
+                throw new UnsupportedEncodingException(ex.getMessage());
+            }
             if (charset == null) {
                 charset = defaultCharset;
             }

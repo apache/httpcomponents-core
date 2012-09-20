@@ -177,7 +177,8 @@ public final class ContentType implements Serializable {
      */
     public static ContentType create(
             final String mimeType, final String charset) throws UnsupportedCharsetException {
-        return create(mimeType, charset != null ? Charset.forName(charset) : null);
+        return create(mimeType, 
+                (charset != null && charset.length() > 0) ? Charset.forName(charset) : null);
     }
 
     private static ContentType create(final HeaderElement helem) {
@@ -245,7 +246,8 @@ public final class ContentType implements Serializable {
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
      */
-    public static ContentType getOrDefault(final HttpEntity entity) throws ParseException {
+    public static ContentType getOrDefault(
+            final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
         ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;
     }
