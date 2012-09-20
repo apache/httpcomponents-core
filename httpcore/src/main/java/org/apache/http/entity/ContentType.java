@@ -41,6 +41,7 @@ import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.http.util.Args;
+import org.apache.http.util.TextUtils;
 
 /**
  * Content type information consisting of a MIME type and an optional charset.
@@ -143,7 +144,7 @@ public final class ContentType implements Serializable {
      * @return content type
      */
     public static ContentType create(final String mimeType, final Charset charset) {
-        String type = Args.notEmpty(mimeType, "MIME type").trim().toLowerCase(Locale.US);
+        String type = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.US);
         Args.check(valid(type), "MIME type may not contain reserved characters");
         return new ContentType(type, charset);
     }
@@ -170,7 +171,7 @@ public final class ContentType implements Serializable {
      */
     public static ContentType create(
             final String mimeType, final String charset) throws UnsupportedCharsetException {
-        return create(mimeType, charset != null ? Charset.forName(charset) : null);
+        return create(mimeType, !TextUtils.isBlank(charset) ? Charset.forName(charset) : null);
     }
 
     private static ContentType create(final HeaderElement helem) {
@@ -236,7 +237,8 @@ public final class ContentType implements Serializable {
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
      */
-    public static ContentType getOrDefault(final HttpEntity entity) throws ParseException {
+    public static ContentType getOrDefault(
+            final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
         ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;
     }

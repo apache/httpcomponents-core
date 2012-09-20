@@ -27,30 +27,28 @@
 
 package org.apache.http.util;
 
-public class Asserts {
+/**
+ * @since 4.3
+ */
+public final class TextUtils {
 
-    public static void check(boolean expression, final String message) {
-        if (!expression) {
-            throw new IllegalStateException(message);
+    public static boolean isEmpty(final CharSequence s) {
+        if (s == null) {
+            return true;
         }
-    }
-    
-    public static void notNull(final Object object, final String name) {
-        if (object == null) {
-            throw new IllegalStateException(name + " is null");
-        }
-    }
-    
-    public static void notEmpty(final CharSequence s, final String name) {
-        if (TextUtils.isEmpty(s)) {
-            throw new IllegalStateException(name + " is empty");
-        }
+        return s.length() == 0;
     }
 
-    public static void notBlank(final CharSequence s, final String name) {
-        if (TextUtils.isBlank(s)) {
-            throw new IllegalStateException(name + " is blank");
+    public static boolean isBlank(final CharSequence s) {
+        if (s == null) {
+            return true;
         }
+        for (int i = 0; i < s.length(); i++) {
+            if (!Character.isWhitespace(s.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

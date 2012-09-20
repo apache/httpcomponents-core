@@ -27,30 +27,51 @@
 
 package org.apache.http.util;
 
-public class Asserts {
+import org.junit.Test;
 
-    public static void check(boolean expression, final String message) {
-        if (!expression) {
-            throw new IllegalStateException(message);
-        }
-    }
-    
-    public static void notNull(final Object object, final String name) {
-        if (object == null) {
-            throw new IllegalStateException(name + " is null");
-        }
-    }
-    
-    public static void notEmpty(final CharSequence s, final String name) {
-        if (TextUtils.isEmpty(s)) {
-            throw new IllegalStateException(name + " is empty");
-        }
+/**
+ * Unit tests for {@link Asserts}.
+ */
+public class TestAsserts {
+
+    @Test
+    public void testExpressionCheckPass() {
+        Asserts.check(true, "All is well");
     }
 
-    public static void notBlank(final CharSequence s, final String name) {
-        if (TextUtils.isBlank(s)) {
-            throw new IllegalStateException(name + " is blank");
-        }
+    @Test(expected=IllegalStateException.class)
+    public void testExpressionCheckFail() {
+        Asserts.check(false, "Oopsie");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testExpressionNotNullFail() {
+        Asserts.notNull(null, "Stuff");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testExpressionNotEmptyFail1() {
+        Asserts.notEmpty((String) null, "Stuff");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testExpressionNotEmptyFail2() {
+        Asserts.notEmpty("", "Stuff");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testExpressionNotEmptyBlank1() {
+        Asserts.notBlank((String) null, "Stuff");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testExpressionNotEmptyBlank2() {
+        Asserts.notBlank("", "Stuff");
+    }
+
+    @Test(expected=IllegalStateException.class)
+    public void testExpressionNotBlankFail3() {
+        Asserts.notBlank(" \t \n\r", "Stuff");
     }
 
 }

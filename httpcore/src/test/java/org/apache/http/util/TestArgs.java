@@ -78,8 +78,18 @@ public class TestArgs {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testArgNotEmptyFail3() {
-        Args.notEmpty(" \t \n\r", "Stuff");
+    public void testArgNotBlankFail1() {
+        Args.notBlank((String) null, "Stuff");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testArgNotBlankFail2() {
+        Args.notBlank("", "Stuff");
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void testArgNotBlankFail3() {
+        Args.notBlank(" \t \n\r", "Stuff");
     }
 
     @Test

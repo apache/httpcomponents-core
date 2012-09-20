@@ -48,12 +48,20 @@ public class Args {
         if (argument == null) {
             throw new IllegalArgumentException(name + " may not be null");
         }
-        for (int i = 0; i < argument.length(); i++) {
-            if (!Character.isWhitespace(argument.charAt(i))) {
-                return argument;
-            }
+        if (TextUtils.isEmpty(argument)) {
+            throw new IllegalArgumentException(name + " may not be empty");
         }
-        throw new IllegalArgumentException(name + " may not be empty");
+        return argument;
+    }    
+    
+    public static <T extends CharSequence> T notBlank(final T argument, final String name) {
+        if (argument == null) {
+            throw new IllegalArgumentException(name + " may not be null");
+        }
+        if (TextUtils.isBlank(argument)) {
+            throw new IllegalArgumentException(name + " may not be blank");
+        }
+        return argument;
     }    
     
     public static <E, T extends Collection<E>> T notEmpty(final T argument, final String name) {

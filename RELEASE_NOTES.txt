@@ -1,5 +1,9 @@
 Changes since 4.2.1
 
+* [HTTPCORE-313] ContentType#parse now ignores empty and blank charset attributes. 
+  HttpEntityUtils#toString now throws checked I/O exception ifit  encounters an unsupported charset. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-312] NIO length delimited content encoder incorrectly handles messages larger than 2GB.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
