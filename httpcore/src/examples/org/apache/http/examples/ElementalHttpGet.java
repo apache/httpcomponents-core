@@ -34,8 +34,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
@@ -81,7 +81,7 @@ public class ElementalHttpGet {
         HttpContext context = new BasicHttpContext(null);
         HttpHost host = new HttpHost("localhost", 8080);
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(params);
         ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
 
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
@@ -97,7 +97,7 @@ public class ElementalHttpGet {
             for (int i = 0; i < targets.length; i++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, params);
+                    conn.bind(socket);
                 }
                 BasicHttpRequest request = new BasicHttpRequest("GET", targets[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());

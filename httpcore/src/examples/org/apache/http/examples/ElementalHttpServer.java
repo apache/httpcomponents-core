@@ -49,9 +49,9 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -190,9 +190,9 @@ public class ElementalHttpServer {
                 try {
                     // Set up HTTP connection
                     Socket socket = this.serversocket.accept();
-                    DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
+                    DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(this.params);
                     System.out.println("Incoming connection from " + socket.getInetAddress());
-                    conn.bind(socket, this.params);
+                    conn.bind(socket);
 
                     // Start worker thread
                     Thread t = new WorkerThread(this.httpService, conn);

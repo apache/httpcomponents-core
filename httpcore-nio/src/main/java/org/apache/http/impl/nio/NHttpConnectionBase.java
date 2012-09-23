@@ -85,10 +85,9 @@ import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.NetUtils;
 
 /**
- * This class serves as a base for all {@link NHttpConnection} implementations
- * and implements functionality common to both client and server
- * HTTP connections.
- * <p>
+ * This class serves as a base for all {@link NHttpConnection} implementations and provides
+ * functionality common to both client and server HTTP connections.
+ * <p/>
  * The following parameters can be used to customize the behavior of this
  * class:
  * <ul>

@@ -61,8 +61,11 @@ import org.apache.http.util.Args;
  * </ul>
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) use {@link DefaultBHttpClientConnection}
  */
 @NotThreadSafe
+@Deprecated
 public class SocketHttpClientConnection
         extends AbstractHttpClientConnection implements HttpInetConnection {
 

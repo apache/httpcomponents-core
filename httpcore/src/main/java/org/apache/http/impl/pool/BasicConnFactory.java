@@ -35,7 +35,7 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.impl.DefaultHttpClientConnection;
+import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
@@ -76,8 +76,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
     }
 
     protected HttpClientConnection create(final Socket socket, final HttpParams params) throws IOException {
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
-        conn.bind(socket, params);
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(params);
+        conn.bind(socket);
         return conn;
     }
 

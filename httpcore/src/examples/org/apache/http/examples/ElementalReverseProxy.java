@@ -42,10 +42,10 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
+import org.apache.http.impl.DefaultBHttpClientConnection;
+import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.DefaultHttpServerConnection;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
@@ -230,14 +230,14 @@ public class ElementalReverseProxy {
                 try {
                     // Set up incoming HTTP connection
                     Socket insocket = this.serversocket.accept();
-                    DefaultHttpServerConnection inconn = new DefaultHttpServerConnection();
+                    DefaultBHttpServerConnection inconn = new DefaultBHttpServerConnection(this.params);
                     System.out.println("Incoming connection from " + insocket.getInetAddress());
-                    inconn.bind(insocket, this.params);
+                    inconn.bind(insocket);
 
                     // Set up outgoing HTTP connection
                     Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort());
-                    DefaultHttpClientConnection outconn = new DefaultHttpClientConnection();
-                    outconn.bind(outsocket, this.params);
+                    DefaultBHttpClientConnection outconn = new DefaultBHttpClientConnection(this.params);
+                    outconn.bind(outsocket);
                     System.out.println("Outgoing connection to " + outsocket.getInetAddress());
 
                     // Start worker thread

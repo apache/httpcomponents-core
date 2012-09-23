@@ -54,7 +54,7 @@ import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.DefaultHttpClientConnection;
+import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.params.CoreProtocolPNames;
@@ -139,14 +139,14 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, this.client.getParams());
+                    conn.bind(socket);
                 }
 
                 BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
@@ -219,14 +219,14 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, this.client.getParams());
+                    conn.bind(socket);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -302,14 +302,14 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, this.client.getParams());
+                    conn.bind(socket);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -388,14 +388,14 @@ public class TestSyncHttp {
         this.client.getParams().setParameter(
                 CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, this.client.getParams());
+                    conn.bind(socket);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -475,14 +475,14 @@ public class TestSyncHttp {
         // Activate 'expect: continue' handshake
         this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, this.client.getParams());
+                    conn.bind(socket);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -569,14 +569,14 @@ public class TestSyncHttp {
         // Activate 'expect: continue' handshake
         this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, this.client.getParams());
+                    conn.bind(socket);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -727,7 +727,7 @@ public class TestSyncHttp {
         });
 
         this.server.start();
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -736,7 +736,7 @@ public class TestSyncHttp {
                 for (int n = 1000; n < 1020; n++) {
                     if (!conn.isOpen()) {
                         Socket socket = new Socket(host.getHostName(), host.getPort());
-                        conn.bind(socket, this.client.getParams());
+                        conn.bind(socket);
                     }
 
                     BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
@@ -799,13 +799,13 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             if (!conn.isOpen()) {
                 Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket, this.client.getParams());
+                conn.bind(socket);
             }
 
             BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -845,13 +845,13 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             if (!conn.isOpen()) {
                 Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket, this.client.getParams());
+                conn.bind(socket);
             }
 
             BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -898,13 +898,13 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             if (!conn.isOpen()) {
                 Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket, this.client.getParams());
+                conn.bind(socket);
             }
 
             BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -953,14 +953,14 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, this.client.getParams());
+                    conn.bind(socket);
                 }
 
                 BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);

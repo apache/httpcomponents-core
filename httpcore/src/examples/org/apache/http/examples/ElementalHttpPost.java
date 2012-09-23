@@ -39,8 +39,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
@@ -88,7 +88,7 @@ public class ElementalHttpPost {
 
         HttpHost host = new HttpHost("localhost", 8080);
 
-        DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(params);
         ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
 
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
@@ -110,7 +110,7 @@ public class ElementalHttpPost {
             for (int i = 0; i < requestBodies.length; i++) {
                 if (!conn.isOpen()) {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket, params);
+                    conn.bind(socket);
                 }
                 BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST",
                         "/servlets-examples/servlet/RequestInfoExample");

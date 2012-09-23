@@ -75,10 +75,9 @@ import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.NetUtils;
 
 /**
- * Implementation of a client-side HTTP connection that can be bound to an
- * arbitrary {@link Socket} for receiving data from and transmitting data to
- * a remote server.
- * <p>
+ * This class serves as a base for all {@link HttpConnection} implementations and provides
+ * functionality common to both client and server HTTP connections.
+ * <p/>
  * The following parameters can be used to customize the behavior of this
  * class:
  * <ul>
@@ -103,9 +102,6 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     private final HttpConnectionMetricsImpl connMetrics;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-
-    private InputStream instream;
-    private OutputStream outstream;
 
     private volatile boolean open;
     private volatile Socket socket;
@@ -175,6 +171,18 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         this.outbuffer.bind(socket.getOutputStream());
     }
 
+    protected SessionInputBuffer getSessionInputBuffer() {
+        return this.inbuffer;
+    }
+
+    protected SessionOutputBuffer getSessionOutputBuffer() {
+        return this.outbuffer;
+    }
+
+    protected void doFlush() throws IOException {
+        this.outbuffer.flush();
+    }
+
     public boolean isOpen() {
         return this.open;
     }
@@ -201,16 +209,6 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         return new StrictContentLengthStrategy();
     }
 
-    protected OutputStream getOutputStream() {
-        Asserts.check(this.outstream != null, "Output stream");
-        return this.outstream;
-    }
-
-    protected InputStream getInputStream() {
-        Asserts.check(this.instream != null, "Input stream");
-        return this.instream;
-    }
-
     protected OutputStream createOutputStream(
             final long len,
             final SessionOutputBuffer outbuffer) {
@@ -223,30 +221,9 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
-    protected HttpEntity prepareOutputStream(final HttpMessage message) throws HttpException {
-        BasicHttpEntity entity = new BasicHttpEntity();
+    protected OutputStream prepareOutput(final HttpMessage message) throws HttpException {
         long len = this.outgoingContentStrategy.determineLength(message);
-        this.outstream = createOutputStream(len, this.outbuffer);
-        if (len == ContentLengthStrategy.CHUNKED) {
-            entity.setChunked(true);
-            entity.setContentLength(-1);
-        } else if (len == ContentLengthStrategy.IDENTITY) {
-            entity.setChunked(false);
-            entity.setContentLength(-1);
-        } else {
-            entity.setChunked(false);
-            entity.setContentLength(len);
-        }
-
-        Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
-        if (contentTypeHeader != null) {
-            entity.setContentType(contentTypeHeader);
-        }
-        Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
-        if (contentEncodingHeader != null) {
-            entity.setContentEncoding(contentEncodingHeader);
-        }
-        return entity;
+        return createOutputStream(len, this.outbuffer);
     }
 
     protected InputStream createInputStream(
@@ -261,23 +238,23 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
-    protected HttpEntity prepareInputStream(final HttpMessage message) throws HttpException {
+    protected HttpEntity prepareInput(final HttpMessage message) throws HttpException {
         BasicHttpEntity entity = new BasicHttpEntity();
 
         long len = this.incomingContentStrategy.determineLength(message);
-        this.instream = createInputStream(len, this.inbuffer);
+        InputStream instream = createInputStream(len, this.inbuffer);
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
             entity.setContentLength(-1);
-            entity.setContent(this.instream);
+            entity.setContent(instream);
         } else if (len == ContentLengthStrategy.IDENTITY) {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(this.instream);
+            entity.setContent(instream);
         } else {
             entity.setChunked(false);
             entity.setContentLength(len);
-            entity.setContent(this.instream);
+            entity.setContent(instream);
         }
 
         Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
@@ -381,29 +358,39 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    protected boolean awaitInput(int timeout) throws IOException {
+        if (this.inbuffer.hasBufferedData()) {
+            return true;
+        }
+        int oldtimeout = this.socket.getSoTimeout();
+        try {
+            this.socket.setSoTimeout(1);
+            int i = this.inbuffer.fillBuffer();
+            return i != -1;
+        } finally {
+            this.socket.setSoTimeout(oldtimeout);
+        }
+    }
+
     public boolean isStale() {
         if (!isOpen()) {
             return true;
         }
-        if (this.inbuffer.hasBufferedData()) {
-            return false;
-        }
         try {
-            int oldtimeout = this.socket.getSoTimeout();
-            try {
-                this.socket.setSoTimeout(1);
-                int i = this.inbuffer.fillBuffer();
-                return i == -1;
-            } catch (SocketTimeoutException ex) {
-                throw ex;
-            } finally {
-                this.socket.setSoTimeout(oldtimeout);
-            }
+            return !awaitInput(1);
         } catch (SocketTimeoutException ex) {
             return false;
         } catch (IOException ex) {
             return true;
         }
+    }
+
+    protected void incrementRequestCount() {
+        this.connMetrics.incrementRequestCount();
+    }
+
+    protected void incrementResponseCount() {
+        this.connMetrics.incrementResponseCount();
     }
 
     public HttpConnectionMetrics getMetrics() {
