@@ -88,7 +88,6 @@ class BenchmarkWorker implements Runnable {
             boolean keepalive,
             int verbosity,
             final SocketFactory socketFactory) {
-
         super();
         this.context = new BasicHttpContext(null);
         this.request = request;
@@ -112,7 +111,7 @@ class BenchmarkWorker implements Runnable {
     public void run() {
 
         HttpResponse response = null;
-        BenchmarkConnection conn = new BenchmarkConnection(this.stats);
+        BenchmarkConnection conn = new BenchmarkConnection(stats, request.getParams());
 
         String scheme = targetHost.getSchemeName();
         String hostname = targetHost.getHostName();
@@ -151,7 +150,7 @@ class BenchmarkWorker implements Runnable {
                     socket.setSoTimeout(soTimeout);
                     socket.connect(new InetSocketAddress(hostname, port), connTimeout);
                     
-                    conn.bind(socket, params);
+                    conn.bind(socket);
                 }
 
                 try {

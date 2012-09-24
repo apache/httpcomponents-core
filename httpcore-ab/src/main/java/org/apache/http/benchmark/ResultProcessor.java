@@ -45,9 +45,8 @@ public class ResultProcessor {
         nf6.setMinimumFractionDigits(6);
     }
 
-    static String printResults(BenchmarkWorker[] workers, HttpHost host, String uri) {
-
-        double totalTimeNano = 0;
+    static Results collectResults(BenchmarkWorker[] workers, HttpHost host, String uri) {
+        long totalTimeNano = 0;
         long successCount    = 0;
         long failureCount    = 0;
         long writeErrors     = 0;
@@ -68,44 +67,56 @@ public class ResultProcessor {
             totalBytesSent += s.getTotalBytesSent();
         }
 
-        int threads = workers.length;
-        double totalTimeMs  = (totalTimeNano / threads) / 1000000; // convert nano secs to milli secs
-        double timePerReqMs = totalTimeMs / successCount;
+        Results results = new Results();
+        results.serverName = stats.getServerName();
+        results.hostName = host.getHostName();
+        results.hostPort = host.getPort() > 0 ? host.getPort() :
+            host.getSchemeName().equalsIgnoreCase("https") ? 443 : 80;
+        results.documentPath = uri;
+        results.contentLength = stats.getContentLength();
+        results.concurrencyLevel = workers.length;
+        results.totalTimeNano = totalTimeNano;
+        results.successCount = successCount;
+        results.failureCount = failureCount;
+        results.writeErrors = writeErrors;
+        results.keepAliveCount = keepAliveCount;
+        results.totalBytesRcvd = totalBytesRcvd;
+        results.totalBytesSent = totalBytesSent;
+        results.totalBytes = totalBytesRcvd + (totalBytesSent > 0 ? totalBytesSent : 0);
+        return results;
+    }
+
+    static void printResults(final Results results) {
+        int threads = results.getConcurrencyLevel();
+        double totalTimeMs  = (results.getTotalTimeNano() / threads) / 1000000; // convert nano secs to milli secs
+        double timePerReqMs = totalTimeMs / results.getSuccessCount();
         double totalTimeSec = totalTimeMs / 1000;
-        double reqsPerSec   = successCount / totalTimeSec;
-        long totalBytes     = totalBytesRcvd + (totalBytesSent > 0 ? totalBytesSent : 0);
+        double reqsPerSec   = results.getSuccessCount() / totalTimeSec;
 
-        StringBuilder sb = new StringBuilder(1024);
-
-        printAndAppend(sb,"\nServer Software:\t\t" + stats.getServerName());
-        printAndAppend(sb, "Server Hostname:\t\t" + host.getHostName());
-        printAndAppend(sb, "Server Port:\t\t\t" +
-            (host.getPort() > 0 ? Integer.valueOf(host.getPort()) : uri.startsWith("https") ? "443" : "80") + "\n");
-        printAndAppend(sb, "Document Path:\t\t\t" + uri);
-        printAndAppend(sb, "Document Length:\t\t" + stats.getContentLength() + " bytes\n");
-        printAndAppend(sb, "Concurrency Level:\t\t" + workers.length);
-        printAndAppend(sb, "Time taken for tests:\t\t" + nf6.format(totalTimeSec) + " seconds");
-        printAndAppend(sb, "Complete requests:\t\t" + successCount);
-        printAndAppend(sb, "Failed requests:\t\t" + failureCount);
-        printAndAppend(sb, "Write errors:\t\t\t" + writeErrors);
-        printAndAppend(sb, "Kept alive:\t\t\t" + keepAliveCount);
-        printAndAppend(sb, "Total transferred:\t\t" + totalBytes + " bytes");
-        printAndAppend(sb, "Requests per second:\t\t" + nf2.format(reqsPerSec) + " [#/sec] (mean)");
-        printAndAppend(sb, "Time per request:\t\t" + nf3.format(timePerReqMs * workers.length) + " [ms] (mean)");
-        printAndAppend(sb, "Time per request:\t\t" + nf3.format(timePerReqMs) +
+        System.out.println("\nServer Software:\t\t" + results.getServerName());
+        System.out.println( "Server Hostname:\t\t" + results.getHostName());
+        System.out.println( "Server Port:\t\t\t" + Integer.valueOf(results.getHostPort()));
+        System.out.println( "Document Path:\t\t\t" + results.getDocumentPath());
+        System.out.println( "Document Length:\t\t" + results.getContentLength() + " bytes\n");
+        System.out.println( "Concurrency Level:\t\t" + results.getConcurrencyLevel());
+        System.out.println( "Time taken for tests:\t\t" + nf6.format(totalTimeSec) + " seconds");
+        System.out.println( "Complete requests:\t\t" + results.getSuccessCount());
+        System.out.println( "Failed requests:\t\t" + results.getFailureCount());
+        System.out.println( "Write errors:\t\t\t" + results.getWriteErrors());
+        System.out.println( "Kept alive:\t\t\t" + results.getKeepAliveCount());
+        System.out.println( "Total transferred:\t\t" + results.getTotalBytes() + " bytes");
+        System.out.println( "Requests per second:\t\t" + nf2.format(reqsPerSec) + " [#/sec] (mean)");
+        System.out.println( "Time per request:\t\t" + nf3.format(timePerReqMs
+                * results.getConcurrencyLevel()) + " [ms] (mean)");
+        System.out.println( "Time per request:\t\t" + nf3.format(timePerReqMs) +
             " [ms] (mean, across all concurrent requests)");
-        printAndAppend(sb, "Transfer rate:\t\t\t" +
-            nf2.format(totalBytesRcvd/1000/totalTimeSec) + " [Kbytes/sec] received");
-        printAndAppend(sb, "\t\t\t\t" +
-            (totalBytesSent > 0 ? nf2.format(totalBytesSent/1000/totalTimeSec) : Integer.valueOf(-1)) + " kb/s sent");
-        printAndAppend(sb, "\t\t\t\t" +
-            nf2.format(totalBytes/1000/totalTimeSec) + " kb/s total");
-
-        return sb.toString();
+        System.out.println( "Transfer rate:\t\t\t" +
+            nf2.format(results.getTotalBytesRcvd() / 1000 / totalTimeSec) + " [Kbytes/sec] received");
+        System.out.println( "\t\t\t\t" +
+            (results.getTotalBytesSent() > 0 ? nf2.format(results.getTotalBytesSent()
+                    / 1000 / totalTimeSec) : Integer.valueOf(-1)) + " kb/s sent");
+        System.out.println( "\t\t\t\t" +
+            nf2.format(results.getTotalBytes() / 1000 / totalTimeSec) + " kb/s total");
     }
 
-    private static void printAndAppend(StringBuilder sb, String s) {
-        System.out.println(s);
-        sb.append(s).append("\r\n");
-    }
 }

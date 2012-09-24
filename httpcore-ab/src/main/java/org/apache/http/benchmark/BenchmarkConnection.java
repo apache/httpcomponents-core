@@ -26,59 +26,31 @@
  */
 package org.apache.http.benchmark;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpMessage;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.DefaultHttpClientConnection;
-import org.apache.http.impl.entity.EntityDeserializer;
-import org.apache.http.impl.entity.EntitySerializer;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.params.HttpParams;
 
-class BenchmarkConnection extends DefaultHttpClientConnection {
+class BenchmarkConnection extends DefaultBHttpClientConnection {
 
     private final Stats stats;
     
-    BenchmarkConnection(final Stats stats) {
-        super();
+    BenchmarkConnection(final Stats stats, final HttpParams params) {
+        super(params);
         this.stats = stats;
     }
 
     @Override
-    protected EntityDeserializer createEntityDeserializer() {
-        return new EntityDeserializer(new LaxContentLengthStrategy()) {
-
-            @Override
-            protected BasicHttpEntity doDeserialize(
-                    final SessionInputBuffer inbuffer, 
-                    final HttpMessage message) throws HttpException, IOException {
-                BasicHttpEntity entity = super.doDeserialize(inbuffer, message);
-                InputStream instream = entity.getContent();
-                entity.setContent(new CountingInputStream(instream, stats));
-                return entity;
-            }
-            
-        };
+    protected OutputStream createOutputStream(final long len, final SessionOutputBuffer outbuffer) {
+        return new CountingOutputStream(super.createOutputStream(len, outbuffer), this.stats);
     }
 
     @Override
-    protected EntitySerializer createEntitySerializer() {
-        return new EntitySerializer(new StrictContentLengthStrategy()) {
-
-            @Override
-            protected OutputStream doSerialize(
-                    final SessionOutputBuffer outbuffer, 
-                    final HttpMessage message) throws HttpException, IOException {
-                return new CountingOutputStream(super.doSerialize(outbuffer, message), stats);
-            }
-            
-        };
+    protected InputStream createInputStream(final long len, final SessionInputBuffer inbuffer) {
+        return new CountingInputStream(super.createInputStream(len, inbuffer), this.stats);
     }
-    
+
 }

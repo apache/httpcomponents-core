@@ -173,6 +173,12 @@ public class HttpBenchmark {
     }
 
     public String execute() throws Exception {
+        Results results = doExecute();
+        ResultProcessor.printResults(results);
+        return "";
+    }
+    
+    public Results doExecute() throws Exception {
 
         URL url = config.getUrl();
         HttpHost host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
@@ -266,7 +272,7 @@ public class HttpBenchmark {
         }
 
         workerPool.shutdown();
-        return ResultProcessor.printResults(workers, host, config.getUrl().toString());
+        return ResultProcessor.collectResults(workers, host, config.getUrl().toString());
     }
 
 }
