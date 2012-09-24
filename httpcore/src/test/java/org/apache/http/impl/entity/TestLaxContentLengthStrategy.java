@@ -28,9 +28,7 @@
 package org.apache.http.impl.entity;
 
 import org.apache.http.HttpMessage;
-import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.params.CoreProtocolPNames;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,15 +39,9 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "identity, chunked");
         message.addHeader("Content-Length", "plain wrong");
-        Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
         Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
     }
 
@@ -58,8 +50,6 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "identity");
         message.addHeader("Content-Length", "plain wrong");
@@ -71,21 +61,10 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "whatever; param=value, chunked");
         message.addHeader("Content-Length", "plain wrong");
         Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -93,21 +72,10 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "chunked, identity");
         message.addHeader("Content-Length", "plain wrong");
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -115,8 +83,6 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "0");
         Assert.assertEquals(0, lenStrategy.determineLength(message));
@@ -127,22 +93,11 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "0");
         message.addHeader("Content-Length", "0");
         message.addHeader("Content-Length", "1");
         Assert.assertEquals(1, lenStrategy.determineLength(message));
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -150,22 +105,11 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "1");
         message.addHeader("Content-Length", "yyy");
         message.addHeader("Content-Length", "xxx");
         Assert.assertEquals(1, lenStrategy.determineLength(message));
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -173,21 +117,10 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "yyy");
         message.addHeader("Content-Length", "xxx");
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -195,20 +128,9 @@ public class TestLaxContentLengthStrategy {
         ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         HttpMessage message = new DummyHttpMessage();
 
-        // lenient mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, false);
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "xxx");
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            lenStrategy.determineLength(message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test

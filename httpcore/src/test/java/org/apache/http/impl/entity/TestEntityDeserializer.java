@@ -32,7 +32,6 @@ import java.io.InputStream;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
-import org.apache.http.ProtocolException;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
@@ -126,15 +125,6 @@ public class TestEntityDeserializer {
         Assert.assertEquals(-1, entity.getContentLength());
         Assert.assertTrue(entity.isChunked());
         Assert.assertTrue(entity.getContent() instanceof ChunkedInputStream);
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            entitygen.deserialize(inbuffer, message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -154,15 +144,6 @@ public class TestEntityDeserializer {
         Assert.assertEquals(-1, entity.getContentLength());
         Assert.assertFalse(entity.isChunked());
         Assert.assertFalse(entity.getContent() instanceof ChunkedInputStream);
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            entitygen.deserialize(inbuffer, message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -203,15 +184,6 @@ public class TestEntityDeserializer {
         InputStream instream = entity.getContent();
         Assert.assertNotNull(instream);
         Assert.assertTrue(instream instanceof ContentLengthInputStream);
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            entitygen.deserialize(inbuffer, message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -234,15 +206,6 @@ public class TestEntityDeserializer {
         InputStream instream = entity.getContent();
         Assert.assertNotNull(instream);
         Assert.assertTrue(instream instanceof ContentLengthInputStream);
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            entitygen.deserialize(inbuffer, message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -265,15 +228,6 @@ public class TestEntityDeserializer {
         Assert.assertNotNull(instream);
         Assert.assertFalse(instream instanceof ContentLengthInputStream);
         Assert.assertTrue(instream instanceof IdentityInputStream);
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            entitygen.deserialize(inbuffer, message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test
@@ -295,15 +249,6 @@ public class TestEntityDeserializer {
         Assert.assertNotNull(instream);
         Assert.assertFalse(instream instanceof ContentLengthInputStream);
         Assert.assertTrue(instream instanceof IdentityInputStream);
-
-        // strict mode
-        message.getParams().setBooleanParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, true);
-        try {
-            entitygen.deserialize(inbuffer, message);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
-            // expected
-        }
     }
 
     @Test

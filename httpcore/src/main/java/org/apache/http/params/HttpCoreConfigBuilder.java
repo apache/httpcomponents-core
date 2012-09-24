@@ -58,7 +58,6 @@ public class HttpCoreConfigBuilder {
     private CodingErrorAction unmappableInputAction;
     private String originServer;
     private HttpVersion protocolVersion;
-    private Boolean strictTransferEncoding;
     private Boolean useExpectContinue;
     private String userAgent;
     private Integer waitForContinue;
@@ -211,15 +210,6 @@ public class HttpCoreConfigBuilder {
         return this;
     }
 
-    public Boolean getStrictTransferEncoding() {
-        return strictTransferEncoding;
-    }
-
-    public HttpCoreConfigBuilder setStrictTransferEncoding(final Boolean strictTransferEncoding) {
-        this.strictTransferEncoding = strictTransferEncoding;
-        return this;
-    }
-
     public String getUserAgent() {
         return userAgent;
     }
@@ -296,9 +286,6 @@ public class HttpCoreConfigBuilder {
         }
         if (protocolVersion != null) {
             params.setParameter(CoreProtocolPNames.PROTOCOL_VERSION, protocolVersion);
-        }
-        if (strictTransferEncoding != null) {
-            params.setParameter(CoreProtocolPNames.STRICT_TRANSFER_ENCODING, strictTransferEncoding);
         }
         if (useExpectContinue != null) {
             params.setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, useExpectContinue);
