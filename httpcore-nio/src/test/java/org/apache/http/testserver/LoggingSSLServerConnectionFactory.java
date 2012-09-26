@@ -24,29 +24,35 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http;
+package org.apache.http.testserver;
 
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.HttpRequestFactory;
+import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
-public class LoggingClientConnectionFactory extends DefaultNHttpClientConnectionFactory {
+public class LoggingSSLServerConnectionFactory extends SSLNHttpServerConnectionFactory {
 
-    public LoggingClientConnectionFactory(final HttpParams params) {
-        super(DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
+    public LoggingSSLServerConnectionFactory(
+            final SSLContext sslcontext,
+            final HttpParams params) {
+        super(sslcontext, null, DefaultHttpRequestFactory.INSTANCE, 
+                HeapByteBufferAllocator.INSTANCE, params);
     }
 
     @Override
-    protected DefaultNHttpClientConnection createConnection(
+    protected DefaultNHttpServerConnection createConnection(
             final IOSession session,
-            final HttpResponseFactory responseFactory,
+            final HttpRequestFactory requestFactory,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
-        return new LoggingNHttpClientConnection(session, responseFactory, allocator, params);
+        return new LoggingNHttpServerConnection(session, requestFactory, allocator, params);
     }
 
 }

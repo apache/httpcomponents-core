@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.testserver;
 
 import java.net.URL;
 import java.security.KeyStore;

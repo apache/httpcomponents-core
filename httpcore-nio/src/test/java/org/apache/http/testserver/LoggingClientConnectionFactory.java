@@ -24,24 +24,30 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http;
+package org.apache.http.testserver;
 
-import java.io.IOException;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.params.HttpParams;
 
-import org.apache.http.nio.reactor.IOReactorExceptionHandler;
+public class LoggingClientConnectionFactory extends DefaultNHttpClientConnectionFactory {
 
-class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandler {
-
-    public boolean handle(final RuntimeException ex) {
-        if (!(ex instanceof OoopsieRuntimeException)) {
-            ex.printStackTrace(System.out);
-        }
-        return false;
+    public LoggingClientConnectionFactory(final HttpParams params) {
+        super(DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
     }
 
-    public boolean handle(final IOException ex) {
-        ex.printStackTrace(System.out);
-        return false;
+    @Override
+    protected DefaultNHttpClientConnection createConnection(
+            final IOSession session,
+            final HttpResponseFactory responseFactory,
+            final ByteBufferAllocator allocator,
+            final HttpParams params) {
+        return new LoggingNHttpClientConnection(session, responseFactory, allocator, params);
     }
 
 }

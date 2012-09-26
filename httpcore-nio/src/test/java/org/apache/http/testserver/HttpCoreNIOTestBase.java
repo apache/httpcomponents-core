@@ -25,8 +25,10 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.testserver;
 
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
@@ -49,8 +51,6 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.testserver.HttpClientNio;
-import org.apache.http.testserver.HttpServerNio;
 import org.junit.After;
 
 /**

@@ -27,13 +27,13 @@
 
 package org.apache.http.impl.nio.reactor;
 
-import org.apache.http.LoggingSSLClientConnectionFactory;
-import org.apache.http.LoggingSSLServerConnectionFactory;
-import org.apache.http.SSLTestContexts;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.params.HttpParams;
+import org.apache.http.testserver.LoggingSSLClientConnectionFactory;
+import org.apache.http.testserver.LoggingSSLServerConnectionFactory;
+import org.apache.http.testserver.SSLTestContexts;
 
 /**
  * Basic functionality tests for SSL I/O reactors.

@@ -25,9 +25,7 @@
  *
  */
 
-package org.apache.http;
-
-import java.nio.ByteBuffer;
+package org.apache.http.testserver;
 
 import org.apache.commons.logging.Log;
 
@@ -97,26 +95,6 @@ class Wire {
 
     public void input(int b) {
         input(new byte[] {(byte) b});
-    }
-
-    public void output(final ByteBuffer b) {
-        if (b.hasArray()) {
-            output(b.array(), b.arrayOffset() + b.position(), b.remaining());
-        } else {
-            byte[] tmp = new byte[b.remaining()];
-            b.get(tmp);
-            output(tmp);
-        }
-    }
-
-    public void input(final ByteBuffer b) {
-        if (b.hasArray()) {
-            input(b.array(), b.arrayOffset() + b.position(), b.remaining());
-        } else {
-            byte[] tmp = new byte[b.remaining()];
-            b.get(tmp);
-            input(tmp);
-        }
     }
 
 }

@@ -24,34 +24,48 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http;
 
-import javax.net.ssl.SSLContext;
+package org.apache.http.testserver;
 
-import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
-import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpParams;
+import java.io.IOException;
+import java.io.OutputStream;
 
-public class LoggingSSLServerConnectionFactory extends SSLNHttpServerConnectionFactory {
+class LoggingOutputStream extends OutputStream {
 
-    public LoggingSSLServerConnectionFactory(
-            final SSLContext sslcontext,
-            final HttpParams params) {
-        super(sslcontext, null, DefaultHttpRequestFactory.INSTANCE, 
-                HeapByteBufferAllocator.INSTANCE, params);
+    private final OutputStream out;
+    private final Wire wire;
+
+    public LoggingOutputStream(final OutputStream out, final Wire wire) {
+        super();
+        this.out = out;
+        this.wire = wire;
     }
 
     @Override
-    protected DefaultNHttpServerConnection createConnection(
-            final IOSession session,
-            final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        return new LoggingNHttpServerConnection(session, requestFactory, allocator, params);
+    public void write(int b) throws IOException {
+        wire.output(b);
+    }
+
+    @Override
+    public void write(byte[] b) throws IOException {
+        wire.output(b);
+        out.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+        wire.output(b, off, len);
+        out.write(b, off, len);
+    }
+
+    @Override
+    public void flush() throws IOException {
+        out.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+        out.close();
     }
 
 }

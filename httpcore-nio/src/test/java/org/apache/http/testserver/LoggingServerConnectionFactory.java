@@ -24,32 +24,30 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.testserver;
 
-package org.apache.http.nio.integration;
-
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.HttpRequestFactory;
+import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParams;
-import org.apache.http.testserver.LoggingSSLClientConnectionFactory;
-import org.apache.http.testserver.LoggingSSLServerConnectionFactory;
-import org.apache.http.testserver.SSLTestContexts;
 
-/**
- * HttpCore NIO integration tests for async handlers using SSL.
- */
-public class TestHttpsAsyncHandlers extends TestHttpAsyncHandlers {
+public class LoggingServerConnectionFactory extends DefaultNHttpServerConnectionFactory {
 
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingSSLServerConnectionFactory(SSLTestContexts.createServerSSLContext(), params);
+    public LoggingServerConnectionFactory(final HttpParams params) {
+        super(DefaultHttpRequestFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext(), params);
+    protected DefaultNHttpServerConnection createConnection(
+            final IOSession session,
+            final HttpRequestFactory requestFactory,
+            final ByteBufferAllocator allocator,
+            final HttpParams params) {
+        return new LoggingNHttpServerConnection(session, requestFactory, allocator, params);
     }
 
 }

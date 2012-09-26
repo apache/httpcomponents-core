@@ -24,10 +24,11 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http;
+package org.apache.http.testserver;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;

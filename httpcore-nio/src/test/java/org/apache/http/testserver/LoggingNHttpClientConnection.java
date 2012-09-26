@@ -25,20 +25,25 @@
  *
  */
 
-package org.apache.http;
+package org.apache.http.testserver;
 
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.nio.NHttpServerEventHandler;
+import org.apache.http.Header;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
 
-public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
+public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
 
     private static final AtomicLong COUNT = new AtomicLong();
 
@@ -48,17 +53,17 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     private final Log wirelog;
     private final String id;
 
-    public LoggingNHttpServerConnection(
+    public LoggingNHttpClientConnection(
             final IOSession session,
-            final HttpRequestFactory requestFactory,
+            final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
-        super(session, requestFactory, allocator, params);
+        super(session, responseFactory, allocator, params);
         this.log = LogFactory.getLog(getClass());
         this.iolog = LogFactory.getLog(session.getClass());
         this.headerlog = LogFactory.getLog("org.apache.http.headers");
         this.wirelog = LogFactory.getLog("org.apache.http.wire");
-        this.id = "http-incoming-" + COUNT.incrementAndGet();
+        this.id = "http-outgoing-" + COUNT.incrementAndGet();
         if (this.iolog.isDebugEnabled() || this.wirelog.isDebugEnabled()) {
             this.session = new LoggingIOSession(session, this.id, this.iolog, this.wirelog);
         }
@@ -81,15 +86,15 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     }
 
     @Override
-    public void submitResponse(final HttpResponse response) throws IOException, HttpException {
+    public void submitRequest(final HttpRequest request) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + ": "  + response.getStatusLine().toString());
+            this.log.debug(this.id + ": "  + request.getRequestLine().toString());
         }
-        super.submitResponse(response);
+        super.submitRequest(request);
     }
 
     @Override
-    public void consumeInput(final NHttpServerEventHandler handler) {
+    public void consumeInput(final NHttpClientEventHandler handler) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + ": Consume input");
         }
@@ -97,7 +102,7 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     }
 
     @Override
-    public void produceOutput(final NHttpServerEventHandler handler) {
+    public void produceOutput(final NHttpClientEventHandler handler) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + ": Produce output");
         }
@@ -105,23 +110,23 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     }
 
     @Override
-    protected void onRequestReceived(final HttpRequest request) {
-        if (request != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(this.id + " >> " + request.getRequestLine().toString());
-            Header[] headers = request.getAllHeaders();
-            for (int i = 0; i < headers.length; i++) {
-                this.headerlog.debug(this.id + " >> " + headers[i].toString());
-            }
-        }
-    }
-
-    @Override
-    protected void onResponseSubmitted(final HttpResponse response) {
+    protected void onResponseReceived(final HttpResponse response) {
         if (response != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(this.id + " << " + response.getStatusLine().toString());
             Header[] headers = response.getAllHeaders();
             for (int i = 0; i < headers.length; i++) {
                 this.headerlog.debug(this.id + " << " + headers[i].toString());
+            }
+        }
+    }
+
+    @Override
+    protected void onRequestSubmitted(final HttpRequest request) {
+        if (request != null && this.headerlog.isDebugEnabled()) {
+            this.headerlog.debug(id + " >> " + request.getRequestLine().toString());
+            Header[] headers = request.getAllHeaders();
+            for (int i = 0; i < headers.length; i++) {
+                this.headerlog.debug(this.id + " >> " + headers[i].toString());
             }
         }
     }
