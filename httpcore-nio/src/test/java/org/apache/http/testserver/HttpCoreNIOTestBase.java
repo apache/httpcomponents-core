@@ -36,9 +36,7 @@ import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -75,12 +73,11 @@ public abstract class HttpCoreNIOTestBase {
             HttpParams params) throws Exception;
 
     public void initServer() throws Exception {
-        this.serverParams = new BasicHttpParams();
-        this.serverParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
+        this.serverParams = new HttpCoreConfigBuilder()
+            .setSocketTimeout(60000)
+            .setSocketBufferSize(8 * 1024)
+            .setTcpNoDelay(true)
+            .setOriginServer("TEST-SERVER/1.1").build();
         this.server = new HttpServerNio(createServerConnectionFactory(this.serverParams));
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -92,14 +89,12 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     public void initClient() throws Exception {
-        this.clientParams = new BasicHttpParams();
-        this.clientParams
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
-            .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
-
+        this.clientParams = new HttpCoreConfigBuilder()
+            .setSocketTimeout(60000)
+            .setConnectTimeout(60000)
+            .setSocketBufferSize(8 * 1024)
+            .setTcpNoDelay(true)
+            .setUserAgent("TEST-CLIENT/1.1").build();
         this.client = new HttpClientNio(createClientConnectionFactory(this.clientParams));
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {

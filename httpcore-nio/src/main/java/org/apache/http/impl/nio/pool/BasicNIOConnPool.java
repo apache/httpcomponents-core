@@ -40,6 +40,7 @@ import org.apache.http.nio.pool.AbstractNIOConnPool;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnPool;
 import org.apache.http.util.Args;
@@ -106,7 +107,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final HttpHost route,
             final Object state,
             final FutureCallback<BasicNIOPoolEntry> callback) {
-        int connectTimeout = this.params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+        int connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
         return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, callback);
     }
 
@@ -114,7 +115,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     public Future<BasicNIOPoolEntry> lease(
             final HttpHost route,
             final Object state) {
-        int connectTimeout = this.params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+        int connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
         return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, null);
     }
 

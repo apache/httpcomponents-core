@@ -32,18 +32,38 @@ import java.io.OutputStream;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.message.AbstractHttpMessage;
 import org.junit.Assert;
 import org.junit.Test;
 
 @Deprecated
 public class TestEntitySerializer {
+
+    static class TestHttpMessage extends AbstractHttpMessage {
+
+        private final ProtocolVersion ver;
+
+        public TestHttpMessage(final ProtocolVersion ver) {
+            super();
+            this.ver = ver != null ? ver : HttpVersion.HTTP_1_1;
+        }
+
+        public TestHttpMessage() {
+            this(HttpVersion.HTTP_1_1);
+        }
+
+        public ProtocolVersion getProtocolVersion() {
+            return ver;
+        }
+
+    }
 
     @Test
     public void testIllegalGenerateArg() throws Exception {
@@ -114,9 +134,7 @@ public class TestEntitySerializer {
     @Test
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
         SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
-        message.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
-                HttpVersion.HTTP_1_0);
+        HttpMessage message = new DummyHttpMessage(HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
 
         EntitySerializer entitywriter = new EntitySerializer(

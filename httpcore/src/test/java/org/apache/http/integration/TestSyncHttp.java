@@ -473,7 +473,7 @@ public class TestSyncHttp {
         this.server.start();
 
         // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        this.client.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
 
         DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
@@ -567,7 +567,7 @@ public class TestSyncHttp {
         this.server.start();
 
         // Activate 'expect: continue' handshake
-        this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        this.client.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
 
         DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());

@@ -98,7 +98,10 @@ public interface HttpParams {
      * @return a {@link Long} that represents the value of the parameter.
      *
      * @see #setLongParameter(String, long)
+     *
+     * @deprecated (4.3) use {@link Config#getLong(HttpParams, String, long)}
      */
+    @Deprecated
     long getLongParameter(String name, long defaultValue);
 
     /**
@@ -106,7 +109,10 @@ public interface HttpParams {
      *
      * @param name parameter name
      * @param value parameter value
+     *
+     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
      */
+    @Deprecated
     HttpParams setLongParameter(String name, long value);
 
     /**
@@ -119,7 +125,10 @@ public interface HttpParams {
      * @return a {@link Integer} that represents the value of the parameter.
      *
      * @see #setIntParameter(String, int)
+     *
+     * @deprecated (4.3) use {@link Config#getInt(HttpParams, String, int)}
      */
+    @Deprecated
     int getIntParameter(String name, int defaultValue);
 
     /**
@@ -127,7 +136,10 @@ public interface HttpParams {
      *
      * @param name parameter name
      * @param value parameter value
+     *
+     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
      */
+    @Deprecated
     HttpParams setIntParameter(String name, int value);
 
     /**
@@ -140,7 +152,10 @@ public interface HttpParams {
      * @return a {@link Double} that represents the value of the parameter.
      *
      * @see #setDoubleParameter(String, double)
+     *
+     * @deprecated (4.3) use {@link Config#getDouble(HttpParams, String, double)}
      */
+    @Deprecated
     double getDoubleParameter(String name, double defaultValue);
 
     /**
@@ -148,7 +163,10 @@ public interface HttpParams {
      *
      * @param name parameter name
      * @param value parameter value
+     *
+     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
      */
+    @Deprecated
     HttpParams setDoubleParameter(String name, double value);
 
     /**
@@ -161,7 +179,10 @@ public interface HttpParams {
      * @return a {@link Boolean} that represents the value of the parameter.
      *
      * @see #setBooleanParameter(String, boolean)
+     *
+     * @deprecated (4.3) use {@link Config#getBool(HttpParams, String, boolean)}
      */
+    @Deprecated
     boolean getBooleanParameter(String name, boolean defaultValue);
 
     /**
@@ -169,7 +190,10 @@ public interface HttpParams {
      *
      * @param name parameter name
      * @param value parameter value
+     *
+     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
      */
+    @Deprecated
     HttpParams setBooleanParameter(String name, boolean value);
 
     /**
@@ -179,7 +203,10 @@ public interface HttpParams {
      *
      * @return <tt>true</tt> if the parameter is set to value <tt>true</tt>,
      *         <tt>false</tt> if it is not set or set to <code>false</code>
+     *
+     * @deprecated (4.3) use {@link Config#isTrue(HttpParams, String)}
      */
+    @Deprecated
     boolean isParameterTrue(String name);
 
     /**
@@ -190,7 +217,10 @@ public interface HttpParams {
      * @return <tt>true</tt> if the parameter is either not set or
      *         set to value <tt>false</tt>,
      *         <tt>false</tt> if it is set to <code>true</code>
+     *
+     * @deprecated (4.3) use {@link Config#isFalse(HttpParams, String)}
      */
+    @Deprecated
     boolean isParameterFalse(String name);
 
 }

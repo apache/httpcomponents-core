@@ -38,6 +38,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -70,7 +71,7 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
             if (entity != null && entity.getContentLength() != 0) {
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 HttpParams params = request.getParams();
-                if (params.getBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, false)
+                if (Config.isTrue(params, CoreProtocolPNames.USE_EXPECT_CONTINUE)
                         && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                     request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
                 }

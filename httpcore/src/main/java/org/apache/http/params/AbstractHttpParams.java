@@ -36,7 +36,10 @@ import java.util.Set;
  * generic getters and setters.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) use {@link Config} methods
  */
+@Deprecated
 public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames {
 
     /**

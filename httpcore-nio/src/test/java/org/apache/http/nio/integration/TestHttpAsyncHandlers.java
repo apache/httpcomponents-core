@@ -466,7 +466,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         for (int i = 0; i < 30; i++) {
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                     "POST", createRequestUri(pattern, count));
-            request.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+            request.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
             NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
             Future<HttpResponse> future = this.executor.execute(
@@ -515,15 +515,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request1.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request1.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request2.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request2.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("BBBBB", 10));
-        request3.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request3.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
         HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
@@ -666,15 +666,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request1.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request1.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request2.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request2.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("BBBBB", 10));
-        request3.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        request3.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
         HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };

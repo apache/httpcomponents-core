@@ -44,6 +44,7 @@ import org.apache.http.annotation.ThreadSafe;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @ThreadSafe
 public class BasicHttpParams extends AbstractHttpParams implements Serializable, Cloneable {
 

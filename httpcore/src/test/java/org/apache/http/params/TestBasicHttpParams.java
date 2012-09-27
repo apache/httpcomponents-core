@@ -59,7 +59,7 @@ public class TestBasicHttpParams {
         BasicHttpParams params = new BasicHttpParams();
         Set<String> nameSet = params.getNames();
         Assert.assertTrue(nameSet.isEmpty());
-        params.setBooleanParameter("true", true);
+        params.setParameter("true", true);
         Assert.assertTrue(nameSet.isEmpty()); // Still empty, as it is a snapshot
         nameSet = params.getNames();
         Assert.assertFalse(nameSet.isEmpty());

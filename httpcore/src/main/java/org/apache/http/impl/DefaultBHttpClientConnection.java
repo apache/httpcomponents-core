@@ -51,6 +51,7 @@ import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.message.LineParser;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -111,8 +112,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final LineParser lineParser,
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
-        int maxHeaderCount = params.getIntParameter(CoreConnectionPNames.MAX_HEADER_COUNT, -1);
-        int maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
+        int maxHeaderCount = Config.getInt(params, CoreConnectionPNames.MAX_HEADER_COUNT, -1);
+        int maxLineLen = Config.getInt(params, CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         return new DefaultHttpResponseParser(
                 buffer, maxHeaderCount, maxLineLen, lineParser, responseFactory);
     }

@@ -32,7 +32,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -108,18 +107,13 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     }
 
     /**
-     * Returns the request line of this request. If an HTTP protocol version
-     * was not explicitly set at the construction time, this method will obtain
-     * it from the {@link HttpParams} instance associated with the object.
+     * Returns the request line of this request.
      *
      * @see #BasicHttpRequest(String, String)
      */
     public RequestLine getRequestLine() {
         if (this.requestline == null) {
-            ProtocolVersion ver = (ProtocolVersion) getParams().getParameter
-                    (CoreProtocolPNames.PROTOCOL_VERSION);
-            this.requestline = new BasicRequestLine(this.method, this.uri, 
-                    ver != null ? ver : HttpVersion.HTTP_1_1);
+            this.requestline = new BasicRequestLine(this.method, this.uri, HttpVersion.HTTP_1_1);
         }
         return this.requestline;
     }

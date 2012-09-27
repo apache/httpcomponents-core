@@ -67,6 +67,7 @@ import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
@@ -109,24 +110,24 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     public BHttpConnectionBase(final HttpParams params) {
         super();
         Args.notNull(params, "HTTP parameters");
-        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
+        int buffersize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
         if (buffersize <= 0) {
             buffersize = 4096;
         }
-        int maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
-        int minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, -1);
+        int maxLineLen = Config.getInt(params, CoreConnectionPNames.MAX_LINE_LENGTH, -1);
+        int minChunkLimit = Config.getInt(params, CoreConnectionPNames.MIN_CHUNK_LIMIT, -1);
         CharsetDecoder decoder = null;
         CharsetEncoder encoder = null;
-        Charset charset = CharsetUtils.lookup(
-                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
+        Charset charset = CharsetUtils.lookup(Config.getString(params,
+                CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
         if (charset != null) {
             charset = Consts.ASCII;
             decoder = charset.newDecoder();
             encoder = charset.newEncoder();
-            CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-            CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+            CodingErrorAction malformedCharAction = Config.getValue(params,
+                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION, CodingErrorAction.class);
+            CodingErrorAction unmappableCharAction = Config.getValue(params,
+                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION, CodingErrorAction.class);
             decoder.onMalformedInput(malformedCharAction);
             decoder.onUnmappableCharacter(unmappableCharAction);
             encoder.onMalformedInput(malformedCharAction);

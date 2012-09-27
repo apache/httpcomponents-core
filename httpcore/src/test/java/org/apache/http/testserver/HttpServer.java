@@ -41,9 +41,7 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -74,12 +72,11 @@ public class HttpServer {
 
     public HttpServer() throws IOException {
         super();
-        this.params = new BasicHttpParams();
-        this.params
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-            .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
+        this.params = new HttpCoreConfigBuilder()
+            .setSocketTimeout(5000)
+            .setSocketBufferSize(8 * 1024)
+            .setTcpNoDelay(true)
+            .setOriginServer("TEST-SERVER/1.1").build();
         this.httpproc = new ImmutableHttpProcessor(
                 new HttpResponseInterceptor[] {
                         new ResponseDate(),

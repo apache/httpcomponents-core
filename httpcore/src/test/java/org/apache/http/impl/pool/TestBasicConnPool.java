@@ -68,8 +68,8 @@ public class TestBasicConnPool {
         sslServerPort = sslServer.getLocalPort();
 
         params = new BasicHttpParams();
-        params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 100);
-        params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 100);
+        params.setParameter(CoreConnectionPNames.SO_TIMEOUT, 100);
+        params.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 100);
         connFactory = new BasicConnFactory(params);
         pool = new BasicConnPool(connFactory);
     }

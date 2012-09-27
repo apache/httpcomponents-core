@@ -56,6 +56,7 @@ import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.DefaultedHttpParams;
+import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -404,7 +405,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
             closeHandlers(state);
             state.reset();
-            conn.setSocketTimeout(this.params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
+            conn.setSocketTimeout(Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0));
         }
     }
 
@@ -609,7 +610,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
             closeHandlers(state);
             state.reset();
-            conn.setSocketTimeout(this.params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
+            conn.setSocketTimeout(Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0));
         } else {
             state.setResponseState(MessageState.BODY_STREAM);
         }

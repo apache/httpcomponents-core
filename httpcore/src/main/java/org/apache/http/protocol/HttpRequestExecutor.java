@@ -41,6 +41,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.Config;
 import org.apache.http.util.Args;
 
 /**
@@ -211,7 +212,7 @@ public class HttpRequestExecutor {
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
                 // 100-continue response forever. On timeout, send the entity.
-                int tms = request.getParams().getIntParameter(
+                int tms = Config.getInt(request.getParams(), 
                         CoreProtocolPNames.WAIT_FOR_CONTINUE, 2000);
 
                 if (conn.isResponseAvailable(tms)) {

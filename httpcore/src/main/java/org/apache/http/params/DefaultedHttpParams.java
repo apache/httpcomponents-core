@@ -40,6 +40,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 public final class DefaultedHttpParams extends AbstractHttpParams {
 
     private final HttpParams local;

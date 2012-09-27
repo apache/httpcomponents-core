@@ -30,7 +30,6 @@ package org.apache.http.impl;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.CoreProtocolPNames;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -56,16 +55,6 @@ public class TestBasicRequest {
 
     @Test
     public void testRequestLine() throws Exception {
-        HttpRequest request = new BasicHttpRequest("GET", "/stuff");
-        request.getParams().setParameter(
-                CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
-        Assert.assertEquals("GET", request.getRequestLine().getMethod());
-        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
-        Assert.assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
-    }
-
-    @Test
-    public void testRequestLine2() throws Exception {
         HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_0);
         Assert.assertEquals("GET", request.getRequestLine().getMethod());
         Assert.assertEquals("/stuff", request.getRequestLine().getUri());

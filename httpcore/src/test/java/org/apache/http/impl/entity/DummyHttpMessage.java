@@ -30,18 +30,22 @@ package org.apache.http.impl.entity;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.AbstractHttpMessage;
-import org.apache.http.params.CoreProtocolPNames;
 
 class DummyHttpMessage extends AbstractHttpMessage {
 
-    public DummyHttpMessage() {
+    private final ProtocolVersion ver;
+
+    public DummyHttpMessage(final ProtocolVersion ver) {
         super();
+        this.ver = ver != null ? ver : HttpVersion.HTTP_1_1;
+    }
+
+    public DummyHttpMessage() {
+        this(HttpVersion.HTTP_1_1);
     }
 
     public ProtocolVersion getProtocolVersion() {
-        ProtocolVersion ver = (ProtocolVersion) getParams().getParameter(
-                CoreProtocolPNames.PROTOCOL_VERSION);
-        return ver != null ? ver : HttpVersion.HTTP_1_1;
+        return ver;
     }
 
 }

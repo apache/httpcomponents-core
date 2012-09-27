@@ -32,7 +32,6 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,14 +44,19 @@ public class TestAbstractMessage {
 
     static class TestHttpMessage extends AbstractHttpMessage {
 
-        public TestHttpMessage() {
+        private final ProtocolVersion ver;
+
+        public TestHttpMessage(final ProtocolVersion ver) {
             super();
+            this.ver = ver != null ? ver : HttpVersion.HTTP_1_1; 
+        }
+
+        public TestHttpMessage() {
+            this(HttpVersion.HTTP_1_1);
         }
 
         public ProtocolVersion getProtocolVersion() {
-            ProtocolVersion ver = (ProtocolVersion) getParams().getParameter(
-                    CoreProtocolPNames.PROTOCOL_VERSION);
-            return ver != null ? ver : HttpVersion.HTTP_1_1;
+            return ver;
         }
 
     }

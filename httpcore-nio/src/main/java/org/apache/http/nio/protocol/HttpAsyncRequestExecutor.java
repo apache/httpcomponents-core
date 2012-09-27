@@ -48,6 +48,7 @@ import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -147,7 +148,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
         HttpParams params = request.getParams();
-        conn.setSocketTimeout(params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
+        conn.setSocketTimeout(Config.getInt(params, CoreConnectionPNames.SO_TIMEOUT, 0));
 
         HttpProcessor httppocessor = handler.getHttpProcessor();
         httppocessor.process(request, context);
@@ -160,7 +161,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                 int timeout = conn.getSocketTimeout();
                 state.setTimeout(timeout);
-                timeout = request.getParams().getIntParameter(
+                timeout = Config.getInt(request.getParams(), 
                         CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
                 conn.setSocketTimeout(timeout);
                 state.setRequestState(MessageState.ACK_EXPECTED);

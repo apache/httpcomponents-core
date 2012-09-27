@@ -39,10 +39,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.DefaultedHttpParams;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -68,11 +66,10 @@ public class HttpClient {
         super();
         this.httpproc = httpproc;
         this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-        this.params = new BasicHttpParams();
-        this.params
-            .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
-            .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
+        this.params = new HttpCoreConfigBuilder()
+            .setSocketTimeout(5000)
+            .setProtocolVersion(HttpVersion.HTTP_1_1)
+            .setUserAgent("TEST-CLIENT/1.1").build();
         this.httpexecutor = new HttpRequestExecutor();
         this.context = new BasicHttpContext();
     }

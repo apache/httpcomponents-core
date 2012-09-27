@@ -40,6 +40,7 @@ import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -122,7 +123,7 @@ public class SSLNHttpClientConnectionFactory
         session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         DefaultNHttpClientConnection conn = createConnection(
                 ssliosession, this.responseFactory, this.allocator, this.params);
-        int timeout = this.params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0);
+        int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
         conn.setSocketTimeout(timeout);
         return conn;
     }
