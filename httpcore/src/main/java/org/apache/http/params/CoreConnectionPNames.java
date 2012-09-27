@@ -113,7 +113,10 @@ public interface CoreConnectionPNames {
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>
+     * 
+     * @deprecated (4.3) moved to HttpClient
      */
+    @Deprecated
     public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck";
 
     /**

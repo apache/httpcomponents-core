@@ -79,7 +79,6 @@ public abstract class HttpCoreNIOTestBase {
         this.serverParams
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "TEST-SERVER/1.1");
         this.server = new HttpServerNio(createServerConnectionFactory(this.serverParams));
@@ -98,7 +97,6 @@ public abstract class HttpCoreNIOTestBase {
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 60000)
             .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
 

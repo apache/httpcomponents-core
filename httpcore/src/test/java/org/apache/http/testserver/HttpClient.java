@@ -71,7 +71,6 @@ public class HttpClient {
         this.params = new BasicHttpParams();
         this.params
             .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-            .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
             .setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1)
             .setParameter(CoreProtocolPNames.USER_AGENT, "TEST-CLIENT/1.1");
         this.httpexecutor = new HttpRequestExecutor();
