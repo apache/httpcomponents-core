@@ -39,7 +39,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
-import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.params.BasicHttpParams;
@@ -107,7 +106,7 @@ public class HttpServer {
 
     private HttpServerConnection acceptConnection() throws IOException {
         Socket socket = this.serversocket.accept();
-        DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(this.params);
+        LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(this.params);
         conn.bind(socket);
         return conn;
     }

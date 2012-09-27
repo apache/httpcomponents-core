@@ -139,7 +139,7 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -219,7 +219,7 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -302,7 +302,7 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -388,7 +388,7 @@ public class TestSyncHttp {
         this.client.getParams().setParameter(
                 CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -475,7 +475,7 @@ public class TestSyncHttp {
         // Activate 'expect: continue' handshake
         this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -569,7 +569,7 @@ public class TestSyncHttp {
         // Activate 'expect: continue' handshake
         this.client.getParams().setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -582,7 +582,7 @@ public class TestSyncHttp {
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
                 ByteArrayEntity outgoing = new ByteArrayEntity(
-                        EncodingUtils.getAsciiBytes("No content"));
+                        EncodingUtils.getAsciiBytes("No content " + r));
                 post.setEntity(outgoing);
 
                 HttpResponse response = this.client.execute(post, host, conn);
@@ -727,7 +727,7 @@ public class TestSyncHttp {
         });
 
         this.server.start();
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -799,7 +799,7 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -845,7 +845,7 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -898,7 +898,7 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
@@ -953,7 +953,7 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(this.client.getParams());
+        DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {

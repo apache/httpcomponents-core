@@ -141,6 +141,12 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         return new DefaultHttpResponseWriter(buffer, lineFormatter);
     }
 
+    protected void onRequestReceived(final HttpRequest request) {
+    }
+
+    protected void onResponseSubmitted(final HttpResponse response) {
+    }
+
     @Override
     public void bind(final Socket socket) throws IOException {
         super.bind(socket);
@@ -150,6 +156,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         assertOpen();
         HttpRequest request = this.requestParser.parse();
+        onRequestReceived(request);
         incrementRequestCount();
         return request;
     }
@@ -167,6 +174,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         Args.notNull(response, "HTTP response");
         assertOpen();
         this.responseWriter.write(response);
+        onResponseSubmitted(response);
         if (response.getStatusLine().getStatusCode() >= 200) {
             incrementResponseCount();
         }

@@ -37,6 +37,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreConnectionPNames;
@@ -90,6 +91,10 @@ public class HttpClient {
 
     public HttpParams getParams() {
         return this.params;
+    }
+
+    public DefaultBHttpClientConnection createConnection() {
+        return new LoggingBHttpClientConnection(this.params);
     }
 
     public HttpResponse execute(

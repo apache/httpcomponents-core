@@ -61,7 +61,7 @@ class LoggingInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        int bytesRead = in.read(b);
+        int bytesRead = in.read(b, off, len);
         if (bytesRead != -1) {
             wire.input(b, off, bytesRead);
         }

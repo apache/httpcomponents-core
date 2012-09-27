@@ -153,6 +153,14 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         Asserts.check(this.open, "Connection is not open");
     }
 
+    protected InputStream getSocketInputStream(final Socket socket) throws IOException {
+        return socket.getInputStream();
+    }
+
+    protected OutputStream getSocketOutputStream(final Socket socket) throws IOException {
+        return socket.getOutputStream();
+    }
+
     /**
      * Binds this connection to the given {@link Socket}. This socket will be
      * used by the connection to send and receive data.
@@ -167,8 +175,8 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         Args.notNull(socket, "Socket");
         this.socket = socket;
         this.open = true;
-        this.inbuffer.bind(socket.getInputStream());
-        this.outbuffer.bind(socket.getOutputStream());
+        this.inbuffer.bind(getSocketInputStream(socket));
+        this.outbuffer.bind(getSocketOutputStream(socket));
     }
 
     protected SessionInputBuffer getSessionInputBuffer() {
@@ -364,9 +372,9 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
         int oldtimeout = this.socket.getSoTimeout();
         try {
-            this.socket.setSoTimeout(1);
-            int i = this.inbuffer.fillBuffer();
-            return i != -1;
+            this.socket.setSoTimeout(timeout);
+            this.inbuffer.fillBuffer();
+            return this.inbuffer.hasBufferedData();
         } finally {
             this.socket.setSoTimeout(oldtimeout);
         }
