@@ -183,7 +183,7 @@ class BenchmarkWorker implements Runnable {
 
                 HttpEntity entity = response.getEntity();
                 if (entity != null) {
-                    ContentType ct = ContentType.get(entity);
+                    ContentType ct = ContentType.getOrDefault(entity);
                     Charset charset = ct.getCharset();
                     if (charset == null) {
                         charset = HTTP.DEF_CONTENT_CHARSET;
