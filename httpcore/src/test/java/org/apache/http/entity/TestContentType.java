@@ -27,6 +27,8 @@
 
 package org.apache.http.entity;
 
+import java.nio.charset.Charset;
+
 import org.apache.http.Header;
 import org.apache.http.ParseException;
 import org.apache.http.entity.BasicHttpEntity;
@@ -46,6 +48,30 @@ public class TestContentType {
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("US-ASCII", contentType.getCharset().name());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
+    }
+
+    @Test
+    public void testWithCharset() throws Exception {
+        ContentType contentType = ContentType.create("text/plain", "US-ASCII");
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertEquals("US-ASCII", contentType.getCharset().name());
+        Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
+        contentType = contentType.withCharset(Charset.forName("UTF-8"));
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertEquals("UTF-8", contentType.getCharset().name());
+        Assert.assertEquals("text/plain; charset=UTF-8", contentType.toString());
+    }
+
+    @Test
+    public void testWithCharsetString() throws Exception {
+        ContentType contentType = ContentType.create("text/plain", "US-ASCII");
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertEquals("US-ASCII", contentType.getCharset().name());
+        Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
+        contentType = contentType.withCharset("UTF-8");
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertEquals("UTF-8", contentType.getCharset().name());
+        Assert.assertEquals("text/plain; charset=UTF-8", contentType.toString());
     }
 
     @Test

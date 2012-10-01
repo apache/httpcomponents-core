@@ -243,4 +243,26 @@ public final class ContentType implements Serializable {
         return contentType != null ? contentType : DEFAULT_TEXT;
     }
 
+    /**
+     * Creates a new instance with this MIME type and the given Charset.
+     * 
+     * @param charset
+     * @return a new instance with this MIME type and the given Charset.
+     * @since 4.3
+     */
+    public ContentType withCharset(Charset charset) {
+        return create(this.getMimeType(), charset);
+    }
+
+    /**
+     * Creates a new instance with this MIME type and the given Charset name.
+     * 
+     * @param charset name
+     * @return a new instance with this MIME type and the given Charset name.
+     * @since 4.3
+     */
+    public ContentType withCharset(String charset) {
+        return create(this.getMimeType(), charset);
+    }
+
 }
