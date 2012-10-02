@@ -82,7 +82,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     private CharsetDecoder decoder;
     private CharBuffer cbuf;
 
-    protected AbstractSessionInputBuffer() {
+    public AbstractSessionInputBuffer() {
     }
 
     /**

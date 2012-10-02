@@ -102,7 +102,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
             CodingErrorAction.REPORT;
     }
 
-    protected AbstractSessionOutputBuffer() {
+    public AbstractSessionOutputBuffer() {
     }
 
     protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
