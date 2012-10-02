@@ -25,45 +25,39 @@
  *
  */
 
-package org.apache.http.impl.io;
+package org.apache.http.impl.nio.codecs;
 
-import java.io.IOException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.HttpRequest;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
+import org.apache.http.nio.NHttpMessageWriter;
+import org.apache.http.nio.NHttpMessageWriterFactory;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
- * HTTP response writer that serializes its output to an instance of {@link SessionOutputBuffer}.
+ * Default factory for request message writers.
  *
  * @since 4.3
  */
-@NotThreadSafe
-public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
+@Immutable
+public class DefaultHttpRequestWriterFactory implements NHttpMessageWriterFactory<HttpRequest> {
 
-    /**
-     * Creates an instance of DefaultHttpResponseWriter.
-     *
-     * @param buffer the session output buffer.
-     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
-     *   will be used.
-     */
-    public DefaultHttpResponseWriter(
-            final SessionOutputBuffer buffer,
-            final LineFormatter formatter) {
-        super(buffer, formatter);
+    public static final NHttpMessageWriterFactory<HttpRequest> INSTANCE = new DefaultHttpRequestWriterFactory();
+
+    private final LineFormatter lineFormatter;
+
+    public DefaultHttpRequestWriterFactory(final LineFormatter lineFormatter) {
+        super();
+        this.lineFormatter = lineFormatter != null ? lineFormatter : BasicLineFormatter.INSTANCE;
     }
 
-    public DefaultHttpResponseWriter(final SessionOutputBuffer buffer) {
-        super(buffer, null);
+    public DefaultHttpRequestWriterFactory() {
+        this(null);
     }
 
-    @Override
-    protected void writeHeadLine(final HttpResponse message) throws IOException {
-        lineFormatter.formatStatusLine(this.lineBuf, message.getStatusLine());
-        this.sessionBuffer.writeLine(this.lineBuf);
+    public NHttpMessageWriter<HttpRequest> create(final SessionOutputBuffer buffer) {
+        return new DefaultHttpRequestWriter(buffer, lineFormatter);
     }
 
 }

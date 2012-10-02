@@ -27,7 +27,6 @@ public class SmokeTest {
         HttpParams params = new HttpCoreConfigBuilder()
             .setConnectTimeout(5000)
             .setSocketTimeout(5000)
-            .setSocketBufferSize(8 * 1024)
             .setOriginServer("TEST-SERVER/1.1").build();
         server = new HttpServer(params);
         server.registerHandler("/", new HttpRequestHandler() {

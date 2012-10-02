@@ -88,7 +88,7 @@ public class DefaultNHttpClientConnectionFactory
     }
 
     public DefaultNHttpClientConnection createConnection(final IOSession session) {
-        DefaultNHttpClientConnection conn = createConnection(session, this.responseFactory, 
+        DefaultNHttpClientConnection conn = createConnection(session, this.responseFactory,
                 this.allocator, this.params);
         int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
         conn.setSocketTimeout(timeout);

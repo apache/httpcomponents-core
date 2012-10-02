@@ -34,6 +34,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
+import org.apache.http.impl.MessageConstraints;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.HttpTransportMetrics;
@@ -331,13 +332,15 @@ public class TestSessionInOutBuffers {
         String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
         byte[] tmp = s.getBytes("US-ASCII");
         // no limit
-        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5, 0);
+        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5, 
+                MessageConstraints.UNLIMITED);
         Assert.assertNotNull(inbuffer1.readLine());
         long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(60, bytesRead);
 
         // 15 char limit
-        SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5, 15);
+        SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5, 
+                MessageConstraints.lineLen(15));
         try {
             inbuffer2.readLine();
             Assert.fail("IOException should have been thrown");

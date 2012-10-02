@@ -110,9 +110,11 @@ class BenchmarkWorker implements Runnable {
     }
 
     public void run() {
+        HttpParams params = request.getParams();
 
         HttpResponse response = null;
-        BenchmarkConnection conn = new BenchmarkConnection(stats, request.getParams());
+        int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
+        BenchmarkConnection conn = new BenchmarkConnection(bufsize, stats);
 
         String scheme = targetHost.getSchemeName();
         String hostname = targetHost.getHostName();
@@ -144,7 +146,6 @@ class BenchmarkWorker implements Runnable {
                         socket = new Socket();
                     }
                     
-                    HttpParams params = request.getParams();
                     int connTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
                     int soTimeout = Config.getInt(params, CoreConnectionPNames.SO_TIMEOUT, 0);
 

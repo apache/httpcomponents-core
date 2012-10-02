@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
@@ -38,37 +40,20 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.impl.io.DefaultHttpRequestWriter;
-import org.apache.http.impl.io.DefaultHttpResponseParser;
+import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
+import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
 import org.apache.http.io.HttpMessageParser;
+import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.HttpMessageWriter;
-import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.BasicLineFormatter;
-import org.apache.http.message.BasicLineParser;
-import org.apache.http.message.LineFormatter;
-import org.apache.http.message.LineParser;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.Config;
-import org.apache.http.params.HttpParams;
+import org.apache.http.io.HttpMessageWriterFactory;
 import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link HttpClientConnection}.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_MALFORMED_INPUT_ACTION}</li>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_UNMAPPABLE_INPUT_ACTION}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
- * </ul>
  *
  * @since 4.3
  */
@@ -79,60 +64,52 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     private final HttpMessageParser<HttpResponse> responseParser;
     private final HttpMessageWriter<HttpRequest> requestWriter;
 
+    /**
+     * Creates new instance of DefaultBHttpClientConnection.
+     *
+     * @param buffersize buffer size. Must be a positive number.
+     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
+     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     * @param requestWriterFactory request writer factory. If <code>null</code>
+     *   {@link DefaultHttpRequestWriterFactory#INSTANCE} will be used.
+     * @param responseParserFactory response parser factory. If <code>null</code>
+     *   {@link DefaultHttpResponseParserFactory#INSTANCE} will be used.
+     */
     public DefaultBHttpClientConnection(
-            final LineParser lineParser,
-            final LineFormatter lineFormatter,
-            final HttpResponseFactory responseFactory,
-            final HttpParams params) {
-        super(params);
-        this.responseParser = createResponseParser(
-                getSessionInputBuffer(), lineParser, responseFactory, params);
-        this.requestWriter = createRequestWriter(
-                getSessionOutputBuffer(), lineFormatter, params);
+            int buffersize,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
+            final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
+            final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
+        super(buffersize, chardecoder, charencoder,
+                constraints, incomingContentStrategy, outgoingContentStrategy);
+        this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
+            DefaultHttpRequestWriterFactory.INSTANCE).create(getSessionOutputBuffer());
+        this.responseParser = (responseParserFactory != null ? responseParserFactory :
+            DefaultHttpResponseParserFactory.INSTANCE).create(getSessionInputBuffer(), constraints);
     }
 
-    public DefaultBHttpClientConnection(final HttpParams params) {
-        this(null, null, null, params);
+    public DefaultBHttpClientConnection(
+            int buffersize,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints) {
+        this(buffersize, chardecoder, charencoder, constraints, null, null, null, null);
     }
 
-    /**
-     * Creates an instance of {@link HttpMessageParser} to be used for parsing
-     * HTTP responses received over this connection.
-     *
-     * @param buffer the session input buffer.
-     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE}
-     *   will be used
-     * @param responseFactory the response factory. If <code>null</code>
-     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
-     * @param params HTTP parameters.
-     * @return HTTP response parser.
-     */
-    protected HttpMessageParser<HttpResponse> createResponseParser(
-            final SessionInputBuffer buffer,
-            final LineParser lineParser,
-            final HttpResponseFactory responseFactory,
-            final HttpParams params) {
-        int maxHeaderCount = Config.getInt(params, CoreConnectionPNames.MAX_HEADER_COUNT, -1);
-        int maxLineLen = Config.getInt(params, CoreConnectionPNames.MAX_LINE_LENGTH, -1);
-        return new DefaultHttpResponseParser(
-                buffer, maxHeaderCount, maxLineLen, lineParser, responseFactory);
-    }
-
-    /**
-     * Creates an instance of {@link HttpMessageWriter} to be used for
-     * writing out HTTP requests sent over this connection.
-     *
-     * @param buffer the session output buffer
-     * @param lineFormatter the line formatter. If <code>null</code>
-     *   {@link BasicLineFormatter#INSTANCE} will be used.
-     * @param params HTTP parameters
-     * @return HTTP request writer
-     */
-    protected HttpMessageWriter<HttpRequest> createRequestWriter(
-            final SessionOutputBuffer buffer,
-            final LineFormatter lineFormatter,
-            final HttpParams params) {
-        return new DefaultHttpRequestWriter(buffer, lineFormatter);
+    public DefaultBHttpClientConnection(int buffersize) {
+        this(buffersize, null, null, null, null, null, null, null);
     }
 
     protected void onResponseReceived(final HttpResponse response) {

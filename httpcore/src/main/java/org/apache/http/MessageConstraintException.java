@@ -25,45 +25,26 @@
  *
  */
 
-package org.apache.http.impl.io;
+package org.apache.http;
 
 import java.io.IOException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.BasicLineFormatter;
-import org.apache.http.message.LineFormatter;
-
 /**
- * HTTP response writer that serializes its output to an instance of {@link SessionOutputBuffer}.
+ * Signals a message constraint violation.
  *
  * @since 4.3
  */
-@NotThreadSafe
-public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
+public class MessageConstraintException extends IOException {
+
+    private static final long serialVersionUID = 6077207720446368695L;
 
     /**
-     * Creates an instance of DefaultHttpResponseWriter.
+     * Creates a TruncatedChunkException with the specified detail message.
      *
-     * @param buffer the session output buffer.
-     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
-     *   will be used.
+     * @param message The exception detail message
      */
-    public DefaultHttpResponseWriter(
-            final SessionOutputBuffer buffer,
-            final LineFormatter formatter) {
-        super(buffer, formatter);
-    }
-
-    public DefaultHttpResponseWriter(final SessionOutputBuffer buffer) {
-        super(buffer, null);
-    }
-
-    @Override
-    protected void writeHeadLine(final HttpResponse message) throws IOException {
-        lineFormatter.formatStatusLine(this.lineBuf, message.getStatusLine());
-        this.sessionBuffer.writeLine(this.lineBuf);
+    public MessageConstraintException(final String message) {
+        super(message);
     }
 
 }

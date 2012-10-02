@@ -46,9 +46,9 @@ import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.Config;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -177,13 +177,10 @@ public class ElementalReverseProxy {
         public RequestListenerThread(int port, final HttpHost target) throws IOException {
             this.target = target;
             this.serversocket = new ServerSocket(port);
-            this.params = new BasicHttpParams();
-            this.params
-                .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-                .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-                .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-                .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
+            this.params = new HttpCoreConfigBuilder()
+                .setSocketTimeout(5000)
+                .setTcpNoDelay(true)
+                .setOriginServer("HttpComponents/1.1").build();
 
             // Set up HTTP protocol processor for incoming connections
             HttpProcessor inhttpproc = new ImmutableHttpProcessor(
@@ -228,15 +225,16 @@ public class ElementalReverseProxy {
             System.out.println("Listening on port " + this.serversocket.getLocalPort());
             while (!Thread.interrupted()) {
                 try {
+                    int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
                     // Set up incoming HTTP connection
                     Socket insocket = this.serversocket.accept();
-                    DefaultBHttpServerConnection inconn = new DefaultBHttpServerConnection(this.params);
+                    DefaultBHttpServerConnection inconn = new DefaultBHttpServerConnection(bufsize);
                     System.out.println("Incoming connection from " + insocket.getInetAddress());
                     inconn.bind(insocket);
 
                     // Set up outgoing HTTP connection
                     Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort());
-                    DefaultBHttpClientConnection outconn = new DefaultBHttpClientConnection(this.params);
+                    DefaultBHttpClientConnection outconn = new DefaultBHttpClientConnection(bufsize);
                     outconn.bind(outsocket);
                     System.out.println("Outgoing connection to " + outsocket.getInetAddress());
 

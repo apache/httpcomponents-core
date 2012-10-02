@@ -53,6 +53,7 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.HttpConnectionMetricsImpl;
+import org.apache.http.impl.MessageConstraints;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
@@ -75,9 +76,10 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.params.Config;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -88,13 +90,6 @@ import org.apache.http.util.NetUtils;
 /**
  * This class serves as a base for all {@link NHttpConnection} implementations and provides
  * functionality common to both client and server HTTP connections.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -130,7 +125,12 @@ public class NHttpConnectionBase
      * @param session the underlying I/O session.
      * @param allocator byte buffer allocator.
      * @param params HTTP parameters.
+     *
+     * @deprecated (4.3) use
+     *   {@link NHttpConnectionBase#NHttpConnectionBase(IOSession, int, ByteBufferAllocator,
+     *   CharsetDecoder, CharsetEncoder, MessageConstraints, ContentLengthStrategy, ContentLengthStrategy)}
      */
+    @Deprecated
     public NHttpConnectionBase(
             final IOSession session,
             final ByteBufferAllocator allocator,
@@ -150,7 +150,7 @@ public class NHttpConnectionBase
 
         CharsetDecoder decoder = null;
         CharsetEncoder encoder = null;
-        Charset charset = CharsetUtils.lookup(Config.getString(params, 
+        Charset charset = CharsetUtils.lookup(Config.getString(params,
                 CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
         if (charset != null) {
             charset = Consts.ASCII;
@@ -181,6 +181,56 @@ public class NHttpConnectionBase
         this.status = ACTIVE;
     }
 
+    /**
+     * Creates new instance NHttpConnectionBase given the underlying I/O session.
+     *
+     * @param session the underlying I/O session.
+     * @param buffersize buffer size. Must be a positive number.
+     * @param allocator memory allocator.
+     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
+     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     *
+     * @since 4.3
+     */
+    protected NHttpConnectionBase(
+            final IOSession session,
+            int buffersize,
+            final ByteBufferAllocator allocator,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy) {
+        Args.notNull(session, "I/O session");
+        Args.positive(buffersize, "Buffer size");
+        int linebuffersize = buffersize;
+        if (linebuffersize > 512) {
+            linebuffersize = 512;
+        }
+        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, chardecoder, allocator);
+        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, charencoder, allocator);
+
+        this.inTransportMetrics = new HttpTransportMetricsImpl();
+        this.outTransportMetrics = new HttpTransportMetricsImpl();
+        this.connMetrics = new HttpConnectionMetricsImpl(this.inTransportMetrics, this.outTransportMetrics);
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+            LaxContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+            StrictContentLengthStrategy.INSTANCE;
+
+        setSession(session);
+        this.status = ACTIVE;
+    }
+
     private void setSession(final IOSession session) {
         this.session = session;
         this.context = new SessionHttpContext(this.session);
@@ -202,28 +252,40 @@ public class NHttpConnectionBase
 
     /**
      * @since 4.2
+     *
+     * @deprecated (4.3) use constructor.
      */
+    @Deprecated
     protected ContentLengthStrategy createIncomingContentStrategy() {
         return new LaxContentLengthStrategy();
     }
 
     /**
      * @since 4.2
+     *
+     * @deprecated (4.3) use constructor.
      */
+    @Deprecated
     protected ContentLengthStrategy createOutgoingContentStrategy() {
         return new StrictContentLengthStrategy();
     }
 
     /**
      * @since 4.1
+     *
+     * @deprecated (4.3) no longer used.
      */
+    @Deprecated
     protected HttpTransportMetricsImpl createTransportMetrics() {
         return new HttpTransportMetricsImpl();
     }
 
     /**
      * @since 4.1
+     *
+     * @deprecated (4.3) use decorator to add additional metrics.
      */
+    @Deprecated
     protected HttpConnectionMetricsImpl createConnectionMetrics(
             final HttpTransportMetrics inTransportMetric,
             final HttpTransportMetrics outTransportMetric) {

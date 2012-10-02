@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
@@ -38,8 +40,11 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.DefaultBHttpServerConnection;
-import org.apache.http.params.HttpParams;
+import org.apache.http.impl.MessageConstraints;
+import org.apache.http.io.HttpMessageParserFactory;
+import org.apache.http.io.HttpMessageWriterFactory;
 
 public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
 
@@ -50,12 +55,26 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     private final Log headerlog;
     private final Wire wire;
 
-    public LoggingBHttpServerConnection(final HttpParams params) {
-        super(params);
+    public LoggingBHttpServerConnection(
+            int buffersize,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
+            final HttpMessageParserFactory<HttpRequest> requestParserFactory,
+            final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
+        super(buffersize, chardecoder, charencoder, constraints, 
+                incomingContentStrategy, outgoingContentStrategy, 
+                requestParserFactory, responseWriterFactory);
         this.id = "http-incoming-" + COUNT.incrementAndGet();
         this.log = LogFactory.getLog(getClass());
         this.headerlog = LogFactory.getLog("org.apache.http.headers");
         this.wire = new Wire(LogFactory.getLog("org.apache.http.wire"), this.id);
+    }
+
+    public LoggingBHttpServerConnection(int buffersize) {
+        this(buffersize, null, null, null, null, null, null, null);
     }
 
     @Override

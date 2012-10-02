@@ -34,9 +34,11 @@ import java.util.List;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.MessageConstraintException;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.impl.MessageConstraints;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
@@ -59,8 +61,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
     private static final int HEADERS      = 1;
 
     private final SessionInputBuffer sessionBuffer;
-    private final int maxHeaderCount;
-    private final int maxLineLen;
+    private final MessageConstraints messageConstraints;
     private final List<CharArrayBuffer> headerLines;
     protected final LineParser lineParser;
 
@@ -85,10 +86,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         Args.notNull(buffer, "Session input buffer");
         Args.notNull(params, "HTTP parameters");
         this.sessionBuffer = buffer;
-        this.maxHeaderCount = params.getIntParameter(
-                CoreConnectionPNames.MAX_HEADER_COUNT, -1);
-        this.maxLineLen = params.getIntParameter(
-                CoreConnectionPNames.MAX_LINE_LENGTH, -1);
+        this.messageConstraints = MessageConstraints.custom()
+            .setMaxHeaderCount(params.getIntParameter(CoreConnectionPNames.MAX_HEADER_COUNT, -1))
+            .setMaxLineLength(params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1))
+            .build();
         this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
@@ -98,26 +99,21 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * Creates new instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
-     * @param maxHeaderCount maximum header count limit. If set to a positive value, total number of 
-     *   headers in a message exceeding this limit will cause an I/O error. A negative value will 
-     *   disable the check.
-     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
-     *   this limit will cause an I/O error. A negative value will disable the check.
      * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} 
-     *   will be used
+     *   will be used.
+     * @param parser the message constraints. If <code>null</code> {@link MessageConstraints#DEFAULT} 
+     *   will be used.
      * 
      * @since 4.3
      */
     public AbstractMessageParser(
             final SessionInputBuffer buffer,
-            int maxHeaderCount,
-            int maxLineLen,
-            final LineParser parser) {
+            final LineParser parser,
+            final MessageConstraints constraints) {
         super();
         this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
-        this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
-        this.maxHeaderCount = maxHeaderCount;
-        this.maxLineLen = maxLineLen;
+        this.lineParser = parser != null ? parser : BasicLineParser.INSTANCE;
+        this.messageConstraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
     }
@@ -217,7 +213,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 }
                 if (maxLineLen > 0
                         && previous.length() + 1 + current.length() - i > maxLineLen) {
-                    throw new IOException("Maximum line length limit exceeded");
+                    throw new MessageConstraintException("Maximum line length limit exceeded");
                 }
                 previous.append(' ');
                 previous.append(current, i, current.length() - i);
@@ -227,7 +223,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 current = null;
             }
             if (maxHeaderCount > 0 && headerLines.size() >= maxHeaderCount) {
-                throw new IOException("Maximum header count exceeded");
+                throw new MessageConstraintException("Maximum header count exceeded");
             }
         }
         Header[] headers = new Header[headerLines.size()];
@@ -273,8 +269,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         case HEADERS:
             Header[] headers = AbstractMessageParser.parseHeaders(
                     this.sessionBuffer,
-                    this.maxHeaderCount,
-                    this.maxLineLen,
+                    this.messageConstraints.getMaxHeaderCount(),
+                    this.messageConstraints.getMaxLineLength(),
                     this.lineParser,
                     this.headerLines);
             this.message.setHeaders(headers);

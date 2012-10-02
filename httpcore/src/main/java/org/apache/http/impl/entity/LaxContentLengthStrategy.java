@@ -50,14 +50,16 @@ import org.apache.http.util.Args;
 @Immutable
 public class LaxContentLengthStrategy implements ContentLengthStrategy {
 
+    public static final ContentLengthStrategy INSTANCE = new LaxContentLengthStrategy();
+
     private final int implicitLen;
-    
+
     /**
      * Creates <tt>LaxContentLengthStrategy</tt> instance with the given length used per default
      * when content length is not explicitly specified in the message.
-     * 
+     *
      * @param implicitLen implicit content length.
-     * 
+     *
      * @since 4.2
      */
     public LaxContentLengthStrategy(int implicitLen) {
@@ -66,7 +68,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
     }
 
     /**
-     * Creates <tt>LaxContentLengthStrategy</tt> instance. {@link ContentLengthStrategy#IDENTITY} 
+     * Creates <tt>LaxContentLengthStrategy</tt> instance. {@link ContentLengthStrategy#IDENTITY}
      * is used per default when content length is not explicitly specified in the message.
      */
     public LaxContentLengthStrategy() {

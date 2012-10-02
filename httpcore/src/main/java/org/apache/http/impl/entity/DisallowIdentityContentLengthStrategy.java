@@ -34,16 +34,19 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
 
 /**
- * Decorator for  {@link ContentLengthStrategy} implementations that disallows the use of 
- * identity transfer encoding. 
+ * Decorator for  {@link ContentLengthStrategy} implementations that disallows the use of
+ * identity transfer encoding.
  *
  * @since 4.2
  */
 @Immutable
 public class DisallowIdentityContentLengthStrategy implements ContentLengthStrategy {
 
+    public static final ContentLengthStrategy INSTANCE = new DisallowIdentityContentLengthStrategy(
+            new LaxContentLengthStrategy(0));
+
     private final ContentLengthStrategy contentLengthStrategy;
-    
+
     public DisallowIdentityContentLengthStrategy(final ContentLengthStrategy contentLengthStrategy) {
         super();
         this.contentLengthStrategy = contentLengthStrategy;

@@ -24,32 +24,19 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.benchmark;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+package org.apache.http.io;
 
-import org.apache.http.impl.DefaultBHttpClientConnection;
-import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.HttpMessage;
+import org.apache.http.impl.MessageConstraints;
 
-class BenchmarkConnection extends DefaultBHttpClientConnection {
+/**
+ * Factory for {@link HttpMessageParser} instances.
+ * 
+ * @since 4.3
+ */
+public interface HttpMessageParserFactory<T extends HttpMessage> {
 
-    private final Stats stats;
-    
-    BenchmarkConnection(int bufsize, final Stats stats) {
-        super(bufsize);
-        this.stats = stats;
-    }
-
-    @Override
-    protected OutputStream createOutputStream(final long len, final SessionOutputBuffer outbuffer) {
-        return new CountingOutputStream(super.createOutputStream(len, outbuffer), this.stats);
-    }
-
-    @Override
-    protected InputStream createInputStream(final long len, final SessionInputBuffer inbuffer) {
-        return new CountingInputStream(super.createInputStream(len, inbuffer), this.stats);
-    }
+    HttpMessageParser<T> create(SessionInputBuffer buffer, MessageConstraints constraints);
 
 }

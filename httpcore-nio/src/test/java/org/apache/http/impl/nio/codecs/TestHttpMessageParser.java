@@ -38,6 +38,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.impl.MessageConstraints;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -281,12 +282,13 @@ public class TestHttpMessageParser {
     @Test
     public void testLineLimitForStatus() throws Exception {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, -1, 0, null, null);
+        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf,
+                MessageConstraints.lineLen(0));
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();
 
-        requestParser = new DefaultHttpRequestParser(inbuf, -1, 15, null, null);
+        requestParser = new DefaultHttpRequestParser(inbuf, MessageConstraints.lineLen(15));
         try {
             requestParser.fillBuffer(newChannel("GET /loooooooooooooooong HTTP/1.0\r\nHeader: one\r\n\r\n"));
             requestParser.parse();
@@ -299,12 +301,13 @@ public class TestHttpMessageParser {
     public void testLineLimitForHeader() throws Exception {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
 
-        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, -1, 0, null, null);
+        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf,
+                MessageConstraints.lineLen(0));
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();
 
-        requestParser = new DefaultHttpRequestParser(inbuf, -1, 15, null, null);
+        requestParser = new DefaultHttpRequestParser(inbuf, MessageConstraints.lineLen(15));
         requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();
@@ -320,9 +323,12 @@ public class TestHttpMessageParser {
     public void testLineLimitForFoldedHeader() throws Exception {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
 
-        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, 2, 15, null, null);
+        MessageConstraints constraints = MessageConstraints.custom()
+                .setMaxHeaderCount(2).setMaxLineLength(15).build();
+        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, constraints);
         try {
-            requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n 23456789012345\r\n 23456789012345\r\n 23456789012345\r\n\r\n"));
+            requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n" +
+                    " 23456789012345\r\n 23456789012345\r\n 23456789012345\r\n\r\n"));
             requestParser.parse();
             Assert.fail("IOException should have been thrown");
         } catch (IOException expected) {
@@ -333,13 +339,16 @@ public class TestHttpMessageParser {
     public void testMaxHeaderCount() throws Exception {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
 
-        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, 2, -1, null, null);
+        MessageConstraints constraints = MessageConstraints.custom()
+                .setMaxHeaderCount(2).setMaxLineLength(-1).build();
+        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, constraints);
         requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\n\r\n"));
         requestParser.parse();
         requestParser.reset();
 
         try {
-            requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\nHeader: three\r\n\r\n"));
+            requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n" +
+                    "Header: two\r\nHeader: three\r\n\r\n"));
             requestParser.parse();
             Assert.fail("IOException should have been thrown");
         } catch (IOException expected) {
@@ -350,7 +359,8 @@ public class TestHttpMessageParser {
     public void testDetectLineLimitEarly() throws Exception {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(2, 128, Consts.ASCII);
 
-        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, -1, 2, null, null);
+        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf,
+                MessageConstraints.lineLen(2));
         ReadableByteChannel channel = newChannel("GET / HTTP/1.0\r\nHeader: one\r\n\r\n");
         Assert.assertEquals(2, requestParser.fillBuffer(channel));
         Assert.assertNull(requestParser.parse());

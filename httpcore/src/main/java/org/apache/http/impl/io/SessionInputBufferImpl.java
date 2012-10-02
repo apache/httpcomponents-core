@@ -34,7 +34,9 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.http.MessageConstraintException;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.impl.MessageConstraints;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionInputBuffer;
@@ -61,8 +63,8 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
     private final HttpTransportMetricsImpl metrics;
     private final byte[] buffer;
     private final ByteArrayBuffer linebuffer;
-    private final int maxLineLen;
     private final int minChunkLimit;
+    private final MessageConstraints constraints;
     private final CharsetDecoder decoder;
 
     private InputStream instream;
@@ -75,30 +77,30 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      *
      * @param metrics HTTP transport metrics.
      * @param buffersize buffer size. Must be a positive number.
-     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
-     *   this limit will cause an I/O error. A negative value will disable the check.
      * @param minChunkLimit size limit below which data chunks should be buffered in memory
      *   in order to minimize native method invocations on the underlying network socket.
      *   The optimal value of this parameter can be platform specific and defines a trade-off
      *   between performance of memory copy operations and that of native method invocation.
      *   If negative default chunk limited will be used.
+     * @param constraints Message constraints. If <code>null</code> 
+     *   {@link MessageConstraints#DEFAULT} will be used.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
      */
     public SessionInputBufferImpl(
             final HttpTransportMetricsImpl metrics,
             int buffersize,
-            int maxLineLen,
             int minChunkLimit,
+            final MessageConstraints constraints,
             final CharsetDecoder chardecoder) {
-        Args.positive(buffersize, "Buffer size");
         Args.notNull(metrics, "HTTP transport metrcis");
+        Args.positive(buffersize, "Buffer size");
         this.metrics = metrics;
         this.buffer = new byte[buffersize];
         this.bufferpos = 0;
         this.bufferlen = 0;
-        this.maxLineLen = maxLineLen >= 0 ? maxLineLen : -1;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
+        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.linebuffer = new ByteArrayBuffer(buffersize);
         this.decoder = chardecoder;
     }
@@ -255,8 +257,9 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
                     retry = false;
                 }
             }
-            if (this.maxLineLen > 0 && this.linebuffer.length() >= this.maxLineLen) {
-                throw new IOException("Maximum line length limit exceeded");
+            int maxLineLen = this.constraints.getMaxLineLength();
+            if (maxLineLen > 0 && this.linebuffer.length() >= maxLineLen) {
+                throw new MessageConstraintException("Maximum line length limit exceeded");
             }
         }
         if (noRead == -1 && this.linebuffer.isEmpty()) {

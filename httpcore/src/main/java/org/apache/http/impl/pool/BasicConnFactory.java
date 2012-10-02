@@ -77,7 +77,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
     }
 
     protected HttpClientConnection create(final Socket socket, final HttpParams params) throws IOException {
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(params);
+        int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(bufsize);
         conn.bind(socket);
         return conn;
     }

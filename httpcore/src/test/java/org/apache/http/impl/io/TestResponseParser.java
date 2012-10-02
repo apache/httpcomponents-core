@@ -35,10 +35,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BasicLineParser;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,18 +45,9 @@ import org.junit.Test;
  */
 public class TestResponseParser {
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testInvalidConstructorInput() throws Exception {
-        try {
-            new DefaultHttpResponseParser(
-                    null,
-                    -1, -1,
-                    BasicLineParser.INSTANCE,
-                    DefaultHttpResponseFactory.INSTANCE);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
+        new DefaultHttpResponseParser(null);
     }
 
     @Test
@@ -71,12 +60,7 @@ public class TestResponseParser {
             "\r\n";
         SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
 
-        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
-                inbuffer,
-                -1, -1,
-                BasicLineParser.INSTANCE,
-                DefaultHttpResponseFactory.INSTANCE);
-
+        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
         HttpResponse httpresponse = parser.parse();
 
         StatusLine statusline = httpresponse.getStatusLine();
@@ -92,11 +76,7 @@ public class TestResponseParser {
     public void testConnectionClosedException() throws Exception {
         SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
-        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
-                inbuffer,
-                -1, -1,
-                BasicLineParser.INSTANCE,
-                DefaultHttpResponseFactory.INSTANCE);
+        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
         try {
             parser.parse();
             Assert.fail("NoHttpResponseException should have been thrown");
@@ -115,11 +95,7 @@ public class TestResponseParser {
         SessionInputBuffer inbuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
 
-        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
-                inbuffer,
-                -1, -1,
-                BasicLineParser.INSTANCE,
-                DefaultHttpResponseFactory.INSTANCE);
+        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
 
         int timeoutCount = 0;
 

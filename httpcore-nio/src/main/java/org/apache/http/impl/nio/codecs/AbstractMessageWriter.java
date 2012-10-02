@@ -61,8 +61,8 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
      * @param buffer the session output buffer.
      * @param formatter the line formatter.
      * @param params HTTP parameters.
-     * 
-     * @deprecated (4.3) use 
+     *
+     * @deprecated (4.3) use
      *   {@link AbstractMessageWriter#AbstractMessageWriter(SessionOutputBuffer, LineFormatter)}
      */
     @Deprecated
@@ -82,7 +82,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
      * @param buffer the session output buffer.
      * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
      *   will be used.
-     * 
+     *
      * @since 4.3
      */
     public AbstractMessageWriter(

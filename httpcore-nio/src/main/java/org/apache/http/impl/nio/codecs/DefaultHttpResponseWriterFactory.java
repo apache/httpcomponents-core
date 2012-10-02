@@ -27,56 +27,37 @@
 
 package org.apache.http.impl.nio.codecs;
 
-import java.io.IOException;
-
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
+import org.apache.http.nio.NHttpMessageWriterFactory;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Default {@link NHttpMessageWriter} implementation for {@link HttpResponse}s.
+ * Default factory for response message writers.
  *
- * @since 4.1
+ * @since 4.3
  */
-@NotThreadSafe
-public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
+@Immutable
+public class DefaultHttpResponseWriterFactory implements NHttpMessageWriterFactory<HttpResponse> {
 
-    /**
-     * @deprecated (4.3) use
-     *   {@link DefaultHttpResponseWriter#DefaultHttpResponseWriter(SessionOutputBuffer, LineFormatter)}
-     */
-    @Deprecated
-    public DefaultHttpResponseWriter(final SessionOutputBuffer buffer,
-                              final LineFormatter formatter,
-                              final HttpParams params) {
-        super(buffer, formatter, params);
+    public static final NHttpMessageWriterFactory<HttpResponse> INSTANCE = new DefaultHttpResponseWriterFactory();
+
+    private final LineFormatter lineFormatter;
+
+    public DefaultHttpResponseWriterFactory(final LineFormatter lineFormatter) {
+        super();
+        this.lineFormatter = lineFormatter != null ? lineFormatter : BasicLineFormatter.INSTANCE;
     }
 
-    /**
-     * Creates an instance of DefaultHttpResponseWriter.
-     *
-     * @param buffer the session output buffer.
-     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
-     *   will be used.
-     *
-     * @since 4.3
-     */
-    public DefaultHttpResponseWriter(
-            final SessionOutputBuffer buffer,
-            final LineFormatter formatter) {
-        super(buffer, formatter);
+    public DefaultHttpResponseWriterFactory() {
+        this(null);
     }
 
-    @Override
-    protected void writeHeadLine(final HttpResponse message) throws IOException {
-        CharArrayBuffer buffer = lineFormatter.formatStatusLine(
-                this.lineBuf, message.getStatusLine());
-        this.sessionBuffer.writeLine(buffer);
+    public NHttpMessageWriter<HttpResponse> create(final SessionOutputBuffer buffer) {
+        return new DefaultHttpResponseWriter(buffer, lineFormatter);
     }
 
 }

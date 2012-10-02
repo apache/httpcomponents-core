@@ -34,6 +34,7 @@ import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.MessageConstraints;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
@@ -59,9 +60,10 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      * @param buffer the session input buffer.
      * @param parser the line parser.
      * @param params HTTP parameters.
-     * 
-     * @deprecated (4.3) use 
-     *   {@link DefaultHttpRequestParser#DefaultHttpRequestParser(SessionInputBuffer, int, int, LineParser, HttpRequestFactory)}
+     *
+     * @deprecated (4.3) use
+     *   {@link DefaultHttpRequestParser#DefaultHttpRequestParser(
+     *   SessionInputBuffer, LineParser, HttpRequestFactory, MessageConstraints)}
      */
     @Deprecated
     public DefaultHttpRequestParser(
@@ -78,35 +80,38 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      * Creates an instance of DefaultHttpRequestParser.
      *
      * @param buffer the session input buffer.
-     * @param maxHeaderCount maximum header count limit. If set to a positive value, total number of 
-     *   headers in a message exceeding this limit will cause an I/O error. A negative value will 
-     *   disable the check.
-     * @param maxLineLen maximum line length limit. If set to a positive value, any line exceeding
-     *   this limit will cause an I/O error. A negative value will disable the check.
      * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} will
-     *   be used. 
-     * @param requestFactory the request factory. If <code>null</code> 
+     *   be used.
+     * @param requestFactory the request factory. If <code>null</code>
      *   {@link DefaultHttpRequestFactory#INSTANCE} will be used.
-     * 
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     *
      * @since 4.3
      */
     public DefaultHttpRequestParser(
             final SessionInputBuffer buffer,
-            int maxHeaderCount,
-            int maxLineLen,
             final LineParser parser,
-            final HttpRequestFactory requestFactory) {
-        super(buffer, maxHeaderCount, maxLineLen, parser);
+            final HttpRequestFactory requestFactory,
+            final MessageConstraints constraints) {
+        super(buffer, parser, constraints);
         this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
     }
 
     /**
     * @since 4.3
     */
-    public DefaultHttpRequestParser(final SessionInputBuffer buffer) {
-        this(buffer, -1, -1, null, null);
+    public DefaultHttpRequestParser(final SessionInputBuffer buffer, final MessageConstraints constraints) {
+        this(buffer, null, null, constraints);
     }
-    
+
+    /**
+    * @since 4.3
+    */
+    public DefaultHttpRequestParser(final SessionInputBuffer buffer) {
+        this(buffer, null);
+    }
+
     @Override
     protected HttpRequest createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {

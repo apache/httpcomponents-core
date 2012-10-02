@@ -52,9 +52,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.Config;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpCoreConfigBuilder;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -154,13 +154,10 @@ public class ElementalHttpServer {
 
         public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
-            this.params = new BasicHttpParams();
-            this.params
-                .setIntParameter(CoreConnectionPNames.SO_TIMEOUT, 5000)
-                .setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024)
-                .setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, false)
-                .setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true)
-                .setParameter(CoreProtocolPNames.ORIGIN_SERVER, "HttpComponents/1.1");
+            this.params = new HttpCoreConfigBuilder()
+                .setSocketTimeout(5000)
+                .setTcpNoDelay(true)
+                .setOriginServer("HttpComponents/1.1").build();
 
             // Set up the HTTP protocol processor
             HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -190,7 +187,8 @@ public class ElementalHttpServer {
                 try {
                     // Set up HTTP connection
                     Socket socket = this.serversocket.accept();
-                    DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(this.params);
+                    int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
+                    DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(bufsize);
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket);
 

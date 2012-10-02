@@ -47,33 +47,31 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
     public SessionInputBufferMock(
             final InputStream instream, 
             int buffersize, 
-            int maxLineLen,
-            int minChunkLimit,
+            final MessageConstraints constrains,
             final CharsetDecoder decoder) {
-        super(new HttpTransportMetricsImpl(), buffersize, maxLineLen, minChunkLimit, decoder);
+        super(new HttpTransportMetricsImpl(), buffersize, -1, constrains, decoder);
         bind(instream);
     }
 
     public SessionInputBufferMock(
             final InputStream instream,
             int buffersize) {
-        this(instream, buffersize, -1, -1, null);
+        this(instream, buffersize, null, null);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes,
             int buffersize,
-            int maxLineLen,
-            int minChunkLimit,
+            final MessageConstraints constrains,
             final CharsetDecoder decoder) {
-        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, minChunkLimit, decoder);
+        this(new ByteArrayInputStream(bytes), buffersize, constrains, decoder);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes,
             int buffersize,
-            int maxLineLen) {
-        this(new ByteArrayInputStream(bytes), buffersize, maxLineLen, -1, null);
+            final MessageConstraints constrains) {
+        this(new ByteArrayInputStream(bytes), buffersize, constrains, null);
     }
 
     public SessionInputBufferMock(
@@ -89,13 +87,13 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
 
     public SessionInputBufferMock(
             final byte[] bytes, final Charset charset) {
-        this(bytes, BUFFER_SIZE, -1, -1, charset != null ? charset.newDecoder() : null);
+        this(bytes, BUFFER_SIZE, null, charset != null ? charset.newDecoder() : null);
     }
 
     public SessionInputBufferMock(
             final byte[] bytes, 
             final CharsetDecoder decoder) {
-        this(bytes, BUFFER_SIZE, -1, -1, decoder);
+        this(bytes, BUFFER_SIZE, null, decoder);
     }
 
     public SessionInputBufferMock(

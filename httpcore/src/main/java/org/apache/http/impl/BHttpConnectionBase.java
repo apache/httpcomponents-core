@@ -35,12 +35,9 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 
-import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
@@ -62,34 +59,16 @@ import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.apache.http.impl.io.SessionOutputBufferImpl;
-import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.Config;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
-import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.NetUtils;
 
 /**
  * This class serves as a base for all {@link HttpConnection} implementations and provides
  * functionality common to both client and server HTTP connections.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_MALFORMED_INPUT_ACTION}</li>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_UNMAPPABLE_INPUT_ACTION}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -98,8 +77,6 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     private final SessionInputBufferImpl inbuffer;
     private final SessionOutputBufferImpl outbuffer;
-    private final HttpTransportMetricsImpl inTransportMetrics;
-    private final HttpTransportMetricsImpl outTransportMetrics;
     private final HttpConnectionMetricsImpl connMetrics;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
@@ -107,43 +84,41 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     private volatile boolean open;
     private volatile Socket socket;
 
-    public BHttpConnectionBase(final HttpParams params) {
+    /**
+     * Creates new instance of BHttpConnectionBase.
+     *
+     * @param buffersize buffer size. Must be a positive number.
+     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
+     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     */
+    protected BHttpConnectionBase(
+            int buffersize,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy) {
         super();
-        Args.notNull(params, "HTTP parameters");
-        int buffersize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
-        if (buffersize <= 0) {
-            buffersize = 4096;
-        }
-        int maxLineLen = Config.getInt(params, CoreConnectionPNames.MAX_LINE_LENGTH, -1);
-        int minChunkLimit = Config.getInt(params, CoreConnectionPNames.MIN_CHUNK_LIMIT, -1);
-        CharsetDecoder decoder = null;
-        CharsetEncoder encoder = null;
-        Charset charset = CharsetUtils.lookup(Config.getString(params,
-                CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
-        if (charset != null) {
-            charset = Consts.ASCII;
-            decoder = charset.newDecoder();
-            encoder = charset.newEncoder();
-            CodingErrorAction malformedCharAction = Config.getValue(params,
-                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION, CodingErrorAction.class);
-            CodingErrorAction unmappableCharAction = Config.getValue(params,
-                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION, CodingErrorAction.class);
-            decoder.onMalformedInput(malformedCharAction);
-            decoder.onUnmappableCharacter(unmappableCharAction);
-            encoder.onMalformedInput(malformedCharAction);
-            encoder.onUnmappableCharacter(unmappableCharAction);
-        }
-        this.inTransportMetrics = createTransportMetrics();
-        this.outTransportMetrics = createTransportMetrics();
-        this.inbuffer = new SessionInputBufferImpl(
-                this.inTransportMetrics, buffersize, maxLineLen, minChunkLimit, decoder);
-        this.outbuffer = new SessionOutputBufferImpl(
-                this.outTransportMetrics, buffersize, minChunkLimit, encoder);
-        this.connMetrics = createConnectionMetrics(
-                this.inTransportMetrics,
-                this.outTransportMetrics);
-        this.incomingContentStrategy = createIncomingContentStrategy();
-        this.outgoingContentStrategy = createOutgoingContentStrategy();
+        Args.positive(buffersize, "Buffer size");
+        HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
+        HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
+        this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
+                constraints != null ? constraints : MessageConstraints.DEFAULT, chardecoder);
+        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, -1,
+                charencoder);
+        this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+            LaxContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+            StrictContentLengthStrategy.INSTANCE;
     }
 
     protected void assertNotOpen() {
@@ -198,24 +173,6 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     protected Socket getSocket() {
         return this.socket;
-    }
-
-    protected HttpTransportMetricsImpl createTransportMetrics() {
-        return new HttpTransportMetricsImpl();
-    }
-
-    protected HttpConnectionMetricsImpl createConnectionMetrics(
-            final HttpTransportMetrics inTransportMetric,
-            final HttpTransportMetrics outTransportMetric) {
-        return new HttpConnectionMetricsImpl(inTransportMetric, outTransportMetric);
-    }
-
-    protected ContentLengthStrategy createIncomingContentStrategy() {
-        return new LaxContentLengthStrategy();
-    }
-
-    protected ContentLengthStrategy createOutgoingContentStrategy() {
-        return new StrictContentLengthStrategy();
     }
 
     protected OutputStream createOutputStream(

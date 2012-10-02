@@ -47,7 +47,7 @@ import org.apache.http.util.CharArrayBuffer;
 public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
 
     /**
-     * @deprecated (4.3) use 
+     * @deprecated (4.3) use
      *   {@link DefaultHttpRequestWriter#DefaultHttpRequestWriter(SessionOutputBuffer, LineFormatter)}
      */
     @Deprecated
@@ -57,14 +57,14 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
         super(buffer, formatter, params);
     }
 
-    
+
     /**
      * Creates an instance of DefaultHttpRequestWriter.
      *
      * @param buffer the session output buffer.
      * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
      *   will be used.
-     * 
+     *
      * @since 4.3
      */
     public DefaultHttpRequestWriter(

@@ -30,47 +30,29 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.io.DefaultHttpRequestParser;
-import org.apache.http.impl.io.DefaultHttpResponseWriter;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.io.DefaultHttpRequestParserFactory;
+import org.apache.http.impl.io.DefaultHttpResponseWriterFactory;
 import org.apache.http.io.HttpMessageParser;
+import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.HttpMessageWriter;
-import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.BasicLineFormatter;
-import org.apache.http.message.BasicLineParser;
-import org.apache.http.message.LineFormatter;
-import org.apache.http.message.LineParser;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.Config;
-import org.apache.http.params.HttpParams;
+import org.apache.http.io.HttpMessageWriterFactory;
 import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link HttpServerConnection}.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_MALFORMED_INPUT_ACTION}</li>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_UNMAPPABLE_INPUT_ACTION}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MIN_CHUNK_LIMIT}</li>
- * </ul>
  *
  * @since 4.3
  */
@@ -81,65 +63,53 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     private final HttpMessageParser<HttpRequest> requestParser;
     private final HttpMessageWriter<HttpResponse> responseWriter;
 
+    /**
+     * Creates new instance of DefaultBHttpServerConnection.
+     *
+     * @param buffersize buffer size. Must be a positive number.
+     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     *   {@link DisallowIdentityContentLengthStrategy#INSTANCE} will be used.
+     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     * @param requestParserFactory request parser factory. If <code>null</code>
+     *   {@link DefaultHttpRequestParserFactory#INSTANCE} will be used.
+     * @param responseWriterFactory response writer factory. If <code>null</code>
+     *   {@link DefaultHttpResponseWriterFactory#INSTANCE} will be used.
+     */
     public DefaultBHttpServerConnection(
-            final LineParser lineParser,
-            final LineFormatter lineFormatter,
-            final HttpRequestFactory requestFactory,
-            final HttpParams params) {
-        super(params);
-        this.requestParser = createRequestParser(
-                getSessionInputBuffer(), lineParser, requestFactory, params);
-        this.responseWriter = createResponseWriter(
-                getSessionOutputBuffer(), lineFormatter, params);
+            int buffersize,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
+            final HttpMessageParserFactory<HttpRequest> requestParserFactory,
+            final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
+        super(buffersize, chardecoder, charencoder, constraints,
+                incomingContentStrategy != null ? incomingContentStrategy :
+                    DisallowIdentityContentLengthStrategy.INSTANCE, outgoingContentStrategy);
+        this.requestParser = (requestParserFactory != null ? requestParserFactory :
+            DefaultHttpRequestParserFactory.INSTANCE).create(getSessionInputBuffer(), constraints);
+        this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
+            DefaultHttpResponseWriterFactory.INSTANCE).create(getSessionOutputBuffer());
     }
 
-    public DefaultBHttpServerConnection(final HttpParams params) {
-        this(null, null, null, params);
+    public DefaultBHttpServerConnection(
+            int buffersize,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints) {
+        this(buffersize, chardecoder, charencoder, constraints, null, null, null, null);
     }
 
-    @Override
-    protected ContentLengthStrategy createIncomingContentStrategy() {
-        return new DisallowIdentityContentLengthStrategy(new LaxContentLengthStrategy(0));
-    }
-
-    /**
-     * Creates an instance of {@link HttpMessageParser} to be used for parsing
-     * HTTP requests received over this connection.
-     *
-     * @param buffer the session input buffer.
-     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE}
-     *   will be used
-     * @param responseFactory the response factory. If <code>null</code>
-     *   {@link DefaultHttpRequestFactory#INSTANCE} will be used.
-     * @param params HTTP parameters.
-     * @return HTTP message parser.
-     */
-    protected HttpMessageParser<HttpRequest> createRequestParser(
-            final SessionInputBuffer buffer,
-            final LineParser lineParser,
-            final HttpRequestFactory requestFactory,
-            final HttpParams params) {
-        int maxHeaderCount = Config.getInt(params, CoreConnectionPNames.MAX_HEADER_COUNT, -1);
-        int maxLineLen = Config.getInt(params, CoreConnectionPNames.MAX_LINE_LENGTH, -1);
-        return new DefaultHttpRequestParser(
-                buffer, maxHeaderCount, maxLineLen, lineParser, requestFactory);
-    }
-
-    /**
-     * Creates an instance of {@link HttpMessageWriter} to be used for
-     * writing out HTTP responses sent over this connection.
-     *
-     * @param buffer the session output buffer
-     * @param lineFormatter the line formatter. If <code>null</code>
-     *   {@link BasicLineFormatter#INSTANCE} will be used.
-     * @param params HTTP parameters
-     * @return HTTP message writer
-     */
-    protected HttpMessageWriter<HttpResponse> createResponseWriter(
-            final SessionOutputBuffer buffer,
-            final LineFormatter lineFormatter,
-            final HttpParams params) {
-        return new DefaultHttpResponseWriter(buffer, lineFormatter);
+    public DefaultBHttpServerConnection(int buffersize) {
+        this(buffersize, null, null, null, null, null, null, null);
     }
 
     protected void onRequestReceived(final HttpRequest request) {

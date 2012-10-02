@@ -74,7 +74,6 @@ public class HttpServer {
         super();
         this.params = new HttpCoreConfigBuilder()
             .setSocketTimeout(5000)
-            .setSocketBufferSize(8 * 1024)
             .setTcpNoDelay(true)
             .setOriginServer("TEST-SERVER/1.1").build();
         this.httpproc = new ImmutableHttpProcessor(
@@ -102,7 +101,7 @@ public class HttpServer {
 
     private HttpServerConnection acceptConnection() throws IOException {
         Socket socket = this.serversocket.accept();
-        LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(this.params);
+        LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(8 * 1024);
         conn.bind(socket);
         return conn;
     }

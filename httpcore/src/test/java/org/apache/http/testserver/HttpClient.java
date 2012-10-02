@@ -90,7 +90,7 @@ public class HttpClient {
     }
 
     public DefaultBHttpClientConnection createConnection() {
-        return new LoggingBHttpClientConnection(this.params);
+        return new LoggingBHttpClientConnection(8 * 1024);
     }
 
     public HttpResponse execute(

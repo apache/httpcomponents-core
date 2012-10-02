@@ -29,6 +29,8 @@ package org.apache.http.impl.nio;
 
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -38,12 +40,18 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.MessageConstraints;
 import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParser;
+import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseWriter;
+import org.apache.http.impl.nio.codecs.DefaultHttpResponseWriterFactory;
 import org.apache.http.nio.NHttpMessageParser;
+import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.NHttpMessageWriter;
+import org.apache.http.nio.NHttpMessageWriterFactory;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.NHttpServerIOTarget;
@@ -53,21 +61,14 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
+import org.apache.http.nio.util.HeapByteBufferAllocator;
+import org.apache.http.params.Config;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
  * Default implementation of the {@link NHttpServerConnection} interface.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -86,7 +87,12 @@ public class DefaultNHttpServerConnection
      * @param requestFactory HTTP request factory.
      * @param allocator byte buffer allocator.
      * @param params HTTP parameters.
+     *
+     * @deprecated (4.3) use {@link DefaultNHttpServerConnection#DefaultNHttpServerConnection(
+     *  IOSession, int, ByteBufferAllocator, CharsetDecoder, CharsetEncoder, MessageConstraints,
+     *  ContentLengthStrategy, ContentLengthStrategy, NHttpMessageParserFactory, NHttpMessageWriterFactory)}
      */
+    @Deprecated
     public DefaultNHttpServerConnection(
             final IOSession session,
             final HttpRequestFactory requestFactory,
@@ -98,7 +104,75 @@ public class DefaultNHttpServerConnection
         this.responseWriter = createResponseWriter(this.outbuf, params);
     }
 
+    /**
+     * Creates new instance DefaultNHttpServerConnection given the underlying I/O session.
+     *
+     * @param session the underlying I/O session.
+     * @param buffersize buffer size. Must be a positive number.
+     * @param allocator memory allocator.
+     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     *   {@link DisallowIdentityContentLengthStrategy#INSTANCE} will be used.
+     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     * @param requestParserFactory request parser factory. If <code>null</code>
+     *   {@link DefaultHttpRequestParserFactory#INSTANCE} will be used.
+     * @param responseWriterFactory response writer factory. If <code>null</code>
+     *   {@link DefaultHttpResponseWriterFactory#INSTANCE} will be used.
+     *
+     * @since 4.3
+     */
+    public DefaultNHttpServerConnection(
+            final IOSession session,
+            int buffersize,
+            final ByteBufferAllocator allocator,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
+            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
+            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
+        super(session, buffersize, allocator, chardecoder, charencoder, constraints,
+                incomingContentStrategy != null ? incomingContentStrategy :
+                    DisallowIdentityContentLengthStrategy.INSTANCE, outgoingContentStrategy);
+        this.requestParser = (requestParserFactory != null ? requestParserFactory :
+            DefaultHttpRequestParserFactory.INSTANCE).create(this.inbuf, constraints);
+        this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
+            DefaultHttpResponseWriterFactory.INSTANCE).create(this.outbuf);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultNHttpServerConnection(
+            final IOSession session,
+            int buffersize,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints) {
+        this(session, buffersize, null, chardecoder, charencoder, constraints,
+                null, null, null, null);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultNHttpServerConnection(final IOSession session, int buffersize) {
+        this(session, buffersize, null, null, null, null, null, null, null, null);
+    }
+
+    /**
+     * @deprecated (4.3) use constructor.
+     */
     @Override
+    @Deprecated
     protected ContentLengthStrategy createIncomingContentStrategy() {
         return new DisallowIdentityContentLengthStrategy(new LaxContentLengthStrategy(0));
     }
@@ -111,14 +185,19 @@ public class DefaultNHttpServerConnection
      * a different implementation of the {@link NHttpMessageParser} interface.
      *
      * @return HTTP response parser.
+     *
+     * @deprecated (4.3) use constructor.
      */
+    @Deprecated
     protected NHttpMessageParser<HttpRequest> createRequestParser(
             final SessionInputBuffer buffer,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
-        int maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
-        int maxHeaderCount = params.getIntParameter(CoreConnectionPNames.MAX_HEADER_COUNT, -1);
-        return new DefaultHttpRequestParser(buffer, maxHeaderCount, maxLineLen, null, requestFactory);
+        MessageConstraints constraints = MessageConstraints.custom()
+                .setMaxLineLength(Config.getInt(params, CoreConnectionPNames.MAX_LINE_LENGTH, -1))
+                .setMaxHeaderCount(Config.getInt(params, CoreConnectionPNames.MAX_HEADER_COUNT, -1))
+                .build();
+        return new DefaultHttpRequestParser(buffer, null, requestFactory, constraints);
     }
 
     /**
@@ -130,7 +209,10 @@ public class DefaultNHttpServerConnection
      * a different implementation of the {@link NHttpMessageWriter} interface.
      *
      * @return HTTP response parser.
+     *
+     * @deprecated (4.3) use constructor.
      */
+    @Deprecated
     protected NHttpMessageWriter<HttpResponse> createResponseWriter(
             final SessionOutputBuffer buffer,
             final HttpParams params) {
@@ -143,13 +225,13 @@ public class DefaultNHttpServerConnection
      */
     protected void onRequestReceived(final HttpRequest request) {
     }
-    
+
     /**
      * @since 4.2
      */
     protected void onResponseSubmitted(final HttpResponse response) {
     }
-    
+
     public void resetInput() {
         this.request = null;
         this.contentDecoder = null;
