@@ -53,9 +53,6 @@ public class HttpEntityWrapper implements HttpEntity {
 
     /**
      * Creates a new entity wrapper.
-     *
-     * @param wrapped   the entity to wrap, not null
-     * @throws IllegalArgumentException if wrapped is null
      */
     public HttpEntityWrapper(HttpEntity wrappedEntity) {
         super();

@@ -104,7 +104,7 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
     /**
      * Looks up a handler matching the given request URI.
      *
-     * @param requestURI the request path
+     * @param request the request
      * @return handler or <code>null</code> if no match is found.
      */
     public HttpRequestHandler lookup(final HttpRequest request) {

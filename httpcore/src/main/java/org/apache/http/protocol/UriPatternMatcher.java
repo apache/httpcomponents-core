@@ -113,9 +113,9 @@ public class UriPatternMatcher<T> {
     }
 
     /**
-     * Looks up an object matching the given request URI.
+     * Looks up an object matching the given request path.
      *
-     * @param requestURI the request path
+     * @param path the request path
      * @return object or <code>null</code> if no match is found.
      */
     public synchronized T lookup(final String path) {
@@ -142,10 +142,10 @@ public class UriPatternMatcher<T> {
     }
 
     /**
-     * Tests if the given request URI matches the given pattern.
+     * Tests if the given request path matches the given pattern.
      *
      * @param pattern the pattern
-     * @param requestUri the request URI
+     * @param path the request path
      * @return <code>true</code> if the request URI matches the pattern,
      *   <code>false</code> otherwise.
      */

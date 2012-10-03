@@ -46,7 +46,7 @@ import org.apache.http.util.Args;
  * matching a particular request URI. Usually the mapped request handler
  * will be used to process the request with the specified request URI.
  *
- * @since 4.2
+ * @since 4.3
  */
 @ThreadSafe
 public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandlerMapper {
@@ -102,7 +102,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
     /**
      * Looks up a handler matching the given request URI.
      *
-     * @param requestURI the request path
+     * @param request the request
      * @return handler or <code>null</code> if no match is found.
      */
     public HttpAsyncRequestHandler<?> lookup(final HttpRequest request) {

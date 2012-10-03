@@ -62,21 +62,22 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      * Creates an instance of this class.
      *
      * @param buffer the session input buffer.
-     * @param parser the line parser.
+     * @param lineParser the line parser.
      * @param responseFactory the factory to use to create
      *    {@link HttpResponse}s.
      * @param params HTTP parameters.
-     * 
-     * @deprecated (4.3) use 
-     *   {@link DefaultHttpResponseParser#DefaultHttpResponseParser(SessionInputBuffer, int, int, LineParser, HttpResponseFactory)}
+     *
+     * @deprecated (4.3) use
+     *   {@link DefaultHttpResponseParser#DefaultHttpResponseParser(SessionInputBuffer, LineParser,
+     *     HttpResponseFactory, MessageConstraints)}
      */
     @Deprecated
     public DefaultHttpResponseParser(
             final SessionInputBuffer buffer,
-            final LineParser parser,
+            final LineParser lineParser,
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
-        super(buffer, parser, params);
+        super(buffer, lineParser, params);
         this.responseFactory = Args.notNull(responseFactory, "Response factory");
         this.lineBuf = new CharArrayBuffer(128);
     }
@@ -85,22 +86,22 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      * Creates new instance of DefaultHttpResponseParser.
      *
      * @param buffer the session input buffer.
-     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} 
+     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE}
      *   will be used
-     * @param responseFactory the response factory. If <code>null</code> 
-     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used. 
-     * @param parser the message constraints. If <code>null</code> {@link MessageConstraints#DEFAULT} 
-     *   will be used.
-     * 
+     * @param responseFactory the response factory. If <code>null</code>
+     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
+     * @param constraints the message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     *
      * @since 4.3
      */
     public DefaultHttpResponseParser(
             final SessionInputBuffer buffer,
-            final LineParser parser,
+            final LineParser lineParser,
             final HttpResponseFactory responseFactory,
-            final MessageConstraints messageConstraints) {
-        super(buffer, parser, messageConstraints);
-        this.responseFactory = responseFactory != null ? responseFactory : 
+            final MessageConstraints constraints) {
+        super(buffer, lineParser, constraints);
+        this.responseFactory = responseFactory != null ? responseFactory :
             DefaultHttpResponseFactory.INSTANCE;
         this.lineBuf = new CharArrayBuffer(128);
     }
@@ -110,8 +111,8 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      */
     public DefaultHttpResponseParser(
             final SessionInputBuffer buffer,
-            final MessageConstraints messageConstraints) {
-        this(buffer, null, null, messageConstraints);
+            final MessageConstraints constraints) {
+        this(buffer, null, null, constraints);
     }
 
     /**

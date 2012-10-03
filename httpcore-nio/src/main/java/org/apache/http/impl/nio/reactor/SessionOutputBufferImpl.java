@@ -70,7 +70,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      *  Creates SessionOutputBufferImpl instance.
      *
      * @param buffersize input buffer size
-     * @param lineBuffersize buffer size for line operations. Has effect only if 
+     * @param lineBuffersize buffer size for line operations. Has effect only if
      *   <code>charencoder</code> is not <code>null</code>.
      * @param charencoder charencoder to be used for encoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for char to byte conversion.
@@ -91,7 +91,8 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
     /**
      * @deprecated (4.3) use
-     *   {@link SessionOutputBufferImpl#SessionOutputBufferImpl(int, int, Charset, CodingErrorAction, CodingErrorAction, ByteBufferAllocator)}
+     *   {@link SessionOutputBufferImpl#SessionOutputBufferImpl(int, int, CharsetEncoder,
+     *     ByteBufferAllocator)}
      */
     @Deprecated
     public SessionOutputBufferImpl(
@@ -118,7 +119,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
     /**
      * @deprecated (4.3) use
-     *   {@link SessionOutputBufferImpl#SessionOutputBufferImpl(int, int, Charset, CodingErrorAction, CodingErrorAction, ByteBufferAllocator)}
+     *   {@link SessionOutputBufferImpl#SessionOutputBufferImpl(int, int, Charset)}
      */
     @Deprecated
     public SessionOutputBufferImpl(
@@ -142,7 +143,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             int buffersize,
             int linebuffersize,
             final Charset charset) {
-        this(buffersize, linebuffersize, 
+        this(buffersize, linebuffersize,
                 charset != null ? charset.newEncoder() : null, HeapByteBufferAllocator.INSTANCE);
     }
 

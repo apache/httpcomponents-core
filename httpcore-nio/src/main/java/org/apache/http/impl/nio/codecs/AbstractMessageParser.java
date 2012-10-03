@@ -78,14 +78,17 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      * Creates an instance of this class.
      *
      * @param buffer the session input buffer.
-     * @param parser the line parser.
+     * @param lineParser the line parser.
      * @param params HTTP parameters.
      *
      * @deprecated (4.3) use
-     *   {@link AbstractMessageParser#AbstractMessageParser(SessionInputBuffer, int, int, LineParser)}
+     *   {@link AbstractMessageParser#AbstractMessageParser(SessionInputBuffer, LineParser,
+     *     MessageConstraints)}
      */
     @Deprecated
-    public AbstractMessageParser(final SessionInputBuffer buffer, final LineParser parser,
+    public AbstractMessageParser(
+            final SessionInputBuffer buffer,
+            final LineParser lineParser,
             final HttpParams params) {
         super();
         Args.notNull(buffer, "Session input buffer");
@@ -98,15 +101,15 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 .setMaxLineLength(Config.getInt(params, CoreConnectionPNames.MAX_LINE_LENGTH, -1))
                 .setMaxHeaderCount(Config.getInt(params, CoreConnectionPNames.MAX_HEADER_COUNT, -1))
                 .build();
-        this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
+        this.lineParser = (lineParser != null) ? lineParser : BasicLineParser.INSTANCE;
     }
 
     /**
      * Creates an instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
-     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} will
-     *   be used.
+     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE}
+     *   will be used.
      * @param constraints Message constraints. If <code>null</code>
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
@@ -114,11 +117,11 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      */
     public AbstractMessageParser(
             final SessionInputBuffer buffer,
-            final LineParser parser,
+            final LineParser lineParser,
             final MessageConstraints constraints) {
         super();
         this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
-        this.lineParser = parser != null ? parser : BasicLineParser.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : BasicLineParser.INSTANCE;
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerBufs = new ArrayList<CharArrayBuffer>();
         this.state = READ_HEAD_LINE;

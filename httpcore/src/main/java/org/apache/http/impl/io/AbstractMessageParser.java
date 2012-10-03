@@ -74,8 +74,9 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * @param buffer the session input buffer.
      * @param parser the line parser.
      * @param params HTTP parameters.
-     * 
-     * @deprecated (4.3)
+     *
+     * @deprecated (4.3) use {@link AbstractMessageParser#AbstractMessageParser(SessionInputBuffer,
+     *   LineParser, MessageConstraints)}
      */
     @Deprecated
     public AbstractMessageParser(
@@ -99,20 +100,20 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * Creates new instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
-     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} 
+     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE}
      *   will be used.
-     * @param parser the message constraints. If <code>null</code> {@link MessageConstraints#DEFAULT} 
-     *   will be used.
-     * 
+     * @param constraints the message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     *
      * @since 4.3
      */
     public AbstractMessageParser(
             final SessionInputBuffer buffer,
-            final LineParser parser,
+            final LineParser lineParser,
             final MessageConstraints constraints) {
         super();
         this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
-        this.lineParser = parser != null ? parser : BasicLineParser.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : BasicLineParser.INSTANCE;
         this.messageConstraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
