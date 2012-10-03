@@ -335,8 +335,10 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             IOSession session = request.getSession();
             try {
                 C conn = this.connFactory.create(route, session);
-                E entry = pool.completed(request, conn);
+                E entry = pool.createEntry(request, conn);
                 this.leased.add(entry);
+                pool.completed(request, entry);
+
             } catch (IOException ex) {
                 pool.failed(request, ex);
             }

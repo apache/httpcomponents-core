@@ -1,4 +1,8 @@
-Changes since 4.2.1
+Changes in trunk
+
+* [HTTPCORE-315] AbstractNIOConnPool fails to correctly deallocate connection if it is immediately 
+  released from the session request callback causing a resource leak.
+  Contributed by Scott Stanton <snstanton at gmail.com> 
 
 * [HTTPCORE-313] ContentType#parse now ignores empty and blank charset attributes. 
   HttpEntityUtils#toString now throws checked I/O exception ifit  encounters an unsupported charset. 

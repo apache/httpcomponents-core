@@ -95,9 +95,12 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(1, pool.getPendingCount());
-        LocalPoolEntry entry = pool.completed(sessionRequest, session);
+        LocalPoolEntry entry = pool.createEntry(sessionRequest, session);
         Assert.assertNotNull(entry);
         Assert.assertSame(session, entry.getConnection());
+        Assert.assertFalse(future.isDone());
+        Assert.assertFalse(future.isCancelled());
+        pool.completed(sessionRequest, entry);
         Assert.assertTrue(future.isDone());
         Assert.assertFalse(future.isCancelled());
 
@@ -201,11 +204,14 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(3, pool.getPendingCount());
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
+        LocalPoolEntry entry1 = pool.createEntry(sessionRequest1, session1);
+        pool.completed(sessionRequest1, entry1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
+        LocalPoolEntry entry2 = pool.createEntry(sessionRequest2, session2);
+        pool.completed(sessionRequest2, entry2);
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
+        LocalPoolEntry entry3 = pool.createEntry(sessionRequest3, session3);
+        pool.completed(sessionRequest3, entry3);
         Assert.assertNotNull(entry3);
 
         Assert.assertEquals(3, pool.getAllocatedCount());
@@ -258,11 +264,14 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(3, pool.getPendingCount());
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
+        LocalPoolEntry entry1 = pool.createEntry(sessionRequest1, session1);
+        pool.completed(sessionRequest1, entry1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
+        LocalPoolEntry entry2 = pool.createEntry(sessionRequest2, session2);
+        pool.completed(sessionRequest2, entry2);
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
+        LocalPoolEntry entry3 = pool.createEntry(sessionRequest3, session3);
+        pool.completed(sessionRequest3, entry3);
         Assert.assertNotNull(entry3);
 
         Assert.assertEquals(3, pool.getAllocatedCount());
@@ -301,11 +310,14 @@ public class TestRouteSpecificPool {
         BasicFuture<LocalPoolEntry> future3 = new BasicFuture<LocalPoolEntry>(null);
         pool.addPending(sessionRequest3, future3);
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
+        LocalPoolEntry entry1 = pool.createEntry(sessionRequest1, session1);
+        pool.completed(sessionRequest1, entry1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
+        LocalPoolEntry entry2 = pool.createEntry(sessionRequest2, session2);
+        pool.completed(sessionRequest2, entry2);
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
+        LocalPoolEntry entry3 = pool.createEntry(sessionRequest3, session3);
+        pool.completed(sessionRequest3, entry3);
         Assert.assertNotNull(entry3);
 
         entry2.setState(Boolean.FALSE);
@@ -365,11 +377,14 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(0, pool.getLeasedCount());
         Assert.assertEquals(3, pool.getPendingCount());
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
+        LocalPoolEntry entry1 = pool.createEntry(sessionRequest1, session1);
+        pool.completed(sessionRequest1, entry1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
+        LocalPoolEntry entry2 = pool.createEntry(sessionRequest2, session2);
+        pool.completed(sessionRequest2, entry2);
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = pool.completed(sessionRequest3, session3);
+        LocalPoolEntry entry3 = pool.createEntry(sessionRequest3, session3);
+        pool.completed(sessionRequest3, entry3);
         Assert.assertNotNull(entry3);
 
         Assert.assertEquals(3, pool.getAllocatedCount());
@@ -433,9 +448,11 @@ public class TestRouteSpecificPool {
         BasicFuture<LocalPoolEntry> future3 = new BasicFuture<LocalPoolEntry>(null);
         pool.addPending(sessionRequest3, future3);
 
-        LocalPoolEntry entry1 = pool.completed(sessionRequest1, session1);
+        LocalPoolEntry entry1 = pool.createEntry(sessionRequest1, session1);
+        pool.completed(sessionRequest1, entry1);
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = pool.completed(sessionRequest2, session2);
+        LocalPoolEntry entry2 = pool.createEntry(sessionRequest2, session2);
+        pool.completed(sessionRequest2, entry2);
         Assert.assertNotNull(entry2);
 
         pool.free(entry1, true);
