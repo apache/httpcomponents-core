@@ -51,17 +51,6 @@ import org.apache.http.util.Args;
  * an {@link HttpHost} instance. Please note this pool implementation
  * does not support complex routes via a proxy cannot differentiate between
  * direct and proxied connections.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#CONNECTION_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @see HttpHost
  * @since 4.2
@@ -71,20 +60,69 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     private static AtomicLong COUNTER = new AtomicLong();
 
-    private final HttpParams params;
+    private final int connectTimeout;
+    private final TimeUnit tunit;
 
+    /**
+     * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor,
+     *   NIOConnFactory, int, TimeUnit)}
+     */
+    @Deprecated
     public BasicNIOConnPool(
             final ConnectingIOReactor ioreactor,
             final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
             final HttpParams params) {
         super(ioreactor, connFactory, 2, 20);
         Args.notNull(params, "HTTP parameters");
-        this.params = params;
+        this.connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+        this.tunit = TimeUnit.MILLISECONDS;
     }
 
+    /**
+     * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor,
+     *   int, TimeUnit)}
+     */
+    @Deprecated
     public BasicNIOConnPool(
             final ConnectingIOReactor ioreactor, final HttpParams params) {
         this(ioreactor, new BasicNIOConnFactory(params), params);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnPool(
+            final ConnectingIOReactor ioreactor,
+            final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
+            int connectTimeout,
+            final TimeUnit tunit) {
+        super(ioreactor, connFactory, 2, 20);
+        this.connectTimeout = connectTimeout;
+        this.tunit = tunit != null ? tunit : TimeUnit.MILLISECONDS;
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnPool(
+            final ConnectingIOReactor ioreactor,
+            final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory) {
+        this(ioreactor, connFactory, 0, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnPool(
+            final ConnectingIOReactor ioreactor, int connectTimeout, final TimeUnit tunit) {
+        this(ioreactor, new BasicNIOConnFactory(), connectTimeout, tunit);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnPool(final ConnectingIOReactor ioreactor) {
+        this(ioreactor, new BasicNIOConnFactory(), 0, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -107,16 +145,14 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final HttpHost route,
             final Object state,
             final FutureCallback<BasicNIOPoolEntry> callback) {
-        int connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
-        return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, callback);
+        return super.lease(route, state, this.connectTimeout, this.tunit, callback);
     }
 
     @Override
     public Future<BasicNIOPoolEntry> lease(
             final HttpHost route,
             final Object state) {
-        int connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
-        return super.lease(route, state, connectTimeout, TimeUnit.MILLISECONDS, null);
+        return super.lease(route, state, this.connectTimeout, this.tunit, null);
     }
 
 }

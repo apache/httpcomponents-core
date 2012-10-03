@@ -69,12 +69,22 @@ public class DefaultHttpClientIODispatch
         this.connFactory = Args.notNull(connFactory, "HTTP client connection factory");
     }
 
+    /**
+     * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
+     *   NHttpClientEventHandler)}
+     */
+    @Deprecated
     public DefaultHttpClientIODispatch(
             final NHttpClientEventHandler handler,
             final HttpParams params) {
         this(handler, new DefaultNHttpClientConnectionFactory(params));
     }
 
+    /**
+     * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
+     *   NHttpClientEventHandler, SSLContext, SSLSetupHandler)}
+     */
+    @Deprecated
     public DefaultHttpClientIODispatch(
             final NHttpClientEventHandler handler,
             final SSLContext sslcontext,
@@ -83,11 +93,42 @@ public class DefaultHttpClientIODispatch
         this(handler, new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, params));
     }
 
+    /**
+     * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
+     *   NHttpClientEventHandler, SSLContext)}
+     */
+    @Deprecated
     public DefaultHttpClientIODispatch(
             final NHttpClientEventHandler handler,
             final SSLContext sslcontext,
             final HttpParams params) {
         this(handler, sslcontext, null, params);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultHttpClientIODispatch(final NHttpClientEventHandler handler) {
+        this(handler, new DefaultNHttpClientConnectionFactory());
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultHttpClientIODispatch(
+            final NHttpClientEventHandler handler,
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler) {
+        this(handler, new SSLNHttpClientConnectionFactory(sslcontext, sslHandler));
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultHttpClientIODispatch(
+            final NHttpClientEventHandler handler,
+            final SSLContext sslcontext) {
+        this(handler, new SSLNHttpClientConnectionFactory(sslcontext, null));
     }
 
     @Override

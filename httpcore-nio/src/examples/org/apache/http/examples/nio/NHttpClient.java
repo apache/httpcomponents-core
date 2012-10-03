@@ -29,6 +29,7 @@ package org.apache.http.examples.nio;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestInterceptor;
@@ -79,11 +80,11 @@ public class NHttpClient {
         // Create client-side HTTP protocol handler
         HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
         // Create client-side I/O event dispatch
-        final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler, params);
+        final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler);
         // Create client-side I/O reactor
         final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
         // Create HTTP connection pool
-        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, params);
+        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, 3, TimeUnit.SECONDS);
         // Limit total number of connections to just two
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);

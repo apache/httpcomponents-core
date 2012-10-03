@@ -30,8 +30,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +38,6 @@ import org.mockito.MockitoAnnotations;
 
 public class TestBasicNIOConnPool {
 
-    private HttpParams params;
     private BasicNIOConnFactory connFactory;
     private BasicNIOConnPool pool;
     private HttpHost route;
@@ -52,9 +49,8 @@ public class TestBasicNIOConnPool {
         MockitoAnnotations.initMocks(this);
 
         route = new HttpHost("localhost", 80, "http");
-        params = new BasicHttpParams();
-        connFactory = new BasicNIOConnFactory(params);
-        pool = new BasicNIOConnPool(reactor, connFactory, params);
+        connFactory = new BasicNIOConnFactory();
+        pool = new BasicNIOConnPool(reactor, connFactory);
     }
 
     @After
@@ -63,12 +59,7 @@ public class TestBasicNIOConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testNullConstructor() throws Exception {
-        pool = new BasicNIOConnPool(null, new BasicHttpParams());
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testNullConstructor2() throws Exception {
-        pool = new BasicNIOConnPool(reactor, null);
+        pool = new BasicNIOConnPool(null);
     }
 
     @Test

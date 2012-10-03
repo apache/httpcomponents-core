@@ -30,7 +30,6 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
@@ -66,8 +65,8 @@ public class SSLNHttpServerConnectionFactory
 
     /**
      * @deprecated (4.3) use {@link
-     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
-     *     ByteBufferAllocator, HttpResponseFactory)}
+     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(SSLContext,
+     *     SSLSetupHandler, HttpRequestFactory, ByteBufferAllocator)}
      */
     @Deprecated
     public SSLNHttpServerConnectionFactory(
@@ -90,8 +89,8 @@ public class SSLNHttpServerConnectionFactory
 
     /**
      * @deprecated (4.3) use {@link
-     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
-     *     ByteBufferAllocator, HttpResponseFactory)}
+     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(SSLContext,
+     *     SSLSetupHandler)}
      */
     @Deprecated
     public SSLNHttpServerConnectionFactory(
@@ -104,8 +103,7 @@ public class SSLNHttpServerConnectionFactory
 
     /**
      * @deprecated (4.3) use {@link
-     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
-     *     ByteBufferAllocator, HttpResponseFactory)}
+     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory()}
      */
     @Deprecated
     public SSLNHttpServerConnectionFactory(final HttpParams params) {

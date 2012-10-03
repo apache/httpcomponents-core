@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.ConnectionReuseStrategy;
@@ -156,7 +157,7 @@ public class NHttpReverseProxy {
         HttpAsyncRequester executor = new HttpAsyncRequester(
                 outhttpproc, new ProxyOutgoingConnectionReuseStrategy(), params);
 
-        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, params);
+        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, 3, TimeUnit.SECONDS);
         connPool.setMaxTotal(100);
         connPool.setDefaultMaxPerRoute(20);
 
@@ -167,10 +168,10 @@ public class NHttpReverseProxy {
                 inhttpproc, new ProxyIncomingConnectionReuseStrategy(), handlerRegistry, params);
 
         final IOEventDispatch connectingEventDispatch = new DefaultHttpClientIODispatch(
-                clientHandler, params);
+                clientHandler);
 
         final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch(
-                serviceHandler, params);
+                serviceHandler);
 
         Thread t = new Thread(new Runnable() {
 
@@ -847,15 +848,16 @@ public class NHttpReverseProxy {
 
     static class ProxyConnPool extends BasicNIOConnPool {
 
-        public ProxyConnPool(final ConnectingIOReactor ioreactor, final HttpParams params) {
-            super(ioreactor, params);
+        public ProxyConnPool(final ConnectingIOReactor ioreactor,
+                int connectTimeout, final TimeUnit tunit) {
+            super(ioreactor, connectTimeout, tunit);
         }
 
         public ProxyConnPool(
                 final ConnectingIOReactor ioreactor,
                 final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
-                final HttpParams params) {
-            super(ioreactor, connFactory, params);
+                int connectTimeout, final TimeUnit tunit) {
+            super(ioreactor, connFactory, connectTimeout, tunit);
         }
 
         @Override

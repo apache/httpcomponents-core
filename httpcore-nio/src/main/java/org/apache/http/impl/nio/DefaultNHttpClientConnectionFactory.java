@@ -59,7 +59,7 @@ public class DefaultNHttpClientConnectionFactory
     /**
      * @deprecated (4.3) use {@link
      *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
-     *     ByteBufferAllocator, HttpResponseFactory)}
+     *     HttpResponseFactory, ByteBufferAllocator)}
      */
     @Deprecated
     public DefaultNHttpClientConnectionFactory(
@@ -89,8 +89,8 @@ public class DefaultNHttpClientConnectionFactory
      * @since 4.3
      */
     public DefaultNHttpClientConnectionFactory(
-            final ByteBufferAllocator allocator,
-            final HttpResponseFactory responseFactory) {
+            final HttpResponseFactory responseFactory,
+            final ByteBufferAllocator allocator) {
         super();
         this.responseFactory = responseFactory;
         this.allocator = allocator;

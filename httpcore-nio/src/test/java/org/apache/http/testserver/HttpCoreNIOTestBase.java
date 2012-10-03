@@ -108,8 +108,7 @@ public abstract class HttpCoreNIOTestBase {
     public void initConnPool() throws Exception {
         this.connpool = new BasicNIOConnPool(
                 this.client.getIoReactor(),
-                new BasicNIOConnFactory(createClientConnectionFactory()),
-                this.clientParams);
+                new BasicNIOConnFactory(createClientConnectionFactory()));
         this.executor = new HttpAsyncRequester(
                 this.clientHttpProc,
                 DefaultConnectionReuseStrategy.INSTANCE,

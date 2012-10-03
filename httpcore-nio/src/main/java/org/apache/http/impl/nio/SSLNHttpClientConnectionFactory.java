@@ -33,6 +33,7 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
+import org.apache.http.message.BasicLineParser;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
@@ -122,8 +123,10 @@ public class SSLNHttpClientConnectionFactory
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
         this.responseFactory = responseFactory;
-        this.allocator = allocator;
-        this.responseParserFactory = new DefaultHttpResponseParserFactory(null, responseFactory);
+        this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
+        this.responseParserFactory = new DefaultHttpResponseParserFactory(
+                BasicLineParser.INSTANCE,
+                responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE);
         this.params = null;
     }
 

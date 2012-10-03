@@ -73,7 +73,7 @@ public class TestDefaultListeningIOReactor {
                 DefaultConnectionReuseStrategy.INSTANCE,
                 new UriHttpAsyncRequestHandlerMapper(),
                 params);
-        return new DefaultHttpServerIODispatch(serviceHandler, params);
+        return new DefaultHttpServerIODispatch(serviceHandler);
     }
 
     @Test

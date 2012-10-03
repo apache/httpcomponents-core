@@ -28,7 +28,6 @@ package org.apache.http.impl.nio;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
@@ -59,8 +58,8 @@ public class DefaultNHttpServerConnectionFactory
 
     /**
      * @deprecated (4.3) use {@link
-     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
-     *     ByteBufferAllocator, HttpResponseFactory)}
+     *   DefaultNHttpServerConnectionFactory#DefaultNHttpServerConnectionFactory(
+     *     ByteBufferAllocator, HttpRequestFactory)}
      */
     @Deprecated
     public DefaultNHttpServerConnectionFactory(
@@ -79,8 +78,7 @@ public class DefaultNHttpServerConnectionFactory
 
     /**
      * @deprecated (4.3) use {@link
-     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
-     *     ByteBufferAllocator, HttpResponseFactory)}
+     *   DefaultNHttpServerConnectionFactory#DefaultNHttpServerConnectionFactory()}
      */
     @Deprecated
     public DefaultNHttpServerConnectionFactory(final HttpParams params) {

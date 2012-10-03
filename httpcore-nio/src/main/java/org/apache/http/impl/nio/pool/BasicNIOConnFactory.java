@@ -50,15 +50,6 @@ import org.apache.http.util.Args;
 /**
  * A basic {@link NIOConnFactory} implementation that creates
  * {@link NHttpClientConnection} instances given a {@link HttpHost} instance.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @since 4.2
  */
@@ -82,6 +73,11 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
         this(plainFactory, null);
     }
 
+    /**
+     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
+     *   SSLSetupHandler, HttpResponseFactory, ByteBufferAllocator)}
+     */
+    @Deprecated
     public BasicNIOConnFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
@@ -94,6 +90,10 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
                         sslcontext, sslHandler, responseFactory, allocator, params));
     }
 
+    /**
+     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
+     *   SSLSetupHandler)}
+     */
     public BasicNIOConnFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
@@ -102,8 +102,40 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
                 DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
     }
 
+    /**
+     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory()}
+     */
     public BasicNIOConnFactory(final HttpParams params) {
         this(null, null, params);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnFactory(
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler,
+            final HttpResponseFactory responseFactory,
+            final ByteBufferAllocator allocator) {
+        this(new DefaultNHttpClientConnectionFactory(responseFactory, allocator),
+                new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, responseFactory,
+                        allocator));
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnFactory(
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler) {
+        this(sslcontext, sslHandler, null, null);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnFactory() {
+        this(new DefaultNHttpClientConnectionFactory(null, null), null);
     }
 
     public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {
