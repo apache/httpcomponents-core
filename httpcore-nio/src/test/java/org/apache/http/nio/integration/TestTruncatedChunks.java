@@ -37,7 +37,6 @@ import java.util.concurrent.Future;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.MalformedChunkCodingException;
@@ -49,7 +48,6 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.ContentDecoder;
@@ -68,10 +66,8 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.testserver.HttpCoreNIOTestBase;
 import org.apache.http.testserver.LoggingClientConnectionFactory;
@@ -103,15 +99,13 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new CustomServerConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
+        return new CustomServerConnectionFactory();
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingClientConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
+        return new LoggingClientConnectionFactory();
     }
 
     private static final byte[] GARBAGE = new byte[] {'1', '2', '3', '4', '5' };
@@ -158,33 +152,27 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     }
 
-    static class CustomServerConnectionFactory extends DefaultNHttpServerConnectionFactory {
+    static class CustomServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
-        public CustomServerConnectionFactory(final HttpParams params) {
-            super(params);
+        public CustomServerConnectionFactory() {
+            super();
         }
 
-        @Override
-        protected DefaultNHttpServerConnection createConnection(
-                final IOSession session,
-                final HttpRequestFactory requestFactory,
-                final ByteBufferAllocator allocator,
-                final HttpParams params) {
+        public DefaultNHttpServerConnection createConnection(final IOSession session) {
+            return new LoggingNHttpServerConnection(session) {
 
-            return new LoggingNHttpServerConnection(session, requestFactory, allocator, params) {
-
-                        @Override
-                        protected ContentEncoder createContentEncoder(
-                                final long len,
-                                final WritableByteChannel channel,
-                                final SessionOutputBuffer buffer,
-                                final HttpTransportMetricsImpl metrics) {
-                            if (len == ContentLengthStrategy.CHUNKED) {
-                                return new BrokenChunkEncoder(channel, buffer, metrics);
-                            } else {
-                                return super.createContentEncoder(len, channel, buffer, metrics);
-                            }
-                        }
+                @Override
+                protected ContentEncoder createContentEncoder(
+                        final long len,
+                        final WritableByteChannel channel,
+                        final SessionOutputBuffer buffer,
+                        final HttpTransportMetricsImpl metrics) {
+                    if (len == ContentLengthStrategy.CHUNKED) {
+                        return new BrokenChunkEncoder(channel, buffer, metrics);
+                    } else {
+                        return super.createContentEncoder(len, channel, buffer, metrics);
+                    }
+                }
 
             };
         }

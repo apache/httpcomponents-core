@@ -61,20 +61,20 @@ import org.junit.runners.Parameterized.Parameters;
 public class TestSessionInOutBuffers {
 
     private ByteBufferAllocator allocator;
-    
+
     public TestSessionInOutBuffers(final ByteBufferAllocator allocator) {
         super();
         this.allocator = allocator;
     }
-    
+
     @Parameters
     public static Collection<Object[]> getParameters() {
-        
+
         return Arrays.asList(
-                new Object[] { HeapByteBufferAllocator.INSTANCE }, 
+                new Object[] { HeapByteBufferAllocator.INSTANCE },
                 new Object[] { DirectByteBufferAllocator.INSTANCE });
     }
-    
+
     private static WritableByteChannel newChannel(final ByteArrayOutputStream outstream) {
         return Channels.newChannel(outstream);
     }
@@ -426,7 +426,7 @@ public class TestSessionInOutBuffers {
         String s2 = constructString(RUSSIAN_HELLO);
         String s3 = "Like hello and stuff";
 
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, 
+        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16,
                 Consts.UTF_8.newEncoder(), this.allocator);
 
         for (int i = 0; i < 10; i++) {
@@ -442,7 +442,7 @@ public class TestSessionInOutBuffers {
         byte[] tmp = outstream.toByteArray();
 
         ReadableByteChannel channel = newChannel(tmp);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, 
+        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16,
                 Consts.UTF_8.newDecoder(), this.allocator);
 
         while (inbuf.fill(channel) > 0) {

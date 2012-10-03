@@ -60,7 +60,6 @@ import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.testserver.HttpCoreNIOTestBase;
@@ -91,15 +90,13 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingServerConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
+        return new LoggingServerConnectionFactory();
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingClientConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
+        return new LoggingClientConnectionFactory();
     }
 
     @Test

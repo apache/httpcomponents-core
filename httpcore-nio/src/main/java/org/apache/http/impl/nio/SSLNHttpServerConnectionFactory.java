@@ -28,10 +28,14 @@ package org.apache.http.impl.nio;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
+import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpRequestFactory;
+import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
@@ -45,17 +49,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Factory for SSL encrypted, non-blocking {@link NHttpServerConnection}s.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
+ * Default factory for SSL encrypted, non-blocking {@link NHttpServerConnection}s.
  *
  * @since 4.2
  */
@@ -63,12 +57,19 @@ import org.apache.http.util.Args;
 public class SSLNHttpServerConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
+    private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
     private final HttpRequestFactory requestFactory;
     private final ByteBufferAllocator allocator;
     private final SSLContext sslcontext;
     private final SSLSetupHandler sslHandler;
     private final HttpParams params;
 
+    /**
+     * @deprecated (4.3) use {@link
+     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
+     *     ByteBufferAllocator, HttpResponseFactory)}
+     */
+    @Deprecated
     public SSLNHttpServerConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
@@ -84,8 +85,15 @@ public class SSLNHttpServerConnectionFactory
         this.requestFactory = requestFactory;
         this.allocator = allocator;
         this.params = params;
+        this.requestParserFactory = null;
     }
 
+    /**
+     * @deprecated (4.3) use {@link
+     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
+     *     ByteBufferAllocator, HttpResponseFactory)}
+     */
+    @Deprecated
     public SSLNHttpServerConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
@@ -94,8 +102,47 @@ public class SSLNHttpServerConnectionFactory
                 HeapByteBufferAllocator.INSTANCE, params);
     }
 
+    /**
+     * @deprecated (4.3) use {@link
+     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
+     *     ByteBufferAllocator, HttpResponseFactory)}
+     */
+    @Deprecated
     public SSLNHttpServerConnectionFactory(final HttpParams params) {
         this(null, null, params);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SSLNHttpServerConnectionFactory(
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler,
+            final HttpRequestFactory requestFactory,
+            final ByteBufferAllocator allocator) {
+        super();
+        this.sslcontext = sslcontext;
+        this.sslHandler = sslHandler;
+        this.requestFactory = requestFactory;
+        this.allocator = allocator;
+        this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
+        this.params = null;
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SSLNHttpServerConnectionFactory(
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler) {
+        this(sslcontext, sslHandler, null, null);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SSLNHttpServerConnectionFactory() {
+        this(null, null, null, null);
     }
 
     private SSLContext getDefaultSSLContext() {
@@ -109,6 +156,10 @@ public class SSLNHttpServerConnectionFactory
         return sslcontext;
     }
 
+    /**
+     * @deprecated (4.3) no longer used.
+     */
+    @Deprecated
     protected DefaultNHttpServerConnection createConnection(
             final IOSession session,
             final HttpRequestFactory requestFactory,
@@ -117,15 +168,35 @@ public class SSLNHttpServerConnectionFactory
         return new DefaultNHttpServerConnection(session, requestFactory, allocator, params);
     }
 
-    public DefaultNHttpServerConnection createConnection(final IOSession session) {
-        SSLContext sslcontext = this.sslcontext != null ? this.sslcontext : getDefaultSSLContext();
-        SSLIOSession ssliosession = new SSLIOSession(session, SSLMode.SERVER, sslcontext, this.sslHandler);
-        session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-        DefaultNHttpServerConnection conn =  createConnection(
-                ssliosession, this.requestFactory, this.allocator, this.params);
-        int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
-        conn.setSocketTimeout(timeout);
-        return conn;
+    /**
+     * @since 4.3
+     */
+    protected SSLIOSession createSSLIOSession(
+            final IOSession iosession,
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler) {
+        SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.SERVER,
+                (sslcontext != null ? sslcontext : getDefaultSSLContext()),
+                sslHandler);
+        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
+        return ssliosession;
+    }
+
+    public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
+        SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
+        if (this.params != null) {
+            DefaultNHttpServerConnection conn = createConnection(
+                    ssliosession, this.requestFactory, this.allocator, this.params);
+            int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
+            conn.setSocketTimeout(timeout);
+            return conn;
+        } else {
+            return new DefaultNHttpServerConnection(ssliosession, 8 * 1024,
+                    this.allocator,
+                    null, null, null, null, null,
+                    this.requestParserFactory,
+                    null);
+        }
     }
 
 }

@@ -28,31 +28,26 @@ package org.apache.http.testserver;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.HttpResponseFactory;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
+import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpParams;
+import org.apache.http.nio.reactor.ssl.SSLIOSession;
+import org.apache.http.nio.reactor.ssl.SSLMode;
 
-public class LoggingSSLClientConnectionFactory extends SSLNHttpClientConnectionFactory {
+public class LoggingSSLClientConnectionFactory implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 
-    public LoggingSSLClientConnectionFactory(
-            final SSLContext sslcontext,
-            final HttpParams params) {
-        super(sslcontext, null, DefaultHttpResponseFactory.INSTANCE, 
-                HeapByteBufferAllocator.INSTANCE, params);
+    private final SSLContext sslcontext;
+
+    public LoggingSSLClientConnectionFactory(final SSLContext sslcontext) {
+        super();
+        this.sslcontext = sslcontext;
     }
 
-    @Override
-    protected DefaultNHttpClientConnection createConnection(
-            final IOSession session,
-            final HttpResponseFactory responseFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        return new LoggingNHttpClientConnection(session, responseFactory, allocator, params);
+    public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
+        SSLIOSession ssliosession = new SSLIOSession(
+                iosession, SSLMode.CLIENT, this.sslcontext, null);
+        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
+        return new LoggingNHttpClientConnection(ssliosession);
     }
 
 }

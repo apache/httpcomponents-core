@@ -26,28 +26,18 @@
  */
 package org.apache.http.testserver;
 
-import org.apache.http.HttpRequestFactory;
-import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
+import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpParams;
 
-public class LoggingServerConnectionFactory extends DefaultNHttpServerConnectionFactory {
+public class LoggingServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
-    public LoggingServerConnectionFactory(final HttpParams params) {
-        super(DefaultHttpRequestFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
+    public LoggingServerConnectionFactory() {
+        super();
     }
 
-    @Override
-    protected DefaultNHttpServerConnection createConnection(
-            final IOSession session,
-            final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        return new LoggingNHttpServerConnection(session, requestFactory, allocator, params);
+    public DefaultNHttpServerConnection createConnection(final IOSession session) {
+        return new LoggingNHttpServerConnection(session);
     }
 
 }

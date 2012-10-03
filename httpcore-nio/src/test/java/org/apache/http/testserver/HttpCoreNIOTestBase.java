@@ -66,11 +66,11 @@ public abstract class HttpCoreNIOTestBase {
     protected BasicNIOConnPool connpool;
     protected HttpAsyncRequester executor;
 
-    protected abstract NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
-            HttpParams params) throws Exception;
+    protected abstract NHttpConnectionFactory<DefaultNHttpServerConnection>
+        createServerConnectionFactory() throws Exception;
 
-    protected abstract NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
-            HttpParams params) throws Exception;
+    protected abstract NHttpConnectionFactory<DefaultNHttpClientConnection>
+        createClientConnectionFactory() throws Exception;
 
     public void initServer() throws Exception {
         this.serverParams = new HttpCoreConfigBuilder()
@@ -78,7 +78,7 @@ public abstract class HttpCoreNIOTestBase {
             .setSocketBufferSize(8 * 1024)
             .setTcpNoDelay(true)
             .setOriginServer("TEST-SERVER/1.1").build();
-        this.server = new HttpServerNio(createServerConnectionFactory(this.serverParams));
+        this.server = new HttpServerNio(createServerConnectionFactory());
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
@@ -95,7 +95,7 @@ public abstract class HttpCoreNIOTestBase {
             .setSocketBufferSize(8 * 1024)
             .setTcpNoDelay(true)
             .setUserAgent("TEST-CLIENT/1.1").build();
-        this.client = new HttpClientNio(createClientConnectionFactory(this.clientParams));
+        this.client = new HttpClientNio(createClientConnectionFactory());
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
@@ -108,7 +108,7 @@ public abstract class HttpCoreNIOTestBase {
     public void initConnPool() throws Exception {
         this.connpool = new BasicNIOConnPool(
                 this.client.getIoReactor(),
-                new BasicNIOConnFactory(createClientConnectionFactory(this.clientParams)),
+                new BasicNIOConnFactory(createClientConnectionFactory()),
                 this.clientParams);
         this.executor = new HttpAsyncRequester(
                 this.clientHttpProc,

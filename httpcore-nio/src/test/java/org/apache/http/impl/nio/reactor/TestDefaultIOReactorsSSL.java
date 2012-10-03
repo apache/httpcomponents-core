@@ -30,7 +30,6 @@ package org.apache.http.impl.nio.reactor;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.params.HttpParams;
 import org.apache.http.testserver.LoggingSSLClientConnectionFactory;
 import org.apache.http.testserver.LoggingSSLServerConnectionFactory;
 import org.apache.http.testserver.SSLTestContexts;
@@ -42,15 +41,13 @@ import org.apache.http.testserver.SSLTestContexts;
 public class TestDefaultIOReactorsSSL extends TestDefaultIOReactors {
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingSSLServerConnectionFactory(SSLTestContexts.createServerSSLContext(), params);
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
+        return new LoggingSSLServerConnectionFactory(SSLTestContexts.createServerSSLContext());
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext(), params);
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
+        return new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext());
     }
 
 }

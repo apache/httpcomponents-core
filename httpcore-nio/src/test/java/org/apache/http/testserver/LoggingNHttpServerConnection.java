@@ -35,13 +35,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.params.HttpParams;
 
 public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
 
@@ -53,12 +50,8 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     private final Log wirelog;
     private final String id;
 
-    public LoggingNHttpServerConnection(
-            final IOSession session,
-            final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        super(session, requestFactory, allocator, params);
+    public LoggingNHttpServerConnection(final IOSession session) {
+        super(session, 8 * 1024);
         this.log = LogFactory.getLog(getClass());
         this.iolog = LogFactory.getLog(session.getClass());
         this.headerlog = LogFactory.getLog("org.apache.http.headers");

@@ -62,7 +62,6 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
@@ -106,15 +105,13 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingServerConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
+        return new LoggingServerConnectionFactory();
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingClientConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
+        return new LoggingClientConnectionFactory();
     }
 
     private void executeStandardTest(

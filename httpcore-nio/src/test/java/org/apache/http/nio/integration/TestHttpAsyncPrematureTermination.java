@@ -61,7 +61,6 @@ import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -89,15 +88,13 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingServerConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
+        return new LoggingServerConnectionFactory();
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
-            final HttpParams params) throws Exception {
-        return new LoggingClientConnectionFactory(params);
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
+        return new LoggingClientConnectionFactory();
     }
 
     private InetSocketAddress start(

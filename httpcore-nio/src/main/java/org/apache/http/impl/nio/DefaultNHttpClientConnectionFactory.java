@@ -26,11 +26,14 @@
  */
 package org.apache.http.impl.nio;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
+import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -40,17 +43,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Factory for plain (non-encrypted), non-blocking {@link NHttpClientConnection}s.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
+ * Default factory for plain (non-encrypted), non-blocking {@link NHttpClientConnection}s.
  *
  * @since 4.2
  */
@@ -58,10 +51,17 @@ import org.apache.http.util.Args;
 public class DefaultNHttpClientConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 
+    private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
     private final HttpResponseFactory responseFactory;
     private final ByteBufferAllocator allocator;
     private final HttpParams params;
 
+    /**
+     * @deprecated (4.3) use {@link
+     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
+     *     ByteBufferAllocator, HttpResponseFactory)}
+     */
+    @Deprecated
     public DefaultNHttpClientConnectionFactory(
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
@@ -73,12 +73,42 @@ public class DefaultNHttpClientConnectionFactory
         this.responseFactory = responseFactory;
         this.allocator = allocator;
         this.params = params;
+        this.responseParserFactory = null;
     }
 
+    /**
+     * @deprecated (4.3) use {@link
+     *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory()}
+     */
+    @Deprecated
     public DefaultNHttpClientConnectionFactory(final HttpParams params) {
         this(DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
     }
 
+    /**
+     * @since 4.3
+     */
+    public DefaultNHttpClientConnectionFactory(
+            final ByteBufferAllocator allocator,
+            final HttpResponseFactory responseFactory) {
+        super();
+        this.responseFactory = responseFactory;
+        this.allocator = allocator;
+        this.responseParserFactory = new DefaultHttpResponseParserFactory(null, responseFactory);
+        this.params = null;
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultNHttpClientConnectionFactory() {
+        this(null, null);
+    }
+
+    /**
+     * @deprecated (4.3) no longer used.
+     */
+    @Deprecated
     protected DefaultNHttpClientConnection createConnection(
             final IOSession session,
             final HttpResponseFactory responseFactory,
@@ -88,11 +118,19 @@ public class DefaultNHttpClientConnectionFactory
     }
 
     public DefaultNHttpClientConnection createConnection(final IOSession session) {
-        DefaultNHttpClientConnection conn = createConnection(session, this.responseFactory,
-                this.allocator, this.params);
-        int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
-        conn.setSocketTimeout(timeout);
-        return conn;
+        if (this.params != null) {
+            DefaultNHttpClientConnection conn = createConnection(session, this.responseFactory,
+                    this.allocator, this.params);
+            int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
+            conn.setSocketTimeout(timeout);
+            return conn;
+        } else {
+            return new DefaultNHttpClientConnection(
+                    session, 8 * 1024,
+                    this.allocator,
+                    null, null, null, null, null, null,
+                    this.responseParserFactory);
+        }
     }
 
 }
