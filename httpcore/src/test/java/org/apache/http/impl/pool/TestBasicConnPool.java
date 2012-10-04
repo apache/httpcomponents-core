@@ -29,6 +29,7 @@ package org.apache.http.impl.pool;
 import static org.junit.Assert.assertEquals;
 
 import java.net.ServerSocket;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -36,9 +37,6 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +46,6 @@ public class TestBasicConnPool {
     private BasicConnFactory connFactory;
     private BasicConnPool pool;
     private HttpHost host;
-    private HttpParams params;
     private HttpClientConnection conn;
 
     private ServerSocket server;
@@ -67,10 +64,7 @@ public class TestBasicConnPool {
         sslServer = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(0);
         sslServerPort = sslServer.getLocalPort();
 
-        params = new BasicHttpParams();
-        params.setParameter(CoreConnectionPNames.SO_TIMEOUT, 100);
-        params.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 100);
-        connFactory = new BasicConnFactory(params);
+        connFactory = new BasicConnFactory(100, TimeUnit.MILLISECONDS);
         pool = new BasicConnPool(connFactory);
     }
 
@@ -81,11 +75,6 @@ public class TestBasicConnPool {
             conn.close();
             conn.shutdown();
         }
-    }
-
-    @Test(expected=IllegalArgumentException.class)
-    public void testNullConstructor1() throws Exception {
-        new BasicConnPool((HttpParams) null);
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -104,7 +93,8 @@ public class TestBasicConnPool {
 
     @Test
     public void testHttpsCreateConnection() throws Exception {
-        connFactory = new BasicConnFactory((SSLSocketFactory)SSLSocketFactory.getDefault(), params);
+        connFactory = new BasicConnFactory((SSLSocketFactory)SSLSocketFactory.getDefault(),
+                100, TimeUnit.MILLISECONDS);
         host = new HttpHost("localhost", sslServerPort, "https");
         conn = connFactory.create(host);
 

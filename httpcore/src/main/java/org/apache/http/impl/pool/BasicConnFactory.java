@@ -29,6 +29,7 @@ package org.apache.http.impl.pool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -45,17 +46,6 @@ import org.apache.http.util.Args;
 /**
  * A very basic {@link ConnFactory} implementation that creates
  * {@link HttpClientConnection} instances given a {@link HttpHost} instance.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @see HttpHost
  * @since 4.2
@@ -64,18 +54,55 @@ import org.apache.http.util.Args;
 public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnection> {
 
     private final SSLSocketFactory sslfactory;
+    private final int connectTimeout;
+    private final TimeUnit tunit;
     private final HttpParams params;
 
+    /**
+     * @deprecated (4.3) use
+     *   {@link BasicConnFactory#BasicConnFactory(SSLSocketFactory, int, TimeUnit)}.
+     */
+    @Deprecated
     public BasicConnFactory(final SSLSocketFactory sslfactory, final HttpParams params) {
         super();
         this.sslfactory = sslfactory;
         this.params = Args.notNull(params, "HTTP params");
+        this.connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
+        this.tunit = TimeUnit.MILLISECONDS;
     }
 
+    /**
+     * @deprecated (4.3) use {@link BasicConnFactory#BasicConnFactory(int, TimeUnit)}.
+     */
+    @Deprecated
     public BasicConnFactory(final HttpParams params) {
         this(null, params);
     }
 
+    /**
+     * @since 4.3
+     */
+    public BasicConnFactory(
+            final SSLSocketFactory sslfactory,
+            int connectTimeout, final TimeUnit tunit) {
+        super();
+        this.sslfactory = sslfactory;
+        this.connectTimeout = connectTimeout;
+        this.tunit = tunit != null ? tunit : TimeUnit.MILLISECONDS;
+        this.params = null;
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicConnFactory(int connectTimeout, final TimeUnit tunit) {
+        this(null, connectTimeout, tunit);
+    }
+
+    /**
+     * @deprecated (4.3) no longer used.
+     */
+    @Deprecated
     protected HttpClientConnection create(final Socket socket, final HttpParams params) throws IOException {
         int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(bufsize);
@@ -96,12 +123,16 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         if (socket == null) {
             throw new IOException(scheme + " scheme is not supported");
         }
-        int connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
-        int soTimeout = Config.getInt(params, CoreConnectionPNames.SO_TIMEOUT, 0);
-
-        socket.setSoTimeout(soTimeout);
-        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), connectTimeout);
-        return create(socket, this.params);
+        int timeout = (int) tunit.toMillis(Math.min(connectTimeout, Integer.MAX_VALUE));
+        socket.setSoTimeout(timeout);
+        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), timeout);
+        if (params != null) {
+            return create(socket, this.params);
+        } else {
+            DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
+            conn.bind(socket);
+            return conn;
+        }
     }
 
 }

@@ -26,6 +26,7 @@
  */
 package org.apache.http.impl.pool;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.HttpClientConnection;
@@ -42,17 +43,6 @@ import org.apache.http.pool.ConnPool;
  * an {@link HttpHost} instance. Please note this pool implementation
  * does not support complex routes via a proxy cannot differentiate between
  * direct and proxied connections.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#HTTP_ELEMENT_CHARSET}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SOCKET_BUFFER_SIZE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_LINE_LENGTH}</li>
- * </ul>
  *
  * @see HttpHost
  * @since 4.2
@@ -66,8 +56,18 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
         super(connFactory, 2, 20);
     }
 
+    /**
+     * @deprecated (4.3) use {@link BasicConnPool#BasicConnPool(int, TimeUnit)}
+     */
     public BasicConnPool(final HttpParams params) {
         super(new BasicConnFactory(params), 2, 20);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicConnPool(int connectTimeout, final TimeUnit tunit) {
+        super(new BasicConnFactory(connectTimeout, tunit), 2, 20);
     }
 
     @Override
