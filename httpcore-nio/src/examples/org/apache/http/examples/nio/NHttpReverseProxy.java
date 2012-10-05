@@ -123,14 +123,14 @@ public class NHttpReverseProxy {
         System.out.println("Reverse proxy to " + targetHost);
 
         HttpParams params = new HttpCoreConfigBuilder()
-            .setSocketTimeout(3000)
-            .setConnectTimeout(3000)
-            .setSocketBufferSize(8 * 1024)
             .setUserAgent("Test/1.1")
             .setOriginServer("Test/1.1").build();
 
-        IOReactorConfig config = new IOReactorConfig();
-        config.setIoThreadCount(1);
+        IOReactorConfig config = IOReactorConfig.custom()
+            .setIoThreadCount(1)
+            .setSoTimeout(3000)
+            .setConnectTimeout(3000)
+            .build();
         final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(config);
         final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(config);
 

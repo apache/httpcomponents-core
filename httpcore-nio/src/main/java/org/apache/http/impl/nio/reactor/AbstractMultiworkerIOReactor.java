@@ -92,17 +92,6 @@ import org.apache.http.util.Args;
  * can obtain the audit log using {@link #getAuditLog()}, examine exceptions
  * thrown by the I/O reactor prior and in the course of the reactor shutdown
  * and decide whether it is safe to restart the I/O reactor.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#TCP_NODELAY}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_LINGER}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#SELECT_INTERVAL}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#GRACE_PERIOD}</li>
- *  <li>{@link org.apache.http.nio.params.NIOReactorPNames#INTEREST_OPS_QUEUEING}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -148,15 +137,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             final IOReactorConfig config,
             final ThreadFactory threadFactory) throws IOReactorException {
         super();
-        if (config != null) {
-            try {
-                this.config = config.clone();
-            } catch (CloneNotSupportedException ex) {
-                throw new IOReactorException("Unable to clone configuration");
-            }
-        } else {
-            this.config = new IOReactorConfig();
-        }
+        this.config = config != null ? config : IOReactorConfig.DEFAULT;
         this.params = new BasicHttpParams();
         try {
             this.selector = Selector.open();
@@ -191,17 +172,18 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     static IOReactorConfig convert(int workerCount, final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
-        IOReactorConfig config = new IOReactorConfig();
-        config.setSelectInterval(NIOReactorParams.getSelectInterval(params));
-        config.setShutdownGracePeriod(NIOReactorParams.getGracePeriod(params));
-        config.setInterestOpQueued(NIOReactorParams.getInterestOpsQueueing(params));
-        config.setIoThreadCount(workerCount);
-        config.setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params));
-        config.setSoTimeout(HttpConnectionParams.getSoTimeout(params));
-        config.setSoLinger(HttpConnectionParams.getLinger(params));
-        config.setSoKeepalive(HttpConnectionParams.getSoKeepalive(params));
-        config.setConnectTimeout(HttpConnectionParams.getConnectionTimeout(params));
-        config.setSoReuseAddress(HttpConnectionParams.getSoReuseaddr(params));
+        IOReactorConfig config = IOReactorConfig.custom()
+            .setSelectInterval(NIOReactorParams.getSelectInterval(params))
+            .setShutdownGracePeriod(NIOReactorParams.getGracePeriod(params))
+            .setInterestOpQueued(NIOReactorParams.getInterestOpsQueueing(params))
+            .setIoThreadCount(workerCount)
+            .setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params))
+            .setSoTimeout(HttpConnectionParams.getSoTimeout(params))
+            .setSoLinger(HttpConnectionParams.getLinger(params))
+            .setSoKeepAlive(HttpConnectionParams.getSoKeepalive(params))
+            .setConnectTimeout(HttpConnectionParams.getConnectionTimeout(params))
+            .setSoReuseAddress(HttpConnectionParams.getSoReuseaddr(params))
+            .build();
 
         return config;
     }

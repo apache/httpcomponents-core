@@ -34,9 +34,9 @@ import org.apache.http.util.Args;
  *
  * @since 4.3
  */
-public class MessageConstraints {
+public class MessageConstraints implements Cloneable {
 
-    public static final MessageConstraints UNLIMITED = new MessageConstraints(-1, -1);
+    public static final MessageConstraints UNLIMITED = new Builder().build();
     public static final MessageConstraints DEFAULT = UNLIMITED;
 
     private final int maxLineLength;
@@ -48,20 +48,17 @@ public class MessageConstraints {
         this.maxHeaderCount = maxHeaderCount;
     }
 
-    public static MessageConstraints lineLen(int max) {
-        return new MessageConstraints(Args.notNegative(max, "Max line length"), -1);
-    }
-
-    public static MessageConstraints.Builder custom() {
-        return new MessageConstraints.Builder();
-    }
-
     public int getMaxLineLength() {
         return maxLineLength;
     }
 
     public int getMaxHeaderCount() {
         return maxHeaderCount;
+    }
+
+    @Override
+    protected MessageConstraints clone() throws CloneNotSupportedException {
+        return (MessageConstraints) super.clone();
     }
 
     @Override
@@ -73,22 +70,27 @@ public class MessageConstraints {
         return builder.toString();
     }
 
+    public static MessageConstraints lineLen(int max) {
+        return new MessageConstraints(Args.notNegative(max, "Max line length"), -1);
+    }
+
+    public static MessageConstraints.Builder custom() {
+        return new Builder();
+    }
+
     public static class Builder {
 
         private int maxLineLength;
         private int maxHeaderCount;
 
-        public int getMaxLineLength() {
-            return maxLineLength;
+        Builder() {
+            this.maxLineLength = -1;
+            this.maxHeaderCount = -1;
         }
 
         public Builder setMaxLineLength(int maxLineLength) {
             this.maxLineLength = maxLineLength;
             return this;
-        }
-
-        public int getMaxHeaderCount() {
-            return maxHeaderCount;
         }
 
         public Builder setMaxHeaderCount(int maxHeaderCount) {

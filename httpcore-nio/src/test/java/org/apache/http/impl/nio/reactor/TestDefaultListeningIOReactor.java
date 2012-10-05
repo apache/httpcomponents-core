@@ -79,8 +79,7 @@ public class TestDefaultListeningIOReactor {
     @Test
     public void testEndpointUpAndDown() throws Exception {
         final IOEventDispatch eventDispatch = createIOEventDispatch();
-        IOReactorConfig config = new IOReactorConfig();
-        config.setIoThreadCount(1);
+        IOReactorConfig config = IOReactorConfig.custom().setIoThreadCount(1).build();
         final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 
         Thread t = new Thread(new Runnable() {
@@ -130,8 +129,7 @@ public class TestDefaultListeningIOReactor {
     @Test
     public void testEndpointAlreadyBoundFatal() throws Exception {
         final IOEventDispatch eventDispatch = createIOEventDispatch();
-        IOReactorConfig config = new IOReactorConfig();
-        config.setIoThreadCount(1);
+        IOReactorConfig config = IOReactorConfig.custom().setIoThreadCount(1).build();
         final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -176,8 +174,7 @@ public class TestDefaultListeningIOReactor {
     @Test
     public void testEndpointAlreadyBoundNonFatal() throws Exception {
         final IOEventDispatch eventDispatch = createIOEventDispatch();
-        IOReactorConfig config = new IOReactorConfig();
-        config.setIoThreadCount(1);
+        IOReactorConfig config = IOReactorConfig.custom().setIoThreadCount(1).build();
         final DefaultListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 
         ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {

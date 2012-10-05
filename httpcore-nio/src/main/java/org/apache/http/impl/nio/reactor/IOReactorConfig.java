@@ -42,7 +42,10 @@ import org.apache.http.util.Args;
 public final class IOReactorConfig implements Cloneable {
 
     private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();
-    
+
+    public static final IOReactorConfig DEFAULT = new Builder().build();
+
+    // TODO: make final
     private long selectInterval;
     private long shutdownGracePeriod;
     private boolean interestOpQueued;
@@ -54,6 +57,7 @@ public final class IOReactorConfig implements Cloneable {
     private boolean tcpNoDelay;
     private int connectTimeout;
 
+    @Deprecated
     public IOReactorConfig() {
         super();
         this.selectInterval = 1000;
@@ -68,6 +72,30 @@ public final class IOReactorConfig implements Cloneable {
         this.connectTimeout = 0;
     }
 
+    IOReactorConfig(
+            long selectInterval,
+            long shutdownGracePeriod,
+            boolean interestOpQueued,
+            int ioThreadCount,
+            int soTimeout,
+            boolean soReuseAddress,
+            int soLinger,
+            boolean soKeepAlive,
+            boolean tcpNoDelay,
+            int connectTimeout) {
+        super();
+        this.selectInterval = selectInterval;
+        this.shutdownGracePeriod = shutdownGracePeriod;
+        this.interestOpQueued = interestOpQueued;
+        this.ioThreadCount = ioThreadCount;
+        this.soTimeout = soTimeout;
+        this.soReuseAddress = soReuseAddress;
+        this.soLinger = soLinger;
+        this.soKeepAlive = soKeepAlive;
+        this.tcpNoDelay = tcpNoDelay;
+        this.connectTimeout = connectTimeout;
+    }
+
     /**
      * Determines time interval in milliseconds at which the I/O reactor wakes up to check for
      * timed out sessions and session requests.
@@ -78,10 +106,7 @@ public final class IOReactorConfig implements Cloneable {
         return this.selectInterval;
     }
 
-    /**
-     * Defines time interval in milliseconds at which the I/O reactor wakes up to check for
-     * timed out sessions and session requests. May not be negative or zero.
-     */
+    @Deprecated
     public void setSelectInterval(long selectInterval) {
         Args.positive(selectInterval, "Select internal");
         this.selectInterval = selectInterval;
@@ -97,10 +122,7 @@ public final class IOReactorConfig implements Cloneable {
         return this.shutdownGracePeriod;
     }
 
-    /**
-     * Defines grace period in milliseconds the I/O reactors are expected to block waiting
-     * for individual worker threads to terminate cleanly. May not be negative or zero.
-     */
+    @Deprecated
     public void setShutdownGracePeriod(long gracePeriod) {
         Args.positive(gracePeriod, "Shutdown grace period");
         this.shutdownGracePeriod = gracePeriod;
@@ -121,15 +143,7 @@ public final class IOReactorConfig implements Cloneable {
         return this.interestOpQueued;
     }
 
-    /**
-     * Defines whether or not I/O interest operations are to be queued and executed
-     * asynchronously by the I/O reactor thread or to be applied to the underlying
-     * {@link SelectionKey} immediately.
-     *
-     * @see SelectionKey
-     * @see SelectionKey#interestOps()
-     * @see SelectionKey#interestOps(int)
-     */
+    @Deprecated
     public void setInterestOpQueued(boolean interestOpQueued) {
         this.interestOpQueued = interestOpQueued;
     }
@@ -143,10 +157,7 @@ public final class IOReactorConfig implements Cloneable {
         return this.ioThreadCount;
     }
 
-    /**
-     * Defines the number of I/O dispatch threads to be used by the I/O reactor.
-     * May not be negative or zero.
-     */
+    @Deprecated
     public void setIoThreadCount(int ioThreadCount) {
         Args.positive(ioThreadCount, "I/O thread count");
         this.ioThreadCount = ioThreadCount;
@@ -163,13 +174,7 @@ public final class IOReactorConfig implements Cloneable {
         return soTimeout;
     }
 
-    /**
-     * Defines the default socket timeout value for non-blocking I/O operations.
-     * <p/>
-     * Default: <code>0</code> (no timeout)
-     *
-     * @see SocketOptions#SO_TIMEOUT
-     */
+    @Deprecated
     public void setSoTimeout(int soTimeout) {
         this.soTimeout = soTimeout;
     }
@@ -186,12 +191,7 @@ public final class IOReactorConfig implements Cloneable {
         return soReuseAddress;
     }
 
-    /**
-     * Defines the default value of the {@link SocketOptions#SO_REUSEADDR} parameter
-     * for newly created sockets.
-     *
-     * @see SocketOptions#SO_REUSEADDR
-     */
+    @Deprecated
     public void setSoReuseAddress(boolean soReuseAddress) {
         this.soReuseAddress = soReuseAddress;
     }
@@ -208,12 +208,7 @@ public final class IOReactorConfig implements Cloneable {
         return soLinger;
     }
 
-    /**
-     * Defines the default value of the {@link SocketOptions#SO_LINGER} parameter
-     * for newly created sockets.
-     *
-     * @see SocketOptions#SO_LINGER
-     */
+    @Deprecated
     public void setSoLinger(int soLinger) {
         this.soLinger = soLinger;
     }
@@ -230,14 +225,7 @@ public final class IOReactorConfig implements Cloneable {
         return this.soKeepAlive;
     }
 
-    /**
-     * Defines the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
-     * for newly created sockets.
-     * <p/>
-     * Default: <code>-1</code>
-     *
-     * @see SocketOptions#SO_KEEPALIVE
-     */
+    @Deprecated
     public void setSoKeepalive(boolean soKeepAlive) {
         this.soKeepAlive = soKeepAlive;
     }
@@ -254,12 +242,7 @@ public final class IOReactorConfig implements Cloneable {
         return tcpNoDelay;
     }
 
-    /**
-     * Defines the default value of the {@link SocketOptions#TCP_NODELAY} parameter
-     * for newly created sockets.
-     *
-     * @see SocketOptions#TCP_NODELAY
-     */
+    @Deprecated
     public void setTcpNoDelay(boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
     }
@@ -273,9 +256,7 @@ public final class IOReactorConfig implements Cloneable {
         return connectTimeout;
     }
 
-    /**
-     * Defines the default connect timeout value for non-blocking connection requests.
-     */
+    @Deprecated
     public void setConnectTimeout(int connectTimeout) {
         this.connectTimeout = connectTimeout;
     }
@@ -283,6 +264,94 @@ public final class IOReactorConfig implements Cloneable {
     @Override
     protected IOReactorConfig clone() throws CloneNotSupportedException {
         return (IOReactorConfig) super.clone();
+    }
+
+    public static Builder custom() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private long selectInterval;
+        private long shutdownGracePeriod;
+        private boolean interestOpQueued;
+        private int ioThreadCount;
+        private int soTimeout;
+        private boolean soReuseAddress;
+        private int soLinger;
+        private boolean soKeepAlive;
+        private boolean tcpNoDelay;
+        private int connectTimeout;
+
+        Builder() {
+            this.selectInterval = 1000;
+            this.shutdownGracePeriod = 500;
+            this.interestOpQueued = false;
+            this.ioThreadCount = AVAIL_PROCS;
+            this.soTimeout = 0;
+            this.soReuseAddress = false;
+            this.soLinger = -1;
+            this.soKeepAlive = false;
+            this.tcpNoDelay = true;
+            this.connectTimeout = 0;
+        }
+
+        public Builder setSelectInterval(long selectInterval) {
+            this.selectInterval = selectInterval;
+            return this;
+        }
+
+        public Builder setShutdownGracePeriod(long shutdownGracePeriod) {
+            this.shutdownGracePeriod = shutdownGracePeriod;
+            return this;
+        }
+
+        public Builder setInterestOpQueued(boolean interestOpQueued) {
+            this.interestOpQueued = interestOpQueued;
+            return this;
+        }
+
+        public Builder setIoThreadCount(int ioThreadCount) {
+            this.ioThreadCount = ioThreadCount;
+            return this;
+        }
+
+        public Builder setSoTimeout(int soTimeout) {
+            this.soTimeout = soTimeout;
+            return this;
+        }
+
+        public Builder setSoReuseAddress(boolean soReuseAddress) {
+            this.soReuseAddress = soReuseAddress;
+            return this;
+        }
+
+        public Builder setSoLinger(int soLinger) {
+            this.soLinger = soLinger;
+            return this;
+        }
+
+        public Builder setSoKeepAlive(boolean soKeepAlive) {
+            this.soKeepAlive = soKeepAlive;
+            return this;
+        }
+
+        public Builder setTcpNoDelay(boolean tcpNoDelay) {
+            this.tcpNoDelay = tcpNoDelay;
+            return this;
+        }
+
+        public Builder setConnectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
+        }
+
+        public IOReactorConfig build() {
+            return new IOReactorConfig(
+                    selectInterval, shutdownGracePeriod, interestOpQueued, ioThreadCount,
+                    soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay, connectTimeout);
+        }
+
     }
 
     @Override

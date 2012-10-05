@@ -52,6 +52,7 @@ import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerConnection;
@@ -96,10 +97,9 @@ public class NHttpServer {
         }
         // HTTP parameters for the server
         HttpParams params = new HttpCoreConfigBuilder()
-            .setSocketTimeout(3000)
-            .setConnectTimeout(3000)
-            .setSocketBufferSize(8 * 1024)
+            .setUserAgent("Test/1.1")
             .setOriginServer("Test/1.1").build();
+
         // Create HTTP protocol processing chain
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 // Use standard server-side protocol interceptors
@@ -147,14 +147,20 @@ public class NHttpServer {
             KeyManager[] keymanagers = kmfactory.getKeyManagers();
             SSLContext sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(keymanagers, null, null);
-            connFactory = new SSLNHttpServerConnectionFactory(sslcontext, null, params);
+            connFactory = new SSLNHttpServerConnectionFactory(sslcontext, null);
         } else {
-            connFactory = new DefaultNHttpServerConnectionFactory(params);
+            connFactory = new DefaultNHttpServerConnectionFactory();
         }
         // Create server-side I/O event dispatch
         IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(protocolHandler, connFactory);
+        // Set I/O reactor defaults
+        IOReactorConfig config = IOReactorConfig.custom()
+            .setIoThreadCount(1)
+            .setSoTimeout(3000)
+            .setConnectTimeout(3000)
+            .build();
         // Create server-side I/O reactor
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
+        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(config);
         try {
             // Listen of the given port
             ioReactor.listen(new InetSocketAddress(port));
