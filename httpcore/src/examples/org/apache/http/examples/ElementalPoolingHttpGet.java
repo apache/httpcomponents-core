@@ -36,14 +36,11 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.pool.BasicConnFactory;
 import org.apache.http.impl.pool.BasicConnPool;
 import org.apache.http.impl.pool.BasicPoolEntry;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -67,25 +64,18 @@ import org.apache.http.util.EntityUtils;
 public class ElementalPoolingHttpGet {
 
     public static void main(String[] args) throws Exception {
-
-        final HttpParams params = new HttpCoreConfigBuilder()
-            .setProtocolVersion(HttpVersion.HTTP_1_1)
-            .setContentCharset("UTF-8")
-            .setUserAgent("Test/1.1")
-            .setUseExpectContinue(true).build();
-
         final HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 // Required protocol interceptors
                 new RequestContent(),
                 new RequestTargetHost(),
                 // Recommended protocol interceptors
                 new RequestConnControl(),
-                new RequestUserAgent(),
+                new RequestUserAgent("Test/1.1"),
                 new RequestExpectContinue()});
 
         final HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
-        final BasicConnPool pool = new BasicConnPool(new BasicConnFactory(params));
+        final BasicConnPool pool = new BasicConnPool(new BasicConnFactory());
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);
 
@@ -120,10 +110,8 @@ public class ElementalPoolingHttpGet {
                         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
                         System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
-                        request.setParams(params);
                         httpexecutor.preProcess(request, httpproc, context);
                         HttpResponse response = httpexecutor.execute(request, conn, context);
-                        response.setParams(params);
                         httpexecutor.postProcess(response, httpproc, context);
 
                         System.out.println("<< Response: " + response.getStatusLine());

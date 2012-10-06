@@ -81,8 +81,6 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -122,10 +120,6 @@ public class NHttpReverseProxy {
 
         System.out.println("Reverse proxy to " + targetHost);
 
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setUserAgent("Test/1.1")
-            .setOriginServer("Test/1.1").build();
-
         IOReactorConfig config = IOReactorConfig.custom()
             .setIoThreadCount(1)
             .setSoTimeout(3000)
@@ -138,7 +132,7 @@ public class NHttpReverseProxy {
         HttpProcessor inhttpproc = new ImmutableHttpProcessor(
                 new HttpResponseInterceptor[] {
                         new ResponseDate(),
-                        new ResponseServer(),
+                        new ResponseServer("Test/1.1"),
                         new ResponseContent(),
                         new ResponseConnControl()
          });
@@ -149,13 +143,13 @@ public class NHttpReverseProxy {
                         new RequestContent(),
                         new RequestTargetHost(),
                         new RequestConnControl(),
-                        new RequestUserAgent(),
+                        new RequestUserAgent("Test/1.1"),
                         new RequestExpectContinue()
         });
 
         ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();
         HttpAsyncRequester executor = new HttpAsyncRequester(
-                outhttpproc, new ProxyOutgoingConnectionReuseStrategy(), params);
+                outhttpproc, new ProxyOutgoingConnectionReuseStrategy());
 
         ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, 3, TimeUnit.SECONDS);
         connPool.setMaxTotal(100);
@@ -165,7 +159,9 @@ public class NHttpReverseProxy {
         handlerRegistry.register("*", new ProxyRequestHandler(targetHost, executor, connPool));
 
         ProxyServiceHandler serviceHandler = new ProxyServiceHandler(
-                inhttpproc, new ProxyIncomingConnectionReuseStrategy(), handlerRegistry, params);
+                inhttpproc,
+                new ProxyIncomingConnectionReuseStrategy(),
+                handlerRegistry);
 
         final IOEventDispatch connectingEventDispatch = new DefaultHttpClientIODispatch(
                 clientHandler);
@@ -796,9 +792,8 @@ public class NHttpReverseProxy {
         public ProxyServiceHandler(
                 final HttpProcessor httpProcessor,
                 final ConnectionReuseStrategy reuseStrategy,
-                final HttpAsyncRequestHandlerMapper handlerResolver,
-                final HttpParams params) {
-            super(httpProcessor, reuseStrategy, handlerResolver, params);
+                final HttpAsyncRequestHandlerMapper handlerResolver) {
+            super(httpProcessor, reuseStrategy, null, handlerResolver, null);
         }
 
         @Override

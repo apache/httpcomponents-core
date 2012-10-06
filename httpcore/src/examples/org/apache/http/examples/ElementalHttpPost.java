@@ -35,18 +35,15 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -66,20 +63,13 @@ import org.apache.http.util.EntityUtils;
 public class ElementalHttpPost {
 
     public static void main(String[] args) throws Exception {
-
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setProtocolVersion(HttpVersion.HTTP_1_1)
-            .setContentCharset("UTF-8")
-            .setUserAgent("Test/1.1")
-            .setUseExpectContinue(true).build();
-
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 // Required protocol interceptors
                 new RequestContent(),
                 new RequestTargetHost(),
                 // Recommended protocol interceptors
                 new RequestConnControl(),
-                new RequestUserAgent(),
+                new RequestUserAgent("Test/1.1"),
                 new RequestExpectContinue()});
 
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
@@ -93,6 +83,7 @@ public class ElementalHttpPost {
 
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
+        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
 
         try {
 
@@ -117,10 +108,8 @@ public class ElementalHttpPost {
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
-                request.setParams(params);
                 httpexecutor.preProcess(request, httpproc, context);
                 HttpResponse response = httpexecutor.execute(request, conn, context);
-                response.setParams(params);
                 httpexecutor.postProcess(response, httpproc, context);
 
                 System.out.println("<< Response: " + response.getStatusLine());

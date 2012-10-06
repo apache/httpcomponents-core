@@ -57,7 +57,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -384,10 +384,6 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        // Set protocol level to HTTP/1.0
-        this.client.getParams().setParameter(
-                CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
-
         DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
@@ -398,7 +394,9 @@ public class TestSyncHttp {
                     conn.bind(socket);
                 }
 
-                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                // Set protocol level to HTTP/1.0
+                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
+                        "POST", "/", HttpVersion.HTTP_1_0);
                 byte[] data = testData.get(r);
                 ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
@@ -473,7 +471,7 @@ public class TestSyncHttp {
         this.server.start();
 
         // Activate 'expect: continue' handshake
-        this.client.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        this.client.getContext().setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
 
         DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
@@ -567,7 +565,7 @@ public class TestSyncHttp {
         this.server.start();
 
         // Activate 'expect: continue' handshake
-        this.client.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
+        this.client.getContext().setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
 
         DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());

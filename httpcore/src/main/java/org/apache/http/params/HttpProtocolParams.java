@@ -39,7 +39,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  *
- * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
+ * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
  */
 @Deprecated
 public final class HttpProtocolParams implements CoreProtocolPNames {

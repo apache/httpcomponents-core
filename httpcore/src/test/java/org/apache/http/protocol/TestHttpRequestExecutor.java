@@ -313,7 +313,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
-        Mockito.verify(conn).isResponseAvailable(2000);
+        Mockito.verify(conn).isResponseAvailable(3000);
         Mockito.verify(conn, Mockito.times(2)).receiveResponseHeader();
         Mockito.verify(conn).receiveResponseEntity(response);
 
@@ -346,7 +346,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn, Mockito.never()).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
-        Mockito.verify(conn).isResponseAvailable(2000);
+        Mockito.verify(conn).isResponseAvailable(3000);
         Mockito.verify(conn).receiveResponseHeader();
         Mockito.verify(conn).receiveResponseEntity(response);
 
@@ -405,7 +405,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
-        Mockito.verify(conn).isResponseAvailable(2000);
+        Mockito.verify(conn).isResponseAvailable(3000);
         Mockito.verify(conn).receiveResponseHeader();
         Mockito.verify(conn).receiveResponseEntity(response);
 

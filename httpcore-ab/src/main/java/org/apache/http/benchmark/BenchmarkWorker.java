@@ -45,9 +45,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.Config;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
@@ -70,51 +67,41 @@ import org.apache.http.protocol.RequestUserAgent;
 class BenchmarkWorker implements Runnable {
 
     private final byte[] buffer = new byte[4096];
-    private final int verbosity;
     private final HttpContext context;
     private final HttpProcessor httpProcessor;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
     private final HttpRequest request;
     private final HttpHost targetHost;
-    private final int count;
-    private final boolean keepalive;
+    private final Config config;
     private final SocketFactory socketFactory;
     private final Stats stats = new Stats();
 
     public BenchmarkWorker(
             final HttpRequest request,
             final HttpHost targetHost,
-            int count,
-            boolean keepalive,
-            int verbosity,
-            final SocketFactory socketFactory) {
+            final SocketFactory socketFactory,
+            final Config config) {
         super();
         this.context = new BasicHttpContext(null);
         this.request = request;
         this.targetHost = targetHost;
-        this.count = count;
-        this.keepalive = keepalive;
-
+        this.config = config;
         this.httpProcessor = new ImmutableHttpProcessor(
                 new RequestContent(), 
                 new RequestTargetHost(), 
                 new RequestConnControl(),
-                new RequestUserAgent(),
+                new RequestUserAgent("HttpCore-AB/1.1"),
                 new RequestExpectContinue());
         this.httpexecutor = new HttpRequestExecutor();
 
         this.connstrategy = DefaultConnectionReuseStrategy.INSTANCE;
-        this.verbosity = verbosity;
         this.socketFactory = socketFactory;
     }
 
     public void run() {
-        HttpParams params = request.getParams();
-
         HttpResponse response = null;
-        int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
-        BenchmarkConnection conn = new BenchmarkConnection(bufsize, stats);
+        BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);
 
         String scheme = targetHost.getSchemeName();
         String hostname = targetHost.getHostName();
@@ -133,6 +120,7 @@ class BenchmarkWorker implements Runnable {
         this.context.setAttribute(ExecutionContext.HTTP_REQUEST, this.request);
 
         stats.start();
+        int count = config.getRequests();
         for (int i = 0; i < count; i++) {
 
             try {
@@ -146,11 +134,9 @@ class BenchmarkWorker implements Runnable {
                         socket = new Socket();
                     }
                     
-                    int connTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
-                    int soTimeout = Config.getInt(params, CoreConnectionPNames.SO_TIMEOUT, 0);
-
-                    socket.setSoTimeout(soTimeout);
-                    socket.connect(new InetSocketAddress(hostname, port), connTimeout);
+                    int timeout = config.getSocketTimeout();
+                    socket.setSoTimeout(timeout);
+                    socket.connect(new InetSocketAddress(hostname, port), timeout);
                     
                     conn.bind(socket);
                 }
@@ -165,7 +151,7 @@ class BenchmarkWorker implements Runnable {
 
                 } catch (HttpException e) {
                     stats.incWriteErrors();
-                    if (this.verbosity >= 2) {
+                    if (config.getVerbosity() >= 2) {
                         System.err.println("Failed HTTP request : " + e.getMessage());
                     }
                     continue;
@@ -192,7 +178,7 @@ class BenchmarkWorker implements Runnable {
                     int l = 0;
                     while ((l = instream.read(this.buffer)) != -1) {
                         contentlen += l;
-                        if (this.verbosity >= 4) {
+                        if (config.getVerbosity() >= 4) {
                             String s = new String(this.buffer, 0, l, charset.name());
                             System.out.print(s);
                         }
@@ -201,12 +187,12 @@ class BenchmarkWorker implements Runnable {
                     stats.setContentLength(contentlen);
                 }
 
-                if (this.verbosity >= 4) {
+                if (config.getVerbosity() >= 4) {
                     System.out.println();
                     System.out.println();
                 }
 
-                if (!keepalive || !this.connstrategy.keepAlive(response, this.context)) {
+                if (!config.isKeepAlive() || !this.connstrategy.keepAlive(response, this.context)) {
                     conn.close();
                 } else {
                     stats.incKeepAliveCount();
@@ -214,12 +200,12 @@ class BenchmarkWorker implements Runnable {
 
             } catch (IOException ex) {
                 stats.incFailureCount();
-                if (this.verbosity >= 2) {
+                if (config.getVerbosity() >= 2) {
                     System.err.println("I/O error: " + ex.getMessage());
                 }
             } catch (Exception ex) {
                 stats.incFailureCount();
-                if (this.verbosity >= 2) {
+                if (config.getVerbosity() >= 2) {
                     System.err.println("Generic error: " + ex.getMessage());
                 }
             }
@@ -238,14 +224,14 @@ class BenchmarkWorker implements Runnable {
             conn.close();
         } catch (IOException ex) {
             stats.incFailureCount();
-            if (this.verbosity >= 2) {
+            if (config.getVerbosity() >= 2) {
                 System.err.println("I/O error: " + ex.getMessage());
             }
         }
     }
 
     private void verboseOutput(HttpResponse response) {
-        if (this.verbosity >= 3) {
+        if (config.getVerbosity() >= 3) {
             System.out.println(">> " + request.getRequestLine().toString());
             Header[] headers = request.getAllHeaders();
             for (int h = 0; h < headers.length; h++) {
@@ -253,10 +239,10 @@ class BenchmarkWorker implements Runnable {
             }
             System.out.println();
         }
-        if (this.verbosity >= 2) {
+        if (config.getVerbosity() >= 2) {
             System.out.println(response.getStatusLine().getStatusCode());
         }
-        if (this.verbosity >= 3) {
+        if (config.getVerbosity() >= 3) {
             System.out.println("<< " + response.getStatusLine().toString());
             Header[] headers = response.getAllHeaders();
             for (int h = 0; h < headers.length; h++) {

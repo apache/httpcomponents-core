@@ -42,7 +42,6 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.params.CoreProtocolPNames;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -295,11 +294,11 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestExpectContinueGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
+        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         String s = "whatever";
         StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        request.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
@@ -310,11 +309,11 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestExpectContinueNotGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
+        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, false);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         String s = "whatever";
         StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        request.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
         RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
@@ -324,12 +323,12 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestExpectContinueHTTP10() throws Exception {
         HttpContext context = new BasicHttpContext(null);
+        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
         String s = "whatever";
         StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        request.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
@@ -339,11 +338,11 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestExpectContinueZeroContent() throws Exception {
         HttpContext context = new BasicHttpContext(null);
+        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         String s = "";
         StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        request.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
@@ -498,8 +497,7 @@ public class TestStandardInterceptors {
     public void testRequestUserAgentGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        request.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "some agent");
-        RequestUserAgent interceptor = new RequestUserAgent();
+        RequestUserAgent interceptor = new RequestUserAgent("some agent");
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.USER_AGENT);
         Assert.assertNotNull(header);
@@ -510,9 +508,8 @@ public class TestStandardInterceptors {
     public void testRequestUserAgentNotGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        request.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "some agent");
         request.addHeader(new BasicHeader(HTTP.USER_AGENT, "whatever"));
-        RequestUserAgent interceptor = new RequestUserAgent();
+        RequestUserAgent interceptor = new RequestUserAgent("some agent");
         interceptor.process(request, context);
         Header header = request.getFirstHeader(HTTP.USER_AGENT);
         Assert.assertNotNull(header);
@@ -990,8 +987,7 @@ public class TestStandardInterceptors {
     public void testResponseServerGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        response.getParams().setParameter(CoreProtocolPNames.ORIGIN_SERVER, "some server");
-        ResponseServer interceptor = new ResponseServer();
+        ResponseServer interceptor = new ResponseServer("some server");
         interceptor.process(response, context);
         Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         Assert.assertNotNull(h1);
@@ -1002,9 +998,8 @@ public class TestStandardInterceptors {
     public void testResponseServerNotGenerated() throws Exception {
         HttpContext context = new BasicHttpContext(null);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        response.getParams().setParameter(CoreProtocolPNames.ORIGIN_SERVER, "some server");
         response.addHeader(new BasicHeader(HTTP.SERVER_HEADER, "whatever"));
-        ResponseServer interceptor = new ResponseServer();
+        ResponseServer interceptor = new ResponseServer("some server");
         interceptor.process(response, context);
         Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         Assert.assertNotNull(h1);

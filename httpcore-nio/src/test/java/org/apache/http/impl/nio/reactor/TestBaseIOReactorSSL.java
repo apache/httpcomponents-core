@@ -51,6 +51,7 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.BufferingHttpServiceHandler;
 import org.apache.http.nio.protocol.EventListener;
 import org.apache.http.nio.reactor.ListenerEndpoint;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -95,7 +96,7 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
                 this.serverHttpProc,
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
-                this.serverParams);
+                new BasicHttpParams());
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));

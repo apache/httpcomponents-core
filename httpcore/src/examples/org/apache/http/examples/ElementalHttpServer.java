@@ -50,12 +50,6 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpServerConnection;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.Config;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -149,20 +143,15 @@ public class ElementalHttpServer {
     static class RequestListenerThread extends Thread {
 
         private final ServerSocket serversocket;
-        private final HttpParams params;
         private final HttpService httpService;
 
         public RequestListenerThread(int port, final String docroot) throws IOException {
             this.serversocket = new ServerSocket(port);
-            this.params = new HttpCoreConfigBuilder()
-                .setSocketTimeout(5000)
-                .setTcpNoDelay(true)
-                .setOriginServer("HttpComponents/1.1").build();
 
             // Set up the HTTP protocol processor
             HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                     new ResponseDate(),
-                    new ResponseServer(),
+                    new ResponseServer("Test/1.1"),
                     new ResponseContent(),
                     new ResponseConnControl()
             });
@@ -172,12 +161,7 @@ public class ElementalHttpServer {
             reqistry.register("*", new HttpFileHandler(docroot));
 
             // Set up the HTTP service
-            this.httpService = new HttpService(
-                    httpproc,
-                    DefaultConnectionReuseStrategy.INSTANCE,
-                    DefaultHttpResponseFactory.INSTANCE,
-                    reqistry,
-                    this.params);
+            this.httpService = new HttpService(httpproc, reqistry);
         }
 
         @Override
@@ -187,8 +171,7 @@ public class ElementalHttpServer {
                 try {
                     // Set up HTTP connection
                     Socket socket = this.serversocket.accept();
-                    int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
-                    DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(bufsize);
+                    DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(8 * 1024);
                     System.out.println("Incoming connection from " + socket.getInetAddress());
                     conn.bind(socket);
 

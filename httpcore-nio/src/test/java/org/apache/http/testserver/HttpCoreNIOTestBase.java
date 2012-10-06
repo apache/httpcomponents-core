@@ -29,15 +29,12 @@ package org.apache.http.testserver;
 
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
@@ -57,8 +54,6 @@ import org.junit.After;
  */
 public abstract class HttpCoreNIOTestBase {
 
-    protected HttpParams serverParams;
-    protected HttpParams clientParams;
     protected HttpServerNio server;
     protected HttpClientNio client;
     protected HttpProcessor serverHttpProc;
@@ -73,35 +68,24 @@ public abstract class HttpCoreNIOTestBase {
         createClientConnectionFactory() throws Exception;
 
     public void initServer() throws Exception {
-        this.serverParams = new HttpCoreConfigBuilder()
-            .setSocketTimeout(60000)
-            .setSocketBufferSize(8 * 1024)
-            .setTcpNoDelay(true)
-            .setOriginServer("TEST-SERVER/1.1").build();
         this.server = new HttpServerNio(createServerConnectionFactory());
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
-                new ResponseServer(),
+                new ResponseServer("TEST-SERVER/1.1"),
                 new ResponseContent(),
                 new ResponseConnControl()
         });
     }
 
     public void initClient() throws Exception {
-        this.clientParams = new HttpCoreConfigBuilder()
-            .setSocketTimeout(60000)
-            .setConnectTimeout(60000)
-            .setSocketBufferSize(8 * 1024)
-            .setTcpNoDelay(true)
-            .setUserAgent("TEST-CLIENT/1.1").build();
         this.client = new HttpClientNio(createClientConnectionFactory());
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestContent(),
                 new RequestTargetHost(),
                 new RequestConnControl(),
-                new RequestUserAgent(),
+                new RequestUserAgent("TEST-CLIENT/1.1"),
                 new RequestExpectContinue()});
     }
 
@@ -109,10 +93,7 @@ public abstract class HttpCoreNIOTestBase {
         this.connpool = new BasicNIOConnPool(
                 this.client.getIoReactor(),
                 new BasicNIOConnFactory(createClientConnectionFactory()));
-        this.executor = new HttpAsyncRequester(
-                this.clientHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                this.clientParams);
+        this.executor = new HttpAsyncRequester(this.clientHttpProc);
     }
 
     @After

@@ -43,8 +43,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.message.BasicHttpResponse;
@@ -142,13 +140,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
             
         });
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                DefaultHttpResponseFactory.INSTANCE,
-                registry,
-                null,
-                this.serverParams);
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         this.server.start(serviceHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
@@ -206,13 +198,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
             
         });
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                DefaultHttpResponseFactory.INSTANCE,
-                registry,
-                null,
-                this.serverParams);
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         this.server.start(serviceHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();

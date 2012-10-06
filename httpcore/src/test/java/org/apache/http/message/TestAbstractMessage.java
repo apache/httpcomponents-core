@@ -64,7 +64,6 @@ public class TestAbstractMessage {
     @Test
     public void testBasicProperties() {
         HttpMessage message = new TestHttpMessage();
-        Assert.assertNotNull(message.getParams());
         Assert.assertNotNull(message.headerIterator());
         Header[] headers = message.getAllHeaders();
         Assert.assertNotNull(headers);
@@ -131,6 +130,7 @@ public class TestAbstractMessage {
     }
 
     @Test
+    @Deprecated
     public void testParameters() {
         HttpMessage message = new TestHttpMessage();
         Assert.assertNotNull(message.getParams());
@@ -140,6 +140,7 @@ public class TestAbstractMessage {
     }
 
     @Test
+    @Deprecated
     public void testInvalidInput() {
         HttpMessage message = new TestHttpMessage();
         try {

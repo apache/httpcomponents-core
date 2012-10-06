@@ -35,7 +35,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
@@ -44,8 +43,6 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
@@ -61,18 +58,14 @@ import org.junit.Test;
 public class TestDefaultListeningIOReactor {
 
     private static IOEventDispatch createIOEventDispatch() {
-        HttpParams params = new BasicHttpParams();
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
                 new ResponseDate(),
                 new ResponseServer(),
                 new ResponseContent(),
                 new ResponseConnControl()
         });
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                httpproc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                new UriHttpAsyncRequestHandlerMapper(),
-                params);
+        HttpAsyncService serviceHandler = new HttpAsyncService(httpproc,
+                new UriHttpAsyncRequestHandlerMapper());
         return new DefaultHttpServerIODispatch(serviceHandler);
     }
 

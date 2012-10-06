@@ -40,8 +40,6 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -58,7 +56,6 @@ public class TestBasicAsyncRequestExecutionHandler {
     private HttpProcessor httpProcessor;
     private NHttpClientConnection conn;
     private ConnectionReuseStrategy reuseStrategy;
-    private HttpParams params;
     private BasicAsyncRequestExecutionHandler<Object> exchangeHandler;
     private ContentEncoder encoder;
     private ContentDecoder decoder;
@@ -71,14 +68,13 @@ public class TestBasicAsyncRequestExecutionHandler {
         this.context = new BasicHttpContext();
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        this.params = new BasicHttpParams();
         this.exchangeHandler = new BasicAsyncRequestExecutionHandler<Object>(
                 this.requestProducer,
                 this.responseConsumer,
+                null,
                 this.context,
                 this.httpProcessor,
-                this.reuseStrategy,
-                this.params);
+                this.reuseStrategy);
         this.encoder = Mockito.mock(ContentEncoder.class);
         this.decoder = Mockito.mock(ContentDecoder.class);
     }
@@ -93,10 +89,10 @@ public class TestBasicAsyncRequestExecutionHandler {
             new BasicAsyncRequestExecutionHandler<Object>(
                     null,
                     this.responseConsumer,
+                    null,
                     this.context,
                     this.httpProcessor,
-                    this.reuseStrategy,
-                    this.params);
+                    this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
@@ -104,10 +100,10 @@ public class TestBasicAsyncRequestExecutionHandler {
             new BasicAsyncRequestExecutionHandler<Object>(
                     this.requestProducer,
                     null,
+                    null,
                     this.context,
                     this.httpProcessor,
-                    this.reuseStrategy,
-                    this.params);
+                    this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
@@ -116,9 +112,9 @@ public class TestBasicAsyncRequestExecutionHandler {
                     this.requestProducer,
                     this.responseConsumer,
                     null,
+                    null,
                     this.httpProcessor,
-                    this.reuseStrategy,
-                    this.params);
+                    this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }
@@ -126,32 +122,10 @@ public class TestBasicAsyncRequestExecutionHandler {
             new BasicAsyncRequestExecutionHandler<Object>(
                     this.requestProducer,
                     this.responseConsumer,
+                    null,
                     this.context,
                     null,
-                    this.reuseStrategy,
-                    this.params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new BasicAsyncRequestExecutionHandler<Object>(
-                    this.requestProducer,
-                    this.responseConsumer,
-                    this.context,
-                    this.httpProcessor,
-                    null,
-                    this.params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new BasicAsyncRequestExecutionHandler<Object>(
-                    this.requestProducer,
-                    this.responseConsumer,
-                    this.context,
-                    this.httpProcessor,
-                    this.reuseStrategy,
-                    null);
+                    this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException ex) {
         }

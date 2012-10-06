@@ -61,7 +61,7 @@ public interface ExecutionContext {
     /**
      * Attribute name of a {@link org.apache.http.HttpHost} object that
      * represents the connection proxy.
-     * 
+     *
      * @deprecated (4.3) do not use.
      */
     @Deprecated
@@ -73,5 +73,14 @@ public interface ExecutionContext {
      * to the target host.
      */
     public static final String HTTP_REQ_SENT    = "http.request_sent";
+
+    /**
+     * Attribute name of a {@link Boolean} object that represents the
+     * the flag indicating whether or not the 'expect: continue'
+     * handshaking is to be used for entity enclosing requests.
+     *
+     * @since 4.3
+     */
+    public static final String HTTP_EXPECT_CONT = "http.expect-continue";
 
 }

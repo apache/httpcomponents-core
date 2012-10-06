@@ -65,7 +65,9 @@ import org.apache.http.nio.protocol.ThrottlingHttpServiceHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -99,10 +101,13 @@ import org.junit.Test;
 @Deprecated
 public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
+    private HttpParams params;
+
     @Before
     public void setUp() throws Exception {
         initServer();
         initClient();
+        params = new BasicHttpParams();
     }
 
     @After
@@ -152,7 +157,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.serverParams);
+                this.params);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -164,7 +169,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.clientParams);
+                this.params);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
@@ -393,7 +398,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.serverParams);
+                this.params);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(new RequestHandler()));
@@ -414,7 +419,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.clientParams);
+                this.params);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
@@ -493,7 +498,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.serverParams);
+                this.params);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(new RequestHandler()));
@@ -512,7 +517,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.clientParams);
+                this.params);
 
         clientHandler.setEventListener(new SimpleEventListener());
 
@@ -615,7 +620,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.serverParams);
+                this.params);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(requestHandler));
@@ -634,7 +639,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.clientParams);
+                this.params);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());
@@ -783,7 +788,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.serverParams);
+                this.params);
 
         serviceHandler.setHandlerResolver(
                 new SimpleHttpRequestHandlerResolver(new RequestHandler()));
@@ -802,7 +807,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 requestExecutionHandler,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.execService,
-                this.clientParams);
+                this.params);
 
         clientHandler.setEventListener(
                 new SimpleEventListener());

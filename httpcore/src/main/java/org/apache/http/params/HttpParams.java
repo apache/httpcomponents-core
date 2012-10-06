@@ -42,8 +42,6 @@ package org.apache.http.params;
  * In the simplest form one set of parameters can use content of another one
  * to obtain default values of parameters not present in the local set.
  *
- * @see DefaultedHttpParams
- *
  * @since 4.0
  */
 public interface HttpParams {
@@ -110,7 +108,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      *
-     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
     @Deprecated
     HttpParams setLongParameter(String name, long value);
@@ -137,7 +135,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      *
-     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
     @Deprecated
     HttpParams setIntParameter(String name, int value);
@@ -164,7 +162,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      *
-     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
     @Deprecated
     HttpParams setDoubleParameter(String name, double value);
@@ -191,7 +189,7 @@ public interface HttpParams {
      * @param name parameter name
      * @param value parameter value
      *
-     * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
     @Deprecated
     HttpParams setBooleanParameter(String name, boolean value);

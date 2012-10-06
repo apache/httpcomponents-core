@@ -55,6 +55,7 @@ import org.apache.http.util.Args;
  * @see HttpHost
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 @ThreadSafe
 public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
 

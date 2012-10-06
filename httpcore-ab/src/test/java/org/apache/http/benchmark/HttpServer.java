@@ -40,7 +40,6 @@ import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -55,7 +54,6 @@ import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 
 public class HttpServer {
 
-    private final HttpParams params;
     private final HttpProcessor httpproc;
     private final UriHttpRequestHandlerMapper reqistry;
     private final ServerSocket serversocket;
@@ -63,13 +61,12 @@ public class HttpServer {
     private Thread listener;
     private volatile boolean shutdown;
 
-    public HttpServer(final HttpParams params) throws IOException {
+    public HttpServer() throws IOException {
         super();
-        this.params = params;
         this.httpproc = new ImmutableHttpProcessor(
                 new HttpResponseInterceptor[] {
                         new ResponseDate(),
-                        new ResponseServer(),
+                        new ResponseServer("TEST-SERVER/1.1"),
                         new ResponseContent(),
                         new ResponseConnControl()
                 });
@@ -115,8 +112,7 @@ public class HttpServer {
                                 DefaultConnectionReuseStrategy.INSTANCE,
                                 DefaultHttpResponseFactory.INSTANCE,
                                 reqistry,
-                                null,
-                                params);
+                                null);
                         // Start worker thread
                         Thread t = new WorkerThread(httpService, conn);
                         t.setDaemon(true);

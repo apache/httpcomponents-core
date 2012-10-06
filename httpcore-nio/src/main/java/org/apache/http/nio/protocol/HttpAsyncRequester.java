@@ -37,6 +37,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnPool;
@@ -60,16 +61,45 @@ public class HttpAsyncRequester {
 
     private final HttpProcessor httppocessor;
     private final ConnectionReuseStrategy reuseStrategy;
-    private final HttpParams params;
 
+    /**
+     * @deprecated (4.3) use {@link HttpAsyncRequester#HttpAsyncRequester(HttpProcessor,
+     *   ConnectionReuseStrategy)}
+     */
     public HttpAsyncRequester(
             final HttpProcessor httppocessor,
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
+        this(httppocessor, reuseStrategy);
+    }
+
+    /**
+     * Creates new instance of HttpAsyncRequester.
+     *
+     * @param httppocessor the HTTP protocol processor.
+     * @param reuseStrategy the connection re-use strategy. If <code>null</code>
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     *
+     * @since 4.3
+     */
+    public HttpAsyncRequester(
+            final HttpProcessor httppocessor,
+            final ConnectionReuseStrategy reuseStrategy) {
         super();
         this.httppocessor = httppocessor;
-        this.reuseStrategy = reuseStrategy;
-        this.params = params;
+        this.reuseStrategy = reuseStrategy != null ? reuseStrategy :
+            DefaultConnectionReuseStrategy.INSTANCE;
+    }
+
+    /**
+     * Creates new instance of HttpAsyncRequester.
+     *
+     * @param httppocessor the HTTP protocol processor.
+     *
+     * @since 4.3
+     */
+    public HttpAsyncRequester(final HttpProcessor httppocessor) {
+        this(httppocessor, null);
     }
 
     /**
@@ -95,7 +125,7 @@ public class HttpAsyncRequester {
         Args.notNull(context, "HTTP context");
         BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                 requestProducer, responseConsumer, callback, context,
-                this.httppocessor, this.reuseStrategy, this.params);
+                this.httppocessor, this.reuseStrategy);
         doExecute(handler, conn);
         return handler.getFuture();
     }
@@ -244,7 +274,7 @@ public class HttpAsyncRequester {
             BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
-                    this.context, httppocessor, reuseStrategy, params);
+                    this.context, httppocessor, reuseStrategy);
             doExecute(handler, conn);
         }
 

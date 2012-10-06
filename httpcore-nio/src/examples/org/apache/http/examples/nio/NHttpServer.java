@@ -46,7 +46,6 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
@@ -67,8 +66,6 @@ import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -95,10 +92,6 @@ public class NHttpServer {
         if (args.length >= 2) {
             port = Integer.parseInt(args[1]);
         }
-        // HTTP parameters for the server
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setUserAgent("Test/1.1")
-            .setOriginServer("Test/1.1").build();
 
         // Create HTTP protocol processing chain
         HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -113,8 +106,7 @@ public class NHttpServer {
         // Register the default handler for all URIs
         reqistry.register("*", new HttpFileHandler(docRoot));
         // Create server-side HTTP protocol handler
-        HttpAsyncService protocolHandler = new HttpAsyncService(
-                httpproc, DefaultConnectionReuseStrategy.INSTANCE, reqistry, params) {
+        HttpAsyncService protocolHandler = new HttpAsyncService(httpproc, reqistry) {
 
             @Override
             public void connected(final NHttpServerConnection conn) {

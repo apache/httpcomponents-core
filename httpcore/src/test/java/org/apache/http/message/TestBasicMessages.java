@@ -34,7 +34,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.params.CoreProtocolPNames;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -169,8 +168,6 @@ public class TestBasicMessages {
     @Test
     public void testExpectContinue() {
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
-        Assert.assertFalse(request.expectContinue());
-        request.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         Assert.assertFalse(request.expectContinue());
         request.addHeader("Expect", "100-Continue");
         Assert.assertTrue(request.expectContinue());

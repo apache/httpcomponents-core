@@ -47,6 +47,7 @@ import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
@@ -54,9 +55,6 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.DefaultedHttpParams;
-import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
@@ -92,12 +90,6 @@ import org.apache.http.util.Args;
  * request handling to another service or a worker thread. HTTP response can
  * be submitted as a later a later point of time once response content becomes
  * available.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- * </ul>
  *
  * @since 4.2
  */
@@ -111,42 +103,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     private final HttpResponseFactory responseFactory;
     private final HttpAsyncRequestHandlerMapper handlerMapper;
     private final HttpAsyncExpectationVerifier expectationVerifier;
-    private final HttpParams params;
 
     /**
-     * Creates an instance of <tt>HttpAsyncServerProtocolHandler</tt>.
-     *
-     * @param httpProcessor HTTP protocol processor (required).
-     * @param connStrategy Connection re-use strategy (required).
-     * @param responseFactory HTTP response factory (required).
-     * @param handlerMapper Request handler mapper.
-     * @param expectationVerifier Request expectation verifier (optional).
-     * @param params HTTP parameters (required).
-     * 
-     * @since 4.3
-     */
-    public HttpAsyncService(
-            final HttpProcessor httpProcessor,
-            final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory,
-            final HttpAsyncRequestHandlerMapper handlerMapper,
-            final HttpAsyncExpectationVerifier expectationVerifier,
-            final HttpParams params) {
-        super();
-        Args.notNull(httpProcessor, "HTTP processor");
-        Args.notNull(connStrategy, "Connection reuse strategy");
-        Args.notNull(responseFactory, "Response factory");
-        Args.notNull(params, "HTTP parameters");
-        this.httpProcessor = httpProcessor;
-        this.connStrategy = connStrategy;
-        this.responseFactory = responseFactory;
-        this.handlerMapper = handlerMapper;
-        this.expectationVerifier = expectationVerifier;
-        this.params = params;
-    }
-
-    /**
-     * Creates an instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
      *
      * @param httpProcessor HTTP protocol processor (required).
      * @param connStrategy Connection re-use strategy (required).
@@ -154,9 +113,10 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @param handlerResolver Request handler resolver.
      * @param expectationVerifier Request expectation verifier (optional).
      * @param params HTTP parameters (required).
-     * 
+     *
      * @deprecated (4.3) use {@link HttpAsyncService#HttpAsyncService(HttpProcessor,
-     *  ConnectionReuseStrategy, HttpResponseFactory, HttpAsyncRequestHandlerMapper, HttpAsyncExpectationVerifier, HttpParams)}
+     *  ConnectionReuseStrategy, HttpResponseFactory, HttpAsyncRequestHandlerMapper,
+     *    HttpAsyncExpectationVerifier)}
      */
     public HttpAsyncService(
             final HttpProcessor httpProcessor,
@@ -169,43 +129,20 @@ public class HttpAsyncService implements NHttpServerEventHandler {
              connStrategy,
              responseFactory,
              new HttpAsyncRequestHandlerResolverAdapter(handlerResolver),
-             expectationVerifier,
-             params);
+             expectationVerifier);
     }
 
     /**
-     * Creates an instance of <tt>HttpAsyncServerProtocolHandler</tt>.
-     *
-     * @param httpProcessor HTTP protocol processor (required).
-     * @param connStrategy Connection re-use strategy (required).
-     * @param handlerMapper Request handler mapper.
-     * @param params HTTP parameters (required).
-     * 
-     * @since 4.3
-     */
-    public HttpAsyncService(
-            final HttpProcessor httpProcessor,
-            final ConnectionReuseStrategy connStrategy,
-            final HttpAsyncRequestHandlerMapper handlerMapper,
-            final HttpParams params) {
-        this(httpProcessor,
-             connStrategy,
-             DefaultHttpResponseFactory.INSTANCE,
-             handlerMapper,
-             null,
-             params);
-    }
-
-    /**
-     * Creates an instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
      *
      * @param httpProcessor HTTP protocol processor (required).
      * @param connStrategy Connection re-use strategy (required).
      * @param handlerResolver Request handler resolver.
      * @param params HTTP parameters (required).
-     * 
+     *
      * @deprecated (4.3) use {@link HttpAsyncService#HttpAsyncService(HttpProcessor,
-     *  ConnectionReuseStrategy, HttpAsyncRequestHandlerMapper, HttpParams)}
+     *   ConnectionReuseStrategy, HttpResponseFactory, HttpAsyncRequestHandlerMapper,
+     *   HttpAsyncExpectationVerifier)}
      */
     @Deprecated
     public HttpAsyncService(
@@ -217,8 +154,50 @@ public class HttpAsyncService implements NHttpServerEventHandler {
              connStrategy,
              DefaultHttpResponseFactory.INSTANCE,
              new HttpAsyncRequestHandlerResolverAdapter(handlerResolver),
-             null,
-             params);
+             null);
+    }
+
+    /**
+     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     *
+     * @param httpProcessor HTTP protocol processor.
+     * @param connStrategy Connection re-use strategy. If <code>null</code>
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     * @param responseFactory HTTP response factory. If <code>null</code>
+     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
+     * @param handlerMapper Request handler mapper.
+     * @param expectationVerifier Request expectation verifier. May be <code>null</code>.
+     *
+     * @since 4.3
+     */
+    public HttpAsyncService(
+            final HttpProcessor httpProcessor,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory,
+            final HttpAsyncRequestHandlerMapper handlerMapper,
+            final HttpAsyncExpectationVerifier expectationVerifier) {
+        super();
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.connStrategy = connStrategy != null ? connStrategy :
+            DefaultConnectionReuseStrategy.INSTANCE;
+        this.responseFactory = responseFactory != null ? responseFactory :
+            DefaultHttpResponseFactory.INSTANCE;
+        this.handlerMapper = handlerMapper;
+        this.expectationVerifier = expectationVerifier;
+    }
+
+    /**
+     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     *
+     * @param httpProcessor HTTP protocol processor.
+     * @param handlerMapper Request handler mapper.
+     *
+     * @since 4.3
+     */
+    public HttpAsyncService(
+            final HttpProcessor httpProcessor,
+            final HttpAsyncRequestHandlerMapper handlerMapper) {
+        this(httpProcessor, null, null, handlerMapper, null);
     }
 
     public void connected(final NHttpServerConnection conn) {
@@ -292,7 +271,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
         HttpRequest request = conn.getHttpRequest();
         HttpContext context = state.getContext();
-        request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
 
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
@@ -405,7 +383,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
             closeHandlers(state);
             state.reset();
-            conn.setSocketTimeout(Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0));
         }
     }
 
@@ -587,7 +564,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         HttpRequest request = state.getRequest();
         HttpResponse response = state.getResponse();
 
-        response.setParams(new DefaultedHttpParams(response.getParams(), this.params));
         context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
         this.httpProcessor.process(response, context);
 
@@ -610,7 +586,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
             closeHandlers(state);
             state.reset();
-            conn.setSocketTimeout(Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0));
         } else {
             state.setResponseState(MessageState.BODY_STREAM);
         }
@@ -843,9 +818,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      */
     @Deprecated
     private static class HttpAsyncRequestHandlerResolverAdapter implements HttpAsyncRequestHandlerMapper {
-        
+
         private final HttpAsyncRequestHandlerResolver resolver;
-        
+
         public HttpAsyncRequestHandlerResolverAdapter(final HttpAsyncRequestHandlerResolver resolver) {
             this.resolver = resolver;
         }
@@ -853,7 +828,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         public HttpAsyncRequestHandler<?> lookup(HttpRequest request) {
             return resolver.lookup(request.getRequestLine().getUri());
         }
-        
+
     }
 
 }

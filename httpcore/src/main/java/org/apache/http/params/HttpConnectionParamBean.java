@@ -34,7 +34,7 @@ package org.apache.http.params;
  *
  * @since 4.0
  * 
- * @deprecated (4.3) use {@link HttpCoreConfigBuilder}
+ * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
  */
 @Deprecated
 public class HttpConnectionParamBean extends HttpAbstractParamBean {

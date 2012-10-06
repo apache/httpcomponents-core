@@ -28,13 +28,15 @@
 package org.apache.http.params;
 
 import org.apache.http.ProtocolVersion;
-import org.apache.http.entity.ContentLengthStrategy;
 
 /**
  * Defines parameter names for protocol execution in HttpCore.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
  */
+@Deprecated
 public interface CoreProtocolPNames {
 
     /**
@@ -83,10 +85,7 @@ public interface CoreProtocolPNames {
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>
-     *
-     * @deprecated (4.3) use custom {@link ContentLengthStrategy}
      */
-    @Deprecated
     public static final String STRICT_TRANSFER_ENCODING = "http.protocol.strict-transfer-encoding";
 
     /**

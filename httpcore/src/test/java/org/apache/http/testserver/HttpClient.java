@@ -36,12 +36,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.params.DefaultedHttpParams;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
@@ -56,20 +52,17 @@ import org.apache.http.protocol.RequestUserAgent;
 
 public class HttpClient {
 
-    private final HttpParams params;
     private final HttpProcessor httpproc;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connStrategy;
     private final HttpContext context;
 
+    private volatile int timeout;
+
     public HttpClient(final HttpProcessor httpproc) {
         super();
         this.httpproc = httpproc;
         this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-        this.params = new HttpCoreConfigBuilder()
-            .setSocketTimeout(5000)
-            .setProtocolVersion(HttpVersion.HTTP_1_1)
-            .setUserAgent("TEST-CLIENT/1.1").build();
         this.httpexecutor = new HttpRequestExecutor();
         this.context = new BasicHttpContext();
     }
@@ -80,17 +73,26 @@ public class HttpClient {
                         new RequestContent(),
                         new RequestTargetHost(),
                         new RequestConnControl(),
-                        new RequestUserAgent(),
+                        new RequestUserAgent("TEST-CLIENT/1.1"),
                         new RequestExpectContinue()
                 }));
     }
 
-    public HttpParams getParams() {
-        return this.params;
+    public HttpContext getContext() {
+        return this.context;
+    }
+
+    public int getTimeout() {
+        return this.timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     public DefaultBHttpClientConnection createConnection() {
-        return new LoggingBHttpClientConnection(8 * 1024);
+        LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(8 * 1024);
+        return conn;
     }
 
     public HttpResponse execute(
@@ -101,10 +103,8 @@ public class HttpClient {
         this.context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
         this.context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
 
-        request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
         HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
-        response.setParams(new DefaultedHttpParams(response.getParams(), this.params));
         this.httpexecutor.postProcess(response, this.httpproc, this.context);
         return response;
     }

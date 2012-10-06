@@ -31,7 +31,10 @@ package org.apache.http.params;
  * Defines parameter names for connections in HttpCore.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
  */
+@Deprecated
 public interface CoreConnectionPNames {
 
     /**
@@ -113,10 +116,7 @@ public interface CoreConnectionPNames {
      * <p>
      * This parameter expects a value of type {@link Boolean}.
      * </p>
-     * 
-     * @deprecated (4.3) moved to HttpClient
      */
-    @Deprecated
     public static final String STALE_CONNECTION_CHECK = "http.connection.stalecheck";
 
     /**

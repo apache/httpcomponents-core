@@ -67,7 +67,8 @@ import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -122,8 +123,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 DefaultConnectionReuseStrategy.INSTANCE,
                 DefaultHttpResponseFactory.INSTANCE,
                 requestHandlerResolver,
-                expectationVerifier,
-                this.serverParams);
+                expectationVerifier);
         HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -359,18 +359,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostNoContentLength() throws Exception {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        
+
         this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
                 new RequestExpectContinue()});
-        
-        this.executor = new HttpAsyncRequester(
-                this.clientHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                this.clientParams);
-        
+
+        this.executor = new HttpAsyncRequester(this.clientHttpProc);
+
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -399,12 +396,12 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostIdentity() throws Exception {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        
+
         this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new HttpRequestInterceptor() {
-                    
+
                     public void process(
-                            final HttpRequest request, 
+                            final HttpRequest request,
                             final HttpContext context) throws HttpException, IOException {
                         request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
                     }
@@ -414,12 +411,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new RequestConnControl(),
                 new RequestUserAgent(),
                 new RequestExpectContinue()});
-        
-        this.executor = new HttpAsyncRequester(
-                this.clientHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                this.clientParams);
-        
+
+        this.executor = new HttpAsyncRequester(this.clientHttpProc);
+
         InetSocketAddress address = start(registry, null);
 
         this.connpool.setDefaultMaxPerRoute(3);
@@ -463,13 +457,17 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         for (int i = 0; i < 30; i++) {
             BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                     "POST", createRequestUri(pattern, count));
-            request.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
             NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
+
+            HttpContext context = new BasicHttpContext();
+            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.connpool,
+                    context);
             queue.add(future);
         }
 
@@ -512,15 +510,12 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request1.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request2.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("BBBBB", 10));
-        request3.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
         HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
@@ -529,10 +524,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < requests.length; i++) {
+            HttpContext context = new BasicHttpContext();
+            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, requests[i]),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.connpool,
+                    context);
             queue.add(future);
         }
 
@@ -663,15 +662,12 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request1.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
-        request2.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
         BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("BBBBB", 10));
-        request3.getParams().setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, true);
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
         HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
@@ -680,10 +676,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < requests.length; i++) {
+            HttpContext context = new BasicHttpContext();
+            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, requests[i]),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.connpool,
+                    context);
             queue.add(future);
         }
 
@@ -789,14 +789,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testResponseNoContent() throws Exception {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
-            
+
             public void handle(
-                    final HttpRequest request, 
-                    final HttpResponse response, 
+                    final HttpRequest request,
+                    final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setStatusCode(HttpStatus.SC_NO_CONTENT);
             }
-        
+
         }));
         InetSocketAddress address = start(registry, null);
 

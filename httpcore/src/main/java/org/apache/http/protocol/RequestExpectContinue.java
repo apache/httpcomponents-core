@@ -39,7 +39,6 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.Config;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
@@ -55,6 +54,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @Immutable
 public class RequestExpectContinue implements HttpRequestInterceptor {
 
@@ -65,15 +65,20 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-            // Do not send the expect header if request body is known to be empty
-            if (entity != null && entity.getContentLength() != 0) {
+        if (!request.containsHeader(HTTP.EXPECT_DIRECTIVE)) {
+            if (request instanceof HttpEntityEnclosingRequest) {
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                HttpParams params = request.getParams();
-                if (Config.isTrue(params, CoreProtocolPNames.USE_EXPECT_CONTINUE)
-                        && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+                HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+                // Do not send the expect header if request body is known to be empty
+                if (entity != null && entity.getContentLength() != 0 && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                    Boolean useExpectCont = Config.getValue(request.getParams(),
+                            CoreProtocolPNames.USE_EXPECT_CONTINUE, Boolean.class);
+                    if (useExpectCont == null) {
+                        useExpectCont = (Boolean ) context.getAttribute(ExecutionContext.HTTP_EXPECT_CONT);
+                    }
+                    if (useExpectCont != null && useExpectCont.booleanValue()) {
+                        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+                    }
                 }
             }
         }

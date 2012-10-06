@@ -50,6 +50,7 @@ import org.apache.http.util.Args;
  * @see HttpHost
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 @Immutable
 public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnection> {
 
@@ -97,6 +98,13 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
      */
     public BasicConnFactory(int connectTimeout, final TimeUnit tunit) {
         this(null, connectTimeout, tunit);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicConnFactory() {
+        this(null, 0, TimeUnit.MILLISECONDS);
     }
 
     /**

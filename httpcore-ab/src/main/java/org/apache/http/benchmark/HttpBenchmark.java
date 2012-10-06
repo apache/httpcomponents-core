@@ -37,13 +37,10 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 
 import java.security.KeyStore;
@@ -102,13 +99,6 @@ public class HttpBenchmark {
     }
 
     private HttpRequest createRequest() {
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setProtocolVersion(config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1)
-            .setUserAgent("HttpCore-AB/1.1")
-            .setUseExpectContinue(config.isUseExpectContinue())
-            .setSocketTimeout(config.getSocketTimeout())
-            .setSocketBufferSize(8 * 1024).build();
-
         URL url = config.getUrl();
         HttpEntity entity = null;
 
@@ -119,7 +109,7 @@ public class HttpBenchmark {
             fe.setChunked(config.isUseChunking());
             entity = fe;
         } else if (config.getPayloadText() != null) {
-            StringEntity se = new StringEntity(config.getPayloadText(), 
+            StringEntity se = new StringEntity(config.getPayloadText(),
                     ContentType.parse(config.getContentType()));
             se.setChunked(config.isUseChunking());
             entity = se;
@@ -144,7 +134,6 @@ public class HttpBenchmark {
             }
             request = new BasicHttpRequest(config.getMethod(), path);
         }
-        request.setParams(params);
 
         if (!config.isKeepAlive()) {
             request.addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
@@ -177,7 +166,7 @@ public class HttpBenchmark {
         ResultProcessor.printResults(results);
         return "";
     }
-    
+
     public Results doExecute() throws Exception {
 
         URL url = config.getUrl();
@@ -220,7 +209,7 @@ public class HttpBenchmark {
                 KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
                 FileInputStream instream = new FileInputStream(config.getTrustStorePath());
                 try {
-                    trustStore.load(instream, config.getTrustStorePath() != null ? 
+                    trustStore.load(instream, config.getTrustStorePath() != null ?
                             config.getTrustStorePath().toCharArray() : null);
                 } finally {
                     try { instream.close(); } catch (IOException ignore) {}
@@ -250,16 +239,14 @@ public class HttpBenchmark {
             sc.init(keyManagers, trustManagers, null);
             socketFactory = sc.getSocketFactory();
         }
-        
+
         BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];
         for (int i = 0; i < workers.length; i++) {
             workers[i] = new BenchmarkWorker(
                     createRequest(),
                     host,
-                    config.getRequests(),
-                    config.isKeepAlive(),
-                    config.getVerbosity(),
-                    socketFactory);
+                    socketFactory,
+                    config);
             workerPool.execute(workers[i]);
         }
 

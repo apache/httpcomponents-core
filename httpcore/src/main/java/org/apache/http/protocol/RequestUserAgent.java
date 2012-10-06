@@ -50,11 +50,19 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @Immutable
 public class RequestUserAgent implements HttpRequestInterceptor {
 
-    public RequestUserAgent() {
+    private final String userAgent;
+
+    public RequestUserAgent(final String userAgent) {
         super();
+        this.userAgent = userAgent;
+    }
+
+    public RequestUserAgent() {
+        this(null);
     }
 
     public void process(final HttpRequest request, final HttpContext context)
@@ -62,9 +70,12 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         Args.notNull(request, "HTTP request");
         if (!request.containsHeader(HTTP.USER_AGENT)) {
             HttpParams params = request.getParams();
-            String useragent = Config.getString(params, CoreProtocolPNames.USER_AGENT);
-            if (useragent != null) {
-                request.addHeader(HTTP.USER_AGENT, useragent);
+            String s = Config.getString(params, CoreProtocolPNames.USER_AGENT);
+            if (s == null) {
+                s = this.userAgent;
+            }
+            if (s != null) {
+                request.addHeader(HTTP.USER_AGENT, s);
             }
         }
     }

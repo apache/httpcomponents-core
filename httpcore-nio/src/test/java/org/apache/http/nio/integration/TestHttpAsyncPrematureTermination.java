@@ -105,8 +105,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                 DefaultConnectionReuseStrategy.INSTANCE,
                 DefaultHttpResponseFactory.INSTANCE,
                 requestHandlerResolver,
-                expectationVerifier,
-                this.serverParams);
+                expectationVerifier);
         HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);

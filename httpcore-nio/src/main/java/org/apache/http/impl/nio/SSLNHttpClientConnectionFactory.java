@@ -53,6 +53,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 @Immutable
 public class SSLNHttpClientConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpClientConnection> {

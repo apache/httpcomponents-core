@@ -50,8 +50,6 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.HttpAsyncService.State;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
@@ -70,7 +68,6 @@ public class TestHttpAsyncService {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy reuseStrategy;
     private HttpResponseFactory responseFactory;
-    private HttpParams params;
     private HttpContext connContext;
     private NHttpServerConnection conn;
     private HttpAsyncRequestHandler<Object> requestHandler;
@@ -91,9 +88,8 @@ public class TestHttpAsyncService {
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         this.responseFactory = DefaultHttpResponseFactory.INSTANCE;
-        this.params = new BasicHttpParams();
         this.protocolHandler = new HttpAsyncService(
-                this.httpProcessor, this.reuseStrategy, this.handlerResolver, this.params);
+                this.httpProcessor, this.reuseStrategy, this.responseFactory, this.handlerResolver, null);
         this.connContext = new BasicHttpContext();
         this.conn = Mockito.mock(NHttpServerConnection.class);
         this.encoder = Mockito.mock(ContentEncoder.class);
@@ -107,28 +103,9 @@ public class TestHttpAsyncService {
     public void tearDown() throws Exception {
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testInvalidConstruction() throws Exception {
-        try {
-            new HttpAsyncService(null, this.reuseStrategy, this.responseFactory, (HttpAsyncRequestHandlerMapper)null, null, this.params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new HttpAsyncService(this.httpProcessor, null, this.responseFactory, (HttpAsyncRequestHandlerMapper)null, null, this.params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new HttpAsyncService(this.httpProcessor, this.reuseStrategy, null, (HttpAsyncRequestHandlerMapper)null, null, this.params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
-        try {
-            new HttpAsyncService(this.httpProcessor, this.reuseStrategy, this.responseFactory, (HttpAsyncRequestHandlerMapper)null, null, null);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
-        }
+        new HttpAsyncService(null, this.reuseStrategy, this.responseFactory, this.handlerResolver, null);
     }
 
     @Test
@@ -410,7 +387,7 @@ public class TestHttpAsyncService {
         HttpAsyncExpectationVerifier expectationVerifier = Mockito.mock(HttpAsyncExpectationVerifier.class);
         this.protocolHandler = new HttpAsyncService(
                 this.httpProcessor, this.reuseStrategy, this.responseFactory,
-                this.handlerResolver, expectationVerifier,  this.params);
+                this.handlerResolver, expectationVerifier);
 
         State state = new HttpAsyncService.State();
         HttpContext exchangeContext = state.getContext();

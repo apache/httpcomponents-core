@@ -45,7 +45,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
@@ -82,7 +81,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
     public void setUp() throws Exception {
         initServer();
         this.serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseServer(),
+                new ResponseServer("TEST-SERVER/1.1"),
                 new ResponseContent(),
                 new ResponseConnControl()
         });
@@ -118,11 +117,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
 
         }));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams);
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         this.server.start(serviceHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
@@ -224,11 +219,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
 
         }));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams);
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         this.server.start(serviceHandler);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();

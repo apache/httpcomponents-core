@@ -44,7 +44,6 @@ import org.apache.http.TruncatedChunkException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
@@ -183,11 +182,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testTruncatedChunkException() throws Exception {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams);
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
@@ -268,11 +263,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testIgnoreTruncatedChunkException() throws Exception {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams);
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
         this.client.start(clientHandler);

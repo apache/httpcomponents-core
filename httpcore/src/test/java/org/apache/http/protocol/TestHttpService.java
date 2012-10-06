@@ -45,8 +45,6 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -55,48 +53,15 @@ public class TestHttpService {
 
     @Test
     public void testInvalidInitialization() throws Exception {
-        HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
         try {
             new HttpService(
                     null,
                     connReuseStrategy,
                     responseFactory,
-                    handlerResolver,
-                    params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
-        }
-        try {
-            new HttpService(
-                    httprocessor,
-                    null,
-                    responseFactory,
-                    handlerResolver,
-                    params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
-        }
-        try {
-            new HttpService(
-                    httprocessor,
-                    connReuseStrategy,
-                    null,
-                    handlerResolver,
-                    params);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
-        }
-        try {
-            new HttpService(
-                    httprocessor,
-                    connReuseStrategy,
-                    responseFactory,
-                    handlerResolver,
-                    null);
+                    handlerResolver);
             Assert.fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException expected) {
         }
@@ -108,14 +73,12 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpRequest request = new BasicHttpRequest("GET", "/");
@@ -146,14 +109,12 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
@@ -173,14 +134,12 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpRequest request = new BasicHttpRequest("GET", "/", new HttpVersion(20, 45));
@@ -200,14 +159,12 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -244,14 +201,12 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -292,7 +247,6 @@ public class TestHttpService {
         ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
 
@@ -310,8 +264,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver,
-                expectationVerifier,
-                params);
+                expectationVerifier);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -349,15 +302,13 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpExpectationVerifier expectationVerifier = Mockito.mock(HttpExpectationVerifier.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver,
-                expectationVerifier,
-                params);
+                expectationVerifier);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -398,14 +349,12 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpRequest request = new BasicHttpRequest("whatever", "/");
@@ -443,14 +392,12 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpRequest request = new BasicHttpRequest("whatever", "/");
@@ -488,14 +435,12 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpRequest request = new BasicHttpRequest("whatever", "/");
@@ -533,14 +478,12 @@ public class TestHttpService {
         HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
         HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-        HttpParams params = new BasicHttpParams();
 
         HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
                 responseFactory,
-                handlerResolver,
-                params);
+                handlerResolver);
         HttpContext context = new BasicHttpContext();
         HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         HttpRequest request = new BasicHttpRequest("GET", "/");

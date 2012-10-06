@@ -27,7 +27,6 @@
 
 package org.apache.http.protocol;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
@@ -37,8 +36,10 @@ import org.apache.http.util.Args;
  * whereas the default context is treated as read-only.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) no longer used.
  */
-@NotThreadSafe
+@Deprecated
 public final class DefaultedHttpContext implements HttpContext {
 
     private final HttpContext local;

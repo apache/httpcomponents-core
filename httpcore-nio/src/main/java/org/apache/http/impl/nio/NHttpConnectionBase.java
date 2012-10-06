@@ -93,6 +93,7 @@ import org.apache.http.util.NetUtils;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class NHttpConnectionBase
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus, SocketAccessor {

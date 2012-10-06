@@ -9,8 +9,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.junit.After;
@@ -24,11 +22,7 @@ public class SmokeTest {
 
     @Before
     public void setup() throws Exception {
-        HttpParams params = new HttpCoreConfigBuilder()
-            .setConnectTimeout(5000)
-            .setSocketTimeout(5000)
-            .setOriginServer("TEST-SERVER/1.1").build();
-        server = new HttpServer(params);
+        server = new HttpServer();
         server.registerHandler("/", new HttpRequestHandler() {
             public void handle(
                     final HttpRequest request,

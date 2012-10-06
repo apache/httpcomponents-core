@@ -189,13 +189,19 @@ public interface HttpMessage {
     /**
      * Returns the parameters effective for this message as set by
      * {@link #setParams(HttpParams)}.
+     *
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
+    @Deprecated
     HttpParams getParams();
 
     /**
      * Provides parameters to be used for the processing of this message.
      * @param params the parameters
+     *
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
+    @Deprecated
     void setParams(HttpParams params);
 
 }

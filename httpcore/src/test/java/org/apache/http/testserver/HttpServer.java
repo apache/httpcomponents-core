@@ -41,8 +41,6 @@ import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -58,7 +56,6 @@ import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 
 public class HttpServer {
 
-    private final HttpParams params;
     private final HttpProcessor httpproc;
     private final ConnectionReuseStrategy connStrategy;
     private final HttpResponseFactory responseFactory;
@@ -68,18 +65,16 @@ public class HttpServer {
     private HttpExpectationVerifier expectationVerifier;
 
     private Thread listener;
+
     private volatile boolean shutdown;
+    private volatile int timeout;
 
     public HttpServer() throws IOException {
         super();
-        this.params = new HttpCoreConfigBuilder()
-            .setSocketTimeout(5000)
-            .setTcpNoDelay(true)
-            .setOriginServer("TEST-SERVER/1.1").build();
         this.httpproc = new ImmutableHttpProcessor(
                 new HttpResponseInterceptor[] {
                         new ResponseDate(),
-                        new ResponseServer(),
+                        new ResponseServer("TEST-SERVER/1.1"),
                         new ResponseContent(),
                         new ResponseConnControl()
                 });
@@ -87,6 +82,14 @@ public class HttpServer {
         this.responseFactory = DefaultHttpResponseFactory.INSTANCE;
         this.reqistry = new UriHttpRequestHandlerMapper();
         this.serversocket = new ServerSocket(0);
+    }
+
+    public int getTimeout() {
+        return this.timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     public void registerHandler(
@@ -103,6 +106,7 @@ public class HttpServer {
         Socket socket = this.serversocket.accept();
         LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(8 * 1024);
         conn.bind(socket);
+        conn.setSocketTimeout(this.timeout);
         return conn;
     }
 
@@ -131,8 +135,7 @@ public class HttpServer {
                                 connStrategy,
                                 responseFactory,
                                 reqistry,
-                                expectationVerifier,
-                                params);
+                                expectationVerifier);
                         // Start worker thread
                         Thread t = new WorkerThread(httpService, conn);
                         t.setDaemon(true);

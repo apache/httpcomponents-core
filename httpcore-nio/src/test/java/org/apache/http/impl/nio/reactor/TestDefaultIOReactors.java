@@ -42,7 +42,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.OoopsieRuntimeException;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
@@ -111,11 +110,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.connpool.setMaxTotal(connNo);
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
 
             @Override
             public void connected(final NHttpServerConnection conn) {
@@ -197,11 +192,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
 
                     @Override
                     public void exception(
@@ -280,11 +271,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
 
             @Override
             public void exception(
@@ -364,11 +351,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                registry,
-                this.serverParams) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
 
             @Override
             public void exception(

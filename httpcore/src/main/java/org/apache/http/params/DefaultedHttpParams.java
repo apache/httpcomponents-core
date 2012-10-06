@@ -39,8 +39,10 @@ import org.apache.http.util.Args;
  * whereas the default collection is treated as read-only.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public final class DefaultedHttpParams extends AbstractHttpParams {
 
     private final HttpParams local;

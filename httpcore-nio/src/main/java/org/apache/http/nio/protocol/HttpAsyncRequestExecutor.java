@@ -46,13 +46,10 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.Config;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.util.Args;
 
 /**
  * <tt>HttpAsyncRequestExecutor</tt> is a fully asynchronous HTTP client side
@@ -73,13 +70,6 @@ import org.apache.http.protocol.HttpProcessor;
  * complete when the {@link HttpAsyncRequestExecutionHandler#isDone()} method
  * returns <code>true</code>. The {@link HttpAsyncRequester} utility class can
  * be used to facilitate initiation of asynchronous HTTP request execution.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
- *  <li>{@link org.apache.http.params.CoreConnectionPNames#SO_TIMEOUT}</li>
- * </ul>
  *
  * @see HttpAsyncRequestExecutionHandler
  *
@@ -88,10 +78,23 @@ import org.apache.http.protocol.HttpProcessor;
 @Immutable
 public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
+    public static final int DEFAULT_WAIT_FOR_CONTINUE = 3000;
     public static final String HTTP_HANDLER = "http.nio.exchange-handler";
 
-    public HttpAsyncRequestExecutor() {
+    private final int waitForContinue;
+
+    /**
+     * Creates new instance of HttpAsyncRequestExecutor.
+     *
+     * @since 4.3
+     */
+    public HttpAsyncRequestExecutor(int waitForContinue) {
         super();
+        this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
+    }
+
+    public HttpAsyncRequestExecutor() {
+        this(DEFAULT_WAIT_FOR_CONTINUE);
     }
 
     public void connected(
@@ -147,9 +150,6 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         HttpRequest request = handler.generateRequest();
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        HttpParams params = request.getParams();
-        conn.setSocketTimeout(Config.getInt(params, CoreConnectionPNames.SO_TIMEOUT, 0));
-
         HttpProcessor httppocessor = handler.getHttpProcessor();
         httppocessor.process(request, context);
 
@@ -161,9 +161,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             if (((HttpEntityEnclosingRequest) request).expectContinue()) {
                 int timeout = conn.getSocketTimeout();
                 state.setTimeout(timeout);
-                timeout = Config.getInt(request.getParams(), 
-                        CoreProtocolPNames.WAIT_FOR_CONTINUE, 3000);
-                conn.setSocketTimeout(timeout);
+                conn.setSocketTimeout(this.waitForContinue);
                 state.setRequestState(MessageState.ACK_EXPECTED);
             } else {
                 state.setRequestState(MessageState.BODY_STREAM);

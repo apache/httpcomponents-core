@@ -37,10 +37,10 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.params.DefaultedHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -61,10 +61,16 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     private final HttpContext localContext;
     private final HttpProcessor httppocessor;
     private final ConnectionReuseStrategy reuseStrategy;
-    private final HttpParams params;
 
     private volatile boolean requestSent;
 
+    /**
+     * @deprecated (4.3) use
+     *   {@link BasicAsyncRequestExecutionHandler#BasicAsyncRequestExecutionHandler(
+     *     HttpAsyncRequestProducer, HttpAsyncResponseConsumer, FutureCallback, HttpContext,
+     *     HttpProcessor, ConnectionReuseStrategy)}
+     */
+    @Deprecated
     public BasicAsyncRequestExecutionHandler(
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
@@ -86,9 +92,15 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         this.localContext = localContext;
         this.httppocessor = httppocessor;
         this.reuseStrategy = reuseStrategy;
-        this.params = params;
     }
 
+    /**
+     * @deprecated (4.3) use
+     *   {@link BasicAsyncRequestExecutionHandler#BasicAsyncRequestExecutionHandler(
+     *     HttpAsyncRequestProducer, HttpAsyncResponseConsumer, FutureCallback, HttpContext,
+     *     HttpProcessor, ConnectionReuseStrategy)}
+     */
+    @Deprecated
     public BasicAsyncRequestExecutionHandler(
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
@@ -97,6 +109,54 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
         this(requestProducer, responseConsumer, null, localContext, httppocessor, reuseStrategy, params);
+    }
+
+    /**
+     * Creates new instance of BasicAsyncRequestExecutionHandler.
+     *
+     * @param requestProducer the request producer.
+     * @param responseConsumer the response consumer.
+     * @param callback the future callback invoked when the operation is completed.
+     * @param localContext the local execution context.
+     * @param httppocessor the HTTP protocol processor.
+     * @param reuseStrategy the connection re-use strategy. If <code>null</code>
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     *
+     * @since 4.3
+     */
+    public BasicAsyncRequestExecutionHandler(
+            final HttpAsyncRequestProducer requestProducer,
+            final HttpAsyncResponseConsumer<T> responseConsumer,
+            final FutureCallback<T> callback,
+            final HttpContext localContext,
+            final HttpProcessor httppocessor,
+            final ConnectionReuseStrategy reuseStrategy) {
+        super();
+        this.requestProducer = Args.notNull(requestProducer, "Request producer");
+        this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
+        this.future = new BasicFuture<T>(callback);
+        this.localContext = Args.notNull(localContext, "HTTP context");
+        this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
+        this.reuseStrategy = reuseStrategy != null ? reuseStrategy :
+            DefaultConnectionReuseStrategy.INSTANCE;
+    }
+
+    /**
+     * Creates new instance of BasicAsyncRequestExecutionHandler.
+     *
+     * @param requestProducer the request producer.
+     * @param responseConsumer the response consumer.
+     * @param localContext the local execution context.
+     * @param httppocessor the HTTP protocol processor.
+     *
+     * @since 4.3
+     */
+    public BasicAsyncRequestExecutionHandler(
+            final HttpAsyncRequestProducer requestProducer,
+            final HttpAsyncResponseConsumer<T> responseConsumer,
+            final HttpContext localContext,
+            final HttpProcessor httppocessor) {
+        this(requestProducer, responseConsumer, null, localContext, httppocessor, null);
     }
 
     public Future<T> getFuture() {
@@ -126,9 +186,7 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     }
 
     public HttpRequest generateRequest() throws IOException, HttpException {
-        HttpRequest request = this.requestProducer.generateRequest();
-        request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
-        return request;
+        return this.requestProducer.generateRequest();
     }
 
     public void produceContent(
@@ -149,7 +207,6 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     }
 
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
-        response.setParams(new DefaultedHttpParams(response.getParams(), this.params));
         this.responseConsumer.responseReceived(response);
     }
 

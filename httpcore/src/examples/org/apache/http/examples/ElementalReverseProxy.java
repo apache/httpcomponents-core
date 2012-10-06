@@ -45,11 +45,6 @@ import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.Config;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpCoreConfigBuilder;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
@@ -171,16 +166,11 @@ public class ElementalReverseProxy {
 
         private final HttpHost target;
         private final ServerSocket serversocket;
-        private final HttpParams params;
         private final HttpService httpService;
 
         public RequestListenerThread(int port, final HttpHost target) throws IOException {
             this.target = target;
             this.serversocket = new ServerSocket(port);
-            this.params = new HttpCoreConfigBuilder()
-                .setSocketTimeout(5000)
-                .setTcpNoDelay(true)
-                .setOriginServer("HttpComponents/1.1").build();
 
             // Set up HTTP protocol processor for incoming connections
             HttpProcessor inhttpproc = new ImmutableHttpProcessor(
@@ -188,7 +178,7 @@ public class ElementalReverseProxy {
                             new RequestContent(),
                             new RequestTargetHost(),
                             new RequestConnControl(),
-                            new RequestUserAgent(),
+                            new RequestUserAgent("Test/1.1"),
                             new RequestExpectContinue()
              });
 
@@ -196,7 +186,7 @@ public class ElementalReverseProxy {
             HttpProcessor outhttpproc = new ImmutableHttpProcessor(
                     new HttpResponseInterceptor[] {
                             new ResponseDate(),
-                            new ResponseServer(),
+                            new ResponseServer("Test/1.1"),
                             new ResponseContent(),
                             new ResponseConnControl()
             });
@@ -212,12 +202,7 @@ public class ElementalReverseProxy {
                     httpexecutor));
 
             // Set up the HTTP service
-            this.httpService = new HttpService(
-                    inhttpproc,
-                    DefaultConnectionReuseStrategy.INSTANCE,
-                    DefaultHttpResponseFactory.INSTANCE,
-                    reqistry,
-                    this.params);
+            this.httpService = new HttpService(inhttpproc, reqistry);
         }
 
         @Override
@@ -225,7 +210,7 @@ public class ElementalReverseProxy {
             System.out.println("Listening on port " + this.serversocket.getLocalPort());
             while (!Thread.interrupted()) {
                 try {
-                    int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
+                    int bufsize = 8 * 1024;
                     // Set up incoming HTTP connection
                     Socket insocket = this.serversocket.accept();
                     DefaultBHttpServerConnection inconn = new DefaultBHttpServerConnection(bufsize);

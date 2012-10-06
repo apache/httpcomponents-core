@@ -39,8 +39,6 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.protocol.HttpAsyncRequester.ConnRequestCallback;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnPool;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.protocol.BasicHttpContext;
@@ -56,7 +54,6 @@ public class TestHttpAsyncRequester {
 
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy reuseStrategy;
-    private HttpParams params;
     private HttpAsyncRequester requester;
     private HttpContext exchangeContext;
     private HttpContext connContext;
@@ -71,9 +68,7 @@ public class TestHttpAsyncRequester {
     public void setUp() throws Exception {
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        this.params = new BasicHttpParams();
-        this.requester = new HttpAsyncRequester(
-                this.httpProcessor, this.reuseStrategy, this.params);
+        this.requester = new HttpAsyncRequester(this.httpProcessor, this.reuseStrategy);
         this.exchangeContext = new BasicHttpContext();
         this.requestProducer = Mockito.mock(HttpAsyncRequestProducer.class);
         this.responseConsumer = Mockito.mock(HttpAsyncResponseConsumer.class);

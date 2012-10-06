@@ -49,11 +49,22 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @Immutable
 public class ResponseServer implements HttpResponseInterceptor {
 
-    public ResponseServer() {
+    private final String originServer;
+
+    /**
+     * @since 4.3
+     */
+    public ResponseServer(final String originServer) {
         super();
+        this.originServer = originServer;
+    }
+
+    public ResponseServer() {
+        this(null);
     }
 
     public void process(final HttpResponse response, final HttpContext context)
@@ -61,6 +72,9 @@ public class ResponseServer implements HttpResponseInterceptor {
         Args.notNull(response, "HTTP response");
         if (!response.containsHeader(HTTP.SERVER_HEADER)) {
             String s = Config.getString(response.getParams(), CoreProtocolPNames.ORIGIN_SERVER);
+            if (s == null) {
+                s = this.originServer;
+            }
             if (s != null) {
                 response.addHeader(HTTP.SERVER_HEADER, s);
             }

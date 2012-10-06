@@ -40,8 +40,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.Config;
 import org.apache.http.util.Args;
 
 /**
@@ -54,23 +52,28 @@ import org.apache.http.util.Args;
  * Application specific processing can be implemented outside
  * <tt>HttpRequestExecutor</tt> once the request has been executed and
  * a response has been received.
- * <p/>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#WAIT_FOR_CONTINUE}</li>
- * </ul>
  *
  * @since 4.0
  */
 @Immutable
 public class HttpRequestExecutor {
 
+    public static final int DEFAULT_WAIT_FOR_CONTINUE = 3000;
+
+    private final int waitForContinue;
+
     /**
-     * Create a new request executor.
+     * Creates new instance of HttpRequestExecutor.
+     *
+     * @since 4.3
      */
-    public HttpRequestExecutor() {
+    public HttpRequestExecutor(int waitForContinue) {
         super();
+        this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
+    }
+
+    public HttpRequestExecutor() {
+        this(DEFAULT_WAIT_FOR_CONTINUE);
     }
 
     /**
@@ -212,10 +215,7 @@ public class HttpRequestExecutor {
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
                 // 100-continue response forever. On timeout, send the entity.
-                int tms = Config.getInt(request.getParams(), 
-                        CoreProtocolPNames.WAIT_FOR_CONTINUE, 2000);
-
-                if (conn.isResponseAvailable(tms)) {
+                if (conn.isResponseAvailable(this.waitForContinue)) {
                     response = conn.receiveResponseHeader();
                     if (canResponseHaveBody(request, response)) {
                         conn.receiveResponseEntity(response);
