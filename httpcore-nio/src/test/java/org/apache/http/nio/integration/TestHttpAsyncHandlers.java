@@ -95,12 +95,10 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void setUp() throws Exception {
         initServer();
         initClient();
-        initConnPool();
     }
 
     @After
     public void tearDown() throws Exception {
-        shutDownConnPool();
         shutDownClient();
         shutDownServer();
     }
@@ -153,8 +151,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -168,7 +166,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -186,8 +184,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -200,7 +198,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -218,8 +216,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -236,7 +234,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -254,8 +252,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -273,7 +271,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -291,8 +289,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -309,7 +307,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -327,8 +325,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -343,7 +341,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -370,8 +368,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -385,7 +383,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         Future<HttpResponse> future = this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool);
+                this.client.getConnPool());
 
         HttpResponse response = future.get();
         Assert.assertNotNull(response);
@@ -416,8 +414,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -431,7 +429,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         Future<HttpResponse> future = this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool);
+                this.client.getConnPool());
 
         HttpResponse response = future.get();
         Assert.assertNotNull(response);
@@ -444,8 +442,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -466,7 +464,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool,
+                    this.client.getConnPool(),
                     context);
             queue.add(future);
         }
@@ -530,7 +528,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, requests[i]),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool,
+                    this.client.getConnPool(),
                     context);
             queue.add(future);
         }
@@ -597,8 +595,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new DelayedRequestHandler());
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -611,7 +609,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -682,7 +680,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, requests[i]),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool,
+                    this.client.getConnPool(),
                     context);
             queue.add(future);
         }
@@ -728,8 +726,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new FailingRequestHandler());
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -742,7 +740,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -759,8 +757,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         String pattern = RndTestPatternGenerator.generateText();
         int count = RndTestPatternGenerator.generateCount(1000);
@@ -773,7 +771,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 
@@ -800,8 +798,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         }));
         InetSocketAddress address = start(registry, null);
 
-        this.connpool.setDefaultMaxPerRoute(3);
-        this.connpool.setMaxTotal(3);
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
 
         HttpHost target = new HttpHost("localhost", address.getPort());
 
@@ -811,7 +809,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Future<HttpResponse> future = this.executor.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
-                    this.connpool);
+                    this.client.getConnPool());
             queue.add(future);
         }
 

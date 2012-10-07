@@ -30,9 +30,16 @@ package org.apache.http.testserver;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpHost;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
+import org.apache.http.impl.nio.pool.BasicNIOConnPool;
+import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
@@ -42,6 +49,7 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 
 @SuppressWarnings("deprecation")
@@ -49,14 +57,47 @@ public class HttpClientNio {
 
     private final DefaultConnectingIOReactor ioReactor;
     private final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
+    private final BasicNIOConnPool connpool;
 
     private volatile IOReactorThread thread;
+    private volatile int timeout;
 
     public HttpClientNio(
             final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory) throws IOException {
         super();
         this.ioReactor = new DefaultConnectingIOReactor();
         this.connFactory = connFactory;
+        this.connpool = new BasicNIOConnPool(this.ioReactor, new BasicNIOConnFactory(connFactory));
+    }
+
+    public int getTimeout() {
+        return this.timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public void setMaxTotal(int max) {
+        this.connpool.setMaxTotal(max);
+    }
+
+    public void setMaxPerRoute(int max) {
+        this.connpool.setDefaultMaxPerRoute(max);
+    }
+
+    public Future<BasicNIOPoolEntry> lease(
+            final HttpHost host,
+            final FutureCallback<BasicNIOPoolEntry> callback) {
+        return this.connpool.lease(host, null, this.timeout, TimeUnit.MILLISECONDS, callback);
+    }
+
+    public void release(final BasicNIOPoolEntry poolEntry, boolean reusable) {
+        this.connpool.release(poolEntry, reusable);
+    }
+
+    public BasicNIOConnPool getConnPool() {
+        return this.connpool;
     }
 
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
@@ -64,12 +105,23 @@ public class HttpClientNio {
     }
 
     private void execute(final NHttpClientEventHandler clientHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler, this.connFactory);
+        IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler, this.connFactory) {
+
+            @Override
+            protected DefaultNHttpClientConnection createConnection(IOSession session) {
+                DefaultNHttpClientConnection conn = super.createConnection(session);
+                conn.setSocketTimeout(timeout);
+                return conn;
+            }
+
+        };
         this.ioReactor.execute(ioEventDispatch);
     }
 
     public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
-        return this.ioReactor.connect(address, null, attachment, null);
+        SessionRequest sessionRequest = this.ioReactor.connect(address, null, attachment, null);
+        sessionRequest.setConnectTimeout(this.timeout);
+        return sessionRequest;
     }
 
     public void start(final NHttpClientEventHandler clientHandler) {
@@ -109,7 +161,7 @@ public class HttpClientNio {
     }
 
     public void shutdown() throws IOException {
-        this.ioReactor.shutdown();
+        this.connpool.shutdown(2000);
         try {
             join(500);
         } catch (InterruptedException ignore) {

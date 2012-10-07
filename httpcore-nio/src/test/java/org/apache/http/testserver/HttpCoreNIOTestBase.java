@@ -31,8 +31,6 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
-import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.protocol.HttpProcessor;
@@ -58,7 +56,6 @@ public abstract class HttpCoreNIOTestBase {
     protected HttpClientNio client;
     protected HttpProcessor serverHttpProc;
     protected HttpProcessor clientHttpProc;
-    protected BasicNIOConnPool connpool;
     protected HttpAsyncRequester executor;
 
     protected abstract NHttpConnectionFactory<DefaultNHttpServerConnection>
@@ -76,6 +73,7 @@ public abstract class HttpCoreNIOTestBase {
                 new ResponseContent(),
                 new ResponseConnControl()
         });
+        this.server.setTimeout(5000);
     }
 
     public void initClient() throws Exception {
@@ -87,21 +85,8 @@ public abstract class HttpCoreNIOTestBase {
                 new RequestConnControl(),
                 new RequestUserAgent("TEST-CLIENT/1.1"),
                 new RequestExpectContinue()});
-    }
-
-    public void initConnPool() throws Exception {
-        this.connpool = new BasicNIOConnPool(
-                this.client.getIoReactor(),
-                new BasicNIOConnFactory(createClientConnectionFactory()));
+        this.client.setTimeout(5000);
         this.executor = new HttpAsyncRequester(this.clientHttpProc);
-    }
-
-    @After
-    public void shutDownConnPool() throws Exception {
-        if (this.connpool != null) {
-            this.connpool.shutdown(2000);
-            this.connpool = null;
-        }
     }
 
     @After

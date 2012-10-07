@@ -78,7 +78,6 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
     public void setUp() throws Exception {
         initServer();
         initClient();
-        initConnPool();
     }
 
     @After
@@ -167,7 +166,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool, context, callback);
+                this.client.getConnPool(), context, callback);
 
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
@@ -222,7 +221,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool, context, callback);
+                this.client.getConnPool(), context, callback);
 
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
@@ -283,7 +282,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool, context, callback);
+                this.client.getConnPool(), context, callback);
 
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }

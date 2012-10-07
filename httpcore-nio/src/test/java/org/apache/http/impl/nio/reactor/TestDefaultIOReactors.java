@@ -78,12 +78,10 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     public void setUp() throws Exception {
         initServer();
         initClient();
-        initConnPool();
     }
 
     @After
     public void tearDown() throws Exception {
-        shutDownConnPool();
         shutDownClient();
         shutDownServer();
     }
@@ -106,8 +104,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         final AtomicInteger closedClientConns = new AtomicInteger(0);
         final AtomicInteger closedServerConns = new AtomicInteger(0);
 
-        this.connpool.setDefaultMaxPerRoute(connNo);
-        this.connpool.setMaxTotal(connNo);
+        this.client.setMaxPerRoute(connNo);
+        this.client.setMaxTotal(connNo);
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
@@ -154,7 +152,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         Queue<Future<BasicNIOPoolEntry>> queue = new LinkedList<Future<BasicNIOPoolEntry>>();
         for (int i = 0; i < connNo; i++) {
-            queue.add(this.connpool.lease(target, null));
+            queue.add(this.client.lease(target, null));
         }
 
         while (!queue.isEmpty()) {
@@ -168,7 +166,6 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         openClientConns.await(15, TimeUnit.SECONDS);
         openServerConns.await(15, TimeUnit.SECONDS);
 
-        this.connpool.shutdown(2000);
         this.client.shutdown();
         this.server.shutdown();
 
@@ -220,7 +217,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool);
+                this.client.getConnPool());
 
         this.server.join(20000);
 
@@ -300,7 +297,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool);
+                this.client.getConnPool());
 
         this.server.join(20000);
 
@@ -380,7 +377,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool);
+                this.client.getConnPool());
 
         requestConns.await();
         Assert.assertEquals(0, requestConns.getCount());

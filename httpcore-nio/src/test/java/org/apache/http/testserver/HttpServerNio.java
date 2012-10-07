@@ -41,6 +41,7 @@ import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
+import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 
@@ -51,7 +52,8 @@ public class HttpServerNio {
     private final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
 
     private volatile IOReactorThread thread;
-    private ListenerEndpoint endpoint;
+    private volatile ListenerEndpoint endpoint;
+    private volatile int timeout;
 
     public HttpServerNio(
             final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory) throws IOException {
@@ -60,12 +62,29 @@ public class HttpServerNio {
         this.connFactory = connFactory;
     }
 
+    public int getTimeout() {
+        return this.timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
         this.ioReactor.setExceptionHandler(exceptionHandler);
     }
 
     private void execute(final NHttpServerEventHandler serviceHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(serviceHandler, this.connFactory);
+        IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(serviceHandler, this.connFactory) {
+
+            @Override
+            protected DefaultNHttpServerConnection createConnection(IOSession session) {
+                DefaultNHttpServerConnection conn = super.createConnection(session);
+                conn.setSocketTimeout(timeout);
+                return conn;
+            }
+
+        };
         this.ioReactor.execute(ioEventDispatch);
     }
 

@@ -87,12 +87,10 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void setUp() throws Exception {
         initServer();
         initClient();
-        initConnPool();
     }
 
     @After
     public void tearDown() throws Exception {
-        shutDownConnPool();
         shutDownClient();
         shutDownServer();
     }
@@ -200,7 +198,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         Future<HttpResponse> future = this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                this.connpool);
+                this.client.getConnPool());
         try {
             future.get();
             Assert.fail("ExecutionException should have been thrown");
@@ -281,7 +279,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         Future<HttpResponse> future = this.executor.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new LenientAsyncResponseConsumer(),
-                this.connpool);
+                this.client.getConnPool());
 
         HttpResponse response = future.get();
         Assert.assertNotNull(response);

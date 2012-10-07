@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.net.Socket;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -84,11 +83,13 @@ public class TestSyncHttp {
     @Before
     public void initServer() throws Exception {
         this.server = new HttpServer();
+        this.server.setTimeout(5000);
     }
 
     @Before
     public void initClient() throws Exception {
         this.client = new HttpClient();
+        this.client.setTimeout(5000);
     }
 
     @After
@@ -145,8 +146,7 @@ public class TestSyncHttp {
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
+                    client.connect(host, conn);
                 }
 
                 BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
@@ -225,8 +225,7 @@ public class TestSyncHttp {
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
+                    client.connect(host, conn);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -308,8 +307,7 @@ public class TestSyncHttp {
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
+                    client.connect(host, conn);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -390,8 +388,7 @@ public class TestSyncHttp {
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
+                    client.connect(host, conn);
                 }
 
                 // Set protocol level to HTTP/1.0
@@ -479,8 +476,7 @@ public class TestSyncHttp {
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
+                    client.connect(host, conn);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -573,8 +569,7 @@ public class TestSyncHttp {
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
+                    client.connect(host, conn);
                 }
 
                 BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -733,8 +728,7 @@ public class TestSyncHttp {
                 String pattern = patterns[i];
                 for (int n = 1000; n < 1020; n++) {
                     if (!conn.isOpen()) {
-                        Socket socket = new Socket(host.getHostName(), host.getPort());
-                        conn.bind(socket);
+                        client.connect(host, conn);
                     }
 
                     BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
@@ -802,8 +796,7 @@ public class TestSyncHttp {
 
         try {
             if (!conn.isOpen()) {
-                Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket);
+                client.connect(host, conn);
             }
 
             BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -848,8 +841,7 @@ public class TestSyncHttp {
 
         try {
             if (!conn.isOpen()) {
-                Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket);
+                client.connect(host, conn);
             }
 
             BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -901,8 +893,7 @@ public class TestSyncHttp {
 
         try {
             if (!conn.isOpen()) {
-                Socket socket = new Socket(host.getHostName(), host.getPort());
-                conn.bind(socket);
+                client.connect(host, conn);
             }
 
             BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
@@ -957,8 +948,7 @@ public class TestSyncHttp {
         try {
             for (int r = 0; r < reqNo; r++) {
                 if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
+                    client.connect(host, conn);
                 }
 
                 BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);

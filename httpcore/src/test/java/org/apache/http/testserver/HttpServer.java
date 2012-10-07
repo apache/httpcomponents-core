@@ -62,10 +62,8 @@ public class HttpServer {
     private final UriHttpRequestHandlerMapper reqistry;
     private final ServerSocket serversocket;
 
-    private HttpExpectationVerifier expectationVerifier;
-
-    private Thread listener;
-
+    private volatile HttpExpectationVerifier expectationVerifier;
+    private volatile Thread listener;
     private volatile boolean shutdown;
     private volatile int timeout;
 

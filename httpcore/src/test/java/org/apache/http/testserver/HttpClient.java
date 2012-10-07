@@ -28,6 +28,8 @@
 package org.apache.http.testserver;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;
@@ -93,6 +95,13 @@ public class HttpClient {
     public DefaultBHttpClientConnection createConnection() {
         LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(8 * 1024);
         return conn;
+    }
+
+    public void connect(final HttpHost host, final DefaultBHttpClientConnection conn) throws IOException {
+        Socket socket = new Socket();
+        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.timeout);
+        conn.bind(socket);
+        conn.setSocketTimeout(this.timeout);
     }
 
     public HttpResponse execute(
