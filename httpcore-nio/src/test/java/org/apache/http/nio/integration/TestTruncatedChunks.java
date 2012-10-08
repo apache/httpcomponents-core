@@ -57,9 +57,6 @@ import org.apache.http.nio.entity.ContentInputStream;
 import org.apache.http.nio.protocol.AbstractAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
-import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
-import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
-import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
@@ -180,10 +177,8 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testTruncatedChunkException() throws Exception {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
-        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
+        this.server.start(registry);
+        this.client.start();
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -195,10 +190,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
         HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
         BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
-        Future<HttpResponse> future = this.executor.execute(
-                new BasicAsyncRequestProducer(target, request),
-                new BasicAsyncResponseConsumer(),
-                this.client.getConnPool());
+        Future<HttpResponse> future = this.client.execute(target, request);
         try {
             future.get();
             Assert.fail("ExecutionException should have been thrown");
@@ -261,10 +253,8 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     public void testIgnoreTruncatedChunkException() throws Exception {
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
-        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
+        this.server.start(registry);
+        this.client.start();
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -276,10 +266,10 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
         HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
         BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
-        Future<HttpResponse> future = this.executor.execute(
+        Future<HttpResponse> future = this.client.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new LenientAsyncResponseConsumer(),
-                this.client.getConnPool());
+                null, null);
 
         HttpResponse response = future.get();
         Assert.assertNotNull(response);

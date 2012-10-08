@@ -34,6 +34,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
+import org.apache.http.HttpResponse;
+import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
@@ -45,20 +49,44 @@ import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
+import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
+import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
+import org.apache.http.nio.protocol.HttpAsyncRequester;
+import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.ImmutableHttpProcessor;
+import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
+import org.apache.http.protocol.RequestExpectContinue;
+import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestUserAgent;
 
 @SuppressWarnings("deprecation")
 public class HttpClientNio {
+
+    public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
+            new HttpRequestInterceptor[] {
+                    new RequestContent(),
+                    new RequestTargetHost(),
+                    new RequestConnControl(),
+                    new RequestUserAgent("TEST-CLIENT/1.1"),
+                    new RequestExpectContinue()});
 
     private final DefaultConnectingIOReactor ioReactor;
     private final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
     private final BasicNIOConnPool connpool;
 
+    private volatile  HttpAsyncRequester executor;
     private volatile IOReactorThread thread;
     private volatile int timeout;
 
@@ -96,8 +124,73 @@ public class HttpClientNio {
         this.connpool.release(poolEntry, reusable);
     }
 
-    public BasicNIOConnPool getConnPool() {
-        return this.connpool;
+    public <T> Future<T> execute(
+            final HttpAsyncRequestProducer requestProducer,
+            final HttpAsyncResponseConsumer<T> responseConsumer,
+            final HttpContext context,
+            final FutureCallback<T> callback) {
+        final HttpHost target = requestProducer.getTarget();
+        final BasicFuture<T> future = new BasicFuture<T>(callback);
+        this.connpool.lease(target, null, this.timeout, TimeUnit.MILLISECONDS,
+            new FutureCallback<BasicNIOPoolEntry>() {
+
+                public void completed(final BasicNIOPoolEntry result) {
+                    executor.execute(
+                            requestProducer, responseConsumer,
+                            result, connpool,
+                            context != null ? context : new BasicHttpContext(),
+                            new FutureCallback<T>() {
+
+                                public void completed(final T result) {
+                                    future.completed(result);
+                                }
+
+                                public void failed(final Exception ex) {
+                                    future.failed(ex);
+                                }
+
+                                public void cancelled() {
+                                    future.cancel();
+                                }
+
+                            });
+                }
+
+                public void failed(final Exception ex) {
+                    future.failed(ex);
+                }
+
+                public void cancelled() {
+                    future.cancel();
+                }
+
+            });
+        return future;
+    }
+
+    public Future<HttpResponse> execute(
+            final HttpHost target,
+            final HttpRequest request,
+            final HttpContext context,
+            final FutureCallback<HttpResponse> callback) {
+        return execute(
+                new BasicAsyncRequestProducer(target, request),
+                new BasicAsyncResponseConsumer(),
+                context != null ? context : new BasicHttpContext(),
+                callback);
+    }
+
+    public Future<HttpResponse> execute(
+            final HttpHost target,
+            final HttpRequest request,
+            final HttpContext context) {
+        return execute(target, request, context, null);
+    }
+
+    public Future<HttpResponse> execute(
+            final HttpHost target,
+            final HttpRequest request) {
+        return execute(target, request, null, null);
     }
 
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
@@ -124,9 +217,27 @@ public class HttpClientNio {
         return sessionRequest;
     }
 
-    public void start(final NHttpClientEventHandler clientHandler) {
+    public void start(
+            final HttpProcessor protocolProcessor,
+            final NHttpClientEventHandler clientHandler) {
+        this.executor = new HttpAsyncRequester(protocolProcessor != null ? protocolProcessor :
+            DEFAULT_HTTP_PROC);
         this.thread = new IOReactorThread(clientHandler);
         this.thread.start();
+    }
+
+    public void start(
+            final HttpProcessor protocolProcessor) {
+        start(protocolProcessor, new HttpAsyncRequestExecutor());
+    }
+
+    public void start(
+            final NHttpClientEventHandler clientHandler) {
+        start(null, clientHandler);
+    }
+
+    public void start() {
+        start(null, new HttpAsyncRequestExecutor());
     }
 
     public void start(final NHttpClientHandler handler) {

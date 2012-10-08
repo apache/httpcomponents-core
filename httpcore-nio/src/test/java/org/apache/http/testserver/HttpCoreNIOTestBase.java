@@ -27,23 +27,9 @@
 
 package org.apache.http.testserver;
 
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.protocol.HttpAsyncRequester;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.RequestConnControl;
-import org.apache.http.protocol.RequestContent;
-import org.apache.http.protocol.RequestExpectContinue;
-import org.apache.http.protocol.RequestTargetHost;
-import org.apache.http.protocol.RequestUserAgent;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
 import org.junit.After;
 
 /**
@@ -54,9 +40,6 @@ public abstract class HttpCoreNIOTestBase {
 
     protected HttpServerNio server;
     protected HttpClientNio client;
-    protected HttpProcessor serverHttpProc;
-    protected HttpProcessor clientHttpProc;
-    protected HttpAsyncRequester executor;
 
     protected abstract NHttpConnectionFactory<DefaultNHttpServerConnection>
         createServerConnectionFactory() throws Exception;
@@ -67,26 +50,13 @@ public abstract class HttpCoreNIOTestBase {
     public void initServer() throws Exception {
         this.server = new HttpServerNio(createServerConnectionFactory());
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
-        this.serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
-                new ResponseServer("TEST-SERVER/1.1"),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
         this.server.setTimeout(5000);
     }
 
     public void initClient() throws Exception {
         this.client = new HttpClientNio(createClientConnectionFactory());
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
-        this.clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent("TEST-CLIENT/1.1"),
-                new RequestExpectContinue()});
         this.client.setTimeout(5000);
-        this.executor = new HttpAsyncRequester(this.clientHttpProc);
     }
 
     @After

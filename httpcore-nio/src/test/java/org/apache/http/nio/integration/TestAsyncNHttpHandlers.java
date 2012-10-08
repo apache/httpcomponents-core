@@ -77,7 +77,9 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.testserver.HttpClientNio;
 import org.apache.http.testserver.HttpCoreNIOTestBase;
+import org.apache.http.testserver.HttpServerNio;
 import org.apache.http.testserver.LoggingClientConnectionFactory;
 import org.apache.http.testserver.LoggingServerConnectionFactory;
 import org.apache.http.testserver.SimpleEventListener;
@@ -134,7 +136,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         }
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
-                this.serverHttpProc,
+                HttpServerNio.DEFAULT_HTTP_PROC,
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.params);
@@ -145,7 +147,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new SimpleEventListener());
 
         AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
-                this.clientHttpProc,
+                HttpClientNio.DEFAULT_HTTP_PROC,
                 requestExecutionHandler,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 this.params);

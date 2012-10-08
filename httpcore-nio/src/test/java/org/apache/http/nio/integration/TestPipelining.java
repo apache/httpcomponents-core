@@ -59,6 +59,7 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
@@ -76,6 +77,8 @@ import org.junit.Test;
  * Tests for handling pipelined requests.
  */
 public class TestPipelining extends HttpCoreNIOTestBase {
+
+    protected HttpProcessor serverHttpProc;
 
     @Before
     public void setUp() throws Exception {

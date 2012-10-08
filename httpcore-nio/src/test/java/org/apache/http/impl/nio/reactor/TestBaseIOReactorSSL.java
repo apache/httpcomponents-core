@@ -56,6 +56,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.testserver.HttpCoreNIOTestBase;
+import org.apache.http.testserver.HttpServerNio;
 import org.apache.http.testserver.LoggingSSLClientConnectionFactory;
 import org.apache.http.testserver.LoggingSSLServerConnectionFactory;
 import org.apache.http.testserver.SSLTestContexts;
@@ -93,7 +94,7 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
             final HttpExpectationVerifier expectationVerifier,
             final EventListener eventListener) {
         BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
-                this.serverHttpProc,
+                HttpServerNio.DEFAULT_HTTP_PROC,
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 new BasicHttpParams());

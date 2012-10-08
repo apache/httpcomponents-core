@@ -126,11 +126,11 @@ public class HttpAsyncRequester {
         BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                 requestProducer, responseConsumer, callback, context,
                 this.httppocessor, this.reuseStrategy);
-        doExecute(handler, conn);
+        initExection(handler, conn);
         return handler.getFuture();
     }
 
-    private <T> void doExecute(
+    private <T> void initExection(
             final HttpAsyncRequestExecutionHandler<T> handler, final NHttpClientConnection conn) {
         conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
         conn.requestOutput();
@@ -208,6 +208,46 @@ public class HttpAsyncRequester {
     }
 
     /**
+     * Initiates asynchronous HTTP request execution. This method automatically releases
+     * the given pool entry once request execution is completed (successfully or unsuccessfully).
+     *
+     * @param <T> the result type of request execution.
+     * @param <E> the connection pool entry type.
+     * @param requestProducer request producer callback.
+     * @param responseConsumer response consumer callaback.
+     * @param poolEntry leased pool entry. It will be automatically released
+     *   back to the pool when execution is completed.
+     * @param connPool pool of persistent reusable connections.
+     * @param context HTTP context
+     * @param callback future callback.
+     * @return future representing pending completion of the operation.
+     *
+     * @since 4.3
+     */
+    public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<T> execute(
+            final HttpAsyncRequestProducer requestProducer,
+            final HttpAsyncResponseConsumer<T> responseConsumer,
+            final E poolEntry,
+            final ConnPool<HttpHost, E> connPool,
+            final HttpContext context,
+            final FutureCallback<T> callback) {
+        Args.notNull(requestProducer, "HTTP request producer");
+        Args.notNull(responseConsumer, "HTTP response consumer");
+        Args.notNull(connPool, "HTTP connection pool");
+        Args.notNull(poolEntry, "Pool entry");
+        Args.notNull(context, "HTTP context");
+        BasicFuture<T> future = new BasicFuture<T>(callback);
+        NHttpClientConnection conn = poolEntry.getConnection();
+        BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+                requestProducer, responseConsumer,
+                new RequestExecutionCallback<T, E>(future, poolEntry, connPool),
+                context,
+                this.httppocessor, this.reuseStrategy);
+        initExection(handler, conn);
+        return future;
+    }
+
+    /**
      * Initiates asynchronous HTTP request execution.
      *
      * @param <T> the result type of request execution.
@@ -275,7 +315,7 @@ public class HttpAsyncRequester {
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
                     this.context, httppocessor, reuseStrategy);
-            doExecute(handler, conn);
+            initExection(handler, conn);
         }
 
         public void failed(final Exception ex) {

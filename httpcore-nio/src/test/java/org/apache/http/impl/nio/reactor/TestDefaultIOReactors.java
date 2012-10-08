@@ -50,8 +50,6 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
-import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
-import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
@@ -62,6 +60,7 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.testserver.HttpCoreNIOTestBase;
+import org.apache.http.testserver.HttpServerNio;
 import org.apache.http.testserver.LoggingClientConnectionFactory;
 import org.apache.http.testserver.LoggingServerConnectionFactory;
 import org.junit.After;
@@ -108,7 +107,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.client.setMaxTotal(connNo);
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(
+                HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
             @Override
             public void connected(final NHttpServerConnection conn) {
@@ -189,7 +189,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(
+                HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
                     @Override
                     public void exception(
@@ -202,9 +203,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
                     }
 
         };
-        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.start(serviceHandler);
-        this.client.start(clientHandler);
+        this.client.start();
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -214,10 +214,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        this.executor.execute(
-                new BasicAsyncRequestProducer(target, request),
-                new BasicAsyncResponseConsumer(),
-                this.client.getConnPool());
+        this.client.execute(target, request);
 
         this.server.join(20000);
 
@@ -268,7 +265,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(
+                HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
             @Override
             public void exception(
@@ -281,10 +279,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
         };
-        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
-        this.client.start(clientHandler);
+        this.client.start();
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -294,10 +291,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        this.executor.execute(
-                new BasicAsyncRequestProducer(target, request),
-                new BasicAsyncResponseConsumer(),
-                this.client.getConnPool());
+        this.client.execute(target, request);
 
         this.server.join(20000);
 
@@ -348,7 +342,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry) {
+        HttpAsyncService serviceHandler = new HttpAsyncService(
+                HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
             @Override
             public void exception(
@@ -361,10 +356,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
         };
-        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
         this.server.setExceptionHandler(exceptionHandler);
         this.server.start(serviceHandler);
-        this.client.start(clientHandler);
+        this.client.start();
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -374,10 +368,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        this.executor.execute(
-                new BasicAsyncRequestProducer(target, request),
-                new BasicAsyncResponseConsumer(),
-                this.client.getConnPool());
+        this.client.execute(target, request);
 
         requestConns.await();
         Assert.assertEquals(0, requestConns.getCount());

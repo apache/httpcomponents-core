@@ -54,7 +54,6 @@ import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
-import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -140,8 +139,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
             
         });
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
-        this.server.start(serviceHandler);
+        this.server.start(registry);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -198,8 +196,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
             
         });
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
-        this.server.start(serviceHandler);
+        this.server.start(registry);
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();

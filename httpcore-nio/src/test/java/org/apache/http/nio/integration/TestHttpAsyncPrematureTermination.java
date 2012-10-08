@@ -38,8 +38,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.message.BasicHttpRequest;
@@ -48,16 +46,12 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
-import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
-import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
-import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
@@ -99,15 +93,8 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
     private InetSocketAddress start(
             final HttpAsyncRequestHandlerMapper requestHandlerResolver,
             final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
-        HttpAsyncService serviceHandler = new HttpAsyncService(
-                this.serverHttpProc,
-                DefaultConnectionReuseStrategy.INSTANCE,
-                DefaultHttpResponseFactory.INSTANCE,
-                requestHandlerResolver,
-                expectationVerifier);
-        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
-        this.server.start(serviceHandler);
-        this.client.start(clientHandler);
+        this.server.start(requestHandlerResolver, expectationVerifier);
+        this.client.start();
 
         ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -163,10 +150,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         HttpRequest request = new BasicHttpRequest("GET", "/");
         HttpContext context = new BasicHttpContext();
-        this.executor.execute(
-                new BasicAsyncRequestProducer(target, request),
-                new BasicAsyncResponseConsumer(),
-                this.client.getConnPool(), context, callback);
+        this.client.execute(target, request, context, callback);
 
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
@@ -218,10 +202,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         HttpRequest request = new BasicHttpRequest("GET", "/");
         HttpContext context = new BasicHttpContext();
-        this.executor.execute(
-                new BasicAsyncRequestProducer(target, request),
-                new BasicAsyncResponseConsumer(),
-                this.client.getConnPool(), context, callback);
+        this.client.execute(target, request, context, callback);
 
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
@@ -279,10 +260,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         HttpRequest request = new BasicHttpRequest("GET", "/");
         HttpContext context = new BasicHttpContext();
-        this.executor.execute(
-                new BasicAsyncRequestProducer(target, request),
-                new BasicAsyncResponseConsumer(),
-                this.client.getConnPool(), context, callback);
+        this.client.execute(target, request, context, callback);
 
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
     }
