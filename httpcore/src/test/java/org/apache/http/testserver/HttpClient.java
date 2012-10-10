@@ -40,9 +40,8 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -57,7 +56,7 @@ public class HttpClient {
     private final HttpProcessor httpproc;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connStrategy;
-    private final HttpContext context;
+    private final HttpCoreContext context;
 
     private volatile int timeout;
 
@@ -66,7 +65,7 @@ public class HttpClient {
         this.httpproc = httpproc;
         this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
         this.httpexecutor = new HttpRequestExecutor();
-        this.context = new BasicHttpContext();
+        this.context = new HttpCoreContext();
     }
 
     public HttpClient() {
@@ -108,10 +107,7 @@ public class HttpClient {
             final HttpRequest request,
             final HttpHost targetHost,
             final HttpClientConnection conn) throws HttpException, IOException {
-        this.context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-        this.context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, targetHost);
-        this.context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-
+        this.context.setTarget(targetHost);
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
         HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
         this.httpexecutor.postProcess(response, this.httpproc, this.context);

@@ -39,6 +39,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -69,15 +70,13 @@ public class ElementalHttpGet {
 
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
-        HttpContext context = new BasicHttpContext(null);
+        HttpCoreContext context = new HttpCoreContext();
         HttpHost host = new HttpHost("localhost", 8080);
+        context.setTarget(host);
+        context.setExpectContinue();
 
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
         ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-
-        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
-        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
 
         try {
 

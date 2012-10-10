@@ -45,10 +45,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -67,7 +65,7 @@ import org.apache.http.protocol.RequestUserAgent;
 class BenchmarkWorker implements Runnable {
 
     private final byte[] buffer = new byte[4096];
-    private final HttpContext context;
+    private final HttpCoreContext context;
     private final HttpProcessor httpProcessor;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
@@ -83,7 +81,7 @@ class BenchmarkWorker implements Runnable {
             final SocketFactory socketFactory,
             final Config config) {
         super();
-        this.context = new BasicHttpContext(null);
+        this.context = new HttpCoreContext();
         this.request = request;
         this.targetHost = targetHost;
         this.config = config;
@@ -115,9 +113,7 @@ class BenchmarkWorker implements Runnable {
         }
 
         // Populate the execution context
-        this.context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        this.context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, this.targetHost);
-        this.context.setAttribute(ExecutionContext.HTTP_REQUEST, this.request);
+        this.context.setTarget(this.targetHost);
 
         stats.start();
         int count = config.getRequests();

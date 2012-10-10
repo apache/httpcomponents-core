@@ -41,9 +41,7 @@ import org.apache.http.impl.pool.BasicConnFactory;
 import org.apache.http.impl.pool.BasicConnPool;
 import org.apache.http.impl.pool.BasicPoolEntry;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -103,9 +101,8 @@ public class ElementalPoolingHttpGet {
                     BasicPoolEntry entry = future.get();
                     try {
                         HttpClientConnection conn = entry.getConnection();
-                        HttpContext context = new BasicHttpContext(null);
-                        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-                        context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, this.target);
+                        HttpCoreContext context = new HttpCoreContext();
+                        context.setTarget(this.target);
 
                         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
                         System.out.println(">> Request URI: " + request.getRequestLine().getUri());
