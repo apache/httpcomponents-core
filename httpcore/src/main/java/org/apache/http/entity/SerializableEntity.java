@@ -71,6 +71,15 @@ public class SerializableEntity extends AbstractHttpEntity {
         }
     }
 
+    /**
+     * @since 4.3
+     */
+    public SerializableEntity(Serializable ser) {
+        super();
+        Args.notNull(ser, "Source object");
+        this.objRef = ser;
+    }
+
     private void createBytes(Serializable ser) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(baos);
