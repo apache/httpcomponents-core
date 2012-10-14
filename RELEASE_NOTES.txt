@@ -1,5 +1,8 @@
 Changes in trunk
 
+* [HTTPCORE-316] HeaderGroup#clone removes headers from the original object.
+  Contributed by Markus Thies <markus at dr-thies.com> 
+
 * [HTTPCORE-315] AbstractNIOConnPool fails to correctly deallocate connection if it is immediately 
   released from the session request callback causing a resource leak.
   Contributed by Scott Stanton <snstanton at gmail.com> 

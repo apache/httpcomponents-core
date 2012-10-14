@@ -290,10 +290,7 @@ public class HeaderGroup implements Cloneable, Serializable {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        HeaderGroup clone = (HeaderGroup) super.clone();
-        clone.headers.clear();
-        clone.headers.addAll(this.headers);
-        return clone;
+        return super.clone();
     }
 
     @Override

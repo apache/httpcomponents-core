@@ -179,6 +179,7 @@ public class TestHeaderGroup {
         Header[] headers2 = clone.getAllHeaders();
         Assert.assertNotNull(headers1);
         Assert.assertNotNull(headers2);
+        Assert.assertEquals(3, headers2.length);
         Assert.assertEquals(headers1.length, headers2.length);
         for (int i = 0; i < headers1.length; i++) {
             Assert.assertEquals(headers1[i].getName(), headers2[i].getName());
