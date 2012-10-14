@@ -1,12 +1,22 @@
 Changes since Release 4.2.2
 =======
 
+* [HTTPCORE-316] HeaderGroup#clone removes headers from the original object.
+  Contributed by Markus Thies <markus at dr-thies.com> 
+
 * [HTTPCORE-315] AbstractNIOConnPool fails to correctly deallocate connection if it is immediately 
   released from the session request callback causing a resource leak.
   Contributed by Scott Stanton <snstanton at gmail.com> 
 
 * [HTTPCORE-313] ContentType#parse now ignores empty attributes. HttpEntityUtils#toString now 
-  throws checked I/O exception if it  encounters an unsupported charset. 
+  throws checked I/O exception if it encounters an unsupported charset. 
+
+* [HTTPCORE-315] AbstractNIOConnPool fails to correctly deallocate connection if it is immediately 
+  released from the session request callback causing a resource leak.
+  Contributed by Scott Stanton <snstanton at gmail.com> 
+
+* [HTTPCORE-313] ContentType#parse now ignores empty and blank charset attributes. 
+  HttpEntityUtils#toString now throws checked I/O exception ifit  encounters an unsupported charset. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
