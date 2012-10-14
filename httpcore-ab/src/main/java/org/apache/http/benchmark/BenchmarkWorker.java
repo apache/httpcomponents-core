@@ -150,6 +150,7 @@ class BenchmarkWorker implements Runnable {
                     if (config.getVerbosity() >= 2) {
                         System.err.println("Failed HTTP request : " + e.getMessage());
                     }
+                    conn.shutdown();
                     continue;
                 }
 
@@ -159,7 +160,6 @@ class BenchmarkWorker implements Runnable {
                     stats.incSuccessCount();
                 } else {
                     stats.incFailureCount();
-                    continue;
                 }
 
                 HttpEntity entity = response.getEntity();
