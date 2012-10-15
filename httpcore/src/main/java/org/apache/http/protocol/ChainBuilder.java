@@ -43,7 +43,7 @@ import org.apache.http.annotation.NotThreadSafe;
  * @since 4.3
  */
 @NotThreadSafe
-public final class ChainBuilder<E> {
+final class ChainBuilder<E> {
 
     private final LinkedList<E> list;
     private final Map<Class<?>, E> uniqueClasses;
@@ -61,56 +61,62 @@ public final class ChainBuilder<E> {
         this.uniqueClasses.put(e.getClass(), e);
     }
 
-    public void addFirst(final E e) {
+    public ChainBuilder<E> addFirst(final E e) {
         if (e == null) {
-            return;
+            return this;
         }
         ensureUnique(e);
         this.list.addFirst(e);
+        return this;
     }
 
-    public void addLast(final E e) {
+    public ChainBuilder<E> addLast(final E e) {
         if (e == null) {
-            return;
+            return this;
         }
         ensureUnique(e);
         this.list.addLast(e);
+        return this;
     }
 
-    public void addAllFirst(final Collection<E> c) {
+    public ChainBuilder<E> addAllFirst(final Collection<E> c) {
         if (c == null) {
-            return;
+            return this;
         }
         for (E e: c) {
             addFirst(e);
         }
+        return this;
     }
 
-    public void addAllFirst(E... c) {
+    public ChainBuilder<E> addAllFirst(E... c) {
         if (c == null) {
-            return;
+            return this;
         }
         for (E e: c) {
             addFirst(e);
         }
+        return this;
     }
 
-    public void addAllLast(final Collection<E> c) {
+    public ChainBuilder<E> addAllLast(final Collection<E> c) {
         if (c == null) {
-            return;
+            return this;
         }
         for (E e: c) {
             addLast(e);
         }
+        return this;
     }
 
-    public void addAllLast(E... c) {
+    public ChainBuilder<E> addAllLast(E... c) {
         if (c == null) {
-            return;
+            return this;
         }
         for (E e: c) {
             addLast(e);
         }
+        return this;
     }
 
     public LinkedList<E> build() {
