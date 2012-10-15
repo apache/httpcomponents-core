@@ -43,7 +43,7 @@ import org.apache.http.message.LineFormatter;
 @Immutable
 public class DefaultHttpResponseWriterFactory implements HttpMessageWriterFactory<HttpResponse> {
 
-    public static final HttpMessageWriterFactory<HttpResponse> INSTANCE = new DefaultHttpResponseWriterFactory();
+    public static final DefaultHttpResponseWriterFactory INSTANCE = new DefaultHttpResponseWriterFactory();
 
     private final LineFormatter lineFormatter;
 

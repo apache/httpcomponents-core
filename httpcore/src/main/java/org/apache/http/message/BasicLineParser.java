@@ -70,7 +70,7 @@ public class BasicLineParser implements LineParser {
     @Deprecated
     public final static BasicLineParser DEFAULT = new BasicLineParser();
 
-    public final static LineParser INSTANCE = new BasicLineParser();
+    public final static BasicLineParser INSTANCE = new BasicLineParser();
 
     /**
      * A version of the protocol to parse.

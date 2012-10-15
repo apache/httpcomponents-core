@@ -60,7 +60,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     public final static
         BasicHeaderValueParser DEFAULT = new BasicHeaderValueParser();
 
-    public final static HeaderValueParser INSTANCE = new BasicHeaderValueParser();
+    public final static BasicHeaderValueParser INSTANCE = new BasicHeaderValueParser();
 
     private final static char PARAM_DELIMITER                = ';';
     private final static char ELEM_DELIMITER                 = ',';

@@ -55,7 +55,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public final static
         BasicHeaderValueFormatter DEFAULT = new BasicHeaderValueFormatter();
 
-    public final static HeaderValueFormatter INSTANCE = new BasicHeaderValueFormatter();
+    public final static BasicHeaderValueFormatter INSTANCE = new BasicHeaderValueFormatter();
 
     /**
      * Special characters that can be used as separators in HTTP parameters.

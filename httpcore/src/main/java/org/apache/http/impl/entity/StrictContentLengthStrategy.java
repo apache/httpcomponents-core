@@ -50,7 +50,7 @@ import org.apache.http.util.Args;
 @Immutable
 public class StrictContentLengthStrategy implements ContentLengthStrategy {
 
-    public static final ContentLengthStrategy INSTANCE = new StrictContentLengthStrategy();
+    public static final StrictContentLengthStrategy INSTANCE = new StrictContentLengthStrategy();
 
     private final int implicitLen;
 

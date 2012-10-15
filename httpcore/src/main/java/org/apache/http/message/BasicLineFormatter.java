@@ -62,7 +62,7 @@ public class BasicLineFormatter implements LineFormatter {
     @Deprecated
     public final static BasicLineFormatter DEFAULT = new BasicLineFormatter();
 
-    public final static LineFormatter INSTANCE = new BasicLineFormatter();
+    public final static BasicLineFormatter INSTANCE = new BasicLineFormatter();
 
     public BasicLineFormatter() {
         super();

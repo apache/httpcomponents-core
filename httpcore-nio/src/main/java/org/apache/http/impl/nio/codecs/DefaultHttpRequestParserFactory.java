@@ -46,7 +46,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 @Immutable
 public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactory<HttpRequest> {
 
-    public static final NHttpMessageParserFactory<HttpRequest> INSTANCE = new DefaultHttpRequestParserFactory();
+    public static final DefaultHttpRequestParserFactory INSTANCE = new DefaultHttpRequestParserFactory();
 
     private final LineParser lineParser;
     private final HttpRequestFactory requestFactory;

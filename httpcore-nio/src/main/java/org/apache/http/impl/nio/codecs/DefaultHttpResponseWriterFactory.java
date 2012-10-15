@@ -43,7 +43,7 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 @Immutable
 public class DefaultHttpResponseWriterFactory implements NHttpMessageWriterFactory<HttpResponse> {
 
-    public static final NHttpMessageWriterFactory<HttpResponse> INSTANCE = new DefaultHttpResponseWriterFactory();
+    public static final DefaultHttpResponseWriterFactory INSTANCE = new DefaultHttpResponseWriterFactory();
 
     private final LineFormatter lineFormatter;
 

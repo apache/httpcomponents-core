@@ -50,7 +50,7 @@ import org.apache.http.util.Args;
 @Immutable
 public class LaxContentLengthStrategy implements ContentLengthStrategy {
 
-    public static final ContentLengthStrategy INSTANCE = new LaxContentLengthStrategy();
+    public static final LaxContentLengthStrategy INSTANCE = new LaxContentLengthStrategy();
 
     private final int implicitLen;
 

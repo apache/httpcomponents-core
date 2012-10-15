@@ -44,7 +44,7 @@ import org.apache.http.util.Args;
 @Immutable
 public class DefaultHttpRequestFactory implements HttpRequestFactory {
 
-    public static final HttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();
+    public static final DefaultHttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();
 
     private static final String[] RFC2616_COMMON_METHODS = {
         "GET"

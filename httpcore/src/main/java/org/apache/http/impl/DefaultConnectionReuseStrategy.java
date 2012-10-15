@@ -63,7 +63,7 @@ import org.apache.http.util.Args;
 @Immutable
 public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
-    public static final ConnectionReuseStrategy INSTANCE = new DefaultConnectionReuseStrategy();
+    public static final DefaultConnectionReuseStrategy INSTANCE = new DefaultConnectionReuseStrategy();
 
     public DefaultConnectionReuseStrategy() {
         super();

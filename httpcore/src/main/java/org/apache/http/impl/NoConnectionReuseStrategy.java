@@ -40,7 +40,7 @@ import org.apache.http.protocol.HttpContext;
 @Immutable
 public class NoConnectionReuseStrategy implements ConnectionReuseStrategy {
 
-    public static final ConnectionReuseStrategy INSTANCE = new NoConnectionReuseStrategy();
+    public static final NoConnectionReuseStrategy INSTANCE = new NoConnectionReuseStrategy();
 
     public NoConnectionReuseStrategy() {
         super();

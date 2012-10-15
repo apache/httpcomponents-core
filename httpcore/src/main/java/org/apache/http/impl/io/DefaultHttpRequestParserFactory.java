@@ -46,7 +46,7 @@ import org.apache.http.message.LineParser;
 @Immutable
 public class DefaultHttpRequestParserFactory implements HttpMessageParserFactory<HttpRequest> {
 
-    public static final HttpMessageParserFactory<HttpRequest> INSTANCE = new DefaultHttpRequestParserFactory();
+    public static final DefaultHttpRequestParserFactory INSTANCE = new DefaultHttpRequestParserFactory();
 
     private final LineParser lineParser;
     private final HttpRequestFactory requestFactory;
