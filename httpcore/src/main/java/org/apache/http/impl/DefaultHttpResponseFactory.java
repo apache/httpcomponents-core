@@ -73,25 +73,25 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
 
     // non-javadoc, see interface HttpResponseFactory
-    public HttpResponse newHttpResponse(final ProtocolVersion ver,
-                                        final int status,
-                                        HttpContext context) {
+    public HttpResponse newHttpResponse(
+            final ProtocolVersion ver,
+            final int status,
+            final HttpContext context) {
         Args.notNull(ver, "HTTP version");
         Locale loc = determineLocale(context);
         String reason   = reasonCatalog.getReason(status, loc);
         StatusLine statusline = new BasicStatusLine(ver, status, reason);
-        return new BasicHttpResponse(statusline, reasonCatalog, loc);
+        return new BasicHttpResponse(statusline);
     }
 
 
     // non-javadoc, see interface HttpResponseFactory
-    public HttpResponse newHttpResponse(final StatusLine statusline,
-                                        HttpContext context) {
+    public HttpResponse newHttpResponse(
+            final StatusLine statusline,
+            final HttpContext context) {
         Args.notNull(statusline, "Status line");
-        final Locale loc = determineLocale(context);
-        return new BasicHttpResponse(statusline, reasonCatalog, loc);
+        return new BasicHttpResponse(statusline);
     }
-
 
     /**
      * Determines the locale of the response.
@@ -105,4 +105,5 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
     protected Locale determineLocale(HttpContext context) {
         return Locale.getDefault();
     }
+
 }

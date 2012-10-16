@@ -137,7 +137,10 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         return this.headergroup.iterator(name);
     }
 
-    // non-javadoc, see interface HttpMessage
+    /**
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
+     */
+    @Deprecated
     public HttpParams getParams() {
         if (this.params == null) {
             this.params = new BasicHttpParams();
@@ -145,7 +148,10 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         return this.params;
     }
 
-    // non-javadoc, see interface HttpMessage
+    /**
+     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
+     */
+    @Deprecated
     public void setParams(final HttpParams params) {
         this.params = Args.notNull(params, "HTTP parameters");
     }

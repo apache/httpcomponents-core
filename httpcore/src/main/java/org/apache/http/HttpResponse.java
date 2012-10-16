@@ -29,6 +29,8 @@ package org.apache.http;
 
 import java.util.Locale;
 
+import org.apache.http.impl.DefaultHttpRequestFactory;
+
 /**
  * After receiving and interpreting a request message, a server responds
  * with an HTTP response message.
@@ -150,7 +152,10 @@ public interface HttpResponse extends HttpMessage {
      * It can be changed using {@link #setLocale setLocale}.
      *
      * @return  the locale of this response, never <code>null</code>
+     *
+     * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
      */
+    @Deprecated
     Locale getLocale();
 
     /**
@@ -160,8 +165,9 @@ public interface HttpResponse extends HttpMessage {
      *
      * @param loc       the new locale
      *
-     * @see #getLocale getLocale
-     * @see #setStatusCode setStatusCode
+     * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
      */
+    @Deprecated
     void setLocale(Locale loc);
+
 }

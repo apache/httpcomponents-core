@@ -86,13 +86,6 @@ public class TestBasicMessages {
         }
         response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
-            response.setStatusLine(null, 200);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        try {
             response.setStatusLine(null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (IllegalArgumentException ex) {
