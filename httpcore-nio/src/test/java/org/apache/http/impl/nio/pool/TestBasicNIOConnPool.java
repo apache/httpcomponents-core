@@ -27,6 +27,7 @@
 package org.apache.http.impl.nio.pool;
 
 import org.apache.http.HttpHost;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
@@ -49,7 +50,7 @@ public class TestBasicNIOConnPool {
         MockitoAnnotations.initMocks(this);
 
         route = new HttpHost("localhost", 80, "http");
-        connFactory = new BasicNIOConnFactory();
+        connFactory = new BasicNIOConnFactory(ConnectionConfig.DEFAULT);
         pool = new BasicNIOConnPool(reactor, connFactory);
     }
 
@@ -59,7 +60,7 @@ public class TestBasicNIOConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testNullConstructor() throws Exception {
-        pool = new BasicNIOConnPool(null);
+        pool = new BasicNIOConnPool(null, ConnectionConfig.DEFAULT);
     }
 
     @Test

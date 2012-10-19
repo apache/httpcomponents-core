@@ -45,6 +45,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
@@ -139,9 +140,11 @@ public class NHttpServer {
             KeyManager[] keymanagers = kmfactory.getKeyManagers();
             SSLContext sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(keymanagers, null, null);
-            connFactory = new SSLNHttpServerConnectionFactory(sslcontext, null);
+            connFactory = new SSLNHttpServerConnectionFactory(sslcontext, 
+                    null, ConnectionConfig.DEFAULT);
         } else {
-            connFactory = new DefaultNHttpServerConnectionFactory();
+            connFactory = new DefaultNHttpServerConnectionFactory(
+                    ConnectionConfig.DEFAULT);
         }
         // Create server-side I/O event dispatch
         IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(protocolHandler, connFactory);

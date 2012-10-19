@@ -38,12 +38,12 @@ import org.apache.http.MessageConstraintException;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.impl.MessageConstraints;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
-import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
@@ -88,10 +88,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         Args.notNull(buffer, "Session input buffer");
         Args.notNull(params, "HTTP parameters");
         this.sessionBuffer = buffer;
-        this.messageConstraints = MessageConstraints.custom()
-            .setMaxHeaderCount(params.getIntParameter(CoreConnectionPNames.MAX_HEADER_COUNT, -1))
-            .setMaxLineLength(params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1))
-            .build();
+        this.messageConstraints = HttpParamConfig.getMessageConstraints(params);
         this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;

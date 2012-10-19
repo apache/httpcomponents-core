@@ -29,7 +29,6 @@ package org.apache.http.impl.pool;
 import static org.junit.Assert.assertEquals;
 
 import java.net.ServerSocket;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -37,6 +36,8 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.SocketConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,7 +65,8 @@ public class TestBasicConnPool {
         sslServer = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(0);
         sslServerPort = sslServer.getLocalPort();
 
-        connFactory = new BasicConnFactory(100, TimeUnit.MILLISECONDS);
+        SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();
+        connFactory = new BasicConnFactory(sconfig, ConnectionConfig.DEFAULT);
         pool = new BasicConnPool(connFactory);
     }
 
@@ -93,8 +95,9 @@ public class TestBasicConnPool {
 
     @Test
     public void testHttpsCreateConnection() throws Exception {
+        SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();
         connFactory = new BasicConnFactory((SSLSocketFactory)SSLSocketFactory.getDefault(),
-                100, TimeUnit.MILLISECONDS);
+                sconfig, ConnectionConfig.DEFAULT);
         host = new HttpHost("localhost", sslServerPort, "https");
         conn = connFactory.create(host);
 

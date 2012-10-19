@@ -29,6 +29,10 @@ package org.apache.http.impl.pool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -36,9 +40,12 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.Config;
+import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
 import org.apache.http.util.Args;
@@ -55,9 +62,8 @@ import org.apache.http.util.Args;
 public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnection> {
 
     private final SSLSocketFactory sslfactory;
-    private final int connectTimeout;
-    private final TimeUnit tunit;
-    private final HttpParams params;
+    private final SocketConfig sconfig;
+    private final ConnectionConfig cconfig;
 
     /**
      * @deprecated (4.3) use
@@ -66,10 +72,10 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
     @Deprecated
     public BasicConnFactory(final SSLSocketFactory sslfactory, final HttpParams params) {
         super();
+        Args.notNull(params, "HTTP params");
         this.sslfactory = sslfactory;
-        this.params = Args.notNull(params, "HTTP params");
-        this.connectTimeout = Config.getInt(params, CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
-        this.tunit = TimeUnit.MILLISECONDS;
+        this.sconfig = HttpParamConfig.getSocketConfig(params);
+        this.cconfig = HttpParamConfig.getConnectionConfig(params);
     }
 
     /**
@@ -84,27 +90,25 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
      * @since 4.3
      */
     public BasicConnFactory(
-            final SSLSocketFactory sslfactory,
-            int connectTimeout, final TimeUnit tunit) {
+            final SSLSocketFactory sslfactory, final SocketConfig sconfig, final ConnectionConfig cconfig) {
         super();
         this.sslfactory = sslfactory;
-        this.connectTimeout = connectTimeout;
-        this.tunit = tunit != null ? tunit : TimeUnit.MILLISECONDS;
-        this.params = null;
+        this.sconfig = sconfig != null ? sconfig : SocketConfig.DEFAULT;
+        this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
     }
 
     /**
      * @since 4.3
      */
-    public BasicConnFactory(int connectTimeout, final TimeUnit tunit) {
-        this(null, connectTimeout, tunit);
+    public BasicConnFactory(final SocketConfig sconfig, final ConnectionConfig cconfig) {
+        this(null, sconfig, cconfig);
     }
 
     /**
      * @since 4.3
      */
     public BasicConnFactory() {
-        this(null, 0, TimeUnit.MILLISECONDS);
+        this(null, SocketConfig.DEFAULT, ConnectionConfig.DEFAULT);
     }
 
     /**
@@ -131,16 +135,33 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         if (socket == null) {
             throw new IOException(scheme + " scheme is not supported");
         }
-        int timeout = (int) tunit.toMillis(Math.min(connectTimeout, Integer.MAX_VALUE));
-        socket.setSoTimeout(timeout);
-        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), timeout);
-        if (params != null) {
-            return create(socket, this.params);
-        } else {
-            DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
-            conn.bind(socket);
-            return conn;
+        socket.setSoTimeout(this.sconfig.getSoTimeout());
+        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.cconfig.getConnectTimeout());
+        socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
+        int linger = this.sconfig.getSoLinger();
+        if (linger >= 0) {
+            socket.setSoLinger(linger > 0, linger);
         }
+        CharsetDecoder chardecoder = null;
+        CharsetEncoder charencoder = null;
+        Charset charset = this.cconfig.getCharset();
+        CodingErrorAction malformedInputAction = this.cconfig.getMalformedInputAction() != null ?
+                this.cconfig.getMalformedInputAction() : CodingErrorAction.REPORT;
+        CodingErrorAction unmappableInputAction = this.cconfig.getUnmappableInputAction() != null ?
+                this.cconfig.getUnmappableInputAction() : CodingErrorAction.REPORT;
+        if (charset != null) {
+            chardecoder = charset.newDecoder();
+            chardecoder.onMalformedInput(malformedInputAction);
+            chardecoder.onUnmappableCharacter(unmappableInputAction);
+            charencoder = charset.newEncoder();
+            charencoder.onMalformedInput(malformedInputAction);
+            charencoder.onUnmappableCharacter(unmappableInputAction);
+        }
+        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024,
+                chardecoder, charencoder,
+                this.cconfig.getMessageConstraints());
+        conn.bind(socket);
+        return conn;
     }
 
 }

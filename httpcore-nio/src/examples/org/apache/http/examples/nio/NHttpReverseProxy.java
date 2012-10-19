@@ -45,6 +45,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
@@ -151,7 +152,7 @@ public class NHttpReverseProxy {
         HttpAsyncRequester executor = new HttpAsyncRequester(
                 outhttpproc, new ProxyOutgoingConnectionReuseStrategy());
 
-        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, 3, TimeUnit.SECONDS);
+        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, ConnectionConfig.DEFAULT);
         connPool.setMaxTotal(100);
         connPool.setDefaultMaxPerRoute(20);
 
@@ -164,10 +165,10 @@ public class NHttpReverseProxy {
                 handlerRegistry);
 
         final IOEventDispatch connectingEventDispatch = new DefaultHttpClientIODispatch(
-                clientHandler);
+                clientHandler, ConnectionConfig.DEFAULT);
 
         final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch(
-                serviceHandler);
+                serviceHandler, ConnectionConfig.DEFAULT);
 
         Thread t = new Thread(new Runnable() {
 
@@ -843,9 +844,10 @@ public class NHttpReverseProxy {
 
     static class ProxyConnPool extends BasicNIOConnPool {
 
-        public ProxyConnPool(final ConnectingIOReactor ioreactor,
-                int connectTimeout, final TimeUnit tunit) {
-            super(ioreactor, connectTimeout, tunit);
+        public ProxyConnPool(
+                final ConnectingIOReactor ioreactor,
+                final ConnectionConfig config) {
+            super(ioreactor, config);
         }
 
         public ProxyConnPool(

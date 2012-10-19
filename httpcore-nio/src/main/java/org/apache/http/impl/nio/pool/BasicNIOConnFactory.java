@@ -33,6 +33,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
@@ -116,10 +117,11 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpResponseFactory responseFactory,
-            final ByteBufferAllocator allocator) {
-        this(new DefaultNHttpClientConnectionFactory(responseFactory, allocator),
+            final ByteBufferAllocator allocator,
+            final ConnectionConfig config) {
+        this(new DefaultNHttpClientConnectionFactory(responseFactory, allocator, config),
                 new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, responseFactory,
-                        allocator));
+                        allocator, config));
     }
 
     /**
@@ -127,15 +129,16 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
      */
     public BasicNIOConnFactory(
             final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler) {
-        this(sslcontext, sslHandler, null, null);
+            final SSLSetupHandler sslHandler,
+            final ConnectionConfig config) {
+        this(sslcontext, sslHandler, null, null, config);
     }
 
     /**
      * @since 4.3
      */
-    public BasicNIOConnFactory() {
-        this(new DefaultNHttpClientConnectionFactory(null, null), null);
+    public BasicNIOConnFactory(final ConnectionConfig config) {
+        this(new DefaultNHttpClientConnectionFactory(config), null);
     }
 
     public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {

@@ -28,7 +28,7 @@
 package org.apache.http.io;
 
 import org.apache.http.HttpMessage;
-import org.apache.http.impl.MessageConstraints;
+import org.apache.http.config.MessageConstraints;
 
 /**
  * Factory for {@link HttpMessageParser} instances.

@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.config.ConnectionConfig;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.AbstractConnPool;
 import org.apache.http.pool.ConnFactory;
@@ -66,8 +68,8 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
     /**
      * @since 4.3
      */
-    public BasicConnPool(int connectTimeout, final TimeUnit tunit) {
-        super(new BasicConnFactory(connectTimeout, tunit), 2, 20);
+    public BasicConnPool(final SocketConfig sconfig, final ConnectionConfig cconfig) {
+        super(new BasicConnFactory(sconfig, cconfig), 2, 20);
     }
 
     @Override

@@ -26,9 +26,15 @@
  */
 package org.apache.http.impl.nio;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
 import org.apache.http.nio.NHttpClientConnection;
@@ -37,8 +43,7 @@ import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.Config;
+import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -53,9 +58,8 @@ public class DefaultNHttpClientConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 
     private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
-    private final HttpResponseFactory responseFactory;
     private final ByteBufferAllocator allocator;
-    private final HttpParams params;
+    private final ConnectionConfig config;
 
     /**
      * @deprecated (4.3) use {@link
@@ -71,10 +75,9 @@ public class DefaultNHttpClientConnectionFactory
         Args.notNull(responseFactory, "HTTP response factory");
         Args.notNull(allocator, "Byte buffer allocator");
         Args.notNull(params, "HTTP parameters");
-        this.responseFactory = responseFactory;
         this.allocator = allocator;
-        this.params = params;
-        this.responseParserFactory = null;
+        this.responseParserFactory = new DefaultHttpResponseParserFactory(null, responseFactory);
+        this.config = HttpParamConfig.getConnectionConfig(params);
     }
 
     /**
@@ -91,19 +94,19 @@ public class DefaultNHttpClientConnectionFactory
      */
     public DefaultNHttpClientConnectionFactory(
             final HttpResponseFactory responseFactory,
-            final ByteBufferAllocator allocator) {
+            final ByteBufferAllocator allocator,
+            final ConnectionConfig config) {
         super();
-        this.responseFactory = responseFactory;
-        this.allocator = allocator;
+        this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
         this.responseParserFactory = new DefaultHttpResponseParserFactory(null, responseFactory);
-        this.params = null;
+        this.config = config != null ? config : ConnectionConfig.DEFAULT;
     }
 
     /**
      * @since 4.3
      */
-    public DefaultNHttpClientConnectionFactory() {
-        this(null, null);
+    public DefaultNHttpClientConnectionFactory(final ConnectionConfig config) {
+        this(null, null, config);
     }
 
     /**
@@ -119,19 +122,27 @@ public class DefaultNHttpClientConnectionFactory
     }
 
     public DefaultNHttpClientConnection createConnection(final IOSession session) {
-        if (this.params != null) {
-            DefaultNHttpClientConnection conn = createConnection(session, this.responseFactory,
-                    this.allocator, this.params);
-            int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
-            conn.setSocketTimeout(timeout);
-            return conn;
-        } else {
-            return new DefaultNHttpClientConnection(
-                    session, 8 * 1024,
-                    this.allocator,
-                    null, null, null, null, null, null,
-                    this.responseParserFactory);
+        CharsetDecoder chardecoder = null;
+        CharsetEncoder charencoder = null;
+        Charset charset = this.config.getCharset();
+        CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
+                this.config.getMalformedInputAction() : CodingErrorAction.REPORT;
+        CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
+                this.config.getUnmappableInputAction() : CodingErrorAction.REPORT;
+        if (charset != null) {
+            chardecoder = charset.newDecoder();
+            chardecoder.onMalformedInput(malformedInputAction);
+            chardecoder.onUnmappableCharacter(unmappableInputAction);
+            charencoder = charset.newEncoder();
+            charencoder.onMalformedInput(malformedInputAction);
+            charencoder.onUnmappableCharacter(unmappableInputAction);
         }
+        return new DefaultNHttpClientConnection(
+                session, 8 * 1024,
+                this.allocator,
+                chardecoder, charencoder, this.config.getMessageConstraints(),
+                null, null, null,
+                this.responseParserFactory);
     }
 
 }

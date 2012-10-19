@@ -26,11 +26,17 @@
  */
 package org.apache.http.impl.nio;
 
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
+
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
@@ -42,8 +48,7 @@ import org.apache.http.nio.reactor.ssl.SSLMode;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.Config;
+import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -58,11 +63,10 @@ public class SSLNHttpServerConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
     private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
-    private final HttpRequestFactory requestFactory;
     private final ByteBufferAllocator allocator;
     private final SSLContext sslcontext;
     private final SSLSetupHandler sslHandler;
-    private final HttpParams params;
+    private final ConnectionConfig config;
 
     /**
      * @deprecated (4.3) use {@link
@@ -82,10 +86,9 @@ public class SSLNHttpServerConnectionFactory
         Args.notNull(params, "HTTP parameters");
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
-        this.requestFactory = requestFactory;
         this.allocator = allocator;
-        this.params = params;
-        this.requestParserFactory = null;
+        this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
+        this.config = HttpParamConfig.getConnectionConfig(params);
     }
 
     /**
@@ -118,14 +121,14 @@ public class SSLNHttpServerConnectionFactory
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator) {
+            final ByteBufferAllocator allocator,
+            final ConnectionConfig config) {
         super();
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
-        this.requestFactory = requestFactory;
-        this.allocator = allocator;
+        this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
         this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
-        this.params = null;
+        this.config = config != null ? config : ConnectionConfig.DEFAULT;
     }
 
     /**
@@ -133,15 +136,16 @@ public class SSLNHttpServerConnectionFactory
      */
     public SSLNHttpServerConnectionFactory(
             final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler) {
-        this(sslcontext, sslHandler, null, null);
+            final SSLSetupHandler sslHandler,
+            final ConnectionConfig config) {
+        this(sslcontext, sslHandler, null, null, config);
     }
 
     /**
      * @since 4.3
      */
-    public SSLNHttpServerConnectionFactory() {
-        this(null, null, null, null);
+    public SSLNHttpServerConnectionFactory(final ConnectionConfig config) {
+        this(null, null, null, null, config);
     }
 
     private SSLContext getDefaultSSLContext() {
@@ -183,19 +187,27 @@ public class SSLNHttpServerConnectionFactory
 
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
         SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
-        if (this.params != null) {
-            DefaultNHttpServerConnection conn = createConnection(
-                    ssliosession, this.requestFactory, this.allocator, this.params);
-            int timeout = Config.getInt(this.params, CoreConnectionPNames.SO_TIMEOUT, 0);
-            conn.setSocketTimeout(timeout);
-            return conn;
-        } else {
-            return new DefaultNHttpServerConnection(ssliosession, 8 * 1024,
-                    this.allocator,
-                    null, null, null, null, null,
-                    this.requestParserFactory,
-                    null);
+        CharsetDecoder chardecoder = null;
+        CharsetEncoder charencoder = null;
+        Charset charset = this.config.getCharset();
+        CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
+                this.config.getMalformedInputAction() : CodingErrorAction.REPORT;
+        CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
+                this.config.getUnmappableInputAction() : CodingErrorAction.REPORT;
+        if (charset != null) {
+            chardecoder = charset.newDecoder();
+            chardecoder.onMalformedInput(malformedInputAction);
+            chardecoder.onUnmappableCharacter(unmappableInputAction);
+            charencoder = charset.newEncoder();
+            charencoder.onMalformedInput(malformedInputAction);
+            charencoder.onUnmappableCharacter(unmappableInputAction);
         }
+        return new DefaultNHttpServerConnection(ssliosession, 8 * 1024,
+                this.allocator,
+                chardecoder, charencoder, this.config.getMessageConstraints(),
+                null, null,
+                this.requestParserFactory,
+                null);
     }
 
 }

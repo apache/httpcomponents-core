@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.pool.AbstractNIOConnPool;
 import org.apache.http.nio.pool.NIOConnFactory;
@@ -115,15 +116,8 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
      * @since 4.3
      */
     public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor, int connectTimeout, final TimeUnit tunit) {
-        this(ioreactor, new BasicNIOConnFactory(), connectTimeout, tunit);
-    }
-
-    /**
-     * @since 4.3
-     */
-    public BasicNIOConnPool(final ConnectingIOReactor ioreactor) {
-        this(ioreactor, new BasicNIOConnFactory(), 0, TimeUnit.MILLISECONDS);
+            final ConnectingIOReactor ioreactor, final ConnectionConfig config) {
+        this(ioreactor, new BasicNIOConnFactory(config));
     }
 
     @Override

@@ -34,7 +34,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
-import org.apache.http.impl.MessageConstraints;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.HttpTransportMetrics;
@@ -333,7 +333,7 @@ public class TestSessionInOutBuffers {
         byte[] tmp = s.getBytes("US-ASCII");
         // no limit
         SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5, 
-                MessageConstraints.UNLIMITED);
+                MessageConstraints.DEFAULT);
         Assert.assertNotNull(inbuffer1.readLine());
         long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(60, bytesRead);

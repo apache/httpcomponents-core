@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.config;
 
 import org.apache.http.util.Args;
 
@@ -36,8 +36,7 @@ import org.apache.http.util.Args;
  */
 public class MessageConstraints implements Cloneable {
 
-    public static final MessageConstraints UNLIMITED = new Builder().build();
-    public static final MessageConstraints DEFAULT = UNLIMITED;
+    public static final MessageConstraints DEFAULT = new Builder().build();
 
     private final int maxLineLength;
     private final int maxHeaderCount;

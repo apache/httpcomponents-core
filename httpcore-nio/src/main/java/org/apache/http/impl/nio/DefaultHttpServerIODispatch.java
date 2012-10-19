@@ -32,6 +32,7 @@ import java.io.IOException;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.annotation.Immutable;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerEventHandler;
@@ -101,8 +102,8 @@ public class DefaultHttpServerIODispatch
     /**
      * @since 4.3
      */
-    public DefaultHttpServerIODispatch(final NHttpServerEventHandler handler) {
-        this(handler, new DefaultNHttpServerConnectionFactory());
+    public DefaultHttpServerIODispatch(final NHttpServerEventHandler handler, final ConnectionConfig config) {
+        this(handler, new DefaultNHttpServerConnectionFactory(config));
     }
 
     /**
@@ -111,8 +112,9 @@ public class DefaultHttpServerIODispatch
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
             final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler) {
-        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, sslHandler));
+            final SSLSetupHandler sslHandler,
+            final ConnectionConfig config) {
+        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, sslHandler, config));
     }
 
     /**
@@ -120,8 +122,9 @@ public class DefaultHttpServerIODispatch
      */
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
-            final SSLContext sslcontext) {
-        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, null));
+            final SSLContext sslcontext,
+            final ConnectionConfig config) {
+        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, null, config));
     }
 
     @Override

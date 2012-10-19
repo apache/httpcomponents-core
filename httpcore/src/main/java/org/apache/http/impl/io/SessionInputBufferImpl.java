@@ -36,7 +36,7 @@ import java.nio.charset.CoderResult;
 
 import org.apache.http.MessageConstraintException;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.impl.MessageConstraints;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionInputBuffer;
