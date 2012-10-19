@@ -39,6 +39,7 @@ import org.apache.http.config.SocketConfig;
  *
  * @since 4.3
  */
+@Deprecated
 public final class HttpParamConfig {
 
     private HttpParamConfig() {

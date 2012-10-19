@@ -39,7 +39,8 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  *
- * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
+ * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
+ *  and 'org.apache.http.client.config'
  */
 @Deprecated
 public final class HttpProtocolParams implements CoreProtocolPNames {

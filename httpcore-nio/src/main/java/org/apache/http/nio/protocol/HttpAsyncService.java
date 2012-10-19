@@ -93,6 +93,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 @Immutable // provided injected dependencies are immutable
 public class HttpAsyncService implements NHttpServerEventHandler {
 

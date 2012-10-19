@@ -33,7 +33,8 @@ import org.apache.http.annotation.ThreadSafe;
  *
  * @since 4.1
  * 
- * @deprecated (4.3) use {@link BasicHttpParams}.
+ * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
+ *  and 'org.apache.http.client.config'
  */
 @ThreadSafe
 @Deprecated

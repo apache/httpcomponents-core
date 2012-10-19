@@ -33,7 +33,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -44,7 +43,6 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.Config;
 import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
@@ -67,7 +65,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
 
     /**
      * @deprecated (4.3) use
-     *   {@link BasicConnFactory#BasicConnFactory(SSLSocketFactory, int, TimeUnit)}.
+     *   {@link BasicConnFactory#BasicConnFactory(SSLSocketFactory, SocketConfig, ConnectionConfig)}.
      */
     @Deprecated
     public BasicConnFactory(final SSLSocketFactory sslfactory, final HttpParams params) {
@@ -79,7 +77,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
     }
 
     /**
-     * @deprecated (4.3) use {@link BasicConnFactory#BasicConnFactory(int, TimeUnit)}.
+     * @deprecated (4.3) use
+     *   {@link BasicConnFactory#BasicConnFactory(SocketConfig, ConnectionConfig)}.
      */
     @Deprecated
     public BasicConnFactory(final HttpParams params) {
@@ -116,7 +115,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
      */
     @Deprecated
     protected HttpClientConnection create(final Socket socket, final HttpParams params) throws IOException {
-        int bufsize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
+        int bufsize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(bufsize);
         conn.bind(socket);
         return conn;

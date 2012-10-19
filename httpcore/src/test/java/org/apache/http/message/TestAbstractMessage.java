@@ -31,8 +31,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -130,25 +128,8 @@ public class TestAbstractMessage {
     }
 
     @Test
-    @Deprecated
-    public void testParameters() {
-        HttpMessage message = new TestHttpMessage();
-        Assert.assertNotNull(message.getParams());
-        HttpParams params = new BasicHttpParams();
-        message.setParams(params);
-        Assert.assertTrue(params == message.getParams());
-    }
-
-    @Test
-    @Deprecated
     public void testInvalidInput() {
         HttpMessage message = new TestHttpMessage();
-        try {
-            message.setParams(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
         try {
             message.addHeader(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");

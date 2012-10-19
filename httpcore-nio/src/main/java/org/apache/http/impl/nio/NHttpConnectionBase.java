@@ -77,10 +77,9 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.Config;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
@@ -140,7 +139,7 @@ public class NHttpConnectionBase
         Args.notNull(session, "I/O session");
         Args.notNull(params, "HTTP params");
 
-        int buffersize = Config.getInt(params, CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
+        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
         if (buffersize <= 0) {
             buffersize = 4096;
         }
@@ -151,16 +150,13 @@ public class NHttpConnectionBase
 
         CharsetDecoder decoder = null;
         CharsetEncoder encoder = null;
-        Charset charset = CharsetUtils.lookup(Config.getString(params,
-                CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
+        Charset charset = CharsetUtils.lookup(HttpProtocolParams.getHttpElementCharset(params));
         if (charset != null) {
             charset = Consts.ASCII;
             decoder = charset.newDecoder();
             encoder = charset.newEncoder();
-            CodingErrorAction malformedCharAction = Config.getValue(params,
-                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION, CodingErrorAction.class);
-            CodingErrorAction unmappableCharAction = Config.getValue(params,
-                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION, CodingErrorAction.class);
+            CodingErrorAction malformedCharAction = HttpProtocolParams.getMalformedInputAction(params);
+            CodingErrorAction unmappableCharAction = HttpProtocolParams.getUnmappableInputAction(params);
             decoder.onMalformedInput(malformedCharAction);
             decoder.onUnmappableCharacter(unmappableCharAction);
             encoder.onMalformedInput(malformedCharAction);

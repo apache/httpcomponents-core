@@ -43,8 +43,10 @@ import org.apache.http.annotation.ThreadSafe;
  * synchronized and therefore this class may be thread-unsafe.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
+ *  and 'org.apache.http.client.config'
  */
-@SuppressWarnings("deprecation")
 @ThreadSafe
 public class BasicHttpParams extends AbstractHttpParams implements Serializable, Cloneable {
 
@@ -138,10 +140,8 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @return  a new set of params holding a copy of the
      *          <i>local</i> parameters in this object.
      *
-     * @deprecated (4.1)
      * @throws UnsupportedOperationException if the clone() fails
      */
-    @Deprecated
     public HttpParams copy() {
         try {
             return (HttpParams) clone();

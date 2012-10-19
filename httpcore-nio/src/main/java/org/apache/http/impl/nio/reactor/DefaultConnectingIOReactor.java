@@ -56,6 +56,7 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @ThreadSafe // public methods only
 public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         implements ConnectingIOReactor {

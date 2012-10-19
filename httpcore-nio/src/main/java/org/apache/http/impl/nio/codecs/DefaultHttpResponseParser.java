@@ -49,6 +49,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.1
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
 

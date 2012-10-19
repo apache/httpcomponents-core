@@ -71,7 +71,7 @@ public class SSLNHttpServerConnectionFactory
     /**
      * @deprecated (4.3) use {@link
      *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(SSLContext,
-     *     SSLSetupHandler, HttpRequestFactory, ByteBufferAllocator)}
+     *     SSLSetupHandler, HttpRequestFactory, ByteBufferAllocator, ConnectionConfig)}
      */
     @Deprecated
     public SSLNHttpServerConnectionFactory(
@@ -94,7 +94,7 @@ public class SSLNHttpServerConnectionFactory
     /**
      * @deprecated (4.3) use {@link
      *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(SSLContext,
-     *     SSLSetupHandler)}
+     *     SSLSetupHandler, ConnectionConfig)}
      */
     @Deprecated
     public SSLNHttpServerConnectionFactory(
@@ -107,7 +107,7 @@ public class SSLNHttpServerConnectionFactory
 
     /**
      * @deprecated (4.3) use {@link
-     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory()}
+     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(ConnectionConfig)}
      */
     @Deprecated
     public SSLNHttpServerConnectionFactory(final HttpParams params) {

@@ -46,7 +46,6 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.EncodingUtils;
@@ -71,6 +70,7 @@ import org.apache.http.util.EntityUtils;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @Immutable // provided injected dependencies are immutable and deprecated methods are not used
 public class HttpService {
 
@@ -111,6 +111,7 @@ public class HttpService {
              responseFactory,
              new HttpRequestHandlerResolverAdapter(handlerResolver),
              expectationVerifier);
+        this.params = params;
     }
 
     /**
@@ -137,7 +138,7 @@ public class HttpService {
              responseFactory,
              new HttpRequestHandlerResolverAdapter(handlerResolver),
              null);
-        this.params = new BasicHttpParams();
+        this.params = params;
     }
 
     /**
@@ -274,6 +275,10 @@ public class HttpService {
         this.expectationVerifier = expectationVerifier;
     }
 
+    /**
+     * @deprecated (4.3) no longer used.
+     */
+    @Deprecated
     public HttpParams getParams() {
         return this.params;
     }

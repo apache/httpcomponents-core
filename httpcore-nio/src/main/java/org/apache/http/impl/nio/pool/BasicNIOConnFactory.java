@@ -54,6 +54,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 @Immutable
 public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClientConnection> {
 
@@ -76,7 +77,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
 
     /**
      * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
-     *   SSLSetupHandler, HttpResponseFactory, ByteBufferAllocator)}
+     *   SSLSetupHandler, HttpResponseFactory, ByteBufferAllocator, ConnectionConfig)}
      */
     @Deprecated
     public BasicNIOConnFactory(
@@ -93,7 +94,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
 
     /**
      * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
-     *   SSLSetupHandler)}
+     *   SSLSetupHandler, ConnectionConfig)}
      */
     public BasicNIOConnFactory(
             final SSLContext sslcontext,
@@ -104,7 +105,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
     }
 
     /**
-     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory()}
+     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(ConnectionConfig)}
      */
     public BasicNIOConnFactory(final HttpParams params) {
         this(null, null, params);

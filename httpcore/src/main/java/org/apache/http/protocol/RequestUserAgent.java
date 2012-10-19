@@ -33,20 +33,13 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.Config;
 import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.Args;
 
 /**
  * RequestUserAgent is responsible for adding <code>User-Agent</code> header.
  * This interceptor is recommended for client side protocol processors.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#USER_AGENT}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -69,8 +62,11 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         if (!request.containsHeader(HTTP.USER_AGENT)) {
+            String s = null;
             HttpParams params = request.getParams();
-            String s = Config.getString(params, CoreProtocolPNames.USER_AGENT);
+            if (params != null) {
+                s = HttpProtocolParams.getUserAgent(params);
+            }
             if (s == null) {
                 s = this.userAgent;
             }

@@ -38,19 +38,13 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.Config;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
  * RequestExpectContinue is responsible for enabling the 'expect-continue'
  * handshake by adding <code>Expect</code> header. This interceptor is
  * recommended for client side protocol processors.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#USE_EXPECT_CONTINUE}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -71,8 +65,11 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 // Do not send the expect header if request body is known to be empty
                 if (entity != null && entity.getContentLength() != 0 && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    Boolean useExpectCont = Config.getValue(request.getParams(),
-                            CoreProtocolPNames.USE_EXPECT_CONTINUE, Boolean.class);
+                    Boolean useExpectCont = null;
+                    HttpParams params = request.getParams();
+                    if (params != null) {
+                        useExpectCont = (Boolean) params.getParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE);
+                    }
                     if (useExpectCont == null) {
                         useExpectCont = (Boolean ) context.getAttribute(ExecutionContext.HTTP_EXPECT_CONT);
                     }

@@ -35,7 +35,11 @@ import java.util.Set;
  * @see HttpParams
  *
  * @since 4.2
+ *
+ * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
+ *  and 'org.apache.http.client.config'
  */
+@Deprecated
 public interface HttpParamsNames {
 
     /**

@@ -48,6 +48,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements HttpMessageWriter<T> {
 

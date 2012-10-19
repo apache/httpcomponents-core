@@ -40,13 +40,19 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
+@SuppressWarnings("deprecation")
 @NotThreadSafe
 public abstract class AbstractHttpMessage implements HttpMessage {
 
     protected HeaderGroup headergroup;
 
+    @Deprecated
     protected HttpParams params;
 
+    /**
+     * @deprecated (4.3) use {@link AbstractHttpMessage#AbstractHttpMessage()}
+     */
+    @Deprecated
     protected AbstractHttpMessage(final HttpParams params) {
         super();
         this.headergroup = new HeaderGroup();

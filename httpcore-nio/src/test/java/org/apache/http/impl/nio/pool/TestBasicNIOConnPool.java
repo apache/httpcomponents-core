@@ -51,7 +51,7 @@ public class TestBasicNIOConnPool {
 
         route = new HttpHost("localhost", 80, "http");
         connFactory = new BasicNIOConnFactory(ConnectionConfig.DEFAULT);
-        pool = new BasicNIOConnPool(reactor, connFactory);
+        pool = new BasicNIOConnPool(reactor, connFactory, ConnectionConfig.DEFAULT);
     }
 
     @After

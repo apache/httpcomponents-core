@@ -33,23 +33,14 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.Config;
 import org.apache.http.util.Args;
 
 /**
  * ResponseServer is responsible for adding <code>Server</code> header. This
  * interceptor is recommended for server side protocol processors.
- * <p>
- * The following parameters can be used to customize the behavior of this
- * class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#ORIGIN_SERVER}</li>
- * </ul>
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @Immutable
 public class ResponseServer implements HttpResponseInterceptor {
 
@@ -71,12 +62,8 @@ public class ResponseServer implements HttpResponseInterceptor {
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         if (!response.containsHeader(HTTP.SERVER_HEADER)) {
-            String s = Config.getString(response.getParams(), CoreProtocolPNames.ORIGIN_SERVER);
-            if (s == null) {
-                s = this.originServer;
-            }
-            if (s != null) {
-                response.addHeader(HTTP.SERVER_HEADER, s);
+            if (this.originServer != null) {
+                response.addHeader(HTTP.SERVER_HEADER, this.originServer);
             }
         }
     }

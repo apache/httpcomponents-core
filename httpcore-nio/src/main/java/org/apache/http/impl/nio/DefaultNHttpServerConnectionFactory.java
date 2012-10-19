@@ -64,7 +64,7 @@ public class DefaultNHttpServerConnectionFactory
     /**
      * @deprecated (4.3) use {@link
      *   DefaultNHttpServerConnectionFactory#DefaultNHttpServerConnectionFactory(
-     *     ByteBufferAllocator, HttpRequestFactory)}
+     *     ByteBufferAllocator, HttpRequestFactory, ConnectionConfig)}
      */
     @Deprecated
     public DefaultNHttpServerConnectionFactory(
@@ -82,7 +82,7 @@ public class DefaultNHttpServerConnectionFactory
 
     /**
      * @deprecated (4.3) use {@link
-     *   DefaultNHttpServerConnectionFactory#DefaultNHttpServerConnectionFactory()}
+     *   DefaultNHttpServerConnectionFactory#DefaultNHttpServerConnectionFactory(ConnectionConfig)}
      */
     @Deprecated
     public DefaultNHttpServerConnectionFactory(final HttpParams params) {

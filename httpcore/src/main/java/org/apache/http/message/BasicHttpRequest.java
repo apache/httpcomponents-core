@@ -32,16 +32,10 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpRequest}.
- * <p>
- * The following parameters can be used to customize the behavior of this class:
- * <ul>
- *  <li>{@link org.apache.http.params.CoreProtocolPNames#PROTOCOL_VERSION}</li>
- * </ul>
  *
  * @since 4.0
  */
@@ -55,10 +49,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
 
     /**
      * Creates an instance of this class using the given request method
-     * and URI. The HTTP protocol version will be obtained from the
-     * {@link HttpParams} instance associated with the object.
-     * The initialization will be deferred
-     * until {@link #getRequestLine()} is accessed for the first time.
+     * and URI.
      *
      * @param method request method.
      * @param uri request URI.
@@ -95,10 +86,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     }
 
     /**
-     * Returns the HTTP protocol version to be used for this request. If an
-     * HTTP protocol version was not explicitly set at the construction time,
-     * this method will obtain it from the {@link HttpParams} instance
-     * associated with the object.
+     * Returns the HTTP protocol version to be used for this request.
      *
      * @see #BasicHttpRequest(String, String)
      */

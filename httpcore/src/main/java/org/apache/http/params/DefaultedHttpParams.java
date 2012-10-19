@@ -40,7 +40,8 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  *
- * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
+ * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
+ *  and 'org.apache.http.client.config'
  */
 @Deprecated
 public final class DefaultedHttpParams extends AbstractHttpParams {
@@ -62,10 +63,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
 
     /**
      * Creates a copy of the local collection with the same default
-     *
-     * @deprecated (4.1)
      */
-    @Deprecated
     public HttpParams copy() {
         HttpParams clone = this.local.copy();
         return new DefaultedHttpParams(clone, this.defaults);
@@ -103,9 +101,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     /**
      *
      * @return the default HttpParams collection
-     * @deprecated (4.1.1) do not use, will be removed in a later version
      */
-    @Deprecated
     public HttpParams getDefaults() {
         return this.defaults;
     }

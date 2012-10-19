@@ -35,8 +35,8 @@ import org.junit.Test;
 
 /**
  * Unit tests for {@link BasicHttpParams}.
- *
  */
+@Deprecated
 public class TestBasicHttpParams {
 
     @Test

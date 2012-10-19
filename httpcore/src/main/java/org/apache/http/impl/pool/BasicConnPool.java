@@ -26,7 +26,6 @@
  */
 package org.apache.http.impl.pool;
 
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.HttpClientConnection;
@@ -49,6 +48,7 @@ import org.apache.http.pool.ConnPool;
  * @see HttpHost
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 @ThreadSafe
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
@@ -59,8 +59,9 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
     }
 
     /**
-     * @deprecated (4.3) use {@link BasicConnPool#BasicConnPool(int, TimeUnit)}
+     * @deprecated (4.3) use {@link BasicConnPool#BasicConnPool(SocketConfig, ConnectionConfig)}
      */
+    @Deprecated
     public BasicConnPool(final HttpParams params) {
         super(new BasicConnFactory(params), 2, 20);
     }
@@ -70,6 +71,13 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
      */
     public BasicConnPool(final SocketConfig sconfig, final ConnectionConfig cconfig) {
         super(new BasicConnFactory(sconfig, cconfig), 2, 20);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicConnPool() {
+        super(new BasicConnFactory(SocketConfig.DEFAULT, ConnectionConfig.DEFAULT), 2, 20);
     }
 
     @Override

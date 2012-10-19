@@ -29,7 +29,6 @@ package org.apache.http.params;
 
 import java.util.Set;
 
-
 /**
  * Abstract base class for parameter collections.
  * Type specific setters and getters are mapped to the abstract,
@@ -37,7 +36,8 @@ import java.util.Set;
  *
  * @since 4.0
  *
- * @deprecated (4.3) use {@link Config} methods
+ * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
+ *  and 'org.apache.http.client.config'
  */
 @Deprecated
 public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames {

@@ -48,6 +48,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 @Immutable // provided injected dependencies are immutable
 public class DefaultHttpClientIODispatch
                     extends AbstractIODispatch<DefaultNHttpClientConnection> {
@@ -72,7 +73,7 @@ public class DefaultHttpClientIODispatch
 
     /**
      * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
-     *   NHttpClientEventHandler)}
+     *  NHttpClientEventHandler, ConnectionConfig)}
      */
     @Deprecated
     public DefaultHttpClientIODispatch(
@@ -83,7 +84,7 @@ public class DefaultHttpClientIODispatch
 
     /**
      * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
-     *   NHttpClientEventHandler, SSLContext, SSLSetupHandler)}
+     *  NHttpClientEventHandler, SSLContext, SSLSetupHandler, ConnectionConfig)}
      */
     @Deprecated
     public DefaultHttpClientIODispatch(
@@ -96,7 +97,7 @@ public class DefaultHttpClientIODispatch
 
     /**
      * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
-     *   NHttpClientEventHandler, SSLContext)}
+     *   NHttpClientEventHandler, SSLContext, ConnectionConfig)}
      */
     @Deprecated
     public DefaultHttpClientIODispatch(

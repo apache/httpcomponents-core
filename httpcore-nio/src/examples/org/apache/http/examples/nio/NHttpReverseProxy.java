@@ -32,7 +32,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.ConnectionReuseStrategy;
@@ -853,8 +852,8 @@ public class NHttpReverseProxy {
         public ProxyConnPool(
                 final ConnectingIOReactor ioreactor,
                 final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
-                int connectTimeout, final TimeUnit tunit) {
-            super(ioreactor, connFactory, connectTimeout, tunit);
+                final ConnectionConfig config) {
+            super(ioreactor, connFactory, config);
         }
 
         @Override

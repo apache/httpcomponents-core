@@ -53,6 +53,7 @@ import org.apache.http.util.Args;
  * @param <T> the result type of request execution.
  * @since 4.2
  */
+@SuppressWarnings("deprecation")
 public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionHandler<T> {
 
     private final HttpAsyncRequestProducer requestProducer;
