@@ -169,10 +169,8 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @since 4.2
      */
     public void copyParams(HttpParams target) {
-        Iterator<Map.Entry<String, Object>> iter = this.parameters.entrySet().iterator();
-		while (iter.hasNext()) {
-			Map.Entry<String, Object> me = iter.next();
-			target.setParameter(me.getKey(), me.getValue());
+    	for (Map.Entry<String, Object> me : this.parameters.entrySet()) {
+    		target.setParameter(me.getKey(), me.getValue());
 		}
     }
 
