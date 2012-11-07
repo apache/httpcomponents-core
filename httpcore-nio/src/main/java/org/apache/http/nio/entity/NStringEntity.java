@@ -167,6 +167,7 @@ public class NStringEntity extends AbstractHttpEntity
      *
      * @deprecated (4.2) use {@link #close()}
      */
+    @Deprecated
     public void finish() {
         close();
     }
