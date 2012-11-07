@@ -75,7 +75,6 @@ public class TestBasicConnPool {
         server.close();
         if(conn != null) {
             conn.close();
-            conn.shutdown();
         }
     }
 

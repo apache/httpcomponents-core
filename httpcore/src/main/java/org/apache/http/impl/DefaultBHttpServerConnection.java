@@ -126,7 +126,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
 
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
-        assertOpen();
+        ensureOpen();
         HttpRequest request = this.requestParser.parse();
         onRequestReceived(request);
         incrementRequestCount();
@@ -136,7 +136,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public void receiveRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        assertOpen();
+        ensureOpen();
         HttpEntity entity = prepareInput(request);
         request.setEntity(entity);
     }
@@ -144,7 +144,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public void sendResponseHeader(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        assertOpen();
+        ensureOpen();
         this.responseWriter.write(response);
         onResponseSubmitted(response);
         if (response.getStatusLine().getStatusCode() >= 200) {
@@ -155,7 +155,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public void sendResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        assertOpen();
+        ensureOpen();
         HttpEntity entity = response.getEntity();
         if (entity == null) {
             return;
@@ -166,7 +166,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     }
 
     public void flush() throws IOException {
-        assertOpen();
+        ensureOpen();
         doFlush();
     }
 

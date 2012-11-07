@@ -125,7 +125,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     public boolean isResponseAvailable(int timeout) throws IOException {
-        assertOpen();
+        ensureOpen();
         try {
             return awaitInput(timeout);
         } catch (SocketTimeoutException ex) {
@@ -136,7 +136,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        assertOpen();
+        ensureOpen();
         this.requestWriter.write(request);
         onRequestSubmitted(request);
         incrementRequestCount();
@@ -145,7 +145,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public void sendRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        assertOpen();
+        ensureOpen();
         HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
@@ -156,7 +156,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
-        assertOpen();
+        ensureOpen();
         HttpResponse response = this.responseParser.parse();
         onResponseReceived(response);
         if (response.getStatusLine().getStatusCode() >= 200) {
@@ -168,13 +168,13 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public void receiveResponseEntity(
             final HttpResponse response) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        assertOpen();
+        ensureOpen();
         HttpEntity entity = prepareInput(response);
         response.setEntity(entity);
     }
 
     public void flush() throws IOException {
-        assertOpen();
+        ensureOpen();
         doFlush();
     }
 

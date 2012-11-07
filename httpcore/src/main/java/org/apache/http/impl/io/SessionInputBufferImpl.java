@@ -109,6 +109,10 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         this.instream = instream;
     }
 
+    public boolean isBound() {
+        return this.instream != null;
+    }
+
     public int capacity() {
         return this.buffer.length;
     }

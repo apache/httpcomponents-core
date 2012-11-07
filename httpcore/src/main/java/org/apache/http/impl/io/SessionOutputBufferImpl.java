@@ -98,6 +98,10 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         this.outstream = outstream;
     }
 
+    public boolean isBound() {
+        return this.outstream != null;
+    }
+
     public int capacity() {
         return this.buffer.capacity();
     }
@@ -116,8 +120,9 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
     }
 
     private void flushStream() throws IOException {
-        Asserts.notNull(outstream, "Output stream");
-        this.outstream.flush();
+        if (this.outstream != null) {
+            this.outstream.flush();
+        }
     }
 
     private void flushBuffer() throws IOException {

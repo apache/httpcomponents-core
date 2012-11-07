@@ -122,12 +122,14 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             StrictContentLengthStrategy.INSTANCE;
     }
 
-    protected void assertNotOpen() {
-        Asserts.check(!this.open, "Connection is already open");
-    }
-
-    protected void assertOpen() {
+    protected void ensureOpen() throws IOException {
         Asserts.check(this.open, "Connection is not open");
+        if (!this.inbuffer.isBound()) {
+            this.inbuffer.bind(getSocketInputStream(this.socket));
+        }
+        if (!this.outbuffer.isBound()) {
+            this.outbuffer.bind(getSocketOutputStream(this.socket));
+        }
     }
 
     protected InputStream getSocketInputStream(final Socket socket) throws IOException {
@@ -152,8 +154,8 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         Args.notNull(socket, "Socket");
         this.socket = socket;
         this.open = true;
-        this.inbuffer.bind(getSocketInputStream(socket));
-        this.outbuffer.bind(getSocketOutputStream(socket));
+        this.inbuffer.bind(null);
+        this.outbuffer.bind(null);
     }
 
     protected SessionInputBuffer getSessionInputBuffer() {
@@ -268,7 +270,6 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     }
 
     public void setSocketTimeout(int timeout) {
-        assertOpen();
         if (this.socket != null) {
             try {
                 this.socket.setSoTimeout(timeout);
