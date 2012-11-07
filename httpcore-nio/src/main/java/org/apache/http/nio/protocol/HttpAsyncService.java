@@ -119,6 +119,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      *  ConnectionReuseStrategy, HttpResponseFactory, HttpAsyncRequestHandlerMapper,
      *    HttpAsyncExpectationVerifier)}
      */
+    @Deprecated
     public HttpAsyncService(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,

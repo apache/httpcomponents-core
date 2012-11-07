@@ -127,6 +127,7 @@ public class HttpService {
      * @deprecated (4.3) use {@link HttpService#HttpService(HttpProcessor, ConnectionReuseStrategy,
      *   HttpResponseFactory, HttpRequestHandlerMapper)}
      */
+    @Deprecated
     public HttpService(
             final HttpProcessor processor,
             final ConnectionReuseStrategy connStrategy,

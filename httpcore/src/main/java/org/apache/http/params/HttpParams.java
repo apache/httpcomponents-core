@@ -47,6 +47,7 @@ package org.apache.http.params;
  * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
  *  and 'org.apache.http.client.config'
  */
+@Deprecated
 public interface HttpParams {
 
     /**

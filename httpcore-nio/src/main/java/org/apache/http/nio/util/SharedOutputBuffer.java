@@ -146,6 +146,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @deprecated (4.3) use {@link #produceContent(ContentEncoder, IOControl)}
      */
+    @Deprecated
     public int produceContent(final ContentEncoder encoder) throws IOException {
         return produceContent(encoder, null);
     }

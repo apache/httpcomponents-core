@@ -46,6 +46,7 @@ import org.apache.http.annotation.ThreadSafe;
  * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
  *  and 'org.apache.http.client.config'
  */
+@Deprecated
 @ThreadSafe
 public class BasicHttpParams extends AbstractHttpParams implements Serializable, Cloneable {
 

@@ -67,6 +67,7 @@ public class HttpAsyncRequester {
      * @deprecated (4.3) use {@link HttpAsyncRequester#HttpAsyncRequester(HttpProcessor,
      *   ConnectionReuseStrategy)}
      */
+    @Deprecated
     public HttpAsyncRequester(
             final HttpProcessor httppocessor,
             final ConnectionReuseStrategy reuseStrategy,

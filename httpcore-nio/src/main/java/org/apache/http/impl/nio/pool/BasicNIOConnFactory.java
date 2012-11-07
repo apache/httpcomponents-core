@@ -96,6 +96,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
      * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
      *   SSLSetupHandler, ConnectionConfig)}
      */
+    @Deprecated
     public BasicNIOConnFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
@@ -107,6 +108,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
     /**
      * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(ConnectionConfig)}
      */
+    @Deprecated
     public BasicNIOConnFactory(final HttpParams params) {
         this(null, null, params);
     }
