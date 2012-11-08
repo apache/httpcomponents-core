@@ -465,7 +465,7 @@ public class TestHttpAsyncRequestExecutor {
         State state = new HttpAsyncRequestExecutor.State();
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.FALSE);
 
         this.protocolHandler.inputReady(this.conn, this.decoder);
 
