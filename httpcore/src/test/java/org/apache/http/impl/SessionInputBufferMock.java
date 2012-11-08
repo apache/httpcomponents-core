@@ -103,6 +103,7 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
         this(s.getBytes(charset.name()), charset);
     }
 
+    @Override
     public boolean isDataAvailable(int timeout) throws IOException {
         return true;
     }
