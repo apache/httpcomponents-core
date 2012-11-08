@@ -85,7 +85,7 @@ public class TestHttpService {
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 200, context)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -121,7 +121,7 @@ public class TestHttpService {
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 200, context)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -146,7 +146,7 @@ public class TestHttpService {
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 200, context)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -175,7 +175,7 @@ public class TestHttpService {
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 200, context)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -220,7 +220,7 @@ public class TestHttpService {
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 100, context)).thenReturn(resp100);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 200, context)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -276,7 +276,7 @@ public class TestHttpService {
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 100, context)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -323,7 +323,7 @@ public class TestHttpService {
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 500, "Oppsie");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_0, 500, context)).thenReturn(response);
         Mockito.doThrow(new HttpException("Oopsie")).when(expectationVerifier).verify(request, resp100, context);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -367,7 +367,7 @@ public class TestHttpService {
         Mockito.when(handlerResolver.lookup(request)).thenReturn(requestHandler);
         Mockito.doThrow(new MethodNotSupportedException("whatever")).when(
                 requestHandler).handle(request, response, context);
-        Mockito.when(connReuseStrategy.keepAlive(error, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(error, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -410,7 +410,7 @@ public class TestHttpService {
         Mockito.when(handlerResolver.lookup(request)).thenReturn(requestHandler);
         Mockito.doThrow(new UnsupportedHttpVersionException()).when(
                 requestHandler).handle(request, response, context);
-        Mockito.when(connReuseStrategy.keepAlive(error, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(error, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -453,7 +453,7 @@ public class TestHttpService {
         Mockito.when(handlerResolver.lookup(request)).thenReturn(requestHandler);
         Mockito.doThrow(new ProtocolException("oh, this world is wrong")).when(
                 requestHandler).handle(request, response, context);
-        Mockito.when(connReuseStrategy.keepAlive(error, context)).thenReturn(false);
+        Mockito.when(connReuseStrategy.keepAlive(error, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
 
@@ -491,7 +491,7 @@ public class TestHttpService {
         HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Mockito.when(responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, 200, context)).thenReturn(response);
         Mockito.when(handlerResolver.lookup(request)).thenReturn(requestHandler);
-        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(true);
+        Mockito.when(connReuseStrategy.keepAlive(response, context)).thenReturn(Boolean.TRUE);
 
         httpservice.handleRequest(conn, context);
 

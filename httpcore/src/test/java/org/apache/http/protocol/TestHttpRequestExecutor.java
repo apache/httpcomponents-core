@@ -307,7 +307,7 @@ public class TestHttpRequestExecutor {
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue"),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(true);
+        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
         HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -340,7 +340,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 402, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(true);
+        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
         HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -371,7 +371,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 101, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(true);
+        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
         try {
             executor.execute(request, conn, context);
@@ -399,7 +399,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(false);
+        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.FALSE);
 
         HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);

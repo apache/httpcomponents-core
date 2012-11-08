@@ -27,6 +27,7 @@
 package org.apache.http.impl.pool;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.net.ServerSocket;
 
@@ -88,7 +89,7 @@ public class TestBasicConnPool {
         host = new HttpHost("localhost", serverPort, "http");
         conn = connFactory.create(host);
 
-        assertEquals(true, conn.isOpen());
+        assertTrue(conn.isOpen());
         assertEquals(100, conn.getSocketTimeout());
     }
 
@@ -100,7 +101,7 @@ public class TestBasicConnPool {
         host = new HttpHost("localhost", sslServerPort, "https");
         conn = connFactory.create(host);
 
-        assertEquals(true, conn.isOpen());
+        assertTrue(conn.isOpen());
         assertEquals(100, conn.getSocketTimeout());
     }
 
