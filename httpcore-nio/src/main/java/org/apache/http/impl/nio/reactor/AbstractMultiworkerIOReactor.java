@@ -38,6 +38,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
@@ -412,9 +413,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         // Close out all channels
         if (this.selector.isOpen()) {
             Set<SelectionKey> keys = this.selector.keys();
-            for (SelectionKey key : keys) {
+            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
                 try {
-                    SelectionKey key = key;
+                    SelectionKey key = it.next();
                     Channel channel = key.channel();
                     if (channel != null) {
                         channel.close();
