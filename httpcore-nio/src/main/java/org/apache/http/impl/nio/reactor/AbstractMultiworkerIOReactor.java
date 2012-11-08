@@ -411,8 +411,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
         // Close out all channels
         if (this.selector.isOpen()) {
-            Set<SelectionKey> keys = this.selector.keys();
-            for (SelectionKey key : keys) {
+            for (SelectionKey key : this.selector.keys()) {
                 try {
                     Channel channel = key.channel();
                     if (channel != null) {
