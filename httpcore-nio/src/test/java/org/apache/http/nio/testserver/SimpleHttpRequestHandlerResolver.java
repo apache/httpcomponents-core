@@ -24,30 +24,23 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.testserver;
+package org.apache.http.nio.testserver;
 
-import javax.net.ssl.SSLContext;
+import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.protocol.HttpRequestHandlerResolver;
 
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.ssl.SSLIOSession;
-import org.apache.http.nio.reactor.ssl.SSLMode;
+@Deprecated
+public class SimpleHttpRequestHandlerResolver implements HttpRequestHandlerResolver {
 
-public class LoggingSSLClientConnectionFactory implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
+    private final HttpRequestHandler handler;
 
-    private final SSLContext sslcontext;
-
-    public LoggingSSLClientConnectionFactory(final SSLContext sslcontext) {
+    public SimpleHttpRequestHandlerResolver(final HttpRequestHandler handler) {
         super();
-        this.sslcontext = sslcontext;
+        this.handler = handler;
     }
 
-    public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
-        SSLIOSession ssliosession = new SSLIOSession(
-                iosession, SSLMode.CLIENT, this.sslcontext, null);
-        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-        return new LoggingNHttpClientConnection(ssliosession);
+    public HttpRequestHandler lookup(final String requestURI) {
+        return this.handler;
     }
 
 }

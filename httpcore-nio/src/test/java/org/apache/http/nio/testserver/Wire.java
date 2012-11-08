@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.http.testserver;
+package org.apache.http.nio.testserver;
 
 import java.nio.ByteBuffer;
 

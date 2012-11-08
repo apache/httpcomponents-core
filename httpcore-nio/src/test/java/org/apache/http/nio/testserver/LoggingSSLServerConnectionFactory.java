@@ -24,20 +24,30 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.testserver;
+package org.apache.http.nio.testserver;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.ssl.SSLIOSession;
+import org.apache.http.nio.reactor.ssl.SSLMode;
 
-public class LoggingServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
+public class LoggingSSLServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
-    public LoggingServerConnectionFactory() {
+    private final SSLContext sslcontext;
+
+    public LoggingSSLServerConnectionFactory(final SSLContext sslcontext) {
         super();
+        this.sslcontext = sslcontext;
     }
 
-    public DefaultNHttpServerConnection createConnection(final IOSession session) {
-        return new LoggingNHttpServerConnection(session);
+    public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
+        SSLIOSession ssliosession = new SSLIOSession(
+                iosession, SSLMode.SERVER, this.sslcontext, null);
+        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
+        return new LoggingNHttpServerConnection(ssliosession);
     }
 
 }

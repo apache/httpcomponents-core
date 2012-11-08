@@ -24,20 +24,22 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.testserver;
+package org.apache.http.nio.testserver;
 
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.protocol.NHttpRequestHandler;
+import org.apache.http.nio.protocol.NHttpRequestHandlerResolver;
 
-public class LoggingClientConnectionFactory implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
+@Deprecated
+public class SimpleNHttpRequestHandlerResolver implements NHttpRequestHandlerResolver {
 
-    public LoggingClientConnectionFactory() {
-        super();
+    private final NHttpRequestHandler handler;
+
+    public SimpleNHttpRequestHandlerResolver(final NHttpRequestHandler handler) {
+        this.handler = handler;
     }
 
-    public DefaultNHttpClientConnection createConnection(final IOSession session) {
-        return new LoggingNHttpClientConnection(session);
+    public NHttpRequestHandler lookup(final String requestURI) {
+        return this.handler;
     }
 
 }

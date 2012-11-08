@@ -24,38 +24,30 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.nio.testserver;
 
-package org.apache.http.testserver;
+import javax.net.ssl.SSLContext;
 
-import java.io.IOException;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.reactor.ssl.SSLIOSession;
+import org.apache.http.nio.reactor.ssl.SSLMode;
 
-import org.apache.http.HttpException;
-import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.protocol.EventListener;
+public class LoggingSSLClientConnectionFactory implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 
-@Deprecated
-public class SimpleEventListener implements EventListener {
+    private final SSLContext sslcontext;
 
-    public SimpleEventListener() {
+    public LoggingSSLClientConnectionFactory(final SSLContext sslcontext) {
         super();
+        this.sslcontext = sslcontext;
     }
 
-    public void connectionOpen(final NHttpConnection conn) {
-    }
-
-    public void connectionTimeout(final NHttpConnection conn) {
-        System.out.println("Connection timed out");
-    }
-
-    public void connectionClosed(final NHttpConnection conn) {
-    }
-
-    public void fatalIOException(final IOException ex, final NHttpConnection conn) {
-        ex.printStackTrace(System.out);
-    }
-
-    public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
-        ex.printStackTrace(System.out);
+    public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
+        SSLIOSession ssliosession = new SSLIOSession(
+                iosession, SSLMode.CLIENT, this.sslcontext, null);
+        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
+        return new LoggingNHttpClientConnection(ssliosession);
     }
 
 }

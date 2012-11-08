@@ -24,30 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.testserver;
 
-import javax.net.ssl.SSLContext;
+package org.apache.http.nio.testserver;
 
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.ssl.SSLIOSession;
-import org.apache.http.nio.reactor.ssl.SSLMode;
+import java.io.IOException;
 
-public class LoggingSSLServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
+import org.apache.http.HttpException;
+import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.protocol.EventListener;
 
-    private final SSLContext sslcontext;
+@Deprecated
+public class SimpleEventListener implements EventListener {
 
-    public LoggingSSLServerConnectionFactory(final SSLContext sslcontext) {
+    public SimpleEventListener() {
         super();
-        this.sslcontext = sslcontext;
     }
 
-    public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
-        SSLIOSession ssliosession = new SSLIOSession(
-                iosession, SSLMode.SERVER, this.sslcontext, null);
-        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-        return new LoggingNHttpServerConnection(ssliosession);
+    public void connectionOpen(final NHttpConnection conn) {
+    }
+
+    public void connectionTimeout(final NHttpConnection conn) {
+        System.out.println("Connection timed out");
+    }
+
+    public void connectionClosed(final NHttpConnection conn) {
+    }
+
+    public void fatalIOException(final IOException ex, final NHttpConnection conn) {
+        ex.printStackTrace(System.out);
+    }
+
+    public void fatalProtocolException(final HttpException ex, final NHttpConnection conn) {
+        ex.printStackTrace(System.out);
     }
 
 }
