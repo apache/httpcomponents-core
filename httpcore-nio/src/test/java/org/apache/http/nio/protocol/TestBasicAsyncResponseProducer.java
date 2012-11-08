@@ -71,18 +71,20 @@ public class TestBasicAsyncResponseProducer {
         Assert.assertSame(response, res);
     }
 
+    @SuppressWarnings("boxing")
     @Test
     public void testProduceContentEncoderCompleted() throws Exception {
-        when(encoder.isCompleted()).thenReturn(true);
+        when(encoder.isCompleted()).thenReturn(Boolean.TRUE);
 
         producer.produceContent(encoder,  null);
 
         verify(contentProducer, times(1)).close();
     }
 
+    @SuppressWarnings("boxing")
     @Test
     public void testProduceContentEncoderNotCompleted() throws Exception {
-        when(encoder.isCompleted()).thenReturn(false);
+        when(encoder.isCompleted()).thenReturn(Boolean.FALSE);
 
         producer.produceContent(encoder,  null);
 

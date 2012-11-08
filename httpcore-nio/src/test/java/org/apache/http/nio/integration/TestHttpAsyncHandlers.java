@@ -426,7 +426,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             request.setEntity(entity);
 
             HttpContext context = new BasicHttpContext();
-            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, Boolean.TRUE);
 
             Future<HttpResponse> future = this.client.execute(target, request, context);
             queue.add(future);
@@ -486,7 +486,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < requests.length; i++) {
             HttpContext context = new BasicHttpContext();
-            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, Boolean.TRUE);
 
             Future<HttpResponse> future = this.client.execute(target, requests[i], context);
             queue.add(future);
@@ -631,7 +631,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < requests.length; i++) {
             HttpContext context = new BasicHttpContext();
-            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, Boolean.TRUE);
 
             Future<HttpResponse> future = this.client.execute(target, requests[i], context);
             queue.add(future);
