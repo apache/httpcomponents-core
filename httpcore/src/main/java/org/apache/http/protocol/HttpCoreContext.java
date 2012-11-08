@@ -62,7 +62,7 @@ public class HttpCoreContext extends BasicHttpContext implements ExecutionContex
     }
 
     public void setExpectContinue() {
-        setAttribute(HTTP_EXPECT_CONT, true);
+        setAttribute(HTTP_EXPECT_CONT, Boolean.TRUE);
     }
 
     public HttpRequest getRequest() {
