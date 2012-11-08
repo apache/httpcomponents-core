@@ -56,8 +56,8 @@ public class ResultProcessor {
 
         Stats stats = workers[0].getStats();
 
-        for (int i = 0; i < workers.length; i++) {
-            Stats s = workers[i].getStats();
+        for (BenchmarkWorker worker : workers) {
+            Stats s = worker.getStats();
             totalTimeNano  += s.getDuration();
             successCount   += s.getSuccessCount();
             failureCount   += s.getFailureCount();

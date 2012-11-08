@@ -131,8 +131,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             jobs[i] = new Job();
         }
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         AsyncNHttpServiceHandler serviceHandler = new AsyncNHttpServiceHandler(
@@ -183,8 +183,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
+        for (Job testjob : jobs) {
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
@@ -333,8 +332,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         jobs[1] = new Job("AAAAA", 10);
         jobs[2] = new Job("BBBBB", 20);
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
@@ -455,8 +454,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             jobs[i] = new Job();
         }
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
@@ -530,8 +529,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
+        for (Job testjob : jobs) {
             testjob.waitFor();
             if (testjob.getFailureMessage() != null) {
                 Assert.fail(testjob.getFailureMessage());
@@ -646,8 +644,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             jobs[i] = new Job();
         }
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -711,8 +709,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
+        for (Job testjob : jobs) {
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
@@ -768,8 +765,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             jobs[i] = new Job();
         }
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -833,8 +830,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
+        for (Job testjob : jobs) {
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, testjob.getStatusCode());
@@ -866,8 +862,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             jobs[i] = new Job();
         }
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -929,9 +925,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
-
+        for (Job testjob : jobs) {
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());
@@ -968,8 +962,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             jobs[i] = new Job();
         }
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -1033,8 +1027,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
+        for (Job testjob : jobs) {
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 Assert.assertEquals(HttpStatus.SC_OK, testjob.getStatusCode());
@@ -1067,8 +1060,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
             jobs[i] = new Job();
         }
         Queue<Job> queue = new ConcurrentLinkedQueue<Job>();
-        for (int i = 0; i < jobs.length; i++) {
-            queue.add(jobs[i]);
+        for (Job job : jobs) {
+            queue.add(job);
         }
 
         HttpProcessor serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
@@ -1132,8 +1125,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test client status", IOReactorStatus.ACTIVE, this.client.getStatus());
 
-        for (int i = 0; i < jobs.length; i++) {
-            Job testjob = jobs[i];
+        for (Job testjob : jobs) {
             testjob.waitFor();
             if (testjob.isSuccessful()) {
                 Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, testjob.getStatusCode());

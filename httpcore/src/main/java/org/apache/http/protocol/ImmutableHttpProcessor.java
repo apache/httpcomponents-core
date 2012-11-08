@@ -127,16 +127,16 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
     public void process(
             final HttpRequest request,
             final HttpContext context) throws IOException, HttpException {
-        for (int i = 0; i < this.requestInterceptors.length; i++) {
-            this.requestInterceptors[i].process(request, context);
+        for (HttpRequestInterceptor requestInterceptor : this.requestInterceptors) {
+            requestInterceptor.process(request, context);
         }
     }
 
     public void process(
             final HttpResponse response,
             final HttpContext context) throws IOException, HttpException {
-        for (int i = 0; i < this.responseInterceptors.length; i++) {
-            this.responseInterceptors[i].process(response, context);
+        for (HttpResponseInterceptor responseInterceptor : this.responseInterceptors) {
+            responseInterceptor.process(response, context);
         }
     }
 

@@ -28,7 +28,6 @@
 package org.apache.http.protocol;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.http.annotation.GuardedBy;
@@ -125,8 +124,7 @@ public class UriPatternMatcher<T> {
         if (obj == null) {
             // pattern match?
             String bestMatch = null;
-            for (Iterator<String> it = this.map.keySet().iterator(); it.hasNext();) {
-                String pattern = it.next();
+            for (String pattern : this.map.keySet()) {
                 if (matchUriRequestPattern(pattern, path)) {
                     // we have a match. is it any better?
                     if (bestMatch == null

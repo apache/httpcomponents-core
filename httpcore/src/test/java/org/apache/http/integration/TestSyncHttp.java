@@ -724,8 +724,7 @@ public class TestSyncHttp {
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
-            for (int i = 0; i < patterns.length; i++) {
-                String pattern = patterns[i];
+            for (String pattern : patterns) {
                 for (int n = 1000; n < 1020; n++) {
                     if (!conn.isOpen()) {
                         client.connect(host, conn);

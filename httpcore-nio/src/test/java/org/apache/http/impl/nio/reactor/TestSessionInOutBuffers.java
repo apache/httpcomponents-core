@@ -202,8 +202,8 @@ public class TestSessionInOutBuffers {
         teststrs[4] = "And goodbye";
 
         SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
-        for (int i = 0; i < teststrs.length; i++) {
-            outbuf.writeLine(teststrs[i]);
+        for (String teststr : teststrs) {
+            outbuf.writeLine(teststr);
         }
         //this write operation should have no effect
         outbuf.writeLine((String)null);
@@ -218,8 +218,8 @@ public class TestSessionInOutBuffers {
         SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
         inbuf.fill(channel);
 
-        for (int i = 0; i < teststrs.length; i++) {
-            Assert.assertEquals(teststrs[i], inbuf.readLine(true));
+        for (String teststr : teststrs) {
+            Assert.assertEquals(teststr, inbuf.readLine(true));
         }
         Assert.assertNull(inbuf.readLine(true));
         Assert.assertNull(inbuf.readLine(true));
@@ -413,8 +413,8 @@ public class TestSessionInOutBuffers {
     private static String constructString(int [] unicodeChars) {
         StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
-            for (int i = 0; i < unicodeChars.length; i++) {
-                buffer.append((char)unicodeChars[i]);
+            for (int unicodeChar : unicodeChars) {
+                buffer.append((char)unicodeChar);
             }
         }
         return buffer.toString();

@@ -35,7 +35,6 @@ import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -142,9 +141,8 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
         if (readyCount > 0) {
             Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
-            for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
+            for (SelectionKey key : selectedKeys) {
 
-                SelectionKey key = it.next();
                 processEvent(key);
 
             }
@@ -202,8 +200,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
     private void processTimeouts(final Set<SelectionKey> keys) {
         long now = System.currentTimeMillis();
-        for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext();) {
-            SelectionKey key = it.next();
+        for (SelectionKey key : keys) {
             Object attachment = key.attachment();
 
             if (attachment instanceof SessionRequestHandle) {

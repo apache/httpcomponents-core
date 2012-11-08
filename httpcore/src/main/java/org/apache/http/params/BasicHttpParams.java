@@ -92,8 +92,8 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @param value parameter value
      */
     public void setParameters(final String[] names, final Object value) {
-        for (int i = 0; i < names.length; i++) {
-            setParameter(names[i], value);
+        for (String name : names) {
+            setParameter(name, value);
         }
     }
 

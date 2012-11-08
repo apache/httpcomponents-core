@@ -195,8 +195,8 @@ public class VersionInfo {
                                                       ClassLoader clsldr) {
         Args.notNull(pckgs, "Package identifier array");
         List<VersionInfo> vil = new ArrayList<VersionInfo>(pckgs.length);
-        for (int i=0; i<pckgs.length; i++) {
-            VersionInfo vi = loadVersionInfo(pckgs[i], clsldr);
+        for (String pckg : pckgs) {
+            VersionInfo vi = loadVersionInfo(pckg, clsldr);
             if (vi != null)
                 vil.add(vi);
         }

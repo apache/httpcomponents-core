@@ -69,8 +69,8 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     }
 
     private static boolean isOneOf(final String[] methods, final String method) {
-        for (int i = 0; i < methods.length; i++) {
-            if (methods[i].equalsIgnoreCase(method)) {
+        for (String method2 : methods) {
+            if (method2.equalsIgnoreCase(method)) {
                 return true;
             }
         }

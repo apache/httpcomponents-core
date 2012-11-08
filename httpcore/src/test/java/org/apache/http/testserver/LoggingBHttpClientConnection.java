@@ -116,8 +116,8 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
         if (response != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(this.id + " << " + response.getStatusLine().toString());
             Header[] headers = response.getAllHeaders();
-            for (int i = 0; i < headers.length; i++) {
-                this.headerlog.debug(this.id + " << " + headers[i].toString());
+            for (Header header : headers) {
+                this.headerlog.debug(this.id + " << " + header.toString());
             }
         }
     }
@@ -127,8 +127,8 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
         if (request != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(id + " >> " + request.getRequestLine().toString());
             Header[] headers = request.getAllHeaders();
-            for (int i = 0; i < headers.length; i++) {
-                this.headerlog.debug(this.id + " >> " + headers[i].toString());
+            for (Header header : headers) {
+                this.headerlog.debug(this.id + " >> " + header.toString());
             }
         }
     }

@@ -37,7 +37,6 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -311,9 +310,8 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
 
     private void processEvents(final Set<SelectionKey> selectedKeys) {
-        for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
+        for (SelectionKey key : selectedKeys) {
 
-            SelectionKey key = it.next();
             processEvent(key);
 
         }
@@ -499,8 +497,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      */
     protected void closeSessions() {
         synchronized (this.sessions) {
-            for (Iterator<IOSession> it = this.sessions.iterator(); it.hasNext(); ) {
-                IOSession session = it.next();
+            for (IOSession session : this.sessions) {
                 session.close();
             }
         }
@@ -534,8 +531,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     protected void closeActiveChannels() throws IOReactorException {
         try {
             Set<SelectionKey> keys = this.selector.keys();
-            for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext(); ) {
-                SelectionKey key = it.next();
+            for (SelectionKey key : keys) {
                 IOSession session = getSession(key);
                 if (session != null) {
                     session.close();

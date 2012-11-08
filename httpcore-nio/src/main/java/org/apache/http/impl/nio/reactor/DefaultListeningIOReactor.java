@@ -146,9 +146,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
         if (readyCount > 0) {
             Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
-            for (Iterator<SelectionKey> it = selectedKeys.iterator(); it.hasNext(); ) {
+            for (SelectionKey key : selectedKeys) {
 
-                SelectionKey key = it.next();
                 processEvent(key);
 
             }

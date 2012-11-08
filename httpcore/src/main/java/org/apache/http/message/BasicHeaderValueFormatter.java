@@ -130,8 +130,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
             return 0;
 
         int result = (elems.length-1) * 2; // elements separated by ", "
-        for (int i=0; i<elems.length; i++) {
-            result += estimateHeaderElementLen(elems[i]);
+        for (HeaderElement elem : elems) {
+            result += estimateHeaderElementLen(elem);
         }
 
         return result;
@@ -279,8 +279,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
             return 0;
 
         int result = (nvps.length-1) * 2; // "; " between the parameters
-        for (int i=0; i<nvps.length; i++) {
-            result += estimateNameValuePairLen(nvps[i]);
+        for (NameValuePair nvp : nvps) {
+            result += estimateNameValuePairLen(nvp);
         }
 
         return result;

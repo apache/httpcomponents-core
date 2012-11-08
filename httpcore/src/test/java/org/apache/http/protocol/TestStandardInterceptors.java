@@ -672,9 +672,9 @@ public class TestStandardInterceptors {
                 HttpStatus.SC_SERVICE_UNAVAILABLE,
                 HttpStatus.SC_NOT_IMPLEMENTED };
 
-        for (int i = 0; i < statusCodes.length; i++) {
+        for (int statusCode : statusCodes) {
             BasicHttpResponse response = new BasicHttpResponse(
-                    HttpVersion.HTTP_1_1, statusCodes[i], "Unreasonable");
+                    HttpVersion.HTTP_1_1, statusCode, "Unreasonable");
             interceptor.process(response, context);
             Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
             Assert.assertNotNull(header);

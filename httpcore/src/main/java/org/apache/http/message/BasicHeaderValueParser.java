@@ -251,8 +251,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     private static boolean isOneOf(final char ch, final char[] chs) {
         if (chs != null) {
-            for (int i = 0; i < chs.length; i++) {
-                if (ch == chs[i]) {
+            for (char ch2 : chs) {
+                if (ch == ch2) {
                     return true;
                 }
             }

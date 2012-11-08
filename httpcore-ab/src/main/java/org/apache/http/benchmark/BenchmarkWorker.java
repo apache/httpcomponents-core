@@ -230,8 +230,8 @@ class BenchmarkWorker implements Runnable {
         if (config.getVerbosity() >= 3) {
             System.out.println(">> " + request.getRequestLine().toString());
             Header[] headers = request.getAllHeaders();
-            for (int h = 0; h < headers.length; h++) {
-                System.out.println(">> " + headers[h].toString());
+            for (Header header : headers) {
+                System.out.println(">> " + header.toString());
             }
             System.out.println();
         }
@@ -241,8 +241,8 @@ class BenchmarkWorker implements Runnable {
         if (config.getVerbosity() >= 3) {
             System.out.println("<< " + response.getStatusLine().toString());
             Header[] headers = response.getAllHeaders();
-            for (int h = 0; h < headers.length; h++) {
-                System.out.println("<< " + headers[h].toString());
+            for (Header header : headers) {
+                System.out.println("<< " + header.toString());
             }
             System.out.println();
         }

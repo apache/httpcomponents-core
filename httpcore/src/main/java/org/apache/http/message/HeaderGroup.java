@@ -125,8 +125,8 @@ public class HeaderGroup implements Cloneable, Serializable {
         if (headers == null) {
             return;
         }
-        for (int i = 0; i < headers.length; i++) {
-            this.headers.add(headers[i]);
+        for (Header header : headers) {
+            this.headers.add(header);
         }
     }
 

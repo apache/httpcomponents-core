@@ -201,8 +201,7 @@ public class BaseIOReactor extends AbstractIOReactor {
         if( (currentTime - this.lastTimeoutCheck) >= this.timeoutCheckInterval) {
             this.lastTimeoutCheck = currentTime;
             if (keys != null) {
-                for (Iterator<SelectionKey> it = keys.iterator(); it.hasNext();) {
-                    SelectionKey key = it.next();
+                for (SelectionKey key : keys) {
                     timeoutCheck(key, currentTime);
                 }
             }

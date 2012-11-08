@@ -49,10 +49,7 @@ public class TestEnglishReasonPhraseCatalog {
 
     Assert.assertTrue( publicFields.length > 0 );
 
-    for (int i = 0; i < publicFields.length; i++)
-    {
-        final Field f = publicFields[i];
-
+    for (final Field f : publicFields) {
         final int modifiers = f.getModifiers();
 
         if ( (f.getType() == int.class)

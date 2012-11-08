@@ -81,9 +81,9 @@ public class TestSessionInOutBuffers {
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
-        for (int i = 0; i < teststrs.length; i++) {
+        for (String teststr : teststrs) {
             chbuffer.clear();
-            chbuffer.append(teststrs[i]);
+            chbuffer.append(teststr);
             outbuffer.writeLine(chbuffer);
         }
         //these write operations should have no effect
@@ -94,16 +94,16 @@ public class TestSessionInOutBuffers {
         HttpTransportMetrics tmetrics = outbuffer.getMetrics();
         long bytesWritten = tmetrics.getBytesTransferred();
         long expected = 0;
-        for (int i = 0; i < teststrs.length; i++) {
-            expected += (teststrs[i].length() + 2/*CRLF*/);
+        for (String teststr : teststrs) {
+            expected += (teststr.length() + 2/*CRLF*/);
         }
         Assert.assertEquals(expected, bytesWritten);
 
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData());
 
-        for (int i = 0; i < teststrs.length; i++) {
-            Assert.assertEquals(teststrs[i], inbuffer.readLine());
+        for (String teststr : teststrs) {
+            Assert.assertEquals(teststr, inbuffer.readLine());
         }
 
         Assert.assertNull(inbuffer.readLine());
@@ -202,9 +202,9 @@ public class TestSessionInOutBuffers {
 
         CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
-        for (int i = 0; i < teststrs.length; i++) {
+        for (String teststr : teststrs) {
             chbuffer.clear();
-            chbuffer.append(teststrs[i]);
+            chbuffer.append(teststr);
             outbuffer.writeLine(chbuffer);
         }
         //these write operations should have no effect
@@ -214,16 +214,16 @@ public class TestSessionInOutBuffers {
 
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         long expected = 0;
-        for (int i = 0; i < teststrs.length; i++) {
-            expected += (teststrs[i].length() + 2/*CRLF*/);
+        for (String teststr : teststrs) {
+            expected += (teststr.length() + 2/*CRLF*/);
         }
         Assert.assertEquals(expected, bytesWritten);
 
         SessionInputBufferMock inbuffer = new SessionInputBufferMock(
                 outbuffer.getData(), 1024);
 
-        for (int i = 0; i < teststrs.length; i++) {
-            Assert.assertEquals(teststrs[i], inbuffer.readLine());
+        for (String teststr : teststrs) {
+            Assert.assertEquals(teststr, inbuffer.readLine());
         }
         Assert.assertNull(inbuffer.readLine());
         Assert.assertNull(inbuffer.readLine());
@@ -300,8 +300,8 @@ public class TestSessionInOutBuffers {
             out[i] = (byte)(120 + i);
         }
         SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
-        for (int i = 0; i < out.length; i++) {
-            outbuffer.write(out[i]);
+        for (byte element : out) {
+            outbuffer.write(element);
         }
         outbuffer.flush();
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
@@ -375,8 +375,8 @@ public class TestSessionInOutBuffers {
     private static String constructString(int [] unicodeChars) {
         StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
-            for (int i = 0; i < unicodeChars.length; i++) {
-                buffer.append((char)unicodeChars[i]);
+            for (int unicodeChar : unicodeChars) {
+                buffer.append((char)unicodeChar);
             }
         }
         return buffer.toString();

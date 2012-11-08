@@ -101,8 +101,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     public NameValuePair getParameterByName(final String name) {
         Args.notNull(name, "Name");
         NameValuePair found = null;
-        for (int i = 0; i < this.parameters.length; i++) {
-            NameValuePair current = this.parameters[ i ];
+        for (NameValuePair current : this.parameters) {
             if (current.getName().equalsIgnoreCase(name)) {
                 found = current;
                 break;
@@ -129,8 +128,8 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.name);
         hash = LangUtils.hashCode(hash, this.value);
-        for (int i = 0; i < this.parameters.length; i++) {
-            hash = LangUtils.hashCode(hash, this.parameters[i]);
+        for (NameValuePair parameter : this.parameters) {
+            hash = LangUtils.hashCode(hash, parameter);
         }
         return hash;
     }
@@ -143,9 +142,9 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
             buffer.append("=");
             buffer.append(this.value);
         }
-        for (int i = 0; i < this.parameters.length; i++) {
+        for (NameValuePair parameter : this.parameters) {
             buffer.append("; ");
-            buffer.append(this.parameters[i]);
+            buffer.append(parameter);
         }
         return buffer.toString();
     }

@@ -141,8 +141,7 @@ public class HttpBenchmark {
 
         String[] headers = config.getHeaders();
         if (headers != null) {
-            for (int i = 0; i < headers.length; i++) {
-                String s = headers[i];
+            for (String s : headers) {
                 int pos = s.indexOf(':');
                 if (pos != -1) {
                     Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
