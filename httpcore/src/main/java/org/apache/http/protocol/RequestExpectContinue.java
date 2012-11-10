@@ -37,8 +37,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.Args;
 
 /**
@@ -48,8 +47,8 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @Immutable
+@SuppressWarnings("deprecation")
 public class RequestExpectContinue implements HttpRequestInterceptor {
 
     public RequestExpectContinue() {
@@ -59,21 +58,17 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
+
+        HttpCoreContext corecontext = HttpCoreContext.adapt(context);
+
         if (!request.containsHeader(HTTP.EXPECT_DIRECTIVE)) {
             if (request instanceof HttpEntityEnclosingRequest) {
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 // Do not send the expect header if request body is known to be empty
                 if (entity != null && entity.getContentLength() != 0 && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    Boolean useExpectCont = null;
-                    HttpParams params = request.getParams();
-                    if (params != null) {
-                        useExpectCont = (Boolean) params.getParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE);
-                    }
-                    if (useExpectCont == null) {
-                        useExpectCont = (Boolean ) context.getAttribute(ExecutionContext.HTTP_EXPECT_CONT);
-                    }
-                    if (useExpectCont != null && useExpectCont.booleanValue()) {
+                    if (corecontext.isExpectContinue()
+                            || HttpProtocolParams.useExpectContinue(request.getParams())) {
                         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
                     }
                 }

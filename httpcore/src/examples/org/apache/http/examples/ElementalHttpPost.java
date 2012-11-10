@@ -74,7 +74,7 @@ public class ElementalHttpPost {
 
         HttpCoreContext context = new HttpCoreContext();
         HttpHost host = new HttpHost("localhost", 8080);
-        context.setTarget(host);
+        context.setTargetHost(host);
         context.setExpectContinue();
 
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);

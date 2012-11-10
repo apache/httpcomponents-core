@@ -41,7 +41,40 @@ import org.apache.http.util.Args;
  * @since 4.3
  */
 @NotThreadSafe
-public class HttpCoreContext extends BasicHttpContext implements ExecutionContext {
+public class HttpCoreContext implements HttpContext, ExecutionContext {
+
+    public static HttpCoreContext adapt(final HttpContext context) {
+        Args.notNull(context, "HTTP context");
+        if (context instanceof HttpCoreContext) {
+            return (HttpCoreContext) context;
+        } else {
+            return new HttpCoreContext(context);
+        }
+    }
+
+    private final HttpContext context;
+
+    public HttpCoreContext(final HttpContext context) {
+        super();
+        this.context = context;
+    }
+
+    public HttpCoreContext() {
+        super();
+        this.context = new BasicHttpContext();
+    }
+
+    public Object getAttribute(final String id) {
+        return context.getAttribute(id);
+    }
+
+    public void setAttribute(final String id, final Object obj) {
+        context.setAttribute(id, obj);
+    }
+
+    public Object removeAttribute(final String id) {
+        return context.removeAttribute(id);
+    }
 
     protected <T> T getAttribute(final String attribname, final Class<T> clazz) {
         Args.notNull(clazz, "Attribute class");
@@ -54,6 +87,10 @@ public class HttpCoreContext extends BasicHttpContext implements ExecutionContex
 
     public <T extends HttpConnection> T getConnection(final Class<T> clazz) {
         return getAttribute(HTTP_CONNECTION, clazz);
+    }
+
+    public HttpConnection getConnection() {
+        return getAttribute(HTTP_CONNECTION, HttpConnection.class);
     }
 
     public boolean isExpectContinue() {
@@ -78,11 +115,11 @@ public class HttpCoreContext extends BasicHttpContext implements ExecutionContex
         return getAttribute(HTTP_RESPONSE, HttpResponse.class);
     }
 
-    public void setTarget(final HttpHost host) {
+    public void setTargetHost(final HttpHost host) {
         setAttribute(HTTP_TARGET_HOST, host);
     }
 
-    public HttpHost getTarget() {
+    public HttpHost getTargetHost() {
         return getAttribute(HTTP_TARGET_HOST, HttpHost.class);
     }
 

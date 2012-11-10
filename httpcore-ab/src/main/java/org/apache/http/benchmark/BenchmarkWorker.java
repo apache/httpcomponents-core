@@ -113,7 +113,7 @@ class BenchmarkWorker implements Runnable {
         }
 
         // Populate the execution context
-        this.context.setTarget(this.targetHost);
+        this.context.setTargetHost(this.targetHost);
 
         stats.start();
         int count = config.getRequests();

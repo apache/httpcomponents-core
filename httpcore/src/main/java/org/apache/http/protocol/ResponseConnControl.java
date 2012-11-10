@@ -59,7 +59,9 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        Args.notNull(context, "HTTP context");
+
+        HttpCoreContext corecontext = HttpCoreContext.adapt(context);
+
         // Always drop connection after certain type of responses
         int status = response.getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_BAD_REQUEST ||
@@ -89,8 +91,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             }
         }
         // Drop connection if requested by the client or request was <= 1.0
-        HttpRequest request = (HttpRequest)
-            context.getAttribute(ExecutionContext.HTTP_REQUEST);
+        HttpRequest request = corecontext.getRequest();
         if (request != null) {
             Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
             if (header != null) {

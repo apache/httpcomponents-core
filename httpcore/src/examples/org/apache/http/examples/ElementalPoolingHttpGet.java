@@ -102,7 +102,7 @@ public class ElementalPoolingHttpGet {
                     try {
                         HttpClientConnection conn = entry.getConnection();
                         HttpCoreContext context = new HttpCoreContext();
-                        context.setTarget(this.target);
+                        context.setTargetHost(this.target);
 
                         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
                         System.out.println(">> Request URI: " + request.getRequestLine().getUri());
