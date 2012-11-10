@@ -41,7 +41,7 @@ import org.apache.http.util.Args;
  * @since 4.3
  */
 @ThreadSafe
-public final class Registry<I> {
+public final class Registry<I> implements Lookup<I> {
 
     private final Map<String, I> map;
 
