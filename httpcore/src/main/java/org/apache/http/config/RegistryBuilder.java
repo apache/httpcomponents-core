@@ -24,21 +24,49 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.http.config;
 
-import junit.framework.Assert;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
-import org.junit.Test;
+import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.util.Args;
 
-public class TestRegistry {
+/**
+ * Builder for {@link Registry} instances.
+ *
+ * @since 4.3
+ */
+@NotThreadSafe
+public final class RegistryBuilder<I> {
 
-    @Test
-    public void testCompleted() throws Exception {
-        Registry<String> reg = RegistryBuilder.<String>create().register("Stuff", "Stuff").build();
-        Assert.assertEquals("Stuff", reg.lookup("Stuff"));
-        Assert.assertEquals("Stuff", reg.lookup("stuff"));
-        Assert.assertEquals(null, reg.lookup("miss"));
-        Assert.assertEquals(null, reg.lookup(null));
+    private final Map<String, I> items;
+
+    public static <I> RegistryBuilder<I> create() {
+        return new RegistryBuilder<I>();
+    }
+
+    RegistryBuilder() {
+        super();
+        this.items = new HashMap<String, I>();
+    }
+
+    public RegistryBuilder<I> register(final String id, final I item) {
+        Args.notEmpty(id, "ID");
+        Args.notNull(item, "Item");
+        items.put(id.toLowerCase(Locale.US), item);
+        return this;
+    }
+
+    public Registry<I> build() {
+        return new Registry<I>(items);
+    }
+
+    @Override
+    public String toString() {
+        return items.toString();
     }
 
 }

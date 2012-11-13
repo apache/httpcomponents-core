@@ -31,6 +31,8 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseInterceptor;
 
 /**
+ * Builder for {@link HttpProcessor} instances.
+ *
  * @since 4.3
  */
 public class HttpProcessorBuilder {

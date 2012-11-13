@@ -27,13 +27,11 @@
 
 package org.apache.http.config;
 
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.util.Args;
 
 /**
  * Generic registry of items keyed by low-case string ID.
@@ -44,28 +42,6 @@ import org.apache.http.util.Args;
 public final class Registry<I> implements Lookup<I> {
 
     private final Map<String, I> map;
-
-    public static class Builder<I> {
-
-        final Map<String, I> items;
-
-        public Builder() {
-            super();
-            this.items = new HashMap<String, I>();
-        }
-
-        public Builder<I> register(final String id, final I item) {
-            Args.notEmpty(id, "ID");
-            Args.notNull(item, "Item");
-            items.put(id.toLowerCase(Locale.US), item);
-            return this;
-        }
-
-        public Registry<I> build() {
-            return new Registry<I>(items);
-        }
-
-    }
 
     Registry(final Map<String, I> map) {
         super();
