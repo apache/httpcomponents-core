@@ -57,5 +57,5 @@ HttpCore Overview
 
     * {{{http://www.ietf.org/rfc/rfc1945.txt}RFC 1945}} - Hypertext Transfer Protocol -- HTTP/1.0
 
-    * {{{http://www.ietf.org/rfc/rfc2616.txt}RFC 2116}} - Hypertext Transfer Protocol -- HTTP/1.1
+    * {{{http://www.ietf.org/rfc/rfc2616.txt}RFC 2616}} - Hypertext Transfer Protocol -- HTTP/1.1
     
