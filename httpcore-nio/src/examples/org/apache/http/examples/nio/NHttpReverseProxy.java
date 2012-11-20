@@ -852,8 +852,8 @@ public class NHttpReverseProxy {
         public ProxyConnPool(
                 final ConnectingIOReactor ioreactor,
                 final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
-                final ConnectionConfig config) {
-            super(ioreactor, connFactory, config);
+                final int connectTimeout) {
+            super(ioreactor, connFactory, connectTimeout);
         }
 
         @Override

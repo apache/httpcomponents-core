@@ -43,28 +43,21 @@ public class ConnectionConfig implements Cloneable {
 
     public static final ConnectionConfig DEFAULT = new Builder().build();
 
-    private final int connectTimeout;
     private final Charset charset;
     private final CodingErrorAction malformedInputAction;
     private final CodingErrorAction unmappableInputAction;
     private final MessageConstraints messageConstraints;
 
     ConnectionConfig(
-            final int connectTimeout,
             final Charset charset,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction,
             final MessageConstraints messageConstraints) {
         super();
-        this.connectTimeout = connectTimeout;
         this.charset = charset;
         this.malformedInputAction = malformedInputAction;
         this.unmappableInputAction = unmappableInputAction;
         this.messageConstraints = messageConstraints;
-    }
-
-    public int getConnectTimeout() {
-        return connectTimeout;
     }
 
     public Charset getCharset() {
@@ -91,8 +84,7 @@ public class ConnectionConfig implements Cloneable {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("[connectTimeout=").append(this.connectTimeout)
-                .append(", charset=").append(this.charset)
+        builder.append("[charset=").append(this.charset)
                 .append(", malformedInputAction=").append(this.malformedInputAction)
                 .append(", unmappableInputAction=").append(this.unmappableInputAction)
                 .append(", messageConstraints=").append(this.messageConstraints)
@@ -106,7 +98,6 @@ public class ConnectionConfig implements Cloneable {
 
     public static class Builder {
 
-        private int connectTimeout;
         private Charset charset;
         private CodingErrorAction malformedInputAction;
         private CodingErrorAction unmappableInputAction;
@@ -145,18 +136,12 @@ public class ConnectionConfig implements Cloneable {
             return this;
         }
 
-        public Builder setConnectTimeout(int connectTimeout) {
-            this.connectTimeout = connectTimeout;
-            return this;
-        }
-
         public ConnectionConfig build() {
             Charset cs = charset;
             if (cs == null && (malformedInputAction != null || unmappableInputAction != null)) {
                 cs = Consts.ASCII;
             }
             return new ConnectionConfig(
-                    connectTimeout,
                     charset,
                     malformedInputAction,
                     unmappableInputAction,

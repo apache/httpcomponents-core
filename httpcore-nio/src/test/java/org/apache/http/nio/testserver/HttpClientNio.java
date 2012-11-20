@@ -39,7 +39,6 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
@@ -96,8 +95,7 @@ public class HttpClientNio {
         super();
         this.ioReactor = new DefaultConnectingIOReactor();
         this.connFactory = connFactory;
-        this.connpool = new BasicNIOConnPool(this.ioReactor, new BasicNIOConnFactory(connFactory),
-                ConnectionConfig.DEFAULT);
+        this.connpool = new BasicNIOConnPool(this.ioReactor, new BasicNIOConnFactory(connFactory), 0);
     }
 
     public int getTimeout() {

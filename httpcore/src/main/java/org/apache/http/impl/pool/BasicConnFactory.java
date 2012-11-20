@@ -43,6 +43,7 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
@@ -60,6 +61,7 @@ import org.apache.http.util.Args;
 public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnection> {
 
     private final SSLSocketFactory sslfactory;
+    private final int connectTimeout;
     private final SocketConfig sconfig;
     private final ConnectionConfig cconfig;
 
@@ -72,6 +74,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         super();
         Args.notNull(params, "HTTP params");
         this.sslfactory = sslfactory;
+        this.connectTimeout = HttpConnectionParams.getConnectionTimeout(params);
         this.sconfig = HttpParamConfig.getSocketConfig(params);
         this.cconfig = HttpParamConfig.getConnectionConfig(params);
     }
@@ -89,9 +92,13 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
      * @since 4.3
      */
     public BasicConnFactory(
-            final SSLSocketFactory sslfactory, final SocketConfig sconfig, final ConnectionConfig cconfig) {
+            final SSLSocketFactory sslfactory,
+            final int connectTimeout,
+            final SocketConfig sconfig,
+            final ConnectionConfig cconfig) {
         super();
         this.sslfactory = sslfactory;
+        this.connectTimeout = connectTimeout;
         this.sconfig = sconfig != null ? sconfig : SocketConfig.DEFAULT;
         this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
     }
@@ -99,15 +106,23 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
     /**
      * @since 4.3
      */
+    public BasicConnFactory(
+            final int connectTimeout, final SocketConfig sconfig, final ConnectionConfig cconfig) {
+        this(null, connectTimeout, sconfig, cconfig);
+    }
+
+    /**
+     * @since 4.3
+     */
     public BasicConnFactory(final SocketConfig sconfig, final ConnectionConfig cconfig) {
-        this(null, sconfig, cconfig);
+        this(null, 0, sconfig, cconfig);
     }
 
     /**
      * @since 4.3
      */
     public BasicConnFactory() {
-        this(null, SocketConfig.DEFAULT, ConnectionConfig.DEFAULT);
+        this(null, 0, SocketConfig.DEFAULT, ConnectionConfig.DEFAULT);
     }
 
     /**
@@ -135,7 +150,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
             throw new IOException(scheme + " scheme is not supported");
         }
         socket.setSoTimeout(this.sconfig.getSoTimeout());
-        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.cconfig.getConnectTimeout());
+        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.connectTimeout);
         socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
         int linger = this.sconfig.getSoLinger();
         if (linger >= 0) {

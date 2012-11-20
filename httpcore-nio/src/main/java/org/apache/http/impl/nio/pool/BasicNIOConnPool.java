@@ -40,7 +40,7 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.pool.AbstractNIOConnPool;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
-import org.apache.http.params.HttpParamConfig;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnPool;
 import org.apache.http.util.Args;
@@ -61,7 +61,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     private static AtomicLong COUNTER = new AtomicLong();
 
-    private final ConnectionConfig config;
+    private final int connectTimeout;
 
     /**
      * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor,
@@ -74,7 +74,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final HttpParams params) {
         super(ioreactor, connFactory, 2, 20);
         Args.notNull(params, "HTTP parameters");
-        this.config = HttpParamConfig.getConnectionConfig(params);
+        this.connectTimeout = HttpConnectionParams.getConnectionTimeout(params);
     }
 
     /**
@@ -93,17 +93,28 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     public BasicNIOConnPool(
             final ConnectingIOReactor ioreactor,
             final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
-            final ConnectionConfig config) {
+            final int connectTimeout) {
         super(ioreactor, connFactory, 2, 20);
-        this.config = config != null ? config : ConnectionConfig.DEFAULT;
+        this.connectTimeout = connectTimeout;
     }
 
     /**
      * @since 4.3
      */
     public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor, final ConnectionConfig config) {
-        this(ioreactor, new BasicNIOConnFactory(config), config);
+            final ConnectingIOReactor ioreactor,
+            final int connectTimeout,
+            final ConnectionConfig config) {
+        this(ioreactor, new BasicNIOConnFactory(config), connectTimeout);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public BasicNIOConnPool(
+            final ConnectingIOReactor ioreactor,
+            final ConnectionConfig config) {
+        this(ioreactor, new BasicNIOConnFactory(config), 0);
     }
 
     @Override
@@ -127,7 +138,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final Object state,
             final FutureCallback<BasicNIOPoolEntry> callback) {
         return super.lease(route, state,
-                this.config.getConnectTimeout(), TimeUnit.MILLISECONDS, callback);
+                this.connectTimeout, TimeUnit.MILLISECONDS, callback);
     }
 
     @Override
@@ -135,7 +146,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final HttpHost route,
             final Object state) {
         return super.lease(route, state,
-                this.config.getConnectTimeout(), TimeUnit.MILLISECONDS, null);
+                this.connectTimeout, TimeUnit.MILLISECONDS, null);
     }
 
 }
