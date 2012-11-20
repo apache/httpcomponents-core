@@ -34,6 +34,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
+
 
 /**
  * Provides access to version information for HTTP components.
@@ -291,5 +294,30 @@ public class VersionInfo {
 
         return new VersionInfo(pckg, module, release, timestamp, clsldrstr);
     }
+
+	/**
+	 * Sets the user agent to {@code "<name>/<release> (Java 1.5 minimum; Java/<java.version>)"}. 
+	 * <p/>
+	 * For example: 
+	 * <pre>"Apache-HttpClient/4.3 (Java 1.5 minimum; Java/1.6.0_35)"</pre>
+	 * 
+	 * TODO This needs adjusting to account for the deprecated types {@link HttpParams} and {@link HttpProtocolParams}.
+	 * 
+	 * @param params
+	 *            the HTTP parameters where the user agent will be set
+	 * @name the component name, like "Apache-HttpClient".
+	 * @param pkg
+	 *            the package for which to load version information, for example "org.apache.http". The package name
+	 *            should NOT end with a dot.
+	 * @param cls
+	 *            the class' class loader to load from, or <code>null</code> for the thread context class loader
+	 */
+	public static void setUserAgent(HttpParams params, String name, String pkg, Class<?> cls) {
+		// determine the release version from packaged version info
+		final VersionInfo vi = VersionInfo.loadVersionInfo(pkg, cls.getClassLoader());
+		final String release = (vi != null) ? vi.getRelease() : VersionInfo.UNAVAILABLE;
+		final String javaVersion = System.getProperty("java.version");
+		HttpProtocolParams.setUserAgent(params, name + "/" + release + " (Java 1.5 minimum; Java/" + javaVersion + ")");
+	}
 
 } // class VersionInfo
