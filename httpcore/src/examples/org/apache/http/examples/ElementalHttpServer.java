@@ -42,7 +42,6 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
@@ -53,9 +52,9 @@ import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpProcessorBuilder;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpService;
-import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -149,12 +148,11 @@ public class ElementalHttpServer {
             this.serversocket = new ServerSocket(port);
 
             // Set up the HTTP protocol processor
-            HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                    new ResponseDate(),
-                    new ResponseServer("Test/1.1"),
-                    new ResponseContent(),
-                    new ResponseConnControl()
-            });
+            HttpProcessor httpproc = HttpProcessorBuilder.create()
+                .add(new ResponseDate())
+                .add(new ResponseServer("Test/1.1"))
+                .add(new ResponseContent())
+                .add(new ResponseConnControl()).build();
 
             // Set up request handlers
             UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();

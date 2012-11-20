@@ -31,7 +31,6 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.config.ConnectionConfig;
@@ -45,9 +44,9 @@ import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.protocol.HttpAsyncRequester;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.ImmutableHttpProcessor;
+import org.apache.http.protocol.HttpProcessorBuilder;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -55,19 +54,19 @@ import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
 /**
- * Asynchronous HTTP/1.1 client.
+ * Minimal asynchronous HTTP/1.1 client.
  */
 public class NHttpClient {
 
     public static void main(String[] args) throws Exception {
         // Create HTTP protocol processing chain
-        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+        HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent("Test/1.1"),
-                new RequestExpectContinue()});
+                .add(new RequestContent())
+                .add(new RequestTargetHost())
+                .add(new RequestConnControl())
+                .add(new RequestUserAgent("Test/1.1"))
+                .add(new RequestExpectContinue()).build();
         // Create client-side HTTP protocol handler
         HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
         // Create client-side I/O event dispatch
@@ -109,11 +108,12 @@ public class NHttpClient {
         final CountDownLatch latch = new CountDownLatch(targets.length);
         for (final HttpHost target: targets) {
             BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+            HttpCoreContext coreContext = HttpCoreContext.create();
             requester.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),
                     pool,
-                    new BasicHttpContext(),
+                    coreContext,
                     // Handle HTTP response from a callback
                     new FutureCallback<HttpResponse>() {
 

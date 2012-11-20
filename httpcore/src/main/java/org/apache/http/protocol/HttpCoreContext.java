@@ -43,6 +43,10 @@ import org.apache.http.util.Args;
 @NotThreadSafe
 public class HttpCoreContext implements HttpContext, ExecutionContext {
 
+    public static HttpCoreContext create() {
+        return new HttpCoreContext(new BasicHttpContext());
+    }
+
     public static HttpCoreContext adapt(final HttpContext context) {
         Args.notNull(context, "HTTP context");
         if (context instanceof HttpCoreContext) {

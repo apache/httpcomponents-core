@@ -31,15 +31,14 @@ import java.net.Socket;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpProcessorBuilder;
 import org.apache.http.protocol.HttpRequestExecutor;
-import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -56,21 +55,19 @@ import org.apache.http.util.EntityUtils;
 public class ElementalHttpGet {
 
     public static void main(String[] args) throws Exception {
-        HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
-                // Required protocol interceptors
-                new RequestContent(),
-                new RequestTargetHost(),
-                // Recommended protocol interceptors
-                new RequestConnControl(),
-                new RequestUserAgent("Test/1.1"),
-                new RequestExpectContinue()});
+        HttpProcessor httpproc = HttpProcessorBuilder.create()
+            .add(new RequestContent())
+            .add(new RequestTargetHost())
+            .add(new RequestConnControl())
+            .add(new RequestUserAgent("Test/1.1"))
+            .add(new RequestExpectContinue()).build();
 
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
-        HttpCoreContext context = new HttpCoreContext();
+        HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost host = new HttpHost("localhost", 8080);
-        context.setTargetHost(host);
-        context.setExpectContinue();
+        coreContext.setTargetHost(host);
+        coreContext.setExpectContinue();
 
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
         ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
@@ -90,14 +87,14 @@ public class ElementalHttpGet {
                 BasicHttpRequest request = new BasicHttpRequest("GET", targets[i]);
                 System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
-                httpexecutor.preProcess(request, httpproc, context);
-                HttpResponse response = httpexecutor.execute(request, conn, context);
-                httpexecutor.postProcess(response, httpproc, context);
+                httpexecutor.preProcess(request, httpproc, coreContext);
+                HttpResponse response = httpexecutor.execute(request, conn, coreContext);
+                httpexecutor.postProcess(response, httpproc, coreContext);
 
                 System.out.println("<< Response: " + response.getStatusLine());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
-                if (!connStrategy.keepAlive(response, context)) {
+                if (!connStrategy.keepAlive(response, coreContext)) {
                     conn.close();
                 } else {
                     System.out.println("Connection kept alive...");

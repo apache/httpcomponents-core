@@ -157,4 +157,9 @@ public class UriPatternMatcher<T> {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.map.toString();
+    }
+
 }

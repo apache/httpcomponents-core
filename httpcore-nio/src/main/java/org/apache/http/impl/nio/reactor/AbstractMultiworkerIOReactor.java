@@ -39,7 +39,6 @@ import java.nio.channels.Selector;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.http.annotation.ThreadSafe;
