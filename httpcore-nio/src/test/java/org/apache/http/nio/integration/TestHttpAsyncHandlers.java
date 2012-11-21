@@ -61,7 +61,6 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -426,8 +425,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             request.setEntity(entity);
 
             HttpContext context = new BasicHttpContext();
-            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, Boolean.TRUE);
-
             Future<HttpResponse> future = this.client.execute(target, request, context);
             queue.add(future);
         }
@@ -486,8 +483,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (HttpRequest request : requests) {
             HttpContext context = new BasicHttpContext();
-            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, Boolean.TRUE);
-
             Future<HttpResponse> future = this.client.execute(target, request, context);
             queue.add(future);
         }
@@ -631,8 +626,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (HttpRequest request : requests) {
             HttpContext context = new BasicHttpContext();
-            context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, Boolean.TRUE);
-
             Future<HttpResponse> future = this.client.execute(target, request, context);
             queue.add(future);
         }

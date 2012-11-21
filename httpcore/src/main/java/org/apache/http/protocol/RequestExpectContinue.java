@@ -37,7 +37,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.Args;
 
 /**
@@ -59,16 +59,16 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
-        HttpCoreContext corecontext = HttpCoreContext.adapt(context);
-
         if (!request.containsHeader(HTTP.EXPECT_DIRECTIVE)) {
             if (request instanceof HttpEntityEnclosingRequest) {
                 ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 // Do not send the expect header if request body is known to be empty
-                if (entity != null && entity.getContentLength() != 0 && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    if (corecontext.isExpectContinue()
-                            || HttpProtocolParams.useExpectContinue(request.getParams())) {
+                if (entity != null
+                        && entity.getContentLength() != 0 && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                    Boolean b = (Boolean) request.getParams().getParameter(
+                            CoreProtocolPNames.USE_EXPECT_CONTINUE);
+                    if (b == null || b.booleanValue() == true) {
                         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
                     }
                 }

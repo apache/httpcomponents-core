@@ -293,8 +293,7 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestExpectContinueGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+        HttpContext context = new BasicHttpContext();
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         String s = "whatever";
         StringEntity entity = new StringEntity(s, "US-ASCII");
@@ -307,23 +306,8 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestExpectContinueNotGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, false);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        String s = "whatever";
-        StringEntity entity = new StringEntity(s, "US-ASCII");
-        request.setEntity(entity);
-        RequestExpectContinue interceptor = new RequestExpectContinue();
-        interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
-        Assert.assertNull(header);
-    }
-
-    @Test
     public void testRequestExpectContinueHTTP10() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+        HttpContext context = new BasicHttpContext();
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
         String s = "whatever";
@@ -337,8 +321,7 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestExpectContinueZeroContent() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        context.setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
+        HttpContext context = new BasicHttpContext();
         BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         String s = "";
         StringEntity entity = new StringEntity(s, "US-ASCII");

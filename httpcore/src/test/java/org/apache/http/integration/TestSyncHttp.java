@@ -56,7 +56,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -468,8 +467,6 @@ public class TestSyncHttp {
         this.server.start();
 
         // Activate 'expect: continue' handshake
-        this.client.getContext().setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
-
         DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());
 
@@ -559,9 +556,6 @@ public class TestSyncHttp {
         });
 
         this.server.start();
-
-        // Activate 'expect: continue' handshake
-        this.client.getContext().setAttribute(ExecutionContext.HTTP_EXPECT_CONT, true);
 
         DefaultBHttpClientConnection conn = client.createConnection();
         HttpHost host = new HttpHost("localhost", this.server.getPort());

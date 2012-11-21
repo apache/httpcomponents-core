@@ -97,15 +97,6 @@ public class HttpCoreContext implements HttpContext, ExecutionContext {
         return getAttribute(HTTP_CONNECTION, HttpConnection.class);
     }
 
-    public boolean isExpectContinue() {
-        Boolean b = getAttribute(HTTP_EXPECT_CONT, Boolean.class);
-        return b != null ? b.booleanValue() : false;
-    }
-
-    public void setExpectContinue() {
-        setAttribute(HTTP_EXPECT_CONT, Boolean.TRUE);
-    }
-
     public HttpRequest getRequest() {
         return getAttribute(HTTP_REQUEST, HttpRequest.class);
     }

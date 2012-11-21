@@ -67,7 +67,6 @@ public class ElementalHttpGet {
         HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost host = new HttpHost("localhost", 8080);
         coreContext.setTargetHost(host);
-        coreContext.setExpectContinue();
 
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
         ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
