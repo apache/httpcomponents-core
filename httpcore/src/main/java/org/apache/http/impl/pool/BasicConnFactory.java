@@ -67,7 +67,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
 
     /**
      * @deprecated (4.3) use
-     *   {@link BasicConnFactory#BasicConnFactory(SSLSocketFactory, SocketConfig, ConnectionConfig)}.
+     *   {@link BasicConnFactory#BasicConnFactory(SSLSocketFactory, int, SocketConfig, ConnectionConfig)}.
      */
     @Deprecated
     public BasicConnFactory(final SSLSocketFactory sslfactory, final HttpParams params) {
@@ -81,7 +81,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
 
     /**
      * @deprecated (4.3) use
-     *   {@link BasicConnFactory#BasicConnFactory(SocketConfig, ConnectionConfig)}.
+     *   {@link BasicConnFactory#BasicConnFactory(int, SocketConfig, ConnectionConfig)}.
      */
     @Deprecated
     public BasicConnFactory(final HttpParams params) {

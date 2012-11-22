@@ -64,8 +64,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     private final int connectTimeout;
 
     /**
-     * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor,
-     *   NIOConnFactory, ConnectionConfig)}
+     * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor, NIOConnFactory, int)}
      */
     @Deprecated
     public BasicNIOConnPool(
