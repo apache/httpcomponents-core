@@ -1,7 +1,7 @@
 Release 4.2.3
 -------------------
 
-This is a maintenance release that fixes a number of bugs and found since 4.2.2 including 
+This is a maintenance release that fixes a number of bugs found since 4.2.2 including 
 a major bug in the NIO module that can cause an infinite loop in SSL sessions under special 
 circumstances when the remote peer terminates the session in the middle of SSL handshake.
 Please note this issue does not affect blocking I/O components used by HttpClient.
