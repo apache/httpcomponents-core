@@ -1,4 +1,30 @@
-Changes in trunk
+Release 4.1-ALPHA1 
+-------------------
+
+This is the first release from the 4.3.x release branch. The main focus of the 4.3 release
+series is streamlining of component configuration and deprecation of the old configuration
+API based on HttpParams in favor of constructor based dependency injection and plain objects 
+for configuration parameters.
+
+We are kindly asking all upstream projects to review API changes and help us improve 
+the APIs by providing feedback and sharing ideas on dev@hc.apache.org. 
+
+This release also includes all fixes from the stable 4.2.x release branch.
+
+
+
+Release 4.2.3
+-------------------
+
+This is a maintenance release that fixes a number of bugs and found since 4.2.2 including 
+a major bug in the NIO module that can cause an infinite loop in SSL sessions under special 
+circumstances when the remote peer terminates the session in the middle of SSL handshake.
+Please note this issue does not affect blocking I/O components used by HttpClient.
+
+Users of HttpCore NIO of all versions are advised to upgrade.
+
+Changelog
+-------------------
 
 * [HTTPCORE-319, HTTPCORE-322] Non-blocking SSLIOSession can enter an infinite loop under 
   special circumstances when the remote peer terminates the session in the middle of SSL handshake.
@@ -12,10 +38,30 @@ Changes in trunk
   released from the session request callback causing a resource leak.
   Contributed by Scott Stanton <snstanton at gmail.com> 
 
+* [HTTPCORE-313] ContentType#parse now ignores empty attributes. HttpEntityUtils#toString now 
+  throws checked I/O exception if it encounters an unsupported charset. 
+
+* [HTTPCORE-315] AbstractNIOConnPool fails to correctly deallocate connection if it is immediately 
+  released from the session request callback causing a resource leak.
+  Contributed by Scott Stanton <snstanton at gmail.com> 
+
 * [HTTPCORE-313] ContentType#parse now ignores empty and blank charset attributes. 
   HttpEntityUtils#toString now throws checked I/O exception if it  encounters an unsupported 
   charset. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+Release 4.2.2
+-------------------
+
+This is a maintenance release that fixes a number of bugs and regressions found since 4.2.1
+including a major bug in the NIO module causing incorrect handling of outgoing Content-Length
+delimited messages larger than 2GB.
+
+Users of HttpCore 4.2 are advised to upgrade.
+
+Changelog
+-------------------
 
 * [HTTPCORE-312] NIO length delimited content encoder incorrectly handles messages larger than 2GB.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
@@ -37,6 +83,7 @@ Changes in trunk
 
 * [HTTPCORE-303] ContentType made Serializable. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 
 
 Release 4.2.1
