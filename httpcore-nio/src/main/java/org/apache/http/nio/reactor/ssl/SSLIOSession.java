@@ -340,15 +340,17 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
     private boolean decryptData() throws SSLException {
         boolean decrypted = false;
-        SSLEngineResult.Status opStatus = Status.OK;
-        while (this.inEncrypted.position() > 0 && opStatus == Status.OK) {
+        while (this.inEncrypted.position() > 0) {
             this.inEncrypted.flip();
             SSLEngineResult result = doUnwrap(this.inEncrypted, this.inPlain);
             this.inEncrypted.compact();
-
-            opStatus = result.getStatus();
-            if (opStatus == Status.OK) {
+            if (result.getStatus() == Status.OK) {
                 decrypted = true;
+            } else {
+                break;
+            }
+            if (result.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING) {
+                break;
             }
         }
         return decrypted;
@@ -366,7 +368,10 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             this.endOfStream = true;
         }
         doHandshake();
-        decryptData();
+        HandshakeStatus status = this.sslEngine.getHandshakeStatus();
+        if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
+            decryptData();
+        }
         // Some decrypted data is available or at the end of stream
         return (this.appEventMask & SelectionKey.OP_READ) > 0
             && (this.inPlain.position() > 0
