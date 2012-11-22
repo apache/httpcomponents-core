@@ -1,5 +1,15 @@
-Changes since Release 4.2.2
-=======
+Release 4.2.3
+-------------------
+
+This is a maintenance release that fixes a number of bugs and found since 4.2.2 including 
+a major bug in the NIO module that can cause an infinite loop in SSL sessions under special 
+circumstances when the remote peer terminates the session in the middle of SSL handshake.
+Please note this issue does not affect blocking I/O components used by HttpClient.
+
+Users of HttpCore NIO of all versions are advised to upgrade.
+
+Changelog
+-------------------
 
 * [HTTPCORE-319, HTTPCORE-322] Non-blocking SSLIOSession can enter an infinite loop under 
   special circumstances when the remote peer terminates the session in the middle of SSL handshake.
