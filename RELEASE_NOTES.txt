@@ -1,9 +1,9 @@
 Release 4.3-ALPHA1 
 -------------------
 
-This is the first release from the 4.3.x release branch. The main focus of the 4.3 release
+This is the first release from the 4.3.x release branch. The main themes of the 4.3 release
 series is streamlining of component configuration and deprecation of the old configuration
-API based on HttpParams in favor of constructor based dependency injection and plain objects 
+API based on HttpParams in favor of constructor-based dependency injection and plain objects 
 for configuration parameters.
 
 We are kindly asking all upstream projects to review API changes and help us improve 
@@ -16,12 +16,12 @@ This release also includes all fixes from the stable 4.2.x release branch.
 Release 4.2.3
 -------------------
 
-This is a maintenance release that fixes a number of bugs and found since 4.2.2 including 
+This maintenance release fixes a number of bugs and found since 4.2.2 including 
 a major bug in the NIO module that can cause an infinite loop in SSL sessions under special 
 circumstances when the remote peer terminates the session in the middle of SSL handshake.
 Please note this issue does not affect blocking I/O components used by HttpClient.
 
-Users of HttpCore NIO of all versions are advised to upgrade.
+We advise users of HttpCore NIO of all versions to upgrade.
 
 Changelog
 -------------------
