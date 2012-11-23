@@ -1,7 +1,7 @@
 Release 4.3-ALPHA1 
 -------------------
 
-This is the first release from the 4.3.x release branch. The main themes of the 4.3 release
+This is the first release from the 4.3.x release branch. The main theme of the 4.3 release
 series is streamlining of component configuration and deprecation of the old configuration
 API based on HttpParams in favor of constructor-based dependency injection and plain objects 
 for configuration parameters.
