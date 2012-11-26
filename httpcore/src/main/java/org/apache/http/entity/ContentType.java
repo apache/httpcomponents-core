@@ -168,6 +168,8 @@ public final class ContentType implements Serializable {
      * @param charset charset. It may not contain characters <">, <;>, <,> reserved by the HTTP
      *        specification. This parameter is optional.
      * @return content type
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * this instance of the Java virtual machine
      */
     public static ContentType create(
             final String mimeType, final String charset) throws UnsupportedCharsetException {
@@ -191,6 +193,8 @@ public final class ContentType implements Serializable {
      * @return content type
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * this instance of the Java virtual machine
      */
     public static ContentType parse(
             final String s) throws ParseException, UnsupportedCharsetException {
@@ -212,6 +216,8 @@ public final class ContentType implements Serializable {
      * @return content type
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * this instance of the Java virtual machine
      */
     public static ContentType get(
             final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
@@ -229,13 +235,15 @@ public final class ContentType implements Serializable {
     }
 
     /**
-     * Extracts <code>Content-Type</code> value from {@link HttpEntity} or returns default value
-     * if not explicitly specified.
+     * Extracts <code>Content-Type</code> value from {@link HttpEntity} or returns the default value
+     * {@link #DEFAULT_TEXT} if not explicitly specified.
      *
      * @param entity HTTP entity
      * @return content type
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * this instance of the Java virtual machine
      */
     public static ContentType getOrDefault(
             final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
@@ -259,6 +267,8 @@ public final class ContentType implements Serializable {
      * 
      * @param charset name
      * @return a new instance with this MIME type and the given Charset name.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * this instance of the Java virtual machine
      * @since 4.3
      */
     public ContentType withCharset(String charset) {
