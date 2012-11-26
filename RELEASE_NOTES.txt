@@ -1,3 +1,18 @@
+Release 4.3-ALPHA2 
+-------------------
+
+This is the second release from the 4.3.x release branch. The main theme of the 4.3 release
+series is streamlining of component configuration and deprecation of the old configuration
+API based on HttpParams in favor of constructor-based dependency injection and plain objects 
+for configuration parameters.
+
+We are kindly asking all upstream projects to review API changes and help us improve 
+the APIs by providing feedback and sharing ideas on dev@hc.apache.org. 
+
+This release also includes all fixes from the stable 4.2.x release branch.
+
+* [HTTPCORE-323] Undocumented UnsupportedCharsetException in org.apache.http.entity.ContentType.getOrDefault.
+
 Release 4.3-ALPHA1 
 -------------------
 
@@ -10,7 +25,6 @@ We are kindly asking all upstream projects to review API changes and help us imp
 the APIs by providing feedback and sharing ideas on dev@hc.apache.org. 
 
 This release also includes all fixes from the stable 4.2.x release branch.
-
 
 
 Release 4.2.3
