@@ -303,6 +303,7 @@ public class VersionInfo {
 	 *            should NOT end with a dot.
 	 * @param cls
 	 *            the class' class loader to load from, or <code>null</code> for the thread context class loader
+	 * @since 4.3
 	 */
 	public static String getUserAgent(String name, String pkg, Class<?> cls) {
 		// determine the release version from packaged version info
