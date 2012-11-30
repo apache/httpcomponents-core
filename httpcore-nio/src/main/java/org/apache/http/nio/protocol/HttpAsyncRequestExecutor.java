@@ -261,6 +261,13 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 closeHandler(getHandler(conn), new ConnectionClosedException("Connection closed"));
             }
         }
+        // Closing connection in an orderly manner and
+        // waiting for output buffer to get flushed.
+        // Do not want to wait indefinitely, though, in case
+        // the opposite end is not reading
+        if (conn.getSocketTimeout() <= 0) {
+            conn.setSocketTimeout(1000);
+        }
         conn.close();
     }
 

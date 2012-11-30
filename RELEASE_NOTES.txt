@@ -1,3 +1,13 @@
+Changes since 4.2.3
+
+* [HTTPCORE-319] Non-blocking SSLIOSession can fail to shut down correctly when the underlying
+  connection gets terminated abnormally by the opposite endpoint in case there is a truncated or
+  corrupted encrypted content in the input buffer and there is still data in the output buffer
+  that needs to be flushed out (most likely to occur with POST or PUT requests).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 4.2.3
 -------------------
 

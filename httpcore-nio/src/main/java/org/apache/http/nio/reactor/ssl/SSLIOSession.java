@@ -304,7 +304,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             newMask = EventMask.READ_WRITE;
             break;
         case NEED_UNWRAP:
-            newMask = EventMask.READ;
+            newMask = EventMask.READ | (this.appEventMask & EventMask.WRITE);
             break;
         case NOT_HANDSHAKING:
             newMask = this.appEventMask;
@@ -352,6 +352,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
                 break;
             }
             if (result.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING) {
+                break;
+            }
+            if (this.endOfStream) {
                 break;
             }
         }
@@ -563,8 +566,17 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.session.setAttribute(name, obj);
     }
 
+    private static void formatOps(final StringBuilder buffer, int ops) {
+        if ((ops & SelectionKey.OP_READ) > 0) {
+            buffer.append('r');
+        }
+        if ((ops & SelectionKey.OP_WRITE) > 0) {
+            buffer.append('w');
+        }
+    }
+
     @Override
-    public String toString() {
+    public synchronized String toString() {
         StringBuilder buffer = new StringBuilder();
         buffer.append(this.session);
         buffer.append("[");
@@ -580,7 +592,15 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             break;
         }
         buffer.append("][");
+        formatOps(buffer, this.appEventMask);
+        buffer.append("][");
         buffer.append(this.sslEngine.getHandshakeStatus());
+        if (this.sslEngine.isInboundDone()) {
+            buffer.append("][inbound done][");
+        }
+        if (this.sslEngine.isOutboundDone()) {
+            buffer.append("][outbound done][");
+        }
         if (this.endOfStream) {
             buffer.append("][EOF][");
         }
