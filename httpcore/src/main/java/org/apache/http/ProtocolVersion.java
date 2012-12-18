@@ -200,10 +200,8 @@ public class ProtocolVersion implements Serializable, Cloneable {
      */
     public int compareToVersion(ProtocolVersion that) {
         Args.notNull(that, "Protocol version");
-        if (!this.protocol.equals(that.protocol)) {
-                throw new IllegalArgumentException("Versions for different protocols " +
-                		"cannot be compared. " + this + " " + that);
-        }
+        Args.check(this.protocol.equals(that.protocol),
+                "Versions for different protocols cannot be compared: %s %s", this, that);
         int delta = getMajor() - that.getMajor();
         if (delta == 0) {
             delta = getMinor() - that.getMinor();

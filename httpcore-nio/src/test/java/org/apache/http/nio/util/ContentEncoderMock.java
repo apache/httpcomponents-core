@@ -34,6 +34,7 @@ import java.nio.channels.WritableByteChannel;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.util.Asserts;
 
 public class ContentEncoderMock extends AbstractContentEncoder {
 
@@ -61,9 +62,7 @@ public class ContentEncoderMock extends AbstractContentEncoder {
         if (src == null) {
             return 0;
         }
-        if (this.completed) {
-            throw new IllegalStateException("Decoding process already completed");
-        }
+        Asserts.check(!this.completed, "Decoding process already completed");
         return this.channel.write(src);
     }
 

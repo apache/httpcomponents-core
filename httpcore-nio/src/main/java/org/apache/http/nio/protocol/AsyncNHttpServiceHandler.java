@@ -61,6 +61,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 import org.apache.http.util.EncodingUtils;
 
 /**
@@ -658,27 +659,21 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
 
         public void submitResponse(final HttpResponse response) {
             Args.notNull(response, "Response");
-            if (this.triggered) {
-                throw new IllegalStateException("Response already triggered");
-            }
+            Asserts.check(!this.triggered, "Response already triggered");
             this.triggered = true;
             this.connState.setResponse(response);
             this.iocontrol.requestOutput();
         }
 
         public void handleException(final HttpException ex) {
-            if (this.triggered) {
-                throw new IllegalStateException("Response already triggered");
-            }
+            Asserts.check(!this.triggered, "Response already triggered");
             this.triggered = true;
             this.connState.setHttpException(ex);
             this.iocontrol.requestOutput();
         }
 
         public void handleException(final IOException ex) {
-            if (this.triggered) {
-                throw new IllegalStateException("Response already triggered");
-            }
+            Asserts.check(!this.triggered, "Response already triggered");
             this.triggered = true;
             this.connState.setIOException(ex);
             this.iocontrol.requestOutput();

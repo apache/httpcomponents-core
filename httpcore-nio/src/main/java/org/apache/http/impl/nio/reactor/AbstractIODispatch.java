@@ -33,6 +33,7 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
+import org.apache.http.util.Asserts;
 
 /**
  * Abstract {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
@@ -59,9 +60,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
     protected abstract void onTimeout(T conn);
 
     private void ensureNotNull(final T conn) {
-        if (conn == null) {
-            throw new IllegalStateException("HTTP connection is null");
-        }
+        Asserts.notNull(conn, "HTTP connection");
     }
 
     public void connected(final IOSession session) {

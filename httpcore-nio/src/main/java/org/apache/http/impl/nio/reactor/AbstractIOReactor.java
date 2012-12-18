@@ -47,6 +47,7 @@ import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Generic implementation of {@link IOReactor} that can used as a subclass
@@ -458,9 +459,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     private boolean queueInterestOps(final InterestOpEntry entry) {
         // validity checks
-        if (!this.interestOpsQueueing) {
-            throw new IllegalStateException("Interest ops queueing not enabled");
-        }
+        Asserts.check(this.interestOpsQueueing, "Interest ops queueing not enabled");
         if (entry == null) {
             return false;
         }

@@ -47,6 +47,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Asserts;
 
 /**
  * Default implementation of {@link ConnectingIOReactor}. This class extends
@@ -222,10 +223,8 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             final SocketAddress localAddress,
             final Object attachment,
             final SessionRequestCallback callback) {
-
-        if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
-            throw new IllegalStateException("I/O reactor has been shut down");
-        }
+        Asserts.check(this.status.compareTo(IOReactorStatus.ACTIVE) <= 0,
+            "I/O reactor has been shut down");
         SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, callback);
         sessionRequest.setConnectTimeout(this.config.getConnectTimeout());

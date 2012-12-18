@@ -43,6 +43,7 @@ import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Implementation of a client-side HTTP connection that can be bound to an
@@ -66,16 +67,12 @@ public class SocketHttpClientConnection
     }
 
     protected void assertNotOpen() {
-        if (this.open) {
-            throw new IllegalStateException("Connection is already open");
-        }
+        Asserts.check(!this.open, "Connection is already open");
     }
 
     @Override
     protected void assertOpen() {
-        if (!this.open) {
-            throw new IllegalStateException("Connection is not open");
-        }
+        Asserts.check(this.open, "Connection is not open");
     }
 
     /**

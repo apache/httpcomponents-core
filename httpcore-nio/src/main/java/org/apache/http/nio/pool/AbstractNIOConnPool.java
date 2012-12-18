@@ -53,6 +53,7 @@ import org.apache.http.pool.ConnPoolControl;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Abstract non-blocking connection pool.
@@ -168,9 +169,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             final FutureCallback<E> callback) {
         Args.notNull(route, "Route");
         Args.notNull(tunit, "Time unit");
-        if (this.isShutDown) {
-            throw new IllegalStateException("Session pool has been shut down");
-        }
+        Asserts.check(!this.isShutDown, "Connection pool shut down");
         this.lock.lock();
         try {
             long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;

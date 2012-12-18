@@ -33,6 +33,7 @@ import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * A generic streamed, non-repeatable entity that obtains its content
@@ -70,11 +71,8 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      *          if the content has not been provided
      */
     public InputStream getContent() throws IllegalStateException {
-        if (this.content == null) {
-            throw new IllegalStateException("Content has not been provided");
-        }
+        Asserts.check(this.content != null, "Content has not been provided");
         return this.content;
-
     }
 
     /**

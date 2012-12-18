@@ -41,6 +41,7 @@ import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * A {@link ConsumingNHttpEntity} that consumes content into a buffer. The
@@ -95,12 +96,8 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
      */
     @Override
     public InputStream getContent() throws IOException {
-        if (!this.finished) {
-            throw new IllegalStateException("Entity content has not been fully received");
-        }
-        if (this.consumed) {
-            throw new IllegalStateException("Entity content has been consumed");
-        }
+        Asserts.check(this.finished, "Entity content has not been fully received");
+        Asserts.check(!this.consumed, "Entity content has been consumed");
         this.consumed = true;
         return new ContentInputStream(this.buffer);
     }

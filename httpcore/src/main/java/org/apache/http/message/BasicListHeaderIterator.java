@@ -34,6 +34,7 @@ import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Implementation of a {@link HeaderIterator} based on a {@link List}.
@@ -178,10 +179,7 @@ public class BasicListHeaderIterator implements HeaderIterator {
      */
     public void remove()
         throws UnsupportedOperationException {
-
-        if (this.lastIndex < 0) {
-            throw new IllegalStateException("No header to remove.");
-        }
+        Asserts.check(this.lastIndex >= 0, "No header to remove");
         this.allHeaders.remove(this.lastIndex);
         this.lastIndex = -1;
         this.currentIndex--; // adjust for the removed element

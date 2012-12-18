@@ -39,6 +39,7 @@ import org.apache.http.nio.protocol.HttpRequestExecutionHandler;
 import org.apache.http.nio.protocol.NHttpRequestExecutionHandler;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Asserts;
 import org.apache.http.util.EntityUtils;
 
 @Deprecated
@@ -55,9 +56,7 @@ abstract class RequestExecutionHandler
 
         @SuppressWarnings("unchecked")
         Queue<Job> queue = (Queue<Job>) context.getAttribute("queue");
-        if (queue == null) {
-            throw new IllegalStateException("Queue is null");
-        }
+        Asserts.notNull(queue, "Queue");
 
         Job testjob = queue.poll();
         context.setAttribute("job", testjob);
@@ -77,9 +76,7 @@ abstract class RequestExecutionHandler
 
     public void handleResponse(final HttpResponse response, final HttpContext context) {
         Job testjob = (Job) context.removeAttribute("job");
-        if (testjob == null) {
-            throw new IllegalStateException("TestJob is null");
-        }
+        Asserts.notNull(testjob, "Test job");
 
         int statusCode = response.getStatusLine().getStatusCode();
         String content = null;

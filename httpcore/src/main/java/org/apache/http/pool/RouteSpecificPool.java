@@ -33,6 +33,7 @@ import java.util.Set;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 @NotThreadSafe
 abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
@@ -119,10 +120,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     public void free(final E entry, boolean reusable) {
         Args.notNull(entry, "Pool entry");
         boolean found = this.leased.remove(entry);
-        if (!found) {
-            throw new IllegalStateException("Entry " + entry +
-                    " has not been leased from this pool");
-        }
+        Asserts.check(found, "Entry %s has not been leased from this pool", entry);
         if (reusable) {
             this.available.addFirst(entry);
         }

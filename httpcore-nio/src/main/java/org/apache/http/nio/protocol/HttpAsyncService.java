@@ -61,6 +61,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * <tt>HttpAsyncService</tt> is a fully asynchronous HTTP server side protocol
@@ -414,16 +415,12 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     private State ensureNotNull(final State state) {
-        if (state == null) {
-            throw new IllegalStateException("HTTP exchange state is null");
-        }
+        Asserts.notNull(state, "HTTP exchange state");
         return state;
     }
 
     private HttpAsyncRequestConsumer<Object> ensureNotNull(final HttpAsyncRequestConsumer<Object> requestConsumer) {
-        if (requestConsumer == null) {
-            throw new IllegalStateException("Request consumer is null");
-        }
+        Asserts.notNull(requestConsumer, "Request consumer");
         return requestConsumer;
     }
 
@@ -765,9 +762,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         public void setCallback(final Cancellable cancellable) {
             synchronized (this) {
-                if (this.completed) {
-                    throw new IllegalStateException("Response already submitted");
-                }
+                Asserts.check(!this.completed, "Response already submitted");
                 if (this.state.isTerminated() && cancellable != null) {
                     cancellable.cancel();
                 } else {
@@ -780,9 +775,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         public void submitResponse(final HttpAsyncResponseProducer responseProducer) {
             Args.notNull(responseProducer, "Response producer");
             synchronized (this) {
-                if (this.completed) {
-                    throw new IllegalStateException("Response already submitted");
-                }
+                Asserts.check(!this.completed, "Response already submitted");
                 this.completed = true;
                 if (!this.state.isTerminated()) {
                     this.state.setResponseProducer(responseProducer);

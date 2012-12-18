@@ -50,6 +50,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * <tt>HttpAsyncRequestExecutor</tt> is a fully asynchronous HTTP client side
@@ -306,9 +307,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     }
 
     private State ensureNotNull(final State state) {
-        if (state == null) {
-            throw new IllegalStateException("HTTP exchange state is null");
-        }
+        Asserts.notNull(state, "HTTP exchange state");
         return state;
     }
 
@@ -317,9 +316,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     }
 
     private HttpAsyncRequestExecutionHandler<?> ensureNotNull(final HttpAsyncRequestExecutionHandler<?> handler) {
-        if (handler == null) {
-            throw new IllegalStateException("HTTP exchange handler is null");
-        }
+        Asserts.notNull(handler, "HTTP exchange handler");
         return handler;
     }
 

@@ -43,6 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Abstract synchronous (blocking) pool of connections.
@@ -153,9 +154,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      */
     public Future<E> lease(final T route, final Object state, final FutureCallback<E> callback) {
         Args.notNull(route, "Route");
-        if (this.isShutDown) {
-            throw new IllegalStateException("Connection pool shut down");
-        }
+        Asserts.check(!this.isShutDown, "Connection pool shut down");
         return new PoolEntryFuture<E>(this.lock, callback) {
 
             @Override
@@ -206,9 +205,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             RouteSpecificPool<T, C, E> pool = getPool(route);
             E entry = null;
             while (entry == null) {
-                if (this.isShutDown) {
-                    throw new IllegalStateException("Connection pool shut down");
-                }
+                Asserts.check(!this.isShutDown, "Connection pool shut down");
                 for (;;) {
                     entry = pool.getFree(state);
                     if (entry == null) {

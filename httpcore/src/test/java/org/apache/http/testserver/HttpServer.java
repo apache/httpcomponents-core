@@ -53,6 +53,7 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.UriHttpRequestHandlerMapper;
+import org.apache.http.util.Asserts;
 
 public class HttpServer {
 
@@ -117,9 +118,7 @@ public class HttpServer {
     }
 
     public void start() {
-        if (this.listener != null) {
-            throw new IllegalStateException("Listener already running");
-        }
+        Asserts.check(this.listener == null, "Listener already running");
         this.listener = new Thread(new Runnable() {
 
             public void run() {

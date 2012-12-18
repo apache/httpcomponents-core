@@ -35,6 +35,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Implementation of the {@link ContentOutputBuffer} interface that can be
@@ -214,9 +215,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
         this.lock.lock();
         try {
-            if (this.shutdown || this.endOfStream) {
-                throw new IllegalStateException("Buffer already closed for writing");
-            }
+            Asserts.check(!this.shutdown && !this.endOfStream, "Buffer already closed for writing");
             setInputMode();
             int remaining = len;
             while (remaining > 0) {
@@ -244,9 +243,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     public void write(int b) throws IOException {
         this.lock.lock();
         try {
-            if (this.shutdown || this.endOfStream) {
-                throw new IllegalStateException("Buffer already closed for writing");
-            }
+            Asserts.check(!this.shutdown && !this.endOfStream, "Buffer already closed for writing");
             setInputMode();
             if (!this.buffer.hasRemaining()) {
                 flushContent();

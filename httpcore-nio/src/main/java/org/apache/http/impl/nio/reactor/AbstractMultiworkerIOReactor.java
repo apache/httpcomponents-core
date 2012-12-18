@@ -52,6 +52,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Generic implementation of {@link IOReactor} that can run multiple
@@ -312,9 +313,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 this.statusLock.notifyAll();
                 return;
             }
-            if (this.status.compareTo(IOReactorStatus.INACTIVE) != 0) {
-                throw new IllegalStateException("Illegal state: " + this.status);
-            }
+            Asserts.check(this.status.compareTo(IOReactorStatus.INACTIVE) == 0,
+                    "Illegal state %s", this.status);
             this.status = IOReactorStatus.ACTIVE;
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {

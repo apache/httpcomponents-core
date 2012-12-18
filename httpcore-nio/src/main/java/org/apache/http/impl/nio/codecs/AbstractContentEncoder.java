@@ -35,6 +35,7 @@ import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * Abstract {@link ContentEncoder} that serves as a base for all content
@@ -81,9 +82,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     }
 
     protected void assertNotCompleted() {
-        if (this.completed) {
-            throw new IllegalStateException("Encoding process already completed");
-        }
+        Asserts.check(!this.completed, "Encoding process already completed");
     }
 
 }

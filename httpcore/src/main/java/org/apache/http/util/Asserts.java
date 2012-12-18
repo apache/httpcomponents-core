@@ -35,6 +35,12 @@ public class Asserts {
         }
     }
     
+    public static void check(boolean expression, final String message, final Object... args) {
+        if (!expression) {
+            throw new IllegalStateException(String.format(message, args));
+        }
+    }
+
     public static void notNull(final Object object, final String name) {
         if (object == null) {
             throw new IllegalStateException(name + " is null");

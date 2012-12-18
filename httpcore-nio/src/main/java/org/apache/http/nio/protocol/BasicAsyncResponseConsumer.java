@@ -39,6 +39,7 @@ import org.apache.http.nio.entity.ContentBufferEntity;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.util.Asserts;
 
 /**
  * Basic implementation of {@link HttpAsyncResponseConsumer}. Please note that
@@ -79,9 +80,7 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
     @Override
     protected void onContentReceived(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-        if (this.buf == null) {
-            throw new IllegalStateException("Content buffer is null");
-        }
+        Asserts.notNull(this.buf, "Content buffer");
         this.buf.consumeContent(decoder);
     }
 

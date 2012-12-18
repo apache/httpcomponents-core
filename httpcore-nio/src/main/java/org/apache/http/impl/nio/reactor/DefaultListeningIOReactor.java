@@ -47,6 +47,7 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.params.HttpParams;
+import org.apache.http.util.Asserts;
 
 /**
  * Default implementation of {@link ListeningIOReactor}. This class extends
@@ -209,9 +210,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     public ListenerEndpoint listen(final SocketAddress address) {
-        if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
-            throw new IllegalStateException("I/O reactor has been shut down");
-        }
+        Asserts.check(this.status.compareTo(IOReactorStatus.ACTIVE) <= 0,
+                "I/O reactor has been shut down");
         ListenerEndpointImpl request = createEndpoint(address);
         this.requestQueue.add(request);
         this.selector.wakeup();

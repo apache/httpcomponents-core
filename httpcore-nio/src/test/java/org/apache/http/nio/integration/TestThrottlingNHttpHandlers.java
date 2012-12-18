@@ -90,6 +90,7 @@ import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
 import org.apache.http.nio.testserver.LoggingServerConnectionFactory;
 import org.apache.http.nio.testserver.SimpleEventListener;
 import org.apache.http.nio.testserver.SimpleHttpRequestHandlerResolver;
+import org.apache.http.util.Asserts;
 import org.apache.http.util.EncodingUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -695,9 +696,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
                 @SuppressWarnings("unchecked")
                 Queue<Job> queue = (Queue<Job>) context.getAttribute("queue");
-                if (queue == null) {
-                    throw new IllegalStateException("Queue is null");
-                }
+                Asserts.notNull(queue, "Queue");
 
                 Job testjob = queue.poll();
                 context.setAttribute("job", testjob);
@@ -720,9 +719,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
 
             public void handleResponse(final HttpResponse response, final HttpContext context) {
                 Job testjob = (Job) context.removeAttribute("job");
-                if (testjob == null) {
-                    throw new IllegalStateException("TestJob is null");
-                }
+                Asserts.notNull(testjob, "Test job");
 
                 int statusCode = response.getStatusLine().getStatusCode();
                 String content = null;

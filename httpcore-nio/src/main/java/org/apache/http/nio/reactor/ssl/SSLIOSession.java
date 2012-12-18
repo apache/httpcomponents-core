@@ -49,6 +49,7 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * <tt>SSLIOSession</tt> is a decorator class intended to transparently extend
@@ -161,9 +162,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * @throws IllegalStateException if the session has already been initialized.
      */
     public synchronized void initialize(final SSLMode mode) throws SSLException {
-        if (this.initialized) {
-            throw new IllegalStateException("SSL I/O session already initialized");
-        }
+        Asserts.check(!this.initialized, "SSL I/O session already initialized");
         if (this.status >= IOSession.CLOSING) {
             return;
         }
