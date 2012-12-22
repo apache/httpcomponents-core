@@ -76,7 +76,6 @@
     <mockito.version>1.8.5</mockito.version>
     <commons-logging.version>1.1.1</commons-logging.version>
     <api.comparison.version>4.2</api.comparison.version>
-    <main.basedir>${project.basedir}</main.basedir>
   </properties>
 
   <dependencyManagement>
@@ -294,7 +293,7 @@
             <id>validate</id>
             <phase>validate</phase>
             <configuration>
-              <configLocation>${main.basedir}/hc-checkstyle.xml</configLocation>
+              <configLocation>hc-checkstyle.xml</configLocation>
               <consoleOutput>true</consoleOutput>
               <failsOnError>true</failsOnError>
               <linkXRef>false</linkXRef>
