@@ -56,7 +56,7 @@ import org.apache.http.util.Args;
  * using a transfer coding based on properties on the HTTP message.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) use {@link BHttpConnectionBase}
  */
 @Immutable // assuming injected dependencies are immutable

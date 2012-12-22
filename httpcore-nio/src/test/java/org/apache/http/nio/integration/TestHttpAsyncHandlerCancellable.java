@@ -90,10 +90,10 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
 
     @Test
     public void testResponsePrematureTermination() throws Exception {
-        
+
         final CountDownLatch latch = new CountDownLatch(1);
         final HttpAsyncResponseProducer responseProducer = new HttpAsyncResponseProducer() {
-            
+
             public HttpResponse generateResponse() {
                 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
                 BasicHttpEntity entity = new BasicHttpEntity();
@@ -102,25 +102,25 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
                 response.setEntity(entity);
                 return response;
             }
-            
+
             public void close() throws IOException {
                 latch.countDown();
             }
-            
+
             public void responseCompleted(final HttpContext context) {
             }
-            
+
             public void produceContent(
                     final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
                 // suspend output
                 ioctrl.suspendOutput();
             }
-            
+
             public void failed(final Exception ex) {
             }
 
         };
-        
+
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
@@ -131,13 +131,13 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
 
             public void handle(
-                    final HttpRequest data, 
-                    final HttpAsyncExchange httpExchange, 
+                    final HttpRequest data,
+                    final HttpAsyncExchange httpExchange,
                     final HttpContext context)
                     throws HttpException, IOException {
                 httpExchange.submitResponse(responseProducer);
             }
-            
+
         });
         this.server.start(registry);
 
@@ -154,9 +154,9 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
             writer.flush();
-            
+
             Thread.sleep(250);
-            
+
             writer.close();
         } finally {
             socket.close();
@@ -167,16 +167,16 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
 
     @Test
     public void testRequestCancelled() throws Exception {
-        
+
         final CountDownLatch latch = new CountDownLatch(1);
         final Cancellable cancellable = new Cancellable() {
-            
+
             public boolean cancel() {
                 latch.countDown();
                 return true;
             }
         };
-        
+
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
@@ -187,14 +187,14 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
 
             public void handle(
-                    final HttpRequest data, 
-                    final HttpAsyncExchange httpExchange, 
+                    final HttpRequest data,
+                    final HttpAsyncExchange httpExchange,
                     final HttpContext context)
                     throws HttpException, IOException {
                 httpExchange.setCallback(cancellable);
                 // do not submit a response;
             }
-            
+
         });
         this.server.start(registry);
 
@@ -211,9 +211,9 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
             writer.flush();
-            
+
             Thread.sleep(250);
-            
+
             writer.close();
         } finally {
             socket.close();

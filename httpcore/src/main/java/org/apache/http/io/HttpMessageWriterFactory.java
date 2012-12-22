@@ -31,7 +31,7 @@ import org.apache.http.HttpMessage;
 
 /**
  * Factory for {@link HttpMessageWriter} instances.
- * 
+ *
  * @since 4.3
  */
 public interface HttpMessageWriterFactory<T extends HttpMessage> {

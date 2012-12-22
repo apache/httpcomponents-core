@@ -33,7 +33,7 @@ import java.io.InputStream;
 class CountingInputStream extends FilterInputStream {
 
     private final Stats stats;
-    
+
     CountingInputStream(final InputStream instream, final Stats stats) {
         super(instream);
         this.stats = stats;
@@ -74,5 +74,5 @@ class CountingInputStream extends FilterInputStream {
         }
         return bytesRead;
     }
-    
+
 }

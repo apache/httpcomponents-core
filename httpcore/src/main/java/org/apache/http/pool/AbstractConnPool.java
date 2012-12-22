@@ -326,7 +326,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setMaxTotal(int max) {
-        Args.notNegative(max, "Max value");        
+        Args.notNegative(max, "Max value");
         this.lock.lock();
         try {
             this.maxTotal = max;
@@ -345,7 +345,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     public void setDefaultMaxPerRoute(int max) {
-        Args.notNegative(max, "Max per route value");        
+        Args.notNegative(max, "Max per route value");
         this.lock.lock();
         try {
             this.defaultMaxPerRoute = max;
@@ -365,7 +365,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     public void setMaxPerRoute(final T route, int max) {
         Args.notNull(route, "Route");
-        Args.notNegative(max, "Max per route value");        
+        Args.notNegative(max, "Max per route value");
         this.lock.lock();
         try {
             this.maxPerRoute.put(route, max);

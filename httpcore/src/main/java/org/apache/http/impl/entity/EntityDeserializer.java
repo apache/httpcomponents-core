@@ -59,7 +59,7 @@ import org.apache.http.util.Args;
  * transparently for the consumer.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) use {@link BHttpConnectionBase}
  */
 @Immutable // assuming injected dependencies are immutable

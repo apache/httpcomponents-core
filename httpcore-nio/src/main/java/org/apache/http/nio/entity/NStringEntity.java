@@ -73,7 +73,7 @@ public class NStringEntity extends AbstractHttpEntity
      * Creates a NStringEntity with the specified content and content type.
      *
      * @param s content to be used. Not {@code null}.
-     * @param contentType content type to be used. May be {@code null}, in which case 
+     * @param contentType content type to be used. May be {@code null}, in which case
      * {@link ContentType#TEXT_PLAIN} is assumed.
      *
      * @throws IllegalArgumentException if the string parameter is null
@@ -109,7 +109,7 @@ public class NStringEntity extends AbstractHttpEntity
      *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public NStringEntity(final String s, final String charset)
@@ -126,7 +126,7 @@ public class NStringEntity extends AbstractHttpEntity
      *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * 
+     *
      * @since 4.2
      */
     public NStringEntity(final String s, final Charset charset) {

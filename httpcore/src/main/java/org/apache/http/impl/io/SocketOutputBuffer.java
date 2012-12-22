@@ -39,7 +39,7 @@ import org.apache.http.util.Args;
  * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) use {@link SessionOutputBufferImpl}
  */
 @NotThreadSafe

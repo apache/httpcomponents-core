@@ -33,7 +33,7 @@ import org.apache.http.util.Args;
  * Utility class for accessing connection parameters in {@link HttpParams}.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
  *  and 'org.apache.http.client.config'
  */

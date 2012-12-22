@@ -36,7 +36,7 @@ import org.apache.http.util.Args;
  * operations on that session.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.2) use {@link IOSessionImpl}
  */
 @Deprecated

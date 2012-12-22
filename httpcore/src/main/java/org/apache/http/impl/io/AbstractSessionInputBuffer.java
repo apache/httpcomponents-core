@@ -59,7 +59,7 @@ import org.apache.http.util.CharArrayBuffer;
  * by the HTTP specification.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) use {@link SessionInputBufferImpl}
  */
 @NotThreadSafe

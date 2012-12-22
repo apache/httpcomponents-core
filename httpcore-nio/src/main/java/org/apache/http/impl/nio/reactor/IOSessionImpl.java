@@ -353,7 +353,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         buffer.append("]");
         return buffer.toString();
     }
-    
+
     public Socket getSocket() {
         Channel channel = this.channel;
         if (channel instanceof SocketChannel) {

@@ -45,7 +45,7 @@ public class TestAbstractMessage {
 
         public TestHttpMessage(final ProtocolVersion ver) {
             super();
-            this.ver = ver != null ? ver : HttpVersion.HTTP_1_1; 
+            this.ver = ver != null ? ver : HttpVersion.HTTP_1_1;
         }
 
         public TestHttpMessage() {

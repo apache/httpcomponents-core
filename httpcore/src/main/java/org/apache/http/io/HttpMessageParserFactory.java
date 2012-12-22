@@ -32,7 +32,7 @@ import org.apache.http.config.MessageConstraints;
 
 /**
  * Factory for {@link HttpMessageParser} instances.
- * 
+ *
  * @since 4.3
  */
 public interface HttpMessageParserFactory<T extends HttpMessage> {

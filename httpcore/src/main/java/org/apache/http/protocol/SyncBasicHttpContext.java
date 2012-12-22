@@ -31,7 +31,7 @@ package org.apache.http.protocol;
  * Thread-safe extension of the {@link BasicHttpContext}.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.2) HttpContext instances may not be shared by multiple threads
  */
 @Deprecated

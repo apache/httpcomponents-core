@@ -247,7 +247,7 @@ public class TestDefaultConnectionReuseStrategy {
     @Test
     public void testNoContentResponse() throws Exception {
         // Use HTTP 1.1
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
                 HttpStatus.SC_NO_CONTENT, "No Content");
         Assert.assertTrue(reuseStrategy.keepAlive(response, context));
     }
@@ -255,7 +255,7 @@ public class TestDefaultConnectionReuseStrategy {
     @Test
     public void testNoContentResponseHttp10() throws Exception {
         // Use HTTP 1.0
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 
+        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0,
                 HttpStatus.SC_NO_CONTENT, "No Content");
         Assert.assertFalse(reuseStrategy.keepAlive(response, context));
     }

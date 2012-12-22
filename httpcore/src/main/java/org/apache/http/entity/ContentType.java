@@ -56,7 +56,7 @@ import org.apache.http.util.TextUtils;
 public final class ContentType implements Serializable {
 
     private static final long serialVersionUID = -7768694718232371896L;
-    
+
     // constants
     public static final ContentType APPLICATION_ATOM_XML = create(
             "application/atom+xml", Consts.ISO_8859_1);
@@ -159,7 +159,7 @@ public final class ContentType implements Serializable {
     public static ContentType create(final String mimeType) {
         return new ContentType(mimeType, (Charset) null);
     }
-    
+
     /**
      * Creates a new instance of {@link ContentType}.
      *
@@ -168,7 +168,7 @@ public final class ContentType implements Serializable {
      * @param charset charset. It may not contain characters <">, <;>, <,> reserved by the HTTP
      *        specification. This parameter is optional.
      * @return content type
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static ContentType create(
@@ -193,7 +193,7 @@ public final class ContentType implements Serializable {
      * @return content type
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static ContentType parse(
@@ -216,7 +216,7 @@ public final class ContentType implements Serializable {
      * @return content type
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static ContentType get(
@@ -242,7 +242,7 @@ public final class ContentType implements Serializable {
      * @return content type
      * @throws ParseException if the given text does not represent a valid
      * <code>Content-Type</code> value.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static ContentType getOrDefault(
@@ -253,7 +253,7 @@ public final class ContentType implements Serializable {
 
     /**
      * Creates a new instance with this MIME type and the given Charset.
-     * 
+     *
      * @param charset
      * @return a new instance with this MIME type and the given Charset.
      * @since 4.3
@@ -264,10 +264,10 @@ public final class ContentType implements Serializable {
 
     /**
      * Creates a new instance with this MIME type and the given Charset name.
-     * 
+     *
      * @param charset name
      * @return a new instance with this MIME type and the given Charset name.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      * @since 4.3
      */

@@ -588,13 +588,13 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         buffer.append("]");
         return buffer.toString();
     }
-    
+
     public Socket getSocket(){
-    	if (this.session instanceof SocketAccessor){
-    		return ((SocketAccessor) this.session).getSocket();
-    	} else {
-    		return null;
-    	}
+        if (this.session instanceof SocketAccessor){
+            return ((SocketAccessor) this.session).getSocket();
+        } else {
+            return null;
+        }
     }
 
     private class InternalByteChannel implements ByteChannel {

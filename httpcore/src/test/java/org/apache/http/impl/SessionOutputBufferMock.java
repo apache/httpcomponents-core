@@ -43,10 +43,10 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
     public static final int BUFFER_SIZE = 16;
 
     private final ByteArrayOutputStream buffer;
-    
+
     public SessionOutputBufferMock(
-            final ByteArrayOutputStream buffer, 
-            int buffersize, 
+            final ByteArrayOutputStream buffer,
+            int buffersize,
             int minChunkLimit,
             final CharsetEncoder encoder) {
         super(new HttpTransportMetricsImpl(), buffersize, minChunkLimit, encoder);
@@ -64,7 +64,7 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
             final CharsetEncoder encoder) {
         this(new ByteArrayOutputStream(), BUFFER_SIZE, -1, encoder);
     }
-    
+
     public SessionOutputBufferMock(
             final Charset charset) {
         this(new ByteArrayOutputStream(), BUFFER_SIZE, -1, charset != null ? charset.newEncoder() : null);

@@ -32,7 +32,7 @@ import org.apache.http.annotation.ThreadSafe;
  * Thread-safe extension of the {@link BasicHttpParams}.
  *
  * @since 4.1
- * 
+ *
  * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
  *  and 'org.apache.http.client.config'
  */

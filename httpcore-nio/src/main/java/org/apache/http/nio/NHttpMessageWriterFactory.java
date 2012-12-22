@@ -32,7 +32,7 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
  * Factory for {@link NHttpMessageWriter} instances.
- * 
+ *
  * @since 4.3
  */
 public interface NHttpMessageWriterFactory<T extends HttpMessage> {

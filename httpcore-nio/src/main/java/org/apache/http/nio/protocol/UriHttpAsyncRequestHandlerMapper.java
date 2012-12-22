@@ -98,7 +98,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
         }
         return uriPath;
     }
-    
+
     /**
      * Looks up a handler matching the given request URI.
      *

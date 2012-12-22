@@ -68,7 +68,7 @@ public final class HTTP {
 
     public static final Charset DEF_CONTENT_CHARSET = Consts.ISO_8859_1;
     public static final Charset DEF_PROTOCOL_CHARSET = Consts.ASCII;
-    
+
     /**
      * @deprecated (4.2)
      */

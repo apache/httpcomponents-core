@@ -38,10 +38,10 @@ public class TestUriHttpRequestHandlerMapper {
     @Test
     public void testRegisterUnregister() throws Exception {
         HttpRequestHandler h = Mockito.mock(HttpRequestHandler.class);
-        
+
         UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
         UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
-        
+
         registry.register("/h1", h);
         registry.unregister("/h1");
 
@@ -53,11 +53,11 @@ public class TestUriHttpRequestHandlerMapper {
     public void testLookup() throws Exception {
         UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
         UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
-        
+
         HttpRequest request = new BasicHttpRequest("GET", "/");
         registry.lookup(request);
         registry.unregister("/h1");
-        
+
         Mockito.verify(matcher).lookup("/");
     }
 

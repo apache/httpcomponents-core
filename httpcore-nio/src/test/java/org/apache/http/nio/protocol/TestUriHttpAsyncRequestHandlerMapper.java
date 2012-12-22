@@ -39,11 +39,11 @@ public class TestUriHttpAsyncRequestHandlerMapper {
     @Test
     public void testRegisterUnregister() throws Exception {
         HttpAsyncRequestHandler<?> h = Mockito.mock(HttpAsyncRequestHandler.class);
-        
+
         UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
                 new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
-        
+
         registry.register("/h1", h);
         registry.unregister("/h1");
 
@@ -56,11 +56,11 @@ public class TestUriHttpAsyncRequestHandlerMapper {
         UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
                 new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
         UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
-        
+
         HttpRequest request = new BasicHttpRequest("GET", "/");
         registry.lookup(request);
         registry.unregister("/h1");
-        
+
         Mockito.verify(matcher).lookup("/");
     }
 

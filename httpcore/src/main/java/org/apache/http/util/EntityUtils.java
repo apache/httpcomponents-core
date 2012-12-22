@@ -124,7 +124,7 @@ public final class EntityUtils {
             return null;
         }
         try {
-            Args.check(entity.getContentLength() <= Integer.MAX_VALUE, 
+            Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
                     "HTTP entity too large to be buffered in memory");
             int i = (int)entity.getContentLength();
             if (i < 0) {
@@ -205,7 +205,7 @@ public final class EntityUtils {
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static String toString(
@@ -216,7 +216,7 @@ public final class EntityUtils {
             return null;
         }
         try {
-            Args.check(entity.getContentLength() <= Integer.MAX_VALUE, 
+            Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
                     "HTTP entity too large to be buffered in memory");
             int i = (int)entity.getContentLength();
             if (i < 0) {
@@ -260,7 +260,7 @@ public final class EntityUtils {
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static String toString(
@@ -278,7 +278,7 @@ public final class EntityUtils {
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static String toString(final HttpEntity entity)

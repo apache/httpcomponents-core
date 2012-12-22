@@ -846,7 +846,7 @@ public class TestSyncHttp {
                             new RequestConnControl(),
                             new RequestUserAgent(),
                             new RequestExpectContinue() }));
-            
+
             HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             byte[] received = EntityUtils.toByteArray(response.getEntity());
@@ -895,9 +895,9 @@ public class TestSyncHttp {
             this.client = new HttpClient(new ImmutableHttpProcessor(
                     new HttpRequestInterceptor[] {
                             new HttpRequestInterceptor() {
-                                
+
                                 public void process(
-                                        final HttpRequest request, 
+                                        final HttpRequest request,
                                         final HttpContext context) throws HttpException, IOException {
                                     request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
                                 }
@@ -907,7 +907,7 @@ public class TestSyncHttp {
                             new RequestConnControl(),
                             new RequestUserAgent(),
                             new RequestExpectContinue() }));
-            
+
             HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
         } finally {

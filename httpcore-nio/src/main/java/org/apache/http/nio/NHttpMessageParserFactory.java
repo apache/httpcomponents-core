@@ -33,7 +33,7 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 
 /**
  * Factory for {@link NHttpMessageParser} instances.
- * 
+ *
  * @since 4.3
  */
 public interface NHttpMessageParserFactory<T extends HttpMessage> {

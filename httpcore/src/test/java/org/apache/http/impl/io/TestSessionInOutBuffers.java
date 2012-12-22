@@ -332,14 +332,14 @@ public class TestSessionInOutBuffers {
         String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
         byte[] tmp = s.getBytes("US-ASCII");
         // no limit
-        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5, 
+        SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5,
                 MessageConstraints.DEFAULT);
         Assert.assertNotNull(inbuffer1.readLine());
         long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(60, bytesRead);
 
         // 15 char limit
-        SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5, 
+        SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5,
                 MessageConstraints.lineLen(15));
         try {
             inbuffer2.readLine();

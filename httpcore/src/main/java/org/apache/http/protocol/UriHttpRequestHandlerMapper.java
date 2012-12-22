@@ -100,7 +100,7 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
         }
         return uriPath;
     }
-    
+
     /**
      * Looks up a handler matching the given request URI.
      *

@@ -117,7 +117,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in 
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public StringEntity(final String string, final String charset)
@@ -134,7 +134,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * 
+     *
      * @since 4.2
      */
     public StringEntity(final String string, final Charset charset) {

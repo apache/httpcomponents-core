@@ -72,7 +72,7 @@ public class ResponseContent implements HttpResponseInterceptor {
      * If set to <code>false</code> the <code>Content-Length</code> and
      * <code>Transfer-Encoding</code> headers will cause the interceptor to throw
      * {@link ProtocolException} if already present in the response message.
-     * 
+     *
      * @since 4.2
      */
      public ResponseContent(boolean overwrite) {

@@ -34,7 +34,7 @@ public class Asserts {
             throw new IllegalStateException(message);
         }
     }
-    
+
     public static void check(boolean expression, final String message, final Object... args) {
         if (!expression) {
             throw new IllegalStateException(String.format(message, args));
@@ -46,7 +46,7 @@ public class Asserts {
             throw new IllegalStateException(name + " is null");
         }
     }
-    
+
     public static void notEmpty(final CharSequence s, final String name) {
         if (TextUtils.isEmpty(s)) {
             throw new IllegalStateException(name + " is empty");

@@ -58,7 +58,7 @@ import org.apache.http.util.CharArrayBuffer;
  * of this class use CR-LF as a line delimiter.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) use {@link SessionOutputBufferImpl}
  */
 @NotThreadSafe

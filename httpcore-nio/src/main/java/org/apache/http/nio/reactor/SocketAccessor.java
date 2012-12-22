@@ -38,7 +38,7 @@ public interface SocketAccessor {
 
     /**
      * Return the underlying socket
-     * 
+     *
      * @return - the underlying Socket, may be <code>null</code>.
      */
     Socket getSocket();

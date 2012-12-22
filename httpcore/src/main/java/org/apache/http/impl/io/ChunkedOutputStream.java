@@ -66,8 +66,8 @@ public class ChunkedOutputStream extends OutputStream {
      * @param out The session output buffer
      * @param bufferSize The minimum chunk size (excluding last chunk)
      * @throws IOException not thrown
-     * 
-     * @deprecated (4.3) use {@link ChunkedOutputStream#ChunkedOutputStream(int, SessionOutputBuffer)} 
+     *
+     * @deprecated (4.3) use {@link ChunkedOutputStream#ChunkedOutputStream(int, SessionOutputBuffer)}
      */
     @Deprecated
     public ChunkedOutputStream(final SessionOutputBuffer out, int bufferSize)
@@ -81,8 +81,8 @@ public class ChunkedOutputStream extends OutputStream {
      *
      * @param out       the output buffer to wrap
      * @throws IOException not thrown
-     * 
-     * @deprecated (4.3) use {@link ChunkedOutputStream#ChunkedOutputStream(int, SessionOutputBuffer)} 
+     *
+     * @deprecated (4.3) use {@link ChunkedOutputStream#ChunkedOutputStream(int, SessionOutputBuffer)}
      */
     @Deprecated
     public ChunkedOutputStream(final SessionOutputBuffer out)
@@ -101,7 +101,7 @@ public class ChunkedOutputStream extends OutputStream {
         this.cache = new byte[bufferSize];
         this.out = out;
     }
-    
+
     /**
      * Writes the cache out onto the underlying stream
      */

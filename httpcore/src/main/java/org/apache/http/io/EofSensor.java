@@ -31,7 +31,7 @@ package org.apache.http.io;
  * EOF sensor.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) no longer used.
  */
 @Deprecated

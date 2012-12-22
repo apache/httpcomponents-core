@@ -86,8 +86,8 @@ class BenchmarkWorker implements Runnable {
         this.targetHost = targetHost;
         this.config = config;
         this.httpProcessor = new ImmutableHttpProcessor(
-                new RequestContent(), 
-                new RequestTargetHost(), 
+                new RequestContent(),
+                new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent("HttpCore-AB/1.1"),
                 new RequestExpectContinue());
@@ -122,18 +122,18 @@ class BenchmarkWorker implements Runnable {
             try {
                 resetHeader(request);
                 if (!conn.isOpen()) {
-                    
+
                     Socket socket;
                     if (socketFactory != null) {
                         socket = socketFactory.createSocket();
                     } else {
                         socket = new Socket();
                     }
-                    
+
                     int timeout = config.getSocketTimeout();
                     socket.setSoTimeout(timeout);
                     socket.connect(new InetSocketAddress(hostname, port), timeout);
-                    
+
                     conn.bind(socket);
                 }
 

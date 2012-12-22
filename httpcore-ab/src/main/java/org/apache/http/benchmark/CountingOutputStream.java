@@ -33,7 +33,7 @@ import java.io.OutputStream;
 class CountingOutputStream extends FilterOutputStream {
 
     private final Stats stats;
-    
+
     CountingOutputStream(final OutputStream outstream, final Stats stats) {
         super(outstream);
         this.stats = stats;
@@ -56,5 +56,5 @@ class CountingOutputStream extends FilterOutputStream {
         this.out.write(b, off, len);
         this.stats.incTotalBytesSent(len);
     }
-    
+
 }

@@ -42,7 +42,7 @@ import org.apache.http.entity.ContentLengthStrategy;
 @Immutable
 public class DisallowIdentityContentLengthStrategy implements ContentLengthStrategy {
 
-    public static final DisallowIdentityContentLengthStrategy INSTANCE = 
+    public static final DisallowIdentityContentLengthStrategy INSTANCE =
         new DisallowIdentityContentLengthStrategy(new LaxContentLengthStrategy(0));
 
     private final ContentLengthStrategy contentLengthStrategy;

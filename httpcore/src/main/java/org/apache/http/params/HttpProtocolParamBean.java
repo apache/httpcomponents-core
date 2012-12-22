@@ -35,7 +35,7 @@ import org.apache.http.HttpVersion;
  * conventions.
  *
  * @since 4.0
- * 
+ *
  * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
  *  and 'org.apache.http.client.config'
  */

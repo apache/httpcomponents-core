@@ -29,7 +29,7 @@ package org.apache.http.impl.nio.reactor;
 
 /**
  * @since 4.0
- * 
+ *
  * @deprecated (4.2)
  */
 @Deprecated

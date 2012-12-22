@@ -137,7 +137,7 @@ public class NHttpServer {
             KeyManager[] keymanagers = kmfactory.getKeyManagers();
             SSLContext sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(keymanagers, null, null);
-            connFactory = new SSLNHttpServerConnectionFactory(sslcontext, 
+            connFactory = new SSLNHttpServerConnectionFactory(sslcontext,
                     null, ConnectionConfig.DEFAULT);
         } else {
             connFactory = new DefaultNHttpServerConnectionFactory(

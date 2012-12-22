@@ -64,8 +64,8 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(buffersize, chardecoder, charencoder, 
-                constraints, incomingContentStrategy, outgoingContentStrategy, 
+        super(buffersize, chardecoder, charencoder,
+                constraints, incomingContentStrategy, outgoingContentStrategy,
                 requestWriterFactory, responseParserFactory);
         this.id = "http-outgoing-" + COUNT.incrementAndGet();
         this.log = LogFactory.getLog(getClass());

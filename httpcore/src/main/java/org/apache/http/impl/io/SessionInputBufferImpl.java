@@ -82,7 +82,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      *   The optimal value of this parameter can be platform specific and defines a trade-off
      *   between performance of memory copy operations and that of native method invocation.
      *   If negative default chunk limited will be used.
-     * @param constraints Message constraints. If <code>null</code> 
+     * @param constraints Message constraints. If <code>null</code>
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
