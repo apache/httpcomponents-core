@@ -47,6 +47,7 @@
     <httpcore.compiler.compilerVersion />
     <httpcore.compiler.javac />
     <httpcore.surefire.java />
+    <main.basedir>${project.parent.basedir}</main.basedir>
   </properties>
 
   <dependencies>

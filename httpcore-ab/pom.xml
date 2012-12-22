@@ -40,6 +40,15 @@
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>  
 
+  <properties>
+    <!-- default compiler and surefire plugin settings for "java" profiles -->
+    <httpcore.compiler.fork>false</httpcore.compiler.fork>
+    <httpcore.compiler.compilerVersion />
+    <httpcore.compiler.javac />
+    <httpcore.surefire.java />
+    <main.basedir>${project.parent.basedir}</main.basedir>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
