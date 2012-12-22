@@ -31,7 +31,6 @@ import java.nio.charset.Charset;
 
 import org.apache.http.Header;
 import org.apache.http.ParseException;
-import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
 import org.junit.Assert;
 import org.junit.Test;

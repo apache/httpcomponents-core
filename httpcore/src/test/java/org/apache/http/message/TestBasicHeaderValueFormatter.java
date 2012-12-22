@@ -23,10 +23,7 @@
  * information on the Apache Software Foundation, please see
  * <http://www.apache.org/>.
  *
- * [Additional notices, if required by prior licensing conditions]
- *
  */
-
 package org.apache.http.message;
 
 import org.apache.http.HeaderElement;

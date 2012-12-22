@@ -24,7 +24,6 @@
  * <http://www.apache.org/>.
  *
  */
-
 package org.apache.http.message;
 
 import java.util.NoSuchElementException;
