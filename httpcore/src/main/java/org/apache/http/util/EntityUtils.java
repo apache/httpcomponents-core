@@ -252,7 +252,7 @@ public final class EntityUtils {
      */
     public static String toString(
             final HttpEntity entity, final String defaultCharset) throws IOException, ParseException {
-        return toString(entity, Charset.forName(defaultCharset));
+        return toString(entity, defaultCharset != null ? Charset.forName(defaultCharset) : null);
     }
 
     /**
