@@ -32,6 +32,7 @@ import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * HTTP connection configuration.
@@ -94,6 +95,15 @@ public class ConnectionConfig implements Cloneable {
 
     public static ConnectionConfig.Builder custom() {
         return new Builder();
+    }
+
+    public static ConnectionConfig.Builder copy(final ConnectionConfig config) {
+        Args.notNull(config, "Connection config");
+        return new Builder()
+            .setCharset(config.getCharset())
+            .setMalformedInputAction(config.getMalformedInputAction())
+            .setUnmappableInputAction(config.getUnmappableInputAction())
+            .setMessageConstraints(config.getMessageConstraints());
     }
 
     public static class Builder {

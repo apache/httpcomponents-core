@@ -270,6 +270,21 @@ public final class IOReactorConfig implements Cloneable {
         return new Builder();
     }
 
+    public static Builder copy(final IOReactorConfig config) {
+        Args.notNull(config, "I/O reactor config");
+        return new Builder()
+            .setSelectInterval(config.getSelectInterval())
+            .setShutdownGracePeriod(config.getShutdownGracePeriod())
+            .setInterestOpQueued(config.isInterestOpQueued())
+            .setIoThreadCount(config.getIoThreadCount())
+            .setSoTimeout(config.getSoTimeout())
+            .setSoReuseAddress(config.isSoReuseAddress())
+            .setSoLinger(config.getSoLinger())
+            .setSoKeepAlive(config.isSoKeepalive())
+            .setTcpNoDelay(config.isTcpNoDelay())
+            .setConnectTimeout(config.getConnectTimeout());
+    }
+
     public static class Builder {
 
         private long selectInterval;

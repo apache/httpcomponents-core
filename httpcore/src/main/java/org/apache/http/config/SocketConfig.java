@@ -30,6 +30,7 @@ package org.apache.http.config;
 import java.net.SocketOptions;
 
 import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 
 /**
  * Socket configuration.
@@ -139,6 +140,16 @@ public class SocketConfig implements Cloneable {
 
     public static SocketConfig.Builder custom() {
         return new Builder();
+    }
+
+    public static SocketConfig.Builder copy(final SocketConfig config) {
+        Args.notNull(config, "Socket config");
+        return new Builder()
+            .setSoTimeout(config.getSoTimeout())
+            .setSoReuseAddress(config.isSoReuseAddress())
+            .setSoLinger(config.getSoLinger())
+            .setSoKeepAlive(config.isSoKeepAlive())
+            .setTcpNoDelay(config.isTcpNoDelay());
     }
 
     public static class Builder {
