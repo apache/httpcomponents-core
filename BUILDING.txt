@@ -5,10 +5,10 @@ Building HttpComponents Core
 --------------
 JDK 1.5+ is required in order to compile and run HttpCore.
 
-HttpCore utilizes Maven 2 as a distribution management and packaging tool.
-Version 2.2.1 or later is recommended. Maven 3.0.x can also be used 
-to build HttpCore, however it is known to be incompatible with the Clover 
-plugin used to generate web site content. 
+HttpCore utilizes Maven as a distribution management and packaging tool.
+Version 3.0.3 or later is recommended. Maven 3.0.x, however it is known 
+to be incompatible with the Clover plugin. Use Maven 2.2.1 to generate 
+web site content with Clover coverage reports.
 
 Maven installation and configuration instructions can be found here:
 
