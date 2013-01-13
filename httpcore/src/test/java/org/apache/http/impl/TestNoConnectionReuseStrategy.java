@@ -38,7 +38,7 @@ import org.mockito.MockitoAnnotations;
 
 public class TestNoConnectionReuseStrategy {
 
-    private NoConnectionReuseStrategy strat = new NoConnectionReuseStrategy();
+    private final NoConnectionReuseStrategy strat = new NoConnectionReuseStrategy();
     @Mock private HttpResponse response;
     @Mock private HttpContext context;
 

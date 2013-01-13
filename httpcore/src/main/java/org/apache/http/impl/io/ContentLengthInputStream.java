@@ -60,7 +60,7 @@ public class ContentLengthInputStream extends InputStream {
      * The maximum number of bytes that can be read from the stream. Subsequent
      * read operations will return -1.
      */
-    private long contentLength;
+    private final long contentLength;
 
     /** The current position */
     private long pos = 0;

@@ -51,7 +51,7 @@ public class ChunkedOutputStream extends OutputStream {
     // ----------------------------------------------------- Instance Variables
     private final SessionOutputBuffer out;
 
-    private byte[] cache;
+    private final byte[] cache;
 
     private int cachePosition = 0;
 

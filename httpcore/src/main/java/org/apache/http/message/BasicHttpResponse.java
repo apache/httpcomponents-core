@@ -55,7 +55,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     private int                 code;
     private String              reasonPhrase;
     private HttpEntity          entity;
-    private ReasonPhraseCatalog reasonCatalog;
+    private final ReasonPhraseCatalog reasonCatalog;
     private Locale              locale;
 
     /**

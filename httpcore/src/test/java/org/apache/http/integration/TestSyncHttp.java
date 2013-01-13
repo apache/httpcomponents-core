@@ -601,7 +601,7 @@ public class TestSyncHttp {
     static class RepeatingEntity extends AbstractHttpEntity {
 
         private final byte[] raw;
-        private int n;
+        private final int n;
 
         public RepeatingEntity(final String content, Charset charset, int n) {
             super();

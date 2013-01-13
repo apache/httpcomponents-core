@@ -60,7 +60,7 @@ import org.junit.runners.Parameterized.Parameters;
 @RunWith(Parameterized.class)
 public class TestSessionInOutBuffers {
 
-    private ByteBufferAllocator allocator;
+    private final ByteBufferAllocator allocator;
 
     public TestSessionInOutBuffers(final ByteBufferAllocator allocator) {
         super();

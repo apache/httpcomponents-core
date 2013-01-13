@@ -43,7 +43,7 @@ import org.apache.http.util.Args;
 @NotThreadSafe
 public class ContentBufferEntity extends BasicHttpEntity {
 
-    private HttpEntity wrappedEntity;
+    private final HttpEntity wrappedEntity;
 
     /**
      * Creates new instance of ContentBufferEntity.
