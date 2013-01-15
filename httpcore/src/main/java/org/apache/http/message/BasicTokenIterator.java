@@ -372,16 +372,19 @@ public class BasicTokenIterator implements TokenIterator {
     protected boolean isTokenChar(char ch) {
 
         // common sense extension of ALPHA + DIGIT
-        if (Character.isLetterOrDigit(ch))
-            return true;
+        if (Character.isLetterOrDigit(ch)) {
+			return true;
+		}
 
         // common sense extension of CTL
-        if (Character.isISOControl(ch))
-            return false;
+        if (Character.isISOControl(ch)) {
+			return false;
+		}
 
         // no common sense extension for this
-        if (isHttpSeparator(ch))
-            return false;
+        if (isHttpSeparator(ch)) {
+			return false;
+		}
 
         // RFC 2616, section 2.2 defines a token character as
         // "any CHAR except CTLs or separators". The controls

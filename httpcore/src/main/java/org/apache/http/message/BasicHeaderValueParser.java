@@ -85,8 +85,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         HeaderElement[] parseElements(final String value,
                                       HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null)
-            parser = BasicHeaderValueParser.INSTANCE;
+        if (parser == null) {
+			parser = BasicHeaderValueParser.INSTANCE;
+		}
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -123,8 +124,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         HeaderElement parseHeaderElement(final String value,
                                          HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null)
-            parser = BasicHeaderValueParser.INSTANCE;
+        if (parser == null) {
+			parser = BasicHeaderValueParser.INSTANCE;
+		}
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -176,8 +178,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         NameValuePair[] parseParameters(final String value,
                                         HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null)
-            parser = BasicHeaderValueParser.INSTANCE;
+        if (parser == null) {
+			parser = BasicHeaderValueParser.INSTANCE;
+		}
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -233,8 +236,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
        NameValuePair parseNameValuePair(final String value,
                                         HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null)
-            parser = BasicHeaderValueParser.INSTANCE;
+        if (parser == null) {
+			parser = BasicHeaderValueParser.INSTANCE;
+		}
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);

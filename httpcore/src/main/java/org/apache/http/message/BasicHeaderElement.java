@@ -112,7 +112,9 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
 
     @Override
     public boolean equals(final Object object) {
-        if (this == object) return true;
+        if (this == object) {
+			return true;
+		}
         if (object instanceof HeaderElement) {
             BasicHeaderElement that = (BasicHeaderElement) object;
             return this.name.equals(that.name)

@@ -367,8 +367,9 @@ public class TestLengthDelimitedDecoder {
 
             long pos = beginning.length;
             while (!decoder.isCompleted()) {
-                if(testfile.length() < pos)
-                    testfile.setLength(pos);
+                if(testfile.length() < pos) {
+					testfile.setLength(pos);
+				}
                 long bytesRead = decoder.transfer(fchannel, pos, 10);
                 if (bytesRead > 0) {
                     pos += bytesRead;

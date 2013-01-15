@@ -99,8 +99,9 @@ public class BasicLineFormatter implements LineFormatter {
     public final static
         String formatProtocolVersion(final ProtocolVersion version,
                                      LineFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicLineFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicLineFormatter.INSTANCE;
+		}
         return formatter.appendProtocolVersion(null, version).toString();
     }
 
@@ -154,8 +155,9 @@ public class BasicLineFormatter implements LineFormatter {
      */
     public final static String formatRequestLine(final RequestLine reqline,
                                                  LineFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicLineFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicLineFormatter.INSTANCE;
+		}
         return formatter.formatRequestLine(null, reqline).toString();
     }
 
@@ -210,8 +212,9 @@ public class BasicLineFormatter implements LineFormatter {
      */
     public final static String formatStatusLine(final StatusLine statline,
                                                 LineFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicLineFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicLineFormatter.INSTANCE;
+		}
         return formatter.formatStatusLine(null, statline).toString();
     }
 
@@ -268,8 +271,9 @@ public class BasicLineFormatter implements LineFormatter {
      */
     public final static String formatHeader(final Header header,
                                             LineFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicLineFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicLineFormatter.INSTANCE;
+		}
         return formatter.formatHeader(null, header).toString();
     }
 

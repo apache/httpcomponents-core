@@ -89,8 +89,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
         String formatElements(final HeaderElement[] elems,
                               final boolean quote,
                               HeaderValueFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicHeaderValueFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicHeaderValueFormatter.INSTANCE;
+		}
         return formatter.formatElements(null, elems, quote).toString();
     }
 
@@ -126,8 +127,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @return  a length estimate, in number of characters
      */
     protected int estimateElementsLen(final HeaderElement[] elems) {
-        if ((elems == null) || (elems.length < 1))
-            return 0;
+        if ((elems == null) || (elems.length < 1)) {
+			return 0;
+		}
 
         int result = (elems.length-1) * 2; // elements separated by ", "
         for (HeaderElement elem : elems) {
@@ -154,8 +156,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
         String formatHeaderElement(final HeaderElement elem,
                                    boolean quote,
                                    HeaderValueFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicHeaderValueFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicHeaderValueFormatter.INSTANCE;
+		}
         return formatter.formatHeaderElement(null, elem, quote).toString();
     }
 
@@ -199,8 +202,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @return  a length estimate, in number of characters
      */
     protected int estimateHeaderElementLen(final HeaderElement elem) {
-        if (elem == null)
-            return 0;
+        if (elem == null) {
+			return 0;
+		}
 
         int result = elem.getName().length(); // name
         final String value = elem.getValue();
@@ -238,8 +242,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
         String formatParameters(final NameValuePair[] nvps,
                                 final boolean quote,
                                 HeaderValueFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicHeaderValueFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicHeaderValueFormatter.INSTANCE;
+		}
         return formatter.formatParameters(null, nvps, quote).toString();
     }
 
@@ -275,8 +280,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @return  a length estimate, in number of characters
      */
     protected int estimateParametersLen(final NameValuePair[] nvps) {
-        if ((nvps == null) || (nvps.length < 1))
-            return 0;
+        if ((nvps == null) || (nvps.length < 1)) {
+			return 0;
+		}
 
         int result = (nvps.length-1) * 2; // "; " between the parameters
         for (NameValuePair nvp : nvps) {
@@ -302,8 +308,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
         String formatNameValuePair(final NameValuePair nvp,
                                    final boolean quote,
                                    HeaderValueFormatter formatter) {
-        if (formatter == null)
-            formatter = BasicHeaderValueFormatter.INSTANCE;
+        if (formatter == null) {
+			formatter = BasicHeaderValueFormatter.INSTANCE;
+		}
         return formatter.formatNameValuePair(null, nvp, quote).toString();
     }
 
@@ -339,8 +346,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @return  a length estimate, in number of characters
      */
     protected int estimateNameValuePairLen(final NameValuePair nvp) {
-        if (nvp == null)
-            return 0;
+        if (nvp == null) {
+			return 0;
+		}
 
         int result = nvp.getName().length(); // name
         final String value = nvp.getValue();

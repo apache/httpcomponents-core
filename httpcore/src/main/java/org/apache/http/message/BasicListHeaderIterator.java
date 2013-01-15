@@ -100,8 +100,9 @@ public class BasicListHeaderIterator implements HeaderIterator {
      *          or negative if there are no more headers
      */
     protected int findNext(int from) {
-        if (from < -1)
-            return -1;
+        if (from < -1) {
+			return -1;
+		}
 
         final int to = this.allHeaders.size()-1;
         boolean found = false;
@@ -122,8 +123,9 @@ public class BasicListHeaderIterator implements HeaderIterator {
      *          iteration, <code>false</code> to skip
      */
     protected boolean filterHeader(int index) {
-        if (this.headerName == null)
-            return true;
+        if (this.headerName == null) {
+			return true;
+		}
 
         // non-header elements, including null, will trigger exceptions
         final String name = (this.allHeaders.get(index)).getName();

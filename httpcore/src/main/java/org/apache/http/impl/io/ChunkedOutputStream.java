@@ -154,7 +154,9 @@ public class ChunkedOutputStream extends OutputStream {
         }
         this.cache[this.cachePosition] = (byte) b;
         this.cachePosition++;
-        if (this.cachePosition == this.cache.length) flushCache();
+        if (this.cachePosition == this.cache.length) {
+			flushCache();
+		}
     }
 
     /**

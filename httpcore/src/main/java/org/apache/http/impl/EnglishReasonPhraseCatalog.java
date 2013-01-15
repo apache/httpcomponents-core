@@ -78,8 +78,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         int subcode  = status - 100*category;
 
         String reason = null;
-        if (REASON_PHRASES[category].length > subcode)
-            reason = REASON_PHRASES[category][subcode];
+        if (REASON_PHRASES[category].length > subcode) {
+			reason = REASON_PHRASES[category][subcode];
+		}
 
         return reason;
     }

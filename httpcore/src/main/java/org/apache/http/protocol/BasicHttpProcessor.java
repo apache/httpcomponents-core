@@ -115,8 +115,9 @@ public final class BasicHttpProcessor implements
     }
 
     public HttpRequestInterceptor getRequestInterceptor(int index) {
-        if ((index < 0) || (index >= this.requestInterceptors.size()))
-            return null;
+        if ((index < 0) || (index >= this.requestInterceptors.size())) {
+			return null;
+		}
         return this.requestInterceptors.get(index);
     }
 
@@ -144,8 +145,9 @@ public final class BasicHttpProcessor implements
     }
 
     public HttpResponseInterceptor getResponseInterceptor(int index) {
-        if ((index < 0) || (index >= this.responseInterceptors.size()))
-            return null;
+        if ((index < 0) || (index >= this.responseInterceptors.size())) {
+			return null;
+		}
         return this.responseInterceptors.get(index);
     }
 

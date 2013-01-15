@@ -187,7 +187,9 @@ public final class HttpHost implements Cloneable, Serializable {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
+        if (this == obj) {
+			return true;
+		}
         if (obj instanceof HttpHost) {
             HttpHost that = (HttpHost) obj;
             return this.lcHostname.equals(that.lcHostname)
