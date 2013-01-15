@@ -49,7 +49,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         super();
     }
 
-    public long getLongParameter(final String name, long defaultValue) {
+    public long getLongParameter(final String name, final long defaultValue) {
         Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
@@ -57,12 +57,12 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Long)param).longValue();
     }
 
-    public HttpParams setLongParameter(final String name, long value) {
+    public HttpParams setLongParameter(final String name, final long value) {
         setParameter(name, new Long(value));
         return this;
     }
 
-    public int getIntParameter(final String name, int defaultValue) {
+    public int getIntParameter(final String name, final int defaultValue) {
         Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
@@ -70,12 +70,12 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Integer)param).intValue();
     }
 
-    public HttpParams setIntParameter(final String name, int value) {
+    public HttpParams setIntParameter(final String name, final int value) {
         setParameter(name, new Integer(value));
         return this;
     }
 
-    public double getDoubleParameter(final String name, double defaultValue) {
+    public double getDoubleParameter(final String name, final double defaultValue) {
         Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
@@ -83,12 +83,12 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Double)param).doubleValue();
     }
 
-    public HttpParams setDoubleParameter(final String name, double value) {
+    public HttpParams setDoubleParameter(final String name, final double value) {
         setParameter(name, new Double(value));
         return this;
     }
 
-    public boolean getBooleanParameter(final String name, boolean defaultValue) {
+    public boolean getBooleanParameter(final String name, final boolean defaultValue) {
         Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
@@ -96,7 +96,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Boolean)param).booleanValue();
     }
 
-    public HttpParams setBooleanParameter(final String name, boolean value) {
+    public HttpParams setBooleanParameter(final String name, final boolean value) {
         setParameter(name, value ? Boolean.TRUE : Boolean.FALSE);
         return this;
     }

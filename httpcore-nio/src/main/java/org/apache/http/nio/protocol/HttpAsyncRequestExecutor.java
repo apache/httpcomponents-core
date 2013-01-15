@@ -89,7 +89,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
      *
      * @since 4.3
      */
-    public HttpAsyncRequestExecutor(int waitForContinue) {
+    public HttpAsyncRequestExecutor(final int waitForContinue) {
         super();
         this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
     }
@@ -438,7 +438,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             return this.timeout;
         }
 
-        public void setTimeout(int timeout) {
+        public void setTimeout(final int timeout) {
             this.timeout = timeout;
         }
 

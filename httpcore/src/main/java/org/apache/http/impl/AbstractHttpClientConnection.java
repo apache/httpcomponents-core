@@ -238,7 +238,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
                 outbuffer.getMetrics());
     }
 
-    public boolean isResponseAvailable(int timeout) throws IOException {
+    public boolean isResponseAvailable(final int timeout) throws IOException {
         assertOpen();
         try {
             return this.inbuffer.isDataAvailable(timeout);

@@ -258,7 +258,7 @@ public final class ContentType implements Serializable {
      * @return a new instance with this MIME type and the given Charset.
      * @since 4.3
      */
-    public ContentType withCharset(Charset charset) {
+    public ContentType withCharset(final Charset charset) {
         return create(this.getMimeType(), charset);
     }
 
@@ -271,7 +271,7 @@ public final class ContentType implements Serializable {
      * this instance of the Java virtual machine
      * @since 4.3
      */
-    public ContentType withCharset(String charset) {
+    public ContentType withCharset(final String charset) {
         return create(this.getMimeType(), charset);
     }
 

@@ -73,7 +73,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      *
      * @param header the header to add
      */
-    public void addHeader(Header header) {
+    public void addHeader(final Header header) {
         if (header == null) {
             return;
         }
@@ -85,7 +85,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      *
      * @param header the header to remove
      */
-    public void removeHeader(Header header) {
+    public void removeHeader(final Header header) {
         if (header == null) {
             return;
         }
@@ -99,7 +99,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @param header the new header that should replace the first header with the same
      * name if present in the list.
      */
-    public void updateHeader(Header header) {
+    public void updateHeader(final Header header) {
         if (header == null) {
             return;
         }
@@ -120,7 +120,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      *
      * @param headers the headers to set
      */
-    public void setHeaders(Header[] headers) {
+    public void setHeaders(final Header[] headers) {
         clear();
         if (headers == null) {
             return;
@@ -141,7 +141,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @return a header with a condensed value or <code>null</code> if no
      * headers by the given name are present
      */
-    public Header getCondensedHeader(String name) {
+    public Header getCondensedHeader(final String name) {
         Header[] headers = getHeaders(name);
 
         if (headers.length == 0) {
@@ -170,7 +170,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      *
      * @return an array of length >= 0
      */
-    public Header[] getHeaders(String name) {
+    public Header[] getHeaders(final String name) {
         List<Header> headersFound = new ArrayList<Header>();
 
         for (int i = 0; i < headers.size(); i++) {
@@ -191,7 +191,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @param name the name of the header to get
      * @return the first header or <code>null</code>
      */
-    public Header getFirstHeader(String name) {
+    public Header getFirstHeader(final String name) {
         for (int i = 0; i < headers.size(); i++) {
             Header header = headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
@@ -209,7 +209,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @param name the name of the header to get
      * @return the last header or <code>null</code>
      */
-    public Header getLastHeader(String name) {
+    public Header getLastHeader(final String name) {
         // start at the end of the list and work backwards
         for (int i = headers.size() - 1; i >= 0; i--) {
             Header header = headers.get(i);
@@ -239,7 +239,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @return <code>true</code> if at least one header with the name is
      * contained, <code>false</code> otherwise
      */
-    public boolean containsHeader(String name) {
+    public boolean containsHeader(final String name) {
         for (int i = 0; i < headers.size(); i++) {
             Header header = headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {

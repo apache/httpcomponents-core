@@ -603,7 +603,7 @@ public class TestSyncHttp {
         private final byte[] raw;
         private final int n;
 
-        public RepeatingEntity(final String content, Charset charset, int n) {
+        public RepeatingEntity(final String content, Charset charset, final int n) {
             super();
             if (charset == null) {
                 charset = Charset.forName("US-ASCII"); // US-ASCII is built-in

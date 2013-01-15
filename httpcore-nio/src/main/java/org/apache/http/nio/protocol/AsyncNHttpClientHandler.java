@@ -468,7 +468,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             return this.outputState;
         }
 
-        public void setOutputState(int outputState) {
+        public void setOutputState(final int outputState) {
             this.outputState = outputState;
         }
 
@@ -492,7 +492,7 @@ public class AsyncNHttpClientHandler extends NHttpHandlerBase
             return this.timeout;
         }
 
-        public void setTimeout(int timeout) {
+        public void setTimeout(final int timeout) {
             this.timeout = timeout;
         }
 

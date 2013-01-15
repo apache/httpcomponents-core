@@ -74,8 +74,8 @@ public class IdentityEncoder extends AbstractContentEncoder
 
     public long transfer(
             final FileChannel src,
-            long position,
-            long count) throws IOException {
+            final long position,
+            final long count) throws IOException {
 
         if (src == null) {
             return 0;

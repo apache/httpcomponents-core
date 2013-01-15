@@ -75,7 +75,7 @@ public class RequestContent implements HttpRequestInterceptor {
      *
      * @since 4.2
      */
-     public RequestContent(boolean overwrite) {
+     public RequestContent(final boolean overwrite) {
          super();
          this.overwrite = overwrite;
     }

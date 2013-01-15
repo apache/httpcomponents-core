@@ -117,7 +117,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return true;
     }
 
-    public void free(final E entry, boolean reusable) {
+    public void free(final E entry, final boolean reusable) {
         Args.notNull(entry, "Pool entry");
         boolean found = this.leased.remove(entry);
         Asserts.check(found, "Entry %s has not been leased from this pool", entry);

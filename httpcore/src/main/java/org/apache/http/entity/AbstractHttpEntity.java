@@ -167,7 +167,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      *
      * @param b         the new 'chunked' flag
      */
-    public void setChunked(boolean b) {
+    public void setChunked(final boolean b) {
         this.chunked = b;
     }
 

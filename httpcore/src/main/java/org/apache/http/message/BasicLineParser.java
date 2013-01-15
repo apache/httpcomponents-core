@@ -103,7 +103,7 @@ public class BasicLineParser implements LineParser {
 
 
     public final static
-        ProtocolVersion parseProtocolVersion(String value,
+        ProtocolVersion parseProtocolVersion(final String value,
                                              LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
@@ -200,7 +200,7 @@ public class BasicLineParser implements LineParser {
      *
      * @return  the protocol version
      */
-    protected ProtocolVersion createProtocolVersion(int major, int minor) {
+    protected ProtocolVersion createProtocolVersion(final int major, final int minor) {
         return protocol.forVersion(major, minor);
     }
 
@@ -443,7 +443,7 @@ public class BasicLineParser implements LineParser {
 
 
     // non-javadoc, see interface LineParser
-    public Header parseHeader(CharArrayBuffer buffer)
+    public Header parseHeader(final CharArrayBuffer buffer)
         throws ParseException {
 
         // the actual parser code is in the constructor of BufferedHeader

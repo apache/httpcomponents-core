@@ -62,7 +62,7 @@ public class HttpProtocolParamBean extends HttpAbstractParamBean {
         HttpProtocolParams.setUserAgent(params, userAgent);
     }
 
-    public void setUseExpectContinue (boolean useExpectContinue) {
+    public void setUseExpectContinue (final boolean useExpectContinue) {
         HttpProtocolParams.setUseExpectContinue(params, useExpectContinue);
     }
 

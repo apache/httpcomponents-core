@@ -583,7 +583,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         private volatile boolean workerRunning;
 
         public ClientConnState(
-                int bufsize,
+                final int bufsize,
                 final IOControl ioControl,
                 final ByteBufferAllocator allocator) {
             super();
@@ -605,7 +605,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             return this.inputState;
         }
 
-        public void setInputState(int inputState) {
+        public void setInputState(final int inputState) {
             this.inputState = inputState;
         }
 
@@ -613,7 +613,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             return this.outputState;
         }
 
-        public void setOutputState(int outputState) {
+        public void setOutputState(final int outputState) {
             this.outputState = outputState;
         }
 
@@ -637,7 +637,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             return this.timeout;
         }
 
-        public void setTimeout(int timeout) {
+        public void setTimeout(final int timeout) {
             this.timeout = timeout;
         }
 
@@ -645,7 +645,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
             return this.workerRunning;
         }
 
-        public void setWorkerRunning(boolean b) {
+        public void setWorkerRunning(final boolean b) {
             this.workerRunning = b;
         }
 

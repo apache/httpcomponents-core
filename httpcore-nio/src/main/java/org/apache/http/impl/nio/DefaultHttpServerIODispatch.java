@@ -148,7 +148,7 @@ public class DefaultHttpServerIODispatch
     }
 
     @Override
-    protected void onException(final DefaultNHttpServerConnection conn, IOException ex) {
+    protected void onException(final DefaultNHttpServerConnection conn, final IOException ex) {
         this.handler.exception(conn, ex);
     }
 

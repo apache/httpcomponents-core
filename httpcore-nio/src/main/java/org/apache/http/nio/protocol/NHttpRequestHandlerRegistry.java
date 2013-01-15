@@ -97,7 +97,7 @@ public class NHttpRequestHandlerRegistry implements NHttpRequestHandlerResolver 
         return matcher.getObjects();
     }
 
-    public NHttpRequestHandler lookup(String requestURI) {
+    public NHttpRequestHandler lookup(final String requestURI) {
         return matcher.lookup(requestURI);
     }
 

@@ -90,7 +90,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      * @param len       the number of bytes in the content, or
      *                  a negative number to indicate an unknown length
      */
-    public void setContentLength(long len) {
+    public void setContentLength(final long len) {
         this.length = len;
     }
 

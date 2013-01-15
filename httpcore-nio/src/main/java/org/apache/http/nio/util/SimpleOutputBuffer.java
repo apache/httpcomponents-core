@@ -43,7 +43,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
 
     private boolean endOfStream;
 
-    public SimpleOutputBuffer(int buffersize, final ByteBufferAllocator allocator) {
+    public SimpleOutputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         this.endOfStream = false;
     }
@@ -51,7 +51,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @since 4.3
      */
-    public SimpleOutputBuffer(int buffersize) {
+    public SimpleOutputBuffer(final int buffersize) {
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
@@ -64,7 +64,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
         return bytesWritten;
     }
 
-    public void write(final byte[] b, int off, int len) throws IOException {
+    public void write(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return;
         }
@@ -86,7 +86,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
         write(b, 0, b.length);
     }
 
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         if (this.endOfStream) {
             return;
         }

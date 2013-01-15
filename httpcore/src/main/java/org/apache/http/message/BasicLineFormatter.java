@@ -163,8 +163,8 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
-    public CharArrayBuffer formatRequestLine(CharArrayBuffer buffer,
-                                             RequestLine reqline) {
+    public CharArrayBuffer formatRequestLine(final CharArrayBuffer buffer,
+                                             final RequestLine reqline) {
         Args.notNull(reqline, "Request line");
         CharArrayBuffer result = initBuffer(buffer);
         doFormatRequestLine(result, reqline);
@@ -279,8 +279,8 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
-    public CharArrayBuffer formatHeader(CharArrayBuffer buffer,
-                                        Header header) {
+    public CharArrayBuffer formatHeader(final CharArrayBuffer buffer,
+                                        final Header header) {
         Args.notNull(header, "Header");
         CharArrayBuffer result = null;
 

@@ -127,7 +127,7 @@ public class DefaultNHttpClientConnection
      */
     public DefaultNHttpClientConnection(
             final IOSession session,
-            int buffersize,
+            final int buffersize,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -149,7 +149,7 @@ public class DefaultNHttpClientConnection
      */
     public DefaultNHttpClientConnection(
             final IOSession session,
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
@@ -160,7 +160,7 @@ public class DefaultNHttpClientConnection
     /**
      * @since 4.3
      */
-    public DefaultNHttpClientConnection(final IOSession session, int buffersize) {
+    public DefaultNHttpClientConnection(final IOSession session, final int buffersize) {
         this(session, buffersize, null, null, null, null, null, null, null, null);
     }
 

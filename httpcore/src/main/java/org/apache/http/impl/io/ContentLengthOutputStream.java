@@ -77,7 +77,7 @@ public class ContentLengthOutputStream extends OutputStream {
      *
      * @since 4.0
      */
-    public ContentLengthOutputStream(final SessionOutputBuffer out, long contentLength) {
+    public ContentLengthOutputStream(final SessionOutputBuffer out, final long contentLength) {
         super();
         this.out = Args.notNull(out, "Session output buffer");
         this.contentLength = Args.notNegative(contentLength, "Content length");
@@ -102,7 +102,7 @@ public class ContentLengthOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] b, int off, int len) throws IOException {
+    public void write(final byte[] b, final int off, int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
@@ -117,12 +117,12 @@ public class ContentLengthOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(byte[] b) throws IOException {
+    public void write(final byte[] b) throws IOException {
         write(b, 0, b.length);
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }

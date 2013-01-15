@@ -125,7 +125,7 @@ public final class HTTP {
     @Deprecated
     public final static String DEFAULT_CONTENT_TYPE = OCTET_STREAM_TYPE;
 
-    public static boolean isWhitespace(char ch) {
+    public static boolean isWhitespace(final char ch) {
         return ch == SP || ch == HT || ch == CR || ch == LF;
     }
 

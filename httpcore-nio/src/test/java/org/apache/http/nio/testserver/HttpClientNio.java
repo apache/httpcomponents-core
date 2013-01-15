@@ -102,15 +102,15 @@ public class HttpClientNio {
         return this.timeout;
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(final int timeout) {
         this.timeout = timeout;
     }
 
-    public void setMaxTotal(int max) {
+    public void setMaxTotal(final int max) {
         this.connpool.setMaxTotal(max);
     }
 
-    public void setMaxPerRoute(int max) {
+    public void setMaxPerRoute(final int max) {
         this.connpool.setDefaultMaxPerRoute(max);
     }
 
@@ -120,7 +120,7 @@ public class HttpClientNio {
         return this.connpool.lease(host, null, this.timeout, TimeUnit.MILLISECONDS, callback);
     }
 
-    public void release(final BasicNIOPoolEntry poolEntry, boolean reusable) {
+    public void release(final BasicNIOPoolEntry poolEntry, final boolean reusable) {
         this.connpool.release(poolEntry, reusable);
     }
 
@@ -201,7 +201,7 @@ public class HttpClientNio {
         IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler, this.connFactory) {
 
             @Override
-            protected DefaultNHttpClientConnection createConnection(IOSession session) {
+            protected DefaultNHttpClientConnection createConnection(final IOSession session) {
                 DefaultNHttpClientConnection conn = super.createConnection(session);
                 conn.setSocketTimeout(timeout);
                 return conn;
@@ -257,7 +257,7 @@ public class HttpClientNio {
         return this.ioReactor.getAuditLog();
     }
 
-    public void join(long timeout) throws InterruptedException {
+    public void join(final long timeout) throws InterruptedException {
         if (this.thread != null) {
             this.thread.join(timeout);
         }

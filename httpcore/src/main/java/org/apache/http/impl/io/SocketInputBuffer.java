@@ -86,7 +86,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
         return i;
     }
 
-    public boolean isDataAvailable(int timeout) throws IOException {
+    public boolean isDataAvailable(final int timeout) throws IOException {
         boolean result = hasBufferedData();
         if (!result) {
             int oldtimeout = this.socket.getSoTimeout();

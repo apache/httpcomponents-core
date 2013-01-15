@@ -29,13 +29,13 @@ package org.apache.http.util;
 
 public class Asserts {
 
-    public static void check(boolean expression, final String message) {
+    public static void check(final boolean expression, final String message) {
         if (!expression) {
             throw new IllegalStateException(message);
         }
     }
 
-    public static void check(boolean expression, final String message, final Object... args) {
+    public static void check(final boolean expression, final String message, final Object... args) {
         if (!expression) {
             throw new IllegalStateException(String.format(message, args));
         }

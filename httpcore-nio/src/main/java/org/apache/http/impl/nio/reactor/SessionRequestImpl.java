@@ -183,7 +183,7 @@ public class SessionRequestImpl implements SessionRequest {
         return this.connectTimeout;
     }
 
-    public void setConnectTimeout(int timeout) {
+    public void setConnectTimeout(final int timeout) {
         if (this.connectTimeout != timeout) {
             this.connectTimeout = timeout;
             SelectionKey key = this.key;

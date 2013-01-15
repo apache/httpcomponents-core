@@ -75,7 +75,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         return this;
     }
 
-    public boolean removeParameter(String name) {
+    public boolean removeParameter(final String name) {
         //this is to avoid the case in which the key has a null value
         if (this.parameters.containsKey(name)) {
             this.parameters.remove(name);
@@ -168,7 +168,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @param target    the parameters to which to copy
      * @since 4.2
      */
-    public void copyParams(HttpParams target) {
+    public void copyParams(final HttpParams target) {
         for (Map.Entry<String, Object> me : this.parameters.entrySet()) {
             target.setParameter(me.getKey(), me.getValue());
         }

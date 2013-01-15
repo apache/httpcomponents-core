@@ -81,7 +81,7 @@ public class ContentLengthInputStream extends InputStream {
      * @param contentLength The maximum number of bytes that can be read from
      * the stream. Subsequent read operations will return -1.
      */
-    public ContentLengthInputStream(final SessionInputBuffer in, long contentLength) {
+    public ContentLengthInputStream(final SessionInputBuffer in, final long contentLength) {
         super();
         this.in = Args.notNull(in, "Session input buffer");
         this.contentLength = Args.notNegative(contentLength, "Content length");
@@ -162,7 +162,7 @@ public class ContentLengthInputStream extends InputStream {
      * @throws java.io.IOException Should an error occur on the wrapped stream.
      */
     @Override
-    public int read (byte[] b, int off, int len) throws java.io.IOException {
+    public int read (final byte[] b, final int off, int len) throws java.io.IOException {
         if (closed) {
             throw new IOException("Attempted read from closed stream.");
         }
@@ -195,7 +195,7 @@ public class ContentLengthInputStream extends InputStream {
      * @see java.io.InputStream#read(byte[])
      */
     @Override
-    public int read(byte[] b) throws IOException {
+    public int read(final byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 
@@ -208,7 +208,7 @@ public class ContentLengthInputStream extends InputStream {
      * @see InputStream#skip(long)
      */
     @Override
-    public long skip(long n) throws IOException {
+    public long skip(final long n) throws IOException {
         if (n <= 0) {
             return 0;
         }

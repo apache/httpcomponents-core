@@ -54,7 +54,7 @@ public class HttpEntityWrapper implements HttpEntity {
     /**
      * Creates a new entity wrapper.
      */
-    public HttpEntityWrapper(HttpEntity wrappedEntity) {
+    public HttpEntityWrapper(final HttpEntity wrappedEntity) {
         super();
         this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
     } // constructor
@@ -84,7 +84,7 @@ public class HttpEntityWrapper implements HttpEntity {
         return wrappedEntity.getContent();
     }
 
-    public void writeTo(OutputStream outstream)
+    public void writeTo(final OutputStream outstream)
         throws IOException {
         wrappedEntity.writeTo(outstream);
     }

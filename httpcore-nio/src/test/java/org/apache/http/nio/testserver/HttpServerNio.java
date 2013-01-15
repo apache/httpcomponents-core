@@ -83,7 +83,7 @@ public class HttpServerNio {
         return this.timeout;
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(final int timeout) {
         this.timeout = timeout;
     }
 
@@ -95,7 +95,7 @@ public class HttpServerNio {
         IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(serviceHandler, this.connFactory) {
 
             @Override
-            protected DefaultNHttpServerConnection createConnection(IOSession session) {
+            protected DefaultNHttpServerConnection createConnection(final IOSession session) {
                 DefaultNHttpServerConnection conn = super.createConnection(session);
                 conn.setSocketTimeout(timeout);
                 return conn;
@@ -109,7 +109,7 @@ public class HttpServerNio {
         return this.endpoint;
     }
 
-    public void setEndpoint(ListenerEndpoint endpoint) {
+    public void setEndpoint(final ListenerEndpoint endpoint) {
         this.endpoint = endpoint;
     }
 
@@ -155,7 +155,7 @@ public class HttpServerNio {
         return this.ioReactor.getAuditLog();
     }
 
-    public void join(long timeout) throws InterruptedException {
+    public void join(final long timeout) throws InterruptedException {
         if (this.thread != null) {
             this.thread.join(timeout);
         }

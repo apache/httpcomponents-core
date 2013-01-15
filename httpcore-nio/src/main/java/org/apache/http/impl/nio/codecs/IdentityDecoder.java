@@ -68,7 +68,7 @@ public class IdentityDecoder extends AbstractContentDecoder
      * some other means to know all the necessary data has been read and want to
      * reuse the underlying connection for more messages.
      */
-    public void setCompleted(boolean completed) {
+    public void setCompleted(final boolean completed) {
         this.completed = completed;
     }
 
@@ -95,8 +95,8 @@ public class IdentityDecoder extends AbstractContentDecoder
 
     public long transfer(
             final FileChannel dst,
-            long position,
-            long count) throws IOException {
+            final long position,
+            final long count) throws IOException {
 
         if (dst == null) {
             return 0;

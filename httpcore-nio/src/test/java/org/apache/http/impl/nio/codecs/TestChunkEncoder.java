@@ -245,11 +245,11 @@ public class TestChunkEncoder {
         private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         private final ByteBuffer buffer;
 
-        public FixedByteChannel(int size) {
+        public FixedByteChannel(final int size) {
             this.buffer = ByteBuffer.allocate(size);
         }
 
-        public int write(ByteBuffer src) throws IOException {
+        public int write(final ByteBuffer src) throws IOException {
             // copy bytes into baos for result evaluation
             final int start = src.position();
             int count = 0;
@@ -280,7 +280,7 @@ public class TestChunkEncoder {
             buffer.clear();
         }
 
-        public String toString(String encoding) throws UnsupportedEncodingException {
+        public String toString(final String encoding) throws UnsupportedEncodingException {
             return baos.toString(encoding);
         }
     }

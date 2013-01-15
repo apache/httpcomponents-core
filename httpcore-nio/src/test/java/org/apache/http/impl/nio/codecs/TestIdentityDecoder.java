@@ -185,7 +185,7 @@ public class TestIdentityDecoder {
         deleteWithCheck(fileHandle);
     }
 
-    private void deleteWithCheck(File handle){
+    private void deleteWithCheck(final File handle){
         if (!handle.delete() && handle.exists()){
             System.err.println("Failed to delete: "+handle.getPath());
         }

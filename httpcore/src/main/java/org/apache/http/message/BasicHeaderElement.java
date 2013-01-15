@@ -93,7 +93,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         return this.parameters.length;
     }
 
-    public NameValuePair getParameter(int index) {
+    public NameValuePair getParameter(final int index) {
         // ArrayIndexOutOfBoundsException is appropriate
         return this.parameters[index];
     }

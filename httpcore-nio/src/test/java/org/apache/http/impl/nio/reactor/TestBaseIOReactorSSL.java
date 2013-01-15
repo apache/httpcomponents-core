@@ -120,8 +120,8 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
     public void testBufferedInput() throws Exception {
         final int[] result = new int[1];
         HttpRequestHandler requestHandler = new HttpRequestHandler() {
-            public void handle(HttpRequest request, HttpResponse response,
-                    HttpContext context) throws HttpException, IOException {
+            public void handle(final HttpRequest request, final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
                 result[0]++;
                 synchronized (result) {
                     result.notify();

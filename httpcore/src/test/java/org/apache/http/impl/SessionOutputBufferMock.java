@@ -46,8 +46,8 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
 
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
-            int buffersize,
-            int minChunkLimit,
+            final int buffersize,
+            final int minChunkLimit,
             final CharsetEncoder encoder) {
         super(new HttpTransportMetricsImpl(), buffersize, minChunkLimit, encoder);
         bind(buffer);
@@ -56,7 +56,7 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
 
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
-            int buffersize) {
+            final int buffersize) {
         this(buffer, buffersize, -1, null);
     }
 

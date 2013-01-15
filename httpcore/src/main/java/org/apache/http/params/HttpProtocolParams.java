@@ -174,7 +174,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      * @param params HTTP parameters.
      * @param b expect-continue flag.
      */
-    public static void setUseExpectContinue(final HttpParams params, boolean b) {
+    public static void setUseExpectContinue(final HttpParams params, final boolean b) {
         Args.notNull(params, "HTTP parameters");
         params.setBooleanParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE, b);
     }
@@ -203,7 +203,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      *
      * @since 4.2
      */
-    public static void setMalformedInputAction(final HttpParams params, CodingErrorAction action) {
+    public static void setMalformedInputAction(final HttpParams params, final CodingErrorAction action) {
         Args.notNull(params, "HTTP parameters");
         params.setParameter(CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION, action);
     }
@@ -232,7 +232,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      *
      * @since 4.2
      */
-    public static void setUnmappableInputAction(final HttpParams params, CodingErrorAction action) {
+    public static void setUnmappableInputAction(final HttpParams params, final CodingErrorAction action) {
         Args.notNull(params, "HTTP parameters");
         params.setParameter(CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION, action);
     }

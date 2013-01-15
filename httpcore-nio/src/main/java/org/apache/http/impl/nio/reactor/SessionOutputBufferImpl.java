@@ -81,8 +81,8 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      * @since 4.3
      */
     public SessionOutputBufferImpl(
-            int buffersize,
-            int lineBuffersize,
+            final int buffersize,
+            final int lineBuffersize,
             final CharsetEncoder charencoder,
             final ByteBufferAllocator allocator) {
         super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
@@ -97,8 +97,8 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      */
     @Deprecated
     public SessionOutputBufferImpl(
-            int buffersize,
-            int lineBuffersize,
+            final int buffersize,
+            final int lineBuffersize,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(buffersize, allocator);
@@ -124,8 +124,8 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      */
     @Deprecated
     public SessionOutputBufferImpl(
-            int buffersize,
-            int linebuffersize,
+            final int buffersize,
+            final int linebuffersize,
             final HttpParams params) {
         this(buffersize, linebuffersize, HeapByteBufferAllocator.INSTANCE, params);
     }
@@ -133,7 +133,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     /**
      * @since 4.3
      */
-    public SessionOutputBufferImpl(int buffersize) {
+    public SessionOutputBufferImpl(final int buffersize) {
         this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
     }
 
@@ -141,8 +141,8 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      * @since 4.3
      */
     public SessionOutputBufferImpl(
-            int buffersize,
-            int linebuffersize,
+            final int buffersize,
+            final int linebuffersize,
             final Charset charset) {
         this(buffersize, linebuffersize,
                 charset != null ? charset.newEncoder() : null, HeapByteBufferAllocator.INSTANCE);

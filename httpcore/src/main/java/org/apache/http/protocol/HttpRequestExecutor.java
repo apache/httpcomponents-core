@@ -67,7 +67,7 @@ public class HttpRequestExecutor {
      *
      * @since 4.3
      */
-    public HttpRequestExecutor(int waitForContinue) {
+    public HttpRequestExecutor(final int waitForContinue) {
         super();
         this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
     }

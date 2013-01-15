@@ -75,7 +75,7 @@ public class Config {
         return url;
     }
 
-    public void setUrl(URL url) {
+    public void setUrl(final URL url) {
         this.url = url;
     }
 
@@ -83,7 +83,7 @@ public class Config {
         return requests;
     }
 
-    public void setRequests(int requests) {
+    public void setRequests(final int requests) {
         this.requests = requests;
     }
 
@@ -91,7 +91,7 @@ public class Config {
         return threads;
     }
 
-    public void setThreads(int threads) {
+    public void setThreads(final int threads) {
         this.threads = threads;
     }
 
@@ -99,7 +99,7 @@ public class Config {
         return keepAlive;
     }
 
-    public void setKeepAlive(boolean keepAlive) {
+    public void setKeepAlive(final boolean keepAlive) {
         this.keepAlive = keepAlive;
     }
 
@@ -107,7 +107,7 @@ public class Config {
         return verbosity;
     }
 
-    public void setVerbosity(int verbosity) {
+    public void setVerbosity(final int verbosity) {
         this.verbosity = verbosity;
     }
 
@@ -115,7 +115,7 @@ public class Config {
         return headInsteadOfGet;
     }
 
-    public void setHeadInsteadOfGet(boolean headInsteadOfGet) {
+    public void setHeadInsteadOfGet(final boolean headInsteadOfGet) {
         this.headInsteadOfGet = headInsteadOfGet;
         this.method = "HEAD";
     }
@@ -124,7 +124,7 @@ public class Config {
         return useHttp1_0;
     }
 
-    public void setUseHttp1_0(boolean useHttp1_0) {
+    public void setUseHttp1_0(final boolean useHttp1_0) {
         this.useHttp1_0 = useHttp1_0;
     }
 
@@ -132,7 +132,7 @@ public class Config {
         return payloadFile;
     }
 
-    public void setPayloadFile(File payloadFile) {
+    public void setPayloadFile(final File payloadFile) {
         this.payloadFile = payloadFile;
     }
 
@@ -140,7 +140,7 @@ public class Config {
         return contentType;
     }
 
-    public void setContentType(String contentType) {
+    public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
 
@@ -148,7 +148,7 @@ public class Config {
         return headers;
     }
 
-    public void setHeaders(String[] headers) {
+    public void setHeaders(final String[] headers) {
         this.headers = headers;
     }
 
@@ -156,23 +156,23 @@ public class Config {
         return socketTimeout;
     }
 
-    public void setSocketTimeout(int socketTimeout) {
+    public void setSocketTimeout(final int socketTimeout) {
         this.socketTimeout = socketTimeout;
     }
 
-    public void setMethod(String method) {
+    public void setMethod(final String method) {
         this.method = method;
     }
 
-    public void setUseChunking(boolean useChunking) {
+    public void setUseChunking(final boolean useChunking) {
         this.useChunking = useChunking;
     }
 
-    public void setUseExpectContinue(boolean useExpectContinue) {
+    public void setUseExpectContinue(final boolean useExpectContinue) {
         this.useExpectContinue = useExpectContinue;
     }
 
-    public void setUseAcceptGZip(boolean useAcceptGZip) {
+    public void setUseAcceptGZip(final boolean useAcceptGZip) {
         this.useAcceptGZip = useAcceptGZip;
     }
 
@@ -220,31 +220,31 @@ public class Config {
         return identityStorePassword;
     }
 
-    public void setPayloadText(String payloadText) {
+    public void setPayloadText(final String payloadText) {
         this.payloadText = payloadText;
     }
 
-    public void setSoapAction(String soapAction) {
+    public void setSoapAction(final String soapAction) {
         this.soapAction = soapAction;
     }
 
-    public void setDisableSSLVerification(boolean disableSSLVerification) {
+    public void setDisableSSLVerification(final boolean disableSSLVerification) {
         this.disableSSLVerification = disableSSLVerification;
     }
 
-    public void setTrustStorePath(String trustStorePath) {
+    public void setTrustStorePath(final String trustStorePath) {
         this.trustStorePath = trustStorePath;
     }
 
-    public void setIdentityStorePath(String identityStorePath) {
+    public void setIdentityStorePath(final String identityStorePath) {
         this.identityStorePath = identityStorePath;
     }
 
-    public void setTrustStorePassword(String trustStorePassword) {
+    public void setTrustStorePassword(final String trustStorePassword) {
         this.trustStorePassword = trustStorePassword;
     }
 
-    public void setIdentityStorePassword(String identityStorePassword) {
+    public void setIdentityStorePassword(final String identityStorePassword) {
         this.identityStorePassword = identityStorePassword;
     }
 }

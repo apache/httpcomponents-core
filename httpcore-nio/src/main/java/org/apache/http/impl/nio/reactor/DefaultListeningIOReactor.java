@@ -115,7 +115,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
      */
     @Deprecated
     public DefaultListeningIOReactor(
-            int workerCount,
+            final int workerCount,
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
         this(convert(workerCount, params), threadFactory);
@@ -126,7 +126,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
      */
     @Deprecated
     public DefaultListeningIOReactor(
-            int workerCount,
+            final int workerCount,
             final HttpParams params) throws IOReactorException {
         this(convert(workerCount, params), null);
     }
@@ -140,7 +140,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     @Override
-    protected void processEvents(int readyCount) throws IOReactorException {
+    protected void processEvents(final int readyCount) throws IOReactorException {
         if (!this.paused) {
             processSessionRequests();
         }

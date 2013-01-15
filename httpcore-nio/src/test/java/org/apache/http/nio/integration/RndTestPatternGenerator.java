@@ -43,7 +43,7 @@ final class RndTestPatternGenerator {
         return buffer.toString();
     }
 
-    public static int generateCount(int max) {
+    public static int generateCount(final int max) {
         return RND.nextInt(max - 1) + 1;
     }
 

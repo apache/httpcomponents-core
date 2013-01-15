@@ -64,7 +64,7 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
      * @param reasonPhrase      the reason phrase to the status code, or
      *                          <code>null</code>
      */
-    public BasicStatusLine(final ProtocolVersion version, int statusCode,
+    public BasicStatusLine(final ProtocolVersion version, final int statusCode,
                            final String reasonPhrase) {
         super();
         this.protoVersion = Args.notNull(version, "Version");

@@ -70,7 +70,7 @@ public class TestConnPool {
 
         public LocalConnPool(
                 final ConnFactory<String, HttpConnection> connFactory,
-                int defaultMaxPerRoute, int maxTotal) {
+                final int defaultMaxPerRoute, final int maxTotal) {
             super(connFactory, defaultMaxPerRoute, maxTotal);
         }
 

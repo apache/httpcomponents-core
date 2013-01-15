@@ -48,14 +48,14 @@ public class InputStreamEntity extends AbstractHttpEntity {
     private final InputStream content;
     private final long length;
 
-    public InputStreamEntity(final InputStream instream, long length) {
+    public InputStreamEntity(final InputStream instream, final long length) {
         this(instream, length, null);
     }
 
     /**
      * @since 4.2
      */
-    public InputStreamEntity(final InputStream instream, long length, final ContentType contentType) {
+    public InputStreamEntity(final InputStream instream, final long length, final ContentType contentType) {
         super();
         this.content = Args.notNull(instream, "Source input stream");
         this.length = length;

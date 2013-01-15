@@ -138,8 +138,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      */
     public static Header[] parseHeaders(
             final SessionInputBuffer inbuffer,
-            int maxHeaderCount,
-            int maxLineLen,
+            final int maxHeaderCount,
+            final int maxLineLen,
             LineParser parser)
         throws HttpException, IOException {
         if (parser == null) {
@@ -175,8 +175,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      */
     public static Header[] parseHeaders(
             final SessionInputBuffer inbuffer,
-            int maxHeaderCount,
-            int maxLineLen,
+            final int maxHeaderCount,
+            final int maxLineLen,
             final LineParser parser,
             final List<CharArrayBuffer> headerLines) throws HttpException, IOException {
         Args.notNull(inbuffer, "Session input buffer");

@@ -66,7 +66,7 @@ public class TestDefaultedHttpParams {
         Assert.assertEquals(0, deflt.getDefaultNames().size());
     }
 
-    private HttpParams addParams(String name){
+    private HttpParams addParams(final String name){
         BasicHttpParams params = new BasicHttpParams();
         params.setParameter("common","both");
         params.setParameter(name,"value");

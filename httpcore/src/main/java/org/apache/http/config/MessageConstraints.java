@@ -41,7 +41,7 @@ public class MessageConstraints implements Cloneable {
     private final int maxLineLength;
     private final int maxHeaderCount;
 
-    MessageConstraints(int maxLineLength, int maxHeaderCount) {
+    MessageConstraints(final int maxLineLength, final int maxHeaderCount) {
         super();
         this.maxLineLength = maxLineLength;
         this.maxHeaderCount = maxHeaderCount;
@@ -69,7 +69,7 @@ public class MessageConstraints implements Cloneable {
         return builder.toString();
     }
 
-    public static MessageConstraints lineLen(int max) {
+    public static MessageConstraints lineLen(final int max) {
         return new MessageConstraints(Args.notNegative(max, "Max line length"), -1);
     }
 
@@ -94,12 +94,12 @@ public class MessageConstraints implements Cloneable {
             this.maxHeaderCount = -1;
         }
 
-        public Builder setMaxLineLength(int maxLineLength) {
+        public Builder setMaxLineLength(final int maxLineLength) {
             this.maxLineLength = maxLineLength;
             return this;
         }
 
-        public Builder setMaxHeaderCount(int maxHeaderCount) {
+        public Builder setMaxHeaderCount(final int maxHeaderCount) {
             this.maxHeaderCount = maxHeaderCount;
             return this;
         }

@@ -62,7 +62,7 @@ class NullNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity 
     }
 
     @Override
-    public void writeTo(OutputStream out) throws IOException, UnsupportedOperationException {
+    public void writeTo(final OutputStream out) throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 

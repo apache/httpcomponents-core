@@ -54,7 +54,7 @@ final class RequestHandler extends SimpleNHttpRequestHandler implements HttpRequ
         this(false);
     }
 
-    RequestHandler(boolean chunking) {
+    RequestHandler(final boolean chunking) {
         super();
         this.chunking = chunking;
     }

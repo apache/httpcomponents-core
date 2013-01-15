@@ -61,7 +61,7 @@ public class SerializableEntity extends AbstractHttpEntity {
      *        stored in an internal buffer
      * @throws IOException in case of an I/O error
      */
-    public SerializableEntity(Serializable ser, boolean bufferize) throws IOException {
+    public SerializableEntity(final Serializable ser, final boolean bufferize) throws IOException {
         super();
         Args.notNull(ser, "Source object");
         if (bufferize) {
@@ -74,13 +74,13 @@ public class SerializableEntity extends AbstractHttpEntity {
     /**
      * @since 4.3
      */
-    public SerializableEntity(Serializable ser) {
+    public SerializableEntity(final Serializable ser) {
         super();
         Args.notNull(ser, "Source object");
         this.objRef = ser;
     }
 
-    private void createBytes(Serializable ser) throws IOException {
+    private void createBytes(final Serializable ser) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(baos);
         out.writeObject(ser);
@@ -111,7 +111,7 @@ public class SerializableEntity extends AbstractHttpEntity {
         return this.objSer == null;
     }
 
-    public void writeTo(OutputStream outstream) throws IOException {
+    public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         if (this.objSer == null) {
             ObjectOutputStream out = new ObjectOutputStream(outstream);

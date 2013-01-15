@@ -79,7 +79,7 @@ public class NHttpEntityWrapper
      * This method throws {@link UnsupportedOperationException}.
      */
     @Override
-    public void writeTo(OutputStream out) throws IOException, UnsupportedOperationException {
+    public void writeTo(final OutputStream out) throws IOException, UnsupportedOperationException {
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 

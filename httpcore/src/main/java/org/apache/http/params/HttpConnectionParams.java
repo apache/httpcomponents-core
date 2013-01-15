@@ -62,7 +62,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * @param params HTTP parameters.
      * @param timeout SO_TIMEOUT.
      */
-    public static void setSoTimeout(final HttpParams params, int timeout) {
+    public static void setSoTimeout(final HttpParams params, final int timeout) {
         Args.notNull(params, "HTTP parameters");
         params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeout);
 
@@ -90,7 +90,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      *
      * @since 4.1
      */
-    public static void setSoReuseaddr(final HttpParams params, boolean reuseaddr) {
+    public static void setSoReuseaddr(final HttpParams params, final boolean reuseaddr) {
         Args.notNull(params, "HTTP parameters");
         params.setBooleanParameter(CoreConnectionPNames.SO_REUSEADDR, reuseaddr);
     }
@@ -113,7 +113,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * @param params HTTP parameters.
      * @param value Nagle's algorithm flag
      */
-    public static void setTcpNoDelay(final HttpParams params, boolean value) {
+    public static void setTcpNoDelay(final HttpParams params, final boolean value) {
         Args.notNull(params, "HTTP parameters");
         params.setBooleanParameter(CoreConnectionPNames.TCP_NODELAY, value);
     }
@@ -137,7 +137,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * @param params HTTP parameters.
      * @param size socket buffer size
      */
-    public static void setSocketBufferSize(final HttpParams params, int size) {
+    public static void setSocketBufferSize(final HttpParams params, final int size) {
         Args.notNull(params, "HTTP parameters");
         params.setIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, size);
     }
@@ -160,7 +160,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * @param params HTTP parameters.
      * @param value SO_LINGER.
      */
-    public static void setLinger(final HttpParams params, int value) {
+    public static void setLinger(final HttpParams params, final int value) {
         Args.notNull(params, "HTTP parameters");
         params.setIntParameter(CoreConnectionPNames.SO_LINGER, value);
     }
@@ -184,7 +184,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * @param params HTTP parameters.
      * @param timeout connect timeout.
      */
-    public static void setConnectionTimeout(final HttpParams params, int timeout) {
+    public static void setConnectionTimeout(final HttpParams params, final int timeout) {
         Args.notNull(params, "HTTP parameters");
         params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeout);
     }
@@ -208,7 +208,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      * @param params HTTP parameters.
      * @param value stale connection check flag.
      */
-    public static void setStaleCheckingEnabled(final HttpParams params, boolean value) {
+    public static void setStaleCheckingEnabled(final HttpParams params, final boolean value) {
         Args.notNull(params, "HTTP parameters");
         params.setBooleanParameter(CoreConnectionPNames.STALE_CONNECTION_CHECK, value);
     }
@@ -235,7 +235,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
      *
      * @since 4.2
      */
-    public static void setSoKeepalive(final HttpParams params, boolean enableKeepalive) {
+    public static void setSoKeepalive(final HttpParams params, final boolean enableKeepalive) {
         Args.notNull(params, "HTTP parameters");
         params.setBooleanParameter(CoreConnectionPNames.SO_KEEPALIVE, enableKeepalive);
     }

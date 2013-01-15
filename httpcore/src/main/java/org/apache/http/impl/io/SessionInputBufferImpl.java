@@ -89,8 +89,8 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      */
     public SessionInputBufferImpl(
             final HttpTransportMetricsImpl metrics,
-            int buffersize,
-            int minChunkLimit,
+            final int buffersize,
+            final int minChunkLimit,
             final MessageConstraints constraints,
             final CharsetDecoder chardecoder) {
         Args.notNull(metrics, "HTTP transport metrcis");
@@ -125,7 +125,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return capacity() - length();
     }
 
-    private int streamRead(final byte[] b, int off, int len) throws IOException {
+    private int streamRead(final byte[] b, final int off, final int len) throws IOException {
         Asserts.notNull(this.instream, "Input stream");
         return this.instream.read(b, off, len);
     }
@@ -168,7 +168,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return this.buffer[this.bufferpos++] & 0xff;
     }
 
-    public int read(final byte[] b, int off, int len) throws IOException {
+    public int read(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return 0;
         }
@@ -376,7 +376,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         }
     }
 
-    public boolean isDataAvailable(int timeout) throws IOException {
+    public boolean isDataAvailable(final int timeout) throws IOException {
         return hasBufferedData();
     }
 

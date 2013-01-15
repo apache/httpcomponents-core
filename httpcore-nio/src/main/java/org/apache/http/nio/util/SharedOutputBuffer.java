@@ -67,7 +67,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
      * @deprecated (4.3) use {@link SharedOutputBuffer#SharedOutputBuffer(int, ByteBufferAllocator)}
      */
     @Deprecated
-    public SharedOutputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
+    public SharedOutputBuffer(final int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         Args.notNull(ioctrl, "I/O content control");
         this.ioctrl = ioctrl;
@@ -78,7 +78,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @since 4.3
      */
-    public SharedOutputBuffer(int buffersize, final ByteBufferAllocator allocator) {
+    public SharedOutputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
@@ -87,7 +87,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @since 4.3
      */
-    public SharedOutputBuffer(int buffersize) {
+    public SharedOutputBuffer(final int buffersize) {
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
@@ -209,7 +209,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
 
-    public void write(final byte[] b, int off, int len) throws IOException {
+    public void write(final byte[] b, int off, final int len) throws IOException {
         if (b == null) {
             return;
         }
@@ -240,7 +240,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         write(b, 0, b.length);
     }
 
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         this.lock.lock();
         try {
             Asserts.check(!this.shutdown && !this.endOfStream, "Buffer already closed for writing");

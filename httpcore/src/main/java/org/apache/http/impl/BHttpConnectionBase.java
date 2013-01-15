@@ -101,7 +101,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
      *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
      */
     protected BHttpConnectionBase(
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints,
@@ -269,7 +269,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
-    public void setSocketTimeout(int timeout) {
+    public void setSocketTimeout(final int timeout) {
         if (this.socket != null) {
             try {
                 this.socket.setSoTimeout(timeout);
@@ -326,7 +326,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
-    protected boolean awaitInput(int timeout) throws IOException {
+    protected boolean awaitInput(final int timeout) throws IOException {
         if (this.inbuffer.hasBufferedData()) {
             return true;
         }

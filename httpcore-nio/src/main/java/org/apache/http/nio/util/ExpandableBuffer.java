@@ -60,7 +60,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      * @param buffersize the buffer size.
      * @param allocator allocator to be used to allocate {@link ByteBuffer}s.
      */
-    public ExpandableBuffer(int buffersize, final ByteBufferAllocator allocator) {
+    public ExpandableBuffer(final int buffersize, final ByteBufferAllocator allocator) {
         super();
         Args.notNull(allocator, "ByteBuffer allocator");
         this.allocator = allocator;
@@ -105,7 +105,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
         }
     }
 
-    private void expandCapacity(int capacity) {
+    private void expandCapacity(final int capacity) {
         ByteBuffer oldbuffer = this.buffer;
         this.buffer = allocator.allocate(capacity);
         oldbuffer.flip();
@@ -128,7 +128,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      *
      * @param requiredCapacity
      */
-    protected void ensureCapacity(int requiredCapacity) {
+    protected void ensureCapacity(final int requiredCapacity) {
         if (requiredCapacity > this.buffer.capacity()) {
             expandCapacity(requiredCapacity);
         }

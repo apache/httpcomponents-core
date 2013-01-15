@@ -49,7 +49,7 @@ class CountingInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(byte[] b) throws IOException {
+    public int read(final byte[] b) throws IOException {
         int bytesRead = this.in.read(b);
         if (bytesRead > 0) {
             this.stats.incTotalBytesRecv(bytesRead);
@@ -58,7 +58,7 @@ class CountingInputStream extends FilterInputStream {
     }
 
     @Override
-    public int read(byte[] b, int off, int len) throws IOException {
+    public int read(final byte[] b, final int off, final int len) throws IOException {
         int bytesRead = this.in.read(b, off, len);
         if (bytesRead > 0) {
             this.stats.incTotalBytesRecv(bytesRead);
@@ -67,7 +67,7 @@ class CountingInputStream extends FilterInputStream {
     }
 
     @Override
-    public long skip(long n) throws IOException {
+    public long skip(final long n) throws IOException {
         long bytesRead = this.in.skip(n);
         if (bytesRead > 0) {
             this.stats.incTotalBytesRecv(bytesRead);

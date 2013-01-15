@@ -79,7 +79,7 @@ public class TestStringEntity {
                 httpentity.getContentType().getValue());
     }
 
-    private static String constructString(int [] unicodeChars) {
+    private static String constructString(final int [] unicodeChars) {
         StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
             for (int unicodeChar : unicodeChars) {

@@ -513,10 +513,10 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
      * response. If there is an entity, it will be called after the entity has
      * completed.
      */
-    protected void responseComplete(HttpResponse response, HttpContext context) {
+    protected void responseComplete(final HttpResponse response, final HttpContext context) {
     }
 
-    private NHttpRequestHandler getRequestHandler(HttpRequest request) {
+    private NHttpRequestHandler getRequestHandler(final HttpRequest request) {
         NHttpRequestHandler handler = null;
          if (this.handlerResolver != null) {
              String requestURI = request.getRequestLine().getUri();
@@ -638,7 +638,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             return this.handled;
         }
 
-        public void setHandled(boolean handled) {
+        public void setHandled(final boolean handled) {
             this.handled = handled;
         }
 

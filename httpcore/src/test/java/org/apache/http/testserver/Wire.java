@@ -40,7 +40,7 @@ class Wire {
         this.id = id;
     }
 
-    private void wire(final String header, final byte[] b, int pos, int off) {
+    private void wire(final String header, final byte[] b, final int pos, final int off) {
         StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < off; i++) {
             int ch = b[pos + i];
@@ -73,27 +73,27 @@ class Wire {
         return this.log.isDebugEnabled();
     }
 
-    public void output(final byte[] b, int pos, int off) {
+    public void output(final byte[] b, final int pos, final int off) {
         wire("<< ", b, pos, off);
     }
 
-    public void input(final byte[] b, int pos, int off) {
+    public void input(final byte[] b, final int pos, final int off) {
         wire(">> ", b, pos, off);
     }
 
-    public void output(byte[] b) {
+    public void output(final byte[] b) {
         output(b, 0, b.length);
     }
 
-    public void input(byte[] b) {
+    public void input(final byte[] b) {
         input(b, 0, b.length);
     }
 
-    public void output(int b) {
+    public void output(final int b) {
         output(new byte[] {(byte) b});
     }
 
-    public void input(int b) {
+    public void input(final int b) {
         input(new byte[] {(byte) b});
     }
 

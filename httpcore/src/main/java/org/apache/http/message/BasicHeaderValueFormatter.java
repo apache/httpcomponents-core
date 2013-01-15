@@ -154,7 +154,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      */
     public final static
         String formatHeaderElement(final HeaderElement elem,
-                                   boolean quote,
+                                   final boolean quote,
                                    HeaderValueFormatter formatter) {
         if (formatter == null) {
 			formatter = BasicHeaderValueFormatter.INSTANCE;
@@ -251,8 +251,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     // non-javadoc, see interface HeaderValueFormatter
     public CharArrayBuffer formatParameters(CharArrayBuffer buffer,
-                                            NameValuePair[] nvps,
-                                            boolean quote) {
+                                            final NameValuePair[] nvps,
+                                            final boolean quote) {
         Args.notNull(nvps, "Header parameter array");
         int len = estimateParametersLen(nvps);
         if (buffer == null) {
@@ -404,7 +404,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @return  <code>true</code> if the character is a separator,
      *          <code>false</code> otherwise
      */
-    protected boolean isSeparator(char ch) {
+    protected boolean isSeparator(final char ch) {
         return SEPARATORS.indexOf(ch) >= 0;
     }
 
@@ -417,7 +417,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @return  <code>true</code> if the character is unsafe,
      *          <code>false</code> otherwise
      */
-    protected boolean isUnsafe(char ch) {
+    protected boolean isUnsafe(final char ch) {
         return UNSAFE_CHARS.indexOf(ch) >= 0;
     }
 

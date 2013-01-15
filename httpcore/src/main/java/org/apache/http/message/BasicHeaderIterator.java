@@ -73,7 +73,7 @@ public class BasicHeaderIterator implements HeaderIterator {
      * @param name      the name of the headers over which to iterate, or
      *                  <code>null</code> for any
      */
-    public BasicHeaderIterator(Header[] headers, String name) {
+    public BasicHeaderIterator(final Header[] headers, final String name) {
         super();
         this.allHeaders = Args.notNull(headers, "Header array");
         this.headerName = name;
@@ -113,7 +113,7 @@ public class BasicHeaderIterator implements HeaderIterator {
      * @return  <code>true</code> if the header should be part of the
      *          iteration, <code>false</code> to skip
      */
-    protected boolean filterHeader(int index) {
+    protected boolean filterHeader(final int index) {
         return (this.headerName == null) ||
             this.headerName.equalsIgnoreCase(this.allHeaders[index].getName());
     }

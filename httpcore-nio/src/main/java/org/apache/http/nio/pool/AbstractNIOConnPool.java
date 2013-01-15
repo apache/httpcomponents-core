@@ -86,8 +86,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     public AbstractNIOConnPool(
             final ConnectingIOReactor ioreactor,
             final NIOConnFactory<T, C> connFactory,
-            int defaultMaxPerRoute,
-            int maxTotal) {
+            final int defaultMaxPerRoute,
+            final int maxTotal) {
         super();
         Args.notNull(ioreactor, "I/O reactor");
         Args.notNull(connFactory, "Connection factory");
@@ -117,7 +117,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         return this.isShutDown;
     }
 
-    public void shutdown(long waitMs) throws IOException {
+    public void shutdown(final long waitMs) throws IOException {
         if (this.isShutDown) {
             return ;
         }
@@ -192,7 +192,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         return lease(route, state, -1, TimeUnit.MICROSECONDS, null);
     }
 
-    public void release(final E entry, boolean reusable) {
+    public void release(final E entry, final boolean reusable) {
         if (entry == null) {
             return;
         }
@@ -406,7 +406,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void setMaxTotal(int max) {
+    public void setMaxTotal(final int max) {
         Args.positive(max, "Max value");
         this.lock.lock();
         try {
@@ -425,7 +425,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void setDefaultMaxPerRoute(int max) {
+    public void setDefaultMaxPerRoute(final int max) {
         Args.positive(max, "Max value");
         this.lock.lock();
         try {
@@ -444,7 +444,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void setMaxPerRoute(final T route, int max) {
+    public void setMaxPerRoute(final T route, final int max) {
         Args.notNull(route, "Route");
         Args.positive(max, "Max value");
         this.lock.lock();
@@ -455,7 +455,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public int getMaxPerRoute(T route) {
+    public int getMaxPerRoute(final T route) {
         Args.notNull(route, "Route");
         this.lock.lock();
         try {
@@ -493,7 +493,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void closeIdle(long idletime, final TimeUnit tunit) {
+    public void closeIdle(final long idletime, final TimeUnit tunit) {
         Args.notNull(tunit, "Time unit");
         long time = tunit.toMillis(idletime);
         if (time < 0) {

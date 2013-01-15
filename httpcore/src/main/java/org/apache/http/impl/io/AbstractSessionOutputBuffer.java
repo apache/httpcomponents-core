@@ -81,9 +81,9 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
 
     protected AbstractSessionOutputBuffer(
             final OutputStream outstream,
-            int buffersize,
+            final int buffersize,
             final Charset charset,
-            int minChunkLimit,
+            final int minChunkLimit,
             final CodingErrorAction malformedCharAction,
             final CodingErrorAction unmappableCharAction) {
         super();
@@ -105,7 +105,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     public AbstractSessionOutputBuffer() {
     }
 
-    protected void init(final OutputStream outstream, int buffersize, final HttpParams params) {
+    protected void init(final OutputStream outstream, final int buffersize, final HttpParams params) {
         Args.notNull(outstream, "Input stream");
         Args.notNegative(buffersize, "Buffer size");
         Args.notNull(params, "HTTP parameters");
@@ -167,7 +167,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.outstream.flush();
     }
 
-    public void write(final byte[] b, int off, int len) throws IOException {
+    public void write(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return;
         }
@@ -199,7 +199,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         write(b, 0, b.length);
     }
 
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         if (this.buffer.isFull()) {
             flushBuffer();
         }

@@ -75,7 +75,7 @@ public class ResponseContent implements HttpResponseInterceptor {
      *
      * @since 4.2
      */
-     public ResponseContent(boolean overwrite) {
+     public ResponseContent(final boolean overwrite) {
          super();
          this.overwrite = overwrite;
     }

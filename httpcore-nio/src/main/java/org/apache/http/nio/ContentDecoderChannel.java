@@ -42,11 +42,11 @@ public class ContentDecoderChannel implements ReadableByteChannel {
 
     private final ContentDecoder decoder;
 
-    public ContentDecoderChannel(ContentDecoder decoder) {
+    public ContentDecoderChannel(final ContentDecoder decoder) {
         this.decoder = decoder;
     }
 
-    public int read(ByteBuffer dst) throws IOException {
+    public int read(final ByteBuffer dst) throws IOException {
         return decoder.read(dst);
     }
 

@@ -203,7 +203,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -222,7 +222,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -249,7 +249,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -276,7 +276,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s,
                         HttpVersion.HTTP_1_0);
@@ -303,7 +303,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -356,7 +356,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -461,7 +461,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("HEAD", s);
             }
@@ -594,7 +594,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -630,7 +630,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -733,8 +733,8 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                     final HttpContext context) {
                 return null;
             }
-            public void handle(final HttpRequest request, HttpResponse response,
-                    final NHttpResponseTrigger trigger, HttpContext context)
+            public void handle(final HttpRequest request, final HttpResponse response,
+                    final NHttpResponseTrigger trigger, final HttpContext context)
                     throws HttpException, IOException {
                 new Thread() {
                     @Override
@@ -751,7 +751,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -849,7 +849,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -946,7 +946,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 r.setEntity(null);
@@ -1043,7 +1043,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
         NHttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NByteArrayEntity entity = new NByteArrayEntity(new byte[] {1,2,3,4,5} );

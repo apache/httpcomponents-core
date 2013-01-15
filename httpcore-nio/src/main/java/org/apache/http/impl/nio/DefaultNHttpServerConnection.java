@@ -129,7 +129,7 @@ public class DefaultNHttpServerConnection
      */
     public DefaultNHttpServerConnection(
             final IOSession session,
-            int buffersize,
+            final int buffersize,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -152,7 +152,7 @@ public class DefaultNHttpServerConnection
      */
     public DefaultNHttpServerConnection(
             final IOSession session,
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
@@ -163,7 +163,7 @@ public class DefaultNHttpServerConnection
     /**
      * @since 4.3
      */
-    public DefaultNHttpServerConnection(final IOSession session, int buffersize) {
+    public DefaultNHttpServerConnection(final IOSession session, final int buffersize) {
         this(session, buffersize, null, null, null, null, null, null, null, null);
     }
 
@@ -364,7 +364,7 @@ public class DefaultNHttpServerConnection
         consumeInput(new NHttpServerEventHandlerAdaptor(handler));
     }
 
-    public void produceOutput(NHttpServiceHandler handler) {
+    public void produceOutput(final NHttpServiceHandler handler) {
         produceOutput(new NHttpServerEventHandlerAdaptor(handler));
     }
 

@@ -78,8 +78,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     public AbstractConnPool(
             final ConnFactory<T, C> connFactory,
-            int defaultMaxPerRoute,
-            int maxTotal) {
+            final int defaultMaxPerRoute,
+            final int maxTotal) {
         super();
         this.connFactory = Args.notNull(connFactory, "Connection factory");
         this.defaultMaxPerRoute = Args.notNegative(defaultMaxPerRoute, "Max per route value");
@@ -134,7 +134,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             pool = new RouteSpecificPool<T, C, E>(route) {
 
                 @Override
-                protected E createEntry(C conn) {
+                protected E createEntry(final C conn) {
                     return AbstractConnPool.this.createEntry(route, conn);
                 }
 
@@ -159,8 +159,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
             @Override
             public E getPoolEntry(
-                    long timeout,
-                    TimeUnit tunit)
+                    final long timeout,
+                    final TimeUnit tunit)
                         throws InterruptedException, TimeoutException, IOException {
                 return getPoolEntryBlocking(route, state, timeout, tunit, this);
             }
@@ -298,7 +298,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void release(E entry, boolean reusable) {
+    public void release(final E entry, final boolean reusable) {
         this.lock.lock();
         try {
             if (this.leased.remove(entry)) {
@@ -325,7 +325,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void setMaxTotal(int max) {
+    public void setMaxTotal(final int max) {
         Args.notNegative(max, "Max value");
         this.lock.lock();
         try {
@@ -344,7 +344,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void setDefaultMaxPerRoute(int max) {
+    public void setDefaultMaxPerRoute(final int max) {
         Args.notNegative(max, "Max per route value");
         this.lock.lock();
         try {
@@ -363,7 +363,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public void setMaxPerRoute(final T route, int max) {
+    public void setMaxPerRoute(final T route, final int max) {
         Args.notNull(route, "Route");
         Args.notNegative(max, "Max per route value");
         this.lock.lock();
@@ -374,7 +374,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    public int getMaxPerRoute(T route) {
+    public int getMaxPerRoute(final T route) {
         Args.notNull(route, "Route");
         this.lock.lock();
         try {
@@ -419,7 +419,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      * @param idletime maximum idle time.
      * @param tunit time unit.
      */
-    public void closeIdle(long idletime, final TimeUnit tunit) {
+    public void closeIdle(final long idletime, final TimeUnit tunit) {
         Args.notNull(tunit, "Time unit");
         long time = tunit.toMillis(idletime);
         if (time < 0) {

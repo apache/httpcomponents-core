@@ -643,7 +643,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         private volatile boolean expectationFailure;
 
         public ServerConnState(
-                int bufsize,
+                final int bufsize,
                 final IOControl ioControl,
                 final ByteBufferAllocator allocator) {
             super();
@@ -665,7 +665,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             return this.inputState;
         }
 
-        public void setInputState(int inputState) {
+        public void setInputState(final int inputState) {
             this.inputState = inputState;
         }
 
@@ -673,7 +673,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             return this.outputState;
         }
 
-        public void setOutputState(int outputState) {
+        public void setOutputState(final int outputState) {
             this.outputState = outputState;
         }
 
@@ -697,7 +697,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
             return expectationFailure;
         }
 
-        public void setExpectationFailed(boolean b) {
+        public void setExpectationFailed(final boolean b) {
             this.expectationFailure = b;
         }
 

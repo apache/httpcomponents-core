@@ -76,7 +76,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param selectTimeout the select timeout.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
-    public AbstractIOReactor(long selectTimeout) throws IOReactorException {
+    public AbstractIOReactor(final long selectTimeout) throws IOReactorException {
         this(selectTimeout, false);
     }
 
@@ -90,7 +90,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      *
      * @since 4.1
      */
-    public AbstractIOReactor(long selectTimeout, boolean interestOpsQueueing) throws IOReactorException {
+    public AbstractIOReactor(final long selectTimeout, final boolean interestOpsQueueing) throws IOReactorException {
         super();
         Args.positive(selectTimeout, "Select timeout");
         this.selectTimeout = selectTimeout;
@@ -382,7 +382,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
             SessionClosedCallback sessionClosedCallback = new SessionClosedCallback() {
 
-                public void sessionClosed(IOSession session) {
+                public void sessionClosed(final IOSession session) {
                     queueClosedSession(session);
                 }
 
@@ -479,7 +479,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param key the selection key.
      * @param now current time as long value.
      */
-    protected void timeoutCheck(final SelectionKey key, long now) {
+    protected void timeoutCheck(final SelectionKey key, final long now) {
         IOSessionImpl session = (IOSessionImpl) key.attachment();
         if (session != null) {
             int timeout = session.getSocketTimeout();
@@ -579,7 +579,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param timeout the maximum wait time.
      * @throws InterruptedException if interrupted.
      */
-    public void awaitShutdown(long timeout) throws InterruptedException {
+    public void awaitShutdown(final long timeout) throws InterruptedException {
         synchronized (this.statusMutex) {
             long deadline = System.currentTimeMillis() + timeout;
             long remaining = timeout;
@@ -595,7 +595,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    public void shutdown(long gracePeriod) throws IOReactorException {
+    public void shutdown(final long gracePeriod) throws IOReactorException {
         if (this.status != IOReactorStatus.INACTIVE) {
             gracefulShutdown();
             try {

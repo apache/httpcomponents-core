@@ -200,7 +200,7 @@ public class NHttpConnectionBase
      */
     protected NHttpConnectionBase(
             final IOSession session,
-            int buffersize,
+            final int buffersize,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -507,7 +507,7 @@ public class NHttpConnectionBase
         }
     }
 
-    public void setSocketTimeout(int timeout) {
+    public void setSocketTimeout(final int timeout) {
         this.session.setSocketTimeout(timeout);
     }
 

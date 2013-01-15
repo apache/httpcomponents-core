@@ -85,7 +85,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
     /**
      * @since 4.2
      */
-    public NByteArrayEntity(final byte[] b, int off, int len, final ContentType contentType) {
+    public NByteArrayEntity(final byte[] b, final int off, final int len, final ContentType contentType) {
         super();
         Args.notNull(b, "Source byte array");
         if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -107,7 +107,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
         this(b, null);
     }
 
-    public NByteArrayEntity(final byte[] b, int off, int len) {
+    public NByteArrayEntity(final byte[] b, final int off, final int len) {
         this(b, off, len, null);
     }
 

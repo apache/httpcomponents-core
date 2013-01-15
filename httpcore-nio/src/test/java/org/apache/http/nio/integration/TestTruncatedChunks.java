@@ -122,7 +122,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
             this.completed = true;
         }
 
-        public int write(ByteBuffer src) throws IOException {
+        public int write(final ByteBuffer src) throws IOException {
             int chunk;
             if (!this.done) {
                 this.lineBuffer.clear();

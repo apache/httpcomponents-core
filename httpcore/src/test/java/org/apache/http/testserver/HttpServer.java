@@ -87,7 +87,7 @@ public class HttpServer {
         return this.timeout;
     }
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(final int timeout) {
         this.timeout = timeout;
     }
 

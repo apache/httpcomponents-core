@@ -70,7 +70,7 @@ public class ChunkedOutputStream extends OutputStream {
      * @deprecated (4.3) use {@link ChunkedOutputStream#ChunkedOutputStream(int, SessionOutputBuffer)}
      */
     @Deprecated
-    public ChunkedOutputStream(final SessionOutputBuffer out, int bufferSize)
+    public ChunkedOutputStream(final SessionOutputBuffer out, final int bufferSize)
             throws IOException {
         this(bufferSize, out);
     }
@@ -96,7 +96,7 @@ public class ChunkedOutputStream extends OutputStream {
      * @param bufferSize The minimum chunk size (excluding last chunk)
      * @param out The session output buffer
      */
-    public ChunkedOutputStream(int bufferSize, final SessionOutputBuffer out) {
+    public ChunkedOutputStream(final int bufferSize, final SessionOutputBuffer out) {
         super();
         this.cache = new byte[bufferSize];
         this.out = out;
@@ -118,7 +118,7 @@ public class ChunkedOutputStream extends OutputStream {
      * Writes the cache and bufferToAppend to the underlying stream
      * as one large chunk
      */
-    protected void flushCacheWithAppend(byte bufferToAppend[], int off, int len) throws IOException {
+    protected void flushCacheWithAppend(final byte bufferToAppend[], final int off, final int len) throws IOException {
         this.out.writeLine(Integer.toHexString(this.cachePosition + len));
         this.out.write(this.cache, 0, this.cachePosition);
         this.out.write(bufferToAppend, off, len);
@@ -148,7 +148,7 @@ public class ChunkedOutputStream extends OutputStream {
 
     // -------------------------------------------- OutputStream Methods
     @Override
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
@@ -164,7 +164,7 @@ public class ChunkedOutputStream extends OutputStream {
      * not split, but rather written out as one large chunk.
      */
     @Override
-    public void write(byte b[]) throws IOException {
+    public void write(final byte b[]) throws IOException {
         write(b, 0, b.length);
     }
 
@@ -173,7 +173,7 @@ public class ChunkedOutputStream extends OutputStream {
      * not split, but rather written out as one large chunk.
      */
     @Override
-    public void write(byte src[], int off, int len) throws IOException {
+    public void write(final byte src[], final int off, final int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }

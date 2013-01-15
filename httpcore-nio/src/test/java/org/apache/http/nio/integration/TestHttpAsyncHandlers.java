@@ -127,11 +127,11 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         return start(null, null, requestHandlerResolver, expectationVerifier);
     }
 
-    private static String createRequestUri(final String pattern, int count) {
+    private static String createRequestUri(final String pattern, final int count) {
         return pattern + "x" + count;
     }
 
-    private static String createExpectedString(final String pattern, int count) {
+    private static String createExpectedString(final String pattern, final int count) {
         StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < count; i++) {
             buffer.append(pattern);

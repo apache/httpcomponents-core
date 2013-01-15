@@ -43,11 +43,11 @@ public class NIOReactorParamBean extends HttpAbstractParamBean {
         super(params);
     }
 
-    public void setContentBufferSize (int contentBufferSize) {
+    public void setContentBufferSize (final int contentBufferSize) {
         NIOReactorParams.setContentBufferSize(params, contentBufferSize);
     }
 
-    public void setSelectInterval (long selectInterval) {
+    public void setSelectInterval (final long selectInterval) {
         NIOReactorParams.setSelectInterval(params, selectInterval);
     }
 

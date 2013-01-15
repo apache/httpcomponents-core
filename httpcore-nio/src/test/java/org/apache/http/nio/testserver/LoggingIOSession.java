@@ -75,7 +75,7 @@ public class LoggingIOSession implements IOSession {
         return this.session.getEventMask();
     }
 
-    private static String formatOps(int ops) {
+    private static String formatOps(final int ops) {
         StringBuilder buffer = new StringBuilder(6);
         buffer.append('[');
         if ((ops & SelectionKey.OP_READ) > 0) {
@@ -94,21 +94,21 @@ public class LoggingIOSession implements IOSession {
         return buffer.toString();
     }
 
-    public void setEventMask(int ops) {
+    public void setEventMask(final int ops) {
         this.session.setEventMask(ops);
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + " " + this.session + ": Event mask set " + formatOps(ops));
         }
     }
 
-    public void setEvent(int op) {
+    public void setEvent(final int op) {
         this.session.setEvent(op);
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + " " + this.session + ": Event set " + formatOps(op));
         }
     }
 
-    public void clearEvent(int op) {
+    public void clearEvent(final int op) {
         this.session.clearEvent(op);
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + " " + this.session + ": Event cleared " + formatOps(op));
@@ -141,7 +141,7 @@ public class LoggingIOSession implements IOSession {
         return this.session.getSocketTimeout();
     }
 
-    public void setSocketTimeout(int timeout) {
+    public void setSocketTimeout(final int timeout) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + " " + this.session + ": Set timeout " + timeout);
         }

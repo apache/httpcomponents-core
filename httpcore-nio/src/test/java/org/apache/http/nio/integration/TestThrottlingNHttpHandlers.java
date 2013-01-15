@@ -225,7 +225,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("GET", s);
             }
@@ -243,7 +243,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -269,7 +269,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -295,7 +295,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s,
                         HttpVersion.HTTP_1_0);
@@ -321,7 +321,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -373,7 +373,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;
@@ -481,7 +481,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 return new BasicHttpRequest("HEAD", s);
             }
@@ -584,7 +584,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
         HttpRequestExecutionHandler requestExecutionHandler = new RequestExecutionHandler() {
 
             @Override
-            protected HttpRequest generateRequest(Job testjob) {
+            protected HttpRequest generateRequest(final Job testjob) {
                 String s = testjob.getPattern() + "x" + testjob.getCount();
                 HttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest("POST", s);
                 NStringEntity entity = null;

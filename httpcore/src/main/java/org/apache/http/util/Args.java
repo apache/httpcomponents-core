@@ -31,13 +31,13 @@ import java.util.Collection;
 
 public class Args {
 
-    public static void check(boolean expression, final String message) {
+    public static void check(final boolean expression, final String message) {
         if (!expression) {
             throw new IllegalArgumentException(message);
         }
     }
 
-    public static void check(boolean expression, final String message, final Object... args) {
+    public static void check(final boolean expression, final String message, final Object... args) {
         if (!expression) {
             throw new IllegalArgumentException(String.format(message, args));
         }

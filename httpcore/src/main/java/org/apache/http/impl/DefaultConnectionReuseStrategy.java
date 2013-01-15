@@ -174,7 +174,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
      *
      * @return  the token iterator
      */
-    protected TokenIterator createTokenIterator(HeaderIterator hit) {
+    protected TokenIterator createTokenIterator(final HeaderIterator hit) {
         return new BasicTokenIterator(hit);
     }
 

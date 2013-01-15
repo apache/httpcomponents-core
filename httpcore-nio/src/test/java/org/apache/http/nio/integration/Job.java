@@ -44,7 +44,7 @@ public class Job {
     private volatile String failureMessage;
     private volatile Exception ex;
 
-    public Job(int maxCount) {
+    public Job(final int maxCount) {
         super();
         this.count = RND.nextInt(maxCount - 1) + 1;
         StringBuilder buffer = new StringBuilder();
@@ -59,7 +59,7 @@ public class Job {
         this(1000);
     }
 
-    public Job(final String pattern, int count) {
+    public Job(final String pattern, final int count) {
         super();
         this.count = count;
         this.pattern = pattern;
@@ -105,7 +105,7 @@ public class Job {
         return this.completed;
     }
 
-    public synchronized void setResult(int statusCode, final String result) {
+    public synchronized void setResult(final int statusCode, final String result) {
         if (this.completed) {
             return;
         }

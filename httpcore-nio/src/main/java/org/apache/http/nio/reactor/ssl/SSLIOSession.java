@@ -505,17 +505,17 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         return this.appEventMask;
     }
 
-    public synchronized void setEventMask(int ops) {
+    public synchronized void setEventMask(final int ops) {
         this.appEventMask = ops;
         updateEventMask();
     }
 
-    public synchronized void setEvent(int op) {
+    public synchronized void setEvent(final int op) {
         this.appEventMask = this.appEventMask | op;
         updateEventMask();
     }
 
-    public synchronized void clearEvent(int op) {
+    public synchronized void clearEvent(final int op) {
         this.appEventMask = this.appEventMask & ~op;
         updateEventMask();
     }
@@ -524,7 +524,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         return this.session.getSocketTimeout();
     }
 
-    public void setSocketTimeout(int timeout) {
+    public void setSocketTimeout(final int timeout) {
         this.session.setSocketTimeout(timeout);
     }
 

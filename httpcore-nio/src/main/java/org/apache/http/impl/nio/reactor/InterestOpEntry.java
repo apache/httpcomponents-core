@@ -42,7 +42,7 @@ class InterestOpEntry {
     private final SelectionKey key;
     private final int eventMask;
 
-    public InterestOpEntry(final SelectionKey key, int eventMask) {
+    public InterestOpEntry(final SelectionKey key, final int eventMask) {
         super();
         Args.notNull(key, "Selection key");
         this.key = key;
@@ -58,7 +58,7 @@ class InterestOpEntry {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         return this.key.equals(obj);
     }
 

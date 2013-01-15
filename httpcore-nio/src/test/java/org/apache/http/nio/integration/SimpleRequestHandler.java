@@ -49,7 +49,7 @@ final class SimpleRequestHandler implements HttpRequestHandler {
         this(false);
     }
 
-    SimpleRequestHandler(boolean chunking) {
+    SimpleRequestHandler(final boolean chunking) {
         super();
         this.chunking = chunking;
     }

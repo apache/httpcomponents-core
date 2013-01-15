@@ -56,7 +56,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     private final Wire wire;
 
     public LoggingBHttpServerConnection(
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints,
@@ -73,7 +73,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
         this.wire = new Wire(LogFactory.getLog("org.apache.http.wire"), this.id);
     }
 
-    public LoggingBHttpServerConnection(int buffersize) {
+    public LoggingBHttpServerConnection(final int buffersize) {
         this(buffersize, null, null, null, null, null, null, null);
     }
 

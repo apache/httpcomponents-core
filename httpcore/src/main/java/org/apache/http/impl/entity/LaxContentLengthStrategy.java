@@ -62,7 +62,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
      *
      * @since 4.2
      */
-    public LaxContentLengthStrategy(int implicitLen) {
+    public LaxContentLengthStrategy(final int implicitLen) {
         super();
         this.implicitLen = implicitLen;
     }

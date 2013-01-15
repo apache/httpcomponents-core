@@ -82,8 +82,8 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      */
     public SessionOutputBufferImpl(
             final HttpTransportMetricsImpl metrics,
-            int buffersize,
-            int minChunkLimit,
+            final int buffersize,
+            final int minChunkLimit,
             final CharsetEncoder charencoder) {
         super();
         Args.positive(buffersize, "Buffer size");
@@ -114,7 +114,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         return capacity() - length();
     }
 
-    private void streamWrite(final byte[] b, int off, int len) throws IOException {
+    private void streamWrite(final byte[] b, final int off, final int len) throws IOException {
         Asserts.notNull(outstream, "Output stream");
         this.outstream.write(b, off, len);
     }
@@ -139,7 +139,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         flushStream();
     }
 
-    public void write(final byte[] b, int off, int len) throws IOException {
+    public void write(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return;
         }
@@ -171,7 +171,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         write(b, 0, b.length);
     }
 
-    public void write(int b) throws IOException {
+    public void write(final int b) throws IOException {
         if (this.buffer.isFull()) {
             flushBuffer();
         }

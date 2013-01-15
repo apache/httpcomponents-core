@@ -151,7 +151,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         this.asyncHandler.exception(conn, ioex);
     }
 
-    public void timeout(NHttpServerConnection conn) {
+    public void timeout(final NHttpServerConnection conn) {
         this.asyncHandler.timeout(conn);
     }
 

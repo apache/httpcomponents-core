@@ -798,7 +798,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             return this.completed;
         }
 
-        public void setTimeout(int timeout) {
+        public void setTimeout(final int timeout) {
             this.conn.setSocketTimeout(timeout);
         }
 
@@ -820,7 +820,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             this.resolver = resolver;
         }
 
-        public HttpAsyncRequestHandler<?> lookup(HttpRequest request) {
+        public HttpAsyncRequestHandler<?> lookup(final HttpRequest request) {
             return resolver.lookup(request.getRequestLine().getUri());
         }
 

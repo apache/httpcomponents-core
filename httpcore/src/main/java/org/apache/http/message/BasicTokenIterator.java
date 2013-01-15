@@ -207,7 +207,7 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @return  a string representing the token identified by the arguments
      */
-    protected String createToken(String value, int start, int end) {
+    protected String createToken(final String value, final int start, final int end) {
         return value.substring(start, end);
     }
 
@@ -310,7 +310,7 @@ public class BasicTokenIterator implements TokenIterator {
      *          The behavior is undefined if <code>from</code> does not
      *          point to a token character in the current header value.
      */
-    protected int findTokenEnd(int from) {
+    protected int findTokenEnd(final int from) {
         Args.notNegative(from, "Search position");
         final int to = this.currentHeader.length();
         int end = from+1;
@@ -333,7 +333,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @return  <code>true</code> if the character is a token separator,
      *          <code>false</code> otherwise
      */
-    protected boolean isTokenSeparator(char ch) {
+    protected boolean isTokenSeparator(final char ch) {
         return (ch == ',');
     }
 
@@ -349,7 +349,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @return  <code>true</code> if the character is whitespace,
      *          <code>false</code> otherwise
      */
-    protected boolean isWhitespace(char ch) {
+    protected boolean isWhitespace(final char ch) {
 
         // we do not use Character.isWhitspace(ch) here, since that allows
         // many control characters which are not whitespace as per RFC 2616
@@ -369,7 +369,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @return  <code>true</code> if the character is a valid token start,
      *          <code>false</code> otherwise
      */
-    protected boolean isTokenChar(char ch) {
+    protected boolean isTokenChar(final char ch) {
 
         // common sense extension of ALPHA + DIGIT
         if (Character.isLetterOrDigit(ch)) {
@@ -406,7 +406,7 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @return  <code>true</code> if the character is an HTTP separator
      */
-    protected boolean isHttpSeparator(char ch) {
+    protected boolean isHttpSeparator(final char ch) {
         return (HTTP_SEPARATORS.indexOf(ch) >= 0);
     }
 

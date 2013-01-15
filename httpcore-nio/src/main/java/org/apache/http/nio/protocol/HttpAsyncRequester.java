@@ -408,7 +408,7 @@ public class HttpAsyncRequester {
      *
      * @param ex I/O exception thrown by {@link Closeable#close()}
      */
-    protected void log(Exception ex) {
+    protected void log(final Exception ex) {
     }
 
 }

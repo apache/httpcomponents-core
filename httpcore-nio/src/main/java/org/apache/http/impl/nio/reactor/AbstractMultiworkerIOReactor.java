@@ -169,7 +169,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this(null, null);
     }
 
-    static IOReactorConfig convert(int workerCount, final HttpParams params) {
+    static IOReactorConfig convert(final int workerCount, final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
         IOReactorConfig config = IOReactorConfig.custom()
             .setSelectInterval(NIOReactorParams.getSelectInterval(params))
@@ -200,7 +200,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      */
     @Deprecated
     public AbstractMultiworkerIOReactor(
-            int workerCount,
+            final int workerCount,
             final ThreadFactory threadFactory,
             final HttpParams params) throws IOReactorException {
         this(convert(workerCount, params), threadFactory);
@@ -486,7 +486,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @throws ClosedChannelException if the channel has been already closed.
      */
     protected SelectionKey registerChannel(
-            final SelectableChannel channel, int ops) throws ClosedChannelException {
+            final SelectableChannel channel, final int ops) throws ClosedChannelException {
         return channel.register(this.selector, ops);
     }
 
@@ -515,7 +515,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @param timeout the maximum wait time.
      * @throws InterruptedException if interrupted.
      */
-    protected void awaitShutdown(long timeout) throws InterruptedException {
+    protected void awaitShutdown(final long timeout) throws InterruptedException {
         synchronized (this.statusLock) {
             long deadline = System.currentTimeMillis() + timeout;
             long remaining = timeout;
@@ -535,7 +535,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         shutdown(2000);
     }
 
-    public void shutdown(long waitMs) throws IOException {
+    public void shutdown(final long waitMs) throws IOException {
         synchronized (this.statusLock) {
             if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
                 return;

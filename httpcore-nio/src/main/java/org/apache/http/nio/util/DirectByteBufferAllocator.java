@@ -46,7 +46,7 @@ public class DirectByteBufferAllocator implements ByteBufferAllocator {
         super();
     }
 
-    public ByteBuffer allocate(int size) {
+    public ByteBuffer allocate(final int size) {
         return ByteBuffer.allocateDirect(size);
     }
 

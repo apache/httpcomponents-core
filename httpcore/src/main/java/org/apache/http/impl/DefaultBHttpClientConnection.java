@@ -85,7 +85,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
      *   {@link DefaultHttpResponseParserFactory#INSTANCE} will be used.
      */
     public DefaultBHttpClientConnection(
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints,
@@ -102,14 +102,14 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     public DefaultBHttpClientConnection(
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
         this(buffersize, chardecoder, charencoder, constraints, null, null, null, null);
     }
 
-    public DefaultBHttpClientConnection(int buffersize) {
+    public DefaultBHttpClientConnection(final int buffersize) {
         this(buffersize, null, null, null, null, null, null, null);
     }
 
@@ -124,7 +124,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         super.bind(socket);
     }
 
-    public boolean isResponseAvailable(int timeout) throws IOException {
+    public boolean isResponseAvailable(final int timeout) throws IOException {
         ensureOpen();
         try {
             return awaitInput(timeout);

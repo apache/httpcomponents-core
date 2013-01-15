@@ -153,7 +153,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     }
 
     // Helper method
-    private Set<String> getNames(HttpParams params) {
+    private Set<String> getNames(final HttpParams params) {
         if (params instanceof HttpParamsNames) {
             return ((HttpParamsNames) params).getNames();
         }

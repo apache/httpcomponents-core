@@ -84,7 +84,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
      *   {@link DefaultHttpResponseWriterFactory#INSTANCE} will be used.
      */
     public DefaultBHttpServerConnection(
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints,
@@ -102,14 +102,14 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     }
 
     public DefaultBHttpServerConnection(
-            int buffersize,
+            final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
         this(buffersize, chardecoder, charencoder, constraints, null, null, null, null);
     }
 
-    public DefaultBHttpServerConnection(int buffersize) {
+    public DefaultBHttpServerConnection(final int buffersize) {
         this(buffersize, null, null, null, null, null, null, null);
     }
 

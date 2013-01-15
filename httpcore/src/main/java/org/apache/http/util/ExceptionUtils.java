@@ -66,7 +66,7 @@ public final class ExceptionUtils {
      * @param  throwable The throwable.
      * @param  cause     The cause of the throwable.
      */
-    public static void initCause(Throwable throwable, Throwable cause) {
+    public static void initCause(final Throwable throwable, final Throwable cause) {
         if (INIT_CAUSE_METHOD != null) {
             try {
                 INIT_CAUSE_METHOD.invoke(throwable, new Object[] { cause });

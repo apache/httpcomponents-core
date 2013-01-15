@@ -43,7 +43,7 @@ public class ContentTooLongException extends IOException {
      *
      * @param message exception message
      */
-    public ContentTooLongException(String message) {
+    public ContentTooLongException(final String message) {
         super(message);
     }
 

@@ -65,7 +65,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
      * @deprecated (4.3) use {@link SharedInputBuffer#SharedInputBuffer(int, ByteBufferAllocator)}
      */
     @Deprecated
-    public SharedInputBuffer(int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
+    public SharedInputBuffer(final int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         this.ioctrl = ioctrl;
         this.lock = new ReentrantLock();
@@ -75,7 +75,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     /**
      * @since 4.3
      */
-    public SharedInputBuffer(int buffersize, final ByteBufferAllocator allocator) {
+    public SharedInputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
@@ -84,7 +84,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     /**
      * @since 4.3
      */
-    public SharedInputBuffer(int buffersize) {
+    public SharedInputBuffer(final int buffersize) {
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
@@ -264,7 +264,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         }
     }
 
-    public int read(final byte[] b, int off, int len) throws IOException {
+    public int read(final byte[] b, final int off, final int len) throws IOException {
         if (this.shutdown) {
             return -1;
         }

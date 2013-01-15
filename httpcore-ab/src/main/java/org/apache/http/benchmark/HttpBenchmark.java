@@ -70,7 +70,7 @@ public class HttpBenchmark {
 
     private final Config config;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
 
         Options options = CommandLineUtils.getOptions();
         CommandLineParser parser = new PosixParser();
@@ -176,7 +176,7 @@ public class HttpBenchmark {
             new LinkedBlockingQueue<Runnable>(),
             new ThreadFactory() {
 
-                public Thread newThread(Runnable r) {
+                public Thread newThread(final Runnable r) {
                     return new Thread(r, "ClientPool");
                 }
 
@@ -196,11 +196,11 @@ public class HttpBenchmark {
                         }
 
                         public void checkClientTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
+                            final java.security.cert.X509Certificate[] certs, final String authType) {
                         }
 
                         public void checkServerTrusted(
-                            java.security.cert.X509Certificate[] certs, String authType) {
+                            final java.security.cert.X509Certificate[] certs, final String authType) {
                         }
                     }
                 };

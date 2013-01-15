@@ -74,7 +74,7 @@ public class NFileEntity extends AbstractHttpEntity
      *
      * @since 4.2
      */
-    public NFileEntity(final File file, final ContentType contentType, boolean useFileChannels) {
+    public NFileEntity(final File file, final ContentType contentType, final boolean useFileChannels) {
         Args.notNull(file, "File");
         this.file = file;
         this.useFileChannels = useFileChannels;
@@ -107,7 +107,7 @@ public class NFileEntity extends AbstractHttpEntity
      * @deprecated (4.2) use {@link #NFileEntity(File, ContentType, boolean)}
      */
     @Deprecated
-    public NFileEntity(final File file, final String contentType, boolean useFileChannels) {
+    public NFileEntity(final File file, final String contentType, final boolean useFileChannels) {
         Args.notNull(file, "File");
         this.file = file;
         this.useFileChannels = useFileChannels;
@@ -153,7 +153,7 @@ public class NFileEntity extends AbstractHttpEntity
         return true;
     }
 
-    public void produceContent(ContentEncoder encoder, IOControl ioctrl)
+    public void produceContent(final ContentEncoder encoder, final IOControl ioctrl)
             throws IOException {
         if (fileChannel == null) {
             FileInputStream in = new FileInputStream(file);

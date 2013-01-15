@@ -92,7 +92,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
      * @param buffersize the size of the internal buffer.
      * @param params HTTP parameters.
      */
-    protected void init(final InputStream instream, int buffersize, final HttpParams params) {
+    protected void init(final InputStream instream, final int buffersize, final HttpParams params) {
         Args.notNull(instream, "Input stream");
         Args.notNegative(buffersize, "Buffer size");
         Args.notNull(params, "HTTP parameters");
@@ -182,7 +182,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         return this.buffer[this.bufferpos++] & 0xff;
     }
 
-    public int read(final byte[] b, int off, int len) throws IOException {
+    public int read(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return 0;
         }

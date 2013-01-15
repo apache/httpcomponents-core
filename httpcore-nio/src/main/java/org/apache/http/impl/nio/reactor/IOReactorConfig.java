@@ -73,16 +73,16 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     IOReactorConfig(
-            long selectInterval,
-            long shutdownGracePeriod,
-            boolean interestOpQueued,
-            int ioThreadCount,
-            int soTimeout,
-            boolean soReuseAddress,
-            int soLinger,
-            boolean soKeepAlive,
-            boolean tcpNoDelay,
-            int connectTimeout) {
+            final long selectInterval,
+            final long shutdownGracePeriod,
+            final boolean interestOpQueued,
+            final int ioThreadCount,
+            final int soTimeout,
+            final boolean soReuseAddress,
+            final int soLinger,
+            final boolean soKeepAlive,
+            final boolean tcpNoDelay,
+            final int connectTimeout) {
         super();
         this.selectInterval = selectInterval;
         this.shutdownGracePeriod = shutdownGracePeriod;
@@ -107,7 +107,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setSelectInterval(long selectInterval) {
+    public void setSelectInterval(final long selectInterval) {
         Args.positive(selectInterval, "Select internal");
         this.selectInterval = selectInterval;
     }
@@ -123,7 +123,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setShutdownGracePeriod(long gracePeriod) {
+    public void setShutdownGracePeriod(final long gracePeriod) {
         Args.positive(gracePeriod, "Shutdown grace period");
         this.shutdownGracePeriod = gracePeriod;
     }
@@ -144,7 +144,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setInterestOpQueued(boolean interestOpQueued) {
+    public void setInterestOpQueued(final boolean interestOpQueued) {
         this.interestOpQueued = interestOpQueued;
     }
 
@@ -158,7 +158,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setIoThreadCount(int ioThreadCount) {
+    public void setIoThreadCount(final int ioThreadCount) {
         Args.positive(ioThreadCount, "I/O thread count");
         this.ioThreadCount = ioThreadCount;
     }
@@ -175,7 +175,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setSoTimeout(int soTimeout) {
+    public void setSoTimeout(final int soTimeout) {
         this.soTimeout = soTimeout;
     }
 
@@ -192,7 +192,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setSoReuseAddress(boolean soReuseAddress) {
+    public void setSoReuseAddress(final boolean soReuseAddress) {
         this.soReuseAddress = soReuseAddress;
     }
 
@@ -209,7 +209,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setSoLinger(int soLinger) {
+    public void setSoLinger(final int soLinger) {
         this.soLinger = soLinger;
     }
 
@@ -226,7 +226,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setSoKeepalive(boolean soKeepAlive) {
+    public void setSoKeepalive(final boolean soKeepAlive) {
         this.soKeepAlive = soKeepAlive;
     }
 
@@ -243,7 +243,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setTcpNoDelay(boolean tcpNoDelay) {
+    public void setTcpNoDelay(final boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
     }
 
@@ -257,7 +257,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     @Deprecated
-    public void setConnectTimeout(int connectTimeout) {
+    public void setConnectTimeout(final int connectTimeout) {
         this.connectTimeout = connectTimeout;
     }
 
@@ -311,52 +311,52 @@ public final class IOReactorConfig implements Cloneable {
             this.connectTimeout = 0;
         }
 
-        public Builder setSelectInterval(long selectInterval) {
+        public Builder setSelectInterval(final long selectInterval) {
             this.selectInterval = selectInterval;
             return this;
         }
 
-        public Builder setShutdownGracePeriod(long shutdownGracePeriod) {
+        public Builder setShutdownGracePeriod(final long shutdownGracePeriod) {
             this.shutdownGracePeriod = shutdownGracePeriod;
             return this;
         }
 
-        public Builder setInterestOpQueued(boolean interestOpQueued) {
+        public Builder setInterestOpQueued(final boolean interestOpQueued) {
             this.interestOpQueued = interestOpQueued;
             return this;
         }
 
-        public Builder setIoThreadCount(int ioThreadCount) {
+        public Builder setIoThreadCount(final int ioThreadCount) {
             this.ioThreadCount = ioThreadCount;
             return this;
         }
 
-        public Builder setSoTimeout(int soTimeout) {
+        public Builder setSoTimeout(final int soTimeout) {
             this.soTimeout = soTimeout;
             return this;
         }
 
-        public Builder setSoReuseAddress(boolean soReuseAddress) {
+        public Builder setSoReuseAddress(final boolean soReuseAddress) {
             this.soReuseAddress = soReuseAddress;
             return this;
         }
 
-        public Builder setSoLinger(int soLinger) {
+        public Builder setSoLinger(final int soLinger) {
             this.soLinger = soLinger;
             return this;
         }
 
-        public Builder setSoKeepAlive(boolean soKeepAlive) {
+        public Builder setSoKeepAlive(final boolean soKeepAlive) {
             this.soKeepAlive = soKeepAlive;
             return this;
         }
 
-        public Builder setTcpNoDelay(boolean tcpNoDelay) {
+        public Builder setTcpNoDelay(final boolean tcpNoDelay) {
             this.tcpNoDelay = tcpNoDelay;
             return this;
         }
 
-        public Builder setConnectTimeout(int connectTimeout) {
+        public Builder setConnectTimeout(final int connectTimeout) {
             this.connectTimeout = connectTimeout;
             return this;
         }

@@ -156,7 +156,7 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException in case of an I/O error
      */
     @Override
-    public int read (byte[] b, int off, int len) throws IOException {
+    public int read (final byte[] b, final int off, int len) throws IOException {
 
         if (closed) {
             throw new IOException("Attempted read from closed stream.");
@@ -195,7 +195,7 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException in case of an I/O error
      */
     @Override
-    public int read (byte[] b) throws IOException {
+    public int read (final byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 

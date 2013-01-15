@@ -176,14 +176,14 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     // non-javadoc, see interface HttpResponse
-    public void setStatusCode(int code) {
+    public void setStatusCode(final int code) {
         Args.notNegative(code, "Status code");
         this.statusline = null;
         this.code = code;
     }
 
     // non-javadoc, see interface HttpResponse
-    public void setReasonPhrase(String reason) {
+    public void setReasonPhrase(final String reason) {
         this.statusline = null;
         this.reasonPhrase = reason;
     }
@@ -197,7 +197,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
      */
     @Deprecated
-    public void setLocale(Locale locale) {
+    public void setLocale(final Locale locale) {
         this.locale =  Args.notNull(locale, "Locale");
         this.statusline = null;
     }
@@ -214,7 +214,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
      */
     @Deprecated
-    protected String getReason(int code) {
+    protected String getReason(final int code) {
         return this.reasonCatalog != null ? this.reasonCatalog.getReason(code,
                 this.locale != null ? this.locale : Locale.getDefault()) : null;
     }

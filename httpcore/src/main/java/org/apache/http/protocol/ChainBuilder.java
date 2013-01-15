@@ -89,7 +89,7 @@ final class ChainBuilder<E> {
         return this;
     }
 
-    public ChainBuilder<E> addAllFirst(E... c) {
+    public ChainBuilder<E> addAllFirst(final E... c) {
         if (c == null) {
             return this;
         }
@@ -109,7 +109,7 @@ final class ChainBuilder<E> {
         return this;
     }
 
-    public ChainBuilder<E> addAllLast(E... c) {
+    public ChainBuilder<E> addAllLast(final E... c) {
         if (c == null) {
             return this;
         }

@@ -119,7 +119,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return true;
     }
 
-    public void free(final E entry, boolean reusable) {
+    public void free(final E entry, final boolean reusable) {
         Args.notNull(entry, "Pool entry");
         boolean found = this.leased.remove(entry);
         Asserts.check(found, "Entry %s has not been leased from this pool", entry);
@@ -146,7 +146,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return entry;
     }
 
-    public void completed(SessionRequest request, E entry) {
+    public void completed(final SessionRequest request, final E entry) {
         BasicFuture<E> future = removeRequest(request);
         future.completed(entry);
     }

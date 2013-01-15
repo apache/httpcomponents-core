@@ -59,7 +59,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
      *
      * @param catalog   the catalog of reason phrases
      */
-    public DefaultHttpResponseFactory(ReasonPhraseCatalog catalog) {
+    public DefaultHttpResponseFactory(final ReasonPhraseCatalog catalog) {
         this.reasonCatalog = Args.notNull(catalog, "Reason phrase catalog");
     }
 
@@ -102,7 +102,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
      *
      * @return  the locale for the response, never <code>null</code>
      */
-    protected Locale determineLocale(HttpContext context) {
+    protected Locale determineLocale(final HttpContext context) {
         return Locale.getDefault();
     }
 

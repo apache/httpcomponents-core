@@ -45,7 +45,7 @@ public class ResultProcessor {
         nf6.setMinimumFractionDigits(6);
     }
 
-    static Results collectResults(BenchmarkWorker[] workers, HttpHost host, String uri) {
+    static Results collectResults(final BenchmarkWorker[] workers, final HttpHost host, final String uri) {
         long totalTimeNano = 0;
         long successCount    = 0;
         long failureCount    = 0;

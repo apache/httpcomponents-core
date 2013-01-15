@@ -62,7 +62,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
      *
      * @since 4.2
      */
-    public StrictContentLengthStrategy(int implicitLen) {
+    public StrictContentLengthStrategy(final int implicitLen) {
         super();
         this.implicitLen = implicitLen;
     }

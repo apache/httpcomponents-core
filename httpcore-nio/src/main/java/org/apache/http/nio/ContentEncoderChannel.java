@@ -42,11 +42,11 @@ public class ContentEncoderChannel implements WritableByteChannel {
 
     private final ContentEncoder contentEncoder;
 
-    public ContentEncoderChannel(ContentEncoder contentEncoder) {
+    public ContentEncoderChannel(final ContentEncoder contentEncoder) {
         this.contentEncoder = contentEncoder;
     }
 
-    public int write(ByteBuffer src) throws IOException {
+    public int write(final ByteBuffer src) throws IOException {
         return contentEncoder.write(src);
     }
 

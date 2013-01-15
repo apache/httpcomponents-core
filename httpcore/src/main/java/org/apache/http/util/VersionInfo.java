@@ -85,8 +85,8 @@ public class VersionInfo {
      * @param time      the build time, or <code>null</code>
      * @param clsldr    the class loader, or <code>null</code>
      */
-    protected VersionInfo(String pckg, String module,
-                          String release, String time, String clsldr) {
+    protected VersionInfo(final String pckg, final String module,
+                          final String release, final String time, final String clsldr) {
         Args.notNull(pckg, "Package identifier");
         infoPackage     = pckg;
         infoModule      = (module  != null) ? module  : UNAVAILABLE;
@@ -193,8 +193,8 @@ public class VersionInfo {
      * @return  the version information for all packages found,
      *          never <code>null</code>
      */
-    public final static VersionInfo[] loadVersionInfo(String[] pckgs,
-                                                      ClassLoader clsldr) {
+    public final static VersionInfo[] loadVersionInfo(final String[] pckgs,
+                                                      final ClassLoader clsldr) {
         Args.notNull(pckgs, "Package identifier array");
         List<VersionInfo> vil = new ArrayList<VersionInfo>(pckgs.length);
         for (String pckg : pckgs) {
@@ -265,8 +265,8 @@ public class VersionInfo {
      *
      * @return  the version information
      */
-    protected final static VersionInfo fromMap(String pckg, Map<?, ?> info,
-                                               ClassLoader clsldr) {
+    protected final static VersionInfo fromMap(final String pckg, final Map<?, ?> info,
+                                               final ClassLoader clsldr) {
         Args.notNull(pckg, "Package identifier");
         String module = null;
         String release = null;
@@ -315,7 +315,7 @@ public class VersionInfo {
      *            the class' class loader to load from, or <code>null</code> for the thread context class loader
      * @since 4.3
      */
-    public static String getUserAgent(String name, String pkg, Class<?> cls) {
+    public static String getUserAgent(final String name, final String pkg, final Class<?> cls) {
         // determine the release version from packaged version info
         final VersionInfo vi = VersionInfo.loadVersionInfo(pkg, cls.getClassLoader());
         final String release = (vi != null) ? vi.getRelease() : VersionInfo.UNAVAILABLE;

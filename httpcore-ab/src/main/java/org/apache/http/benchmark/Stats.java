@@ -112,7 +112,7 @@ public class Stats {
         return this.totalBytesRecv;
     }
 
-    public void incTotalBytesRecv(long n) {
+    public void incTotalBytesRecv(final long n) {
         this.totalBytesRecv += n;
     }
 
@@ -120,7 +120,7 @@ public class Stats {
         return this.totalBytesSent;
     }
 
-    public void incTotalBytesSent(long n) {
+    public void incTotalBytesSent(final long n) {
         this.totalBytesSent += n;
     }
 
@@ -128,7 +128,7 @@ public class Stats {
         return this.contentLength;
     }
 
-    public void setContentLength(long contentLength) {
+    public void setContentLength(final long contentLength) {
         this.contentLength = contentLength;
     }
 

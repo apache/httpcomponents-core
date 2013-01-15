@@ -91,7 +91,7 @@ public class SocketHttpServerConnection extends
      */
     protected SessionInputBuffer createSessionInputBuffer(
             final Socket socket,
-            int buffersize,
+            final int buffersize,
             final HttpParams params) throws IOException {
         return new SocketInputBuffer(socket, buffersize, params);
     }
@@ -113,7 +113,7 @@ public class SocketHttpServerConnection extends
      */
     protected SessionOutputBuffer createSessionOutputBuffer(
             final Socket socket,
-            int buffersize,
+            final int buffersize,
             final HttpParams params) throws IOException {
         return new SocketOutputBuffer(socket, buffersize, params);
     }
@@ -190,7 +190,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
-    public void setSocketTimeout(int timeout) {
+    public void setSocketTimeout(final int timeout) {
         assertOpen();
         if (this.socket != null) {
             try {

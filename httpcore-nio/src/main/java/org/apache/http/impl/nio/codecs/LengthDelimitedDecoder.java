@@ -64,7 +64,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
-            long contentLength) {
+            final long contentLength) {
         super(channel, buffer, metrics);
         Args.notNegative(contentLength, "Content length");
         this.contentLength = contentLength;
@@ -116,7 +116,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
 
     public long transfer(
             final FileChannel dst,
-            long position,
+            final long position,
             long count) throws IOException {
 
         if (dst == null) {

@@ -43,14 +43,14 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
 
     private boolean endOfStream = false;
 
-    public SimpleInputBuffer(int buffersize, final ByteBufferAllocator allocator) {
+    public SimpleInputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
         super(buffersize, allocator);
     }
 
     /**
      * @since 4.3
      */
-    public SimpleInputBuffer(int buffersize) {
+    public SimpleInputBuffer(final int buffersize) {
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
@@ -92,7 +92,7 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         return this.buffer.get() & 0xff;
     }
 
-    public int read(final byte[] b, int off, int len) throws IOException {
+    public int read(final byte[] b, final int off, final int len) throws IOException {
         if (isEndOfStream()) {
             return -1;
         }

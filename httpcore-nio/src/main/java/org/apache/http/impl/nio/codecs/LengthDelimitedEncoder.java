@@ -63,7 +63,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
-            long contentLength) {
+            final long contentLength) {
         super(channel, buffer, metrics);
         Args.notNegative(contentLength, "Content length");
         this.contentLength = contentLength;
@@ -99,8 +99,8 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
 
     public long transfer(
             final FileChannel src,
-            long position,
-            long count) throws IOException {
+            final long position,
+            final long count) throws IOException {
 
         if (src == null) {
             return 0;

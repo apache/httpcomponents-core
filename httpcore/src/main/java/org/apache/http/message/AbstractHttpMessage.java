@@ -64,7 +64,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     }
 
     // non-javadoc, see interface HttpMessage
-    public boolean containsHeader(String name) {
+    public boolean containsHeader(final String name) {
         return this.headergroup.containsHeader(name);
     }
 
@@ -139,7 +139,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     }
 
     // non-javadoc, see interface HttpMessage
-    public HeaderIterator headerIterator(String name) {
+    public HeaderIterator headerIterator(final String name) {
         return this.headergroup.iterator(name);
     }
 

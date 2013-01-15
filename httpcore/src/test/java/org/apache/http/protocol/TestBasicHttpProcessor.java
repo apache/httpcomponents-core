@@ -41,8 +41,8 @@ public class TestBasicHttpProcessor {
     static class TestHttpRequestInterceptorPlaceHolder implements HttpRequestInterceptor {
 
         public void process(
-                HttpRequest request,
-                HttpContext context) throws HttpException, IOException {
+                final HttpRequest request,
+                final HttpContext context) throws HttpException, IOException {
         }
     }
 
@@ -110,8 +110,8 @@ public class TestBasicHttpProcessor {
         HttpRequestInterceptor itcp3 = new HttpRequestInterceptor() {
 
             public void process(
-                    HttpRequest request,
-                    HttpContext context) throws HttpException, IOException {
+                    final HttpRequest request,
+                    final HttpContext context) throws HttpException, IOException {
             }
 
         };

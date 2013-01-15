@@ -71,7 +71,7 @@ public final class HttpVersion extends ProtocolVersion
      *
      * @throws IllegalArgumentException if either major or minor version number is negative
      */
-    public HttpVersion(int major, int minor) {
+    public HttpVersion(final int major, final int minor) {
         super(HTTP, major, minor);
     }
 
@@ -85,7 +85,7 @@ public final class HttpVersion extends ProtocolVersion
      * @return  an instance of {@link HttpVersion} with the argument version
      */
     @Override
-    public ProtocolVersion forVersion(int major, int minor) {
+    public ProtocolVersion forVersion(final int major, final int minor) {
 
         if ((major == this.major) && (minor == this.minor)) {
             return this;

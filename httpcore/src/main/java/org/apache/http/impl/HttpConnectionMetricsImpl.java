@@ -126,7 +126,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         return value;
     }
 
-    public void setMetric(final String metricName, Object obj) {
+    public void setMetric(final String metricName, final Object obj) {
         if (this.metricsCache == null) {
             this.metricsCache = new HashMap<String, Object>();
         }

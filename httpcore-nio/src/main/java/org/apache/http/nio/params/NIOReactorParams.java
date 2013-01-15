@@ -65,7 +65,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @param params HTTP parameters.
      * @param size content buffer size.
      */
-    public static void setContentBufferSize(final HttpParams params, int size) {
+    public static void setContentBufferSize(final HttpParams params, final int size) {
         Args.notNull(params, "HTTP parameters");
         params.setIntParameter(CONTENT_BUFFER_SIZE, size);
     }
@@ -88,7 +88,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @param params HTTP parameters.
      * @param ms I/O select interval in milliseconds.
      */
-    public static void setSelectInterval(final HttpParams params, long ms) {
+    public static void setSelectInterval(final HttpParams params, final long ms) {
         Args.notNull(params, "HTTP parameters");
         params.setLongParameter(SELECT_INTERVAL, ms);
     }
@@ -111,7 +111,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @param params HTTP parameters.
      * @param ms shutdown grace period in milliseconds.
      */
-    public static void setGracePeriod(final HttpParams params, long ms) {
+    public static void setGracePeriod(final HttpParams params, final long ms) {
         Args.notNull(params, "HTTP parameters");
         params.setLongParameter(GRACE_PERIOD, ms);
     }
@@ -139,7 +139,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
      * @since 4.1
      */
     public static void setInterestOpsQueueing(
-            final HttpParams params, boolean interestOpsQueueing) {
+            final HttpParams params, final boolean interestOpsQueueing) {
         Args.notNull(params, "HTTP parameters");
         params.setBooleanParameter(INTEREST_OPS_QUEUEING, interestOpsQueueing);
     }

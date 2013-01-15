@@ -74,7 +74,7 @@ public final class HttpHost implements Cloneable, Serializable {
      *                  <code>null</code> indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
      */
-    public HttpHost(final String hostname, int port, final String scheme) {
+    public HttpHost(final String hostname, final int port, final String scheme) {
         super();
         this.hostname   = Args.notNull(hostname, "Host name");
         this.lcHostname = hostname.toLowerCase(Locale.ENGLISH);
@@ -93,7 +93,7 @@ public final class HttpHost implements Cloneable, Serializable {
      * @param port      the port number.
      *                  <code>-1</code> indicates the scheme default port.
      */
-    public HttpHost(final String hostname, int port) {
+    public HttpHost(final String hostname, final int port) {
         this(hostname, port, null);
     }
 

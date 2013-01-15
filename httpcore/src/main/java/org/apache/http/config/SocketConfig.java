@@ -49,11 +49,11 @@ public class SocketConfig implements Cloneable {
     private final boolean tcpNoDelay;
 
     SocketConfig(
-            int soTimeout,
-            boolean soReuseAddress,
-            int soLinger,
-            boolean soKeepAlive,
-            boolean tcpNoDelay) {
+            final int soTimeout,
+            final boolean soReuseAddress,
+            final int soLinger,
+            final boolean soKeepAlive,
+            final boolean tcpNoDelay) {
         super();
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
@@ -165,27 +165,27 @@ public class SocketConfig implements Cloneable {
             this.tcpNoDelay = true;
         }
 
-        public Builder setSoTimeout(int soTimeout) {
+        public Builder setSoTimeout(final int soTimeout) {
             this.soTimeout = soTimeout;
             return this;
         }
 
-        public Builder setSoReuseAddress(boolean soReuseAddress) {
+        public Builder setSoReuseAddress(final boolean soReuseAddress) {
             this.soReuseAddress = soReuseAddress;
             return this;
         }
 
-        public Builder setSoLinger(int soLinger) {
+        public Builder setSoLinger(final int soLinger) {
             this.soLinger = soLinger;
             return this;
         }
 
-        public Builder setSoKeepAlive(boolean soKeepAlive) {
+        public Builder setSoKeepAlive(final boolean soKeepAlive) {
             this.soKeepAlive = soKeepAlive;
             return this;
         }
 
-        public Builder setTcpNoDelay(boolean tcpNoDelay) {
+        public Builder setTcpNoDelay(final boolean tcpNoDelay) {
             this.tcpNoDelay = tcpNoDelay;
             return this;
         }

@@ -79,8 +79,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      * @since 4.3
      */
     public SessionInputBufferImpl(
-            int buffersize,
-            int lineBuffersize,
+            final int buffersize,
+            final int lineBuffersize,
             final CharsetDecoder chardecoder,
             final ByteBufferAllocator allocator) {
         super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
@@ -95,8 +95,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      */
     @Deprecated
     public SessionInputBufferImpl(
-            int buffersize,
-            int lineBuffersize,
+            final int buffersize,
+            final int lineBuffersize,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
         super(buffersize, allocator);
@@ -122,8 +122,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      */
     @Deprecated
     public SessionInputBufferImpl(
-            int buffersize,
-            int linebuffersize,
+            final int buffersize,
+            final int linebuffersize,
             final HttpParams params) {
         this(buffersize, linebuffersize, HeapByteBufferAllocator.INSTANCE, params);
     }
@@ -131,7 +131,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     /**
      * @since 4.3
      */
-    public SessionInputBufferImpl(int buffersize) {
+    public SessionInputBufferImpl(final int buffersize) {
         this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
     }
 
@@ -139,8 +139,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      * @since 4.3
      */
     public SessionInputBufferImpl(
-            int buffersize,
-            int lineBuffersize,
+            final int buffersize,
+            final int lineBuffersize,
             final Charset charset) {
         this(buffersize, lineBuffersize,
                 charset != null ? charset.newDecoder() : null, HeapByteBufferAllocator.INSTANCE);
@@ -161,7 +161,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return this.buffer.get() & 0xff;
     }
 
-    public int read(final ByteBuffer dst, int maxLen) {
+    public int read(final ByteBuffer dst, final int maxLen) {
         if (dst == null) {
             return 0;
         }
@@ -181,7 +181,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return read(dst, dst.remaining());
     }
 
-    public int read(final WritableByteChannel dst, int maxLen) throws IOException {
+    public int read(final WritableByteChannel dst, final int maxLen) throws IOException {
         if (dst == null) {
             return 0;
         }
@@ -209,7 +209,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
 
     public boolean readLine(
             final CharArrayBuffer linebuffer,
-            boolean endOfStream) throws CharacterCodingException {
+            final boolean endOfStream) throws CharacterCodingException {
 
         setOutputMode();
         // See if there is LF char present in the buffer
@@ -311,7 +311,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return true;
     }
 
-    public String readLine(boolean endOfStream) throws CharacterCodingException {
+    public String readLine(final boolean endOfStream) throws CharacterCodingException {
         CharArrayBuffer charbuffer = new CharArrayBuffer(64);
         boolean found = readLine(charbuffer, endOfStream);
         if (found) {

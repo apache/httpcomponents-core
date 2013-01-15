@@ -44,7 +44,7 @@ public class PoolStats {
     private final int available;
     private final int max;
 
-    public PoolStats(int leased, int pending, int free, int max) {
+    public PoolStats(final int leased, final int pending, final int free, final int max) {
         super();
         this.leased = leased;
         this.pending = pending;

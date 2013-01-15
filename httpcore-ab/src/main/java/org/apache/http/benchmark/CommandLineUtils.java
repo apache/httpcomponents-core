@@ -122,7 +122,7 @@ public class CommandLineUtils {
         return options;
     }
 
-    public static void parseCommandLine(CommandLine cmd, Config config) {
+    public static void parseCommandLine(final CommandLine cmd, final Config config) {
         if (cmd.hasOption('v')) {
             String s = cmd.getOptionValue('v');
             try {
@@ -221,7 +221,7 @@ public class CommandLineUtils {
         formatter.printHelp("HttpBenchmark [options] [http://]hostname[:port]/path?query", options);
     }
 
-    static void printError(String msg) {
+    static void printError(final String msg) {
         System.err.println(msg);
         showUsage(getOptions());
         System.exit(-1);

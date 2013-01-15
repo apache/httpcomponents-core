@@ -36,7 +36,7 @@ import org.junit.Test;
  */
 public class TestEncodingUtils {
 
-    private static String constructString(int [] unicodeChars) {
+    private static String constructString(final int [] unicodeChars) {
         StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
             for (int unicodeChar : unicodeChars) {

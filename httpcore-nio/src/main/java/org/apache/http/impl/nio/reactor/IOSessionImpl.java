@@ -138,7 +138,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         return this.interestOpsCallback != null ? this.currentEventMask : this.key.interestOps();
     }
 
-    public synchronized void setEventMask(int ops) {
+    public synchronized void setEventMask(final int ops) {
         if (this.status == CLOSED) {
             return;
         }
@@ -157,7 +157,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.key.selector().wakeup();
     }
 
-    public synchronized void setEvent(int op) {
+    public synchronized void setEvent(final int op) {
         if (this.status == CLOSED) {
             return;
         }
@@ -177,7 +177,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.key.selector().wakeup();
     }
 
-    public synchronized void clearEvent(int op) {
+    public synchronized void clearEvent(final int op) {
         if (this.status == CLOSED) {
             return;
         }
@@ -201,7 +201,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         return this.socketTimeout;
     }
 
-    public synchronized void setSocketTimeout(int timeout) {
+    public synchronized void setSocketTimeout(final int timeout) {
         this.socketTimeout = timeout;
         this.lastAccessTime = System.currentTimeMillis();
     }
@@ -294,7 +294,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.lastAccessTime = now;
     }
 
-    private static void formatOps(final StringBuilder buffer, int ops) {
+    private static void formatOps(final StringBuilder buffer, final int ops) {
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');
         }

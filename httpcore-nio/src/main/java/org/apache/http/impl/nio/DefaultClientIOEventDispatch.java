@@ -139,7 +139,7 @@ public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClient
     }
 
     @Override
-    protected void onException(final NHttpClientIOTarget conn, IOException ex) {
+    protected void onException(final NHttpClientIOTarget conn, final IOException ex) {
         this.handler.exception(conn, ex);
     }
 

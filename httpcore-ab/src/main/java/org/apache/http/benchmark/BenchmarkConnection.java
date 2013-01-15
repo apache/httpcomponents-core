@@ -37,7 +37,7 @@ class BenchmarkConnection extends DefaultBHttpClientConnection {
 
     private final Stats stats;
 
-    BenchmarkConnection(int bufsize, final Stats stats) {
+    BenchmarkConnection(final int bufsize, final Stats stats) {
         super(bufsize);
         this.stats = stats;
     }

@@ -68,7 +68,7 @@ public class TestNIOConnPool {
 
     static class LocalConnFactory implements NIOConnFactory<String, IOSession> {
 
-        public IOSession create(String route, IOSession session) throws IOException {
+        public IOSession create(final String route, final IOSession session) throws IOException {
             return session;
         }
 
@@ -77,7 +77,7 @@ public class TestNIOConnPool {
     static class LocalSessionPool extends AbstractNIOConnPool<String, IOSession, LocalPoolEntry> {
 
         public LocalSessionPool(
-                final ConnectingIOReactor ioreactor, int defaultMaxPerRoute, int maxTotal) {
+                final ConnectingIOReactor ioreactor, final int defaultMaxPerRoute, final int maxTotal) {
             super(ioreactor, new LocalConnFactory(), defaultMaxPerRoute, maxTotal);
         }
 

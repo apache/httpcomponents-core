@@ -50,13 +50,13 @@ public final class ByteArrayBuffer implements Serializable {
      *
      * @param capacity the capacity
      */
-    public ByteArrayBuffer(int capacity) {
+    public ByteArrayBuffer(final int capacity) {
         super();
         Args.notNegative(capacity, "Buffer capacity");
         this.buffer = new byte[capacity];
     }
 
-    private void expand(int newlen) {
+    private void expand(final int newlen) {
         byte newbuffer[] = new byte[Math.max(this.buffer.length << 1, newlen)];
         System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
         this.buffer = newbuffer;
@@ -74,7 +74,7 @@ public final class ByteArrayBuffer implements Serializable {
      * range, <code>len</code> is negative, or
      * <code>off</code> + <code>len</code> is out of range.
      */
-    public void append(final byte[] b, int off, int len) {
+    public void append(final byte[] b, final int off, final int len) {
         if (b == null) {
             return;
         }
@@ -99,7 +99,7 @@ public final class ByteArrayBuffer implements Serializable {
      *
      * @param   b        the byte to be appended.
      */
-    public void append(int b) {
+    public void append(final int b) {
         int newlen = this.len + 1;
         if (newlen > this.buffer.length) {
             expand(newlen);
@@ -122,7 +122,7 @@ public final class ByteArrayBuffer implements Serializable {
      * range, <code>len</code> is negative, or
      * <code>off</code> + <code>len</code> is out of range.
      */
-    public void append(final char[] b, int off, int len) {
+    public void append(final char[] b, final int off, final int len) {
         if (b == null) {
             return;
         }
@@ -159,7 +159,7 @@ public final class ByteArrayBuffer implements Serializable {
      * range, <code>len</code> is negative, or
      * <code>off</code> + <code>len</code> is out of range.
      */
-    public void append(final CharArrayBuffer b, int off, int len) {
+    public void append(final CharArrayBuffer b, final int off, final int len) {
         if (b == null) {
             return;
         }
@@ -196,7 +196,7 @@ public final class ByteArrayBuffer implements Serializable {
      * @throws     IndexOutOfBoundsException  if <code>index</code> is
      *             negative or greater than or equal to {@link #length()}.
      */
-    public int byteAt(int i) {
+    public int byteAt(final int i) {
         return this.buffer[i];
     }
 
@@ -230,7 +230,7 @@ public final class ByteArrayBuffer implements Serializable {
      *
      * @since 4.1
      */
-    public void ensureCapacity(int required) {
+    public void ensureCapacity(final int required) {
         if (required <= 0) {
             return;
         }
@@ -259,7 +259,7 @@ public final class ByteArrayBuffer implements Serializable {
      *               <code>len</code> argument is greater than the current
      *               capacity of the buffer or less than <code>0</code>.
      */
-    public void setLength(int len) {
+    public void setLength(final int len) {
         if (len < 0 || len > this.buffer.length) {
             throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.buffer.length);
         }
@@ -309,7 +309,7 @@ public final class ByteArrayBuffer implements Serializable {
      *
      * @since 4.1
      */
-    public int indexOf(byte b, int beginIndex, int endIndex) {
+    public int indexOf(final byte b, int beginIndex, int endIndex) {
         if (beginIndex < 0) {
             beginIndex = 0;
         }
@@ -339,7 +339,7 @@ public final class ByteArrayBuffer implements Serializable {
      *
      * @since 4.1
      */
-    public int indexOf(byte b) {
+    public int indexOf(final byte b) {
         return indexOf(b, 0, this.len);
     }
 }

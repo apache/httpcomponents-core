@@ -42,14 +42,14 @@ class TimeoutByteArrayInputStream extends InputStream {
     private int pos;
     protected int count;
 
-    public TimeoutByteArrayInputStream(byte[] buf, int off, int len) {
+    public TimeoutByteArrayInputStream(final byte[] buf, final int off, final int len) {
         super();
         this.buf = buf;
         this.pos = off;
         this.count = Math.min(off + len, buf.length);
     }
 
-    public TimeoutByteArrayInputStream(byte[] buf) {
+    public TimeoutByteArrayInputStream(final byte[] buf) {
         this(buf, 0, buf.length);
     }
 
@@ -67,7 +67,7 @@ class TimeoutByteArrayInputStream extends InputStream {
     }
 
     @Override
-    public int read(byte b[], int off, int len) throws IOException {
+    public int read(final byte b[], final int off, int len) throws IOException {
         if (b == null) {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||

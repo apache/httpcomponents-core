@@ -67,7 +67,7 @@ public final class BasicHttpProcessor implements
     }
 
     public void addRequestInterceptor(
-            final HttpRequestInterceptor itcp, int index) {
+            final HttpRequestInterceptor itcp, final int index) {
         if (itcp == null) {
             return;
         }
@@ -75,7 +75,7 @@ public final class BasicHttpProcessor implements
     }
 
     public void addResponseInterceptor(
-            final HttpResponseInterceptor itcp, int index) {
+            final HttpResponseInterceptor itcp, final int index) {
         if (itcp == null) {
             return;
         }
@@ -106,7 +106,7 @@ public final class BasicHttpProcessor implements
         addRequestInterceptor(interceptor);
     }
 
-     public final void addInterceptor(final HttpRequestInterceptor interceptor, int index) {
+     public final void addInterceptor(final HttpRequestInterceptor interceptor, final int index) {
         addRequestInterceptor(interceptor, index);
     }
 
@@ -114,7 +114,7 @@ public final class BasicHttpProcessor implements
         return this.requestInterceptors.size();
     }
 
-    public HttpRequestInterceptor getRequestInterceptor(int index) {
+    public HttpRequestInterceptor getRequestInterceptor(final int index) {
         if ((index < 0) || (index >= this.requestInterceptors.size())) {
 			return null;
 		}
@@ -136,7 +136,7 @@ public final class BasicHttpProcessor implements
         addResponseInterceptor(interceptor);
     }
 
-    public final void addInterceptor(final HttpResponseInterceptor interceptor, int index) {
+    public final void addInterceptor(final HttpResponseInterceptor interceptor, final int index) {
         addResponseInterceptor(interceptor, index);
     }
 
@@ -144,7 +144,7 @@ public final class BasicHttpProcessor implements
         return this.responseInterceptors.size();
     }
 
-    public HttpResponseInterceptor getResponseInterceptor(int index) {
+    public HttpResponseInterceptor getResponseInterceptor(final int index) {
         if ((index < 0) || (index >= this.responseInterceptors.size())) {
 			return null;
 		}
