@@ -86,8 +86,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                       HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicHeaderValueParser.INSTANCE;
-		}
+            parser = BasicHeaderValueParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -125,8 +125,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                          HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicHeaderValueParser.INSTANCE;
-		}
+            parser = BasicHeaderValueParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -179,8 +179,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                         HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicHeaderValueParser.INSTANCE;
-		}
+            parser = BasicHeaderValueParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -237,8 +237,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                         HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicHeaderValueParser.INSTANCE;
-		}
+            parser = BasicHeaderValueParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);

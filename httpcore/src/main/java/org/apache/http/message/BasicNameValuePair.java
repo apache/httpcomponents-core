@@ -86,8 +86,8 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
     @Override
     public boolean equals(final Object object) {
         if (this == object) {
-			return true;
-		}
+            return true;
+        }
         if (object instanceof NameValuePair) {
             BasicNameValuePair that = (BasicNameValuePair) object;
             return this.name.equals(that.name)

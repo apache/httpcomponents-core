@@ -108,8 +108,8 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // broken but unfortunately common extension of HTTP.
         HeaderIterator hit = response.headerIterator(HTTP.CONN_DIRECTIVE);
         if (!hit.hasNext()) {
-			hit = response.headerIterator("Proxy-Connection");
-		}
+            hit = response.headerIterator("Proxy-Connection");
+        }
 
         // Experimental usage of the "Connection" header in HTTP/1.0 is
         // documented in RFC 2068, section 19.7.1. A token "keep-alive" is
@@ -148,10 +148,10 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                     }
                 }
                 if (keepalive)
-				 {
-					return true;
+                 {
+                    return true;
                 // neither "close" nor "keep-alive", use default policy
-				}
+                }
 
             } catch (ParseException px) {
                 // invalid connection header means no persistent connection

@@ -145,8 +145,8 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     public void unqueue(final PoolEntryFuture<E> future) {
         if (future == null) {
-			return;
-		}
+            return;
+        }
 
         this.pending.remove(future);
     }

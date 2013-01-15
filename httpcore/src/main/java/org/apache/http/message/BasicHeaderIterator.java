@@ -92,8 +92,8 @@ public class BasicHeaderIterator implements HeaderIterator {
      */
     protected int findNext(int from) {
         if (from < -1) {
-			return -1;
-		}
+            return -1;
+        }
 
         final int to = this.allHeaders.length-1;
         boolean found = false;

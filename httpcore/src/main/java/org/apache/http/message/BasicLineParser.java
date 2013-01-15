@@ -107,8 +107,8 @@ public class BasicLineParser implements LineParser {
                                              LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicLineParser.INSTANCE;
-		}
+            parser = BasicLineParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -217,9 +217,9 @@ public class BasicLineParser implements LineParser {
         final int  protolength = protoname.length();
 
         if (buffer.length() < protolength+4)
-		 {
-			return false; // not long enough for "HTTP/1.1"
-		}
+         {
+            return false; // not long enough for "HTTP/1.1"
+        }
 
         if (index < 0) {
             // end of line, no tolerance for trailing whitespace
@@ -235,8 +235,8 @@ public class BasicLineParser implements LineParser {
 
 
         if (index + protolength + 4 > buffer.length()) {
-			return false;
-		}
+            return false;
+        }
 
 
         // just check protocol name and slash, no need to analyse the version
@@ -258,8 +258,8 @@ public class BasicLineParser implements LineParser {
                                      LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicLineParser.INSTANCE;
-		}
+            parser = BasicLineParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -347,8 +347,8 @@ public class BasicLineParser implements LineParser {
                                    LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicLineParser.INSTANCE;
-		}
+            parser = BasicLineParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
@@ -433,8 +433,8 @@ public class BasicLineParser implements LineParser {
                            LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
         if (parser == null) {
-			parser = BasicLineParser.INSTANCE;
-		}
+            parser = BasicLineParser.INSTANCE;
+        }
 
         CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);

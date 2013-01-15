@@ -167,17 +167,17 @@ public class VersionInfo {
         // If version info is missing, a single "UNAVAILABLE" for the module
         // is sufficient. Everything else just clutters the output.
         if (!UNAVAILABLE.equals(infoRelease)) {
-			sb.append(':').append(infoRelease);
-		}
+            sb.append(':').append(infoRelease);
+        }
         if (!UNAVAILABLE.equals(infoTimestamp)) {
-			sb.append(':').append(infoTimestamp);
-		}
+            sb.append(':').append(infoTimestamp);
+        }
 
         sb.append(')');
 
         if (!UNAVAILABLE.equals(infoClassloader)) {
-			sb.append('@').append(infoClassloader);
-		}
+            sb.append('@').append(infoClassloader);
+        }
 
         return sb.toString();
     }
@@ -200,8 +200,8 @@ public class VersionInfo {
         for (String pckg : pckgs) {
             VersionInfo vi = loadVersionInfo(pckg, clsldr);
             if (vi != null) {
-				vil.add(vi);
-			}
+                vil.add(vi);
+            }
         }
 
         return vil.toArray(new VersionInfo[vil.size()]);
@@ -224,8 +224,8 @@ public class VersionInfo {
                                                     ClassLoader clsldr) {
         Args.notNull(pckg, "Package identifier");
         if (clsldr == null) {
-			clsldr = Thread.currentThread().getContextClassLoader();
-		}
+            clsldr = Thread.currentThread().getContextClassLoader();
+        }
 
         Properties vip = null; // version info properties, if available
         try {
@@ -248,8 +248,8 @@ public class VersionInfo {
 
         VersionInfo result = null;
         if (vip != null) {
-			result = fromMap(pckg, vip, clsldr);
-		}
+            result = fromMap(pckg, vip, clsldr);
+        }
 
         return result;
     }
@@ -275,28 +275,28 @@ public class VersionInfo {
         if (info != null) {
             module = (String) info.get(PROPERTY_MODULE);
             if ((module != null) && (module.length() < 1)) {
-				module = null;
-			}
+                module = null;
+            }
 
             release = (String) info.get(PROPERTY_RELEASE);
             if ((release != null) && ((release.length() < 1) ||
                                       (release.equals("${pom.version}")))) {
-				release = null;
-			}
+                release = null;
+            }
 
             timestamp = (String) info.get(PROPERTY_TIMESTAMP);
             if ((timestamp != null) &&
                 ((timestamp.length() < 1) ||
                  (timestamp.equals("${mvn.timestamp}")))
                 ) {
-				timestamp = null;
-			}
+                timestamp = null;
+            }
         } // if info
 
         String clsldrstr = null;
         if (clsldr != null) {
-			clsldrstr = clsldr.toString();
-		}
+            clsldrstr = clsldr.toString();
+        }
 
         return new VersionInfo(pckg, module, release, timestamp, clsldrstr);
     }
