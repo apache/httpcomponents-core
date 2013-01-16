@@ -125,8 +125,8 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         if (name == null) {
             return;
         }
-        for (HeaderIterator i = this.headergroup.iterator(); i.hasNext(); ) {
-            Header header = i.nextHeader();
+        for (final HeaderIterator i = this.headergroup.iterator(); i.hasNext(); ) {
+            final Header header = i.nextHeader();
             if (name.equalsIgnoreCase(header.getName())) {
                 i.remove();
             }

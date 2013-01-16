@@ -55,10 +55,10 @@ public class ResponseDate implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        int status = response.getStatusLine().getStatusCode();
+        final int status = response.getStatusLine().getStatusCode();
         if ((status >= HttpStatus.SC_OK) &&
             !response.containsHeader(HTTP.DATE_HEADER)) {
-            String httpdate = DATE_GENERATOR.getCurrentDate();
+            final String httpdate = DATE_GENERATOR.getCurrentDate();
             response.setHeader(HTTP.DATE_HEADER, httpdate);
         }
     }

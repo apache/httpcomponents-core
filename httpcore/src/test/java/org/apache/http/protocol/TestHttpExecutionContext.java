@@ -36,8 +36,8 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testContextOperations() {
-        HttpContext parentContext = new BasicHttpContext(null);
-        HttpContext currentContext = new BasicHttpContext(parentContext);
+        final HttpContext parentContext = new BasicHttpContext(null);
+        final HttpContext currentContext = new BasicHttpContext(parentContext);
 
         parentContext.setAttribute("param1", "1");
         parentContext.setAttribute("param2", "2");
@@ -66,7 +66,7 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testEmptyContextOperations() {
-        HttpContext currentContext = new BasicHttpContext(null);
+        final HttpContext currentContext = new BasicHttpContext(null);
         Assert.assertEquals(null, currentContext.getAttribute("param1"));
         currentContext.removeAttribute("param1");
         Assert.assertEquals(null, currentContext.getAttribute("param1"));
@@ -74,23 +74,23 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testContextInvalidInput() throws Exception {
-        HttpContext currentContext = new BasicHttpContext(null);
+        final HttpContext currentContext = new BasicHttpContext(null);
         try {
             currentContext.setAttribute(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             currentContext.getAttribute(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             currentContext.removeAttribute(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

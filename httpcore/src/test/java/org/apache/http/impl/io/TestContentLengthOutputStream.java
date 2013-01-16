@@ -43,24 +43,24 @@ public class TestContentLengthOutputStream {
         try {
             new ContentLengthOutputStream(null, 10L);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             new ContentLengthOutputStream(new SessionOutputBufferMock(), -10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testBasics() throws Exception {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
-        OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
+        final OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
 
-        byte[] tmp = new byte[10];
+        final byte[] tmp = new byte[10];
         out.write(tmp, 0, 10);
         out.write(1);
         out.write(tmp, 0, 10);
@@ -70,28 +70,28 @@ public class TestContentLengthOutputStream {
         out.write(2);
         out.flush();
         out.close();
-        byte[] data = datatransmitter.getData();
+        final byte[] data = datatransmitter.getData();
         Assert.assertEquals(15, data.length);
     }
 
     @Test
     public void testClose() throws Exception {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
-        OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        final SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
+        final OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
         out.close();
         out.close();
-        byte[] tmp = new byte[10];
+        final byte[] tmp = new byte[10];
         try {
             out.write(tmp);
             Assert.fail("IOException should have been thrown");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             // expected
         }
         try {
             out.write(1);
             Assert.fail("IOException should have been thrown");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             // expected
         }
     }

@@ -198,11 +198,11 @@ public class HttpClientNio {
     }
 
     private void execute(final NHttpClientEventHandler clientHandler) throws IOException {
-        IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler, this.connFactory) {
+        final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler, this.connFactory) {
 
             @Override
             protected DefaultNHttpClientConnection createConnection(final IOSession session) {
-                DefaultNHttpClientConnection conn = super.createConnection(session);
+                final DefaultNHttpClientConnection conn = super.createConnection(session);
                 conn.setSocketTimeout(timeout);
                 return conn;
             }
@@ -212,7 +212,7 @@ public class HttpClientNio {
     }
 
     public SessionRequest openConnection(final InetSocketAddress address, final Object attachment) {
-        SessionRequest sessionRequest = this.ioReactor.connect(address, null, attachment, null);
+        final SessionRequest sessionRequest = this.ioReactor.connect(address, null, attachment, null);
         sessionRequest.setConnectTimeout(this.timeout);
         return sessionRequest;
     }
@@ -275,7 +275,7 @@ public class HttpClientNio {
         this.connpool.shutdown(2000);
         try {
             join(500);
-        } catch (InterruptedException ignore) {
+        } catch (final InterruptedException ignore) {
         }
     }
 
@@ -294,7 +294,7 @@ public class HttpClientNio {
         public void run() {
             try {
                 execute(this.clientHandler);
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 this.ex = ex;
             }
         }

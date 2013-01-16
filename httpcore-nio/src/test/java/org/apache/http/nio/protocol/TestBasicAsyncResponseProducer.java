@@ -66,7 +66,7 @@ public class TestBasicAsyncResponseProducer {
 
     @Test
     public void testGenerateRequest() {
-        HttpResponse res = producer.generateResponse();
+        final HttpResponse res = producer.generateResponse();
 
         Assert.assertSame(response, res);
     }

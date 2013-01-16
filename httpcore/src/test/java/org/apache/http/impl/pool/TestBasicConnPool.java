@@ -66,7 +66,7 @@ public class TestBasicConnPool {
         sslServer = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(0);
         sslServerPort = sslServer.getLocalPort();
 
-        SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();
+        final SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();
         connFactory = new BasicConnFactory(sconfig, ConnectionConfig.DEFAULT);
         pool = new BasicConnPool(connFactory);
     }
@@ -95,7 +95,7 @@ public class TestBasicConnPool {
 
     @Test
     public void testHttpsCreateConnection() throws Exception {
-        SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();
+        final SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();
         connFactory = new BasicConnFactory(
                 (SSLSocketFactory)SSLSocketFactory.getDefault(),
                 0, sconfig, ConnectionConfig.DEFAULT);
@@ -111,7 +111,7 @@ public class TestBasicConnPool {
         host = new HttpHost("localhost", serverPort, "http");
         conn = connFactory.create(host);
 
-        BasicPoolEntry entry = pool.createEntry(host, conn);
+        final BasicPoolEntry entry = pool.createEntry(host, conn);
 
         assertEquals(conn, entry.getConnection());
         assertEquals("localhost", entry.getRoute().getHostName());

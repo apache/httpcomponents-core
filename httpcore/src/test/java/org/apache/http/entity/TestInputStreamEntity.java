@@ -43,9 +43,9 @@ public class TestInputStreamEntity {
 
     @Test
     public void testBasics() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
-        InputStream instream = new ByteArrayInputStream(bytes);
-        InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
+        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
+        final InputStream instream = new ByteArrayInputStream(bytes);
+        final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
         Assert.assertEquals(instream, httpentity.getContent());
@@ -59,14 +59,14 @@ public class TestInputStreamEntity {
         try {
             new InputStreamEntity(null, 0);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testWriteTo() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
         InputStream instream = new ByteArrayInputStream(bytes);
         InputStreamEntity httpentity = new InputStreamEntity(instream, 7);
 
@@ -75,7 +75,7 @@ public class TestInputStreamEntity {
         byte[] bytes2 = out.toByteArray();
         Assert.assertNotNull(bytes2);
         Assert.assertEquals(7, bytes2.length);
-        String s = new String(bytes2, Consts.ISO_8859_1.name());
+        final String s = new String(bytes2, Consts.ISO_8859_1.name());
         Assert.assertEquals("Message", s);
 
         instream = new ByteArrayInputStream(bytes);
@@ -97,7 +97,7 @@ public class TestInputStreamEntity {
         try {
             httpentity.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

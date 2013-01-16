@@ -91,13 +91,13 @@ public class HttpResponseParser extends AbstractMessageParser<HttpMessage> {
         throws IOException, HttpException, ParseException {
 
         this.lineBuf.clear();
-        int i = sessionBuffer.readLine(this.lineBuf);
+        final int i = sessionBuffer.readLine(this.lineBuf);
         if (i == -1) {
             throw new NoHttpResponseException("The target server failed to respond");
         }
         //create the status line from the status string
-        ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
-        StatusLine statusline = lineParser.parseStatusLine(this.lineBuf, cursor);
+        final ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
+        final StatusLine statusline = lineParser.parseStatusLine(this.lineBuf, cursor);
         return this.responseFactory.newHttpResponse(statusline, null);
     }
 

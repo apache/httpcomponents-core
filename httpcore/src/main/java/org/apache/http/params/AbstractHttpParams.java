@@ -50,7 +50,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
     }
 
     public long getLongParameter(final String name, final long defaultValue) {
-        Object param = getParameter(name);
+        final Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
         }
@@ -63,7 +63,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
     }
 
     public int getIntParameter(final String name, final int defaultValue) {
-        Object param = getParameter(name);
+        final Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
         }
@@ -76,7 +76,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
     }
 
     public double getDoubleParameter(final String name, final double defaultValue) {
-        Object param = getParameter(name);
+        final Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
         }
@@ -89,7 +89,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
     }
 
     public boolean getBooleanParameter(final String name, final boolean defaultValue) {
-        Object param = getParameter(name);
+        final Object param = getParameter(name);
         if (param == null) {
             return defaultValue;
         }

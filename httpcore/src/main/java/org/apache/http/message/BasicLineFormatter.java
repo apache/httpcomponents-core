@@ -166,7 +166,7 @@ public class BasicLineFormatter implements LineFormatter {
     public CharArrayBuffer formatRequestLine(final CharArrayBuffer buffer,
                                              final RequestLine reqline) {
         Args.notNull(reqline, "Request line");
-        CharArrayBuffer result = initBuffer(buffer);
+        final CharArrayBuffer result = initBuffer(buffer);
         doFormatRequestLine(result, reqline);
 
         return result;
@@ -187,7 +187,7 @@ public class BasicLineFormatter implements LineFormatter {
         final String uri    = reqline.getUri();
 
         // room for "GET /index.html HTTP/1.1"
-        int len = method.length() + 1 + uri.length() + 1 +
+        final int len = method.length() + 1 + uri.length() + 1 +
             estimateProtocolVersionLen(reqline.getProtocolVersion());
         buffer.ensureCapacity(len);
 
@@ -223,7 +223,7 @@ public class BasicLineFormatter implements LineFormatter {
     public CharArrayBuffer formatStatusLine(final CharArrayBuffer buffer,
                                             final StatusLine statline) {
         Args.notNull(statline, "Status line");
-        CharArrayBuffer result = initBuffer(buffer);
+        final CharArrayBuffer result = initBuffer(buffer);
         doFormatStatusLine(result, statline);
 
         return result;

@@ -140,7 +140,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.params = new BasicHttpParams();
         try {
             this.selector = Selector.open();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new IOReactorException("Failure opening selector", ex);
         }
         this.selectTimeout = this.config.getSelectInterval();
@@ -171,7 +171,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     static IOReactorConfig convert(final int workerCount, final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
-        IOReactorConfig config = IOReactorConfig.custom()
+        final IOReactorConfig config = IOReactorConfig.custom()
             .setSelectInterval(NIOReactorParams.getSelectInterval(params))
             .setShutdownGracePeriod(NIOReactorParams.getGracePeriod(params))
             .setInterestOpQueued(NIOReactorParams.getInterestOpsQueueing(params))
@@ -318,12 +318,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.status = IOReactorStatus.ACTIVE;
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
-                BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout, this.interestOpsQueueing);
+                final BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout, this.interestOpsQueueing);
                 dispatcher.setExceptionHandler(exceptionHandler);
                 this.dispatchers[i] = dispatcher;
             }
             for (int i = 0; i < this.workerCount; i++) {
-                BaseIOReactor dispatcher = this.dispatchers[i];
+                final BaseIOReactor dispatcher = this.dispatchers[i];
                 this.workers[i] = new Worker(dispatcher, eventDispatch);
                 this.threads[i] = this.threadFactory.newThread(this.workers[i]);
             }
@@ -341,9 +341,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 int readyCount;
                 try {
                     readyCount = this.selector.select(this.selectTimeout);
-                } catch (InterruptedIOException ex) {
+                } catch (final InterruptedIOException ex) {
                     throw ex;
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     throw new IOReactorException("Unexpected selector failure", ex);
                 }
 
@@ -353,8 +353,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
                 // Verify I/O dispatchers
                 for (int i = 0; i < this.workerCount; i++) {
-                    Worker worker = this.workers[i];
-                    Exception ex = worker.getException();
+                    final Worker worker = this.workers[i];
+                    final Exception ex = worker.getException();
                     if (ex != null) {
                         throw new IOReactorException(
                                 "I/O dispatch worker terminated abnormally", ex);
@@ -366,9 +366,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 }
             }
 
-        } catch (ClosedSelectorException ex) {
+        } catch (final ClosedSelectorException ex) {
             addExceptionEvent(ex);
-        } catch (IOReactorException ex) {
+        } catch (final IOReactorException ex) {
             if (ex.getCause() != null) {
                 addExceptionEvent(ex.getCause());
             }
@@ -401,7 +401,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         try {
             cancelRequests();
-        } catch (IOReactorException ex) {
+        } catch (final IOReactorException ex) {
             if (ex.getCause() != null) {
                 addExceptionEvent(ex.getCause());
             }
@@ -410,44 +410,44 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
         // Close out all channels
         if (this.selector.isOpen()) {
-            for (SelectionKey key : this.selector.keys()) {
+            for (final SelectionKey key : this.selector.keys()) {
                 try {
-                    Channel channel = key.channel();
+                    final Channel channel = key.channel();
                     if (channel != null) {
                         channel.close();
                     }
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     addExceptionEvent(ex);
                 }
             }
             // Stop dispatching I/O events
             try {
                 this.selector.close();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 addExceptionEvent(ex);
             }
         }
 
         // Attempt to shut down I/O dispatchers gracefully
         for (int i = 0; i < this.workerCount; i++) {
-            BaseIOReactor dispatcher = this.dispatchers[i];
+            final BaseIOReactor dispatcher = this.dispatchers[i];
             dispatcher.gracefulShutdown();
         }
 
-        long gracePeriod = this.config.getShutdownGracePeriod();
+        final long gracePeriod = this.config.getShutdownGracePeriod();
 
         try {
             // Force shut down I/O dispatchers if they fail to terminate
             // in time
             for (int i = 0; i < this.workerCount; i++) {
-                BaseIOReactor dispatcher = this.dispatchers[i];
+                final BaseIOReactor dispatcher = this.dispatchers[i];
                 if (dispatcher.getStatus() != IOReactorStatus.INACTIVE) {
                     dispatcher.awaitShutdown(gracePeriod);
                 }
                 if (dispatcher.getStatus() != IOReactorStatus.SHUT_DOWN) {
                     try {
                         dispatcher.hardShutdown();
-                    } catch (IOReactorException ex) {
+                    } catch (final IOReactorException ex) {
                         if (ex.getCause() != null) {
                             addExceptionEvent(ex.getCause());
                         }
@@ -456,12 +456,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             }
             // Join worker threads
             for (int i = 0; i < this.workerCount; i++) {
-                Thread t = this.threads[i];
+                final Thread t = this.threads[i];
                 if (t != null) {
                     t.join(gracePeriod);
                 }
             }
-        } catch (InterruptedException ex) {
+        } catch (final InterruptedException ex) {
             throw new InterruptedIOException(ex.getMessage());
         }
     }
@@ -473,7 +473,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      */
     protected void addChannel(final ChannelEntry entry) {
         // Distribute new channels among the workers
-        int i = Math.abs(this.currentWorker++ % this.workerCount);
+        final int i = Math.abs(this.currentWorker++ % this.workerCount);
         this.dispatchers[i].addChannel(entry);
     }
 
@@ -500,7 +500,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         socket.setTcpNoDelay(this.config.isTcpNoDelay());
         socket.setSoTimeout(this.config.getSoTimeout());
         socket.setKeepAlive(this.config.isSoKeepalive());
-        int linger = this.config.getSoLinger();
+        final int linger = this.config.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
         }
@@ -517,7 +517,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      */
     protected void awaitShutdown(final long timeout) throws InterruptedException {
         synchronized (this.statusLock) {
-            long deadline = System.currentTimeMillis() + timeout;
+            final long deadline = System.currentTimeMillis() + timeout;
             long remaining = timeout;
             while (this.status != IOReactorStatus.SHUT_DOWN) {
                 this.statusLock.wait(remaining);
@@ -550,14 +550,14 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.selector.wakeup();
         try {
             awaitShutdown(waitMs);
-        } catch (InterruptedException ignore) {
+        } catch (final InterruptedException ignore) {
         }
     }
 
     static void closeChannel(final Channel channel) {
         try {
             channel.close();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 
@@ -577,7 +577,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         public void run() {
             try {
                 this.dispatcher.execute(this.eventDispatch);
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 this.exception = ex;
             }
         }

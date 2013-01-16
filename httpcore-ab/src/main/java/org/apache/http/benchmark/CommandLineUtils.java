@@ -38,72 +38,72 @@ import java.net.URL;
 public class CommandLineUtils {
 
     public static Options getOptions() {
-        Option iopt = new Option("i", false, "Do HEAD requests instead of GET (deprecated)");
+        final Option iopt = new Option("i", false, "Do HEAD requests instead of GET (deprecated)");
         iopt.setRequired(false);
 
-        Option oopt = new Option("o", false, "Use HTTP/S 1.0 instead of 1.1 (default)");
+        final Option oopt = new Option("o", false, "Use HTTP/S 1.0 instead of 1.1 (default)");
         oopt.setRequired(false);
 
-        Option kopt = new Option("k", false, "Enable the HTTP KeepAlive feature, " +
+        final Option kopt = new Option("k", false, "Enable the HTTP KeepAlive feature, " +
             "i.e., perform multiple requests within one HTTP session. " +
             "Default is no KeepAlive");
         kopt.setRequired(false);
 
-        Option uopt = new Option("u", false, "Chunk entity. Default is false");
+        final Option uopt = new Option("u", false, "Chunk entity. Default is false");
         uopt.setRequired(false);
 
-        Option xopt = new Option("x", false, "Use Expect-Continue. Default is false");
+        final Option xopt = new Option("x", false, "Use Expect-Continue. Default is false");
         xopt.setRequired(false);
 
-        Option gopt = new Option("g", false, "Accept GZip. Default is false");
+        final Option gopt = new Option("g", false, "Accept GZip. Default is false");
         gopt.setRequired(false);
 
-        Option nopt = new Option("n", true, "Number of requests to perform for the " +
+        final Option nopt = new Option("n", true, "Number of requests to perform for the " +
             "benchmarking session. The default is to just perform a single " +
             "request which usually leads to non-representative benchmarking " +
             "results");
         nopt.setRequired(false);
         nopt.setArgName("requests");
 
-        Option copt = new Option("c", true, "Concurrency while performing the " +
+        final Option copt = new Option("c", true, "Concurrency while performing the " +
             "benchmarking session. The default is to just use a single thread/client");
         copt.setRequired(false);
         copt.setArgName("concurrency");
 
-        Option popt = new Option("p", true, "File containing data to POST or PUT");
+        final Option popt = new Option("p", true, "File containing data to POST or PUT");
         popt.setRequired(false);
         popt.setArgName("Payload file");
 
-        Option mopt = new Option("m", true, "HTTP Method. Default is POST. " +
+        final Option mopt = new Option("m", true, "HTTP Method. Default is POST. " +
                 "Possible options are GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE");
         mopt.setRequired(false);
         mopt.setArgName("HTTP method");
 
-        Option Topt = new Option("T", true, "Content-type header to use for POST/PUT data");
+        final Option Topt = new Option("T", true, "Content-type header to use for POST/PUT data");
         Topt.setRequired(false);
         Topt.setArgName("content-type");
 
-        Option topt = new Option("t", true, "Client side socket timeout (in ms) - default 60 Secs");
+        final Option topt = new Option("t", true, "Client side socket timeout (in ms) - default 60 Secs");
         topt.setRequired(false);
         topt.setArgName("socket-Timeout");
 
-        Option Hopt = new Option("H", true, "Add arbitrary header line, " +
+        final Option Hopt = new Option("H", true, "Add arbitrary header line, " +
             "eg. 'Accept-Encoding: gzip' inserted after all normal " +
             "header lines. (repeatable as -H \"h1: v1\",\"h2: v2\" etc)");
         Hopt.setRequired(false);
         Hopt.setArgName("header");
 
-        Option vopt = new Option("v", true, "Set verbosity level - 4 and above " +
+        final Option vopt = new Option("v", true, "Set verbosity level - 4 and above " +
             "prints response content, 3 and above prints " +
             "information on headers, 2 and above prints response codes (404, 200, " +
             "etc.), 1 and above prints warnings and info");
         vopt.setRequired(false);
         vopt.setArgName("verbosity");
 
-        Option hopt = new Option("h", false, "Display usage information");
+        final Option hopt = new Option("h", false, "Display usage information");
         nopt.setRequired(false);
 
-        Options options = new Options();
+        final Options options = new Options();
         options.addOption(iopt);
         options.addOption(mopt);
         options.addOption(uopt);
@@ -124,10 +124,10 @@ public class CommandLineUtils {
 
     public static void parseCommandLine(final CommandLine cmd, final Config config) {
         if (cmd.hasOption('v')) {
-            String s = cmd.getOptionValue('v');
+            final String s = cmd.getOptionValue('v');
             try {
                 config.setVerbosity(Integer.parseInt(s));
-            } catch (NumberFormatException ex) {
+            } catch (final NumberFormatException ex) {
                 printError("Invalid verbosity level: " + s);
             }
         }
@@ -137,25 +137,25 @@ public class CommandLineUtils {
         }
 
         if (cmd.hasOption('c')) {
-            String s = cmd.getOptionValue('c');
+            final String s = cmd.getOptionValue('c');
             try {
                 config.setThreads(Integer.parseInt(s));
-            } catch (NumberFormatException ex) {
+            } catch (final NumberFormatException ex) {
                 printError("Invalid number for concurrency: " + s);
             }
         }
 
         if (cmd.hasOption('n')) {
-            String s = cmd.getOptionValue('n');
+            final String s = cmd.getOptionValue('n');
             try {
                 config.setRequests(Integer.parseInt(s));
-            } catch (NumberFormatException ex) {
+            } catch (final NumberFormatException ex) {
                 printError("Invalid number of requests: " + s);
             }
         }
 
         if (cmd.hasOption('p')) {
-            File file = new File(cmd.getOptionValue('p'));
+            final File file = new File(cmd.getOptionValue('p'));
             if (!file.exists()) {
                 printError("File not found: " + file);
             }
@@ -171,15 +171,15 @@ public class CommandLineUtils {
         }
 
         if (cmd.hasOption('H')) {
-            String headerStr = cmd.getOptionValue('H');
+            final String headerStr = cmd.getOptionValue('H');
             config.setHeaders(headerStr.split(","));
         }
 
         if (cmd.hasOption('t')) {
-            String t = cmd.getOptionValue('t');
+            final String t = cmd.getOptionValue('t');
             try {
                 config.setSocketTimeout(Integer.parseInt(t));
-            } catch (NumberFormatException ex) {
+            } catch (final NumberFormatException ex) {
                 printError("Invalid socket timeout: " + t);
             }
         }
@@ -206,18 +206,18 @@ public class CommandLineUtils {
             config.setUseAcceptGZip(true);
         }
 
-        String[] cmdargs = cmd.getArgs();
+        final String[] cmdargs = cmd.getArgs();
         if (cmdargs.length > 0) {
             try {
                 config.setUrl(new URL(cmdargs[0]));
-            } catch (MalformedURLException e) {
+            } catch (final MalformedURLException e) {
                 printError("Invalid request URL : " + cmdargs[0]);
             }
         }
     }
 
     static void showUsage(final Options options) {
-        HelpFormatter formatter = new HelpFormatter();
+        final HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("HttpBenchmark [options] [http://]hostname[:port]/path?query", options);
     }
 

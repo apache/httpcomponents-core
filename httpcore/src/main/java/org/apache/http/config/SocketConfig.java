@@ -128,7 +128,7 @@ public class SocketConfig implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("[soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)
                 .append(", soLinger=").append(this.soLinger)

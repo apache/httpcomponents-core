@@ -51,50 +51,50 @@ public class TestRequestParser {
 
     @Test
     public void testBasicMessageParsing() throws Exception {
-        String s =
+        final String s =
             "GET / HTTP/1.1\r\n" +
             "Host: localhost\r\n" +
             "User-Agent: whatever\r\n" +
             "Cookie: c1=stuff\r\n" +
             "\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
 
-        DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
-        HttpRequest httprequest = parser.parse();
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final HttpRequest httprequest = parser.parse();
 
-        RequestLine reqline = httprequest.getRequestLine();
+        final RequestLine reqline = httprequest.getRequestLine();
         Assert.assertNotNull(reqline);
         Assert.assertEquals("GET", reqline.getMethod());
         Assert.assertEquals("/", reqline.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, reqline.getProtocolVersion());
-        Header[] headers = httprequest.getAllHeaders();
+        final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }
 
     @Test
     public void testConnectionClosedException() throws Exception {
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
-        DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
         try {
             parser.parse();
             Assert.fail("ConnectionClosedException should have been thrown");
-        } catch (ConnectionClosedException expected) {
+        } catch (final ConnectionClosedException expected) {
         }
     }
 
     @Test
     public void testMessageParsingTimeout() throws Exception {
-        String s =
+        final String s =
             "GET \000/ HTTP/1.1\r\000\n" +
             "Host: loca\000lhost\r\n" +
             "User-Agent: whatever\r\n" +
             "Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
 
-        DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
 
         int timeoutCount = 0;
 
@@ -103,7 +103,7 @@ public class TestRequestParser {
             try {
                 httprequest = parser.parse();
                 break;
-            } catch (InterruptedIOException ex) {
+            } catch (final InterruptedIOException ex) {
                 timeoutCount++;
             }
 
@@ -112,12 +112,13 @@ public class TestRequestParser {
         Assert.assertEquals(5, timeoutCount);
 
         @SuppressWarnings("null") // httprequest cannot be null here
+        final
         RequestLine reqline = httprequest.getRequestLine();
         Assert.assertNotNull(reqline);
         Assert.assertEquals("GET", reqline.getMethod());
         Assert.assertEquals("/", reqline.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, reqline.getProtocolVersion());
-        Header[] headers = httprequest.getAllHeaders();
+        final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }
 

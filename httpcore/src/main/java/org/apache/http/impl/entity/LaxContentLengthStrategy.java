@@ -78,20 +78,20 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
     public long determineLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
 
-        Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
         // We use Transfer-Encoding if present and ignore Content-Length.
         // RFC2616, 4.4 item number 3
         if (transferEncodingHeader != null) {
             HeaderElement[] encodings = null;
             try {
                 encodings = transferEncodingHeader.getElements();
-            } catch (ParseException px) {
+            } catch (final ParseException px) {
                 throw new ProtocolException
                     ("Invalid Transfer-Encoding header value: " +
                      transferEncodingHeader, px);
             }
             // The chunked encoding must be the last one applied RFC2616, 14.41
-            int len = encodings.length;
+            final int len = encodings.length;
             if (HTTP.IDENTITY_CODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
                 return IDENTITY;
             } else if ((len > 0) && (HTTP.CHUNK_CODING.equalsIgnoreCase(
@@ -101,16 +101,16 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
                 return IDENTITY;
             }
         }
-        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         if (contentLengthHeader != null) {
             long contentlen = -1;
-            Header[] headers = message.getHeaders(HTTP.CONTENT_LEN);
+            final Header[] headers = message.getHeaders(HTTP.CONTENT_LEN);
             for (int i = headers.length - 1; i >= 0; i--) {
-                Header header = headers[i];
+                final Header header = headers[i];
                 try {
                     contentlen = Long.parseLong(header.getValue());
                     break;
-                } catch (NumberFormatException e) {
+                } catch (final NumberFormatException e) {
                 }
                 // See if we can have better luck with another header, if present
             }

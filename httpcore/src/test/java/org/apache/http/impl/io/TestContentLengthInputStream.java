@@ -48,31 +48,31 @@ public class TestContentLengthInputStream {
         try {
             new ContentLengthInputStream(null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             new ContentLengthInputStream(new SessionInputBufferMock(new byte[] {}), -10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testBasics() throws IOException {
-        String correct = "1234567890123456";
-        InputStream in = new ContentLengthInputStream(new SessionInputBufferMock(
+        final String correct = "1234567890123456";
+        final InputStream in = new ContentLengthInputStream(new SessionInputBufferMock(
             EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-        byte[] buffer = new byte[50];
+        final byte[] buffer = new byte[50];
         int len = in.read(buffer, 0, 2);
         out.write(buffer, 0, len);
         len = in.read(buffer);
         out.write(buffer, 0, len);
 
-        String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
+        final String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         Assert.assertEquals(result, "1234567890");
     }
 
@@ -101,7 +101,7 @@ public class TestContentLengthInputStream {
 
     @Test
     public void testAvailable() throws IOException {
-        InputStream in = new ContentLengthInputStream(
+        final InputStream in = new ContentLengthInputStream(
                 new SessionInputBufferMock(new byte[] {1, 2, 3}), 10L);
         Assert.assertEquals(0, in.available());
         in.read();
@@ -110,29 +110,29 @@ public class TestContentLengthInputStream {
 
     @Test
     public void testClose() throws IOException {
-        String correct = "1234567890123456-";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(EncodingUtils.getBytes(
+        final String correct = "1234567890123456-";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(EncodingUtils.getBytes(
                 correct, CONTENT_CHARSET));
-        InputStream in = new ContentLengthInputStream(inbuffer, 16L);
+        final InputStream in = new ContentLengthInputStream(inbuffer, 16L);
         in.close();
         in.close();
         try {
             in.read();
             Assert.fail("IOException should have been thrown");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             // expected
         }
-        byte[] tmp = new byte[10];
+        final byte[] tmp = new byte[10];
         try {
             in.read(tmp);
             Assert.fail("IOException should have been thrown");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             // expected
         }
         try {
             in.read(tmp, 0, tmp.length);
             Assert.fail("IOException should have been thrown");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             // expected
         }
         Assert.assertEquals('-', inbuffer.read());
@@ -140,22 +140,22 @@ public class TestContentLengthInputStream {
 
     @Test
     public void testTruncatedContent() throws IOException {
-        String correct = "1234567890123456";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(EncodingUtils.getBytes(
+        final String correct = "1234567890123456";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(EncodingUtils.getBytes(
                 correct, CONTENT_CHARSET));
-        InputStream in = new ContentLengthInputStream(inbuffer, 32L);
-        byte[] tmp = new byte[32];
-        int byteRead = in.read(tmp);
+        final InputStream in = new ContentLengthInputStream(inbuffer, 32L);
+        final byte[] tmp = new byte[32];
+        final int byteRead = in.read(tmp);
         Assert.assertEquals(16, byteRead);
         try {
             in.read(tmp);
             Assert.fail("ConnectionClosedException should have been closed");
-        } catch (ConnectionClosedException ex) {
+        } catch (final ConnectionClosedException ex) {
         }
         try {
             in.read();
             Assert.fail("ConnectionClosedException should have been closed");
-        } catch (ConnectionClosedException ex) {
+        } catch (final ConnectionClosedException ex) {
         }
     }
 

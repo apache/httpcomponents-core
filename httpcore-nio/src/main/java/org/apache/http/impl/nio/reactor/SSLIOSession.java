@@ -66,7 +66,7 @@ public class SSLIOSession extends org.apache.http.nio.reactor.ssl.SSLIOSession {
     public synchronized void bind(
             final SSLMode mode,
             final HttpParams params) throws SSLException {
-        org.apache.http.nio.reactor.ssl.SSLSetupHandler handler = getSSLSetupHandler();
+        final org.apache.http.nio.reactor.ssl.SSLSetupHandler handler = getSSLSetupHandler();
         if (handler instanceof SSLIOSessionHandlerAdaptor) {
             ((SSLIOSessionHandlerAdaptor) handler).setParams(params);
         } else if (handler instanceof SSLSetupHandlerAdaptor) {

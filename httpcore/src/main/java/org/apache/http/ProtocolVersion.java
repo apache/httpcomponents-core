@@ -159,7 +159,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
         if (!(obj instanceof ProtocolVersion)) {
             return false;
         }
-        ProtocolVersion that = (ProtocolVersion) obj;
+        final ProtocolVersion that = (ProtocolVersion) obj;
 
         return ((this.protocol.equals(that.protocol)) &&
                 (this.major == that.major) &&
@@ -247,7 +247,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      */
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append(this.protocol);
         buffer.append('/');
         buffer.append(Integer.toString(this.major));

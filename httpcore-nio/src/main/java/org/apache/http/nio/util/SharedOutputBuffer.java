@@ -223,7 +223,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                     flushContent();
                     setInputMode();
                 }
-                int chunk = Math.min(remaining, this.buffer.remaining());
+                final int chunk = Math.min(remaining, this.buffer.remaining());
                 this.buffer.put(b, off, chunk);
                 remaining -= chunk;
                 off += chunk;
@@ -271,7 +271,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                     }
                     this.condition.await();
                 }
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 throw new IOException("Interrupted while flushing the content buffer");
             }
         } finally {

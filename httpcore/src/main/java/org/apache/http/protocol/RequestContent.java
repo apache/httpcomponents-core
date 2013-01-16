@@ -95,8 +95,8 @@ public class RequestContent implements HttpRequestInterceptor {
                     throw new ProtocolException("Content-Length header already present");
                 }
             }
-            ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-            HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+            final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+            final HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
                 request.addHeader(HTTP.CONTENT_LEN, "0");
                 return;

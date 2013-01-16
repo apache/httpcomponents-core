@@ -53,25 +53,25 @@ public class TestBuffers {
 
     @Test
     public void testInputBufferOperations() throws IOException {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        ContentDecoder decoder = new ContentDecoderMock(channel);
+        final ContentDecoder decoder = new ContentDecoderMock(channel);
 
-        SimpleInputBuffer buffer = new SimpleInputBuffer(4, DirectByteBufferAllocator.INSTANCE);
-        int count = buffer.consumeContent(decoder);
+        final SimpleInputBuffer buffer = new SimpleInputBuffer(4, DirectByteBufferAllocator.INSTANCE);
+        final int count = buffer.consumeContent(decoder);
         Assert.assertEquals(16, count);
         Assert.assertTrue(decoder.isCompleted());
 
-        byte[] b1 = new byte[5];
+        final byte[] b1 = new byte[5];
 
         int len = buffer.read(b1);
         Assert.assertEquals("stuff", EncodingUtils.getAsciiString(b1, 0, len));
 
-        int c = buffer.read();
+        final int c = buffer.read();
         Assert.assertEquals(';', c);
 
-        byte[] b2 = new byte[1024];
+        final byte[] b2 = new byte[1024];
 
         len = buffer.read(b2);
         Assert.assertEquals("more stuff", EncodingUtils.getAsciiString(b2, 0, len));
@@ -87,14 +87,14 @@ public class TestBuffers {
 
     @Test
     public void testOutputBufferOperations() throws IOException {
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel channel = Channels.newChannel(outstream);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = Channels.newChannel(outstream);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);
+        final ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);
 
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
+        final SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
 
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.write(';');
@@ -104,14 +104,14 @@ public class TestBuffers {
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.produceContent(encoder);
 
-        byte[] content = outstream.toByteArray();
+        final byte[] content = outstream.toByteArray();
         Assert.assertEquals("stuff;more stuff", EncodingUtils.getAsciiString(content));
     }
 
     @Test
     public void testBufferInfo() throws Exception {
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, DirectByteBufferAllocator.INSTANCE);
-        BufferInfo bufferinfo = buffer;
+        final SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, DirectByteBufferAllocator.INSTANCE);
+        final BufferInfo bufferinfo = buffer;
 
         Assert.assertEquals(0, bufferinfo.length());
         Assert.assertEquals(8, bufferinfo.available());
@@ -125,14 +125,14 @@ public class TestBuffers {
 
     @Test
     public void testInputBufferNullInput() throws IOException {
-        SimpleInputBuffer buffer = new SimpleInputBuffer(4, DirectByteBufferAllocator.INSTANCE);
+        final SimpleInputBuffer buffer = new SimpleInputBuffer(4, DirectByteBufferAllocator.INSTANCE);
         Assert.assertEquals(0, buffer.read(null));
         Assert.assertEquals(0, buffer.read(null, 0, 0));
     }
 
     @Test
     public void testOutputBufferNullInput() throws IOException {
-        SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
+        final SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
         buffer.write(null);
         buffer.write(null, 0, 10);
         Assert.assertFalse(buffer.hasData());
@@ -140,7 +140,7 @@ public class TestBuffers {
 
     @Test
     public void testDirectByteBufferAllocator() {
-        DirectByteBufferAllocator allocator = new DirectByteBufferAllocator();
+        final DirectByteBufferAllocator allocator = new DirectByteBufferAllocator();
         ByteBuffer buffer = allocator.allocate(1);
         Assert.assertNotNull(buffer);
         Assert.assertTrue(buffer.isDirect());
@@ -163,7 +163,7 @@ public class TestBuffers {
 
     @Test
     public void testHeapByteBufferAllocator() {
-        HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
+        final HeapByteBufferAllocator allocator = new HeapByteBufferAllocator();
         ByteBuffer buffer = allocator.allocate(1);
         Assert.assertNotNull(buffer);
         Assert.assertFalse(buffer.isDirect());

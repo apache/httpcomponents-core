@@ -75,7 +75,7 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append("[");
         buffer.append(this.route);
         buffer.append("][");

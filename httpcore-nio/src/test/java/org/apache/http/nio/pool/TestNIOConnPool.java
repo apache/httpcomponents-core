@@ -100,14 +100,14 @@ public class TestNIOConnPool {
 
     @Test
     public void testEmptyPool() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        PoolStats totals = pool.getTotalStats();
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
         Assert.assertEquals(10, totals.getMax());
-        PoolStats stats = pool.getStats("somehost");
+        final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
         Assert.assertEquals(0, stats.getPending());
@@ -117,7 +117,7 @@ public class TestNIOConnPool {
 
     @Test
     public void testInternalLeaseRequest() throws Exception {
-        LeaseRequest<String, IOSession, LocalPoolEntry> leaseRequest =
+        final LeaseRequest<String, IOSession, LocalPoolEntry> leaseRequest =
             new LeaseRequest<String, IOSession, LocalPoolEntry>("somehost", null, 0,
                     new BasicFuture<LocalPoolEntry>(null));
         Assert.assertEquals("[somehost][null]", leaseRequest.toString());
@@ -125,38 +125,38 @@ public class TestNIOConnPool {
 
     @Test
     public void testInvalidConstruction() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         try {
             new LocalSessionPool(null, 1, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             new LocalSessionPool(ioreactor, -1, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             new LocalSessionPool(ioreactor, 1, -1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
     }
 
     @Test
     public void testSuccessfulConnect() throws Exception {
-        IOSession iosession = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
+        final IOSession iosession = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class),
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        Future<LocalPoolEntry> future = pool.lease("somehost", null, 100, TimeUnit.MILLISECONDS, null);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final Future<LocalPoolEntry> future = pool.lease("somehost", null, 100, TimeUnit.MILLISECONDS, null);
         Mockito.verify(sessionRequest).setConnectTimeout(100);
 
         PoolStats totals = pool.getTotalStats();
@@ -168,7 +168,7 @@ public class TestNIOConnPool {
 
         Assert.assertTrue(future.isDone());
         Assert.assertFalse(future.isCancelled());
-        LocalPoolEntry entry = future.get();
+        final LocalPoolEntry entry = future.get();
         Assert.assertNotNull(entry);
 
         totals = pool.getTotalStats();
@@ -179,17 +179,17 @@ public class TestNIOConnPool {
 
     @Test
     public void testFailedConnect() throws Exception {
-        SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
+        final SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest.getException()).thenReturn(new IOException());
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class),
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        Future<LocalPoolEntry> future = pool.lease("somehost", null);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final Future<LocalPoolEntry> future = pool.lease("somehost", null);
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -203,7 +203,7 @@ public class TestNIOConnPool {
         try {
             future.get();
             Assert.fail("ExecutionException should have been thrown");
-        } catch (ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof IOException);
         }
 
@@ -215,18 +215,18 @@ public class TestNIOConnPool {
 
     @Test
     public void testCencelledConnect() throws Exception {
-        IOSession iosession = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
+        final IOSession iosession = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class),
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        Future<LocalPoolEntry> future = pool.lease("somehost", null);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final Future<LocalPoolEntry> future = pool.lease("somehost", null);
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -237,7 +237,7 @@ public class TestNIOConnPool {
 
         Assert.assertTrue(future.isDone());
         Assert.assertTrue(future.isCancelled());
-        LocalPoolEntry entry = future.get();
+        final LocalPoolEntry entry = future.get();
         Assert.assertNull(entry);
 
         totals = pool.getTotalStats();
@@ -248,18 +248,18 @@ public class TestNIOConnPool {
 
     @Test
     public void testTimeoutConnect() throws Exception {
-        IOSession iosession = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
+        final IOSession iosession = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class),
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        Future<LocalPoolEntry> future = pool.lease("somehost", null);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final Future<LocalPoolEntry> future = pool.lease("somehost", null);
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -273,7 +273,7 @@ public class TestNIOConnPool {
         try {
             future.get();
             Assert.fail("ExecutionException should have been thrown");
-        } catch (ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof SocketTimeoutException);
         }
 
@@ -285,17 +285,17 @@ public class TestNIOConnPool {
 
     @Test
     public void testLeaseRelease() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        IOSession iosession2 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession2 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getAttachment()).thenReturn("otherhost");
         Mockito.when(sessionRequest2.getSession()).thenReturn(iosession2);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
                 Mockito.any(SocketAddress.class),
@@ -307,19 +307,19 @@ public class TestNIOConnPool {
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest2);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
+        final Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
         pool.requestCompleted(sessionRequest2);
 
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = future2.get();
+        final LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = future3.get();
+        final LocalPoolEntry entry3 = future3.get();
         Assert.assertNotNull(entry3);
 
         pool.release(entry1, true);
@@ -328,7 +328,7 @@ public class TestNIOConnPool {
         Mockito.verify(iosession1, Mockito.never()).close();
         Mockito.verify(iosession2, Mockito.times(1)).close();
 
-        PoolStats totals = pool.getTotalStats();
+        final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(2, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
@@ -336,40 +336,40 @@ public class TestNIOConnPool {
 
     @Test
     public void testLeaseIllegal() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
         try {
             pool.lease(null, null, 0, TimeUnit.MILLISECONDS, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             pool.lease("somehost", null, 0, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
     }
 
     @Test
     public void testReleaseUnknownEntry() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
         pool.release(new LocalPoolEntry("somehost", Mockito.mock(IOSession.class)), true);
     }
 
     @Test
     public void testMaxLimits() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        IOSession iosession2 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession2 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getAttachment()).thenReturn("otherhost");
         Mockito.when(sessionRequest2.getSession()).thenReturn(iosession2);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
                 Mockito.any(SocketAddress.class),
@@ -381,49 +381,49 @@ public class TestNIOConnPool {
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest2);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
         pool.setMaxPerRoute("somehost", 2);
         pool.setMaxPerRoute("otherhost", 1);
         pool.setMaxTotal(3);
 
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
         pool.requestCompleted(sessionRequest1);
-        Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
+        final Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
         pool.requestCompleted(sessionRequest2);
 
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
-        LocalPoolEntry entry2 = future2.get();
+        final LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
-        LocalPoolEntry entry3 = future3.get();
+        final LocalPoolEntry entry3 = future3.get();
         Assert.assertNotNull(entry3);
 
         pool.release(entry1, true);
         pool.release(entry2, true);
         pool.release(entry3, true);
 
-        PoolStats totals = pool.getTotalStats();
+        final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(3, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
 
-        Future<LocalPoolEntry> future4 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future5 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future6 = pool.lease("otherhost", null);
-        Future<LocalPoolEntry> future7 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future8 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future9 = pool.lease("otherhost", null);
+        final Future<LocalPoolEntry> future4 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future5 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future6 = pool.lease("otherhost", null);
+        final Future<LocalPoolEntry> future7 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future8 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future9 = pool.lease("otherhost", null);
 
         Assert.assertTrue(future4.isDone());
-        LocalPoolEntry entry4 = future4.get();
+        final LocalPoolEntry entry4 = future4.get();
         Assert.assertNotNull(entry4);
         Assert.assertTrue(future5.isDone());
-        LocalPoolEntry entry5 = future5.get();
+        final LocalPoolEntry entry5 = future5.get();
         Assert.assertNotNull(entry5);
         Assert.assertTrue(future6.isDone());
-        LocalPoolEntry entry6 = future6.get();
+        final LocalPoolEntry entry6 = future6.get();
         Assert.assertNotNull(entry6);
         Assert.assertFalse(future7.isDone());
         Assert.assertFalse(future8.isDone());
@@ -448,27 +448,27 @@ public class TestNIOConnPool {
 
     @Test
     public void testConnectionRedistributionOnTotalMaxLimit() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        IOSession iosession2 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession2 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest2.getSession()).thenReturn(iosession2);
 
-        IOSession iosession3 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession3 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest3.getAttachment()).thenReturn("otherhost");
         Mockito.when(sessionRequest3.getSession()).thenReturn(iosession3);
 
-        IOSession iosession4 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest4 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession4 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest4 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest4.getAttachment()).thenReturn("otherhost");
         Mockito.when(sessionRequest4.getSession()).thenReturn(iosession4);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
                 Mockito.any(SocketAddress.class),
@@ -480,15 +480,15 @@ public class TestNIOConnPool {
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest3, sessionRequest4, sessionRequest3);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
         pool.setMaxPerRoute("somehost", 2);
         pool.setMaxPerRoute("otherhost", 2);
         pool.setMaxTotal(2);
 
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
-        Future<LocalPoolEntry> future4 = pool.lease("otherhost", null);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future3 = pool.lease("otherhost", null);
+        final Future<LocalPoolEntry> future4 = pool.lease("otherhost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
@@ -504,10 +504,10 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest2);
 
         Assert.assertTrue(future1.isDone());
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
         Assert.assertTrue(future2.isDone());
-        LocalPoolEntry entry2 = future2.get();
+        final LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
 
         Assert.assertFalse(future3.isDone());
@@ -535,10 +535,10 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest4);
 
         Assert.assertTrue(future3.isDone());
-        LocalPoolEntry entry3 = future3.get();
+        final LocalPoolEntry entry3 = future3.get();
         Assert.assertNotNull(entry3);
         Assert.assertTrue(future4.isDone());
-        LocalPoolEntry entry4 = future4.get();
+        final LocalPoolEntry entry4 = future4.get();
         Assert.assertNotNull(entry4);
 
         totals = pool.getTotalStats();
@@ -546,8 +546,8 @@ public class TestNIOConnPool {
         Assert.assertEquals(2, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
 
-        Future<LocalPoolEntry> future5 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future6 = pool.lease("otherhost", null);
+        final Future<LocalPoolEntry> future5 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future6 = pool.lease("otherhost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
@@ -575,10 +575,10 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest1);
 
         Assert.assertTrue(future5.isDone());
-        LocalPoolEntry entry5 = future5.get();
+        final LocalPoolEntry entry5 = future5.get();
         Assert.assertNotNull(entry5);
         Assert.assertTrue(future6.isDone());
-        LocalPoolEntry entry6 = future6.get();
+        final LocalPoolEntry entry6 = future6.get();
         Assert.assertNotNull(entry6);
 
         totals = pool.getTotalStats();
@@ -607,34 +607,34 @@ public class TestNIOConnPool {
 
     @Test
     public void testStatefulConnectionRedistributionOnPerRouteMaxLimit() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        IOSession iosession2 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession2 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest2.getSession()).thenReturn(iosession2);
 
-        IOSession iosession3 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession3 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest3 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest3.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest3.getSession()).thenReturn(iosession3);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1, sessionRequest2, sessionRequest3);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
         pool.setMaxPerRoute("somehost", 2);
         pool.setMaxTotal(2);
 
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
@@ -645,10 +645,10 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest2);
 
         Assert.assertTrue(future1.isDone());
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
         Assert.assertTrue(future2.isDone());
-        LocalPoolEntry entry2 = future2.get();
+        final LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
 
         PoolStats totals = pool.getTotalStats();
@@ -661,14 +661,14 @@ public class TestNIOConnPool {
         entry2.setState("some-stuff");
         pool.release(entry2, true);
 
-        Future<LocalPoolEntry> future3 = pool.lease("somehost", "some-stuff");
-        Future<LocalPoolEntry> future4 = pool.lease("somehost", "some-stuff");
+        final Future<LocalPoolEntry> future3 = pool.lease("somehost", "some-stuff");
+        final Future<LocalPoolEntry> future4 = pool.lease("somehost", "some-stuff");
 
         Assert.assertTrue(future1.isDone());
-        LocalPoolEntry entry3 = future3.get();
+        final LocalPoolEntry entry3 = future3.get();
         Assert.assertNotNull(entry3);
         Assert.assertTrue(future4.isDone());
-        LocalPoolEntry entry4 = future4.get();
+        final LocalPoolEntry entry4 = future4.get();
         Assert.assertNotNull(entry4);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
@@ -684,7 +684,7 @@ public class TestNIOConnPool {
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
 
-        Future<LocalPoolEntry> future5 = pool.lease("somehost", "some-other-stuff");
+        final Future<LocalPoolEntry> future5 = pool.lease("somehost", "some-other-stuff");
 
         Assert.assertFalse(future5.isDone());
 
@@ -704,22 +704,22 @@ public class TestNIOConnPool {
 
     @Test
     public void testCreateNewIfExpired() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
         Mockito.when(iosession1.isClosed()).thenReturn(Boolean.TRUE);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.eq(InetSocketAddress.createUnresolved("somehost", 80)),
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
 
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
 
         Mockito.verify(ioreactor, Mockito.times(1)).connect(
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
@@ -728,7 +728,7 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest1);
 
         Assert.assertTrue(future1.isDone());
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
 
         entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
@@ -736,7 +736,7 @@ public class TestNIOConnPool {
 
         Thread.sleep(200L);
 
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
         Assert.assertFalse(future2.isDone());
 
@@ -745,11 +745,11 @@ public class TestNIOConnPool {
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class));
 
-        PoolStats totals = pool.getTotalStats();
+        final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(1, totals.getPending());
-        PoolStats stats = pool.getStats("somehost");
+        final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
         Assert.assertEquals(1, stats.getPending());
@@ -757,36 +757,36 @@ public class TestNIOConnPool {
 
     @Test
     public void testCloseExpired() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
         Mockito.when(iosession1.isClosed()).thenReturn(Boolean.TRUE);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        IOSession iosession2 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession2 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest2.getSession()).thenReturn(iosession2);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1, sessionRequest2);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
 
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
         pool.requestCompleted(sessionRequest1);
         pool.requestCompleted(sessionRequest2);
 
         Assert.assertTrue(future1.isDone());
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
         Assert.assertTrue(future2.isDone());
-        LocalPoolEntry entry2 = future2.get();
+        final LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
 
         entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
@@ -802,11 +802,11 @@ public class TestNIOConnPool {
         Mockito.verify(iosession1).close();
         Mockito.verify(iosession2, Mockito.never()).close();
 
-        PoolStats totals = pool.getTotalStats();
+        final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
-        PoolStats stats = pool.getStats("somehost");
+        final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(1, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
         Assert.assertEquals(0, stats.getPending());
@@ -814,35 +814,35 @@ public class TestNIOConnPool {
 
     @Test
     public void testCloseIdle() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        IOSession iosession2 = Mockito.mock(IOSession.class);
-        SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
+        final IOSession iosession2 = Mockito.mock(IOSession.class);
+        final SessionRequest sessionRequest2 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest2.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest2.getSession()).thenReturn(iosession2);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1, sessionRequest2);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
 
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
         pool.requestCompleted(sessionRequest1);
         pool.requestCompleted(sessionRequest2);
 
         Assert.assertTrue(future1.isDone());
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
         Assert.assertTrue(future2.isDone());
-        LocalPoolEntry entry2 = future2.get();
+        final LocalPoolEntry entry2 = future2.get();
         Assert.assertNotNull(entry2);
 
         entry1.updateExpiry(0, TimeUnit.MILLISECONDS);
@@ -883,28 +883,28 @@ public class TestNIOConnPool {
 
     @Test
     public void testLeaseRequestTimeout() throws Exception {
-        IOSession iosession1 = Mockito.mock(IOSession.class);
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
         Mockito.when(iosession1.isClosed()).thenReturn(Boolean.TRUE);
-        SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
 
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
                 Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1);
 
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 1, 1);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 1, 1);
 
-        Future<LocalPoolEntry> future1 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
-        Future<LocalPoolEntry> future2 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
-        Future<LocalPoolEntry> future3 = pool.lease("somehost", null, 10, TimeUnit.MILLISECONDS, null);
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+        final Future<LocalPoolEntry> future3 = pool.lease("somehost", null, 10, TimeUnit.MILLISECONDS, null);
 
         pool.requestCompleted(sessionRequest1);
 
         Assert.assertTrue(future1.isDone());
-        LocalPoolEntry entry1 = future1.get();
+        final LocalPoolEntry entry1 = future1.get();
         Assert.assertNotNull(entry1);
         Assert.assertFalse(future2.isDone());
         Assert.assertFalse(future3.isDone());
@@ -919,48 +919,48 @@ public class TestNIOConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testCloseIdleInvalid() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
         pool.closeIdle(50, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testGetStatsInvalid() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
         pool.getStats(null);
     }
 
     @Test
     public void testSetMaxInvalid() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
         try {
             pool.setMaxTotal(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             pool.setMaxPerRoute(null, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             pool.setMaxPerRoute("somehost", -1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             pool.setDefaultMaxPerRoute(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
     }
 
     @Test
     public void testShutdown() throws Exception {
-        ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
         pool.shutdown(1000);
         Mockito.verify(ioreactor, Mockito.times(1)).shutdown(1000);
         pool.shutdown(1000);
@@ -968,7 +968,7 @@ public class TestNIOConnPool {
         try {
             pool.lease("somehost", null);
             Assert.fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException expected) {
+        } catch (final IllegalStateException expected) {
         }
         // Ignored if shut down
         pool.release(new LocalPoolEntry("somehost", Mockito.mock(IOSession.class)), true);

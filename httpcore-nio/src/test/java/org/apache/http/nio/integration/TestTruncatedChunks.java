@@ -134,7 +134,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
             } else {
                 chunk = 0;
             }
-            long bytesWritten = this.buffer.flush(this.channel);
+            final long bytesWritten = this.buffer.flush(this.channel);
             if (bytesWritten > 0) {
                 this.metrics.incrementBytesTransferred(bytesWritten);
             }
@@ -175,27 +175,27 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     @Test
     public void testTruncatedChunkException() throws Exception {
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
         this.server.start(registry);
         this.client.start();
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        String pattern = RndTestPatternGenerator.generateText();
-        int count = RndTestPatternGenerator.generateCount(1000);
+        final String pattern = RndTestPatternGenerator.generateText();
+        final int count = RndTestPatternGenerator.generateCount(1000);
 
-        HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
-        BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
-        Future<HttpResponse> future = this.client.execute(target, request);
+        final HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
+        final BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
+        final Future<HttpResponse> future = this.client.execute(target, request);
         try {
             future.get();
             Assert.fail("ExecutionException should have been thrown");
-        } catch (ExecutionException ex) {
-            Throwable cause = ex.getCause();
+        } catch (final ExecutionException ex) {
+            final Throwable cause = ex.getCause();
             Assert.assertTrue(cause instanceof MalformedChunkCodingException);
         }
     }
@@ -228,7 +228,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
                 if (decoder.isCompleted()) {
                     finished = true;
                 }
-            } catch (TruncatedChunkException ex) {
+            } catch (final TruncatedChunkException ex) {
                 this.buffer.shutdown();
                 finished = true;
             }
@@ -251,27 +251,27 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     @Test
     public void testIgnoreTruncatedChunkException() throws Exception {
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
         this.server.start(registry);
         this.client.start();
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        String pattern = RndTestPatternGenerator.generateText();
-        int count = RndTestPatternGenerator.generateCount(1000);
+        final String pattern = RndTestPatternGenerator.generateText();
+        final int count = RndTestPatternGenerator.generateCount(1000);
 
-        HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
-        BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
-        Future<HttpResponse> future = this.client.execute(
+        final HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
+        final BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
+        final Future<HttpResponse> future = this.client.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new LenientAsyncResponseConsumer(),
                 null, null);
 
-        HttpResponse response = future.get();
+        final HttpResponse response = future.get();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         Assert.assertEquals(new String(GARBAGE, Consts.ISO_8859_1.name()),

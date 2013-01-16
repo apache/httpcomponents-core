@@ -39,12 +39,12 @@ public class TestChainBuilder {
 
     @Test
     public void testBuildChain() throws Exception {
-        ChainBuilder<HttpRequestInterceptor> cb = new ChainBuilder<HttpRequestInterceptor>();
-        HttpRequestInterceptor i1 = new RequestContent();
-        HttpRequestInterceptor i2 = new RequestTargetHost();
-        HttpRequestInterceptor i3 = new RequestConnControl();
-        HttpRequestInterceptor i4 = new RequestUserAgent();
-        HttpRequestInterceptor i5 = new RequestExpectContinue();
+        final ChainBuilder<HttpRequestInterceptor> cb = new ChainBuilder<HttpRequestInterceptor>();
+        final HttpRequestInterceptor i1 = new RequestContent();
+        final HttpRequestInterceptor i2 = new RequestTargetHost();
+        final HttpRequestInterceptor i3 = new RequestConnControl();
+        final HttpRequestInterceptor i4 = new RequestUserAgent();
+        final HttpRequestInterceptor i5 = new RequestExpectContinue();
         cb.addFirst(i1);
         cb.addAllFirst(i2, i3);
         cb.addFirst(null);
@@ -55,7 +55,7 @@ public class TestChainBuilder {
         cb.addAllLast((List<HttpRequestInterceptor>) null);
         cb.addFirst(i1);
         cb.addAllLast(i3, i4, i5);
-        LinkedList<HttpRequestInterceptor> list = cb.build();
+        final LinkedList<HttpRequestInterceptor> list = cb.build();
         Assert.assertNotNull(list);
         Assert.assertEquals(5, list.size());
         Assert.assertSame(i1, list.get(0));

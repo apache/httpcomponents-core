@@ -102,7 +102,7 @@ public class ChunkedInputStream extends InputStream {
     @Override
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
-            int len = ((BufferInfo) this.in).length();
+            final int len = ((BufferInfo) this.in).length();
             return Math.min(len, this.chunkSize - this.pos);
         } else {
             return 0;
@@ -135,7 +135,7 @@ public class ChunkedInputStream extends InputStream {
                 return -1;
             }
         }
-        int b = in.read();
+        final int b = in.read();
         if (b != -1) {
             pos++;
             if (pos >= chunkSize) {
@@ -172,7 +172,7 @@ public class ChunkedInputStream extends InputStream {
             }
         }
         len = Math.min(len, chunkSize - pos);
-        int bytesRead = in.read(b, off, len);
+        final int bytesRead = in.read(b, off, len);
         if (bytesRead != -1) {
             pos += bytesRead;
             if (pos >= chunkSize) {
@@ -230,7 +230,7 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException when the chunk size could not be parsed
      */
     private int getChunkSize() throws IOException {
-        int st = this.state;
+        final int st = this.state;
         switch (st) {
         case CHUNK_CRLF:
             this.buffer.clear();
@@ -256,7 +256,7 @@ public class ChunkedInputStream extends InputStream {
             }
             try {
                 return Integer.parseInt(this.buffer.substringTrimmed(0, separator), 16);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 throw new MalformedChunkCodingException("Bad chunk header");
             }
         default:
@@ -272,8 +272,8 @@ public class ChunkedInputStream extends InputStream {
         try {
             this.footers = AbstractMessageParser.parseHeaders
                 (in, -1, -1, null);
-        } catch (HttpException ex) {
-            IOException ioe = new MalformedChunkCodingException("Invalid footer: "
+        } catch (final HttpException ex) {
+            final IOException ioe = new MalformedChunkCodingException("Invalid footer: "
                     + ex.getMessage());
             ioe.initCause(ex);
             throw ioe;
@@ -292,7 +292,7 @@ public class ChunkedInputStream extends InputStream {
             try {
                 if (!eof) {
                     // read and discard the remainder of the message
-                    byte buffer[] = new byte[BUFFER_SIZE];
+                    final byte buffer[] = new byte[BUFFER_SIZE];
                     while (read(buffer) >= 0) {
                     }
                 }

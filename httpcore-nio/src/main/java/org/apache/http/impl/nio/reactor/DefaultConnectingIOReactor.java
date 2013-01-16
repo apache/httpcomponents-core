@@ -141,8 +141,8 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         processSessionRequests();
 
         if (readyCount > 0) {
-            Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
-            for (SelectionKey key : selectedKeys) {
+            final Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
+            for (final SelectionKey key : selectedKeys) {
 
                 processEvent(key);
 
@@ -150,10 +150,10 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             selectedKeys.clear();
         }
 
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         if ((currentTime - this.lastTimeoutCheck) >= this.selectTimeout) {
             this.lastTimeoutCheck = currentTime;
-            Set<SelectionKey> keys = this.selector.keys();
+            final Set<SelectionKey> keys = this.selector.keys();
             processTimeouts(keys);
         }
     }
@@ -163,15 +163,15 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
             if (key.isConnectable()) {
 
-                SocketChannel channel = (SocketChannel) key.channel();
+                final SocketChannel channel = (SocketChannel) key.channel();
                 // Get request handle
-                SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
-                SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
+                final SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
+                final SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
 
                 // Finish connection process
                 try {
                     channel.finishConnect();
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     sessionRequest.failed(ex);
                 }
                 key.cancel();
@@ -179,35 +179,35 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                     try {
                         try {
                             prepareSocket(channel.socket());
-                        } catch (IOException ex) {
+                        } catch (final IOException ex) {
                             if (this.exceptionHandler == null
                                     || !this.exceptionHandler.handle(ex)) {
                                 throw new IOReactorException(
                                         "Failure initalizing socket", ex);
                             }
                         }
-                        ChannelEntry entry = new ChannelEntry(channel, sessionRequest);
+                        final ChannelEntry entry = new ChannelEntry(channel, sessionRequest);
                         addChannel(entry);
-                    } catch (IOException ex) {
+                    } catch (final IOException ex) {
                         sessionRequest.failed(ex);
                     }
                 }
             }
 
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             key.attach(null);
         }
     }
 
     private void processTimeouts(final Set<SelectionKey> keys) {
-        long now = System.currentTimeMillis();
-        for (SelectionKey key : keys) {
-            Object attachment = key.attachment();
+        final long now = System.currentTimeMillis();
+        for (final SelectionKey key : keys) {
+            final Object attachment = key.attachment();
 
             if (attachment instanceof SessionRequestHandle) {
-                SessionRequestHandle handle = (SessionRequestHandle) key.attachment();
-                SessionRequestImpl sessionRequest = handle.getSessionRequest();
-                int timeout = sessionRequest.getConnectTimeout();
+                final SessionRequestHandle handle = (SessionRequestHandle) key.attachment();
+                final SessionRequestImpl sessionRequest = handle.getSessionRequest();
+                final int timeout = sessionRequest.getConnectTimeout();
                 if (timeout > 0) {
                     if (handle.getRequestTime() + timeout < now) {
                         sessionRequest.timeout();
@@ -225,7 +225,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             final SessionRequestCallback callback) {
         Asserts.check(this.status.compareTo(IOReactorStatus.ACTIVE) <= 0,
             "I/O reactor has been shut down");
-        SessionRequestImpl sessionRequest = new SessionRequestImpl(
+        final SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, callback);
         sessionRequest.setConnectTimeout(this.config.getConnectTimeout());
 
@@ -240,7 +240,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             return;
         }
         if (address instanceof InetSocketAddress) {
-            InetSocketAddress endpoint = (InetSocketAddress) address;
+            final InetSocketAddress endpoint = (InetSocketAddress) address;
             if (endpoint.isUnresolved()) {
                 throw new UnknownHostException(endpoint.getHostName());
             }
@@ -256,7 +256,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             SocketChannel socketChannel;
             try {
                 socketChannel = SocketChannel.open();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new IOReactorException("Failure opening socket", ex);
             }
             try {
@@ -265,29 +265,29 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 validateAddress(request.getRemoteAddress());
 
                 if (request.getLocalAddress() != null) {
-                    Socket sock = socketChannel.socket();
+                    final Socket sock = socketChannel.socket();
                     sock.setReuseAddress(this.config.isSoReuseAddress());
                     sock.bind(request.getLocalAddress());
                 }
-                boolean connected = socketChannel.connect(request.getRemoteAddress());
+                final boolean connected = socketChannel.connect(request.getRemoteAddress());
                 if (connected) {
                     prepareSocket(socketChannel.socket());
-                    ChannelEntry entry = new ChannelEntry(socketChannel, request);
+                    final ChannelEntry entry = new ChannelEntry(socketChannel, request);
                     addChannel(entry);
                     return;
                 }
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 closeChannel(socketChannel);
                 request.failed(ex);
                 return;
             }
 
-            SessionRequestHandle requestHandle = new SessionRequestHandle(request);
+            final SessionRequestHandle requestHandle = new SessionRequestHandle(request);
             try {
-                SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT,
+                final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT,
                         requestHandle);
                 request.setKey(key);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 closeChannel(socketChannel);
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);

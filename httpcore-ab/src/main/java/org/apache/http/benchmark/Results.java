@@ -111,7 +111,7 @@ public final class Results {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("[serverName=").append(serverName)
                 .append(", hostName=").append(hostName)
                 .append(", hostPort=").append(hostPort)

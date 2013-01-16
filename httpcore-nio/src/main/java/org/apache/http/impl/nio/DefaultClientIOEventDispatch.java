@@ -126,10 +126,10 @@ public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClient
 
     @Override
     protected void onConnected(final NHttpClientIOTarget conn) {
-        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        final int timeout = HttpConnectionParams.getSoTimeout(this.params);
         conn.setSocketTimeout(timeout);
 
-        Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
+        final Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
         this.handler.connected(conn, attachment);
     }
 

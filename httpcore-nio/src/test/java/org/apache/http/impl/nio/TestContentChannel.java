@@ -59,7 +59,7 @@ public class TestContentChannel {
 
     @Test
     public void testContentDecoder() throws Exception {
-        ContentDecoderChannel cdc = new ContentDecoderChannel(decoder);
+        final ContentDecoderChannel cdc = new ContentDecoderChannel(decoder);
 
         cdc.read(bb);
         verify(decoder, times(1)).read(bb);
@@ -71,7 +71,7 @@ public class TestContentChannel {
 
     @Test
     public void testContentEncoder() throws Exception {
-        ContentEncoderChannel cec = new ContentEncoderChannel(encoder);
+        final ContentEncoderChannel cec = new ContentEncoderChannel(encoder);
 
         cec.write(bb);
         verify(encoder, times(1)).write(bb);

@@ -47,9 +47,9 @@ public class Job {
     public Job(final int maxCount) {
         super();
         this.count = RND.nextInt(maxCount - 1) + 1;
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 5; i++) {
-            char rndchar = TEST_CHARS.charAt(RND.nextInt(TEST_CHARS.length() - 1));
+            final char rndchar = TEST_CHARS.charAt(RND.nextInt(TEST_CHARS.length() - 1));
             buffer.append(rndchar);
         }
         this.pattern = buffer.toString();
@@ -74,7 +74,7 @@ public class Job {
     }
 
     public String getExpected() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < this.count; i++) {
             buffer.append(this.pattern);
         }

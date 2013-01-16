@@ -119,22 +119,22 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         // Override the status buffer interface
         this.session.setBufferStatus(this);
 
-        SocketAddress address = session.getRemoteAddress();
+        final SocketAddress address = session.getRemoteAddress();
         if (address instanceof InetSocketAddress) {
-            String hostname = ((InetSocketAddress) address).getHostName();
-            int port = ((InetSocketAddress) address).getPort();
+            final String hostname = ((InetSocketAddress) address).getHostName();
+            final int port = ((InetSocketAddress) address).getPort();
             this.sslEngine = sslContext.createSSLEngine(hostname, port);
         } else {
             this.sslEngine = sslContext.createSSLEngine();
         }
 
         // Allocate buffers for network (encrypted) data
-        int netBuffersize = this.sslEngine.getSession().getPacketBufferSize();
+        final int netBuffersize = this.sslEngine.getSession().getPacketBufferSize();
         this.inEncrypted = ByteBuffer.allocate(netBuffersize);
         this.outEncrypted = ByteBuffer.allocate(netBuffersize);
 
         // Allocate buffers for application (unencrypted) data
-        int appBuffersize = this.sslEngine.getSession().getApplicationBufferSize();
+        final int appBuffersize = this.sslEngine.getSession().getApplicationBufferSize();
         this.inPlain = ByteBuffer.allocate(appBuffersize);
         this.outPlain = ByteBuffer.allocate(appBuffersize);
     }
@@ -215,7 +215,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private SSLEngineResult doWrap(final ByteBuffer src, final ByteBuffer dst) throws SSLException {
         try {
             return this.sslEngine.wrap(src, dst);
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             throw convert(ex);
         }
     }
@@ -223,18 +223,18 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private SSLEngineResult doUnwrap(final ByteBuffer src, final ByteBuffer dst) throws SSLException {
         try {
             return this.sslEngine.unwrap(src, dst);
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             throw convert(ex);
         }
     }
 
     private void doRunTask() throws SSLException {
         try {
-            Runnable r = this.sslEngine.getDelegatedTask();
+            final Runnable r = this.sslEngine.getDelegatedTask();
             if (r != null) {
                 r.run();
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             throw convert(ex);
         }
     }
@@ -294,7 +294,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             return;
         }
         // Need to toggle the event mask for this channel?
-        int oldMask = this.session.getEventMask();
+        final int oldMask = this.session.getEventMask();
         int newMask = oldMask;
         switch (this.sslEngine.getHandshakeStatus()) {
         case NEED_WRAP:
@@ -325,7 +325,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
     private int sendEncryptedData() throws IOException {
         this.outEncrypted.flip();
-        int bytesWritten = this.session.channel().write(this.outEncrypted);
+        final int bytesWritten = this.session.channel().write(this.outEncrypted);
         this.outEncrypted.compact();
         return bytesWritten;
     }
@@ -341,7 +341,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         boolean decrypted = false;
         while (this.inEncrypted.position() > 0) {
             this.inEncrypted.flip();
-            SSLEngineResult result = doUnwrap(this.inEncrypted, this.inPlain);
+            final SSLEngineResult result = doUnwrap(this.inEncrypted, this.inPlain);
             this.inEncrypted.compact();
             if (result.getStatus() == Status.OK) {
                 decrypted = true;
@@ -362,12 +362,12 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * @throws IOException in case of an I/O error.
      */
     public synchronized boolean isAppInputReady() throws IOException {
-        int bytesRead = receiveEncryptedData();
+        final int bytesRead = receiveEncryptedData();
         if (bytesRead == -1) {
             this.endOfStream = true;
         }
         doHandshake();
-        HandshakeStatus status = this.sslEngine.getHandshakeStatus();
+        final HandshakeStatus status = this.sslEngine.getHandshakeStatus();
         if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
             decryptData();
         }
@@ -435,7 +435,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             this.outPlain.compact();
         }
         if (this.outPlain.position() == 0) {
-            SSLEngineResult result = doWrap(src, this.outEncrypted);
+            final SSLEngineResult result = doWrap(src, this.outEncrypted);
             if (result.getStatus() == Status.CLOSED) {
                 this.status = CLOSED;
             }
@@ -449,7 +449,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         Args.notNull(dst, "Byte buffer");
         if (this.inPlain.position() > 0) {
             this.inPlain.flip();
-            int n = Math.min(this.inPlain.remaining(), dst.remaining());
+            final int n = Math.min(this.inPlain.remaining(), dst.remaining());
             for (int i = 0; i < n; i++) {
                 dst.put(this.inPlain.get());
             }
@@ -558,7 +558,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append(this.session);
         buffer.append("[");
         switch (this.status) {

@@ -92,7 +92,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @param value parameter value
      */
     public void setParameters(final String[] names, final Object value) {
-        for (String name : names) {
+        for (final String name : names) {
             setParameter(name, value);
         }
     }
@@ -145,7 +145,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
     public HttpParams copy() {
         try {
             return (HttpParams) clone();
-        } catch (CloneNotSupportedException ex) {
+        } catch (final CloneNotSupportedException ex) {
             throw new UnsupportedOperationException("Cloning not supported");
         }
     }
@@ -156,7 +156,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      */
     @Override
     public Object clone() throws CloneNotSupportedException {
-        BasicHttpParams clone = (BasicHttpParams) super.clone();
+        final BasicHttpParams clone = (BasicHttpParams) super.clone();
         copyParams(clone);
         return clone;
     }
@@ -169,7 +169,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * @since 4.2
      */
     public void copyParams(final HttpParams target) {
-        for (Map.Entry<String, Object> me : this.parameters.entrySet()) {
+        for (final Map.Entry<String, Object> me : this.parameters.entrySet()) {
             target.setParameter(me.getKey(), me.getValue());
         }
     }

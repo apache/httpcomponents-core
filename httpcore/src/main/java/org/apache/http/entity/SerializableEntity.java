@@ -81,8 +81,8 @@ public class SerializableEntity extends AbstractHttpEntity {
     }
 
     private void createBytes(final Serializable ser) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream(baos);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ObjectOutputStream out = new ObjectOutputStream(baos);
         out.writeObject(ser);
         out.flush();
         this.objSer = baos.toByteArray();
@@ -114,7 +114,7 @@ public class SerializableEntity extends AbstractHttpEntity {
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         if (this.objSer == null) {
-            ObjectOutputStream out = new ObjectOutputStream(outstream);
+            final ObjectOutputStream out = new ObjectOutputStream(outstream);
             out.writeObject(this.objRef);
             out.flush();
         } else {

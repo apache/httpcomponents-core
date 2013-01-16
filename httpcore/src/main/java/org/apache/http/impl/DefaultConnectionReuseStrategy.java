@@ -77,24 +77,24 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.
-        ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
-        Header teh = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
+        final Header teh = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
         if (teh != null) {
             if (!HTTP.CHUNK_CODING.equalsIgnoreCase(teh.getValue())) {
                 return false;
             }
         } else {
             if (canResponseHaveBody(response)) {
-                Header[] clhs = response.getHeaders(HTTP.CONTENT_LEN);
+                final Header[] clhs = response.getHeaders(HTTP.CONTENT_LEN);
                 // Do not reuse if not properly content-length delimited
                 if (clhs.length == 1) {
-                    Header clh = clhs[0];
+                    final Header clh = clhs[0];
                     try {
-                        int contentLen = Integer.parseInt(clh.getValue());
+                        final int contentLen = Integer.parseInt(clh.getValue());
                         if (contentLen < 0) {
                             return false;
                         }
-                    } catch (NumberFormatException ex) {
+                    } catch (final NumberFormatException ex) {
                         return false;
                     }
                 } else {
@@ -136,7 +136,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
         if (hit.hasNext()) {
             try {
-                TokenIterator ti = createTokenIterator(hit);
+                final TokenIterator ti = createTokenIterator(hit);
                 boolean keepalive = false;
                 while (ti.hasNext()) {
                     final String token = ti.nextToken();
@@ -153,7 +153,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 // neither "close" nor "keep-alive", use default policy
                 }
 
-            } catch (ParseException px) {
+            } catch (final ParseException px) {
                 // invalid connection header means no persistent connection
                 // we don't have logging in HttpCore, so the exception is lost
                 return false;
@@ -179,7 +179,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     }
 
     private boolean canResponseHaveBody(final HttpResponse response) {
-        int status = response.getStatusLine().getStatusCode();
+        final int status = response.getStatusLine().getStatusCode();
         return status >= HttpStatus.SC_OK
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED

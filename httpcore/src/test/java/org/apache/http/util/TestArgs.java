@@ -52,7 +52,7 @@ public class TestArgs {
 
     @Test
     public void testArgNotNullPass() {
-        String stuff = "stuff";
+        final String stuff = "stuff";
         Assert.assertSame(stuff, Args.notNull(stuff, "Stuff"));
     }
 
@@ -63,7 +63,7 @@ public class TestArgs {
 
     @Test
     public void testArgNotEmptyPass() {
-        String stuff = "stuff";
+        final String stuff = "stuff";
         Assert.assertSame(stuff, Args.notEmpty(stuff, "Stuff"));
     }
 
@@ -94,7 +94,7 @@ public class TestArgs {
 
     @Test
     public void testArgCollectionNotEmptyPass() {
-        List<String> list = Arrays.asList("stuff");
+        final List<String> list = Arrays.asList("stuff");
         Assert.assertSame(list, Args.notEmpty(list, "List"));
     }
 

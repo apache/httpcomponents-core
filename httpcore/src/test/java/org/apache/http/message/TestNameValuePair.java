@@ -39,7 +39,7 @@ public class TestNameValuePair {
 
     @Test
     public void testConstructor() {
-        NameValuePair param = new BasicNameValuePair("name", "value");
+        final NameValuePair param = new BasicNameValuePair("name", "value");
         Assert.assertEquals("name", param.getName());
         Assert.assertEquals("value", param.getValue());
     }
@@ -49,25 +49,25 @@ public class TestNameValuePair {
         try {
             new BasicNameValuePair(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             //expected
         }
     }
 
     @Test
     public void testHashCode() {
-        NameValuePair param1 = new BasicNameValuePair("name1", "value1");
-        NameValuePair param2 = new BasicNameValuePair("name2", "value2");
-        NameValuePair param3 = new BasicNameValuePair("name1", "value1");
+        final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
+        final NameValuePair param2 = new BasicNameValuePair("name2", "value2");
+        final NameValuePair param3 = new BasicNameValuePair("name1", "value1");
         Assert.assertTrue(param1.hashCode() != param2.hashCode());
         Assert.assertTrue(param1.hashCode() == param3.hashCode());
     }
 
     @Test
     public void testEquals() {
-        NameValuePair param1 = new BasicNameValuePair("name1", "value1");
-        NameValuePair param2 = new BasicNameValuePair("name2", "value2");
-        NameValuePair param3 = new BasicNameValuePair("name1", "value1");
+        final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
+        final NameValuePair param2 = new BasicNameValuePair("name2", "value2");
+        final NameValuePair param3 = new BasicNameValuePair("name1", "value1");
         Assert.assertFalse(param1.equals(param2));
         Assert.assertFalse(param1.equals(null));
         Assert.assertFalse(param1.equals("name1 = value1"));
@@ -78,16 +78,16 @@ public class TestNameValuePair {
 
     @Test
     public void testToString() {
-        NameValuePair param1 = new BasicNameValuePair("name1", "value1");
+        final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         Assert.assertEquals("name1=value1", param1.toString());
-        NameValuePair param2 = new BasicNameValuePair("name1", null);
+        final NameValuePair param2 = new BasicNameValuePair("name1", null);
         Assert.assertEquals("name1", param2.toString());
     }
 
     @Test
     public void testCloning() throws Exception {
-        BasicNameValuePair orig = new BasicNameValuePair("name1", "value1");
-        BasicNameValuePair clone = (BasicNameValuePair) orig.clone();
+        final BasicNameValuePair orig = new BasicNameValuePair("name1", "value1");
+        final BasicNameValuePair clone = (BasicNameValuePair) orig.clone();
         Assert.assertEquals(orig, clone);
     }
 

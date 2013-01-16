@@ -53,7 +53,7 @@ public class SessionHandle {
         super();
         Args.notNull(session, "Session");
         this.session = session;
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         this.startedTime = now;
         this.lastReadTime = now;
         this.lastWriteTime = now;
@@ -81,13 +81,13 @@ public class SessionHandle {
     }
 
     public void resetLastRead() {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         this.lastReadTime = now;
         this.lastAccessTime = now;
     }
 
     public void resetLastWrite() {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         this.lastWriteTime = now;
         this.lastAccessTime = now;
     }

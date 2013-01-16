@@ -41,7 +41,7 @@ public class TestAbstractHttpEntity {
 
     @Test
     public void testContentType() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "blah"));
         Assert.assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
         Assert.assertEquals("blah", httpentity.getContentType().getValue());
@@ -58,7 +58,7 @@ public class TestAbstractHttpEntity {
 
     @Test
     public void testContentEncoding() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentEncoding(new BasicHeader(HTTP.CONTENT_ENCODING, "gzip"));
         Assert.assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         Assert.assertEquals("gzip", httpentity.getContentEncoding().getValue());
@@ -75,7 +75,7 @@ public class TestAbstractHttpEntity {
 
     @Test
     public void testChunkingFlag() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         Assert.assertFalse(httpentity.isChunked());
         httpentity.setChunked(true);
         Assert.assertTrue(httpentity.isChunked());

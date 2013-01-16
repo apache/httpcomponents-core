@@ -111,8 +111,8 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     @Override
     protected HttpResponse createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {
-        ParserCursor cursor = new ParserCursor(0, buffer.length());
-        StatusLine statusline = lineParser.parseStatusLine(buffer, cursor);
+        final ParserCursor cursor = new ParserCursor(0, buffer.length());
+        final StatusLine statusline = lineParser.parseStatusLine(buffer, cursor);
         return this.responseFactory.newHttpResponse(statusline, null);
     }
 

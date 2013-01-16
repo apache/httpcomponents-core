@@ -88,7 +88,7 @@ public class NStringEntity extends AbstractHttpEntity
         }
         try {
             this.b = s.getBytes(charset.name());
-        } catch (UnsupportedEncodingException ex) {
+        } catch (final UnsupportedEncodingException ex) {
             // should never happen
             throw new UnsupportedCharsetException(charset.name());
         }

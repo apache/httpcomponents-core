@@ -42,46 +42,46 @@ import junit.framework.Assert;
 public class SSLTestContexts {
 
     private static KeyManagerFactory createKeyManagerFactory() throws NoSuchAlgorithmException {
-        String algo = KeyManagerFactory.getDefaultAlgorithm();
+        final String algo = KeyManagerFactory.getDefaultAlgorithm();
         try {
             return KeyManagerFactory.getInstance(algo);
-        } catch (NoSuchAlgorithmException ex) {
+        } catch (final NoSuchAlgorithmException ex) {
             return KeyManagerFactory.getInstance("SunX509");
         }
     }
 
     public static SSLContext createServerSSLContext() throws Exception {
-        ClassLoader cl = SSLTestContexts.class.getClassLoader();
-        URL url = cl.getResource("test.keystore");
+        final ClassLoader cl = SSLTestContexts.class.getClassLoader();
+        final URL url = cl.getResource("test.keystore");
         Assert.assertNotNull("Keystore URL should not be null", url);
-        KeyStore keystore  = KeyStore.getInstance("jks");
+        final KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
-        KeyManagerFactory kmfactory = createKeyManagerFactory();
+        final KeyManagerFactory kmfactory = createKeyManagerFactory();
         kmfactory.init(keystore, "nopassword".toCharArray());
-        KeyManager[] keymanagers = kmfactory.getKeyManagers();
-        SSLContext sslcontext = SSLContext.getInstance("TLS");
+        final KeyManager[] keymanagers = kmfactory.getKeyManagers();
+        final SSLContext sslcontext = SSLContext.getInstance("TLS");
         sslcontext.init(keymanagers, null, null);
         return sslcontext;
     }
 
     private static TrustManagerFactory createTrustManagerFactory() throws NoSuchAlgorithmException {
-        String algo = TrustManagerFactory.getDefaultAlgorithm();
+        final String algo = TrustManagerFactory.getDefaultAlgorithm();
         try {
             return TrustManagerFactory.getInstance(algo);
-        } catch (NoSuchAlgorithmException ex) {
+        } catch (final NoSuchAlgorithmException ex) {
             return TrustManagerFactory.getInstance("SunX509");
         }
     }
 
     public static SSLContext createClientSSLContext() throws Exception {
-        ClassLoader cl = SSLTestContexts.class.getClassLoader();
-        URL url = cl.getResource("test.keystore");
-        KeyStore keystore  = KeyStore.getInstance("jks");
+        final ClassLoader cl = SSLTestContexts.class.getClassLoader();
+        final URL url = cl.getResource("test.keystore");
+        final KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
-        TrustManagerFactory tmfactory = createTrustManagerFactory();
+        final TrustManagerFactory tmfactory = createTrustManagerFactory();
         tmfactory.init(keystore);
-        TrustManager[] trustmanagers = tmfactory.getTrustManagers();
-        SSLContext sslcontext = SSLContext.getInstance("TLS");
+        final TrustManager[] trustmanagers = tmfactory.getTrustManagers();
+        final SSLContext sslcontext = SSLContext.getInstance("TLS");
         sslcontext.init(null, trustmanagers, null);
         return sslcontext;
     }

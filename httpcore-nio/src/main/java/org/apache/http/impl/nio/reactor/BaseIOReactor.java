@@ -154,16 +154,16 @@ public class BaseIOReactor extends AbstractIOReactor {
      */
     @Override
     protected void readable(final SelectionKey key) {
-        IOSession session = getSession(key);
+        final IOSession session = getSession(key);
         try {
             this.eventDispatch.inputReady(session);
             if (session.hasBufferedInput()) {
                 this.bufferingSessions.add(session);
             }
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             queueClosedSession(session);
             key.attach(null);
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }
@@ -175,13 +175,13 @@ public class BaseIOReactor extends AbstractIOReactor {
      */
     @Override
     protected void writable(final SelectionKey key) {
-        IOSession session = getSession(key);
+        final IOSession session = getSession(key);
         try {
             this.eventDispatch.outputReady(session);
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             queueClosedSession(session);
             key.attach(null);
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }
@@ -197,18 +197,18 @@ public class BaseIOReactor extends AbstractIOReactor {
      */
     @Override
     protected void validate(final Set<SelectionKey> keys) {
-        long currentTime = System.currentTimeMillis();
+        final long currentTime = System.currentTimeMillis();
         if( (currentTime - this.lastTimeoutCheck) >= this.timeoutCheckInterval) {
             this.lastTimeoutCheck = currentTime;
             if (keys != null) {
-                for (SelectionKey key : keys) {
+                for (final SelectionKey key : keys) {
                     timeoutCheck(key, currentTime);
                 }
             }
         }
         if (!this.bufferingSessions.isEmpty()) {
-            for (Iterator<IOSession> it = this.bufferingSessions.iterator(); it.hasNext(); ) {
-                IOSession session = it.next();
+            for (final Iterator<IOSession> it = this.bufferingSessions.iterator(); it.hasNext(); ) {
+                final IOSession session = it.next();
                 if (!session.hasBufferedInput()) {
                     it.remove();
                     continue;
@@ -220,10 +220,10 @@ public class BaseIOReactor extends AbstractIOReactor {
                             it.remove();
                         }
                     }
-                } catch (CancelledKeyException ex) {
+                } catch (final CancelledKeyException ex) {
                     it.remove();
                     queueClosedSession(session);
-                } catch (RuntimeException ex) {
+                } catch (final RuntimeException ex) {
                     handleRuntimeException(ex);
                 }
             }
@@ -238,9 +238,9 @@ public class BaseIOReactor extends AbstractIOReactor {
     protected void sessionCreated(final SelectionKey key, final IOSession session) {
         try {
             this.eventDispatch.connected(session);
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             queueClosedSession(session);
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }
@@ -253,9 +253,9 @@ public class BaseIOReactor extends AbstractIOReactor {
     protected void sessionTimedOut(final IOSession session) {
         try {
             this.eventDispatch.timeout(session);
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             queueClosedSession(session);
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }
@@ -269,9 +269,9 @@ public class BaseIOReactor extends AbstractIOReactor {
     protected void sessionClosed(final IOSession session) {
         try {
             this.eventDispatch.disconnected(session);
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             // ignore
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
     }

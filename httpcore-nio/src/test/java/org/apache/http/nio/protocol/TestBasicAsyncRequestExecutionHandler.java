@@ -94,7 +94,7 @@ public class TestBasicAsyncRequestExecutionHandler {
                     this.httpProcessor,
                     this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
@@ -105,7 +105,7 @@ public class TestBasicAsyncRequestExecutionHandler {
                     this.httpProcessor,
                     this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
@@ -116,7 +116,7 @@ public class TestBasicAsyncRequestExecutionHandler {
                     this.httpProcessor,
                     this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             new BasicAsyncRequestExecutionHandler<Object>(
@@ -127,7 +127,7 @@ public class TestBasicAsyncRequestExecutionHandler {
                     null,
                     this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
     }
 
@@ -142,17 +142,17 @@ public class TestBasicAsyncRequestExecutionHandler {
 
     @Test
     public void testGetTarget() throws Exception {
-        HttpHost target = new HttpHost("somehost");
+        final HttpHost target = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(target);
         Assert.assertSame(target, this.exchangeHandler.getTarget());
     }
 
     @Test
     public void testGenerateRequest() throws Exception {
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
         Mockito.when(this.requestProducer.generateRequest()).thenReturn(request);
 
-        HttpRequest result = this.exchangeHandler.generateRequest();
+        final HttpRequest result = this.exchangeHandler.generateRequest();
 
         Assert.assertSame(request, result);
 
@@ -186,7 +186,7 @@ public class TestBasicAsyncRequestExecutionHandler {
 
     @Test
     public void testResponseReceived() throws Exception {
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
 
         this.exchangeHandler.responseReceived(response);
 
@@ -202,7 +202,7 @@ public class TestBasicAsyncRequestExecutionHandler {
 
     @Test
     public void testFailed() throws Exception {
-        Exception ooopsie = new Exception();
+        final Exception ooopsie = new Exception();
         this.exchangeHandler.failed(ooopsie);
 
         Mockito.verify(this.requestProducer).failed(ooopsie);
@@ -211,14 +211,14 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.responseConsumer).close();
         try {
             this.exchangeHandler.getFuture().get();
-        } catch (ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             Assert.assertSame(ooopsie, ex.getCause());
         }
     }
 
     @Test
     public void testFailedAfterRequest() throws Exception {
-        Exception ooopsie = new Exception();
+        final Exception ooopsie = new Exception();
         this.exchangeHandler.requestCompleted(this.context);
         this.exchangeHandler.failed(ooopsie);
 
@@ -228,24 +228,24 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.responseConsumer).close();
         try {
             this.exchangeHandler.getFuture().get();
-        } catch (ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             Assert.assertSame(ooopsie, ex.getCause());
         }
     }
 
     @Test
     public void testFailedwithException() throws Exception {
-        Exception ooopsie = new Exception();
+        final Exception ooopsie = new Exception();
         Mockito.doThrow(new RuntimeException()).when(this.responseConsumer).failed(ooopsie);
         try {
             this.exchangeHandler.failed(ooopsie);
             Assert.fail("RuntimeException expected");
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             Mockito.verify(this.requestProducer).close();
             Mockito.verify(this.responseConsumer).close();
             try {
                 this.exchangeHandler.getFuture().get();
-            } catch (ExecutionException exex) {
+            } catch (final ExecutionException exex) {
                 Assert.assertSame(ooopsie, exex.getCause());
             }
         }
@@ -267,20 +267,20 @@ public class TestBasicAsyncRequestExecutionHandler {
         try {
             this.exchangeHandler.cancel();
             Assert.fail("RuntimeException expected");
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             Mockito.verify(this.requestProducer).close();
             Mockito.verify(this.responseConsumer).close();
             try {
                 this.exchangeHandler.getFuture().get();
                 Assert.fail("ExecutionException expected");
-            } catch (ExecutionException exex) {
+            } catch (final ExecutionException exex) {
             }
         }
     }
 
     @Test
     public void testResponseCompleted() throws Exception {
-        Object obj = new Object();
+        final Object obj = new Object();
         Mockito.when(this.responseConsumer.getResult()).thenReturn(obj);
 
         this.exchangeHandler.responseCompleted(this.context);
@@ -288,13 +288,13 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.responseConsumer).responseCompleted(this.context);
         Mockito.verify(this.requestProducer).close();
         Mockito.verify(this.responseConsumer).close();
-        Object result = this.exchangeHandler.getFuture().get();
+        final Object result = this.exchangeHandler.getFuture().get();
         Assert.assertSame(obj, result);
     }
 
     @Test
     public void testResponseFailure() throws Exception {
-        Exception ooopsie = new Exception();
+        final Exception ooopsie = new Exception();
         Mockito.when(this.responseConsumer.getException()).thenReturn(ooopsie);
 
         this.exchangeHandler.responseCompleted(this.context);
@@ -304,7 +304,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         Mockito.verify(this.responseConsumer).close();
         try {
             this.exchangeHandler.getFuture().get();
-        } catch (ExecutionException exex) {
+        } catch (final ExecutionException exex) {
             Assert.assertSame(ooopsie, exex.getCause());
         }
     }
@@ -315,13 +315,13 @@ public class TestBasicAsyncRequestExecutionHandler {
         try {
             this.exchangeHandler.responseCompleted(this.context);
             Assert.fail("RuntimeException expected");
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             Mockito.verify(this.requestProducer).close();
             Mockito.verify(this.responseConsumer).close();
             try {
                 this.exchangeHandler.getFuture().get();
                 Assert.fail("ExecutionException expected");
-            } catch (ExecutionException exex) {
+            } catch (final ExecutionException exex) {
             }
         }
     }
@@ -329,17 +329,17 @@ public class TestBasicAsyncRequestExecutionHandler {
     @Test
     public void testMisc() throws Exception {
         Assert.assertFalse(this.exchangeHandler.isRepeatable());
-        Object obj = new Object();
+        final Object obj = new Object();
         Mockito.when(this.responseConsumer.getResult()).thenReturn(obj);
 
-        Object result = this.exchangeHandler.getResult();
+        final Object result = this.exchangeHandler.getResult();
         Assert.assertSame(obj, result);
         Mockito.verify(this.responseConsumer).getResult();
 
-        Exception ooopsie = new Exception();
+        final Exception ooopsie = new Exception();
         Mockito.when(this.responseConsumer.getException()).thenReturn(ooopsie);
 
-        Exception ex = this.exchangeHandler.getException();
+        final Exception ex = this.exchangeHandler.getException();
         Assert.assertSame(ooopsie, ex);
         Mockito.verify(this.responseConsumer).getException();
 

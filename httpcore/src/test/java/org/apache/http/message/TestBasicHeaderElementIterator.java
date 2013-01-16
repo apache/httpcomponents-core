@@ -42,12 +42,12 @@ public class TestBasicHeaderElementIterator {
 
     @Test
     public void testMultiHeader() {
-        Header[] headers = new Header[]{
+        final Header[] headers = new Header[]{
                 new BasicHeader("Name", "value0"),
                 new BasicHeader("Name", "value1")
         };
 
-        HeaderElementIterator hei =
+        final HeaderElementIterator hei =
                 new BasicHeaderElementIterator(
                         new BasicHeaderIterator(headers, "Name"));
 
@@ -65,7 +65,7 @@ public class TestBasicHeaderElementIterator {
         try {
             hei.next();
             Assert.fail("NoSuchElementException should have been thrown");
-        } catch (NoSuchElementException ex) {
+        } catch (final NoSuchElementException ex) {
             // expected
         }
 
@@ -73,19 +73,19 @@ public class TestBasicHeaderElementIterator {
         try {
             hei.next();
             Assert.fail("NoSuchElementException should have been thrown");
-        } catch (NoSuchElementException ex) {
+        } catch (final NoSuchElementException ex) {
             // expected
         }
     }
 
     @Test
     public void testMultiHeaderSameLine() {
-        Header[] headers = new Header[]{
+        final Header[] headers = new Header[]{
                 new BasicHeader("name", "value0,value1"),
                 new BasicHeader("nAme", "cookie1=1,cookie2=2")
         };
 
-        HeaderElementIterator hei =
+        final HeaderElementIterator hei =
                 new BasicHeaderElementIterator(new BasicHeaderIterator(headers, "Name"));
 
         HeaderElement elem = hei.nextElement();
@@ -109,13 +109,13 @@ public class TestBasicHeaderElementIterator {
 
     @Test
     public void testFringeCases() {
-        Header[] headers = new Header[]{
+        final Header[] headers = new Header[]{
                 new BasicHeader("Name", null),
                 new BasicHeader("Name", "    "),
                 new BasicHeader("Name", ",,,")
         };
 
-        HeaderElementIterator hei =
+        final HeaderElementIterator hei =
                 new BasicHeaderElementIterator(
                         new BasicHeaderIterator(headers, "Name"));
 
@@ -123,7 +123,7 @@ public class TestBasicHeaderElementIterator {
         try {
             hei.next();
             Assert.fail("NoSuchElementException should have been thrown");
-        } catch (NoSuchElementException ex) {
+        } catch (final NoSuchElementException ex) {
             // expected
         }
 
@@ -131,7 +131,7 @@ public class TestBasicHeaderElementIterator {
         try {
             hei.next();
             Assert.fail("NoSuchElementException should have been thrown");
-        } catch (NoSuchElementException ex) {
+        } catch (final NoSuchElementException ex) {
             // expected
         }
     }

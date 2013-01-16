@@ -111,16 +111,16 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         Args.notNull(params, "HTTP parameters");
         this.outstream = outstream;
         this.buffer = new ByteArrayBuffer(buffersize);
-        String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
+        final String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
         this.ascii = this.charset.equals(Consts.ASCII);
         this.encoder = null;
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
-        CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
+        final CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
         this.onMalformedCharAction = a1 != null ? a1 : CodingErrorAction.REPORT;
-        CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
+        final CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
         this.onUnmappableCharAction = a2 != null? a2 : CodingErrorAction.REPORT;
     }
@@ -154,7 +154,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     }
 
     protected void flushBuffer() throws IOException {
-        int len = this.buffer.length();
+        final int len = this.buffer.length();
         if (len > 0) {
             this.outstream.write(this.buffer.buffer(), 0, len);
             this.buffer.clear();
@@ -182,7 +182,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
             this.metrics.incrementBytesTransferred(len);
         } else {
             // Do not let the buffer grow unnecessarily
-            int freecapacity = this.buffer.capacity() - this.buffer.length();
+            final int freecapacity = this.buffer.capacity() - this.buffer.length();
             if (len > freecapacity) {
                 // flush the buffer
                 flushBuffer();
@@ -225,7 +225,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
                     write(s.charAt(i));
                 }
             } else {
-                CharBuffer cbuf = CharBuffer.wrap(s);
+                final CharBuffer cbuf = CharBuffer.wrap(s);
                 writeEncoded(cbuf);
             }
         }
@@ -261,7 +261,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
                 remaining -= chunk;
             }
         } else {
-            CharBuffer cbuf = CharBuffer.wrap(charbuffer.buffer(), 0, charbuffer.length());
+            final CharBuffer cbuf = CharBuffer.wrap(charbuffer.buffer(), 0, charbuffer.length());
             writeEncoded(cbuf);
         }
         write(CRLF);
@@ -281,10 +281,10 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         }
         this.encoder.reset();
         while (cbuf.hasRemaining()) {
-            CoderResult result = this.encoder.encode(cbuf, this.bbuf, true);
+            final CoderResult result = this.encoder.encode(cbuf, this.bbuf, true);
             handleEncodingResult(result);
         }
-        CoderResult result = this.encoder.flush(this.bbuf);
+        final CoderResult result = this.encoder.flush(this.bbuf);
         handleEncodingResult(result);
         this.bbuf.clear();
     }

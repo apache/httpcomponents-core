@@ -92,12 +92,12 @@ public class HttpClient {
     }
 
     public DefaultBHttpClientConnection createConnection() {
-        LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(8 * 1024);
+        final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(8 * 1024);
         return conn;
     }
 
     public void connect(final HttpHost host, final DefaultBHttpClientConnection conn) throws IOException {
-        Socket socket = new Socket();
+        final Socket socket = new Socket();
         socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.timeout);
         conn.bind(socket);
         conn.setSocketTimeout(this.timeout);
@@ -109,7 +109,7 @@ public class HttpClient {
             final HttpClientConnection conn) throws HttpException, IOException {
         this.context.setTargetHost(targetHost);
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
-        HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
+        final HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
         this.httpexecutor.postProcess(response, this.httpproc, this.context);
         return response;
     }

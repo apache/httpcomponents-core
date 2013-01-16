@@ -88,8 +88,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
             if (this.buffer.length() < 2) {
                 return;
             }
-            int cr = this.buffer.read();
-            int lf = this.buffer.read();
+            final int cr = this.buffer.read();
+            final int lf = this.buffer.read();
             if (cr != HTTP.CR || lf != HTTP.LF) {
                 throw new MalformedChunkCodingException("CRLF expected at end of chunk");
             }
@@ -106,9 +106,9 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 separator = this.lineBuf.length();
             }
             try {
-                String s = this.lineBuf.substringTrimmed(0, separator);
+                final String s = this.lineBuf.substringTrimmed(0, separator);
                 this.chunkSize = Integer.parseInt(s, 16);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 throw new MalformedChunkCodingException("Bad chunk header");
             }
             this.pos = 0;
@@ -116,14 +116,14 @@ public class ChunkDecoder extends AbstractContentDecoder {
     }
 
     private void parseHeader() {
-        CharArrayBuffer current = this.lineBuf;
-        int count = this.trailerBufs.size();
+        final CharArrayBuffer current = this.lineBuf;
+        final int count = this.trailerBufs.size();
         if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
             // Handle folded header line
-            CharArrayBuffer previous = this.trailerBufs.get(count - 1);
+            final CharArrayBuffer previous = this.trailerBufs.get(count - 1);
             int i = 0;
             while (i < current.length()) {
-                char ch = current.charAt(i);
+                final char ch = current.charAt(i);
                 if (ch != ' ' && ch != '\t') {
                     break;
                 }
@@ -138,14 +138,14 @@ public class ChunkDecoder extends AbstractContentDecoder {
     }
 
     private void processFooters() throws IOException {
-        int count = this.trailerBufs.size();
+        final int count = this.trailerBufs.size();
         if (count > 0) {
             this.footers = new Header[this.trailerBufs.size()];
             for (int i = 0; i < this.trailerBufs.size(); i++) {
-                CharArrayBuffer buffer = this.trailerBufs.get(i);
+                final CharArrayBuffer buffer = this.trailerBufs.get(i);
                 try {
                     this.footers[i] = new BufferedHeader(buffer);
-                } catch (ParseException ex) {
+                } catch (final ParseException ex) {
                     throw new IOException(ex.getMessage());
                 }
             }
@@ -163,7 +163,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         while (this.state != COMPLETED) {
 
             if (!this.buffer.hasData() || this.chunkSize == -1) {
-                int bytesRead = this.buffer.fill(this.channel);
+                final int bytesRead = this.buffer.fill(this.channel);
                 if (bytesRead > 0) {
                     this.metrics.incrementBytesTransferred(bytesRead);
                 }
@@ -192,8 +192,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
                         break;
                     }
                 }
-                int maxLen = this.chunkSize - this.pos;
-                int len = this.buffer.read(dst, maxLen);
+                final int maxLen = this.chunkSize - this.pos;
+                final int len = this.buffer.read(dst, maxLen);
                 if (len > 0) {
                     this.pos += len;
                     totalRead += len;
@@ -253,7 +253,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append("[chunk-coded; completed: ");
         buffer.append(this.completed);
         buffer.append("]");

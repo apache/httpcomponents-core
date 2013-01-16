@@ -129,12 +129,12 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
         throws IOException, HttpException, ParseException {
 
         this.lineBuf.clear();
-        int i = sessionBuffer.readLine(this.lineBuf);
+        final int i = sessionBuffer.readLine(this.lineBuf);
         if (i == -1) {
             throw new ConnectionClosedException("Client closed connection");
         }
-        ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
-        RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf, cursor);
+        final ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
+        final RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf, cursor);
         return this.requestFactory.newHttpRequest(requestline);
     }
 

@@ -42,10 +42,10 @@ public class TestStringEntity {
 
     @Test
     public void testBasics() throws Exception {
-        String s = "Message content";
-        StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
+        final String s = "Message content";
+        final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
 
-        byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
         Assert.assertNotNull(httpentity.getContent());
         Assert.assertTrue(httpentity.isRepeatable());
@@ -57,14 +57,14 @@ public class TestStringEntity {
         try {
             new StringEntity(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testDefaultContent() throws Exception {
-        String s = "Message content";
+        final String s = "Message content";
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/csv", "ANSI_X3.4-1968"));
         Assert.assertEquals("text/csv; charset=US-ASCII",
                 httpentity.getContentType().getValue());
@@ -80,9 +80,9 @@ public class TestStringEntity {
     }
 
     private static String constructString(final int [] unicodeChars) {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
-            for (int unicodeChar : unicodeChars) {
+            for (final int unicodeChar : unicodeChars) {
                 buffer.append((char)unicodeChar);
             }
         }
@@ -95,7 +95,7 @@ public class TestStringEntity {
 
     @Test
     public void testNullCharset() throws Exception {
-        String s = constructString(SWISS_GERMAN_HELLO);
+        final String s = constructString(SWISS_GERMAN_HELLO);
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/plain", (Charset) null));
         Assert.assertNotNull(httpentity.getContentType());
         Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
@@ -112,9 +112,9 @@ public class TestStringEntity {
 
     @Test
     public void testWriteTo() throws Exception {
-        String s = "Message content";
-        byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
-        StringEntity httpentity = new StringEntity(s);
+        final String s = "Message content";
+        final byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
+        final StringEntity httpentity = new StringEntity(s);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
@@ -137,7 +137,7 @@ public class TestStringEntity {
         try {
             httpentity.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

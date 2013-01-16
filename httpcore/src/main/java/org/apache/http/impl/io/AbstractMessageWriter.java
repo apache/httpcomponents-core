@@ -107,8 +107,8 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
     public void write(final T message) throws IOException, HttpException {
         Args.notNull(message, "HTTP message");
         writeHeadLine(message);
-        for (HeaderIterator it = message.headerIterator(); it.hasNext(); ) {
-            Header header = it.nextHeader();
+        for (final HeaderIterator it = message.headerIterator(); it.hasNext(); ) {
+            final Header header = it.nextHeader();
             this.sessionBuffer.writeLine
                 (lineFormatter.formatHeader(this.lineBuf, header));
         }

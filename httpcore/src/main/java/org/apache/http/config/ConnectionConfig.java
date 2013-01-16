@@ -84,7 +84,7 @@ public class ConnectionConfig implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("[charset=").append(this.charset)
                 .append(", malformedInputAction=").append(this.malformedInputAction)
                 .append(", unmappableInputAction=").append(this.unmappableInputAction)

@@ -41,9 +41,9 @@ public class TestBasicHeaderValueParser {
 
     @Test
     public void testParseHeaderElements() throws Exception {
-        String headerValue = "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
+        final String headerValue = "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
             "name5=value5, name6= ; name7 = value7; name8 = \" value8\"";
-        HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
+        final HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
         // there are 3 elements
         Assert.assertEquals(3,elements.length);
         // 1st element
@@ -75,9 +75,9 @@ public class TestBasicHeaderValueParser {
 
     @Test
     public void testParseHEEscaped() {
-        String s =
+        final String s =
           "test1 =  \"\\\"stuff\\\"\", test2= \"\\\\\", test3 = \"stuff, stuff\"";
-        HeaderElement[] elements = BasicHeaderValueParser.parseElements(s, null);
+        final HeaderElement[] elements = BasicHeaderValueParser.parseElements(s, null);
         Assert.assertEquals(3, elements.length);
         Assert.assertEquals("test1", elements[0].getName());
         Assert.assertEquals("\\\"stuff\\\"", elements[0].getValue());
@@ -89,29 +89,29 @@ public class TestBasicHeaderValueParser {
 
     @Test
     public void testHEFringeCase1() throws Exception {
-        String headerValue = "name1 = value1,";
-        HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
+        final String headerValue = "name1 = value1,";
+        final HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
         Assert.assertEquals("Number of elements", 1, elements.length);
     }
 
     @Test
     public void testHEFringeCase2() throws Exception {
-        String headerValue = "name1 = value1, ";
-        HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
+        final String headerValue = "name1 = value1, ";
+        final HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
         Assert.assertEquals("Number of elements", 1, elements.length);
     }
 
     @Test
     public void testHEFringeCase3() throws Exception {
-        String headerValue = ",, ,, ,";
-        HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
+        final String headerValue = ",, ,, ,";
+        final HeaderElement[] elements = BasicHeaderValueParser.parseElements(headerValue, null);
         Assert.assertEquals("Number of elements", 0, elements.length);
     }
 
     @Test
     public void testNVParseUsingCursor() {
 
-        HeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
+        final HeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
 
         String s = "test";
         CharArrayBuffer buffer = new CharArrayBuffer(16);
@@ -271,7 +271,7 @@ public class TestBasicHeaderValueParser {
 
     @Test
     public void testNVParseAllWithCursor() {
-        HeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
+        final HeaderValueParser parser = BasicHeaderValueParser.INSTANCE;
 
         String s =
             "test; test1 =  stuff   ; test2 =  \"stuff; stuff\"; test3=\"stuff";
@@ -339,9 +339,9 @@ public class TestBasicHeaderValueParser {
 
     @Test
     public void testNVParseEscaped() {
-        String s =
+        final String s =
           "test1 =  \"\\\"stuff\\\"\"; test2= \"\\\\\"; test3 = \"stuff; stuff\"";
-        NameValuePair[] params =
+        final NameValuePair[] params =
             BasicHeaderValueParser.parseParameters(s, null);
         Assert.assertEquals(3, params.length);
         Assert.assertEquals("test1", params[0].getName());

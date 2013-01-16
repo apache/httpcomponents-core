@@ -38,7 +38,7 @@ public class TestHttpExceptions {
 
     @Test
     public void testConstructor() {
-        Throwable cause = new Exception();
+        final Throwable cause = new Exception();
         new HttpException();
         new HttpException("Oppsie");
         new HttpException("Oppsie", cause);

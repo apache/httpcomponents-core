@@ -72,16 +72,16 @@ public class HttpBenchmark {
 
     public static void main(final String[] args) throws Exception {
 
-        Options options = CommandLineUtils.getOptions();
-        CommandLineParser parser = new PosixParser();
-        CommandLine cmd = parser.parse(options, args);
+        final Options options = CommandLineUtils.getOptions();
+        final CommandLineParser parser = new PosixParser();
+        final CommandLine cmd = parser.parse(options, args);
 
         if (args.length == 0 || cmd.hasOption('h') || cmd.getArgs().length != 1) {
             CommandLineUtils.showUsage(options);
             System.exit(1);
         }
 
-        Config config = new Config();
+        final Config config = new Config();
         CommandLineUtils.parseCommandLine(cmd, config);
 
         if (config.getUrl() == null) {
@@ -89,7 +89,7 @@ public class HttpBenchmark {
             System.exit(1);
         }
 
-        HttpBenchmark httpBenchmark = new HttpBenchmark(config);
+        final HttpBenchmark httpBenchmark = new HttpBenchmark(config);
         httpBenchmark.execute();
     }
 
@@ -99,29 +99,29 @@ public class HttpBenchmark {
     }
 
     private HttpRequest createRequest() {
-        URL url = config.getUrl();
+        final URL url = config.getUrl();
         HttpEntity entity = null;
 
         // Prepare requests for each thread
         if (config.getPayloadFile() != null) {
-            FileEntity fe = new FileEntity(config.getPayloadFile());
+            final FileEntity fe = new FileEntity(config.getPayloadFile());
             fe.setContentType(config.getContentType());
             fe.setChunked(config.isUseChunking());
             entity = fe;
         } else if (config.getPayloadText() != null) {
-            StringEntity se = new StringEntity(config.getPayloadText(),
+            final StringEntity se = new StringEntity(config.getPayloadText(),
                     ContentType.parse(config.getContentType()));
             se.setChunked(config.isUseChunking());
             entity = se;
         }
         HttpRequest request;
         if ("POST".equals(config.getMethod())) {
-            BasicHttpEntityEnclosingRequest httppost =
+            final BasicHttpEntityEnclosingRequest httppost =
                     new BasicHttpEntityEnclosingRequest("POST", url.getPath());
             httppost.setEntity(entity);
             request = httppost;
         } else if ("PUT".equals(config.getMethod())) {
-            BasicHttpEntityEnclosingRequest httpput =
+            final BasicHttpEntityEnclosingRequest httpput =
                     new BasicHttpEntityEnclosingRequest("PUT", url.getPath());
             httpput.setEntity(entity);
             request = httpput;
@@ -139,12 +139,12 @@ public class HttpBenchmark {
             request.addHeader(new DefaultHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE));
         }
 
-        String[] headers = config.getHeaders();
+        final String[] headers = config.getHeaders();
         if (headers != null) {
-            for (String s : headers) {
-                int pos = s.indexOf(':');
+            for (final String s : headers) {
+                final int pos = s.indexOf(':');
                 if (pos != -1) {
-                    Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
+                    final Header header = new DefaultHeader(s.substring(0, pos).trim(), s.substring(pos + 1));
                     request.addHeader(header);
                 }
             }
@@ -161,17 +161,17 @@ public class HttpBenchmark {
     }
 
     public String execute() throws Exception {
-        Results results = doExecute();
+        final Results results = doExecute();
         ResultProcessor.printResults(results);
         return "";
     }
 
     public Results doExecute() throws Exception {
 
-        URL url = config.getUrl();
-        HttpHost host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
+        final URL url = config.getUrl();
+        final HttpHost host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
 
-        ThreadPoolExecutor workerPool = new ThreadPoolExecutor(
+        final ThreadPoolExecutor workerPool = new ThreadPoolExecutor(
                 config.getThreads(), config.getThreads(), 5, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(),
             new ThreadFactory() {
@@ -205,41 +205,41 @@ public class HttpBenchmark {
                     }
                 };
             } else if (config.getTrustStorePath() != null) {
-                KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                FileInputStream instream = new FileInputStream(config.getTrustStorePath());
+                final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                final FileInputStream instream = new FileInputStream(config.getTrustStorePath());
                 try {
                     trustStore.load(instream, config.getTrustStorePath() != null ?
                             config.getTrustStorePath().toCharArray() : null);
                 } finally {
-                    try { instream.close(); } catch (IOException ignore) {}
+                    try { instream.close(); } catch (final IOException ignore) {}
                 }
-                TrustManagerFactory tmfactory = TrustManagerFactory.getInstance(
+                final TrustManagerFactory tmfactory = TrustManagerFactory.getInstance(
                         TrustManagerFactory.getDefaultAlgorithm());
                 tmfactory.init(trustStore);
                 trustManagers = tmfactory.getTrustManagers();
             }
             KeyManager[] keyManagers = null;
             if (config.getIdentityStorePath() != null) {
-                KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                FileInputStream instream = new FileInputStream(config.getIdentityStorePath());
+                final KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                final FileInputStream instream = new FileInputStream(config.getIdentityStorePath());
                 try {
                     identityStore.load(instream, config.getIdentityStorePassword() != null ?
                             config.getIdentityStorePassword().toCharArray() : null);
                 } finally {
-                    try { instream.close(); } catch (IOException ignore) {}
+                    try { instream.close(); } catch (final IOException ignore) {}
                 }
-                KeyManagerFactory kmf = KeyManagerFactory.getInstance(
+                final KeyManagerFactory kmf = KeyManagerFactory.getInstance(
                     KeyManagerFactory.getDefaultAlgorithm());
                 kmf.init(identityStore, config.getIdentityStorePassword() != null ?
                         config.getIdentityStorePassword().toCharArray() : null);
                 keyManagers = kmf.getKeyManagers();
             }
-            SSLContext sc = SSLContext.getInstance("SSL");
+            final SSLContext sc = SSLContext.getInstance("SSL");
             sc.init(keyManagers, trustManagers, null);
             socketFactory = sc.getSocketFactory();
         }
 
-        BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];
+        final BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];
         for (int i = 0; i < workers.length; i++) {
             workers[i] = new BenchmarkWorker(
                     createRequest(),
@@ -253,7 +253,7 @@ public class HttpBenchmark {
             Thread.yield();
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException ignore) {
+            } catch (final InterruptedException ignore) {
             }
         }
 

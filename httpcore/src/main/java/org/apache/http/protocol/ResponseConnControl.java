@@ -60,10 +60,10 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
 
-        HttpCoreContext corecontext = HttpCoreContext.adapt(context);
+        final HttpCoreContext corecontext = HttpCoreContext.adapt(context);
 
         // Always drop connection after certain type of responses
-        int status = response.getStatusLine().getStatusCode();
+        final int status = response.getStatusLine().getStatusCode();
         if (status == HttpStatus.SC_BAD_REQUEST ||
                 status == HttpStatus.SC_REQUEST_TIMEOUT ||
                 status == HttpStatus.SC_LENGTH_REQUIRED ||
@@ -74,16 +74,16 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
             return;
         }
-        Header explicit = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header explicit = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         if (explicit != null && HTTP.CONN_CLOSE.equalsIgnoreCase(explicit.getValue())) {
             // Connection persistence explicitly disabled
             return;
         }
         // Always drop connection for HTTP/1.0 responses and below
         // if the content body cannot be correctly delimited
-        HttpEntity entity = response.getEntity();
+        final HttpEntity entity = response.getEntity();
         if (entity != null) {
-            ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
+            final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
             if (entity.getContentLength() < 0 &&
                     (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
                 response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
@@ -91,9 +91,9 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             }
         }
         // Drop connection if requested by the client or request was <= 1.0
-        HttpRequest request = corecontext.getRequest();
+        final HttpRequest request = corecontext.getRequest();
         if (request != null) {
-            Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
+            final Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
             if (header != null) {
                 response.setHeader(HTTP.CONN_DIRECTIVE, header.getValue());
             } else if (request.getProtocolVersion().lessEquals(HttpVersion.HTTP_1_0)) {

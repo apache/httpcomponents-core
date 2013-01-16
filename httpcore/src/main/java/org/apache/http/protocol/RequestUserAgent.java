@@ -63,7 +63,7 @@ public class RequestUserAgent implements HttpRequestInterceptor {
         Args.notNull(request, "HTTP request");
         if (!request.containsHeader(HTTP.USER_AGENT)) {
             String s = null;
-            HttpParams params = request.getParams();
+            final HttpParams params = request.getParams();
             if (params != null) {
                 s = HttpProtocolParams.getUserAgent(params);
             }

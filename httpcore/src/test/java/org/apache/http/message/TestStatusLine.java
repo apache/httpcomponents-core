@@ -45,7 +45,7 @@ public class TestStatusLine {
 
     @Test
     public void testConstructor() {
-        StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
         Assert.assertEquals(HttpStatus.SC_OK, statusline.getStatusCode());
         Assert.assertEquals("OK", statusline.getReasonPhrase());
@@ -56,11 +56,11 @@ public class TestStatusLine {
         try {
             new BasicStatusLine(null, HttpStatus.SC_OK, "OK");
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) { /* expected */ }
+        } catch (final IllegalArgumentException e) { /* expected */ }
         try {
             new BasicStatusLine(HttpVersion.HTTP_1_1, -1, "OK");
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) { /* expected */ }
+        } catch (final IllegalArgumentException e) { /* expected */ }
     }
 
     @Test
@@ -74,8 +74,8 @@ public class TestStatusLine {
 
     @Test
     public void testCloning() throws Exception {
-        BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicStatusLine clone = (BasicStatusLine) orig.clone();
+        final BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicStatusLine clone = (BasicStatusLine) orig.clone();
         Assert.assertEquals(orig.getReasonPhrase(), clone.getReasonPhrase());
         Assert.assertEquals(orig.getStatusCode(), clone.getStatusCode());
         Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
@@ -83,15 +83,15 @@ public class TestStatusLine {
 
     @Test
     public void testSerialization() throws Exception {
-        BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        final BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
         outstream.close();
-        byte[] raw = outbuffer.toByteArray();
-        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        BasicStatusLine clone = (BasicStatusLine) instream.readObject();
+        final byte[] raw = outbuffer.toByteArray();
+        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        final BasicStatusLine clone = (BasicStatusLine) instream.readObject();
         Assert.assertEquals(orig.getReasonPhrase(), clone.getReasonPhrase());
         Assert.assertEquals(orig.getStatusCode(), clone.getStatusCode());
         Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());

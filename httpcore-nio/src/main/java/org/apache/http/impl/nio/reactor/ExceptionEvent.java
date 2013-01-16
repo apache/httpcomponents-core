@@ -66,7 +66,7 @@ public class ExceptionEvent {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append(new Date(this.time));
         buffer.append(" ");
         buffer.append(this.ex);

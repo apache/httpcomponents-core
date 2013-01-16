@@ -48,20 +48,20 @@ public class TestBasicHttpProcessor {
 
     @Test
     public void testAddFirstRequestInterceptorNull() {
-        HttpRequestInterceptor itcp = null;
-        BasicHttpProcessor instance = new BasicHttpProcessor();
+        final HttpRequestInterceptor itcp = null;
+        final BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp, 0);
-        int itcpCount = instance.getRequestInterceptorCount();
+        final int itcpCount = instance.getRequestInterceptorCount();
         Assert.assertEquals(0, itcpCount);
         Assert.assertEquals(null, instance.getRequestInterceptor(0));
     }
 
     @Test
     public void testAddFirstRequestInterceptor() {
-        HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
-        HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
-        BasicHttpProcessor instance = new BasicHttpProcessor();
+        final HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
+        final HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
+        final BasicHttpProcessor instance = new BasicHttpProcessor();
 
         Assert.assertEquals(0, instance.getRequestInterceptorCount());
         instance.addRequestInterceptor(itcp1);
@@ -76,27 +76,27 @@ public class TestBasicHttpProcessor {
 
     @Test
     public void testAddTailRequestInterceptorNull() {
-        HttpRequestInterceptor itcp = null;
-        BasicHttpProcessor instance = new BasicHttpProcessor();
+        final HttpRequestInterceptor itcp = null;
+        final BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp, 0);
-        int itcpCount = instance.getRequestInterceptorCount();
+        final int itcpCount = instance.getRequestInterceptorCount();
         Assert.assertEquals(0, itcpCount);
         Assert.assertEquals(null, instance.getRequestInterceptor(itcpCount - 1));
     }
 
     @Test
     public void testAddTailRequestInterceptor() {
-        HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
-        HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
-        BasicHttpProcessor instance = new BasicHttpProcessor();
+        final HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
+        final HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
+        final BasicHttpProcessor instance = new BasicHttpProcessor();
 
         instance.addRequestInterceptor(itcp1);
         Assert.assertEquals(1, instance.getRequestInterceptorCount());
         Assert.assertSame(itcp1, instance.getRequestInterceptor(0));
 
         instance.addRequestInterceptor(itcp2, 1);
-        int itcpCount = instance.getRequestInterceptorCount();
+        final int itcpCount = instance.getRequestInterceptorCount();
         Assert.assertEquals(2, itcpCount);
         Assert.assertSame(itcp1, instance.getRequestInterceptor(0));
         Assert.assertSame(itcp2, instance.getRequestInterceptor(itcpCount - 1));
@@ -105,9 +105,9 @@ public class TestBasicHttpProcessor {
     @Test
     public void testClearByClass() {
         // remove a present class
-        HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
-        HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
-        HttpRequestInterceptor itcp3 = new HttpRequestInterceptor() {
+        final HttpRequestInterceptor itcp1 = new TestHttpRequestInterceptorPlaceHolder();
+        final HttpRequestInterceptor itcp2 = new TestHttpRequestInterceptorPlaceHolder();
+        final HttpRequestInterceptor itcp3 = new HttpRequestInterceptor() {
 
             public void process(
                     final HttpRequest request,
@@ -115,7 +115,7 @@ public class TestBasicHttpProcessor {
             }
 
         };
-        BasicHttpProcessor instance = new BasicHttpProcessor();
+        final BasicHttpProcessor instance = new BasicHttpProcessor();
         instance.addRequestInterceptor(itcp1);
         instance.addRequestInterceptor(itcp2);
         instance.addRequestInterceptor(itcp3);

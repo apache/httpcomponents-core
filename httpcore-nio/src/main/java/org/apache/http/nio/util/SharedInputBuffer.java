@@ -204,7 +204,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
                     }
                     this.condition.await();
                 }
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 throw new IOException("Interrupted while waiting for more data");
             }
         } finally {

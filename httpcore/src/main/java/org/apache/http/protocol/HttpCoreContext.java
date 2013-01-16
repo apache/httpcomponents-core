@@ -82,7 +82,7 @@ public class HttpCoreContext implements HttpContext, ExecutionContext {
 
     protected <T> T getAttribute(final String attribname, final Class<T> clazz) {
         Args.notNull(clazz, "Attribute class");
-        Object obj = getAttribute(attribname);
+        final Object obj = getAttribute(attribname);
         if (obj == null) {
             return null;
         }
@@ -102,7 +102,7 @@ public class HttpCoreContext implements HttpContext, ExecutionContext {
     }
 
     public boolean isRequestSent() {
-        Boolean b = getAttribute(HTTP_REQ_SENT, Boolean.class);
+        final Boolean b = getAttribute(HTTP_REQ_SENT, Boolean.class);
         return b != null ? b.booleanValue() : false;
     }
 

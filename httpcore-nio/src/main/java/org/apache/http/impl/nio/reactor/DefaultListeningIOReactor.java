@@ -146,8 +146,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
 
         if (readyCount > 0) {
-            Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
-            for (SelectionKey key : selectedKeys) {
+            final Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
+            for (final SelectionKey key : selectedKeys) {
 
                 processEvent(key);
 
@@ -162,11 +162,11 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
             if (key.isAcceptable()) {
 
-                ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
+                final ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
                 SocketChannel socketChannel = null;
                 try {
                     socketChannel = serverChannel.accept();
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     if (this.exceptionHandler == null ||
                             !this.exceptionHandler.handle(ex)) {
                         throw new IOReactorException(
@@ -177,27 +177,27 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 if (socketChannel != null) {
                     try {
                         prepareSocket(socketChannel.socket());
-                    } catch (IOException ex) {
+                    } catch (final IOException ex) {
                         if (this.exceptionHandler == null ||
                                 !this.exceptionHandler.handle(ex)) {
                             throw new IOReactorException(
                                     "Failure initalizing socket", ex);
                         }
                     }
-                    ChannelEntry entry = new ChannelEntry(socketChannel);
+                    final ChannelEntry entry = new ChannelEntry(socketChannel);
                     addChannel(entry);
                 }
             }
 
-        } catch (CancelledKeyException ex) {
-            ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
+        } catch (final CancelledKeyException ex) {
+            final ListenerEndpoint endpoint = (ListenerEndpoint) key.attachment();
             this.endpoints.remove(endpoint);
             key.attach(null);
         }
     }
 
     private ListenerEndpointImpl createEndpoint(final SocketAddress address) {
-        ListenerEndpointImpl endpoint = new ListenerEndpointImpl(
+        final ListenerEndpointImpl endpoint = new ListenerEndpointImpl(
                 address,
                 new ListenerEndpointClosedCallback() {
 
@@ -212,7 +212,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     public ListenerEndpoint listen(final SocketAddress address) {
         Asserts.check(this.status.compareTo(IOReactorStatus.ACTIVE) <= 0,
                 "I/O reactor has been shut down");
-        ListenerEndpointImpl request = createEndpoint(address);
+        final ListenerEndpointImpl request = createEndpoint(address);
         this.requestQueue.add(request);
         this.selector.wakeup();
         return request;
@@ -221,17 +221,17 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     private void processSessionRequests() throws IOReactorException {
         ListenerEndpointImpl request;
         while ((request = this.requestQueue.poll()) != null) {
-            SocketAddress address = request.getAddress();
+            final SocketAddress address = request.getAddress();
             ServerSocketChannel serverChannel;
             try {
                 serverChannel = ServerSocketChannel.open();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new IOReactorException("Failure opening server socket", ex);
             }
             try {
                 serverChannel.configureBlocking(false);
                 serverChannel.socket().bind(address);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 closeChannel(serverChannel);
                 request.failed(ex);
                 if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
@@ -242,10 +242,10 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 }
             }
             try {
-                SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+                final SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
                 key.attach(request);
                 request.setKey(key);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 closeChannel(serverChannel);
                 throw new IOReactorException("Failure registering channel " +
                         "with the selector", ex);
@@ -257,11 +257,11 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     public Set<ListenerEndpoint> getEndpoints() {
-        Set<ListenerEndpoint> set = new HashSet<ListenerEndpoint>();
+        final Set<ListenerEndpoint> set = new HashSet<ListenerEndpoint>();
         synchronized (this.endpoints) {
-            Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
+            final Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
             while (it.hasNext()) {
-                ListenerEndpoint endpoint = it.next();
+                final ListenerEndpoint endpoint = it.next();
                 if (!endpoint.isClosed()) {
                     set.add(endpoint);
                 } else {
@@ -278,9 +278,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
         this.paused = true;
         synchronized (this.endpoints) {
-            Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
+            final Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
             while (it.hasNext()) {
-                ListenerEndpoint endpoint = it.next();
+                final ListenerEndpoint endpoint = it.next();
                 if (!endpoint.isClosed()) {
                     endpoint.close();
                     this.pausedEndpoints.add(endpoint.getAddress());
@@ -295,8 +295,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             return;
         }
         this.paused = false;
-        for (SocketAddress address: this.pausedEndpoints) {
-            ListenerEndpointImpl request = createEndpoint(address);
+        for (final SocketAddress address: this.pausedEndpoints) {
+            final ListenerEndpointImpl request = createEndpoint(address);
             this.requestQueue.add(request);
         }
         this.pausedEndpoints.clear();

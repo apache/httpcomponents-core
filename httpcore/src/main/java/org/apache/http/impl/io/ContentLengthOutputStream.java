@@ -107,7 +107,7 @@ public class ContentLengthOutputStream extends OutputStream {
             throw new IOException("Attempted write to closed stream.");
         }
         if (this.total < this.contentLength) {
-            long max = this.contentLength - this.total;
+            final long max = this.contentLength - this.total;
             if (len > max) {
                 len = (int) max;
             }

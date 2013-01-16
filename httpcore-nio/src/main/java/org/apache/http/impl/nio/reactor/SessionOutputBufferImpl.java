@@ -103,14 +103,14 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             final HttpParams params) {
         super(buffersize, allocator);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        String charsetName = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
-        Charset charset = CharsetUtils.lookup(charsetName);
+        final String charsetName = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
+        final Charset charset = CharsetUtils.lookup(charsetName);
         if (charset != null) {
             this.charencoder = charset.newEncoder();
-            CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
+            final CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                     CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
             this.charencoder.onMalformedInput(a1 != null ? a1 : CodingErrorAction.REPORT);
-            CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
+            final CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
                     CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
             this.charencoder.onUnmappableCharacter(a2 != null? a2 : CodingErrorAction.REPORT);
         } else {
@@ -155,7 +155,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     public int flush(final WritableByteChannel channel) throws IOException {
         Args.notNull(channel, "Channel");
         setOutputMode();
-        int noWritten = channel.write(this.buffer);
+        final int noWritten = channel.write(this.buffer);
         return noWritten;
     }
 
@@ -164,7 +164,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             return;
         }
         setInputMode();
-        int requiredCapacity = this.buffer.position() + src.remaining();
+        final int requiredCapacity = this.buffer.position() + src.remaining();
         ensureCapacity(requiredCapacity);
         this.buffer.put(src);
     }
@@ -182,9 +182,9 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             return;
         }
         setInputMode();
-        int off = 0;
-        int len = b.length;
-        int requiredCapacity = this.buffer.position() + len;
+        final int off = 0;
+        final int len = b.length;
+        final int requiredCapacity = this.buffer.position() + len;
         ensureCapacity(requiredCapacity);
         this.buffer.put(b, off, len);
     }
@@ -201,12 +201,12 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         // Do not bother if the buffer is empty
         if (linebuffer.length() > 0 ) {
             if (this.charencoder == null) {
-                int requiredCapacity = this.buffer.position() + linebuffer.length();
+                final int requiredCapacity = this.buffer.position() + linebuffer.length();
                 ensureCapacity(requiredCapacity);
                 if (this.buffer.hasArray()) {
-                    byte[] b = this.buffer.array();
-                    int len = linebuffer.length();
-                    int off = this.buffer.position();
+                    final byte[] b = this.buffer.array();
+                    final int len = linebuffer.length();
+                    final int off = this.buffer.position();
                     for (int i = 0; i < len; i++) {
                         b[off + i]  = (byte) linebuffer.charAt(i);
                     }
@@ -237,7 +237,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
                     boolean retry = true;
                     while (retry) {
-                        CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
+                        final CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
                         if (result.isError()) {
                             result.throwException();
                         }
@@ -253,7 +253,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                 // flush the encoder
                 boolean retry = true;
                 while (retry) {
-                    CoderResult result = this.charencoder.flush(this.buffer);
+                    final CoderResult result = this.charencoder.flush(this.buffer);
                     if (result.isError()) {
                         result.throwException();
                     }
@@ -272,7 +272,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             return;
         }
         if (s.length() > 0) {
-            CharArrayBuffer tmp = new CharArrayBuffer(s.length());
+            final CharArrayBuffer tmp = new CharArrayBuffer(s.length());
             tmp.append(s);
             writeLine(tmp);
         } else {

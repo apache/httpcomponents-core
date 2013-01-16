@@ -72,7 +72,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
                 session.setAttribute(IOEventDispatch.CONNECTION_KEY, conn);
             }
             onConnected(conn);
-            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             if (ssliosession != null) {
                 try {
@@ -81,12 +81,12 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
                             ssliosession.initialize();
                         }
                     }
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     onException(conn, ex);
                     ssliosession.shutdown();
                 }
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             session.shutdown();
             throw ex;
         }
@@ -94,6 +94,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void disconnected(final IOSession session) {
         @SuppressWarnings("unchecked")
+        final
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         if (conn != null) {
             onClosed(conn);
@@ -102,10 +103,11 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void inputReady(final IOSession session) {
         @SuppressWarnings("unchecked")
+        final
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             ensureNotNull(conn);
-            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             if (ssliosession == null) {
                 onInputReady(conn);
@@ -118,12 +120,12 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
                         onInputReady(conn);
                     }
                     ssliosession.inboundTransport();
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     onException(conn, ex);
                     ssliosession.shutdown();
                 }
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             session.shutdown();
             throw ex;
         }
@@ -131,10 +133,11 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void outputReady(final IOSession session) {
         @SuppressWarnings("unchecked")
+        final
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             ensureNotNull(conn);
-            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             if (ssliosession == null) {
                 onOutputReady(conn);
@@ -147,12 +150,12 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
                         onOutputReady(conn);
                     }
                     ssliosession.outboundTransport();
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     onException(conn, ex);
                     ssliosession.shutdown();
                 }
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             session.shutdown();
             throw ex;
         }
@@ -160,9 +163,10 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     public void timeout(final IOSession session) {
         @SuppressWarnings("unchecked")
+        final
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
-            SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             ensureNotNull(conn);
             onTimeout(conn);
@@ -174,7 +178,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
                     }
                 }
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             session.shutdown();
             throw ex;
         }

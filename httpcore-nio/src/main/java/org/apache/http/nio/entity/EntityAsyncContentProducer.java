@@ -64,10 +64,10 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
         if (this.channel == null) {
             this.channel = Channels.newChannel(this.entity.getContent());
         }
-        int i = this.channel.read(this.buffer);
+        final int i = this.channel.read(this.buffer);
         this.buffer.flip();
         encoder.write(this.buffer);
-        boolean buffering = this.buffer.hasRemaining();
+        final boolean buffering = this.buffer.hasRemaining();
         this.buffer.compact();
         if (i == -1 && !buffering) {
             encoder.complete();
@@ -80,7 +80,7 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
     }
 
     public void close() throws IOException {
-        ReadableByteChannel local = this.channel;
+        final ReadableByteChannel local = this.channel;
         this.channel = null;
         if (local != null) {
             local.close();

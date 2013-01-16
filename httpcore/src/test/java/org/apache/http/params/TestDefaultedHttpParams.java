@@ -41,7 +41,7 @@ public class TestDefaultedHttpParams {
 
     @Test
     public void testAddRemoveParam() {
-        DefaultedHttpParams deflt = new DefaultedHttpParams(new BasicHttpParams(), new BasicHttpParams());
+        final DefaultedHttpParams deflt = new DefaultedHttpParams(new BasicHttpParams(), new BasicHttpParams());
         Assert.assertFalse("The parameter should not be removed successfully", deflt.removeParameter("param1"));
         deflt.setParameter("param1", "paramValue1");
         Assert.assertEquals(0, deflt.getDefaultNames().size());
@@ -56,7 +56,7 @@ public class TestDefaultedHttpParams {
 
     @Test
     public void testEmptyParams() {
-        DefaultedHttpParams deflt = new DefaultedHttpParams(new BasicHttpParams(), new BasicHttpParams());
+        final DefaultedHttpParams deflt = new DefaultedHttpParams(new BasicHttpParams(), new BasicHttpParams());
         Assert.assertNull("The parameter should not be present", deflt.getParameter("param1"));
         //try a remove from an empty params
         Assert.assertFalse("The parameter should not be present", deflt.removeParameter("param1"));
@@ -67,7 +67,7 @@ public class TestDefaultedHttpParams {
     }
 
     private HttpParams addParams(final String name){
-        BasicHttpParams params = new BasicHttpParams();
+        final BasicHttpParams params = new BasicHttpParams();
         params.setParameter("common","both");
         params.setParameter(name,"value");
         return params;
@@ -75,7 +75,7 @@ public class TestDefaultedHttpParams {
 
     @Test
     public void testgetNames() {
-        DefaultedHttpParams params = new DefaultedHttpParams(addParams("local"), addParams("default"));
+        final DefaultedHttpParams params = new DefaultedHttpParams(addParams("local"), addParams("default"));
 
         Set<String> nameSet = params.getNames();
         Assert.assertEquals(3, nameSet.size());

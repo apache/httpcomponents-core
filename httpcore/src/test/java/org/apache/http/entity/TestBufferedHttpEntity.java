@@ -42,9 +42,9 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testBufferingEntity() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
-        InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
-        BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
+        final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
         Assert.assertEquals(bytes.length, bufentity.getContentLength());
         Assert.assertTrue(bufentity.isRepeatable());
         Assert.assertFalse(bufentity.isChunked());
@@ -57,10 +57,10 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWrappingEntity() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
-        ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         httpentity.setChunked(true);
-        BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
+        final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
         Assert.assertEquals(bytes.length, bufentity.getContentLength());
         Assert.assertTrue(bufentity.isRepeatable());
         Assert.assertTrue(bufentity.isChunked());
@@ -76,16 +76,16 @@ public class TestBufferedHttpEntity {
         try {
             new BufferedHttpEntity(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testWriteToBuffered() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
-        InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
-        BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
+        final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
@@ -108,16 +108,16 @@ public class TestBufferedHttpEntity {
         try {
             bufentity.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testWriteToWrapped() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
-        ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
-        BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
+        final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bufentity.writeTo(out);
@@ -140,7 +140,7 @@ public class TestBufferedHttpEntity {
         try {
             bufentity.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

@@ -38,8 +38,8 @@ public class TestStrictContentLengthStrategy {
 
     @Test
     public void testEntityWithChunkTransferEncoding() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked");
 
         Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
@@ -47,8 +47,8 @@ public class TestStrictContentLengthStrategy {
 
     @Test
     public void testEntityWithIdentityTransferEncoding() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "Identity");
 
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
@@ -56,48 +56,48 @@ public class TestStrictContentLengthStrategy {
 
     @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidTransferEncoding() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "whatever");
         lenStrategy.determineLength(message);
     }
 
     @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage(HttpVersion.HTTP_1_0);
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage(HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
         lenStrategy.determineLength(message);
     }
 
     @Test
     public void testEntityWithContentLength() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "100");
         Assert.assertEquals(100, lenStrategy.determineLength(message));
     }
 
     @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidContentLength() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "whatever");
         lenStrategy.determineLength(message);
     }
 
     @Test(expected=ProtocolException.class)
     public void testEntityWithNegativeContentLength() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "-10");
         lenStrategy.determineLength(message);
     }
 
     @Test
     public void testEntityNoContentDelimiter() throws Exception {
-        ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final HttpMessage message = new DummyHttpMessage();
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
 

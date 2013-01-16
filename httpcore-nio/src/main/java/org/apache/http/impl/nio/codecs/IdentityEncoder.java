@@ -65,7 +65,7 @@ public class IdentityEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        int bytesWritten = this.channel.write(src);
+        final int bytesWritten = this.channel.write(src);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }
@@ -81,7 +81,7 @@ public class IdentityEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        long bytesWritten = src.transferTo(position, count, this.channel);
+        final long bytesWritten = src.transferTo(position, count, this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }
@@ -90,7 +90,7 @@ public class IdentityEncoder extends AbstractContentEncoder
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append("[identity; completed: ");
         buffer.append(this.completed);
         buffer.append("]");

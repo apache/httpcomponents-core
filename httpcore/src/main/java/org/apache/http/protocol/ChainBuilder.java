@@ -54,7 +54,7 @@ final class ChainBuilder<E> {
     }
 
     private void ensureUnique(final E e) {
-        E previous = this.uniqueClasses.remove(e.getClass());
+        final E previous = this.uniqueClasses.remove(e.getClass());
         if (previous != null) {
             this.list.remove(previous);
         }
@@ -83,7 +83,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (E e: c) {
+        for (final E e: c) {
             addFirst(e);
         }
         return this;
@@ -93,7 +93,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (E e: c) {
+        for (final E e: c) {
             addFirst(e);
         }
         return this;
@@ -103,7 +103,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (E e: c) {
+        for (final E e: c) {
             addLast(e);
         }
         return this;
@@ -113,7 +113,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (E e: c) {
+        for (final E e: c) {
             addLast(e);
         }
         return this;

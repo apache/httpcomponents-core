@@ -97,10 +97,10 @@ public class NHttpEntityWrapper
     public void produceContent(
             final ContentEncoder encoder,
             final IOControl ioctrl) throws IOException {
-        int i = this.channel.read(this.buffer);
+        final int i = this.channel.read(this.buffer);
         this.buffer.flip();
         encoder.write(this.buffer);
-        boolean buffering = this.buffer.hasRemaining();
+        final boolean buffering = this.buffer.hasRemaining();
         this.buffer.compact();
         if (i == -1 && !buffering) {
             encoder.complete();
@@ -111,7 +111,7 @@ public class NHttpEntityWrapper
     public void finish() {
         try {
             this.channel.close();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 

@@ -242,7 +242,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         assertOpen();
         try {
             return this.inbuffer.isDataAvailable(timeout);
-        } catch (SocketTimeoutException ex) {
+        } catch (final SocketTimeoutException ex) {
             return false;
         }
     }
@@ -280,7 +280,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
     public HttpResponse receiveResponseHeader()
             throws HttpException, IOException {
         assertOpen();
-        HttpResponse response = this.responseParser.parse();
+        final HttpResponse response = this.responseParser.parse();
         if (response.getStatusLine().getStatusCode() >= 200) {
             this.metrics.incrementResponseCount();
         }
@@ -291,7 +291,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         assertOpen();
-        HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, response);
+        final HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, response);
         response.setEntity(entity);
     }
 
@@ -309,9 +309,9 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         try {
             this.inbuffer.isDataAvailable(1);
             return isEof();
-        } catch (SocketTimeoutException ex) {
+        } catch (final SocketTimeoutException ex) {
             return false;
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             return true;
         }
     }

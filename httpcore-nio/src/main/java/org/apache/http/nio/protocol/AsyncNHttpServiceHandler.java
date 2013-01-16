@@ -137,9 +137,9 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
     }
 
     public void connected(final NHttpServerConnection conn) {
-        HttpContext context = conn.getContext();
+        final HttpContext context = conn.getContext();
 
-        ServerConnState connState = new ServerConnState();
+        final ServerConnState connState = new ServerConnState();
         context.setAttribute(CONN_STATE, connState);
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
 
@@ -149,16 +149,16 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
     }
 
     public void requestReceived(final NHttpServerConnection conn) {
-        HttpContext context = conn.getContext();
+        final HttpContext context = conn.getContext();
 
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
-        HttpRequest request = conn.getHttpRequest();
+        final HttpRequest request = conn.getHttpRequest();
         request.setParams(new DefaultedHttpParams(request.getParams(), this.params));
 
         connState.setRequest(request);
 
-        NHttpRequestHandler requestHandler = getRequestHandler(request);
+        final NHttpRequestHandler requestHandler = getRequestHandler(request);
         connState.setRequestHandler(requestHandler);
 
         ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
@@ -172,7 +172,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         try {
 
             if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
+                final HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) request;
                 if (entityRequest.expectContinue()) {
                     response = this.responseFactory.newHttpResponse(
                             ver, HttpStatus.SC_CONTINUE, context);
@@ -182,7 +182,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                     if (this.expectationVerifier != null) {
                         try {
                             this.expectationVerifier.verify(request, response, context);
-                        } catch (HttpException ex) {
+                        } catch (final HttpException ex) {
                             response = this.responseFactory.newHttpResponse(
                                     HttpVersion.HTTP_1_0,
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR,
@@ -222,12 +222,12 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                 processRequest(conn, request);
             }
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             closeConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalProtocolException(ex, conn);
@@ -237,12 +237,12 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
     }
 
     public void closed(final NHttpServerConnection conn) {
-        HttpContext context = conn.getContext();
+        final HttpContext context = conn.getContext();
 
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
         try {
             connState.reset();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
@@ -263,9 +263,9 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             return;
         }
 
-        HttpContext context = conn.getContext();
+        final HttpContext context = conn.getContext();
         try {
-            HttpResponse response = this.responseFactory.newHttpResponse(
+            final HttpResponse response = this.responseFactory.newHttpResponse(
                     HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
             response.setParams(
                     new DefaultedHttpParams(response.getParams(), this.params));
@@ -273,12 +273,12 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             response.setEntity(null);
             sendResponse(conn, null, response);
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             closeConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalProtocolException(ex, conn);
@@ -299,11 +299,11 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
     }
 
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
-        HttpContext context = conn.getContext();
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        final HttpContext context = conn.getContext();
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
-        HttpRequest request = connState.getRequest();
-        ConsumingNHttpEntity consumingEntity = connState.getConsumingEntity();
+        final HttpRequest request = connState.getRequest();
+        final ConsumingNHttpEntity consumingEntity = connState.getConsumingEntity();
 
         try {
 
@@ -313,12 +313,12 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                 processRequest(conn, request);
             }
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             closeConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalProtocolException(ex, conn);
@@ -327,25 +327,25 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
     }
 
     public void responseReady(final NHttpServerConnection conn) {
-        HttpContext context = conn.getContext();
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        final HttpContext context = conn.getContext();
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
         if (connState.isHandled()) {
             return;
         }
 
-        HttpRequest request = connState.getRequest();
+        final HttpRequest request = connState.getRequest();
 
         try {
 
-            IOException ioex = connState.getIOException();
+            final IOException ioex = connState.getIOException();
             if (ioex != null) {
                 throw ioex;
             }
 
-            HttpException httpex = connState.getHttpException();
+            final HttpException httpex = connState.getHttpException();
             if (httpex != null) {
-                HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
+                final HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
                         HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
@@ -353,18 +353,18 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                 connState.setResponse(response);
             }
 
-            HttpResponse response = connState.getResponse();
+            final HttpResponse response = connState.getResponse();
             if (response != null) {
                 connState.setHandled(true);
                 sendResponse(conn, request, response);
             }
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
             }
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             closeConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalProtocolException(ex, conn);
@@ -373,13 +373,13 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
     }
 
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
-        HttpContext context = conn.getContext();
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        final HttpContext context = conn.getContext();
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
-        HttpResponse response = conn.getHttpResponse();
+        final HttpResponse response = conn.getHttpResponse();
 
         try {
-            ProducingNHttpEntity entity = connState.getProducingEntity();
+            final ProducingNHttpEntity entity = connState.getProducingEntity();
             entity.produceContent(encoder, conn);
 
             if (encoder.isCompleted()) {
@@ -394,7 +394,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                 responseComplete(response, context);
             }
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             shutdownConnection(conn, ex);
             if (this.eventListener != null) {
                 this.eventListener.fatalIOException(ex, conn);
@@ -413,8 +413,8 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
         response.setStatusCode(code);
 
-        byte[] msg = EncodingUtils.getAsciiBytes(ex.getMessage());
-        NByteArrayEntity entity = new NByteArrayEntity(msg);
+        final byte[] msg = EncodingUtils.getAsciiBytes(ex.getMessage());
+        final NByteArrayEntity entity = new NByteArrayEntity(msg);
         entity.setContentType("text/plain; charset=US-ASCII");
         response.setEntity(entity);
     }
@@ -426,8 +426,8 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             final NHttpServerConnection conn,
             final HttpRequest request) throws IOException, HttpException {
 
-        HttpContext context = conn.getContext();
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        final HttpContext context = conn.getContext();
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
         ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
 
@@ -436,13 +436,13 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             ver = HttpVersion.HTTP_1_1;
         }
 
-        NHttpResponseTrigger trigger = new ResponseTriggerImpl(connState, conn);
+        final NHttpResponseTrigger trigger = new ResponseTriggerImpl(connState, conn);
         try {
             this.httpProcessor.process(request, context);
 
-            NHttpRequestHandler handler = connState.getRequestHandler();
+            final NHttpRequestHandler handler = connState.getRequestHandler();
             if (handler != null) {
-                HttpResponse response = this.responseFactory.newHttpResponse(
+                final HttpResponse response = this.responseFactory.newHttpResponse(
                         ver, HttpStatus.SC_OK, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
@@ -453,14 +453,14 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                         trigger,
                         context);
             } else {
-                HttpResponse response = this.responseFactory.newHttpResponse(ver,
+                final HttpResponse response = this.responseFactory.newHttpResponse(ver,
                         HttpStatus.SC_NOT_IMPLEMENTED, context);
                 response.setParams(
                         new DefaultedHttpParams(response.getParams(), this.params));
                 trigger.submitResponse(response);
             }
 
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             trigger.handleException(ex);
         }
     }
@@ -469,8 +469,8 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             final NHttpServerConnection conn,
             final HttpRequest request,
             final HttpResponse response) throws IOException, HttpException {
-        HttpContext context = conn.getContext();
-        ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
+        final HttpContext context = conn.getContext();
+        final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
 
         // Now that a response is ready, we can cleanup the listener for the request.
         connState.finishInput();
@@ -484,7 +484,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             response.setEntity(null);
         }
 
-        HttpEntity entity = response.getEntity();
+        final HttpEntity entity = response.getEntity();
         if (entity != null) {
             if (entity instanceof ProducingNHttpEntity) {
                 connState.setProducingEntity((ProducingNHttpEntity) entity);
@@ -519,7 +519,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
     private NHttpRequestHandler getRequestHandler(final HttpRequest request) {
         NHttpRequestHandler handler = null;
          if (this.handlerResolver != null) {
-             String requestURI = request.getRequestLine().getUri();
+             final String requestURI = request.getRequestLine().getUri();
              handler = this.handlerResolver.lookup(requestURI);
          }
 

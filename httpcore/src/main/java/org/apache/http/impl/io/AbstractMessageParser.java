@@ -145,7 +145,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         if (parser == null) {
             parser = BasicLineParser.INSTANCE;
         }
-        List<CharArrayBuffer> headerLines = new ArrayList<CharArrayBuffer>();
+        final List<CharArrayBuffer> headerLines = new ArrayList<CharArrayBuffer>();
         return parseHeaders(inbuffer, maxHeaderCount, maxLineLen, parser, headerLines);
     }
 
@@ -191,7 +191,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             } else {
                 current.clear();
             }
-            int l = inbuffer.readLine(current);
+            final int l = inbuffer.readLine(current);
             if (l == -1 || current.length() < 1) {
                 break;
             }
@@ -204,7 +204,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 // so append value
                 int i = 0;
                 while (i < current.length()) {
-                    char ch = current.charAt(i);
+                    final char ch = current.charAt(i);
                     if (ch != ' ' && ch != '\t') {
                         break;
                     }
@@ -225,12 +225,12 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 throw new MessageConstraintException("Maximum header count exceeded");
             }
         }
-        Header[] headers = new Header[headerLines.size()];
+        final Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
-            CharArrayBuffer buffer = headerLines.get(i);
+            final CharArrayBuffer buffer = headerLines.get(i);
             try {
                 headers[i] = parser.parseHeader(buffer);
-            } catch (ParseException ex) {
+            } catch (final ParseException ex) {
                 throw new ProtocolException(ex.getMessage());
             }
         }
@@ -255,25 +255,25 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         throws IOException, HttpException, ParseException;
 
     public T parse() throws IOException, HttpException {
-        int st = this.state;
+        final int st = this.state;
         switch (st) {
         case HEAD_LINE:
             try {
                 this.message = parseHead(this.sessionBuffer);
-            } catch (ParseException px) {
+            } catch (final ParseException px) {
                 throw new ProtocolException(px.getMessage(), px);
             }
             this.state = HEADERS;
             //$FALL-THROUGH$
         case HEADERS:
-            Header[] headers = AbstractMessageParser.parseHeaders(
+            final Header[] headers = AbstractMessageParser.parseHeaders(
                     this.sessionBuffer,
                     this.messageConstraints.getMaxHeaderCount(),
                     this.messageConstraints.getMaxLineLength(),
                     this.lineParser,
                     this.headerLines);
             this.message.setHeaders(headers);
-            T result = this.message;
+            final T result = this.message;
             this.message = null;
             this.headerLines.clear();
             this.state = HEAD_LINE;

@@ -43,7 +43,7 @@ public class TestByteArrayBuffer {
 
     @Test
     public void testConstructor() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(16);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         Assert.assertEquals(16, buffer.capacity());
         Assert.assertEquals(0, buffer.length());
         Assert.assertNotNull(buffer.buffer());
@@ -51,30 +51,30 @@ public class TestByteArrayBuffer {
         try {
             new ByteArrayBuffer(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testSimpleAppend() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(16);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         Assert.assertEquals(16, buffer.capacity());
         Assert.assertEquals(0, buffer.length());
-        byte[] b1 = buffer.toByteArray();
+        final byte[] b1 = buffer.toByteArray();
         Assert.assertNotNull(b1);
         Assert.assertEquals(0, b1.length);
         Assert.assertTrue(buffer.isEmpty());
         Assert.assertFalse(buffer.isFull());
 
-        byte[] tmp = new byte[] { 1, 2, 3, 4};
+        final byte[] tmp = new byte[] { 1, 2, 3, 4};
         buffer.append(tmp, 0, tmp.length);
         Assert.assertEquals(16, buffer.capacity());
         Assert.assertEquals(4, buffer.length());
         Assert.assertFalse(buffer.isEmpty());
         Assert.assertFalse(buffer.isFull());
 
-        byte[] b2 = buffer.toByteArray();
+        final byte[] b2 = buffer.toByteArray();
         Assert.assertNotNull(b2);
         Assert.assertEquals(4, b2.length);
         for (int i = 0; i < tmp.length; i++) {
@@ -90,10 +90,10 @@ public class TestByteArrayBuffer {
 
     @Test
     public void testExpandAppend() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assert.assertEquals(4, buffer.capacity());
 
-        byte[] tmp = new byte[] { 1, 2, 3, 4};
+        final byte[] tmp = new byte[] { 1, 2, 3, 4};
         buffer.append(tmp, 0, 2);
         buffer.append(tmp, 0, 4);
         buffer.append(tmp, 0, 0);
@@ -109,49 +109,49 @@ public class TestByteArrayBuffer {
 
     @Test
     public void testInvalidAppend() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.append((byte[])null, 0, 0);
 
-        byte[] tmp = new byte[] { 1, 2, 3, 4};
+        final byte[] tmp = new byte[] { 1, 2, 3, 4};
         try {
             buffer.append(tmp, -1, 0);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 0, -1);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 0, 8);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 10, Integer.MAX_VALUE);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 2, 4);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
     }
 
     @Test
     public void testAppendOneByte() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assert.assertEquals(4, buffer.capacity());
 
-        byte[] tmp = new byte[] { 1, 127, -1, -128, 1, -2};
-        for (byte element : tmp) {
+        final byte[] tmp = new byte[] { 1, 127, -1, -128, 1, -2};
+        for (final byte element : tmp) {
             buffer.append(element);
         }
         Assert.assertEquals(8, buffer.capacity());
@@ -164,31 +164,31 @@ public class TestByteArrayBuffer {
 
     @Test
     public void testSetLength() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.setLength(2);
         Assert.assertEquals(2, buffer.length());
     }
 
     @Test
     public void testSetInvalidLength() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         try {
             buffer.setLength(-2);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.setLength(200);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
     }
 
     @Test
     public void testEnsureCapacity() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.ensureCapacity(2);
         Assert.assertEquals(4, buffer.capacity());
         buffer.ensureCapacity(8);
@@ -199,11 +199,11 @@ public class TestByteArrayBuffer {
     public void testIndexOf() throws Exception {
         final byte COLON = (byte) ':';
         final byte COMMA = (byte) ',';
-        byte[] bytes = "name1: value1; name2: value2".getBytes("US-ASCII");
-        int index1 = 5;
-        int index2 = 20;
+        final byte[] bytes = "name1: value1; name2: value2".getBytes("US-ASCII");
+        final int index1 = 5;
+        final int index2 = 20;
 
-        ByteArrayBuffer buffer = new ByteArrayBuffer(16);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         buffer.append(bytes, 0, bytes.length);
 
         Assert.assertEquals(index1, buffer.indexOf(COLON));
@@ -216,12 +216,12 @@ public class TestByteArrayBuffer {
 
     @Test
     public void testAppendCharArrayAsAscii() throws Exception {
-        String s1 = "stuff";
-        String s2 = " and more stuff";
-        char[] b1 = s1.toCharArray();
-        char[] b2 = s2.toCharArray();
+        final String s1 = "stuff";
+        final String s2 = " and more stuff";
+        final char[] b1 = s1.toCharArray();
+        final char[] b2 = s2.toCharArray();
 
-        ByteArrayBuffer buffer = new ByteArrayBuffer(8);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append(b1, 0, b1.length);
         buffer.append(b2, 0, b2.length);
 
@@ -230,80 +230,80 @@ public class TestByteArrayBuffer {
 
     @Test
     public void testAppendNullCharArray() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(8);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append((char[])null, 0, 0);
         Assert.assertEquals(0, buffer.length());
     }
 
     @Test
     public void testAppendEmptyCharArray() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(8);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append(new char[] {}, 0, 0);
         Assert.assertEquals(0, buffer.length());
     }
 
     @Test
     public void testAppendNullCharArrayBuffer() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(8);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append((CharArrayBuffer)null, 0, 0);
         Assert.assertEquals(0, buffer.length());
     }
 
     @Test
     public void testInvalidAppendCharArrayAsAscii() throws Exception {
-        ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.append((char[])null, 0, 0);
 
-        char[] tmp = new char[] { '1', '2', '3', '4'};
+        final char[] tmp = new char[] { '1', '2', '3', '4'};
         try {
             buffer.append(tmp, -1, 0);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 0, -1);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 0, 8);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 10, Integer.MAX_VALUE);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
         try {
             buffer.append(tmp, 2, 4);
             Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (final IndexOutOfBoundsException ex) {
             // expected
         }
     }
 
     @Test
     public void testSerialization() throws Exception {
-        ByteArrayBuffer orig = new ByteArrayBuffer(32);
+        final ByteArrayBuffer orig = new ByteArrayBuffer(32);
         orig.append(1);
         orig.append(2);
         orig.append(3);
-        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
         outstream.close();
-        byte[] raw = outbuffer.toByteArray();
-        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        ByteArrayBuffer clone = (ByteArrayBuffer) instream.readObject();
+        final byte[] raw = outbuffer.toByteArray();
+        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        final ByteArrayBuffer clone = (ByteArrayBuffer) instream.readObject();
         Assert.assertEquals(orig.capacity(), clone.capacity());
         Assert.assertEquals(orig.length(), clone.length());
-        byte[] data = clone.toByteArray();
+        final byte[] data = clone.toByteArray();
         Assert.assertNotNull(data);
         Assert.assertEquals(3, data.length);
         Assert.assertEquals(1, data[0]);

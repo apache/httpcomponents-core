@@ -53,7 +53,7 @@ public class TestPoolEntry {
         public void close() {
             try {
                 getConnection().close();
-            } catch (IOException ignore) {
+            } catch (final IOException ignore) {
             }
         }
 
@@ -66,8 +66,8 @@ public class TestPoolEntry {
 
     @Test
     public void testBasics() throws Exception {
-        MockPoolEntry entry1 = new MockPoolEntry("route1", 10L, TimeUnit.MILLISECONDS);
-        long now = System.currentTimeMillis();
+        final MockPoolEntry entry1 = new MockPoolEntry("route1", 10L, TimeUnit.MILLISECONDS);
+        final long now = System.currentTimeMillis();
         Assert.assertEquals("route1", entry1.getRoute());
         Assert.assertTrue(now >= entry1.getCreated());
         Assert.assertEquals(entry1.getValidUnit(), entry1.getExpiry());
@@ -79,37 +79,37 @@ public class TestPoolEntry {
         try {
             new MockPoolEntry(null, Mockito.mock(HttpConnection.class), 0L, TimeUnit.MILLISECONDS);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             new MockPoolEntry("stuff", null, 0L, TimeUnit.MILLISECONDS);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             new MockPoolEntry("stuff", Mockito.mock(HttpConnection.class), 0L, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
     }
 
     @Test
     public void testValidInfinitely() throws Exception {
-        MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
+        final MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(Long.MAX_VALUE, entry1.getValidUnit());
         Assert.assertEquals(entry1.getValidUnit(), entry1.getExpiry());
     }
 
     @Test
     public void testExpiry() throws Exception {
-        MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
+        final MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
         entry1.updateExpiry(50L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiry());
         entry1.updateExpiry(0L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
 
-        MockPoolEntry entry2 = new MockPoolEntry("route1", 100L, TimeUnit.MILLISECONDS);
+        final MockPoolEntry entry2 = new MockPoolEntry("route1", 100L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(entry2.getCreated() + 100L, entry2.getExpiry());
         entry2.updateExpiry(150L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(entry2.getCreated() + 100L, entry2.getExpiry());
@@ -119,7 +119,7 @@ public class TestPoolEntry {
 
     @Test(expected=IllegalArgumentException.class)
     public void testInvalidExpiry() throws Exception {
-        MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
+        final MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
         entry1.updateExpiry(50L, null);
     }
 

@@ -75,16 +75,16 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         if (this.completed) {
             return -1;
         }
-        int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
+        final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
         int bytesRead;
         if (this.buffer.hasData()) {
-            int maxLen = Math.min(chunk, this.buffer.length());
+            final int maxLen = Math.min(chunk, this.buffer.length());
             bytesRead = this.buffer.read(dst, maxLen);
         } else {
             if (dst.remaining() > chunk) {
-                int oldLimit = dst.limit();
-                int newLimit = oldLimit - (dst.remaining() - chunk);
+                final int oldLimit = dst.limit();
+                final int newLimit = oldLimit - (dst.remaining() - chunk);
                 dst.limit(newLimit);
                 bytesRead = this.channel.read(dst);
                 dst.limit(oldLimit);
@@ -126,11 +126,11 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             return -1;
         }
 
-        int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
+        final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
         long bytesRead;
         if (this.buffer.hasData()) {
-            int maxLen = Math.min(chunk, this.buffer.length());
+            final int maxLen = Math.min(chunk, this.buffer.length());
             dst.position(position);
             bytesRead = this.buffer.read(dst, maxLen);
         } else {
@@ -167,7 +167,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append("[content length: ");
         buffer.append(this.contentLength);
         buffer.append("; pos: ");

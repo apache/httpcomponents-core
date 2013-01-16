@@ -192,7 +192,7 @@ public class DefaultNHttpServerConnection
             final SessionInputBuffer buffer,
             final HttpRequestFactory requestFactory,
             final HttpParams params) {
-        MessageConstraints constraints = HttpParamConfig.getMessageConstraints(params);
+        final MessageConstraints constraints = HttpParamConfig.getMessageConstraints(params);
         return new DefaultHttpRequestParser(buffer, null, requestFactory, constraints);
     }
 
@@ -258,7 +258,7 @@ public class DefaultNHttpServerConnection
                 if (this.request != null) {
                     if (this.request instanceof HttpEntityEnclosingRequest) {
                         // Receive incoming entity
-                        HttpEntity entity = prepareDecoder(this.request);
+                        final HttpEntity entity = prepareDecoder(this.request);
                         ((HttpEntityEnclosingRequest)this.request).setEntity(entity);
                     }
                     this.connMetrics.incrementRequestCount();
@@ -282,10 +282,10 @@ public class DefaultNHttpServerConnection
                     resetInput();
                 }
             }
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             resetInput();
             handler.exception(this, ex);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             handler.exception(this, ex);
         } finally {
             // Finally set buffered input flag
@@ -296,7 +296,7 @@ public class DefaultNHttpServerConnection
     public void produceOutput(final NHttpServerEventHandler handler) {
         try {
             if (this.outbuf.hasData()) {
-                int bytesWritten = this.outbuf.flush(this.session.channel());
+                final int bytesWritten = this.outbuf.flush(this.session.channel());
                 if (bytesWritten > 0) {
                     this.outTransportMetrics.incrementBytesTransferred(bytesWritten);
                 }
@@ -327,7 +327,7 @@ public class DefaultNHttpServerConnection
                     }
                 }
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             handler.exception(this, ex);
         } finally {
             // Finally set the buffered output flag

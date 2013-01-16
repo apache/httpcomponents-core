@@ -38,11 +38,11 @@ public class TestUriHttpAsyncRequestHandlerMapper {
 
     @Test
     public void testRegisterUnregister() throws Exception {
-        HttpAsyncRequestHandler<?> h = Mockito.mock(HttpAsyncRequestHandler.class);
+        final HttpAsyncRequestHandler<?> h = Mockito.mock(HttpAsyncRequestHandler.class);
 
-        UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
+        final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
                 new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
 
         registry.register("/h1", h);
         registry.unregister("/h1");
@@ -53,11 +53,11 @@ public class TestUriHttpAsyncRequestHandlerMapper {
 
     @Test
     public void testLookup() throws Exception {
-        UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
+        final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
                 new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
 
-        HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         registry.lookup(request);
         registry.unregister("/h1");
 
@@ -66,25 +66,25 @@ public class TestUriHttpAsyncRequestHandlerMapper {
 
     @Test(expected=IllegalArgumentException.class)
     public void testRegisterNull() throws Exception {
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register(null, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testLookupNull() throws Exception {
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register(null, null);
     }
 
     @Test
     public void testWildCardMatchingWithQuery() throws Exception {
-        HttpAsyncRequestHandler<?> h1 = Mockito.mock(HttpAsyncRequestHandler.class);
-        HttpAsyncRequestHandler<?> h2 = Mockito.mock(HttpAsyncRequestHandler.class);
-        HttpAsyncRequestHandler<?> def = Mockito.mock(HttpAsyncRequestHandler.class);
+        final HttpAsyncRequestHandler<?> h1 = Mockito.mock(HttpAsyncRequestHandler.class);
+        final HttpAsyncRequestHandler<?> h2 = Mockito.mock(HttpAsyncRequestHandler.class);
+        final HttpAsyncRequestHandler<?> def = Mockito.mock(HttpAsyncRequestHandler.class);
 
-        UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
+        final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher = Mockito.spy(
                 new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
         registry.register("*", def);
         registry.register("*.view", h1);
         registry.register("*.form", h2);

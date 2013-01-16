@@ -45,7 +45,7 @@ public class TestEntityTemplate {
     @Test
     public void testBasics() throws Exception {
 
-        HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
+        final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
@@ -63,14 +63,14 @@ public class TestEntityTemplate {
         try {
             new EntityTemplate(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testWriteTo() throws Exception {
-        HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
+        final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
@@ -78,32 +78,32 @@ public class TestEntityTemplate {
 
         });
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
-        byte[] bytes2 = out.toByteArray();
+        final byte[] bytes2 = out.toByteArray();
         Assert.assertNotNull(bytes2);
         Assert.assertEquals(1, bytes2.length);
 
         try {
             httpentity.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testgetContent() throws Exception {
-        HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
+        final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
             }
 
         });
-        InputStream instream = httpentity.getContent();
+        final InputStream instream = httpentity.getContent();
         Assert.assertNotNull(instream);
-        String s = EntityUtils.toString(httpentity);
+        final String s = EntityUtils.toString(httpentity);
         Assert.assertEquals("a", s);
     }
 

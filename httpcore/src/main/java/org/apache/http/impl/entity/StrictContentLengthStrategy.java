@@ -80,9 +80,9 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
         // Although Transfer-Encoding is specified as a list, in practice
         // it is either missing or has the single value "chunked". So we
         // treat it as a single-valued header here.
-        Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
         if (transferEncodingHeader != null) {
-            String s = transferEncodingHeader.getValue();
+            final String s = transferEncodingHeader.getValue();
             if (HTTP.CHUNK_CODING.equalsIgnoreCase(s)) {
                 if (message.getProtocolVersion().lessEquals(HttpVersion.HTTP_1_0)) {
                     throw new ProtocolException(
@@ -97,16 +97,16 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
                         "Unsupported transfer encoding: " + s);
             }
         }
-        Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         if (contentLengthHeader != null) {
-            String s = contentLengthHeader.getValue();
+            final String s = contentLengthHeader.getValue();
             try {
-                long len = Long.parseLong(s);
+                final long len = Long.parseLong(s);
                 if (len < 0) {
                     throw new ProtocolException("Negative content length: " + s);
                 }
                 return len;
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 throw new ProtocolException("Invalid content length: " + s);
             }
         }

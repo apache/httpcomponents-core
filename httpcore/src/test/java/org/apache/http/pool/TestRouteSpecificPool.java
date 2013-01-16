@@ -48,7 +48,7 @@ public class TestRouteSpecificPool {
         public void close() {
             try {
                 getConnection().close();
-            } catch (IOException ignore) {
+            } catch (final IOException ignore) {
             }
         }
 
@@ -74,7 +74,7 @@ public class TestRouteSpecificPool {
 
     @Test
     public void testEmptyPool() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
+        final LocalRoutePool pool = new LocalRoutePool();
         Assert.assertEquals(ROUTE, pool.getRoute());
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
@@ -86,9 +86,9 @@ public class TestRouteSpecificPool {
 
     @Test
     public void testAdd() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        HttpConnection conn = Mockito.mock(HttpConnection.class);
-        PoolEntry<String, HttpConnection> entry = pool.add(conn);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final HttpConnection conn = Mockito.mock(HttpConnection.class);
+        final PoolEntry<String, HttpConnection> entry = pool.add(conn);
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(1, pool.getLeasedCount());
@@ -99,13 +99,13 @@ public class TestRouteSpecificPool {
 
     @Test
     public void testLeaseRelease() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        HttpConnection conn1 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry1 = pool.add(conn1);
-        HttpConnection conn2 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry2 = pool.add(conn2);
-        HttpConnection conn3 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry3 = pool.add(conn3);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry1 = pool.add(conn1);
+        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry2 = pool.add(conn2);
+        final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry3 = pool.add(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -139,13 +139,13 @@ public class TestRouteSpecificPool {
 
     @Test
     public void testLeaseOrder() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        HttpConnection conn1 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry1 = pool.add(conn1);
-        HttpConnection conn2 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry2 = pool.add(conn2);
-        HttpConnection conn3 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry3 = pool.add(conn3);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry1 = pool.add(conn1);
+        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry2 = pool.add(conn2);
+        final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry3 = pool.add(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -169,13 +169,13 @@ public class TestRouteSpecificPool {
 
     @Test
     public void testLeaseReleaseStateful() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        HttpConnection conn1 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry1 = pool.add(conn1);
-        HttpConnection conn2 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry2 = pool.add(conn2);
-        HttpConnection conn3 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry3 = pool.add(conn3);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry1 = pool.add(conn1);
+        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry2 = pool.add(conn2);
+        final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry3 = pool.add(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -213,21 +213,21 @@ public class TestRouteSpecificPool {
 
     @Test(expected=IllegalStateException.class)
     public void testReleaseInvalidEntry() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        HttpConnection conn = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry = new LocalPoolEntry(ROUTE, conn);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final HttpConnection conn = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry = new LocalPoolEntry(ROUTE, conn);
         pool.free(entry, true);
     }
 
     @Test
     public void testRemove() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        HttpConnection conn1 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry1 = pool.add(conn1);
-        HttpConnection conn2 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry2 = pool.add(conn2);
-        HttpConnection conn3 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry3 = pool.add(conn3);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry1 = pool.add(conn1);
+        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry2 = pool.add(conn2);
+        final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry3 = pool.add(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -265,22 +265,22 @@ public class TestRouteSpecificPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testReleaseInvalid() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
+        final LocalRoutePool pool = new LocalRoutePool();
         pool.free(null, true);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testRemoveInvalid() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
+        final LocalRoutePool pool = new LocalRoutePool();
         pool.remove(null);
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void testWaitingThreadQueuing() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
-        PoolEntryFuture<LocalPoolEntry> future2 = Mockito.mock(PoolEntryFuture.class);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
+        final PoolEntryFuture<LocalPoolEntry> future2 = Mockito.mock(PoolEntryFuture.class);
 
         Assert.assertEquals(0, pool.getPendingCount());
         pool.queue(future1);
@@ -302,13 +302,13 @@ public class TestRouteSpecificPool {
     @SuppressWarnings("unchecked")
     @Test
     public void testShutdown() throws Exception {
-        LocalRoutePool pool = new LocalRoutePool();
-        HttpConnection conn1 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry1 = pool.add(conn1);
-        HttpConnection conn2 = Mockito.mock(HttpConnection.class);
-        LocalPoolEntry entry2 = pool.add(conn2);
+        final LocalRoutePool pool = new LocalRoutePool();
+        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry1 = pool.add(conn1);
+        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final LocalPoolEntry entry2 = pool.add(conn2);
 
-        PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
+        final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
         pool.queue(future1);
 
         Assert.assertNotNull(entry1);

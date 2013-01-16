@@ -175,13 +175,13 @@ public class BasicTokenIterator implements TokenIterator {
             from = findTokenSeparator(from);
         }
 
-        int start = findTokenStart(from);
+        final int start = findTokenStart(from);
         if (start < 0) {
             this.currentToken = null;
             return -1; // nothing found
         }
 
-        int end = findTokenEnd(start);
+        final int end = findTokenEnd(start);
         this.currentToken = createToken(this.currentHeader, start, end);
         return end;
     }

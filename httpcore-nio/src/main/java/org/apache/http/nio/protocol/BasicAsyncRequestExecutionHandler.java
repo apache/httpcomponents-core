@@ -167,11 +167,11 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     private void releaseResources() {
         try {
             this.responseConsumer.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
         }
         try {
             this.requestProducer.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
         }
     }
 
@@ -233,11 +233,11 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
 
     public boolean cancel() {
         try {
-            boolean cancelled = this.responseConsumer.cancel();
+            final boolean cancelled = this.responseConsumer.cancel();
             this.future.cancel();
             releaseResources();
             return cancelled;
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             failed(ex);
             throw ex;
         }
@@ -246,15 +246,15 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     public void responseCompleted(final HttpContext context) {
         try {
             this.responseConsumer.responseCompleted(context);
-            T result = this.responseConsumer.getResult();
-            Exception ex = this.responseConsumer.getException();
+            final T result = this.responseConsumer.getResult();
+            final Exception ex = this.responseConsumer.getException();
             if (ex == null) {
                 this.future.completed(result);
             } else {
                 this.future.failed(ex);
             }
             releaseResources();
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             failed(ex);
             throw ex;
         }

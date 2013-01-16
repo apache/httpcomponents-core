@@ -67,7 +67,7 @@ public class TestLengthDelimitedDecoder {
 
     private static String convert(final ByteBuffer src) {
         src.flip();
-        StringBuilder buffer = new StringBuilder(src.remaining());
+        final StringBuilder buffer = new StringBuilder(src.remaining());
         while (src.hasRemaining()) {
             buffer.append((char)(src.get() & 0xff));
         }
@@ -75,11 +75,11 @@ public class TestLengthDelimitedDecoder {
     }
 
     private static String readFromFile(final File file) throws Exception {
-        FileInputStream filestream = new FileInputStream(file);
-        InputStreamReader reader = new InputStreamReader(filestream);
+        final FileInputStream filestream = new FileInputStream(file);
+        final InputStreamReader reader = new InputStreamReader(filestream);
         try {
-            StringBuilder buffer = new StringBuilder();
-            char[] tmp = new char[2048];
+            final StringBuilder buffer = new StringBuilder();
+            final char[] tmp = new char[2048];
             int l;
             while ((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
@@ -92,15 +92,15 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testBasicDecoding() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
 
-        ByteBuffer dst = ByteBuffer.allocate(1024);
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
         Assert.assertEquals(6, bytesRead);
@@ -124,17 +124,17 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testCodingBeyondContentLimit() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
 
-        ByteBuffer dst = ByteBuffer.allocate(1024);
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
         Assert.assertEquals(6, bytesRead);
@@ -158,15 +158,15 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testBasicDecodingSmallBuffer() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
 
-        ByteBuffer dst = ByteBuffer.allocate(4);
+        final ByteBuffer dst = ByteBuffer.allocate(4);
 
         int bytesRead = decoder.read(dst);
         Assert.assertEquals(4, bytesRead);
@@ -211,20 +211,20 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFromSessionBuffer1() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         inbuf.fill(channel);
 
         Assert.assertEquals(6, inbuf.length());
 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
 
-        ByteBuffer dst = ByteBuffer.allocate(1024);
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
         Assert.assertEquals(6, bytesRead);
@@ -248,23 +248,23 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFromSessionBuffer2() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         inbuf.fill(channel);
         inbuf.fill(channel);
 
         Assert.assertEquals(38, inbuf.length());
 
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
 
-        ByteBuffer dst = ByteBuffer.allocate(1024);
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
         Assert.assertEquals(16, bytesRead);
@@ -281,21 +281,21 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testBasicDecodingFile() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 36);
 
         createTempFile();
-        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
+        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            FileChannel fchannel = testfile.getChannel();
+            final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
             while (!decoder.isCompleted()) {
-                long bytesRead = decoder.transfer(fchannel, pos, 10);
+                final long bytesRead = decoder.transfer(fchannel, pos, 10);
                 if (bytesRead > 0) {
                     pos += bytesRead;
                 }
@@ -309,24 +309,24 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFileWithBufferedSessionData() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 36);
 
-        int i = inbuf.fill(channel);
+        final int i = inbuf.fill(channel);
         Assert.assertEquals(7, i);
 
         createTempFile();
-        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
+        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            FileChannel fchannel = testfile.getChannel();
+            final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
             while (!decoder.isCompleted()) {
-                long bytesRead = decoder.transfer(fchannel, pos, 10);
+                final long bytesRead = decoder.transfer(fchannel, pos, 10);
                 if (bytesRead > 0) {
                     pos += bytesRead;
                 }
@@ -340,18 +340,18 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 36);
 
-        int i = inbuf.fill(channel);
+        final int i = inbuf.fill(channel);
         Assert.assertEquals(7, i);
 
-        byte[] beginning = "beginning; ".getBytes("US-ASCII");
+        final byte[] beginning = "beginning; ".getBytes("US-ASCII");
 
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
@@ -363,14 +363,14 @@ public class TestLengthDelimitedDecoder {
 
         testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            FileChannel fchannel = testfile.getChannel();
+            final FileChannel fchannel = testfile.getChannel();
 
             long pos = beginning.length;
             while (!decoder.isCompleted()) {
                 if(testfile.length() < pos) {
                     testfile.setLength(pos);
                 }
-                long bytesRead = decoder.transfer(fchannel, pos, 10);
+                final long bytesRead = decoder.transfer(fchannel, pos, 10);
                 if (bytesRead > 0) {
                     pos += bytesRead;
                 }
@@ -386,23 +386,23 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testWriteBeyondFileSize() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"a"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 1);
 
         createTempFile();
-        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
+        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            FileChannel fchannel = testfile.getChannel();
+            final FileChannel fchannel = testfile.getChannel();
             Assert.assertEquals(0, testfile.length());
             try {
                 decoder.transfer(fchannel, 5, 10);
                 Assert.fail("IOException should have been thrown");
-            } catch(IOException expected) {
+            } catch(final IOException expected) {
             }
         } finally {
             testfile.close();
@@ -411,20 +411,20 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testCodingBeyondContentLimitFile() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
                         "more stuff; and a lot more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 16);
 
         createTempFile();
-        RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
+        final RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            FileChannel fchannel = testfile.getChannel();
+            final FileChannel fchannel = testfile.getChannel();
 
             long bytesRead = decoder.transfer(fchannel, 0, 6);
             Assert.assertEquals(6, bytesRead);
@@ -447,69 +447,69 @@ public class TestLengthDelimitedDecoder {
 
     @Test
     public void testInvalidConstructor() {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         try {
             new LengthDelimitedDecoder(null, null, null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, null, null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, inbuf, null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, inbuf, metrics, -10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
     }
 
     @Test
     public void testInvalidInput() throws Exception {
-        String s = "stuff";
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final String s = "stuff";
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 3);
 
         try {
             decoder.read(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testZeroLengthDecoding() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 0);
 
-        ByteBuffer dst = ByteBuffer.allocate(1024);
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        int bytesRead = decoder.read(dst);
+        final int bytesRead = decoder.read(dst);
         Assert.assertEquals(-1, bytesRead);
         Assert.assertTrue(decoder.isCompleted());
         Assert.assertEquals(0, metrics.getBytesTransferred());
@@ -517,36 +517,36 @@ public class TestLengthDelimitedDecoder {
 
     @Test(expected=ConnectionClosedException.class)
     public void testTruncatedContent() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 20);
 
-        ByteBuffer dst = ByteBuffer.allocate(1024);
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        int bytesRead = decoder.read(dst);
+        final int bytesRead = decoder.read(dst);
         Assert.assertEquals(10, bytesRead);
         decoder.read(dst);
     }
 
     @Test(expected=ConnectionClosedException.class)
     public void testTruncatedContentWithFile() throws Exception {
-        ReadableByteChannel channel = new ReadableByteChannelMock(
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, "US-ASCII");
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 20);
 
         createTempFile();
-        RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
+        final RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            FileChannel fchannel = testfile.getChannel();
-            long bytesRead = decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
+            final FileChannel fchannel = testfile.getChannel();
+            final long bytesRead = decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
             Assert.assertEquals(10, bytesRead);
             decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
         } finally {

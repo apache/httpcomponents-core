@@ -34,7 +34,7 @@ public class TestRegistry {
 
     @Test
     public void testCompleted() throws Exception {
-        Registry<String> reg = RegistryBuilder.<String>create().register("Stuff", "Stuff").build();
+        final Registry<String> reg = RegistryBuilder.<String>create().register("Stuff", "Stuff").build();
         Assert.assertEquals("Stuff", reg.lookup("Stuff"));
         Assert.assertEquals("Stuff", reg.lookup("stuff"));
         Assert.assertEquals(null, reg.lookup("miss"));

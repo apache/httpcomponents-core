@@ -84,7 +84,7 @@ abstract class PoolEntryFuture<T> implements Future<T> {
     public T get() throws InterruptedException, ExecutionException {
         try {
             return get(0, TimeUnit.MILLISECONDS);
-        } catch (TimeoutException ex) {
+        } catch (final TimeoutException ex) {
             throw new ExecutionException(ex);
         }
     }
@@ -103,7 +103,7 @@ abstract class PoolEntryFuture<T> implements Future<T> {
                 this.callback.completed(this.result);
             }
             return result;
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             this.completed = true;
             this.result = null;
             if (this.callback != null) {

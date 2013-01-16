@@ -137,7 +137,7 @@ public class DefaultHttpServerIODispatch
     protected void onConnected(final DefaultNHttpServerConnection conn) {
         try {
             this.handler.connected(conn);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.handler.exception(conn, ex);
         }
     }
@@ -166,7 +166,7 @@ public class DefaultHttpServerIODispatch
     protected void onTimeout(final DefaultNHttpServerConnection conn) {
         try {
             this.handler.timeout(conn);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.handler.exception(conn, ex);
         }
     }

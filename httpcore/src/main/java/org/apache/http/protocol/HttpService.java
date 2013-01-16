@@ -304,7 +304,7 @@ public class HttpService {
 
         try {
 
-            HttpRequest request = conn.receiveRequestHeader();
+            final HttpRequest request = conn.receiveRequestHeader();
             if (request instanceof HttpEntityEnclosingRequest) {
 
                 if (((HttpEntityEnclosingRequest) request).expectContinue()) {
@@ -313,7 +313,7 @@ public class HttpService {
                     if (this.expectationVerifier != null) {
                         try {
                             this.expectationVerifier.verify(request, response, context);
-                        } catch (HttpException ex) {
+                        } catch (final HttpException ex) {
                             response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
                                     HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
                             handleException(ex, response);
@@ -343,11 +343,11 @@ public class HttpService {
 
             // Make sure the request content is fully consumed
             if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
+                final HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 EntityUtils.consume(entity);
             }
 
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             response = this.responseFactory.newHttpResponse
                 (HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                  context);
@@ -388,8 +388,8 @@ public class HttpService {
         if (message == null) {
             message = ex.toString();
         }
-        byte[] msg = EncodingUtils.getAsciiBytes(message);
-        ByteArrayEntity entity = new ByteArrayEntity(msg);
+        final byte[] msg = EncodingUtils.getAsciiBytes(message);
+        final ByteArrayEntity entity = new ByteArrayEntity(msg);
         entity.setContentType("text/plain; charset=US-ASCII");
         response.setEntity(entity);
     }

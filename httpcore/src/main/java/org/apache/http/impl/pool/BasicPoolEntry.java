@@ -52,7 +52,7 @@ public class BasicPoolEntry extends PoolEntry<HttpHost, HttpClientConnection> {
     public void close() {
         try {
             this.getConnection().close();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 

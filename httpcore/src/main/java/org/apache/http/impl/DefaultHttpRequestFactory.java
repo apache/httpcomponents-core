@@ -69,7 +69,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     }
 
     private static boolean isOneOf(final String[] methods, final String method) {
-        for (String method2 : methods) {
+        for (final String method2 : methods) {
             if (method2.equalsIgnoreCase(method)) {
                 return true;
             }
@@ -80,7 +80,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     public HttpRequest newHttpRequest(final RequestLine requestline)
             throws MethodNotSupportedException {
         Args.notNull(requestline, "Request line");
-        String method = requestline.getMethod();
+        final String method = requestline.getMethod();
         if (isOneOf(RFC2616_COMMON_METHODS, method)) {
             return new BasicHttpRequest(requestline);
         } else if (isOneOf(RFC2616_ENTITY_ENC_METHODS, method)) {

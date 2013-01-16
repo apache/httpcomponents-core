@@ -37,10 +37,10 @@ public class TestUriHttpRequestHandlerMapper {
 
     @Test
     public void testRegisterUnregister() throws Exception {
-        HttpRequestHandler h = Mockito.mock(HttpRequestHandler.class);
+        final HttpRequestHandler h = Mockito.mock(HttpRequestHandler.class);
 
-        UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
-        UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
+        final UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
+        final UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
 
         registry.register("/h1", h);
         registry.unregister("/h1");
@@ -51,10 +51,10 @@ public class TestUriHttpRequestHandlerMapper {
 
     @Test
     public void testLookup() throws Exception {
-        UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
-        UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
+        final UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
+        final UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
 
-        HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         registry.lookup(request);
         registry.unregister("/h1");
 
@@ -63,24 +63,24 @@ public class TestUriHttpRequestHandlerMapper {
 
     @Test(expected=IllegalArgumentException.class)
     public void testRegisterNull() throws Exception {
-        UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper();
+        final UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper();
         registry.register(null, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testLookupNull() throws Exception {
-        UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper();
+        final UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper();
         registry.register(null, null);
     }
 
     @Test
     public void testWildCardMatchingWithQuery() throws Exception {
-        HttpRequestHandler h1 = Mockito.mock(HttpRequestHandler.class);
-        HttpRequestHandler h2 = Mockito.mock(HttpRequestHandler.class);
-        HttpRequestHandler def = Mockito.mock(HttpRequestHandler.class);
+        final HttpRequestHandler h1 = Mockito.mock(HttpRequestHandler.class);
+        final HttpRequestHandler h2 = Mockito.mock(HttpRequestHandler.class);
+        final HttpRequestHandler def = Mockito.mock(HttpRequestHandler.class);
 
-        UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
-        UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
+        final UriPatternMatcher<HttpRequestHandler> matcher = Mockito.spy(new UriPatternMatcher<HttpRequestHandler>());
+        final UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
         registry.register("*", def);
         registry.register("*.view", h1);
         registry.register("*.form", h2);

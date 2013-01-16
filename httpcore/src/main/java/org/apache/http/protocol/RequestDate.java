@@ -57,7 +57,7 @@ public class RequestDate implements HttpRequestInterceptor {
         Args.notNull(request, "HTTP request");
         if ((request instanceof HttpEntityEnclosingRequest) &&
             !request.containsHeader(HTTP.DATE_HEADER)) {
-            String httpdate = DATE_GENERATOR.getCurrentDate();
+            final String httpdate = DATE_GENERATOR.getCurrentDate();
             request.setHeader(HTTP.DATE_HEADER, httpdate);
         }
     }

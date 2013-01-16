@@ -43,10 +43,10 @@ public class TestHttpEntityWrapper {
 
     @Test
     public void testBasics() throws Exception {
-        String s = "Message content";
-        StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
+        final String s = "Message content";
+        final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
         httpentity.setContentEncoding(HTTP.IDENTITY_CODING);
-        HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+        final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 
         Assert.assertEquals(httpentity.getContentLength(), wrapped.getContentLength());
         Assert.assertEquals(httpentity.getContentType(), wrapped.getContentType());
@@ -62,17 +62,17 @@ public class TestHttpEntityWrapper {
         try {
             new HttpEntityWrapper(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testWriteTo() throws Exception {
-        String s = "Message content";
-        byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
-        StringEntity httpentity = new StringEntity(s);
-        HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+        final String s = "Message content";
+        final byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
+        final StringEntity httpentity = new StringEntity(s);
+        final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         wrapped.writeTo(out);
@@ -95,16 +95,16 @@ public class TestHttpEntityWrapper {
         try {
             wrapped.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testConsumeContent() throws Exception {
-        String s = "Message content";
-        StringEntity httpentity = new StringEntity(s);
-        HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+        final String s = "Message content";
+        final StringEntity httpentity = new StringEntity(s);
+        final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
         EntityUtils.consume(wrapped);
         EntityUtils.consume(wrapped);
     }

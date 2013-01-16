@@ -65,7 +65,7 @@ public final class EntityUtils {
     public static void consumeQuietly(final HttpEntity entity) {
         try {
           consume(entity);
-        } catch (IOException ioex) {
+        } catch (final IOException ioex) {
         }
     }
 
@@ -83,7 +83,7 @@ public final class EntityUtils {
             return;
         }
         if (entity.isStreaming()) {
-            InputStream instream = entity.getContent();
+            final InputStream instream = entity.getContent();
             if (instream != null) {
                 instream.close();
             }
@@ -119,7 +119,7 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
-        InputStream instream = entity.getContent();
+        final InputStream instream = entity.getContent();
         if (instream == null) {
             return null;
         }
@@ -130,8 +130,8 @@ public final class EntityUtils {
             if (i < 0) {
                 i = 4096;
             }
-            ByteArrayBuffer buffer = new ByteArrayBuffer(i);
-            byte[] tmp = new byte[4096];
+            final ByteArrayBuffer buffer = new ByteArrayBuffer(i);
+            final byte[] tmp = new byte[4096];
             int l;
             while((l = instream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
@@ -157,9 +157,9 @@ public final class EntityUtils {
         Args.notNull(entity, "Entity");
         String charset = null;
         if (entity.getContentType() != null) {
-            HeaderElement values[] = entity.getContentType().getElements();
+            final HeaderElement values[] = entity.getContentType().getElements();
             if (values.length > 0) {
-                NameValuePair param = values[0].getParameterByName("charset");
+                final NameValuePair param = values[0].getParameterByName("charset");
                 if (param != null) {
                     charset = param.getValue();
                 }
@@ -185,7 +185,7 @@ public final class EntityUtils {
         Args.notNull(entity, "Entity");
         String mimeType = null;
         if (entity.getContentType() != null) {
-            HeaderElement values[] = entity.getContentType().getElements();
+            final HeaderElement values[] = entity.getContentType().getElements();
             if (values.length > 0) {
                 mimeType = values[0].getName();
             }
@@ -211,7 +211,7 @@ public final class EntityUtils {
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
         Args.notNull(entity, "Entity");
-        InputStream instream = entity.getContent();
+        final InputStream instream = entity.getContent();
         if (instream == null) {
             return null;
         }
@@ -224,9 +224,9 @@ public final class EntityUtils {
             }
             Charset charset = null;
             try {
-                ContentType contentType = ContentType.getOrDefault(entity);
+                final ContentType contentType = ContentType.getOrDefault(entity);
                 charset = contentType.getCharset();
-            } catch (UnsupportedCharsetException ex) {
+            } catch (final UnsupportedCharsetException ex) {
                 throw new UnsupportedEncodingException(ex.getMessage());
             }
             if (charset == null) {
@@ -235,9 +235,9 @@ public final class EntityUtils {
             if (charset == null) {
                 charset = HTTP.DEF_CONTENT_CHARSET;
             }
-            Reader reader = new InputStreamReader(instream, charset);
-            CharArrayBuffer buffer = new CharArrayBuffer(i);
-            char[] tmp = new char[1024];
+            final Reader reader = new InputStreamReader(instream, charset);
+            final CharArrayBuffer buffer = new CharArrayBuffer(i);
+            final char[] tmp = new char[1024];
             int l;
             while((l = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);

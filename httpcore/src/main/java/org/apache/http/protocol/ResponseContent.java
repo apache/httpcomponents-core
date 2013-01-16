@@ -101,10 +101,10 @@ public class ResponseContent implements HttpResponseInterceptor {
                 throw new ProtocolException("Content-Length header already present");
             }
         }
-        ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
-        HttpEntity entity = response.getEntity();
+        final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
+        final HttpEntity entity = response.getEntity();
         if (entity != null) {
-            long len = entity.getContentLength();
+            final long len = entity.getContentLength();
             if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                 response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
             } else if (len >= 0) {
@@ -121,7 +121,7 @@ public class ResponseContent implements HttpResponseInterceptor {
                 response.addHeader(entity.getContentEncoding());
             }
         } else {
-            int status = response.getStatusLine().getStatusCode();
+            final int status = response.getStatusLine().getStatusCode();
             if (status != HttpStatus.SC_NO_CONTENT
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {

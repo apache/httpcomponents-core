@@ -78,9 +78,9 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
             final int status,
             final HttpContext context) {
         Args.notNull(ver, "HTTP version");
-        Locale loc = determineLocale(context);
-        String reason   = reasonCatalog.getReason(status, loc);
-        StatusLine statusline = new BasicStatusLine(ver, status, reason);
+        final Locale loc = determineLocale(context);
+        final String reason   = reasonCatalog.getReason(status, loc);
+        final StatusLine statusline = new BasicStatusLine(ver, status, reason);
         return new BasicHttpResponse(statusline);
     }
 

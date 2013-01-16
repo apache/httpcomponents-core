@@ -63,8 +63,8 @@ public final class HttpParamConfig {
     }
 
     public static ConnectionConfig getConnectionConfig(final HttpParams params) {
-        MessageConstraints messageConstraints = getMessageConstraints(params);
-        String csname = HttpProtocolParams.getHttpElementCharset(params);
+        final MessageConstraints messageConstraints = getMessageConstraints(params);
+        final String csname = HttpProtocolParams.getHttpElementCharset(params);
         return ConnectionConfig.custom()
                 .setCharset(csname != null ? Charset.forName(csname) : null)
                 .setMalformedInputAction((CodingErrorAction)

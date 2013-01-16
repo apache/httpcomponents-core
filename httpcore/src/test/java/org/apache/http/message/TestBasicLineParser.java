@@ -72,35 +72,35 @@ public class TestBasicLineParser {
         try {
             BasicLineParser.parseRequestLine("    ", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseRequestLine("  GET", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseRequestLine("GET /stuff", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseRequestLine("GET/stuff HTTP/1.1", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseRequestLine("GET /stuff HTTP/1.1 Oooooooooooppsie", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
     }
@@ -169,35 +169,35 @@ public class TestBasicLineParser {
         try {
             BasicLineParser.parseStatusLine("xxx 200 OK", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1 xxx OK", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1    ", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
 
         try {
             BasicLineParser.parseStatusLine("HTTP/1.1 -200 OK", null);
             Assert.fail();
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             // expected
         }
     }
@@ -230,7 +230,7 @@ public class TestBasicLineParser {
         buffer.append(s);
         ParserCursor cursor = new ParserCursor(0, s.length());
 
-        LineParser parser = BasicLineParser.INSTANCE;
+        final LineParser parser = BasicLineParser.INSTANCE;
 
         HttpVersion version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
         Assert.assertEquals("HTTP protocol name", "HTTP", version.getProtocol());
@@ -260,70 +260,70 @@ public class TestBasicLineParser {
         try {
             BasicLineParser.parseProtocolVersion((String)null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("    ", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTT", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("crap", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/crap", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1234   ", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1.", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/whatever.whatever whatever", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
         try {
             BasicLineParser.parseProtocolVersion
                 ("HTTP/1.whatever whatever", null);
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException e) {
+        } catch (final ParseException e) {
             //expected
         }
     }

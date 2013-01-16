@@ -65,7 +65,7 @@ public class HttpDateGenerator {
     }
 
     public synchronized String getCurrentDate() {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         if (now - this.dateAsLong > 1000) {
             // Generate new date string
             this.dateAsText = this.dateformat.format(new Date(now));

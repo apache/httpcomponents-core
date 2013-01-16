@@ -169,7 +169,7 @@ public abstract class PoolEntry<T, C> {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append("[id:");
         buffer.append(this.id);
         buffer.append("][route:");

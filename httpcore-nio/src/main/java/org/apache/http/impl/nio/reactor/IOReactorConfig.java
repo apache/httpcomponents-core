@@ -371,7 +371,7 @@ public final class IOReactorConfig implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("[selectInterval=").append(this.selectInterval)
                 .append(", shutdownGracePeriod=").append(this.shutdownGracePeriod)
                 .append(", interestOpQueued=").append(this.interestOpQueued)

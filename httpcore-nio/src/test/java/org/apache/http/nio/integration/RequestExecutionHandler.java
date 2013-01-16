@@ -55,10 +55,11 @@ abstract class RequestExecutionHandler
     public HttpRequest submitRequest(final HttpContext context) {
 
         @SuppressWarnings("unchecked")
+        final
         Queue<Job> queue = (Queue<Job>) context.getAttribute("queue");
         Asserts.notNull(queue, "Queue");
 
-        Job testjob = queue.poll();
+        final Job testjob = queue.poll();
         context.setAttribute("job", testjob);
 
         if (testjob != null) {
@@ -75,17 +76,17 @@ abstract class RequestExecutionHandler
     }
 
     public void handleResponse(final HttpResponse response, final HttpContext context) {
-        Job testjob = (Job) context.removeAttribute("job");
+        final Job testjob = (Job) context.removeAttribute("job");
         Asserts.notNull(testjob, "Test job");
 
-        int statusCode = response.getStatusLine().getStatusCode();
+        final int statusCode = response.getStatusLine().getStatusCode();
         String content = null;
 
-        HttpEntity entity = response.getEntity();
+        final HttpEntity entity = response.getEntity();
         if (entity != null) {
             try {
                 content = EntityUtils.toString(entity);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 content = "I/O exception: " + ex.getMessage();
             }
         }
@@ -93,7 +94,7 @@ abstract class RequestExecutionHandler
     }
 
     public void finalizeContext(final HttpContext context) {
-        Job testjob = (Job) context.removeAttribute("job");
+        final Job testjob = (Job) context.removeAttribute("job");
         if (testjob != null) {
             testjob.fail("Request failed");
         }

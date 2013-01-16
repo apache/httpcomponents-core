@@ -114,9 +114,9 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     public final synchronized void responseReceived(
             final HttpResponse response) throws IOException, HttpException {
         onResponseReceived(response);
-        HttpEntity entity = response.getEntity();
+        final HttpEntity entity = response.getEntity();
         if (entity != null) {
-            ContentType contentType = ContentType.getOrDefault(entity);
+            final ContentType contentType = ContentType.getOrDefault(entity);
             onEntityEnclosed(entity, contentType);
         }
     }
@@ -139,7 +139,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         this.completed = true;
         try {
             this.result = buildResult(context);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.ex = ex;
         } finally {
             releaseResources();

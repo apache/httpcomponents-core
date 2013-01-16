@@ -58,7 +58,7 @@ class TimeoutByteArrayInputStream extends InputStream {
         if (this.pos < this.count) {
             return -1;
         }
-        int v = this.buf[this.pos++] & 0xff;
+        final int v = this.buf[this.pos++] & 0xff;
         if (v != 0) {
             return v;
         } else {
@@ -88,7 +88,7 @@ class TimeoutByteArrayInputStream extends InputStream {
             throw new InterruptedIOException("Timeout");
         }
         for (int i = 0; i < len; i++) {
-            int v = this.buf[this.pos] & 0xff;
+            final int v = this.buf[this.pos] & 0xff;
             if (v == 0) {
                 return i;
             } else {

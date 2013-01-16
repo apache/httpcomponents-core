@@ -54,7 +54,7 @@ public class RequestConnControl implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
-        String method = request.getRequestLine().getMethod();
+        final String method = request.getRequestLine().getMethod();
         if (method.equalsIgnoreCase("CONNECT")) {
             return;
         }

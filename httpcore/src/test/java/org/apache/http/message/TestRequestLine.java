@@ -44,7 +44,7 @@ public class TestRequestLine {
 
     @Test
     public void testConstructor() {
-        RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         Assert.assertEquals("GET", requestline.getMethod());
         Assert.assertEquals("/stuff", requestline.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
@@ -55,21 +55,21 @@ public class TestRequestLine {
         try {
             new BasicRequestLine(null, "/stuff", HttpVersion.HTTP_1_1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) { /* expected */ }
+        } catch (final IllegalArgumentException e) { /* expected */ }
         try {
             new BasicRequestLine("GET", null, HttpVersion.HTTP_1_1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) { /* expected */ }
+        } catch (final IllegalArgumentException e) { /* expected */ }
         try {
             new BasicRequestLine("GET", "/stuff", (HttpVersion)null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) { /* expected */ }
+        } catch (final IllegalArgumentException e) { /* expected */ }
     }
 
     @Test
     public void testCloning() throws Exception {
-        BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
-        BasicRequestLine clone = (BasicRequestLine) orig.clone();
+        final BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final BasicRequestLine clone = (BasicRequestLine) orig.clone();
         Assert.assertEquals(orig.getMethod(), clone.getMethod());
         Assert.assertEquals(orig.getUri(), clone.getUri());
         Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
@@ -77,15 +77,15 @@ public class TestRequestLine {
 
     @Test
     public void testSerialization() throws Exception {
-        BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
-        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        final BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
         outstream.close();
-        byte[] raw = outbuffer.toByteArray();
-        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        BasicRequestLine clone = (BasicRequestLine) instream.readObject();
+        final byte[] raw = outbuffer.toByteArray();
+        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        final BasicRequestLine clone = (BasicRequestLine) instream.readObject();
         Assert.assertEquals(orig.getMethod(), clone.getMethod());
         Assert.assertEquals(orig.getUri(), clone.getUri());
         Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());

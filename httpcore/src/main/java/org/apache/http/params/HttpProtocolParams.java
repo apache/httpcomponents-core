@@ -114,7 +114,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      */
     public static ProtocolVersion getVersion(final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
-        Object param = params.getParameter
+        final Object param = params.getParameter
             (CoreProtocolPNames.PROTOCOL_VERSION);
         if (param == null) {
             return HttpVersion.HTTP_1_1;
@@ -188,7 +188,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      */
     public static CodingErrorAction getMalformedInputAction(final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
-        Object param = params.getParameter(CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+        final Object param = params.getParameter(CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
         if (param == null) {
             // the default CodingErrorAction
             return CodingErrorAction.REPORT;
@@ -217,7 +217,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
      */
     public static CodingErrorAction getUnmappableInputAction(final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
-        Object param = params.getParameter(CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+        final Object param = params.getParameter(CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
         if (param == null) {
             // the default CodingErrorAction
             return CodingErrorAction.REPORT;

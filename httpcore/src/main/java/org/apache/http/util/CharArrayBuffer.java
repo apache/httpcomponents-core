@@ -58,7 +58,7 @@ public final class CharArrayBuffer implements Serializable {
     }
 
     private void expand(final int newlen) {
-        char newbuffer[] = new char[Math.max(this.buffer.length << 1, newlen)];
+        final char newbuffer[] = new char[Math.max(this.buffer.length << 1, newlen)];
         System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
         this.buffer = newbuffer;
     }
@@ -86,7 +86,7 @@ public final class CharArrayBuffer implements Serializable {
         if (len == 0) {
             return;
         }
-        int newlen = this.len + len;
+        final int newlen = this.len + len;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
@@ -104,8 +104,8 @@ public final class CharArrayBuffer implements Serializable {
         if (str == null) {
             str = "null";
         }
-        int strlen = str.length();
-        int newlen = this.len + strlen;
+        final int strlen = str.length();
+        final int newlen = this.len + strlen;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
@@ -154,7 +154,7 @@ public final class CharArrayBuffer implements Serializable {
      * @param   ch        the char to be appended.
      */
     public void append(final char ch) {
-        int newlen = this.len + 1;
+        final int newlen = this.len + 1;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
@@ -187,8 +187,8 @@ public final class CharArrayBuffer implements Serializable {
         if (len == 0) {
             return;
         }
-        int oldlen = this.len;
-        int newlen = oldlen + len;
+        final int oldlen = this.len;
+        final int newlen = oldlen + len;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
@@ -243,7 +243,7 @@ public final class CharArrayBuffer implements Serializable {
      * @return char array
      */
     public char[] toCharArray() {
-        char[] b = new char[this.len];
+        final char[] b = new char[this.len];
         if (this.len > 0) {
             System.arraycopy(this.buffer, 0, b, 0, this.len);
         }
@@ -305,7 +305,7 @@ public final class CharArrayBuffer implements Serializable {
         if (required <= 0) {
             return;
         }
-        int available = this.buffer.length - this.len;
+        final int available = this.buffer.length - this.len;
         if (required > available) {
             expand(this.len + required);
         }

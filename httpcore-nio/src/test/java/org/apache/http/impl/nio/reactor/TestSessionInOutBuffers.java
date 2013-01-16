@@ -95,13 +95,13 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadLineChunks() throws Exception {
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
 
         ReadableByteChannel channel = newChannel("One\r\nTwo\r\nThree");
 
         inbuf.fill(channel);
 
-        CharArrayBuffer line = new CharArrayBuffer(64);
+        final CharArrayBuffer line = new CharArrayBuffer(64);
 
         line.clear();
         Assert.assertTrue(inbuf.readLine(line, false));
@@ -133,14 +133,14 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteLineChunks() throws Exception {
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, null, this.allocator);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
 
         ReadableByteChannel inChannel = newChannel("One\r\nTwo\r\nThree");
 
         inbuf.fill(inChannel);
 
-        CharArrayBuffer line = new CharArrayBuffer(64);
+        final CharArrayBuffer line = new CharArrayBuffer(64);
 
         line.clear();
         Assert.assertTrue(inbuf.readLine(line, false));
@@ -177,22 +177,22 @@ public class TestSessionInOutBuffers {
         line.clear();
         Assert.assertFalse(inbuf.readLine(line, true));
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outstream);
         outbuf.flush(outChannel);
 
-        String s = new String(outstream.toByteArray(), "US-ASCII");
+        final String s = new String(outstream.toByteArray(), "US-ASCII");
         Assert.assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n", s);
     }
 
     @Test
     public void testBasicReadWriteLine() throws Exception {
 
-        String[] teststrs = new String[5];
+        final String[] teststrs = new String[5];
         teststrs[0] = "Hello";
         teststrs[1] = "This string should be much longer than the size of the line buffer " +
                 "which is only 16 bytes for this test";
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 15; i++) {
             buffer.append("123456789 ");
         }
@@ -201,24 +201,24 @@ public class TestSessionInOutBuffers {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
 
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
-        for (String teststr : teststrs) {
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
+        for (final String teststr : teststrs) {
             outbuf.writeLine(teststr);
         }
         //this write operation should have no effect
         outbuf.writeLine((String)null);
         outbuf.writeLine((CharArrayBuffer)null);
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outstream);
         outbuf.flush(outChannel);
 
-        ReadableByteChannel channel = newChannel(outstream.toByteArray());
+        final ReadableByteChannel channel = newChannel(outstream.toByteArray());
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
         inbuf.fill(channel);
 
-        for (String teststr : teststrs) {
+        for (final String teststr : teststrs) {
             Assert.assertEquals(teststr, inbuf.readLine(true));
         }
         Assert.assertNull(inbuf.readLine(true));
@@ -227,17 +227,17 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testComplexReadWriteLine() throws Exception {
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
         outbuf.write(ByteBuffer.wrap(new byte[] {'a', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\r', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\n'}));
 
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 14; i++) {
             buffer.append("a");
         }
-        String s1 = buffer.toString();
+        final String s1 = buffer.toString();
         buffer.append("\r\n");
         outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
 
@@ -245,7 +245,7 @@ public class TestSessionInOutBuffers {
         for (int i = 0; i < 15; i++) {
             buffer.append("a");
         }
-        String s2 = buffer.toString();
+        final String s2 = buffer.toString();
         buffer.append("\r\n");
         outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
 
@@ -253,19 +253,19 @@ public class TestSessionInOutBuffers {
         for (int i = 0; i < 16; i++) {
             buffer.append("a");
         }
-        String s3 = buffer.toString();
+        final String s3 = buffer.toString();
         buffer.append("\r\n");
         outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
 
         outbuf.write(ByteBuffer.wrap(new byte[] {'a'}));
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outstream);
         outbuf.flush(outChannel);
 
-        ReadableByteChannel channel = newChannel(outstream.toByteArray());
+        final ReadableByteChannel channel = newChannel(outstream.toByteArray());
 
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
         inbuf.fill(channel);
 
         Assert.assertEquals("a", inbuf.readLine(true));
@@ -283,16 +283,16 @@ public class TestSessionInOutBuffers {
     @Test
     public void testReadOneByte() throws Exception {
         // make the buffer larger than that of transmitter
-        byte[] out = new byte[40];
+        final byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        ReadableByteChannel channel = newChannel(out);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
+        final ReadableByteChannel channel = newChannel(out);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
         }
 
-        byte[] in = new byte[40];
+        final byte[] in = new byte[40];
         for (int i = 0; i < in.length; i++) {
             in[i] = (byte)inbuf.read();
         }
@@ -303,12 +303,12 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadByteBuffer() throws Exception {
-        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
-        ReadableByteChannel channel = newChannel(pattern);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final ReadableByteChannel channel = newChannel(pattern);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
         }
-        ByteBuffer dst = ByteBuffer.allocate(10);
+        final ByteBuffer dst = ByteBuffer.allocate(10);
         Assert.assertEquals(10, inbuf.read(dst));
         dst.flip();
         Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
@@ -320,12 +320,12 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadByteBufferWithMaxLen() throws Exception {
-        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
-        ReadableByteChannel channel = newChannel(pattern);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final ReadableByteChannel channel = newChannel(pattern);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
         }
-        ByteBuffer dst = ByteBuffer.allocate(16);
+        final ByteBuffer dst = ByteBuffer.allocate(16);
         Assert.assertEquals(10, inbuf.read(dst, 10));
         dst.flip();
         Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
@@ -340,14 +340,14 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadToChannel() throws Exception {
-        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
-        ReadableByteChannel channel = newChannel(pattern);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final ReadableByteChannel channel = newChannel(pattern);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
         }
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel dst = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel dst = newChannel(outstream);
 
         Assert.assertEquals(16, inbuf.read(dst));
         Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
@@ -355,14 +355,14 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadToChannelWithMaxLen() throws Exception {
-        byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
-        ReadableByteChannel channel = newChannel(pattern);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final ReadableByteChannel channel = newChannel(pattern);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
         }
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel dst = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel dst = newChannel(outstream);
 
         Assert.assertEquals(10, inbuf.read(dst, 10));
         Assert.assertEquals(3, inbuf.read(dst, 3));
@@ -372,14 +372,14 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteByteBuffer() throws Exception {
-        byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
 
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
-        ReadableByteChannel src = newChannel(pattern);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
+        final ReadableByteChannel src = newChannel(pattern);
         outbuf.write(src);
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(outstream);
         while (outbuf.flush(channel) > 0) {
         }
         Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
@@ -387,15 +387,15 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteFromChannel() throws Exception {
-        byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
 
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
         outbuf.write(ByteBuffer.wrap(pattern, 0, 16));
         outbuf.write(ByteBuffer.wrap(pattern, 16, 10));
         outbuf.write(ByteBuffer.wrap(pattern, 26, 6));
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(outstream);
         while (outbuf.flush(channel) > 0) {
         }
         Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
@@ -411,9 +411,9 @@ public class TestSessionInOutBuffers {
     };
 
     private static String constructString(final int [] unicodeChars) {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
-            for (int unicodeChar : unicodeChars) {
+            for (final int unicodeChar : unicodeChars) {
                 buffer.append((char)unicodeChar);
             }
         }
@@ -422,11 +422,11 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testMultibyteCodedReadWriteLine() throws Exception {
-        String s1 = constructString(SWISS_GERMAN_HELLO);
-        String s2 = constructString(RUSSIAN_HELLO);
-        String s3 = "Like hello and stuff";
+        final String s1 = constructString(SWISS_GERMAN_HELLO);
+        final String s2 = constructString(RUSSIAN_HELLO);
+        final String s3 = "Like hello and stuff";
 
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16,
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16,
                 Consts.UTF_8.newEncoder(), this.allocator);
 
         for (int i = 0; i < 10; i++) {
@@ -435,14 +435,14 @@ public class TestSessionInOutBuffers {
             outbuf.writeLine(s3);
         }
 
-        ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outstream);
         outbuf.flush(outChannel);
 
-        byte[] tmp = outstream.toByteArray();
+        final byte[] tmp = outstream.toByteArray();
 
-        ReadableByteChannel channel = newChannel(tmp);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16,
+        final ReadableByteChannel channel = newChannel(tmp);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16,
                 Consts.UTF_8.newDecoder(), this.allocator);
 
         while (inbuf.fill(channel) > 0) {
@@ -457,21 +457,21 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testInputMatchesBufferLength() throws Exception {
-        String s1 = "abcde";
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5, null, this.allocator);
+        final String s1 = "abcde";
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5, null, this.allocator);
         outbuf.writeLine(s1);
     }
 
     @Test(expected=CharacterCodingException.class)
     public void testMalformedInputActionReport() throws Exception {
-        String s = constructString(SWISS_GERMAN_HELLO);
-        byte[] tmp = s.getBytes("ISO-8859-1");
+        final String s = constructString(SWISS_GERMAN_HELLO);
+        final byte[] tmp = s.getBytes("ISO-8859-1");
 
-        CharsetDecoder decoder = Consts.UTF_8.newDecoder();
+        final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
-        ReadableByteChannel channel = newChannel(tmp);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
+        final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
         inbuf.readLine(true);
@@ -479,75 +479,75 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testMalformedInputActionIgnore() throws Exception {
-        String s = constructString(SWISS_GERMAN_HELLO);
-        byte[] tmp = s.getBytes("ISO-8859-1");
+        final String s = constructString(SWISS_GERMAN_HELLO);
+        final byte[] tmp = s.getBytes("ISO-8859-1");
 
-        CharsetDecoder decoder = Consts.UTF_8.newDecoder();
+        final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.IGNORE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
-        ReadableByteChannel channel = newChannel(tmp);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
+        final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
-        String result = inbuf.readLine(true);
+        final String result = inbuf.readLine(true);
         Assert.assertEquals("Grezi_zm", result);
     }
 
     @Test
     public void testMalformedInputActionReplace() throws Exception {
-        String s = constructString(SWISS_GERMAN_HELLO);
-        byte[] tmp = s.getBytes("ISO-8859-1");
+        final String s = constructString(SWISS_GERMAN_HELLO);
+        final byte[] tmp = s.getBytes("ISO-8859-1");
 
-        CharsetDecoder decoder = Consts.UTF_8.newDecoder();
+        final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
-        ReadableByteChannel channel = newChannel(tmp);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
+        final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
-        String result = inbuf.readLine(true);
+        final String result = inbuf.readLine(true);
         Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", result);
     }
 
     @Test(expected=CharacterCodingException.class)
     public void testUnmappableInputActionReport() throws Exception {
-        String s = "This text contains a circumflex \u0302!!!";
-        CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
+        final String s = "This text contains a circumflex \u0302!!!";
+        final CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
         outbuf.writeLine(s);
     }
 
     @Test
     public void testUnmappableInputActionIgnore() throws Exception {
-        String s = "This text contains a circumflex \u0302!!!";
-        CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
+        final String s = "This text contains a circumflex \u0302!!!";
+        final CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
         outbuf.writeLine(s);
         outbuf.flush(channel);
 
-        String result = new String(baos.toByteArray(), "US-ASCII");
+        final String result = new String(baos.toByteArray(), "US-ASCII");
         Assert.assertEquals("This text contains a circumflex !!!\r\n", result);
     }
 
     @Test
     public void testUnmappableInputActionReplace() throws Exception {
-        String s = "This text contains a circumflex \u0302 !!!";
-        CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
+        final String s = "This text contains a circumflex \u0302 !!!";
+        final CharsetEncoder encoder = Consts.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
         outbuf.writeLine(s);
         outbuf.flush(channel);
 
-        String result = new String(baos.toByteArray(), "US-ASCII");
+        final String result = new String(baos.toByteArray(), "US-ASCII");
         Assert.assertEquals("This text contains a circumflex ? !!!\r\n", result);
     }
 

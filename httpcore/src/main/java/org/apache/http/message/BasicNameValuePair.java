@@ -74,8 +74,8 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         if (this.value == null) {
             return name;
         } else {
-            int len = this.name.length() + 1 + this.value.length();
-            StringBuilder buffer = new StringBuilder(len);
+            final int len = this.name.length() + 1 + this.value.length();
+            final StringBuilder buffer = new StringBuilder(len);
             buffer.append(this.name);
             buffer.append("=");
             buffer.append(this.value);
@@ -89,7 +89,7 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
             return true;
         }
         if (object instanceof NameValuePair) {
-            BasicNameValuePair that = (BasicNameValuePair) object;
+            final BasicNameValuePair that = (BasicNameValuePair) object;
             return this.name.equals(that.name)
                   && LangUtils.equals(this.value, that.value);
         } else {

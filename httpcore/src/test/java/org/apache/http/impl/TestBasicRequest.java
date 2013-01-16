@@ -42,20 +42,20 @@ public class TestBasicRequest {
         try {
             new BasicHttpRequest(null, "/stuff");
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             new BasicHttpRequest("GET", null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestLine() throws Exception {
-        HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_0);
+        final HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_0);
         Assert.assertEquals("GET", request.getRequestLine().getMethod());
         Assert.assertEquals("/stuff", request.getRequestLine().getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());

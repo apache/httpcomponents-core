@@ -101,17 +101,17 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         this.bufferpos = 0;
         this.bufferlen = 0;
         this.linebuffer = new ByteArrayBuffer(buffersize);
-        String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
+        final String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
         this.ascii = this.charset.equals(Consts.ASCII);
         this.decoder = null;
         this.maxLineLen = params.getIntParameter(CoreConnectionPNames.MAX_LINE_LENGTH, -1);
         this.minChunkLimit = params.getIntParameter(CoreConnectionPNames.MIN_CHUNK_LIMIT, 512);
         this.metrics = createTransportMetrics();
-        CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
+        final CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
         this.onMalformedCharAction = a1 != null ? a1 : CodingErrorAction.REPORT;
-        CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
+        final CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
                 CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
         this.onUnmappableCharAction = a2 != null? a2 : CodingErrorAction.REPORT;
     }
@@ -147,7 +147,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     protected int fillBuffer() throws IOException {
         // compact the buffer if necessary
         if (this.bufferpos > 0) {
-            int len = this.bufferlen - this.bufferpos;
+            final int len = this.bufferlen - this.bufferpos;
             if (len > 0) {
                 System.arraycopy(this.buffer, this.bufferpos, this.buffer, 0, len);
             }
@@ -155,8 +155,8 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             this.bufferlen = len;
         }
         int l;
-        int off = this.bufferlen;
-        int len = this.buffer.length - off;
+        final int off = this.bufferlen;
+        final int len = this.buffer.length - off;
         l = this.instream.read(this.buffer, off, len);
         if (l == -1) {
             return -1;
@@ -187,7 +187,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             return 0;
         }
         if (hasBufferedData()) {
-            int chunk = Math.min(len, this.bufferlen - this.bufferpos);
+            final int chunk = Math.min(len, this.bufferlen - this.bufferpos);
             System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
             this.bufferpos += chunk;
             return chunk;
@@ -195,7 +195,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         // If the remaining capacity is big enough, read directly from the
         // underlying input stream bypassing the buffer.
         if (len > this.minChunkLimit) {
-            int read = this.instream.read(b, off, len);
+            final int read = this.instream.read(b, off, len);
             if (read > 0) {
                 this.metrics.incrementBytesTransferred(read);
             }
@@ -203,12 +203,12 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         } else {
             // otherwise read to the buffer first
             while (!hasBufferedData()) {
-                int noRead = fillBuffer();
+                final int noRead = fillBuffer();
                 if (noRead == -1) {
                     return -1;
                 }
             }
-            int chunk = Math.min(len, this.bufferlen - this.bufferpos);
+            final int chunk = Math.min(len, this.bufferlen - this.bufferpos);
             System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
             this.bufferpos += chunk;
             return chunk;
@@ -252,7 +252,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         boolean retry = true;
         while (retry) {
             // attempt to find end of line (LF)
-            int i = locateLF();
+            final int i = locateLF();
             if (i != -1) {
                 // end of line found.
                 if (this.linebuffer.isEmpty()) {
@@ -260,13 +260,13 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
                     return lineFromReadBuffer(charbuffer, i);
                 }
                 retry = false;
-                int len = i + 1 - this.bufferpos;
+                final int len = i + 1 - this.bufferpos;
                 this.linebuffer.append(this.buffer, this.bufferpos, len);
                 this.bufferpos = i + 1;
             } else {
                 // end of line not found
                 if (hasBufferedData()) {
-                    int len = this.bufferlen - this.bufferpos;
+                    final int len = this.bufferlen - this.bufferpos;
                     this.linebuffer.append(this.buffer, this.bufferpos, len);
                     this.bufferpos = this.bufferlen;
                 }
@@ -317,7 +317,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         if (this.ascii) {
             charbuffer.append(this.linebuffer, 0, len);
         } else {
-            ByteBuffer bbuf =  ByteBuffer.wrap(this.linebuffer.buffer(), 0, len);
+            final ByteBuffer bbuf =  ByteBuffer.wrap(this.linebuffer.buffer(), 0, len);
             len = appendDecoded(charbuffer, bbuf);
         }
         this.linebuffer.clear();
@@ -326,7 +326,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
 
     private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos)
             throws IOException {
-        int off = this.bufferpos;
+        final int off = this.bufferpos;
         int len;
         this.bufferpos = pos + 1;
         if (pos > off && this.buffer[pos - 1] == HTTP.CR) {
@@ -337,7 +337,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         if (this.ascii) {
             charbuffer.append(this.buffer, off, len);
         } else {
-            ByteBuffer bbuf =  ByteBuffer.wrap(this.buffer, off, len);
+            final ByteBuffer bbuf =  ByteBuffer.wrap(this.buffer, off, len);
             len = appendDecoded(charbuffer, bbuf);
         }
         return len;
@@ -359,10 +359,10 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         this.decoder.reset();
         int len = 0;
         while (bbuf.hasRemaining()) {
-            CoderResult result = this.decoder.decode(bbuf, this.cbuf, true);
+            final CoderResult result = this.decoder.decode(bbuf, this.cbuf, true);
             len += handleDecodingResult(result, charbuffer, bbuf);
         }
-        CoderResult result = this.decoder.flush(this.cbuf);
+        final CoderResult result = this.decoder.flush(this.cbuf);
         len += handleDecodingResult(result, charbuffer, bbuf);
         this.cbuf.clear();
         return len;
@@ -376,7 +376,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             result.throwException();
         }
         this.cbuf.flip();
-        int len = this.cbuf.remaining();
+        final int len = this.cbuf.remaining();
         while (this.cbuf.hasRemaining()) {
             charbuffer.append(this.cbuf.get());
         }
@@ -385,8 +385,8 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     }
 
     public String readLine() throws IOException {
-        CharArrayBuffer charbuffer = new CharArrayBuffer(64);
-        int l = readLine(charbuffer);
+        final CharArrayBuffer charbuffer = new CharArrayBuffer(64);
+        final int l = readLine(charbuffer);
         if (l != -1) {
             return charbuffer.toString();
         } else {

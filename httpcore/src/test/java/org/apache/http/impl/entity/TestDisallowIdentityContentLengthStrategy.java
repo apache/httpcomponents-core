@@ -38,19 +38,19 @@ public class TestDisallowIdentityContentLengthStrategy {
 
     @Test
     public void testZeroLength() throws Exception {
-        ContentLengthStrategy strat1 = Mockito.mock(ContentLengthStrategy.class);
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy strat1 = Mockito.mock(ContentLengthStrategy.class);
+        final HttpMessage message = new DummyHttpMessage();
         Mockito.when(strat1.determineLength(message)).thenReturn(0L);
-        DisallowIdentityContentLengthStrategy strat2 = new DisallowIdentityContentLengthStrategy(strat1);
+        final DisallowIdentityContentLengthStrategy strat2 = new DisallowIdentityContentLengthStrategy(strat1);
         Assert.assertEquals(0L, strat2.determineLength(message));
     }
 
     @Test(expected=ProtocolException.class)
     public void testIdentity() throws Exception {
-        ContentLengthStrategy strat1 = Mockito.mock(ContentLengthStrategy.class);
-        HttpMessage message = new DummyHttpMessage();
+        final ContentLengthStrategy strat1 = Mockito.mock(ContentLengthStrategy.class);
+        final HttpMessage message = new DummyHttpMessage();
         Mockito.when(strat1.determineLength(message)).thenReturn((long) ContentLengthStrategy.IDENTITY);
-        DisallowIdentityContentLengthStrategy strat2 = new DisallowIdentityContentLengthStrategy(strat1);
+        final DisallowIdentityContentLengthStrategy strat2 = new DisallowIdentityContentLengthStrategy(strat1);
         strat2.determineLength(message);
     }
 

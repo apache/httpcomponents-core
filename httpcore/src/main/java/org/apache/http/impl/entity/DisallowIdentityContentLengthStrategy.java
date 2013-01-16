@@ -53,7 +53,7 @@ public class DisallowIdentityContentLengthStrategy implements ContentLengthStrat
     }
 
     public long determineLength(final HttpMessage message) throws HttpException {
-        long result = this.contentLengthStrategy.determineLength(message);
+        final long result = this.contentLengthStrategy.determineLength(message);
         if (result == ContentLengthStrategy.IDENTITY) {
             throw new ProtocolException("Identity transfer encoding cannot be used");
         }

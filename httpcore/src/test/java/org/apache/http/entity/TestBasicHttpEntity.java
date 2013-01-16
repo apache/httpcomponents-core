@@ -44,9 +44,9 @@ public class TestBasicHttpEntity {
     @Test
     public void testBasics() throws Exception {
 
-        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
-        InputStream content = new ByteArrayInputStream(bytes);
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final InputStream content = new ByteArrayInputStream(bytes);
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);
         httpentity.setContentLength(bytes.length);
 
@@ -57,13 +57,13 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testContent() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
-        InputStream content = new ByteArrayInputStream(bytes);
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final InputStream content = new ByteArrayInputStream(bytes);
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         try {
             httpentity.getContent();
             Assert.fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // expected
         }
         httpentity.setContent(content);
@@ -73,21 +73,21 @@ public class TestBasicHttpEntity {
         try {
             httpentity.getContent();
             Assert.fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // expected
         }
     }
 
     @Test
     public void testWriteTo() throws Exception {
-        byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
-        InputStream content = new ByteArrayInputStream(bytes);
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final InputStream content = new ByteArrayInputStream(bytes);
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
-        byte[] bytes2 = out.toByteArray();
+        final byte[] bytes2 = out.toByteArray();
         Assert.assertNotNull(bytes2);
         Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
@@ -98,14 +98,14 @@ public class TestBasicHttpEntity {
         try {
             httpentity.writeTo(out);
             Assert.fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // expected
         }
 
         try {
             httpentity.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

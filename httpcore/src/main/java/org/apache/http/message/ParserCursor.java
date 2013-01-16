@@ -86,7 +86,7 @@ public class ParserCursor {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append('[');
         buffer.append(Integer.toString(this.lowerBound));
         buffer.append('>');

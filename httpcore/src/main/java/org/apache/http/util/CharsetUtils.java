@@ -39,7 +39,7 @@ public class CharsetUtils {
         }
         try {
             return Charset.forName(name);
-        } catch (UnsupportedCharsetException ex) {
+        } catch (final UnsupportedCharsetException ex) {
             return null;
         }
     }
@@ -50,7 +50,7 @@ public class CharsetUtils {
         }
         try {
             return Charset.forName(name);
-        } catch (UnsupportedCharsetException ex) {
+        } catch (final UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(name);
         }
     }

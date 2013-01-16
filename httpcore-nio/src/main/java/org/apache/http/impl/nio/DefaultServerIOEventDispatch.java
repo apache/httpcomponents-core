@@ -126,7 +126,7 @@ public class DefaultServerIOEventDispatch extends AbstractIODispatch<NHttpServer
 
     @Override
     protected void onConnected(final NHttpServerIOTarget conn) {
-        int timeout = HttpConnectionParams.getSoTimeout(this.params);
+        final int timeout = HttpConnectionParams.getSoTimeout(this.params);
         conn.setSocketTimeout(timeout);
         this.handler.connected(conn);
     }

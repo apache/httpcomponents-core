@@ -43,7 +43,7 @@ public class TestEnglishReasonPhraseCatalog {
 
     @Test
     public void testReasonPhrases() throws IllegalAccessException {
-    Field[] publicFields = HttpStatus.class.getFields();
+    final Field[] publicFields = HttpStatus.class.getFields();
 
     Assert.assertNotNull( publicFields );
 
@@ -72,17 +72,17 @@ public class TestEnglishReasonPhraseCatalog {
         try {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(-1, null);
             Assert.fail("IllegalArgumentException must have been thrown (-1)");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(99, null);
             Assert.fail("IllegalArgumentException must have been thrown (99)");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(600, null);
             Assert.fail("IllegalArgumentException must have been thrown (600)");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
     }
 

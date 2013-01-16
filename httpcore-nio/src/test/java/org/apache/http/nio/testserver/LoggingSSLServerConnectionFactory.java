@@ -44,7 +44,7 @@ public class LoggingSSLServerConnectionFactory implements NHttpConnectionFactory
     }
 
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
-        SSLIOSession ssliosession = new SSLIOSession(
+        final SSLIOSession ssliosession = new SSLIOSession(
                 iosession, SSLMode.SERVER, this.sslcontext, null);
         iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return new LoggingNHttpServerConnection(ssliosession);

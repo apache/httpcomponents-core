@@ -57,7 +57,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
 
     public int produceContent(final ContentEncoder encoder) throws IOException {
         setOutputMode();
-        int bytesWritten = encoder.write(this.buffer);
+        final int bytesWritten = encoder.write(this.buffer);
         if (!hasData() && this.endOfStream) {
             encoder.complete();
         }

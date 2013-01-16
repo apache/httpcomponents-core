@@ -38,7 +38,7 @@ public class TestBasicHttpResponse {
 
     @Test
     public void testBasics() {
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
@@ -47,7 +47,7 @@ public class TestBasicHttpResponse {
 
     @Test
     public void testStatusLineMutation() {
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
         Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
@@ -78,23 +78,23 @@ public class TestBasicHttpResponse {
         try {
             new BasicHttpResponse(HttpVersion.HTTP_1_1, -200, "OK");
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         try {
             response.setStatusCode(-1);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             response.setStatusLine(HttpVersion.HTTP_1_1, -1);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             response.setStatusLine(HttpVersion.HTTP_1_1, -1, "not ok");
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
     }
 

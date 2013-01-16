@@ -127,7 +127,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
         ensureOpen();
-        HttpRequest request = this.requestParser.parse();
+        final HttpRequest request = this.requestParser.parse();
         onRequestReceived(request);
         incrementRequestCount();
         return request;
@@ -137,7 +137,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         ensureOpen();
-        HttpEntity entity = prepareInput(request);
+        final HttpEntity entity = prepareInput(request);
         request.setEntity(entity);
     }
 
@@ -156,11 +156,11 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         ensureOpen();
-        HttpEntity entity = response.getEntity();
+        final HttpEntity entity = response.getEntity();
         if (entity == null) {
             return;
         }
-        OutputStream outstream = prepareOutput(response);
+        final OutputStream outstream = prepareOutput(response);
         entity.writeTo(outstream);
         outstream.close();
     }

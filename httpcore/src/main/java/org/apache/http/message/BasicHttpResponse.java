@@ -221,7 +221,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
 
     @Override
     public String toString() {
-        StatusLine statusline = getStatusLine();
+        final StatusLine statusline = getStatusLine();
         return statusline + " " + this.headergroup;
     }
 

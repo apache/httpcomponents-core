@@ -242,7 +242,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
         assertOpen();
-        HttpRequest request = this.requestParser.parse();
+        final HttpRequest request = this.requestParser.parse();
         this.metrics.incrementRequestCount();
         return request;
     }
@@ -251,7 +251,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         assertOpen();
-        HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, request);
+        final HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, request);
         request.setEntity(entity);
     }
 
@@ -299,7 +299,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         try {
             this.inbuffer.isDataAvailable(1);
             return isEof();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             return true;
         }
     }

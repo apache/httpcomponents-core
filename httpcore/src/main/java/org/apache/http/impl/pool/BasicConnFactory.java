@@ -130,14 +130,14 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
      */
     @Deprecated
     protected HttpClientConnection create(final Socket socket, final HttpParams params) throws IOException {
-        int bufsize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(bufsize);
+        final int bufsize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, 8 * 1024);
+        final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(bufsize);
         conn.bind(socket);
         return conn;
     }
 
     public HttpClientConnection create(final HttpHost host) throws IOException {
-        String scheme = host.getSchemeName();
+        final String scheme = host.getSchemeName();
         Socket socket = null;
         if ("http".equalsIgnoreCase(scheme)) {
             socket = new Socket();
@@ -152,16 +152,16 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         socket.setSoTimeout(this.sconfig.getSoTimeout());
         socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.connectTimeout);
         socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
-        int linger = this.sconfig.getSoLinger();
+        final int linger = this.sconfig.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
         }
         CharsetDecoder chardecoder = null;
         CharsetEncoder charencoder = null;
-        Charset charset = this.cconfig.getCharset();
-        CodingErrorAction malformedInputAction = this.cconfig.getMalformedInputAction() != null ?
+        final Charset charset = this.cconfig.getCharset();
+        final CodingErrorAction malformedInputAction = this.cconfig.getMalformedInputAction() != null ?
                 this.cconfig.getMalformedInputAction() : CodingErrorAction.REPORT;
-        CodingErrorAction unmappableInputAction = this.cconfig.getUnmappableInputAction() != null ?
+        final CodingErrorAction unmappableInputAction = this.cconfig.getUnmappableInputAction() != null ?
                 this.cconfig.getUnmappableInputAction() : CodingErrorAction.REPORT;
         if (charset != null) {
             chardecoder = charset.newDecoder();
@@ -171,7 +171,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
             charencoder.onMalformedInput(malformedInputAction);
             charencoder.onUnmappableCharacter(unmappableInputAction);
         }
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024,
+        final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024,
                 chardecoder, charencoder,
                 this.cconfig.getMessageConstraints());
         conn.bind(socket);

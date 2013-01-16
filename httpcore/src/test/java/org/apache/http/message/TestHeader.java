@@ -44,14 +44,14 @@ public class TestHeader {
 
     @Test
     public void testBasicConstructor() {
-        Header header = new BasicHeader("name", "value");
+        final Header header = new BasicHeader("name", "value");
         Assert.assertEquals("name", header.getName());
         Assert.assertEquals("value", header.getValue());
     }
 
     @Test
     public void testBasicConstructorNullValue() {
-        Header header = new BasicHeader("name", null);
+        final Header header = new BasicHeader("name", null);
         Assert.assertEquals("name", header.getName());
         Assert.assertEquals(null, header.getValue());
     }
@@ -61,16 +61,16 @@ public class TestHeader {
         try {
             new BasicHeader(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             //expected
         }
     }
 
     @Test
     public void testToString() {
-        Header header1 = new BasicHeader("name1", "value1");
+        final Header header1 = new BasicHeader("name1", "value1");
         Assert.assertEquals("name1: value1", header1.toString());
-        Header header2 = new BasicHeader("name2", null);
+        final Header header2 = new BasicHeader("name2", null);
         Assert.assertEquals("name2: ", header2.toString());
     }
 
@@ -96,23 +96,23 @@ public class TestHeader {
 
     @Test
     public void testCloning() throws Exception {
-        BasicHeader orig = new BasicHeader("name1", "value1");
-        BasicHeader clone = (BasicHeader) orig.clone();
+        final BasicHeader orig = new BasicHeader("name1", "value1");
+        final BasicHeader clone = (BasicHeader) orig.clone();
         Assert.assertEquals(orig.getName(), clone.getName());
         Assert.assertEquals(orig.getValue(), clone.getValue());
     }
 
     @Test
     public void testSerialization() throws Exception {
-        BasicHeader orig = new BasicHeader("name1", "value1");
-        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        final BasicHeader orig = new BasicHeader("name1", "value1");
+        final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
         outstream.close();
-        byte[] raw = outbuffer.toByteArray();
-        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        BasicHeader clone = (BasicHeader) instream.readObject();
+        final byte[] raw = outbuffer.toByteArray();
+        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        final BasicHeader clone = (BasicHeader) instream.readObject();
         Assert.assertEquals(orig.getName(), clone.getName());
         Assert.assertEquals(orig.getValue(), clone.getValue());
     }

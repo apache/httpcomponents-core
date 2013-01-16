@@ -116,7 +116,7 @@ public final class ContentType implements Serializable {
      */
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder();
+        final StringBuilder buf = new StringBuilder();
         buf.append(this.mimeType);
         if (this.charset != null) {
             buf.append("; charset=");
@@ -127,7 +127,7 @@ public final class ContentType implements Serializable {
 
     private static boolean valid(final String s) {
         for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
+            final char ch = s.charAt(i);
             if (ch == '"' || ch == ',' || ch == ';') {
                 return false;
             }
@@ -144,7 +144,7 @@ public final class ContentType implements Serializable {
      * @return content type
      */
     public static ContentType create(final String mimeType, final Charset charset) {
-        String type = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.US);
+        final String type = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.US);
         Args.check(valid(type), "MIME type may not contain reserved characters");
         return new ContentType(type, charset);
     }
@@ -177,9 +177,9 @@ public final class ContentType implements Serializable {
     }
 
     private static ContentType create(final HeaderElement helem) {
-        String mimeType = helem.getName();
+        final String mimeType = helem.getName();
         String charset = null;
-        NameValuePair param = helem.getParameterByName("charset");
+        final NameValuePair param = helem.getParameterByName("charset");
         if (param != null) {
             charset = param.getValue();
         }
@@ -199,7 +199,7 @@ public final class ContentType implements Serializable {
     public static ContentType parse(
             final String s) throws ParseException, UnsupportedCharsetException {
         Args.notNull(s, "Content type");
-        HeaderElement[] elements = BasicHeaderValueParser.parseElements(s, null);
+        final HeaderElement[] elements = BasicHeaderValueParser.parseElements(s, null);
         if (elements.length > 0) {
             return create(elements[0]);
         } else {
@@ -224,9 +224,9 @@ public final class ContentType implements Serializable {
         if (entity == null) {
             return null;
         }
-        Header header = entity.getContentType();
+        final Header header = entity.getContentType();
         if (header != null) {
-            HeaderElement[] elements = header.getElements();
+            final HeaderElement[] elements = header.getElements();
             if (elements.length > 0) {
                 return create(elements[0]);
             }
@@ -247,7 +247,7 @@ public final class ContentType implements Serializable {
      */
     public static ContentType getOrDefault(
             final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
-        ContentType contentType = get(entity);
+        final ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;
     }
 

@@ -142,10 +142,10 @@ public class DefaultHttpClientIODispatch
 
     @Override
     protected void onConnected(final DefaultNHttpClientConnection conn) {
-        Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
+        final Object attachment = conn.getContext().getAttribute(IOSession.ATTACHMENT_KEY);
         try {
             this.handler.connected(conn, attachment);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.handler.exception(conn, ex);
         }
     }
@@ -174,7 +174,7 @@ public class DefaultHttpClientIODispatch
     protected void onTimeout(final DefaultNHttpClientConnection conn) {
         try {
             this.handler.timeout(conn);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.handler.exception(conn, ex);
         }
     }

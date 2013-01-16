@@ -106,7 +106,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
     }
 
     private void expandCapacity(final int capacity) {
-        ByteBuffer oldbuffer = this.buffer;
+        final ByteBuffer oldbuffer = this.buffer;
         this.buffer = allocator.allocate(capacity);
         oldbuffer.flip();
         this.buffer.put(oldbuffer);
@@ -184,9 +184,9 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
         sb.append("[mode=");
-        int mode = getMode();
+        final int mode = getMode();
         if (mode == INPUT_MODE) {
             sb.append("in");
         } else {

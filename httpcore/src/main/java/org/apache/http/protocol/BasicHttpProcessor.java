@@ -83,9 +83,9 @@ public final class BasicHttpProcessor implements
     }
 
     public void removeRequestInterceptorByClass(final Class<? extends HttpRequestInterceptor> clazz) {
-        for (Iterator<HttpRequestInterceptor> it = this.requestInterceptors.iterator();
+        for (final Iterator<HttpRequestInterceptor> it = this.requestInterceptors.iterator();
              it.hasNext(); ) {
-            Object request = it.next();
+            final Object request = it.next();
             if (request.getClass().equals(clazz)) {
                 it.remove();
             }
@@ -93,9 +93,9 @@ public final class BasicHttpProcessor implements
     }
 
     public void removeResponseInterceptorByClass(final Class<? extends HttpResponseInterceptor> clazz) {
-        for (Iterator<HttpResponseInterceptor> it = this.responseInterceptors.iterator();
+        for (final Iterator<HttpResponseInterceptor> it = this.responseInterceptors.iterator();
              it.hasNext(); ) {
-            Object request = it.next();
+            final Object request = it.next();
             if (request.getClass().equals(clazz)) {
                 it.remove();
             }
@@ -177,7 +177,7 @@ public final class BasicHttpProcessor implements
         this.requestInterceptors.clear();
         this.responseInterceptors.clear();
         for (int i = 0; i < list.size(); i++) {
-            Object obj = list.get(i);
+            final Object obj = list.get(i);
             if (obj instanceof HttpRequestInterceptor) {
                 addInterceptor((HttpRequestInterceptor)obj);
             }
@@ -200,7 +200,7 @@ public final class BasicHttpProcessor implements
             final HttpContext context)
             throws IOException, HttpException {
         for (int i = 0; i < this.requestInterceptors.size(); i++) {
-            HttpRequestInterceptor interceptor =
+            final HttpRequestInterceptor interceptor =
                 this.requestInterceptors.get(i);
             interceptor.process(request, context);
         }
@@ -211,7 +211,7 @@ public final class BasicHttpProcessor implements
             final HttpContext context)
             throws IOException, HttpException {
         for (int i = 0; i < this.responseInterceptors.size(); i++) {
-            HttpResponseInterceptor interceptor =
+            final HttpResponseInterceptor interceptor =
                 this.responseInterceptors.get(i);
             interceptor.process(response, context);
         }
@@ -236,14 +236,14 @@ public final class BasicHttpProcessor implements
      * @return new instance of the BasicHttpProcessor
      */
     public BasicHttpProcessor copy() {
-        BasicHttpProcessor clone = new BasicHttpProcessor();
+        final BasicHttpProcessor clone = new BasicHttpProcessor();
         copyInterceptors(clone);
         return clone;
     }
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        BasicHttpProcessor clone = (BasicHttpProcessor) super.clone();
+        final BasicHttpProcessor clone = (BasicHttpProcessor) super.clone();
         copyInterceptors(clone);
         return clone;
     }

@@ -60,16 +60,16 @@ public class TestAbstractMessage {
 
     @Test
     public void testBasicProperties() {
-        HttpMessage message = new TestHttpMessage();
+        final HttpMessage message = new TestHttpMessage();
         Assert.assertNotNull(message.headerIterator());
-        Header[] headers = message.getAllHeaders();
+        final Header[] headers = message.getAllHeaders();
         Assert.assertNotNull(headers);
         Assert.assertEquals(0, headers.length);
     }
 
     @Test
     public void testBasicHeaderOps() {
-        HttpMessage message = new TestHttpMessage();
+        final HttpMessage message = new TestHttpMessage();
         Assert.assertFalse(message.containsHeader("whatever"));
 
         message.addHeader("name", "1");
@@ -128,17 +128,17 @@ public class TestAbstractMessage {
 
     @Test
     public void testInvalidInput() {
-        HttpMessage message = new TestHttpMessage();
+        final HttpMessage message = new TestHttpMessage();
         try {
             message.addHeader(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             message.setHeader(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

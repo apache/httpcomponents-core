@@ -55,16 +55,16 @@ public class TestIdentityEncoder {
 
     @Test
     public void testBasicCoding() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
+        final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
         encoder.complete();
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff", s);
@@ -72,22 +72,22 @@ public class TestIdentityEncoder {
 
     @Test
     public void testCodingEmptyBuffer() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
+        final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
 
-        ByteBuffer empty = ByteBuffer.allocate(100);
+        final ByteBuffer empty = ByteBuffer.allocate(100);
         empty.flip();
         encoder.write(empty);
         encoder.write(null);
 
         encoder.complete();
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff", s);
@@ -95,45 +95,45 @@ public class TestIdentityEncoder {
 
     @Test
     public void testCodingCompleted() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
+        final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(wrap("stuff"));
         encoder.complete();
 
         try {
             encoder.write(wrap("more stuff"));
             Assert.fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // ignore
         }
     }
 
     @Test
     public void testInvalidConstructor() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
 
         try {
             new IdentityEncoder(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new IdentityEncoder(channel, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new IdentityEncoder(channel, outbuf, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
     }

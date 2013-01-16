@@ -52,7 +52,7 @@ public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection
     public void close() {
         try {
             getConnection().close();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 

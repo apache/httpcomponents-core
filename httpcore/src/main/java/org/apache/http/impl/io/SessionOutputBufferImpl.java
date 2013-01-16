@@ -126,7 +126,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
     }
 
     private void flushBuffer() throws IOException {
-        int len = this.buffer.length();
+        final int len = this.buffer.length();
         if (len > 0) {
             streamWrite(this.buffer.buffer(), 0, len);
             this.buffer.clear();
@@ -154,7 +154,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
             this.metrics.incrementBytesTransferred(len);
         } else {
             // Do not let the buffer grow unnecessarily
-            int freecapacity = this.buffer.capacity() - this.buffer.length();
+            final int freecapacity = this.buffer.capacity() - this.buffer.length();
             if (len > freecapacity) {
                 // flush the buffer
                 flushBuffer();
@@ -197,7 +197,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
                     write(s.charAt(i));
                 }
             } else {
-                CharBuffer cbuf = CharBuffer.wrap(s);
+                final CharBuffer cbuf = CharBuffer.wrap(s);
                 writeEncoded(cbuf);
             }
         }
@@ -233,7 +233,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
                 remaining -= chunk;
             }
         } else {
-            CharBuffer cbuf = CharBuffer.wrap(charbuffer.buffer(), 0, charbuffer.length());
+            final CharBuffer cbuf = CharBuffer.wrap(charbuffer.buffer(), 0, charbuffer.length());
             writeEncoded(cbuf);
         }
         write(CRLF);
@@ -248,10 +248,10 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         }
         this.encoder.reset();
         while (cbuf.hasRemaining()) {
-            CoderResult result = this.encoder.encode(cbuf, this.bbuf, true);
+            final CoderResult result = this.encoder.encode(cbuf, this.bbuf, true);
             handleEncodingResult(result);
         }
-        CoderResult result = this.encoder.flush(this.bbuf);
+        final CoderResult result = this.encoder.flush(this.bbuf);
         handleEncodingResult(result);
         this.bbuf.clear();
     }

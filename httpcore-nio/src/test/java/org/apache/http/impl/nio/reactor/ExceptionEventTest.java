@@ -36,7 +36,7 @@ public class ExceptionEventTest {
 
     @Test
     public void testGetCause() {
-        NullPointerException npe = new NullPointerException("npe");
+        final NullPointerException npe = new NullPointerException("npe");
         ExceptionEvent ee = new ExceptionEvent(npe);
         Assert.assertSame(npe, ee.getCause());
         ee = new ExceptionEvent(npe, new Date());
@@ -45,7 +45,7 @@ public class ExceptionEventTest {
 
     @Test
     public void testGetTimestamp() {
-        NullPointerException npe = new NullPointerException("npe");
+        final NullPointerException npe = new NullPointerException("npe");
         ExceptionEvent ee = new ExceptionEvent(npe);
         Assert.assertNotNull(ee.getTimestamp());
         ee = new ExceptionEvent(npe, new Date(1234567890L));

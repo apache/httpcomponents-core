@@ -106,8 +106,8 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.client.setMaxPerRoute(connNo);
         this.client.setMaxTotal(connNo);
 
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        HttpAsyncService serviceHandler = new HttpAsyncService(
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final HttpAsyncService serviceHandler = new HttpAsyncService(
                 HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
             @Override
@@ -123,7 +123,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
             }
 
         };
-        HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor() {
+        final HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor() {
 
             @Override
             public void connected(
@@ -143,21 +143,21 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start(clientHandler);
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        HttpHost target = new HttpHost("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        Queue<Future<BasicNIOPoolEntry>> queue = new LinkedList<Future<BasicNIOPoolEntry>>();
+        final Queue<Future<BasicNIOPoolEntry>> queue = new LinkedList<Future<BasicNIOPoolEntry>>();
         for (int i = 0; i < connNo; i++) {
             queue.add(this.client.lease(target, null));
         }
 
         while (!queue.isEmpty()) {
-            Future<BasicNIOPoolEntry> future = queue.remove();
-            BasicNIOPoolEntry poolEntry = future.get();
+            final Future<BasicNIOPoolEntry> future = queue.remove();
+            final BasicNIOPoolEntry poolEntry = future.get();
             Assert.assertNotNull(poolEntry);
         }
 
@@ -176,7 +176,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     @Test
     public void testRuntimeException() throws Exception {
 
-        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+        final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request,
@@ -187,9 +187,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
+        final HttpAsyncService serviceHandler = new HttpAsyncService(
                 HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
                     @Override
@@ -206,25 +206,25 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start();
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        HttpHost target = new HttpHost("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         this.client.execute(target, request);
 
         this.server.join(20000);
 
-        Exception ex = this.server.getException();
+        final Exception ex = this.server.getException();
         Assert.assertNotNull(ex);
         Assert.assertTrue(ex instanceof IOReactorException);
         Assert.assertNotNull(ex.getCause());
         Assert.assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
 
-        List<ExceptionEvent> auditlog = this.server.getAuditLog();
+        final List<ExceptionEvent> auditlog = this.server.getAuditLog();
         Assert.assertNotNull(auditlog);
         Assert.assertEquals(1, auditlog.size());
 
@@ -239,7 +239,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     public void testUnhandledRuntimeException() throws Exception {
         final CountDownLatch requestConns = new CountDownLatch(1);
 
-        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+        final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request,
@@ -250,7 +250,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
+        final IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
 
             public boolean handle(final IOException ex) {
                 return false;
@@ -263,9 +263,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
+        final HttpAsyncService serviceHandler = new HttpAsyncService(
                 HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
             @Override
@@ -283,25 +283,25 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start();
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        HttpHost target = new HttpHost("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         this.client.execute(target, request);
 
         this.server.join(20000);
 
-        Exception ex = this.server.getException();
+        final Exception ex = this.server.getException();
         Assert.assertNotNull(ex);
         Assert.assertTrue(ex instanceof IOReactorException);
         Assert.assertNotNull(ex.getCause());
         Assert.assertTrue(ex.getCause() instanceof OoopsieRuntimeException);
 
-        List<ExceptionEvent> auditlog = this.server.getAuditLog();
+        final List<ExceptionEvent> auditlog = this.server.getAuditLog();
         Assert.assertNotNull(auditlog);
         Assert.assertEquals(1, auditlog.size());
 
@@ -316,7 +316,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     public void testHandledRuntimeException() throws Exception {
         final CountDownLatch requestConns = new CountDownLatch(1);
 
-        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+        final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request,
@@ -327,7 +327,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
+        final IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
 
             public boolean handle(final IOException ex) {
                 return false;
@@ -340,9 +340,9 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         };
 
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(requestHandler));
-        HttpAsyncService serviceHandler = new HttpAsyncService(
+        final HttpAsyncService serviceHandler = new HttpAsyncService(
                 HttpServerNio.DEFAULT_HTTP_PROC, registry) {
 
             @Override
@@ -360,14 +360,14 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         this.server.start(serviceHandler);
         this.client.start();
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        HttpHost target = new HttpHost("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         this.client.execute(target, request);
 
         requestConns.await();

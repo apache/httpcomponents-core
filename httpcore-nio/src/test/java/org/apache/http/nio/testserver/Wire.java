@@ -43,9 +43,9 @@ class Wire {
     }
 
     private void wire(final String header, final byte[] b, final int pos, final int off) {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < off; i++) {
-            int ch = b[pos + i];
+            final int ch = b[pos + i];
             if (ch == 13) {
                 buffer.append("[\\r]");
             } else if (ch == 10) {
@@ -103,7 +103,7 @@ class Wire {
         if (b.hasArray()) {
             output(b.array(), b.arrayOffset() + b.position(), b.remaining());
         } else {
-            byte[] tmp = new byte[b.remaining()];
+            final byte[] tmp = new byte[b.remaining()];
             b.get(tmp);
             output(tmp);
         }
@@ -113,7 +113,7 @@ class Wire {
         if (b.hasArray()) {
             input(b.array(), b.arrayOffset() + b.position(), b.remaining());
         } else {
-            byte[] tmp = new byte[b.remaining()];
+            final byte[] tmp = new byte[b.remaining()];
             b.get(tmp);
             input(tmp);
         }

@@ -95,8 +95,8 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final HttpAsyncResponseProducer responseProducer = new HttpAsyncResponseProducer() {
 
             public HttpResponse generateResponse() {
-                HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-                BasicHttpEntity entity = new BasicHttpEntity();
+                final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+                final BasicHttpEntity entity = new BasicHttpEntity();
                 entity.setContentType(ContentType.DEFAULT_BINARY.toString());
                 entity.setChunked(true);
                 response.setEntity(entity);
@@ -121,7 +121,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
 
         };
 
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -141,15 +141,15 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         });
         this.server.start(registry);
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        Socket socket = new Socket("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final Socket socket = new Socket("localhost", address.getPort());
         try {
-            OutputStream outstream = socket.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outstream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
             writer.write("GET /long HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
@@ -177,7 +177,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
         };
 
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -198,15 +198,15 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         });
         this.server.start(registry);
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        Socket socket = new Socket("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final Socket socket = new Socket("localhost", address.getPort());
         try {
-            OutputStream outstream = socket.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outstream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
             writer.write("GET /long HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");

@@ -158,7 +158,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
     class RequestHandlerResolverAdaptor implements NHttpRequestHandlerResolver {
 
         public NHttpRequestHandler lookup(final String requestURI) {
-            HttpRequestHandler handler = handlerResolver.lookup(requestURI);
+            final HttpRequestHandler handler = handlerResolver.lookup(requestURI);
             if (handler != null) {
                 return new RequestHandlerAdaptor(handler);
             } else {

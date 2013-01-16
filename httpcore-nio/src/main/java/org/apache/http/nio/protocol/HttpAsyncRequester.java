@@ -125,7 +125,7 @@ public class HttpAsyncRequester {
         Args.notNull(responseConsumer, "HTTP response consumer");
         Args.notNull(conn, "HTTP connection");
         Args.notNull(context, "HTTP context");
-        BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+        final BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                 requestProducer, responseConsumer, callback, context,
                 this.httppocessor, this.reuseStrategy);
         initExection(handler, conn);
@@ -140,7 +140,7 @@ public class HttpAsyncRequester {
             handler.failed(new ConnectionClosedException("Connection closed"));
             try {
                 handler.close();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 log(ex);
             }
         }
@@ -202,8 +202,8 @@ public class HttpAsyncRequester {
         Args.notNull(responseConsumer, "HTTP response consumer");
         Args.notNull(connPool, "HTTP connection pool");
         Args.notNull(context, "HTTP context");
-        BasicFuture<T> future = new BasicFuture<T>(callback);
-        HttpHost target = requestProducer.getTarget();
+        final BasicFuture<T> future = new BasicFuture<T>(callback);
+        final HttpHost target = requestProducer.getTarget();
         connPool.lease(target, null, new ConnRequestCallback<T, E>(
                 future, requestProducer, responseConsumer, connPool, context));
         return future;
@@ -238,9 +238,9 @@ public class HttpAsyncRequester {
         Args.notNull(connPool, "HTTP connection pool");
         Args.notNull(poolEntry, "Pool entry");
         Args.notNull(context, "HTTP context");
-        BasicFuture<T> future = new BasicFuture<T>(callback);
-        NHttpClientConnection conn = poolEntry.getConnection();
-        BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+        final BasicFuture<T> future = new BasicFuture<T>(callback);
+        final NHttpClientConnection conn = poolEntry.getConnection();
+        final BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                 requestProducer, responseConsumer,
                 new RequestExecutionCallback<T, E>(future, poolEntry, connPool),
                 context,
@@ -312,8 +312,8 @@ public class HttpAsyncRequester {
                 this.connPool.release(result, true);
                 return;
             }
-            NHttpClientConnection conn = result.getConnection();
-            BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+            final NHttpClientConnection conn = result.getConnection();
+            final BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
                     this.context, httppocessor, reuseStrategy);
@@ -347,12 +347,12 @@ public class HttpAsyncRequester {
         public void releaseResources() {
             try {
                 this.requestProducer.close();
-            } catch (IOException ioex) {
+            } catch (final IOException ioex) {
                 log(ioex);
             }
             try {
                 this.responseConsumer.close();
-            } catch (IOException ioex) {
+            } catch (final IOException ioex) {
                 log(ioex);
             }
         }

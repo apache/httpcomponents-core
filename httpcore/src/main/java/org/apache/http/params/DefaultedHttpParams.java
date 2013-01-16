@@ -65,7 +65,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * Creates a copy of the local collection with the same default
      */
     public HttpParams copy() {
-        HttpParams clone = this.local.copy();
+        final HttpParams clone = this.local.copy();
         return new DefaultedHttpParams(clone, this.defaults);
     }
 
@@ -119,7 +119,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      */
     @Override
     public Set<String> getNames() {
-        Set<String> combined = new HashSet<String>(getNames(defaults));
+        final Set<String> combined = new HashSet<String>(getNames(defaults));
         combined.addAll(getNames(this.local));
         return combined ;
     }

@@ -61,7 +61,7 @@ final class SimpleRequestHandler implements HttpRequestHandler {
 
         String content = null;
         if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+            final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
             if (entity != null) {
                 content = EntityUtils.toString(entity);
             } else {
@@ -69,21 +69,21 @@ final class SimpleRequestHandler implements HttpRequestHandler {
                 content = "Request entity not avaialble";
             }
         } else {
-            String s = request.getRequestLine().getUri();
-            int idx = s.indexOf('x');
+            final String s = request.getRequestLine().getUri();
+            final int idx = s.indexOf('x');
             if (idx == -1) {
                 throw new HttpException("Unexpected request-URI format");
             }
-            String pattern = s.substring(0, idx);
-            int count = Integer.parseInt(s.substring(idx + 1, s.length()));
+            final String pattern = s.substring(0, idx);
+            final int count = Integer.parseInt(s.substring(idx + 1, s.length()));
 
-            StringBuilder buffer = new StringBuilder();
+            final StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < count; i++) {
                 buffer.append(pattern);
             }
             content = buffer.toString();
         }
-        NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
+        final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
         entity.setChunked(this.chunking);
         response.setEntity(entity);
     }

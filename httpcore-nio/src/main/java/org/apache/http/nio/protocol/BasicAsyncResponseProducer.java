@@ -87,7 +87,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         super();
         Args.notNull(response, "HTTP response");
         this.response = response;
-        HttpEntity entity = response.getEntity();
+        final HttpEntity entity = response.getEntity();
         if (entity != null) {
             if (entity instanceof HttpAsyncContentProducer) {
                 this.producer = (HttpAsyncContentProducer) entity;

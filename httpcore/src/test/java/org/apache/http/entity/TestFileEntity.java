@@ -43,9 +43,9 @@ public class TestFileEntity {
 
     @Test
     public void testBasics() throws Exception {
-        File tmpfile = File.createTempFile("testfile", ".txt");
+        final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
-        FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
+        final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
 
         Assert.assertEquals(tmpfile.length(), httpentity.getContentLength());
         final InputStream content = httpentity.getContent();
@@ -63,28 +63,28 @@ public class TestFileEntity {
         try {
             new FileEntity(null, ContentType.TEXT_PLAIN);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testWriteTo() throws Exception {
-        File tmpfile = File.createTempFile("testfile", ".txt");
+        final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
 
-        FileOutputStream outstream = new FileOutputStream(tmpfile);
+        final FileOutputStream outstream = new FileOutputStream(tmpfile);
         outstream.write(0);
         outstream.write(1);
         outstream.write(2);
         outstream.write(3);
         outstream.close();
 
-        FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
+        final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
-        byte[] bytes = out.toByteArray();
+        final byte[] bytes = out.toByteArray();
         Assert.assertNotNull(bytes);
         Assert.assertEquals(tmpfile.length(), bytes.length);
         for (int i = 0; i < 4; i++) {
@@ -97,7 +97,7 @@ public class TestFileEntity {
         try {
             httpentity.writeTo(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

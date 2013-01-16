@@ -75,7 +75,7 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpRespons
 
     @Override
     protected void writeHeadLine(final HttpResponse message) throws IOException {
-        CharArrayBuffer buffer = lineFormatter.formatStatusLine(
+        final CharArrayBuffer buffer = lineFormatter.formatStatusLine(
                 this.lineBuf, message.getStatusLine());
         this.sessionBuffer.writeLine(buffer);
     }

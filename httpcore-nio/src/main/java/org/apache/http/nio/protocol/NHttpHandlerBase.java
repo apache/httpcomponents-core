@@ -86,11 +86,11 @@ public abstract class NHttpHandlerBase {
         try {
             // Try to close it nicely
             conn.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             try {
                 // Just shut the damn thing down
                 conn.shutdown();
-            } catch (IOException ignore) {
+            } catch (final IOException ignore) {
             }
         }
     }
@@ -98,7 +98,7 @@ public abstract class NHttpHandlerBase {
     protected void shutdownConnection(final NHttpConnection conn, final Throwable cause) {
         try {
             conn.shutdown();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 
@@ -117,7 +117,7 @@ public abstract class NHttpHandlerBase {
             } else {
                 conn.shutdown();
             }
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 
@@ -128,7 +128,7 @@ public abstract class NHttpHandlerBase {
             return false;
         }
 
-        int status = response.getStatusLine().getStatusCode();
+        final int status = response.getStatusLine().getStatusCode();
         return status >= HttpStatus.SC_OK
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED

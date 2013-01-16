@@ -43,7 +43,7 @@ public class TestContentType {
 
     @Test
     public void testBasis() throws Exception {
-        ContentType contentType = ContentType.create("text/plain", "US-ASCII");
+        final ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("US-ASCII", contentType.getCharset().name());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
@@ -75,7 +75,7 @@ public class TestContentType {
 
     @Test
     public void testLowCaseText() throws Exception {
-        ContentType contentType = ContentType.create("Text/Plain", "ascii");
+        final ContentType contentType = ContentType.create("Text/Plain", "ascii");
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("US-ASCII", contentType.getCharset().name());
     }
@@ -85,32 +85,32 @@ public class TestContentType {
         try {
             ContentType.create(null, (String) null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             ContentType.create("  ", (String) null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             ContentType.create("stuff;", (String) null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             ContentType.create("text/plain", ",");
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testParse() throws Exception {
-        ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"");
+        final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"");
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("US-ASCII", contentType.getCharset().name());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
@@ -121,13 +121,13 @@ public class TestContentType {
         try {
             ContentType.parse(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             ContentType.parse(";");
             Assert.fail("ParseException should have been thrown");
-        } catch (ParseException ex) {
+        } catch (final ParseException ex) {
             // expected
         }
     }
@@ -139,16 +139,16 @@ public class TestContentType {
 
     @Test
     public void testExtractNullContentType() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType((Header)null);
         Assert.assertNull(ContentType.get(httpentity));
     }
 
     @Test
     public void testExtract() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = UTF-8"));
-        ContentType contentType = ContentType.get(httpentity);
+        final ContentType contentType = ContentType.get(httpentity);
         Assert.assertNotNull(contentType);
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("UTF-8", contentType.getCharset().name());
@@ -156,9 +156,9 @@ public class TestContentType {
 
     @Test
     public void testExtractNoCharset() throws Exception {
-        BasicHttpEntity httpentity = new BasicHttpEntity();
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; param=yadayada"));
-        ContentType contentType = ContentType.get(httpentity);
+        final ContentType contentType = ContentType.get(httpentity);
         Assert.assertNotNull(contentType);
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertNull(contentType.getCharset());

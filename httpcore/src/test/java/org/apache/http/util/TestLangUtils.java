@@ -38,25 +38,25 @@ public class TestLangUtils {
 
     @Test
     public void testBasicHash() {
-        Integer i = new Integer(1234);
-        int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, i.hashCode());
-        int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
+        final Integer i = new Integer(1234);
+        final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, i.hashCode());
+        final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
         Assert.assertTrue(h1 == h2);
     }
 
     @Test
     public void testNullObjectHash() {
-        int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, null);
-        int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, 0);
+        final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, null);
+        final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, 0);
         Assert.assertTrue(h1 == h2);
     }
 
     @Test
     public void testBooleanHash() {
-        int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
-        int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
-        int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
-        int h4 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
+        final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
+        final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
+        final int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
+        final int h4 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
         Assert.assertTrue(h1 != h2);
         Assert.assertTrue(h1 == h3);
         Assert.assertTrue(h2 == h4);

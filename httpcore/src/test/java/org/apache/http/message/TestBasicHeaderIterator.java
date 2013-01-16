@@ -42,7 +42,7 @@ public class TestBasicHeaderIterator {
 
     @Test
     public void testAllSame() {
-        Header[] headers = new Header[]{
+        final Header[] headers = new Header[]{
             new BasicHeader("Name", "value0"),
             new BasicHeader("nAme", "value1, value1.1"),
             new BasicHeader("naMe", "value2=whatever"),
@@ -77,7 +77,7 @@ public class TestBasicHeaderIterator {
 
     @Test
     public void testFirstLastOneNone() {
-        Header[] headers = new Header[]{
+        final Header[] headers = new Header[]{
             new BasicHeader("match"   , "value0"),
             new BasicHeader("mismatch", "value1, value1.1"),
             new BasicHeader("single"  , "value2=whatever"),
@@ -118,7 +118,7 @@ public class TestBasicHeaderIterator {
 
     @Test
     public void testInterspersed() {
-        Header[] headers = new Header[]{
+        final Header[] headers = new Header[]{
             new BasicHeader("yellow", "00"),
             new BasicHeader("maroon", "01"),
             new BasicHeader("orange", "02"),
@@ -221,7 +221,7 @@ public class TestBasicHeaderIterator {
         try {
             hit = new BasicHeaderIterator(null, "whatever");
             Assert.fail("null headers not detected");
-        } catch (IllegalArgumentException iax) {
+        } catch (final IllegalArgumentException iax) {
             // expected
         }
 
@@ -233,7 +233,7 @@ public class TestBasicHeaderIterator {
         try {
             hit.nextHeader();
             Assert.fail("next beyond end not detected");
-        } catch (NoSuchElementException nsx) {
+        } catch (final NoSuchElementException nsx) {
             // expected
         }
     }
@@ -243,7 +243,7 @@ public class TestBasicHeaderIterator {
     public void testRemaining() {
         // to satisfy Clover and take coverage to 100%
 
-        Header[] headers = new Header[]{
+        final Header[] headers = new Header[]{
             new BasicHeader("Name", "value0"),
             new BasicHeader("nAme", "value1, value1.1"),
             new BasicHeader("naMe", "value2=whatever"),
@@ -267,7 +267,7 @@ public class TestBasicHeaderIterator {
         try {
             hit.remove();
             Assert.fail("remove not detected");
-        } catch (UnsupportedOperationException uox) {
+        } catch (final UnsupportedOperationException uox) {
             // expected
         }
 

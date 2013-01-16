@@ -58,7 +58,7 @@ public class DefaultHttpServerConnection extends SocketHttpServerConnection {
         socket.setTcpNoDelay(params.getBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true));
         socket.setSoTimeout(params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0));
         socket.setKeepAlive(params.getBooleanParameter(CoreConnectionPNames.SO_KEEPALIVE, false));
-        int linger = params.getIntParameter(CoreConnectionPNames.SO_LINGER, -1);
+        final int linger = params.getIntParameter(CoreConnectionPNames.SO_LINGER, -1);
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
         }

@@ -101,7 +101,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
     public NameValuePair getParameterByName(final String name) {
         Args.notNull(name, "Name");
         NameValuePair found = null;
-        for (NameValuePair current : this.parameters) {
+        for (final NameValuePair current : this.parameters) {
             if (current.getName().equalsIgnoreCase(name)) {
                 found = current;
                 break;
@@ -116,7 +116,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
             return true;
         }
         if (object instanceof HeaderElement) {
-            BasicHeaderElement that = (BasicHeaderElement) object;
+            final BasicHeaderElement that = (BasicHeaderElement) object;
             return this.name.equals(that.name)
                 && LangUtils.equals(this.value, that.value)
                 && LangUtils.equals(this.parameters, that.parameters);
@@ -130,7 +130,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
         int hash = LangUtils.HASH_SEED;
         hash = LangUtils.hashCode(hash, this.name);
         hash = LangUtils.hashCode(hash, this.value);
-        for (NameValuePair parameter : this.parameters) {
+        for (final NameValuePair parameter : this.parameters) {
             hash = LangUtils.hashCode(hash, parameter);
         }
         return hash;
@@ -138,13 +138,13 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append(this.name);
         if (this.value != null) {
             buffer.append("=");
             buffer.append(this.value);
         }
-        for (NameValuePair parameter : this.parameters) {
+        for (final NameValuePair parameter : this.parameters) {
             buffer.append("; ");
             buffer.append(parameter);
         }

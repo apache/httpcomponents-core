@@ -68,14 +68,14 @@ public class SmokeTest {
 
     @Test
     public void testBasics() throws Exception {
-        Config config = new Config();
+        final Config config = new Config();
         config.setKeepAlive(true);
         config.setMethod("GET");
         config.setUrl(new URL("http://localhost:" + server.getPort() + "/"));
         config.setThreads(3);
         config.setRequests(100);
-        HttpBenchmark httpBenchmark = new HttpBenchmark(config);
-        Results results = httpBenchmark.doExecute();
+        final HttpBenchmark httpBenchmark = new HttpBenchmark(config);
+        final Results results = httpBenchmark.doExecute();
         Assert.assertNotNull(results);
         Assert.assertEquals(16, results.getContentLength());
         Assert.assertEquals(3, results.getConcurrencyLevel());

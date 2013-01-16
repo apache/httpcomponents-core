@@ -124,10 +124,10 @@ public class DefaultNHttpServerConnectionFactory
     public DefaultNHttpServerConnection createConnection(final IOSession session) {
         CharsetDecoder chardecoder = null;
         CharsetEncoder charencoder = null;
-        Charset charset = this.config.getCharset();
-        CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
+        final Charset charset = this.config.getCharset();
+        final CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
                 this.config.getMalformedInputAction() : CodingErrorAction.REPORT;
-        CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
+        final CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
                 this.config.getUnmappableInputAction() : CodingErrorAction.REPORT;
         if (charset != null) {
             chardecoder = charset.newDecoder();

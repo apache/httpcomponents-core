@@ -73,14 +73,14 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
         this.cursor = null;
         this.buffer = null;
         while (this.headerIt.hasNext()) {
-            Header h = this.headerIt.nextHeader();
+            final Header h = this.headerIt.nextHeader();
             if (h instanceof FormattedHeader) {
                 this.buffer = ((FormattedHeader) h).getBuffer();
                 this.cursor = new ParserCursor(0, this.buffer.length());
                 this.cursor.updatePos(((FormattedHeader) h).getValuePos());
                 break;
             } else {
-                String value = h.getValue();
+                final String value = h.getValue();
                 if (value != null) {
                     this.buffer = new CharArrayBuffer(value.length());
                     this.buffer.append(value);
@@ -102,7 +102,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
             if (this.cursor != null) {
                 // loop while there is data in the buffer
                 while (!this.cursor.atEnd()) {
-                    HeaderElement e = this.parser.parseHeaderElement(this.buffer, this.cursor);
+                    final HeaderElement e = this.parser.parseHeaderElement(this.buffer, this.cursor);
                     if (!(e.getName().length() == 0 && e.getValue() == null)) {
                         // Found something
                         this.currentElement = e;
@@ -135,7 +135,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
             throw new NoSuchElementException("No more header elements available");
         }
 
-        HeaderElement element = this.currentElement;
+        final HeaderElement element = this.currentElement;
         this.currentElement = null;
         return element;
     }

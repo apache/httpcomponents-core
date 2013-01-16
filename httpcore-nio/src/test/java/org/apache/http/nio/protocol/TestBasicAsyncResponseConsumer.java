@@ -84,7 +84,7 @@ public class TestBasicAsyncResponseConsumer {
     @Test
     public void testResponseProcessingWithException() throws Exception {
         when(response.getEntity()).thenReturn(new StringEntity("stuff"));
-        RuntimeException ooopsie = new RuntimeException();
+        final RuntimeException ooopsie = new RuntimeException();
         when(consumer.buildResult(context)).thenThrow(ooopsie);
 
         consumer.responseReceived(response);
@@ -109,7 +109,7 @@ public class TestBasicAsyncResponseConsumer {
 
     @Test
     public void testFailed() throws Exception {
-        RuntimeException ooopsie = new RuntimeException();
+        final RuntimeException ooopsie = new RuntimeException();
 
         consumer.failed(ooopsie);
 
@@ -120,7 +120,7 @@ public class TestBasicAsyncResponseConsumer {
 
     @Test
     public void testFailedAfterDone() throws Exception {
-        RuntimeException ooopsie = new RuntimeException();
+        final RuntimeException ooopsie = new RuntimeException();
 
         consumer.cancel();
         consumer.failed(ooopsie);

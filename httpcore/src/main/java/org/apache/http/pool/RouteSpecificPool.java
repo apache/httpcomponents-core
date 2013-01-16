@@ -76,9 +76,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     public E getFree(final Object state) {
         if (!this.available.isEmpty()) {
             if (state != null) {
-                Iterator<E> it = this.available.iterator();
+                final Iterator<E> it = this.available.iterator();
                 while (it.hasNext()) {
-                    E entry = it.next();
+                    final E entry = it.next();
                     if (state.equals(entry.getState())) {
                         it.remove();
                         this.leased.add(entry);
@@ -86,9 +86,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
                     }
                 }
             }
-            Iterator<E> it = this.available.iterator();
+            final Iterator<E> it = this.available.iterator();
             while (it.hasNext()) {
-                E entry = it.next();
+                final E entry = it.next();
                 if (entry.getState() == null) {
                     it.remove();
                     this.leased.add(entry);
@@ -119,7 +119,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     public void free(final E entry, final boolean reusable) {
         Args.notNull(entry, "Pool entry");
-        boolean found = this.leased.remove(entry);
+        final boolean found = this.leased.remove(entry);
         Asserts.check(found, "Entry %s has not been leased from this pool", entry);
         if (reusable) {
             this.available.addFirst(entry);
@@ -127,7 +127,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     }
 
     public E add(final C conn) {
-        E entry = createEntry(conn);
+        final E entry = createEntry(conn);
         this.leased.add(entry);
         return entry;
     }
@@ -152,15 +152,15 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     }
 
     public void shutdown() {
-        for (PoolEntryFuture<E> future: this.pending) {
+        for (final PoolEntryFuture<E> future: this.pending) {
             future.cancel(true);
         }
         this.pending.clear();
-        for (E entry: this.available) {
+        for (final E entry: this.available) {
             entry.close();
         }
         this.available.clear();
-        for (E entry: this.leased) {
+        for (final E entry: this.leased) {
             entry.close();
         }
         this.leased.clear();
@@ -168,7 +168,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append("[route: ");
         buffer.append(this.route);
         buffer.append("][leased: ");

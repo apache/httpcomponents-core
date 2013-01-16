@@ -57,7 +57,7 @@ public final class ByteArrayBuffer implements Serializable {
     }
 
     private void expand(final int newlen) {
-        byte newbuffer[] = new byte[Math.max(this.buffer.length << 1, newlen)];
+        final byte newbuffer[] = new byte[Math.max(this.buffer.length << 1, newlen)];
         System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
         this.buffer = newbuffer;
     }
@@ -85,7 +85,7 @@ public final class ByteArrayBuffer implements Serializable {
         if (len == 0) {
             return;
         }
-        int newlen = this.len + len;
+        final int newlen = this.len + len;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
@@ -100,7 +100,7 @@ public final class ByteArrayBuffer implements Serializable {
      * @param   b        the byte to be appended.
      */
     public void append(final int b) {
-        int newlen = this.len + 1;
+        final int newlen = this.len + 1;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
@@ -133,8 +133,8 @@ public final class ByteArrayBuffer implements Serializable {
         if (len == 0) {
             return;
         }
-        int oldlen = this.len;
-        int newlen = oldlen + len;
+        final int oldlen = this.len;
+        final int newlen = oldlen + len;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
@@ -179,7 +179,7 @@ public final class ByteArrayBuffer implements Serializable {
      * @return byte array
      */
     public byte[] toByteArray() {
-        byte[] b = new byte[this.len];
+        final byte[] b = new byte[this.len];
         if (this.len > 0) {
             System.arraycopy(this.buffer, 0, b, 0, this.len);
         }
@@ -234,7 +234,7 @@ public final class ByteArrayBuffer implements Serializable {
         if (required <= 0) {
             return;
         }
-        int available = this.buffer.length - this.len;
+        final int available = this.buffer.length - this.len;
         if (required > available) {
             expand(this.len + required);
         }

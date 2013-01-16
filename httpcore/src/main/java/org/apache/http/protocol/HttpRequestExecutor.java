@@ -92,7 +92,7 @@ public class HttpRequestExecutor {
         if ("HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
             return false;
         }
-        int status = response.getStatusLine().getStatusCode();
+        final int status = response.getStatusLine().getStatusCode();
         return status >= HttpStatus.SC_OK
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED
@@ -124,13 +124,13 @@ public class HttpRequestExecutor {
                 response = doReceiveResponse(request, conn, context);
             }
             return response;
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             closeConnection(conn);
             throw ex;
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             closeConnection(conn);
             throw ex;
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             closeConnection(conn);
             throw ex;
         }
@@ -139,7 +139,7 @@ public class HttpRequestExecutor {
     private final static void closeConnection(final HttpClientConnection conn) {
         try {
             conn.close();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 
@@ -220,7 +220,7 @@ public class HttpRequestExecutor {
                     if (canResponseHaveBody(request, response)) {
                         conn.receiveResponseEntity(response);
                     }
-                    int status = response.getStatusLine().getStatusCode();
+                    final int status = response.getStatusLine().getStatusCode();
                     if (status < 200) {
                         if (status != HttpStatus.SC_CONTINUE) {
                             throw new ProtocolException(

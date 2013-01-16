@@ -92,7 +92,7 @@ public class TestHttpAsyncRequester {
                     this.responseConsumer,
                     this.conn);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             this.requester.execute(
@@ -100,7 +100,7 @@ public class TestHttpAsyncRequester {
                     null,
                     this.conn);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             this.requester.execute(
@@ -108,7 +108,7 @@ public class TestHttpAsyncRequester {
                     this.responseConsumer,
                     (NHttpClientConnection) null);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             this.requester.execute(
@@ -117,7 +117,7 @@ public class TestHttpAsyncRequester {
                     this.conn,
                     null);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
 
         try {
@@ -126,7 +126,7 @@ public class TestHttpAsyncRequester {
                     this.responseConsumer,
                     this.connPool);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             this.requester.execute(
@@ -134,7 +134,7 @@ public class TestHttpAsyncRequester {
                     null,
                     this.connPool);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             this.requester.execute(
@@ -142,7 +142,7 @@ public class TestHttpAsyncRequester {
                     this.responseConsumer,
                     (ConnPool<HttpHost, PoolEntry<HttpHost, NHttpClientConnection>>) null);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
         try {
             this.requester.execute(
@@ -151,13 +151,13 @@ public class TestHttpAsyncRequester {
                     this.connPool,
                     null);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
     }
 
     @Test
     public void testSimpleExecute() throws Exception {
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.conn, this.exchangeContext, null);
@@ -169,7 +169,7 @@ public class TestHttpAsyncRequester {
     @Test
     public void testExecuteConnectionClosedUnexpectedly() throws Exception {
         Mockito.when(this.conn.isOpen()).thenReturn(false);
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.conn, this.exchangeContext, null);
@@ -182,8 +182,8 @@ public class TestHttpAsyncRequester {
         Assert.assertNotNull(future.isDone());
         try {
             future.get();
-        } catch (ExecutionException ex) {
-            Throwable cause =  ex.getCause();
+        } catch (final ExecutionException ex) {
+            final Throwable cause =  ex.getCause();
             Assert.assertNotNull(cause);
             Assert.assertTrue(cause instanceof ConnectionClosedException);
         }
@@ -193,20 +193,20 @@ public class TestHttpAsyncRequester {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testPooledConnectionRequestFailed() throws Exception {
-        HttpHost host = new HttpHost("somehost");
+        final HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
 
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.connPool, this.exchangeContext, this.callback);
         Assert.assertNotNull(future);
-        ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
+        final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
                 Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
-        ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
+        final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
-        Exception oppsie = new Exception();
+        final Exception oppsie = new Exception();
         connRequestCallback.failed(oppsie);
         Mockito.verify(this.responseConsumer).failed(oppsie);
         Mockito.verify(this.callback).failed(oppsie);
@@ -217,18 +217,18 @@ public class TestHttpAsyncRequester {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testPooledConnectionRequestCancelled() throws Exception {
-        HttpHost host = new HttpHost("somehost");
+        final HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
 
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.connPool, this.exchangeContext, this.callback);
         Assert.assertNotNull(future);
-        ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
+        final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
                 Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
-        ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
+        final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         connRequestCallback.cancelled();
         Mockito.verify(this.responseConsumer).cancel();
@@ -240,21 +240,21 @@ public class TestHttpAsyncRequester {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testPooledConnectionAutoReleaseOnRequestCancel() throws Exception {
-        HttpHost host = new HttpHost("somehost");
+        final HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
 
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.connPool, this.exchangeContext, this.callback);
         Assert.assertNotNull(future);
-        ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
+        final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
                 Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
-        ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
+        final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         future.cancel(true);
-        BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
+        final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
         Mockito.verify(this.connPool).release(entry, true);
         Mockito.verify(this.conn, Mockito.never()).requestOutput();
@@ -264,28 +264,28 @@ public class TestHttpAsyncRequester {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testPooledRequestExecutionSucceeded() throws Exception {
-        HttpHost host = new HttpHost("somehost");
+        final HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
         Mockito.when(this.conn.isOpen()).thenReturn(true);
 
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.connPool, this.exchangeContext, this.callback);
         Assert.assertNotNull(future);
-        ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
+        final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
                 Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
-        ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
+        final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
-        BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
+        final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
+        final BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
                 HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
 
-        Object result = new Object();
+        final Object result = new Object();
         Mockito.when(this.responseConsumer.getResult()).thenReturn(result);
         exchangeHandler.responseCompleted(this.exchangeContext);
         Mockito.verify(this.callback).completed(result);
@@ -297,28 +297,28 @@ public class TestHttpAsyncRequester {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testPooledRequestExecutionFailed() throws Exception {
-        HttpHost host = new HttpHost("somehost");
+        final HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
         Mockito.when(this.conn.isOpen()).thenReturn(true);
 
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.connPool, this.exchangeContext, this.callback);
         Assert.assertNotNull(future);
-        ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
+        final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
                 Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
-        ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
+        final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
-        BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
+        final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
+        final BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
                 HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
 
-        Exception oppsie = new Exception();
+        final Exception oppsie = new Exception();
         exchangeHandler.failed(oppsie);
         Mockito.verify(this.responseConsumer).failed(oppsie);
         Mockito.verify(this.callback).failed(oppsie);
@@ -330,23 +330,23 @@ public class TestHttpAsyncRequester {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Test
     public void testPooledRequestExecutionCancelled() throws Exception {
-        HttpHost host = new HttpHost("somehost");
+        final HttpHost host = new HttpHost("somehost");
         Mockito.when(this.requestProducer.getTarget()).thenReturn(host);
         Mockito.when(this.conn.isOpen()).thenReturn(true);
 
-        Future<Object> future = this.requester.execute(
+        final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,
                 this.connPool, this.exchangeContext, this.callback);
         Assert.assertNotNull(future);
-        ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
+        final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
                 Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
-        ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
+        final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
-        BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
+        final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
+        final BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
                 HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();

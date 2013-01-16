@@ -93,7 +93,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.currentEventMask = key.interestOps();
         this.socketTimeout = 0;
         this.status = ACTIVE;
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         this.startedTime = now;
         this.lastReadTime = now;
         this.lastWriteTime = now;
@@ -117,7 +117,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     public SocketAddress getLocalAddress() {
-        Channel channel = this.channel;
+        final Channel channel = this.channel;
         if (channel instanceof SocketChannel) {
             return ((SocketChannel)channel).socket().getLocalSocketAddress();
         } else {
@@ -126,7 +126,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     public SocketAddress getRemoteAddress() {
-        Channel channel = this.channel;
+        final Channel channel = this.channel;
         if (channel instanceof SocketChannel) {
             return ((SocketChannel)channel).socket().getRemoteSocketAddress();
         } else {
@@ -147,7 +147,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
             this.currentEventMask = ops;
 
             // local variable
-            InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
+            final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
 
             // add this operation to the interestOps() queue
             this.interestOpsCallback.addInterestOps(entry);
@@ -166,12 +166,12 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
             this.currentEventMask |= op;
 
             // local variable
-            InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
+            final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
 
             // add this operation to the interestOps() queue
             this.interestOpsCallback.addInterestOps(entry);
         } else {
-            int ops = this.key.interestOps();
+            final int ops = this.key.interestOps();
             this.key.interestOps(ops | op);
         }
         this.key.selector().wakeup();
@@ -186,12 +186,12 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
             this.currentEventMask &= ~op;
 
             // local variable
-            InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
+            final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
 
             // add this operation to the interestOps() queue
             this.interestOpsCallback.addInterestOps(entry);
         } else {
-            int ops = this.key.interestOps();
+            final int ops = this.key.interestOps();
             this.key.interestOps(ops & ~op);
         }
         this.key.selector().wakeup();
@@ -214,7 +214,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.key.cancel();
         try {
             this.key.channel().close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             // Munching exceptions is not nice
             // but in this case it is justified
         }
@@ -241,12 +241,12 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     public boolean hasBufferedInput() {
-        SessionBufferStatus bufferStatus = this.bufferStatus;
+        final SessionBufferStatus bufferStatus = this.bufferStatus;
         return bufferStatus != null && bufferStatus.hasBufferedInput();
     }
 
     public boolean hasBufferedOutput() {
-        SessionBufferStatus bufferStatus = this.bufferStatus;
+        final SessionBufferStatus bufferStatus = this.bufferStatus;
         return bufferStatus != null && bufferStatus.hasBufferedOutput();
     }
 
@@ -283,13 +283,13 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     synchronized void resetLastRead() {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         this.lastReadTime = now;
         this.lastAccessTime = now;
     }
 
     synchronized void resetLastWrite() {
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
         this.lastWriteTime = now;
         this.lastAccessTime = now;
     }
@@ -311,7 +311,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
 
     private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
         if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = ((InetSocketAddress) socketAddress);
+            final InetSocketAddress addr = ((InetSocketAddress) socketAddress);
             buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
                 addr.getAddress())
             .append(':')
@@ -323,9 +323,9 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
 
     @Override
     public synchronized String toString() {
-        StringBuilder buffer = new StringBuilder();
-        SocketAddress remoteAddress = getRemoteAddress();
-        SocketAddress localAddress = getLocalAddress();
+        final StringBuilder buffer = new StringBuilder();
+        final SocketAddress remoteAddress = getRemoteAddress();
+        final SocketAddress localAddress = getLocalAddress();
         if (remoteAddress != null && localAddress != null) {
             formatAddress(buffer, localAddress);
             buffer.append("<->");
@@ -355,7 +355,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     public Socket getSocket() {
-        Channel channel = this.channel;
+        final Channel channel = this.channel;
         if (channel instanceof SocketChannel) {
             return ((SocketChannel) channel).socket();
         } else {

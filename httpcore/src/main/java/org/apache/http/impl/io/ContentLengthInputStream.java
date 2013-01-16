@@ -99,7 +99,7 @@ public class ContentLengthInputStream extends InputStream {
         if (!closed) {
             try {
                 if (pos < contentLength) {
-                    byte buffer[] = new byte[BUFFER_SIZE];
+                    final byte buffer[] = new byte[BUFFER_SIZE];
                     while (read(buffer) >= 0) {
                     }
                 }
@@ -114,7 +114,7 @@ public class ContentLengthInputStream extends InputStream {
     @Override
     public int available() throws IOException {
         if (this.in instanceof BufferInfo) {
-            int len = ((BufferInfo) this.in).length();
+            final int len = ((BufferInfo) this.in).length();
             return Math.min(len, (int) (this.contentLength - this.pos));
         } else {
             return 0;
@@ -136,7 +136,7 @@ public class ContentLengthInputStream extends InputStream {
         if (pos >= contentLength) {
             return -1;
         }
-        int b = this.in.read();
+        final int b = this.in.read();
         if (b == -1) {
             if (pos < contentLength) {
                 throw new ConnectionClosedException(
@@ -174,7 +174,7 @@ public class ContentLengthInputStream extends InputStream {
         if (pos + len > contentLength) {
             len = (int) (contentLength - pos);
         }
-        int count = this.in.read(b, off, len);
+        final int count = this.in.read(b, off, len);
         if (count == -1 && pos < contentLength) {
             throw new ConnectionClosedException(
                     "Premature end of Content-Length delimited message body (expected: "
@@ -212,14 +212,14 @@ public class ContentLengthInputStream extends InputStream {
         if (n <= 0) {
             return 0;
         }
-        byte[] buffer = new byte[BUFFER_SIZE];
+        final byte[] buffer = new byte[BUFFER_SIZE];
         // make sure we don't skip more bytes than are
         // still available
         long remaining = Math.min(n, this.contentLength - this.pos);
         // skip and keep track of the bytes actually skipped
         long count = 0;
         while (remaining > 0) {
-            int l = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+            final int l = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
             if (l == -1) {
                 break;
             }

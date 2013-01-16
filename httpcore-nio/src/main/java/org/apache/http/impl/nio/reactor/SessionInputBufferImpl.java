@@ -101,14 +101,14 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             final HttpParams params) {
         super(buffersize, allocator);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        String charsetName = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
-        Charset charset = CharsetUtils.lookup(charsetName);
+        final String charsetName = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
+        final Charset charset = CharsetUtils.lookup(charsetName);
         if (charset != null) {
             this.chardecoder = charset.newDecoder();
-            CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
+            final CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                     CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
             this.chardecoder.onMalformedInput(a1 != null ? a1 : CodingErrorAction.REPORT);
-            CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
+            final CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
                     CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
             this.chardecoder.onUnmappableCharacter(a2 != null? a2 : CodingErrorAction.REPORT);
         } else {
@@ -152,7 +152,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         if (!this.buffer.hasRemaining()) {
             expand();
         }
-        int readNo = channel.read(this.buffer);
+        final int readNo = channel.read(this.buffer);
         return readNo;
     }
 
@@ -166,8 +166,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             return 0;
         }
         setOutputMode();
-        int len = Math.min(dst.remaining(), maxLen);
-        int chunk = Math.min(this.buffer.remaining(), len);
+        final int len = Math.min(dst.remaining(), maxLen);
+        final int chunk = Math.min(this.buffer.remaining(), len);
         for (int i = 0; i < chunk; i++) {
             dst.put(this.buffer.get());
         }
@@ -188,8 +188,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         setOutputMode();
         int bytesRead;
         if (this.buffer.remaining() > maxLen) {
-            int oldLimit = this.buffer.limit();
-            int newLimit = oldLimit - (this.buffer.remaining() - maxLen);
+            final int oldLimit = this.buffer.limit();
+            final int newLimit = oldLimit - (this.buffer.remaining() - maxLen);
             this.buffer.limit(newLimit);
             bytesRead = dst.write(this.buffer);
             this.buffer.limit(oldLimit);
@@ -216,7 +216,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         int pos = -1;
         boolean hasLine = false;
         for (int i = this.buffer.position(); i < this.buffer.limit(); i++) {
-            int b = this.buffer.get(i);
+            final int b = this.buffer.get(i);
             if (b == HTTP.LF) {
                 hasLine = true;
                 pos = i + 1;
@@ -233,18 +233,18 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
                 return false;
             }
         }
-        int origLimit = this.buffer.limit();
+        final int origLimit = this.buffer.limit();
         this.buffer.limit(pos);
 
-        int requiredCapacity = this.buffer.limit() - this.buffer.position();
+        final int requiredCapacity = this.buffer.limit() - this.buffer.position();
         // Ensure capacity of len assuming ASCII as the most likely charset
         linebuffer.ensureCapacity(requiredCapacity);
 
         if (this.chardecoder == null) {
             if (this.buffer.hasArray()) {
-                byte[] b = this.buffer.array();
-                int off = this.buffer.position();
-                int len = this.buffer.remaining();
+                final byte[] b = this.buffer.array();
+                final int off = this.buffer.position();
+                final int len = this.buffer.remaining();
                 linebuffer.append(b, off, len);
                 this.buffer.position(off + len);
             } else {
@@ -259,7 +259,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             this.chardecoder.reset();
 
             for (;;) {
-                CoderResult result = this.chardecoder.decode(
+                final CoderResult result = this.chardecoder.decode(
                         this.buffer,
                         this.charbuffer,
                         true);
@@ -312,8 +312,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     }
 
     public String readLine(final boolean endOfStream) throws CharacterCodingException {
-        CharArrayBuffer charbuffer = new CharArrayBuffer(64);
-        boolean found = readLine(charbuffer, endOfStream);
+        final CharArrayBuffer charbuffer = new CharArrayBuffer(64);
+        final boolean found = readLine(charbuffer, endOfStream);
         if (found) {
             return charbuffer.toString();
         } else {

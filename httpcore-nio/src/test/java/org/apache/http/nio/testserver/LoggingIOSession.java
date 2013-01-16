@@ -76,7 +76,7 @@ public class LoggingIOSession implements IOSession {
     }
 
     private static String formatOps(final int ops) {
-        StringBuilder buffer = new StringBuilder(6);
+        final StringBuilder buffer = new StringBuilder(6);
         buffer.append('[');
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');
@@ -186,13 +186,13 @@ public class LoggingIOSession implements IOSession {
     class LoggingByteChannel implements ByteChannel {
 
         public int read(final ByteBuffer dst) throws IOException {
-            int bytesRead = session.channel().read(dst);
+            final int bytesRead = session.channel().read(dst);
             if (log.isDebugEnabled()) {
                 log.debug(id + " " + session + ": " + bytesRead + " bytes read");
             }
             if (bytesRead > 0 && wirelog.isEnabled()) {
-                ByteBuffer b = dst.duplicate();
-                int p = b.position();
+                final ByteBuffer b = dst.duplicate();
+                final int p = b.position();
                 b.limit(p);
                 b.position(p - bytesRead);
                 wirelog.input(b);
@@ -201,13 +201,13 @@ public class LoggingIOSession implements IOSession {
         }
 
         public int write(final ByteBuffer src) throws IOException {
-            int byteWritten = session.channel().write(src);
+            final int byteWritten = session.channel().write(src);
             if (log.isDebugEnabled()) {
                 log.debug(id + " " + session + ": " + byteWritten + " bytes written");
             }
             if (byteWritten > 0 && wirelog.isEnabled()) {
-                ByteBuffer b = src.duplicate();
-                int p = b.position();
+                final ByteBuffer b = src.duplicate();
+                final int p = b.position();
                 b.limit(p);
                 b.position(p - byteWritten);
                 wirelog.output(b);

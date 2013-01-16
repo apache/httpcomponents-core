@@ -52,7 +52,7 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
     private void prepareChunk() {
         if (this.currentChunk == null || !this.currentChunk.hasRemaining()) {
             if (this.chunkCount < this.chunks.length) {
-                String s = this.chunks[this.chunkCount];
+                final String s = this.chunks[this.chunkCount];
                 this.chunkCount++;
                 this.currentChunk = ByteBuffer.wrap(EncodingUtils.getBytes(s, this.charset));
             } else {

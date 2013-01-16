@@ -101,7 +101,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                                           final HeaderElement[] elems,
                                           final boolean quote) {
         Args.notNull(elems, "Header element array");
-        int len = estimateElementsLen(elems);
+        final int len = estimateElementsLen(elems);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -132,7 +132,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
         }
 
         int result = (elems.length-1) * 2; // elements separated by ", "
-        for (HeaderElement elem : elems) {
+        for (final HeaderElement elem : elems) {
             result += estimateHeaderElementLen(elem);
         }
 
@@ -168,7 +168,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                                                final HeaderElement elem,
                                                final boolean quote) {
         Args.notNull(elem, "Header element");
-        int len = estimateHeaderElementLen(elem);
+        final int len = estimateHeaderElementLen(elem);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -254,7 +254,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                                             final NameValuePair[] nvps,
                                             final boolean quote) {
         Args.notNull(nvps, "Header parameter array");
-        int len = estimateParametersLen(nvps);
+        final int len = estimateParametersLen(nvps);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -285,7 +285,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
         }
 
         int result = (nvps.length-1) * 2; // "; " between the parameters
-        for (NameValuePair nvp : nvps) {
+        for (final NameValuePair nvp : nvps) {
             result += estimateNameValuePairLen(nvp);
         }
 
@@ -320,7 +320,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
                                                final NameValuePair nvp,
                                                final boolean quote) {
         Args.notNull(nvp, "Name / value pair");
-        int len = estimateNameValuePairLen(nvp);
+        final int len = estimateNameValuePairLen(nvp);
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -384,7 +384,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
             buffer.append('"');
         }
         for (int i = 0; i < value.length(); i++) {
-            char ch = value.charAt(i);
+            final char ch = value.charAt(i);
             if (isUnsafe(ch)) {
                 buffer.append('\\');
             }

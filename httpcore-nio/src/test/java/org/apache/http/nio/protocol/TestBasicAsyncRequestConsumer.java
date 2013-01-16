@@ -84,7 +84,7 @@ public class TestBasicAsyncRequestConsumer {
     @Test
     public void testResponseProcessingWithException() throws Exception {
         when(request.getEntity()).thenReturn(new StringEntity("stuff"));
-        RuntimeException ooopsie = new RuntimeException();
+        final RuntimeException ooopsie = new RuntimeException();
         when(consumer.buildResult(context)).thenThrow(ooopsie);
 
         consumer.requestReceived(request);

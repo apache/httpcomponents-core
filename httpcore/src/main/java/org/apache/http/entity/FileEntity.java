@@ -89,9 +89,9 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
 
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
-        InputStream instream = new FileInputStream(this.file);
+        final InputStream instream = new FileInputStream(this.file);
         try {
-            byte[] tmp = new byte[4096];
+            final byte[] tmp = new byte[4096];
             int l;
             while ((l = instream.read(tmp)) != -1) {
                 outstream.write(tmp, 0, l);

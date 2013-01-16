@@ -156,7 +156,7 @@ public class VersionInfo {
      */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder
+        final StringBuilder sb = new StringBuilder
             (20 + infoPackage.length() + infoModule.length() +
              infoRelease.length() + infoTimestamp.length() +
              infoClassloader.length());
@@ -196,9 +196,9 @@ public class VersionInfo {
     public final static VersionInfo[] loadVersionInfo(final String[] pckgs,
                                                       final ClassLoader clsldr) {
         Args.notNull(pckgs, "Package identifier array");
-        List<VersionInfo> vil = new ArrayList<VersionInfo>(pckgs.length);
-        for (String pckg : pckgs) {
-            VersionInfo vi = loadVersionInfo(pckg, clsldr);
+        final List<VersionInfo> vil = new ArrayList<VersionInfo>(pckgs.length);
+        for (final String pckg : pckgs) {
+            final VersionInfo vi = loadVersionInfo(pckg, clsldr);
             if (vi != null) {
                 vil.add(vi);
             }
@@ -231,18 +231,18 @@ public class VersionInfo {
         try {
             // org.apache.http      becomes
             // org/apache/http/version.properties
-            InputStream is = clsldr.getResourceAsStream
+            final InputStream is = clsldr.getResourceAsStream
                 (pckg.replace('.', '/') + "/" + VERSION_PROPERTY_FILE);
             if (is != null) {
                 try {
-                    Properties props = new Properties();
+                    final Properties props = new Properties();
                     props.load(is);
                     vip = props;
                 } finally {
                     is.close();
                 }
             }
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             // shamelessly munch this exception
         }
 

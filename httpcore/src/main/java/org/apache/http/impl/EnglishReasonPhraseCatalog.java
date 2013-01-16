@@ -74,8 +74,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
      */
     public String getReason(final int status, final Locale loc) {
         Args.check(status >= 100 && status < 600, "Unknown category for status code " + status);
-        int category = status / 100;
-        int subcode  = status - 100*category;
+        final int category = status / 100;
+        final int subcode  = status - 100*category;
 
         String reason = null;
         if (REASON_PHRASES[category].length > subcode) {

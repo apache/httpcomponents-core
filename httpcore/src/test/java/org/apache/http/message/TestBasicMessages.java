@@ -81,24 +81,24 @@ public class TestBasicMessages {
         try {
             response.setStatusCode(-23);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
             response.setStatusLine(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testSetResponseEntity() {
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         Assert.assertNull(response.getEntity());
 
-        HttpEntity entity = new BasicHttpEntity();
+        final HttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
         Assert.assertTrue(entity == response.getEntity());
     }
@@ -118,19 +118,19 @@ public class TestBasicMessages {
         try {
             new BasicHttpRequest(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             new BasicHttpRequest("GET", null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             new BasicHttpRequest(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
@@ -150,17 +150,17 @@ public class TestBasicMessages {
 
     @Test
     public void testSetRequestEntity() {
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
         Assert.assertNull(request.getEntity());
 
-        HttpEntity entity = new BasicHttpEntity();
+        final HttpEntity entity = new BasicHttpEntity();
         request.setEntity(entity);
         Assert.assertTrue(entity == request.getEntity());
     }
 
     @Test
     public void testExpectContinue() {
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
         Assert.assertFalse(request.expectContinue());
         request.addHeader("Expect", "100-Continue");
         Assert.assertTrue(request.expectContinue());

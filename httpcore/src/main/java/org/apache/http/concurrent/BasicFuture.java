@@ -77,8 +77,8 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
 
     public synchronized T get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        long msecs = unit.toMillis(timeout);
-        long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
+        final long msecs = unit.toMillis(timeout);
+        final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
         long waitTime = msecs;
         if (this.completed) {
             return getResult();

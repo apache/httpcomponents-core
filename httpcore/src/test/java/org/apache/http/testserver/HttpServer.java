@@ -102,8 +102,8 @@ public class HttpServer {
     }
 
     private HttpServerConnection acceptConnection() throws IOException {
-        Socket socket = this.serversocket.accept();
-        LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(8 * 1024);
+        final Socket socket = this.serversocket.accept();
+        final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(8 * 1024);
         conn.bind(socket);
         conn.setSocketTimeout(this.timeout);
         return conn;
@@ -125,21 +125,21 @@ public class HttpServer {
                 while (!shutdown && !Thread.interrupted()) {
                     try {
                         // Set up HTTP connection
-                        HttpServerConnection conn = acceptConnection();
+                        final HttpServerConnection conn = acceptConnection();
                         // Set up the HTTP service
-                        HttpService httpService = new HttpService(
+                        final HttpService httpService = new HttpService(
                                 httpproc,
                                 connStrategy,
                                 responseFactory,
                                 reqistry,
                                 expectationVerifier);
                         // Start worker thread
-                        Thread t = new WorkerThread(httpService, conn);
+                        final Thread t = new WorkerThread(httpService, conn);
                         t.setDaemon(true);
                         t.start();
-                    } catch (InterruptedIOException ex) {
+                    } catch (final InterruptedIOException ex) {
                         break;
-                    } catch (IOException e) {
+                    } catch (final IOException e) {
                         break;
                     }
                 }
@@ -156,11 +156,11 @@ public class HttpServer {
         this.shutdown = true;
         try {
             this.serversocket.close();
-        } catch (IOException ignore) {}
+        } catch (final IOException ignore) {}
         this.listener.interrupt();
         try {
             this.listener.join(1000);
-        } catch (InterruptedException ignore) {}
+        } catch (final InterruptedException ignore) {}
     }
 
     static class WorkerThread extends Thread {
@@ -178,20 +178,20 @@ public class HttpServer {
 
         @Override
         public void run() {
-            HttpContext context = new BasicHttpContext(null);
+            final HttpContext context = new BasicHttpContext(null);
             try {
                 while (!Thread.interrupted() && this.conn.isOpen()) {
                     this.httpservice.handleRequest(this.conn, context);
                 }
-            } catch (ConnectionClosedException ex) {
-            } catch (IOException ex) {
+            } catch (final ConnectionClosedException ex) {
+            } catch (final IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
-            } catch (HttpException ex) {
+            } catch (final HttpException ex) {
                 System.err.println("Unrecoverable HTTP protocol violation: " + ex.getMessage());
             } finally {
                 try {
                     this.conn.shutdown();
-                } catch (IOException ignore) {}
+                } catch (final IOException ignore) {}
             }
         }
 

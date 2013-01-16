@@ -49,7 +49,7 @@ class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
             final Object obj,
             final HttpAsyncExchange httpexchange,
             final HttpContext context) {
-        HttpResponse response = httpexchange.getResponse();
+        final HttpResponse response = httpexchange.getResponse();
         response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
         httpexchange.submitResponse(new ErrorResponseProducer(
                 response, new NStringEntity("Service not implemented", ContentType.TEXT_PLAIN), true));

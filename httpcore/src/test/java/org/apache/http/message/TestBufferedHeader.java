@@ -45,9 +45,9 @@ public class TestBufferedHeader {
 
     @Test
     public void testBasicConstructor() {
-        CharArrayBuffer buf = new CharArrayBuffer(32);
+        final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
-        BufferedHeader header = new BufferedHeader(buf);
+        final BufferedHeader header = new BufferedHeader(buf);
         Assert.assertEquals("name", header.getName());
         Assert.assertEquals("value", header.getValue());
         Assert.assertSame(buf, header.getBuffer());
@@ -59,17 +59,17 @@ public class TestBufferedHeader {
         try {
             new BufferedHeader(null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             //expected
         }
     }
 
     @Test
     public void testHeaderElements() {
-        CharArrayBuffer buf = new CharArrayBuffer(32);
+        final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: element1 = value1, element2; param1 = value1, element3");
-        BufferedHeader header = new BufferedHeader(buf);
-        HeaderElement[] elements = header.getElements();
+        final BufferedHeader header = new BufferedHeader(buf);
+        final HeaderElement[] elements = header.getElements();
         Assert.assertNotNull(elements);
         Assert.assertEquals(3, elements.length);
         Assert.assertEquals("element1", elements[0].getName());
@@ -83,27 +83,27 @@ public class TestBufferedHeader {
 
     @Test
     public void testCloning() throws Exception {
-        CharArrayBuffer buf = new CharArrayBuffer(32);
+        final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
-        BufferedHeader orig = new BufferedHeader(buf);
-        BufferedHeader clone = (BufferedHeader) orig.clone();
+        final BufferedHeader orig = new BufferedHeader(buf);
+        final BufferedHeader clone = (BufferedHeader) orig.clone();
         Assert.assertEquals(orig.getName(), clone.getName());
         Assert.assertEquals(orig.getValue(), clone.getValue());
     }
 
     @Test
     public void testSerialization() throws Exception {
-        CharArrayBuffer buf = new CharArrayBuffer(32);
+        final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
-        BufferedHeader orig = new BufferedHeader(buf);
-        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        final BufferedHeader orig = new BufferedHeader(buf);
+        final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
         outstream.close();
-        byte[] raw = outbuffer.toByteArray();
-        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        BufferedHeader clone = (BufferedHeader) instream.readObject();
+        final byte[] raw = outbuffer.toByteArray();
+        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        final BufferedHeader clone = (BufferedHeader) instream.readObject();
         Assert.assertEquals(orig.getName(), clone.getName());
         Assert.assertEquals(orig.getValue(), clone.getValue());
     }

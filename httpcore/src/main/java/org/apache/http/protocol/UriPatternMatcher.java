@@ -124,7 +124,7 @@ public class UriPatternMatcher<T> {
         if (obj == null) {
             // pattern match?
             String bestMatch = null;
-            for (String pattern : this.map.keySet()) {
+            for (final String pattern : this.map.keySet()) {
                 if (matchUriRequestPattern(pattern, path)) {
                     // we have a match. is it any better?
                     if (bestMatch == null

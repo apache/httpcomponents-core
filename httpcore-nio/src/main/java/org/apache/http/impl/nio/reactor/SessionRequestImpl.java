@@ -138,14 +138,14 @@ public class SessionRequestImpl implements SessionRequest {
             return;
         }
         this.completed = true;
-        SelectionKey key = this.key;
+        final SelectionKey key = this.key;
         if (key != null) {
             key.cancel();
-            Channel channel = key.channel();
+            final Channel channel = key.channel();
             if (channel.isOpen()) {
                 try {
                     channel.close();
-                } catch (IOException ignore) {}
+                } catch (final IOException ignore) {}
             }
         }
         synchronized (this) {
@@ -162,14 +162,14 @@ public class SessionRequestImpl implements SessionRequest {
             return;
         }
         this.completed = true;
-        SelectionKey key = this.key;
+        final SelectionKey key = this.key;
         if (key != null) {
             key.cancel();
-            Channel channel = key.channel();
+            final Channel channel = key.channel();
             if (channel.isOpen()) {
                 try {
                     channel.close();
-                } catch (IOException ignore) {}
+                } catch (final IOException ignore) {}
             }
         }
         synchronized (this) {
@@ -186,7 +186,7 @@ public class SessionRequestImpl implements SessionRequest {
     public void setConnectTimeout(final int timeout) {
         if (this.connectTimeout != timeout) {
             this.connectTimeout = timeout;
-            SelectionKey key = this.key;
+            final SelectionKey key = this.key;
             if (key != null) {
                 key.selector().wakeup();
             }
@@ -198,14 +198,14 @@ public class SessionRequestImpl implements SessionRequest {
             return;
         }
         this.completed = true;
-        SelectionKey key = this.key;
+        final SelectionKey key = this.key;
         if (key != null) {
             key.cancel();
-            Channel channel = key.channel();
+            final Channel channel = key.channel();
             if (channel.isOpen()) {
                 try {
                     channel.close();
-                } catch (IOException ignore) {}
+                } catch (final IOException ignore) {}
             }
         }
         synchronized (this) {

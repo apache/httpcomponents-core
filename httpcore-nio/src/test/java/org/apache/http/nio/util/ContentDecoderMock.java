@@ -47,7 +47,7 @@ public class ContentDecoderMock implements ContentDecoder {
         if (this.completed) {
             return -1;
         }
-        int bytesRead = this.channel.read(dst);
+        final int bytesRead = this.channel.read(dst);
         if (bytesRead == -1) {
             this.completed = true;
         }

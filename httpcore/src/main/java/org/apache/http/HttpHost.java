@@ -148,7 +148,7 @@ public final class HttpHost implements Cloneable, Serializable {
      * @return the host URI
      */
     public String toURI() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append(this.schemeName);
         buffer.append("://");
         buffer.append(this.hostname);
@@ -168,7 +168,7 @@ public final class HttpHost implements Cloneable, Serializable {
     public String toHostString() {
         if (this.port != -1) {
             //the highest port number is 65535, which is length 6 with the addition of the colon
-            StringBuilder buffer = new StringBuilder(this.hostname.length() + 6);
+            final StringBuilder buffer = new StringBuilder(this.hostname.length() + 6);
             buffer.append(this.hostname);
             buffer.append(":");
             buffer.append(Integer.toString(this.port));
@@ -191,7 +191,7 @@ public final class HttpHost implements Cloneable, Serializable {
             return true;
         }
         if (obj instanceof HttpHost) {
-            HttpHost that = (HttpHost) obj;
+            final HttpHost that = (HttpHost) obj;
             return this.lcHostname.equals(that.lcHostname)
                 && this.port == that.port
                 && this.schemeName.equals(that.schemeName);

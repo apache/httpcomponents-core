@@ -104,7 +104,7 @@ public class HeaderGroup implements Cloneable, Serializable {
             return;
         }
         for (int i = 0; i < this.headers.size(); i++) {
-            Header current = this.headers.get(i);
+            final Header current = this.headers.get(i);
             if (current.getName().equalsIgnoreCase(header.getName())) {
                 this.headers.set(i, header);
                 return;
@@ -125,7 +125,7 @@ public class HeaderGroup implements Cloneable, Serializable {
         if (headers == null) {
             return;
         }
-        for (Header header : headers) {
+        for (final Header header : headers) {
             this.headers.add(header);
         }
     }
@@ -142,14 +142,14 @@ public class HeaderGroup implements Cloneable, Serializable {
      * headers by the given name are present
      */
     public Header getCondensedHeader(final String name) {
-        Header[] headers = getHeaders(name);
+        final Header[] headers = getHeaders(name);
 
         if (headers.length == 0) {
             return null;
         } else if (headers.length == 1) {
             return headers[0];
         } else {
-            CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
+            final CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
             valueBuffer.append(headers[0].getValue());
             for (int i = 1; i < headers.length; i++) {
                 valueBuffer.append(", ");
@@ -171,10 +171,10 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @return an array of length >= 0
      */
     public Header[] getHeaders(final String name) {
-        List<Header> headersFound = new ArrayList<Header>();
+        final List<Header> headersFound = new ArrayList<Header>();
 
         for (int i = 0; i < headers.size(); i++) {
-            Header header = headers.get(i);
+            final Header header = headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 headersFound.add(header);
             }
@@ -193,7 +193,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      */
     public Header getFirstHeader(final String name) {
         for (int i = 0; i < headers.size(); i++) {
-            Header header = headers.get(i);
+            final Header header = headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 return header;
             }
@@ -212,7 +212,7 @@ public class HeaderGroup implements Cloneable, Serializable {
     public Header getLastHeader(final String name) {
         // start at the end of the list and work backwards
         for (int i = headers.size() - 1; i >= 0; i--) {
-            Header header = headers.get(i);
+            final Header header = headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 return header;
             }
@@ -241,7 +241,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      */
     public boolean containsHeader(final String name) {
         for (int i = 0; i < headers.size(); i++) {
-            Header header = headers.get(i);
+            final Header header = headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 return true;
             }
@@ -283,7 +283,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @since 4.0
      */
     public HeaderGroup copy() {
-        HeaderGroup clone = new HeaderGroup();
+        final HeaderGroup clone = new HeaderGroup();
         clone.headers.addAll(this.headers);
         return clone;
     }

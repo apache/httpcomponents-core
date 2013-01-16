@@ -181,7 +181,7 @@ public class DefaultNHttpClientConnection
             final HttpResponseFactory responseFactory,
             final HttpParams params) {
         // override in derived class to specify a line parser
-        MessageConstraints constraints = HttpParamConfig.getMessageConstraints(params);
+        final MessageConstraints constraints = HttpParamConfig.getMessageConstraints(params);
         return new DefaultHttpResponseParser(buffer, null, responseFactory, constraints);
     }
 
@@ -245,7 +245,7 @@ public class DefaultNHttpClientConnection
                 } while (bytesRead > 0 && this.response == null);
                 if (this.response != null) {
                     if (this.response.getStatusLine().getStatusCode() >= 200) {
-                        HttpEntity entity = prepareDecoder(this.response);
+                        final HttpEntity entity = prepareDecoder(this.response);
                         this.response.setEntity(entity);
                         this.connMetrics.incrementResponseCount();
                     }
@@ -267,10 +267,10 @@ public class DefaultNHttpClientConnection
                     resetInput();
                 }
             }
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             resetInput();
             handler.exception(this, ex);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             handler.exception(this, ex);
         } finally {
             // Finally set buffered input flag
@@ -281,7 +281,7 @@ public class DefaultNHttpClientConnection
     public void produceOutput(final NHttpClientEventHandler handler) {
         try {
             if (this.outbuf.hasData()) {
-                int bytesWritten = this.outbuf.flush(this.session.channel());
+                final int bytesWritten = this.outbuf.flush(this.session.channel());
                 if (bytesWritten > 0) {
                     this.outTransportMetrics.incrementBytesTransferred(bytesWritten);
                 }
@@ -312,7 +312,7 @@ public class DefaultNHttpClientConnection
                     }
                 }
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             handler.exception(this, ex);
         } finally {
             // Finally set buffered output flag

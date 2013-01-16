@@ -144,7 +144,7 @@ public class SocketHttpClientConnection
         Args.notNull(params, "HTTP parameters");
         this.socket = socket;
 
-        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
+        final int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
         init(
                 createSessionInputBuffer(socket, buffersize, params),
                 createSessionOutputBuffer(socket, buffersize, params),
@@ -198,7 +198,7 @@ public class SocketHttpClientConnection
         if (this.socket != null) {
             try {
                 this.socket.setSoTimeout(timeout);
-            } catch (SocketException ignore) {
+            } catch (final SocketException ignore) {
                 // It is not quite clear from the Sun's documentation if there are any
                 // other legitimate cases for a socket exception to be thrown when setting
                 // SO_TIMEOUT besides the socket being already closed
@@ -210,7 +210,7 @@ public class SocketHttpClientConnection
         if (this.socket != null) {
             try {
                 return this.socket.getSoTimeout();
-            } catch (SocketException ignore) {
+            } catch (final SocketException ignore) {
                 return -1;
             }
         } else {
@@ -220,7 +220,7 @@ public class SocketHttpClientConnection
 
     public void shutdown() throws IOException {
         this.open = false;
-        Socket tmpsocket = this.socket;
+        final Socket tmpsocket = this.socket;
         if (tmpsocket != null) {
             tmpsocket.close();
         }
@@ -231,19 +231,19 @@ public class SocketHttpClientConnection
             return;
         }
         this.open = false;
-        Socket sock = this.socket;
+        final Socket sock = this.socket;
         try {
             doFlush();
             try {
                 try {
                     sock.shutdownOutput();
-                } catch (IOException ignore) {
+                } catch (final IOException ignore) {
                 }
                 try {
                     sock.shutdownInput();
-                } catch (IOException ignore) {
+                } catch (final IOException ignore) {
                 }
-            } catch (UnsupportedOperationException ignore) {
+            } catch (final UnsupportedOperationException ignore) {
                 // if one isn't supported, the other one isn't either
             }
         } finally {
@@ -253,7 +253,7 @@ public class SocketHttpClientConnection
 
     private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
         if (socketAddress instanceof InetSocketAddress) {
-            InetSocketAddress addr = ((InetSocketAddress) socketAddress);
+            final InetSocketAddress addr = ((InetSocketAddress) socketAddress);
             buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
                 addr.getAddress())
             .append(':')
@@ -266,9 +266,9 @@ public class SocketHttpClientConnection
     @Override
     public String toString() {
         if (this.socket != null) {
-            StringBuilder buffer = new StringBuilder();
-            SocketAddress remoteAddress = this.socket.getRemoteSocketAddress();
-            SocketAddress localAddress = this.socket.getLocalSocketAddress();
+            final StringBuilder buffer = new StringBuilder();
+            final SocketAddress remoteAddress = this.socket.getRemoteSocketAddress();
+            final SocketAddress localAddress = this.socket.getLocalSocketAddress();
             if (remoteAddress != null && localAddress != null) {
                 formatAddress(buffer, localAddress);
                 buffer.append("<->");

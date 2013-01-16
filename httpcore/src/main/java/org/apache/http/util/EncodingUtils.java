@@ -58,7 +58,7 @@ public final class EncodingUtils {
         Args.notEmpty(charset, "Charset");
         try {
             return new String(data, offset, length, charset);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             return new String(data, offset, length);
         }
     }
@@ -91,7 +91,7 @@ public final class EncodingUtils {
         Args.notEmpty(charset, "Charset");
         try {
             return data.getBytes(charset);
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             return data.getBytes();
         }
     }
@@ -106,7 +106,7 @@ public final class EncodingUtils {
         Args.notNull(data, "Input");
         try {
             return data.getBytes(Consts.ASCII.name());
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new Error("ASCII not supported");
         }
     }
@@ -125,7 +125,7 @@ public final class EncodingUtils {
         Args.notNull(data, "Input");
         try {
             return new String(data, offset, length, Consts.ASCII.name());
-        } catch (UnsupportedEncodingException e) {
+        } catch (final UnsupportedEncodingException e) {
             throw new Error("ASCII not supported");
         }
     }

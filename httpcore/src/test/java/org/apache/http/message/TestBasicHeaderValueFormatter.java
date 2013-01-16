@@ -40,13 +40,13 @@ public class TestBasicHeaderValueFormatter {
 
     @Test
     public void testNVPFormatting() throws Exception {
-        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
-        NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
-        NameValuePair param3 = new BasicNameValuePair("param", "this,that");
-        NameValuePair param4 = new BasicNameValuePair("param", "quote marks (\") must be escaped");
-        NameValuePair param5 = new BasicNameValuePair("param", "back slash (\\) must be escaped too");
-        NameValuePair param6 = new BasicNameValuePair("param", "values with\tblanks must always be quoted");
-        NameValuePair param7 = new BasicNameValuePair("param", null);
+        final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
+        final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
+        final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
+        final NameValuePair param4 = new BasicNameValuePair("param", "quote marks (\") must be escaped");
+        final NameValuePair param5 = new BasicNameValuePair("param", "back slash (\\) must be escaped too");
+        final NameValuePair param6 = new BasicNameValuePair("param", "values with\tblanks must always be quoted");
+        final NameValuePair param7 = new BasicNameValuePair("param", null);
 
 
         Assert.assertEquals("param=regular_stuff",
@@ -97,10 +97,10 @@ public class TestBasicHeaderValueFormatter {
 
     @Test
     public void testParamsFormatting() throws Exception {
-        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
-        NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
-        NameValuePair param3 = new BasicNameValuePair("param", "this,that");
-        NameValuePair[] params = new NameValuePair[] {param1, param2, param3};
+        final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
+        final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
+        final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
+        final NameValuePair[] params = new NameValuePair[] {param1, param2, param3};
         Assert.assertEquals("param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"",
                      BasicHeaderValueFormatter.formatParameters(params, false, null));
         Assert.assertEquals("param=\"regular_stuff\"; param=\"this\\\\that\"; param=\"this,that\"",
@@ -111,12 +111,12 @@ public class TestBasicHeaderValueFormatter {
 
     @Test
     public void testHEFormatting() throws Exception {
-        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
-        NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
-        NameValuePair param3 = new BasicNameValuePair("param", "this,that");
-        NameValuePair param4 = new BasicNameValuePair("param", null);
-        NameValuePair[] params = new NameValuePair[] {param1, param2, param3, param4};
-        HeaderElement element = new BasicHeaderElement("name", "value", params);
+        final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
+        final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
+        final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
+        final NameValuePair param4 = new BasicNameValuePair("param", null);
+        final NameValuePair[] params = new NameValuePair[] {param1, param2, param3, param4};
+        final HeaderElement element = new BasicHeaderElement("name", "value", params);
 
         Assert.assertEquals("name=value; param=regular_stuff; param=\"this\\\\that\"; param=\"this,that\"; param",
                      BasicHeaderValueFormatter.formatHeaderElement(element, false, null));
@@ -124,16 +124,16 @@ public class TestBasicHeaderValueFormatter {
 
     @Test
     public void testElementsFormatting() throws Exception {
-        NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
-        NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
-        NameValuePair param3 = new BasicNameValuePair("param", "this,that");
-        NameValuePair param4 = new BasicNameValuePair("param", null);
-        HeaderElement element1 = new BasicHeaderElement("name1", "value1", new NameValuePair[] {param1});
-        HeaderElement element2 = new BasicHeaderElement("name2", "value2", new NameValuePair[] {param2});
-        HeaderElement element3 = new BasicHeaderElement("name3", "value3", new NameValuePair[] {param3});
-        HeaderElement element4 = new BasicHeaderElement("name4", "value4", new NameValuePair[] {param4});
-        HeaderElement element5 = new BasicHeaderElement("name5", null);
-        HeaderElement[] elements = new HeaderElement[] {element1, element2, element3, element4, element5};
+        final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
+        final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
+        final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
+        final NameValuePair param4 = new BasicNameValuePair("param", null);
+        final HeaderElement element1 = new BasicHeaderElement("name1", "value1", new NameValuePair[] {param1});
+        final HeaderElement element2 = new BasicHeaderElement("name2", "value2", new NameValuePair[] {param2});
+        final HeaderElement element3 = new BasicHeaderElement("name3", "value3", new NameValuePair[] {param3});
+        final HeaderElement element4 = new BasicHeaderElement("name4", "value4", new NameValuePair[] {param4});
+        final HeaderElement element5 = new BasicHeaderElement("name5", null);
+        final HeaderElement[] elements = new HeaderElement[] {element1, element2, element3, element4, element5};
 
         Assert.assertEquals
             ("name1=value1; param=regular_stuff, name2=value2; " +
@@ -150,7 +150,7 @@ public class TestBasicHeaderValueFormatter {
                 ((HeaderElement) null, false,
                  BasicHeaderValueFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
 
@@ -159,7 +159,7 @@ public class TestBasicHeaderValueFormatter {
                 ((HeaderElement[]) null, false,
                  BasicHeaderValueFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
@@ -172,7 +172,7 @@ public class TestBasicHeaderValueFormatter {
             BasicHeaderValueFormatter.formatNameValuePair
                 ((NameValuePair) null, true, null);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
 
@@ -181,7 +181,7 @@ public class TestBasicHeaderValueFormatter {
                 ((NameValuePair[]) null, true,
                  BasicHeaderValueFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

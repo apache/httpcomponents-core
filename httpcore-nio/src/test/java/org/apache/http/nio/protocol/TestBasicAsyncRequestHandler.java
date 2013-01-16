@@ -72,13 +72,13 @@ public class TestBasicAsyncRequestHandler {
         try {
             new BasicAsyncRequestHandler(null);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
         }
     }
 
     @Test
     public void testProcessRequest() throws Exception {
-        HttpAsyncRequestConsumer<HttpRequest> requestConsumer = this.asyncRequestHandler.processRequest(
+        final HttpAsyncRequestConsumer<HttpRequest> requestConsumer = this.asyncRequestHandler.processRequest(
                 this.request, this.context);
         Assert.assertTrue(requestConsumer instanceof BasicAsyncRequestConsumer);
     }

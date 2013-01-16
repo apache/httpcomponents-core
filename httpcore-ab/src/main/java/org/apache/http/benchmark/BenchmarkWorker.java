@@ -99,10 +99,10 @@ class BenchmarkWorker implements Runnable {
 
     public void run() {
         HttpResponse response = null;
-        BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);
+        final BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);
 
-        String scheme = targetHost.getSchemeName();
-        String hostname = targetHost.getHostName();
+        final String scheme = targetHost.getSchemeName();
+        final String hostname = targetHost.getHostName();
         int port = targetHost.getPort();
         if (port == -1) {
             if (scheme.equalsIgnoreCase("https")) {
@@ -116,7 +116,7 @@ class BenchmarkWorker implements Runnable {
         this.context.setTargetHost(this.targetHost);
 
         stats.start();
-        int count = config.getRequests();
+        final int count = config.getRequests();
         for (int i = 0; i < count; i++) {
 
             try {
@@ -130,7 +130,7 @@ class BenchmarkWorker implements Runnable {
                         socket = new Socket();
                     }
 
-                    int timeout = config.getSocketTimeout();
+                    final int timeout = config.getSocketTimeout();
                     socket.setSoTimeout(timeout);
                     socket.connect(new InetSocketAddress(hostname, port), timeout);
 
@@ -145,7 +145,7 @@ class BenchmarkWorker implements Runnable {
                     // Finalize response
                     this.httpexecutor.postProcess(response, this.httpProcessor, this.context);
 
-                } catch (HttpException e) {
+                } catch (final HttpException e) {
                     stats.incWriteErrors();
                     if (config.getVerbosity() >= 2) {
                         System.err.println("Failed HTTP request : " + e.getMessage());
@@ -162,20 +162,20 @@ class BenchmarkWorker implements Runnable {
                     stats.incFailureCount();
                 }
 
-                HttpEntity entity = response.getEntity();
+                final HttpEntity entity = response.getEntity();
                 if (entity != null) {
-                    ContentType ct = ContentType.getOrDefault(entity);
+                    final ContentType ct = ContentType.getOrDefault(entity);
                     Charset charset = ct.getCharset();
                     if (charset == null) {
                         charset = HTTP.DEF_CONTENT_CHARSET;
                     }
                     long contentlen = 0;
-                    InputStream instream = entity.getContent();
+                    final InputStream instream = entity.getContent();
                     int l = 0;
                     while ((l = instream.read(this.buffer)) != -1) {
                         contentlen += l;
                         if (config.getVerbosity() >= 4) {
-                            String s = new String(this.buffer, 0, l, charset.name());
+                            final String s = new String(this.buffer, 0, l, charset.name());
                             System.out.print(s);
                         }
                     }
@@ -194,12 +194,12 @@ class BenchmarkWorker implements Runnable {
                     stats.incKeepAliveCount();
                 }
 
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 stats.incFailureCount();
                 if (config.getVerbosity() >= 2) {
                     System.err.println("I/O error: " + ex.getMessage());
                 }
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 stats.incFailureCount();
                 if (config.getVerbosity() >= 2) {
                     System.err.println("Generic error: " + ex.getMessage());
@@ -210,7 +210,7 @@ class BenchmarkWorker implements Runnable {
         stats.finish();
 
         if (response != null) {
-            Header header = response.getFirstHeader("Server");
+            final Header header = response.getFirstHeader("Server");
             if (header != null) {
                 stats.setServerName(header.getValue());
             }
@@ -218,7 +218,7 @@ class BenchmarkWorker implements Runnable {
 
         try {
             conn.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             stats.incFailureCount();
             if (config.getVerbosity() >= 2) {
                 System.err.println("I/O error: " + ex.getMessage());
@@ -229,8 +229,8 @@ class BenchmarkWorker implements Runnable {
     private void verboseOutput(final HttpResponse response) {
         if (config.getVerbosity() >= 3) {
             System.out.println(">> " + request.getRequestLine().toString());
-            Header[] headers = request.getAllHeaders();
-            for (Header header : headers) {
+            final Header[] headers = request.getAllHeaders();
+            for (final Header header : headers) {
                 System.out.println(">> " + header.toString());
             }
             System.out.println();
@@ -240,8 +240,8 @@ class BenchmarkWorker implements Runnable {
         }
         if (config.getVerbosity() >= 3) {
             System.out.println("<< " + response.getStatusLine().toString());
-            Header[] headers = response.getAllHeaders();
-            for (Header header : headers) {
+            final Header[] headers = response.getAllHeaders();
+            for (final Header header : headers) {
                 System.out.println("<< " + header.toString());
             }
             System.out.println();
@@ -249,8 +249,8 @@ class BenchmarkWorker implements Runnable {
     }
 
     private static void resetHeader(final HttpRequest request) {
-        for (HeaderIterator it = request.headerIterator(); it.hasNext();) {
-            Header header = it.nextHeader();
+        for (final HeaderIterator it = request.headerIterator(); it.hasNext();) {
+            final Header header = it.nextHeader();
             if (!(header instanceof DefaultHeader)) {
                 it.remove();
             }

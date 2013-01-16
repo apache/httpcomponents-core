@@ -77,12 +77,12 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
 
         super();
         Args.notNull(buffer, "Char array buffer");
-        int colon = buffer.indexOf(':');
+        final int colon = buffer.indexOf(':');
         if (colon == -1) {
             throw new ParseException
                 ("Invalid header: " + buffer.toString());
         }
-        String s = buffer.substringTrimmed(0, colon);
+        final String s = buffer.substringTrimmed(0, colon);
         if (s.length() == 0) {
             throw new ParseException
                 ("Invalid header: " + buffer.toString());
@@ -102,7 +102,7 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
     }
 
     public HeaderElement[] getElements() throws ParseException {
-        ParserCursor cursor = new ParserCursor(0, this.buffer.length());
+        final ParserCursor cursor = new ParserCursor(0, this.buffer.length());
         cursor.updatePos(this.valuePos);
         return BasicHeaderValueParser.INSTANCE.parseElements(this.buffer, cursor);
     }

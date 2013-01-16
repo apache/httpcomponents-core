@@ -128,7 +128,7 @@ public class NFileEntity extends AbstractHttpEntity
      * @since 4.2
      */
     public void close() throws IOException {
-        FileChannel local = fileChannel;
+        final FileChannel local = fileChannel;
         fileChannel = null;
         if (local != null) {
             local.close();
@@ -156,7 +156,7 @@ public class NFileEntity extends AbstractHttpEntity
     public void produceContent(final ContentEncoder encoder, final IOControl ioctrl)
             throws IOException {
         if (fileChannel == null) {
-            FileInputStream in = new FileInputStream(file);
+            final FileInputStream in = new FileInputStream(file);
             fileChannel = in.getChannel();
             idx = 0;
         }
@@ -188,9 +188,9 @@ public class NFileEntity extends AbstractHttpEntity
 
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
-        InputStream instream = new FileInputStream(this.file);
+        final InputStream instream = new FileInputStream(this.file);
         try {
-            byte[] tmp = new byte[4096];
+            final byte[] tmp = new byte[4096];
             int l;
             while ((l = instream.read(tmp)) != -1) {
                 outstream.write(tmp, 0, l);

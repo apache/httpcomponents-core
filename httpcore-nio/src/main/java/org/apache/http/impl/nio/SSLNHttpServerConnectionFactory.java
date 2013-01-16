@@ -153,7 +153,7 @@ public class SSLNHttpServerConnectionFactory
         try {
             sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(null, null, null);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             throw new IllegalStateException("Failure initializing default SSL context", ex);
         }
         return sslcontext;
@@ -178,7 +178,7 @@ public class SSLNHttpServerConnectionFactory
             final IOSession iosession,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler) {
-        SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.SERVER,
+        final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.SERVER,
                 (sslcontext != null ? sslcontext : getDefaultSSLContext()),
                 sslHandler);
         iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
@@ -186,13 +186,13 @@ public class SSLNHttpServerConnectionFactory
     }
 
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
-        SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
+        final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
         CharsetDecoder chardecoder = null;
         CharsetEncoder charencoder = null;
-        Charset charset = this.config.getCharset();
-        CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
+        final Charset charset = this.config.getCharset();
+        final CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
                 this.config.getMalformedInputAction() : CodingErrorAction.REPORT;
-        CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
+        final CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
                 this.config.getUnmappableInputAction() : CodingErrorAction.REPORT;
         if (charset != null) {
             chardecoder = charset.newDecoder();

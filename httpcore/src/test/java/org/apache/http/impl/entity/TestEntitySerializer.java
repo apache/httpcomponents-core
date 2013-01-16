@@ -67,139 +67,139 @@ public class TestEntitySerializer {
 
     @Test
     public void testIllegalGenerateArg() throws Exception {
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         try {
             entitywriter.serialize(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             entitywriter.serialize(new SessionOutputBufferMock() , null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             entitywriter.serialize(new SessionOutputBufferMock() , new DummyHttpMessage(), null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testEntityWithChunkTransferEncoding() throws Exception {
-        SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked");
 
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
-        OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
+        final OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
         Assert.assertNotNull(outstream);
         Assert.assertTrue(outstream instanceof ChunkedOutputStream);
     }
 
     @Test
     public void testEntityWithIdentityTransferEncoding() throws Exception {
-        SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "Identity");
 
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
-        OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
+        final OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
         Assert.assertNotNull(outstream);
         Assert.assertTrue(outstream instanceof IdentityOutputStream);
     }
 
     @Test
     public void testEntityWithInvalidTransferEncoding() throws Exception {
-        SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Transfer-Encoding", "whatever");
 
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(outbuffer, message);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
     }
 
     @Test
     public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
-        SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage(HttpVersion.HTTP_1_0);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage(HttpVersion.HTTP_1_0);
         message.addHeader("Transfer-Encoding", "chunked");
 
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(outbuffer, message);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
     }
 
     @Test
     public void testEntityWithContentLength() throws Exception {
-        SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "100");
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
-        OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
+        final OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
         Assert.assertNotNull(outstream);
         Assert.assertTrue(outstream instanceof ContentLengthOutputStream);
     }
 
     @Test
     public void testEntityWithInvalidContentLength() throws Exception {
-        SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", "whatever");
 
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         try {
             entitywriter.doSerialize(outbuffer, message);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
     }
 
     @Test
     public void testEntityNoContentDelimiter() throws Exception {
-        SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
-        EntitySerializer entitywriter = new EntitySerializer(
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage();
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
-        OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
+        final OutputStream outstream = entitywriter.doSerialize(outbuffer, message);
         Assert.assertNotNull(outstream);
         Assert.assertTrue(outstream instanceof IdentityOutputStream);
     }
 
     @Test
     public void testEntitySerialization() throws Exception {
-        byte[] content = new byte[] {1, 2, 3, 4, 5};
-        ByteArrayEntity entity = new ByteArrayEntity(content);
+        final byte[] content = new byte[] {1, 2, 3, 4, 5};
+        final ByteArrayEntity entity = new ByteArrayEntity(content);
 
-        SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
-        HttpMessage message = new DummyHttpMessage();
+        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
+        final HttpMessage message = new DummyHttpMessage();
         message.addHeader("Content-Length", Integer.toString(content.length));
 
-        EntitySerializer entitywriter = new EntitySerializer(
+        final EntitySerializer entitywriter = new EntitySerializer(
                 new StrictContentLengthStrategy());
         entitywriter.serialize(outbuffer, message, entity);
 
-        byte[] data = outbuffer.getData();
+        final byte[] data = outbuffer.getData();
         Assert.assertNotNull(data);
         Assert.assertEquals(content.length, data.length);
     }

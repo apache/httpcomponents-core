@@ -109,8 +109,8 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             final ContentLengthStrategy outgoingContentStrategy) {
         super();
         Args.positive(buffersize, "Buffer size");
-        HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
-        HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
+        final HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
+        final HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
         this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
                 constraints != null ? constraints : MessageConstraints.DEFAULT, chardecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, -1,
@@ -191,7 +191,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     }
 
     protected OutputStream prepareOutput(final HttpMessage message) throws HttpException {
-        long len = this.outgoingContentStrategy.determineLength(message);
+        final long len = this.outgoingContentStrategy.determineLength(message);
         return createOutputStream(len, this.outbuffer);
     }
 
@@ -208,10 +208,10 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     }
 
     protected HttpEntity prepareInput(final HttpMessage message) throws HttpException {
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final BasicHttpEntity entity = new BasicHttpEntity();
 
-        long len = this.incomingContentStrategy.determineLength(message);
-        InputStream instream = createInputStream(len, this.inbuffer);
+        final long len = this.incomingContentStrategy.determineLength(message);
+        final InputStream instream = createInputStream(len, this.inbuffer);
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
             entity.setContentLength(-1);
@@ -226,11 +226,11 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             entity.setContent(instream);
         }
 
-        Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
+        final Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader);
         }
-        Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
+        final Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
         if (contentEncodingHeader != null) {
             entity.setContentEncoding(contentEncodingHeader);
         }
@@ -273,7 +273,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         if (this.socket != null) {
             try {
                 this.socket.setSoTimeout(timeout);
-            } catch (SocketException ignore) {
+            } catch (final SocketException ignore) {
                 // It is not quite clear from the Sun's documentation if there are any
                 // other legitimate cases for a socket exception to be thrown when setting
                 // SO_TIMEOUT besides the socket being already closed
@@ -285,7 +285,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         if (this.socket != null) {
             try {
                 return this.socket.getSoTimeout();
-            } catch (SocketException ignore) {
+            } catch (final SocketException ignore) {
                 return -1;
             }
         } else {
@@ -295,7 +295,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     public void shutdown() throws IOException {
         this.open = false;
-        Socket tmpsocket = this.socket;
+        final Socket tmpsocket = this.socket;
         if (tmpsocket != null) {
             tmpsocket.close();
         }
@@ -306,19 +306,19 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             return;
         }
         this.open = false;
-        Socket sock = this.socket;
+        final Socket sock = this.socket;
         try {
             this.outbuffer.flush();
             try {
                 try {
                     sock.shutdownOutput();
-                } catch (IOException ignore) {
+                } catch (final IOException ignore) {
                 }
                 try {
                     sock.shutdownInput();
-                } catch (IOException ignore) {
+                } catch (final IOException ignore) {
                 }
-            } catch (UnsupportedOperationException ignore) {
+            } catch (final UnsupportedOperationException ignore) {
                 // if one isn't supported, the other one isn't either
             }
         } finally {
@@ -330,7 +330,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         if (this.inbuffer.hasBufferedData()) {
             return true;
         }
-        int oldtimeout = this.socket.getSoTimeout();
+        final int oldtimeout = this.socket.getSoTimeout();
         try {
             this.socket.setSoTimeout(timeout);
             this.inbuffer.fillBuffer();
@@ -346,9 +346,9 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
         try {
             return !awaitInput(1);
-        } catch (SocketTimeoutException ex) {
+        } catch (final SocketTimeoutException ex) {
             return false;
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             return true;
         }
     }
@@ -368,9 +368,9 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     @Override
     public String toString() {
         if (this.socket != null) {
-            StringBuilder buffer = new StringBuilder();
-            SocketAddress remoteAddress = this.socket.getRemoteSocketAddress();
-            SocketAddress localAddress = this.socket.getLocalSocketAddress();
+            final StringBuilder buffer = new StringBuilder();
+            final SocketAddress remoteAddress = this.socket.getRemoteSocketAddress();
+            final SocketAddress localAddress = this.socket.getLocalSocketAddress();
             if (remoteAddress != null && localAddress != null) {
                 NetUtils.formatAddress(buffer, localAddress);
                 buffer.append("<->");

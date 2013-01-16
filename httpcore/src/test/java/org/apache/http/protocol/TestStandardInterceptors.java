@@ -50,34 +50,34 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestConnControlGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        RequestConnControl interceptor = new RequestConnControl();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final RequestConnControl interceptor = new RequestConnControl();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_KEEP_ALIVE, header.getValue());
     }
 
     @Test
     public void testRequestConnControlConnectMethod() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
-        RequestConnControl interceptor = new RequestConnControl();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
+        final RequestConnControl interceptor = new RequestConnControl();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNull(header);
     }
 
     @Test
     public void testRequestConnControlCustom() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        Header myheader = new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final Header myheader = new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
         request.addHeader(myheader);
-        RequestConnControl interceptor = new RequestConnControl();
+        final RequestConnControl interceptor = new RequestConnControl();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_CLOSE, header.getValue());
         Assert.assertTrue(header == myheader);
@@ -85,46 +85,46 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestConnControlInvalidInput() throws Exception {
-        RequestConnControl interceptor = new RequestConnControl();
+        final RequestConnControl interceptor = new RequestConnControl();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestContentProtocolException() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request1 = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request1 = new BasicHttpEntityEnclosingRequest("POST", "/");
         request1.addHeader(new BasicHeader(HTTP.TRANSFER_ENCODING, "chunked"));
-        BasicHttpRequest request2 = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request2 = new BasicHttpEntityEnclosingRequest("POST", "/");
         request2.addHeader(new BasicHeader(HTTP.CONTENT_LEN, "12"));
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         try {
             interceptor.process(request1, context);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
         try {
             interceptor.process(request2, context);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
    }
 
     @Test
     public void testRequestContentNullEntity() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header header = request.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNotNull(header);
         Assert.assertEquals("0", header.getValue());
         Assert.assertNull(request.getFirstHeader(HTTP.TRANSFER_ENCODING));
@@ -132,15 +132,15 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestContentEntityContentLengthDelimitedHTTP11() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        String s = "whatever";
-        StringEntity entity = new StringEntity(s, "US-ASCII");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final String s = "whatever";
+        final StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header header = request.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNotNull(header);
         Assert.assertEquals(s.length(), Integer.parseInt(header.getValue()));
         Assert.assertNull(request.getFirstHeader(HTTP.TRANSFER_ENCODING));
@@ -148,16 +148,16 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestContentEntityChunkedHTTP11() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        String s = "whatever";
-        StringEntity entity = new StringEntity(s, "US-ASCII");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final String s = "whatever";
+        final StringEntity entity = new StringEntity(s, "US-ASCII");
         entity.setChunked(true);
         request.setEntity(entity);
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header header = request.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Assert.assertNotNull(header);
         Assert.assertEquals("chunked", header.getValue());
         Assert.assertNull(request.getFirstHeader(HTTP.CONTENT_LEN));
@@ -165,16 +165,16 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestContentEntityUnknownLengthHTTP11() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentLength(-1);
         entity.setChunked(false);
         request.setEntity(entity);
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header header = request.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Assert.assertNotNull(header);
         Assert.assertEquals("chunked", header.getValue());
         Assert.assertNull(request.getFirstHeader(HTTP.CONTENT_LEN));
@@ -182,50 +182,50 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestContentEntityChunkedHTTP10() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
-        String s = "whatever";
-        StringEntity entity = new StringEntity(s, "US-ASCII");
+        final String s = "whatever";
+        final StringEntity entity = new StringEntity(s, "US-ASCII");
         entity.setChunked(true);
         request.setEntity(entity);
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         try {
             interceptor.process(request, context);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestContentTypeAndEncoding() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentType("whatever");
         entity.setContentEncoding("whatever");
         request.setEntity(entity);
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
-        Header h1 = request.getFirstHeader(HTTP.CONTENT_TYPE);
+        final Header h1 = request.getFirstHeader(HTTP.CONTENT_TYPE);
         Assert.assertNotNull(h1);
         Assert.assertEquals("whatever", h1.getValue());
-        Header h2 = request.getFirstHeader(HTTP.CONTENT_ENCODING);
+        final Header h2 = request.getFirstHeader(HTTP.CONTENT_ENCODING);
         Assert.assertNotNull(h2);
         Assert.assertEquals("whatever", h2.getValue());
     }
 
     @Test
     public void testRequestContentNullTypeAndEncoding() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         request.setEntity(entity);
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
         Assert.assertNull(request.getFirstHeader(HTTP.CONTENT_TYPE));
         Assert.assertNull(request.getFirstHeader(HTTP.CONTENT_ENCODING));
@@ -233,48 +233,48 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestContentEntityUnknownLengthHTTP10() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentLength(-1);
         entity.setChunked(false);
         request.setEntity(entity);
 
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         try {
             interceptor.process(request, context);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
    }
 
     @Test
     public void testRequestContentInvalidInput() throws Exception {
-        RequestContent interceptor = new RequestContent();
+        final RequestContent interceptor = new RequestContent();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestContentIgnoreNonenclosingRequests() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("POST", "/");
-        RequestContent interceptor = new RequestContent();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
         Assert.assertEquals(0, request.getAllHeaders().length);
     }
 
     @Test
     public void testRequestContentOverwriteHeaders() throws Exception {
-        RequestContent interceptor = new RequestContent(true);
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final RequestContent interceptor = new RequestContent(true);
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.addHeader(new BasicHeader(HTTP.CONTENT_LEN, "10"));
         request.addHeader(new BasicHeader(HTTP.TRANSFER_ENCODING, "whatever"));
         interceptor.process(request, context);
@@ -283,9 +283,9 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestContentAddHeaders() throws Exception {
-        RequestContent interceptor = new RequestContent(true);
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final RequestContent interceptor = new RequestContent(true);
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         interceptor.process(request, context);
         Assert.assertEquals("0", request.getFirstHeader(HTTP.CONTENT_LEN).getValue());
         Assert.assertNull(request.getFirstHeader(HTTP.TRANSFER_ENCODING));
@@ -293,360 +293,360 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestExpectContinueGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext();
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        String s = "whatever";
-        StringEntity entity = new StringEntity(s, "US-ASCII");
+        final HttpContext context = new BasicHttpContext();
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final String s = "whatever";
+        final StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
+        final Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.EXPECT_CONTINUE, header.getValue());
     }
 
     @Test
     public void testRequestExpectContinueHTTP10() throws Exception {
-        HttpContext context = new BasicHttpContext();
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+        final HttpContext context = new BasicHttpContext();
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
-        String s = "whatever";
-        StringEntity entity = new StringEntity(s, "US-ASCII");
+        final String s = "whatever";
+        final StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
+        final Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
         Assert.assertNull(header);
     }
 
     @Test
     public void testRequestExpectContinueZeroContent() throws Exception {
-        HttpContext context = new BasicHttpContext();
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        String s = "";
-        StringEntity entity = new StringEntity(s, "US-ASCII");
+        final HttpContext context = new BasicHttpContext();
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final String s = "";
+        final StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
+        final Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
         Assert.assertNull(header);
     }
 
     @Test
     public void testRequestExpectContinueInvalidInput() throws Exception {
-        RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestExpectContinueIgnoreNonenclosingRequests() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("POST", "/");
-        RequestExpectContinue interceptor = new RequestExpectContinue();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         Assert.assertEquals(0, request.getAllHeaders().length);
     }
 
     @Test
     public void testRequestTargetHostGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpHost host = new HttpHost("somehost", 8080, "http");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpHost host = new HttpHost("somehost", 8080, "http");
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        final Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:8080", header.getValue());
     }
 
     @Test
     public void testRequestTargetHostFallback() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        InetAddress address = Mockito.mock(InetAddress.class);
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final InetAddress address = Mockito.mock(InetAddress.class);
         Mockito.when(address.getHostName()).thenReturn("somehost");
-        HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
+        final HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
         Mockito.when(conn.getRemoteAddress()).thenReturn(address);
         Mockito.when(conn.getRemotePort()).thenReturn(1234);
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, null);
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        final Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:1234", header.getValue());
     }
 
     @Test(expected=ProtocolException.class)
     public void testRequestTargetHostFallbackFailure() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
         Mockito.when(conn.getRemoteAddress()).thenReturn(null);
         Mockito.when(conn.getRemotePort()).thenReturn(1234);
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, null);
         context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
     }
 
     @Test
     public void testRequestTargetHostNotGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpHost host = new HttpHost("somehost", 8080, "http");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpHost host = new HttpHost("somehost", 8080, "http");
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.TARGET_HOST, "whatever"));
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        final Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("whatever", header.getValue());
     }
 
     @Test
     public void testRequestTargetHostMissingHostHTTP10() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest(
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest(
                 "GET", "/", HttpVersion.HTTP_1_0);
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        final Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         Assert.assertNull(header);
     }
 
     @Test
     public void testRequestTargetHostMissingHostHTTP11() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final RequestTargetHost interceptor = new RequestTargetHost();
         try {
             interceptor.process(request, context);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestTargetHostInvalidInput() throws Exception {
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final RequestTargetHost interceptor = new RequestTargetHost();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             interceptor.process(new BasicHttpRequest("GET", "/"), null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestTargetHostConnectHttp11() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpHost host = new HttpHost("somehost", 8080, "http");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpHost host = new HttpHost("somehost", 8080, "http");
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
-        BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
+        final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        final Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:8080", header.getValue());
     }
 
     @Test
     public void testRequestTargetHostConnectHttp10() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpHost host = new HttpHost("somehost", 8080, "http");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpHost host = new HttpHost("somehost", 8080, "http");
         context.setAttribute(ExecutionContext.HTTP_TARGET_HOST, host);
-        BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/", HttpVersion.HTTP_1_0);
-        RequestTargetHost interceptor = new RequestTargetHost();
+        final BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/", HttpVersion.HTTP_1_0);
+        final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.TARGET_HOST);
+        final Header header = request.getFirstHeader(HTTP.TARGET_HOST);
         Assert.assertNull(header);
     }
 
     @Test
     public void testRequestUserAgentGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        RequestUserAgent interceptor = new RequestUserAgent("some agent");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final RequestUserAgent interceptor = new RequestUserAgent("some agent");
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.USER_AGENT);
+        final Header header = request.getFirstHeader(HTTP.USER_AGENT);
         Assert.assertNotNull(header);
         Assert.assertEquals("some agent", header.getValue());
     }
 
     @Test
     public void testRequestUserAgentNotGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.USER_AGENT, "whatever"));
-        RequestUserAgent interceptor = new RequestUserAgent("some agent");
+        final RequestUserAgent interceptor = new RequestUserAgent("some agent");
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.USER_AGENT);
+        final Header header = request.getFirstHeader(HTTP.USER_AGENT);
         Assert.assertNotNull(header);
         Assert.assertEquals("whatever", header.getValue());
     }
 
     @Test
     public void testRequestUserAgentMissingUserAgent() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        RequestUserAgent interceptor = new RequestUserAgent();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final RequestUserAgent interceptor = new RequestUserAgent();
         interceptor.process(request, context);
-        Header header = request.getFirstHeader(HTTP.USER_AGENT);
+        final Header header = request.getFirstHeader(HTTP.USER_AGENT);
         Assert.assertNull(header);
     }
 
     @Test
     public void testRequestUserAgentInvalidInput() throws Exception {
-        RequestUserAgent interceptor = new RequestUserAgent();
+        final RequestUserAgent interceptor = new RequestUserAgent();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testResponseConnControlNoEntity() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNull(header);
     }
 
     @Test
     public void testResponseConnControlEntityContentLength() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        StringEntity entity = new StringEntity("whatever");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNull(header);
     }
 
     @Test
     public void testResponseConnControlEntityUnknownContentLength() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_CLOSE, header.getValue());
     }
 
     @Test
     public void testResponseConnControlEntityChunked() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setChunked(true);
         response.setEntity(entity);
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNull(header);
     }
 
     @Test
     public void testResponseConnControlEntityUnknownContentLengthHTTP10() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        BasicHttpResponse response = new BasicHttpResponse(
+        final BasicHttpResponse response = new BasicHttpResponse(
                 HttpVersion.HTTP_1_0, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_CLOSE, header.getValue());
     }
 
     @Test
     public void testResponseConnControlClientRequest() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        StringEntity entity = new StringEntity("whatever");
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_KEEP_ALIVE, header.getValue());
     }
 
     @Test
     public void testResponseConnControlClientRequest2() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        StringEntity entity = new StringEntity("whatever");
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNull(header);
     }
 
     @Test
     public void testResponseConnControl10Client11Response() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        StringEntity entity = new StringEntity("whatever");
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_CLOSE, header.getValue());
     }
 
     @Test
     public void testResponseConnControlStatusCode() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
 
-        int [] statusCodes = new int[] {
+        final int [] statusCodes = new int[] {
                 HttpStatus.SC_BAD_REQUEST,
                 HttpStatus.SC_REQUEST_TIMEOUT,
                 HttpStatus.SC_LENGTH_REQUIRED,
@@ -655,11 +655,11 @@ public class TestStandardInterceptors {
                 HttpStatus.SC_SERVICE_UNAVAILABLE,
                 HttpStatus.SC_NOT_IMPLEMENTED };
 
-        for (int statusCode : statusCodes) {
-            BasicHttpResponse response = new BasicHttpResponse(
+        for (final int statusCode : statusCodes) {
+            final BasicHttpResponse response = new BasicHttpResponse(
                     HttpVersion.HTTP_1_1, statusCode, "Unreasonable");
             interceptor.process(response, context);
-            Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+            final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
             Assert.assertNotNull(header);
             Assert.assertEquals(HTTP.CONN_CLOSE, header.getValue());
         }
@@ -668,215 +668,215 @@ public class TestStandardInterceptors {
 
     @Test
     public void testResponseConnControlExplicitClose() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE));
         context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
 
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
 
-        BasicHttpResponse response = new BasicHttpResponse(
+        final BasicHttpResponse response = new BasicHttpResponse(
                 HttpVersion.HTTP_1_1, 200, "OK");
         response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
+        final Header header = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
         Assert.assertNotNull(header);
         Assert.assertEquals(HTTP.CONN_CLOSE, header.getValue());
     }
 
     @Test
     public void testResponseConnControlHostInvalidInput() throws Exception {
-        ResponseConnControl interceptor = new ResponseConnControl();
+        final ResponseConnControl interceptor = new ResponseConnControl();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
-            HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+            final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
             interceptor.process(response, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testResponseContentNoEntity() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        ResponseContent interceptor = new ResponseContent();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNotNull(header);
         Assert.assertEquals("0", header.getValue());
     }
 
     @Test
     public void testResponseContentStatusNoContent() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         response.setStatusCode(HttpStatus.SC_NO_CONTENT);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNull(header);
     }
 
     @Test
     public void testResponseContentStatusResetContent() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         response.setStatusCode(HttpStatus.SC_RESET_CONTENT);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNull(header);
     }
 
     @Test
     public void testResponseContentStatusNotModified() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         response.setStatusCode(HttpStatus.SC_NOT_MODIFIED);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header header = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNull(header);
     }
 
     @Test
     public void testResponseContentEntityChunked() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setChunked(true);
         response.setEntity(entity);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header h1 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Assert.assertNotNull(h1);
         Assert.assertEquals(HTTP.CHUNK_CODING, h1.getValue());
-        Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNull(h2);
     }
 
     @Test
     public void testResponseContentEntityContentLenghtDelimited() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentLength (10);
         response.setEntity(entity);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header h1 = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNotNull(h1);
         Assert.assertEquals("10", h1.getValue());
-        Header h2 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header h2 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Assert.assertNull(h2);
     }
 
     @Test
     public void testResponseContentEntityUnknownContentLength() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header h1 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Assert.assertNull(h1);
-        Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNull(h2);
     }
 
     @Test
     public void testResponseContentEntityChunkedHTTP10() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setChunked(true);
         response.setEntity(entity);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header h1 = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
         Assert.assertNull(h1);
-        Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header h2 = response.getFirstHeader(HTTP.CONTENT_LEN);
         Assert.assertNull(h2);
     }
 
     @Test
     public void testResponseContentEntityNoContentTypeAndEncoding() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.CONTENT_TYPE);
+        final Header h1 = response.getFirstHeader(HTTP.CONTENT_TYPE);
         Assert.assertNull(h1);
-        Header h2 = response.getFirstHeader(HTTP.CONTENT_ENCODING);
+        final Header h2 = response.getFirstHeader(HTTP.CONTENT_ENCODING);
         Assert.assertNull(h2);
     }
 
     @Test
     public void testResponseContentEntityContentTypeAndEncoding() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentEncoding("whatever");
         entity.setContentType("whatever");
         response.setEntity(entity);
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.CONTENT_TYPE);
+        final Header h1 = response.getFirstHeader(HTTP.CONTENT_TYPE);
         Assert.assertNotNull(h1);
         Assert.assertEquals("whatever", h1.getValue());
-        Header h2 = response.getFirstHeader(HTTP.CONTENT_ENCODING);
+        final Header h2 = response.getFirstHeader(HTTP.CONTENT_ENCODING);
         Assert.assertNotNull(h2);
         Assert.assertEquals("whatever", h2.getValue());
     }
 
     @Test
     public void testResponseContentInvalidInput() throws Exception {
-        ResponseContent interceptor = new ResponseContent();
+        final ResponseContent interceptor = new ResponseContent();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testResponseContentInvalidResponseState() throws Exception {
-        ResponseContent interceptor = new ResponseContent();
-        HttpContext context = new BasicHttpContext(null);
+        final ResponseContent interceptor = new ResponseContent();
+        final HttpContext context = new BasicHttpContext(null);
         try {
-            HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+            final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
             response.addHeader(new BasicHeader(HTTP.CONTENT_LEN, "10"));
             interceptor.process(response, context);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
         try {
-            HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+            final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
             response.addHeader(new BasicHeader(HTTP.TRANSFER_ENCODING, "stuff"));
             interceptor.process(response, context);
             Assert.fail("ProtocolException should have been thrown");
-        } catch (ProtocolException ex) {
+        } catch (final ProtocolException ex) {
             // expected
         }
     }
 
     @Test
     public void testResponseContentOverwriteHeaders() throws Exception {
-        ResponseContent interceptor = new ResponseContent(true);
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ResponseContent interceptor = new ResponseContent(true);
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         response.addHeader(new BasicHeader(HTTP.CONTENT_LEN, "10"));
         response.addHeader(new BasicHeader(HTTP.TRANSFER_ENCODING, "whatever"));
         interceptor.process(response, context);
@@ -885,9 +885,9 @@ public class TestStandardInterceptors {
 
     @Test
     public void testResponseContentAddHeaders() throws Exception {
-        ResponseContent interceptor = new ResponseContent(true);
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ResponseContent interceptor = new ResponseContent(true);
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         interceptor.process(response, context);
         Assert.assertEquals("0", response.getFirstHeader(HTTP.CONTENT_LEN).getValue());
         Assert.assertNull(response.getFirstHeader(HTTP.TRANSFER_ENCODING));
@@ -895,117 +895,117 @@ public class TestStandardInterceptors {
 
     @Test
     public void testResponseDateGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        ResponseDate interceptor = new ResponseDate();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ResponseDate interceptor = new ResponseDate();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.DATE_HEADER);
+        final Header h1 = response.getFirstHeader(HTTP.DATE_HEADER);
         Assert.assertNotNull(h1);
         interceptor.process(response, context);
-        Header h2 = response.getFirstHeader(HTTP.DATE_HEADER);
+        final Header h2 = response.getFirstHeader(HTTP.DATE_HEADER);
         Assert.assertNotNull(h2);
     }
 
     @Test
     public void testResponseDateNotGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         response.setStatusCode(199);
-        ResponseDate interceptor = new ResponseDate();
+        final ResponseDate interceptor = new ResponseDate();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.DATE_HEADER);
+        final Header h1 = response.getFirstHeader(HTTP.DATE_HEADER);
         Assert.assertNull(h1);
     }
 
     @Test
     public void testResponseDateInvalidInput() throws Exception {
-        ResponseDate interceptor = new ResponseDate();
+        final ResponseDate interceptor = new ResponseDate();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testRequestDateGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request =
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request =
             new BasicHttpEntityEnclosingRequest("POST", "/");
         //BasicHttpRequest request = new BasicHttpRequest("GET", "/");
 
-        RequestDate interceptor = new RequestDate();
+        final RequestDate interceptor = new RequestDate();
         interceptor.process(request, context);
-        Header h1 = request.getFirstHeader(HTTP.DATE_HEADER);
+        final Header h1 = request.getFirstHeader(HTTP.DATE_HEADER);
         Assert.assertNotNull(h1);
         interceptor.process(request, context);
-        Header h2 = request.getFirstHeader(HTTP.DATE_HEADER);
+        final Header h2 = request.getFirstHeader(HTTP.DATE_HEADER);
         Assert.assertNotNull(h2);
     }
 
     @Test
     public void testRequestDateNotGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
 
-        RequestDate interceptor = new RequestDate();
+        final RequestDate interceptor = new RequestDate();
         interceptor.process(request, context);
-        Header h1 = request.getFirstHeader(HTTP.DATE_HEADER);
+        final Header h1 = request.getFirstHeader(HTTP.DATE_HEADER);
         Assert.assertNull(h1);
     }
 
     @Test
     public void testRequestDateInvalidInput() throws Exception {
-        RequestDate interceptor = new RequestDate();
+        final RequestDate interceptor = new RequestDate();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
 
     @Test
     public void testResponseServerGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        ResponseServer interceptor = new ResponseServer("some server");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ResponseServer interceptor = new ResponseServer("some server");
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
+        final Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         Assert.assertNotNull(h1);
         Assert.assertEquals("some server", h1.getValue());
     }
 
     @Test
     public void testResponseServerNotGenerated() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         response.addHeader(new BasicHeader(HTTP.SERVER_HEADER, "whatever"));
-        ResponseServer interceptor = new ResponseServer("some server");
+        final ResponseServer interceptor = new ResponseServer("some server");
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
+        final Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         Assert.assertNotNull(h1);
         Assert.assertEquals("whatever", h1.getValue());
     }
 
     @Test
     public void testResponseServerMissing() throws Exception {
-        HttpContext context = new BasicHttpContext(null);
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        ResponseServer interceptor = new ResponseServer();
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final ResponseServer interceptor = new ResponseServer();
         interceptor.process(response, context);
-        Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
+        final Header h1 = response.getFirstHeader(HTTP.SERVER_HEADER);
         Assert.assertNull(h1);
     }
 
     @Test
     public void testResponseServerInvalidInput() throws Exception {
-        ResponseServer interceptor = new ResponseServer();
+        final ResponseServer interceptor = new ResponseServer();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

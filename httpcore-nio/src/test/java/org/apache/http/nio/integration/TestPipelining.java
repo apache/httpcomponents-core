@@ -107,32 +107,32 @@ public class TestPipelining extends HttpCoreNIOTestBase {
 
     @Test
     public void testBasicPipelining() throws Exception {
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                String content = "thank you very much";
-                NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
+                final String content = "thank you very much";
+                final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
             }
 
         }));
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
+        final HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         this.server.start(serviceHandler);
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        Socket socket = new Socket("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final Socket socket = new Socket("localhost", address.getPort());
         try {
-            OutputStream outstream = socket.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outstream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
             writer.write("GET / HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
@@ -141,10 +141,10 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             writer.write("Connection: close\r\n");
             writer.write("\r\n");
             writer.flush();
-            InputStream instream = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
-            StringBuilder buf = new StringBuilder();
-            char[] tmp = new char[1024];
+            final InputStream instream = socket.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
+            final StringBuilder buf = new StringBuilder();
+            final char[] tmp = new char[1024];
             int l;
             while ((l = reader.read(tmp)) != -1) {
                 buf.append(tmp, 0, l);
@@ -165,7 +165,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
 //                    "Connection: close\r\n" +
 //                    "\r\n" +
 //                    "thank you very much";
-            String expected =
+            final String expected =
                     "HTTP/1.1 400 Bad Request\r\n" +
                     "Connection: Close\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +
@@ -193,7 +193,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
         };
 
-        UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("/long", new HttpAsyncRequestHandler<HttpRequest>() {
 
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(final HttpRequest request,
@@ -216,25 +216,25 @@ public class TestPipelining extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                String content = "thank you very much";
-                NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
+                final String content = "thank you very much";
+                final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
             }
 
         }));
-        HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
+        final HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
         this.server.start(serviceHandler);
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        Socket socket = new Socket("localhost", address.getPort());
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final Socket socket = new Socket("localhost", address.getPort());
         try {
-            OutputStream outstream = socket.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outstream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
             writer.write("GET /long HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
@@ -243,10 +243,10 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             writer.write("Connection: close\r\n");
             writer.write("\r\n");
             writer.flush();
-            InputStream instream = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
-            StringBuilder buf = new StringBuilder();
-            char[] tmp = new char[1024];
+            final InputStream instream = socket.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
+            final StringBuilder buf = new StringBuilder();
+            final char[] tmp = new char[1024];
             int l;
             while ((l = reader.read(tmp)) != -1) {
                 buf.append(tmp, 0, l);
@@ -254,7 +254,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             reader.close();
             writer.close();
 
-            String expected =
+            final String expected =
                     "HTTP/1.1 400 Bad Request\r\n" +
                     "Connection: Close\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +

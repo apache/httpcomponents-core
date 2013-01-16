@@ -87,7 +87,7 @@ public class EntitySerializer {
     protected OutputStream doSerialize(
             final SessionOutputBuffer outbuffer,
             final HttpMessage message) throws HttpException, IOException {
-        long len = this.lenStrategy.determineLength(message);
+        final long len = this.lenStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
             return new ChunkedOutputStream(outbuffer);
         } else if (len == ContentLengthStrategy.IDENTITY) {
@@ -114,7 +114,7 @@ public class EntitySerializer {
         Args.notNull(outbuffer, "Session output buffer");
         Args.notNull(message, "HTTP message");
         Args.notNull(entity, "HTTP entity");
-        OutputStream outstream = doSerialize(outbuffer, message);
+        final OutputStream outstream = doSerialize(outbuffer, message);
         entity.writeTo(outstream);
         outstream.close();
     }

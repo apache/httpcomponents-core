@@ -52,50 +52,50 @@ public class TestResponseParser {
 
     @Test
     public void testBasicMessageParsing() throws Exception {
-        String s =
+        final String s =
             "HTTP/1.1 200 OK\r\n" +
             "Server: whatever\r\n" +
             "Date: some date\r\n" +
             "Set-Cookie: c1=stuff\r\n" +
             "\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
 
-        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
-        HttpResponse httpresponse = parser.parse();
+        final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
+        final HttpResponse httpresponse = parser.parse();
 
-        StatusLine statusline = httpresponse.getStatusLine();
+        final StatusLine statusline = httpresponse.getStatusLine();
         Assert.assertNotNull(statusline);
         Assert.assertEquals(200, statusline.getStatusCode());
         Assert.assertEquals("OK", statusline.getReasonPhrase());
         Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
-        Header[] headers = httpresponse.getAllHeaders();
+        final Header[] headers = httpresponse.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }
 
     @Test
     public void testConnectionClosedException() throws Exception {
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
-        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
+        final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
         try {
             parser.parse();
             Assert.fail("NoHttpResponseException should have been thrown");
-        } catch (NoHttpResponseException expected) {
+        } catch (final NoHttpResponseException expected) {
         }
     }
 
     @Test
     public void testMessageParsingTimeout() throws Exception {
-        String s =
+        final String s =
             "HTTP\000/1.1 200\000 OK\r\n" +
             "Server: wha\000tever\r\n" +
             "Date: some date\r\n" +
             "Set-Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
-        SessionInputBuffer inbuffer = new SessionInputBufferMock(
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
 
-        DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
+        final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
 
         int timeoutCount = 0;
 
@@ -104,7 +104,7 @@ public class TestResponseParser {
             try {
                 httpresponse = parser.parse();
                 break;
-            } catch (InterruptedIOException ex) {
+            } catch (final InterruptedIOException ex) {
                 timeoutCount++;
             }
 
@@ -113,12 +113,13 @@ public class TestResponseParser {
         Assert.assertEquals(5, timeoutCount);
 
         @SuppressWarnings("null") // httpresponse cannot be null here
+        final
         StatusLine statusline = httpresponse.getStatusLine();
         Assert.assertNotNull(statusline);
         Assert.assertEquals(200, statusline.getStatusCode());
         Assert.assertEquals("OK", statusline.getReasonPhrase());
         Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
-        Header[] headers = httpresponse.getAllHeaders();
+        final Header[] headers = httpresponse.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }
 

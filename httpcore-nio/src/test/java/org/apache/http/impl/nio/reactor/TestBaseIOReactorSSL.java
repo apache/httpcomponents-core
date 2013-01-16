@@ -93,7 +93,7 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
             final HttpRequestHandler requestHandler,
             final HttpExpectationVerifier expectationVerifier,
             final EventListener eventListener) {
-        BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
+        final BufferingHttpServiceHandler serviceHandler = new BufferingHttpServiceHandler(
                 HttpServerNio.DEFAULT_HTTP_PROC,
                 DefaultHttpResponseFactory.INSTANCE,
                 DefaultConnectionReuseStrategy.INSTANCE,
@@ -108,10 +108,10 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
     }
 
     private TrustManagerFactory createTrustManagerFactory() throws NoSuchAlgorithmException {
-        String algo = TrustManagerFactory.getDefaultAlgorithm();
+        final String algo = TrustManagerFactory.getDefaultAlgorithm();
         try {
             return TrustManagerFactory.getInstance(algo);
-        } catch (NoSuchAlgorithmException ex) {
+        } catch (final NoSuchAlgorithmException ex) {
             return TrustManagerFactory.getInstance("SunX509");
         }
     }
@@ -119,7 +119,7 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
     @Test
     public void testBufferedInput() throws Exception {
         final int[] result = new int[1];
-        HttpRequestHandler requestHandler = new HttpRequestHandler() {
+        final HttpRequestHandler requestHandler = new HttpRequestHandler() {
             public void handle(final HttpRequest request, final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 result[0]++;
@@ -129,29 +129,29 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
             }
         };
 
-        NHttpServiceHandler serviceHandler = createHttpServiceHandler(
+        final NHttpServiceHandler serviceHandler = createHttpServiceHandler(
                 requestHandler,
                 null,
                 null);
 
         this.server.start(serviceHandler);
 
-        ClassLoader cl = getClass().getClassLoader();
-        URL url = cl.getResource("test.keystore");
-        KeyStore keystore  = KeyStore.getInstance("jks");
+        final ClassLoader cl = getClass().getClassLoader();
+        final URL url = cl.getResource("test.keystore");
+        final KeyStore keystore  = KeyStore.getInstance("jks");
         keystore.load(url.openStream(), "nopassword".toCharArray());
-        TrustManagerFactory tmfactory = createTrustManagerFactory();
+        final TrustManagerFactory tmfactory = createTrustManagerFactory();
         tmfactory.init(keystore);
-        TrustManager[] trustmanagers = tmfactory.getTrustManagers();
-        SSLContext sslcontext = SSLContext.getInstance("TLS");
+        final TrustManager[] trustmanagers = tmfactory.getTrustManagers();
+        final SSLContext sslcontext = SSLContext.getInstance("TLS");
         sslcontext.init(null, trustmanagers, null);
 
-        ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-        InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
+        final InetSocketAddress serverAddress = (InetSocketAddress) endpoint.getAddress();
 
-        Socket socket = sslcontext.getSocketFactory().createSocket("localhost", serverAddress.getPort());
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        final Socket socket = sslcontext.getSocketFactory().createSocket("localhost", serverAddress.getPort());
+        final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         //            123456789012345678901234567890
         writer.write("GET / HTTP/1.1\r\n");
         writer.write("Header:                   \r\n");

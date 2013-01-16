@@ -35,9 +35,9 @@ final class RndTestPatternGenerator {
     private static final String TEST_CHARS = "0123456789ABCDEF";
 
     public static String generateText() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 5; i++) {
-            char rndchar = TEST_CHARS.charAt(RND.nextInt(TEST_CHARS.length() - 1));
+            final char rndchar = TEST_CHARS.charAt(RND.nextInt(TEST_CHARS.length() - 1));
             buffer.append(rndchar);
         }
         return buffer.toString();

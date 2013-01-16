@@ -155,8 +155,8 @@ public class NHttpConnectionBase
             charset = Consts.ASCII;
             decoder = charset.newDecoder();
             encoder = charset.newEncoder();
-            CodingErrorAction malformedCharAction = HttpProtocolParams.getMalformedInputAction(params);
-            CodingErrorAction unmappableCharAction = HttpProtocolParams.getUnmappableInputAction(params);
+            final CodingErrorAction malformedCharAction = HttpProtocolParams.getMalformedInputAction(params);
+            final CodingErrorAction unmappableCharAction = HttpProtocolParams.getUnmappableInputAction(params);
             decoder.onMalformedInput(malformedCharAction);
             decoder.onUnmappableCharacter(unmappableCharAction);
             encoder.onMalformedInput(malformedCharAction);
@@ -331,8 +331,8 @@ public class NHttpConnectionBase
      * @throws HttpException in case of an HTTP protocol violation.
      */
     protected HttpEntity prepareDecoder(final HttpMessage message) throws HttpException {
-        BasicHttpEntity entity = new BasicHttpEntity();
-        long len = this.incomingContentStrategy.determineLength(message);
+        final BasicHttpEntity entity = new BasicHttpEntity();
+        final long len = this.incomingContentStrategy.determineLength(message);
         this.contentDecoder = createContentDecoder(
                 len,
                 this.session.channel(),
@@ -349,11 +349,11 @@ public class NHttpConnectionBase
             entity.setContentLength(len);
         }
 
-        Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
+        final Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader);
         }
-        Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
+        final Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
         if (contentEncodingHeader != null) {
             entity.setContentEncoding(contentEncodingHeader);
         }
@@ -395,7 +395,7 @@ public class NHttpConnectionBase
      * @throws HttpException in case of an HTTP protocol violation.
      */
     protected void prepareEncoder(final HttpMessage message) throws HttpException {
-        long len = this.outgoingContentStrategy.determineLength(message);
+        final long len = this.outgoingContentStrategy.determineLength(message);
         this.contentEncoder = createContentEncoder(
                 len,
                 this.session.channel(),
@@ -472,7 +472,7 @@ public class NHttpConnectionBase
     }
 
     public InetAddress getLocalAddress() {
-        SocketAddress address = this.session.getLocalAddress();
+        final SocketAddress address = this.session.getLocalAddress();
         if (address instanceof InetSocketAddress) {
             return ((InetSocketAddress) address).getAddress();
         } else {
@@ -481,7 +481,7 @@ public class NHttpConnectionBase
     }
 
     public int getLocalPort() {
-        SocketAddress address = this.session.getLocalAddress();
+        final SocketAddress address = this.session.getLocalAddress();
         if (address instanceof InetSocketAddress) {
             return ((InetSocketAddress) address).getPort();
         } else {
@@ -490,7 +490,7 @@ public class NHttpConnectionBase
     }
 
     public InetAddress getRemoteAddress() {
-        SocketAddress address = this.session.getRemoteAddress();
+        final SocketAddress address = this.session.getRemoteAddress();
         if (address instanceof InetSocketAddress) {
             return ((InetSocketAddress) address).getAddress();
         } else {
@@ -499,7 +499,7 @@ public class NHttpConnectionBase
     }
 
     public int getRemotePort() {
-        SocketAddress address = this.session.getRemoteAddress();
+        final SocketAddress address = this.session.getRemoteAddress();
         if (address instanceof InetSocketAddress) {
             return ((InetSocketAddress) address).getPort();
         } else {
@@ -526,9 +526,9 @@ public class NHttpConnectionBase
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
-        SocketAddress remoteAddress = this.session.getRemoteAddress();
-        SocketAddress localAddress = this.session.getLocalAddress();
+        final StringBuilder buffer = new StringBuilder();
+        final SocketAddress remoteAddress = this.session.getRemoteAddress();
+        final SocketAddress localAddress = this.session.getLocalAddress();
         if (remoteAddress != null && localAddress != null) {
             NetUtils.formatAddress(buffer, localAddress);
             buffer.append("<->");

@@ -89,9 +89,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             parser = BasicHeaderValueParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        ParserCursor cursor = new ParserCursor(0, value.length());
+        final ParserCursor cursor = new ParserCursor(0, value.length());
         return parser.parseElements(buffer, cursor);
     }
 
@@ -101,9 +101,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                          final ParserCursor cursor) {
         Args.notNull(buffer, "Char array buffer");
         Args.notNull(cursor, "Parser cursor");
-        List<HeaderElement> elements = new ArrayList<HeaderElement>();
+        final List<HeaderElement> elements = new ArrayList<HeaderElement>();
         while (!cursor.atEnd()) {
-            HeaderElement element = parseHeaderElement(buffer, cursor);
+            final HeaderElement element = parseHeaderElement(buffer, cursor);
             if (!(element.getName().length() == 0 && element.getValue() == null)) {
                 elements.add(element);
             }
@@ -128,9 +128,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             parser = BasicHeaderValueParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        ParserCursor cursor = new ParserCursor(0, value.length());
+        final ParserCursor cursor = new ParserCursor(0, value.length());
         return parser.parseHeaderElement(buffer, cursor);
     }
 
@@ -140,10 +140,10 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                             final ParserCursor cursor) {
         Args.notNull(buffer, "Char array buffer");
         Args.notNull(cursor, "Parser cursor");
-        NameValuePair nvp = parseNameValuePair(buffer, cursor);
+        final NameValuePair nvp = parseNameValuePair(buffer, cursor);
         NameValuePair[] params = null;
         if (!cursor.atEnd()) {
-            char ch = buffer.charAt(cursor.getPos() - 1);
+            final char ch = buffer.charAt(cursor.getPos() - 1);
             if (ch != ELEM_DELIMITER) {
                 params = parseParameters(buffer, cursor);
             }
@@ -182,9 +182,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             parser = BasicHeaderValueParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        ParserCursor cursor = new ParserCursor(0, value.length());
+        final ParserCursor cursor = new ParserCursor(0, value.length());
         return parser.parseParameters(buffer, cursor);
     }
 
@@ -196,10 +196,10 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         Args.notNull(buffer, "Char array buffer");
         Args.notNull(cursor, "Parser cursor");
         int pos = cursor.getPos();
-        int indexTo = cursor.getUpperBound();
+        final int indexTo = cursor.getUpperBound();
 
         while (pos < indexTo) {
-            char ch = buffer.charAt(pos);
+            final char ch = buffer.charAt(pos);
             if (HTTP.isWhitespace(ch)) {
                 pos++;
             } else {
@@ -211,11 +211,11 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             return new NameValuePair[] {};
         }
 
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        final List<NameValuePair> params = new ArrayList<NameValuePair>();
         while (!cursor.atEnd()) {
-            NameValuePair param = parseNameValuePair(buffer, cursor);
+            final NameValuePair param = parseNameValuePair(buffer, cursor);
             params.add(param);
-            char ch = buffer.charAt(cursor.getPos() - 1);
+            final char ch = buffer.charAt(cursor.getPos() - 1);
             if (ch == ELEM_DELIMITER) {
                 break;
             }
@@ -240,9 +240,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             parser = BasicHeaderValueParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        ParserCursor cursor = new ParserCursor(0, value.length());
+        final ParserCursor cursor = new ParserCursor(0, value.length());
         return parser.parseNameValuePair(buffer, cursor);
     }
 
@@ -255,7 +255,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     private static boolean isOneOf(final char ch, final char[] chs) {
         if (chs != null) {
-            for (char ch2 : chs) {
+            for (final char ch2 : chs) {
                 if (ch == ch2) {
                     return true;
                 }
@@ -273,13 +273,13 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         boolean terminated = false;
 
         int pos = cursor.getPos();
-        int indexFrom = cursor.getPos();
-        int indexTo = cursor.getUpperBound();
+        final int indexFrom = cursor.getPos();
+        final int indexTo = cursor.getUpperBound();
 
         // Find name
         String name = null;
         while (pos < indexTo) {
-            char ch = buffer.charAt(pos);
+            final char ch = buffer.charAt(pos);
             if (ch == '=') {
                 break;
             }
@@ -310,7 +310,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         boolean qouted = false;
         boolean escaped = false;
         while (pos < indexTo) {
-            char ch = buffer.charAt(pos);
+            final char ch = buffer.charAt(pos);
             if (ch == '"' && !escaped) {
                 qouted = !qouted;
             }

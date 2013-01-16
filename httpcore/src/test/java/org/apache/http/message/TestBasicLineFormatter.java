@@ -43,7 +43,7 @@ public class TestBasicLineFormatter {
 
     @Test
     public void testHttpVersionFormatting() throws Exception {
-        String s = BasicLineFormatter.formatProtocolVersion
+        final String s = BasicLineFormatter.formatProtocolVersion
             (HttpVersion.HTTP_1_1, null);
         Assert.assertEquals("HTTP/1.1", s);
     }
@@ -54,14 +54,14 @@ public class TestBasicLineFormatter {
             BasicLineFormatter.formatProtocolVersion
                 (null, BasicLineFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.INSTANCE.appendProtocolVersion
                 (new CharArrayBuffer(10), (HttpVersion) null);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
@@ -69,8 +69,8 @@ public class TestBasicLineFormatter {
 
     @Test
     public void testRLFormatting() throws Exception {
-        RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
-        String s = BasicLineFormatter.formatRequestLine(requestline, null);
+        final RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final String s = BasicLineFormatter.formatRequestLine(requestline, null);
         Assert.assertEquals("GET /stuff HTTP/1.1", s);
     }
 
@@ -80,14 +80,14 @@ public class TestBasicLineFormatter {
             BasicLineFormatter.formatRequestLine
                 (null, BasicLineFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.INSTANCE.formatRequestLine
                 (new CharArrayBuffer(10), (RequestLine) null);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
@@ -112,14 +112,14 @@ public class TestBasicLineFormatter {
             BasicLineFormatter.formatStatusLine
                 (null, BasicLineFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.INSTANCE.formatStatusLine
                 (new CharArrayBuffer(10), (StatusLine) null);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }
@@ -127,10 +127,10 @@ public class TestBasicLineFormatter {
 
     @Test
     public void testHeaderFormatting() throws Exception {
-        Header header1 = new BasicHeader("name", "value");
+        final Header header1 = new BasicHeader("name", "value");
         String s = BasicLineFormatter.formatHeader(header1, null);
         Assert.assertEquals("name: value", s);
-        Header header2 = new BasicHeader("name", null);
+        final Header header2 = new BasicHeader("name", null);
         s = BasicLineFormatter.formatHeader(header2, null);
         Assert.assertEquals("name: ", s);
     }
@@ -141,14 +141,14 @@ public class TestBasicLineFormatter {
             BasicLineFormatter.formatHeader
                 (null, BasicLineFormatter.INSTANCE);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             BasicLineFormatter.INSTANCE.formatHeader
                 (new CharArrayBuffer(10), (Header) null);
             Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // expected
         }
     }

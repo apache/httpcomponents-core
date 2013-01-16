@@ -78,9 +78,9 @@ public class InputStreamEntity extends AbstractHttpEntity {
 
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
-        InputStream instream = this.content;
+        final InputStream instream = this.content;
         try {
-            byte[] buffer = new byte[BUFFER_SIZE];
+            final byte[] buffer = new byte[BUFFER_SIZE];
             int l;
             if (this.length < 0) {
                 // consume until EOF

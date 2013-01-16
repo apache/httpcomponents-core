@@ -110,9 +110,9 @@ public class BasicLineParser implements LineParser {
             parser = BasicLineParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        ParserCursor cursor = new ParserCursor(0, value.length());
+        final ParserCursor cursor = new ParserCursor(0, value.length());
         return parser.parseProtocolVersion(buffer, cursor);
     }
 
@@ -125,8 +125,8 @@ public class BasicLineParser implements LineParser {
         final String protoname = this.protocol.getProtocol();
         final int protolength  = protoname.length();
 
-        int indexFrom = cursor.getPos();
-        int indexTo = cursor.getUpperBound();
+        final int indexFrom = cursor.getPos();
+        final int indexTo = cursor.getUpperBound();
 
         skipWhitespace(buffer, cursor);
 
@@ -155,7 +155,7 @@ public class BasicLineParser implements LineParser {
 
         i += protolength+1;
 
-        int period = buffer.indexOf('.', i, indexTo);
+        final int period = buffer.indexOf('.', i, indexTo);
         if (period == -1) {
             throw new ParseException
                 ("Invalid protocol version number: " +
@@ -164,7 +164,7 @@ public class BasicLineParser implements LineParser {
         int major;
         try {
             major = Integer.parseInt(buffer.substringTrimmed(i, period));
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             throw new ParseException
                 ("Invalid protocol major version number: " +
                  buffer.substring(indexFrom, indexTo));
@@ -178,7 +178,7 @@ public class BasicLineParser implements LineParser {
         int minor;
         try {
             minor = Integer.parseInt(buffer.substringTrimmed(i, blank));
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             throw new ParseException(
                 "Invalid protocol minor version number: " +
                 buffer.substring(indexFrom, indexTo));
@@ -261,9 +261,9 @@ public class BasicLineParser implements LineParser {
             parser = BasicLineParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        ParserCursor cursor = new ParserCursor(0, value.length());
+        final ParserCursor cursor = new ParserCursor(0, value.length());
         return parser.parseRequestLine(buffer, cursor);
     }
 
@@ -282,8 +282,8 @@ public class BasicLineParser implements LineParser {
 
         Args.notNull(buffer, "Char array buffer");
         Args.notNull(cursor, "Parser cursor");
-        int indexFrom = cursor.getPos();
-        int indexTo = cursor.getUpperBound();
+        final int indexFrom = cursor.getPos();
+        final int indexTo = cursor.getUpperBound();
 
         try {
             skipWhitespace(buffer, cursor);
@@ -294,7 +294,7 @@ public class BasicLineParser implements LineParser {
                 throw new ParseException("Invalid request line: " +
                         buffer.substring(indexFrom, indexTo));
             }
-            String method = buffer.substringTrimmed(i, blank);
+            final String method = buffer.substringTrimmed(i, blank);
             cursor.updatePos(blank);
 
             skipWhitespace(buffer, cursor);
@@ -305,10 +305,10 @@ public class BasicLineParser implements LineParser {
                 throw new ParseException("Invalid request line: " +
                         buffer.substring(indexFrom, indexTo));
             }
-            String uri = buffer.substringTrimmed(i, blank);
+            final String uri = buffer.substringTrimmed(i, blank);
             cursor.updatePos(blank);
 
-            ProtocolVersion ver = parseProtocolVersion(buffer, cursor);
+            final ProtocolVersion ver = parseProtocolVersion(buffer, cursor);
 
             skipWhitespace(buffer, cursor);
             if (!cursor.atEnd()) {
@@ -317,7 +317,7 @@ public class BasicLineParser implements LineParser {
             }
 
             return createRequestLine(method, uri, ver);
-        } catch (IndexOutOfBoundsException e) {
+        } catch (final IndexOutOfBoundsException e) {
             throw new ParseException("Invalid request line: " +
                                      buffer.substring(indexFrom, indexTo));
         }
@@ -350,9 +350,9 @@ public class BasicLineParser implements LineParser {
             parser = BasicLineParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        ParserCursor cursor = new ParserCursor(0, value.length());
+        final ParserCursor cursor = new ParserCursor(0, value.length());
         return parser.parseStatusLine(buffer, cursor);
     }
 
@@ -362,12 +362,12 @@ public class BasicLineParser implements LineParser {
                                       final ParserCursor cursor) throws ParseException {
         Args.notNull(buffer, "Char array buffer");
         Args.notNull(cursor, "Parser cursor");
-        int indexFrom = cursor.getPos();
-        int indexTo = cursor.getUpperBound();
+        final int indexFrom = cursor.getPos();
+        final int indexTo = cursor.getUpperBound();
 
         try {
             // handle the HTTP-Version
-            ProtocolVersion ver = parseProtocolVersion(buffer, cursor);
+            final ProtocolVersion ver = parseProtocolVersion(buffer, cursor);
 
             // handle the Status-Code
             skipWhitespace(buffer, cursor);
@@ -378,7 +378,7 @@ public class BasicLineParser implements LineParser {
                 blank = indexTo;
             }
             int statusCode = 0;
-            String s = buffer.substringTrimmed(i, blank);
+            final String s = buffer.substringTrimmed(i, blank);
             for (int j = 0; j < s.length(); j++) {
                 if (!Character.isDigit(s.charAt(j))) {
                     throw new ParseException(
@@ -388,7 +388,7 @@ public class BasicLineParser implements LineParser {
             }
             try {
                 statusCode = Integer.parseInt(s);
-            } catch (NumberFormatException e) {
+            } catch (final NumberFormatException e) {
                 throw new ParseException(
                         "Status line contains invalid status code: "
                         + buffer.substring(indexFrom, indexTo));
@@ -403,7 +403,7 @@ public class BasicLineParser implements LineParser {
             }
             return createStatusLine(ver, statusCode, reasonPhrase);
 
-        } catch (IndexOutOfBoundsException e) {
+        } catch (final IndexOutOfBoundsException e) {
             throw new ParseException("Invalid status line: " +
                                      buffer.substring(indexFrom, indexTo));
         }
@@ -436,7 +436,7 @@ public class BasicLineParser implements LineParser {
             parser = BasicLineParser.INSTANCE;
         }
 
-        CharArrayBuffer buffer = new CharArrayBuffer(value.length());
+        final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
         return parser.parseHeader(buffer);
     }
@@ -456,7 +456,7 @@ public class BasicLineParser implements LineParser {
      */
     protected void skipWhitespace(final CharArrayBuffer buffer, final ParserCursor cursor) {
         int pos = cursor.getPos();
-        int indexTo = cursor.getUpperBound();
+        final int indexTo = cursor.getUpperBound();
         while ((pos < indexTo) &&
                HTTP.isWhitespace(buffer.charAt(pos))) {
             pos++;

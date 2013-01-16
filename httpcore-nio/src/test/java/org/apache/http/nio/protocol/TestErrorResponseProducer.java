@@ -58,7 +58,7 @@ public class TestErrorResponseProducer {
     @Test
     public void testGenerateResponseKeepAlive() {
         erp = new ErrorResponseProducer(response, entity, true);
-        HttpResponse res = erp.generateResponse();
+        final HttpResponse res = erp.generateResponse();
 
         Assert.assertEquals(HTTP.CONN_KEEP_ALIVE, res.getFirstHeader(HTTP.CONN_DIRECTIVE).getValue());
         Assert.assertEquals(entity, res.getEntity());
@@ -68,7 +68,7 @@ public class TestErrorResponseProducer {
     @Test
     public void testGenerateResponseClose() {
         erp = new ErrorResponseProducer(response, entity, false);
-        HttpResponse res = erp.generateResponse();
+        final HttpResponse res = erp.generateResponse();
 
         Assert.assertEquals(HTTP.CONN_CLOSE, res.getFirstHeader(HTTP.CONN_DIRECTIVE).getValue());
         Assert.assertEquals(entity, res.getEntity());

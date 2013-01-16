@@ -62,7 +62,7 @@ public class MessageConstraints implements Cloneable {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append("[maxLineLength=").append(maxLineLength)
                 .append(", maxHeaderCount=").append(maxHeaderCount)
                 .append("]");

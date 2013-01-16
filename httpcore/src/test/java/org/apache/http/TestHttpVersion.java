@@ -46,21 +46,21 @@ public class TestHttpVersion {
         try {
             new HttpVersion(-1, -1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             // expected
         }
         try {
             new HttpVersion(0, -1);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException e) {
+        } catch (final IllegalArgumentException e) {
             // expected
         }
     }
 
     @Test
     public void testHttpVersionEquality() throws Exception {
-        HttpVersion ver1 = new HttpVersion(1, 1);
-        HttpVersion ver2 = new HttpVersion(1, 1);
+        final HttpVersion ver1 = new HttpVersion(1, 1);
+        final HttpVersion ver2 = new HttpVersion(1, 1);
 
         Assert.assertEquals(ver1.hashCode(), ver2.hashCode());
         Assert.assertTrue(ver1.equals(ver1));
@@ -107,22 +107,22 @@ public class TestHttpVersion {
 
     @Test
     public void testCloning() throws Exception {
-        HttpVersion orig = HttpVersion.HTTP_1_1;
-        HttpVersion clone = (HttpVersion) orig.clone();
+        final HttpVersion orig = HttpVersion.HTTP_1_1;
+        final HttpVersion clone = (HttpVersion) orig.clone();
         Assert.assertEquals(orig, clone);
     }
 
     @Test
     public void testSerialization() throws Exception {
-        HttpVersion orig = HttpVersion.HTTP_1_1;
-        ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
+        final HttpVersion orig = HttpVersion.HTTP_1_1;
+        final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
+        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
         outstream.close();
-        byte[] raw = outbuffer.toByteArray();
-        ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        HttpVersion clone = (HttpVersion) instream.readObject();
+        final byte[] raw = outbuffer.toByteArray();
+        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
+        final HttpVersion clone = (HttpVersion) instream.readObject();
         Assert.assertEquals(orig, clone);
     }
 

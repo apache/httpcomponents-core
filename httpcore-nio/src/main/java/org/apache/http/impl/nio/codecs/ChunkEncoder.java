@@ -73,7 +73,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
             return 0;
         }
 
-        long bytesWritten = this.buffer.flush(this.channel);
+        final long bytesWritten = this.buffer.flush(this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }
@@ -96,7 +96,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
             this.lineBuffer.clear();
             this.lineBuffer.append(Integer.toHexString(chunk));
             this.buffer.writeLine(this.lineBuffer);
-            int oldlimit = src.limit();
+            final int oldlimit = src.limit();
             src.limit(src.position() + chunk);
             this.buffer.write(src);
             src.limit(oldlimit);
@@ -125,7 +125,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
 
     @Override
     public String toString() {
-        StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder();
         buffer.append("[chunk-coded; completed: ");
         buffer.append(this.completed);
         buffer.append("]");

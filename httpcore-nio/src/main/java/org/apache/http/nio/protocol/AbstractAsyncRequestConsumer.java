@@ -117,9 +117,9 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
             final HttpRequest request) throws HttpException, IOException {
         onRequestReceived(request);
         if (request instanceof HttpEntityEnclosingRequest) {
-            HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+            final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
             if (entity != null) {
-                ContentType contentType = ContentType.getOrDefault(entity);
+                final ContentType contentType = ContentType.getOrDefault(entity);
                 onEntityEnclosed(entity, contentType);
             }
         }
@@ -143,7 +143,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         this.completed = true;
         try {
             this.result = buildResult(context);
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.ex = ex;
         } finally {
             releaseResources();

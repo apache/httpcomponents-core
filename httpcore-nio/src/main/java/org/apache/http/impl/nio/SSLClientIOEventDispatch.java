@@ -175,30 +175,30 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
 
     public void connected(final IOSession session) {
 
-        SSLIOSession sslSession = createSSLIOSession(
+        final SSLIOSession sslSession = createSSLIOSession(
                 session,
                 this.sslcontext,
                 this.sslHandler);
 
-        NHttpClientIOTarget conn = createConnection(
+        final NHttpClientIOTarget conn = createConnection(
                 sslSession);
 
         session.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
         session.setAttribute(SSL_SESSION, sslSession);
 
-        Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
+        final Object attachment = session.getAttribute(IOSession.ATTACHMENT_KEY);
         this.handler.connected(conn, attachment);
 
         try {
             sslSession.bind(SSLMode.CLIENT, this.params);
-        } catch (SSLException ex) {
+        } catch (final SSLException ex) {
             this.handler.exception(conn, ex);
             sslSession.shutdown();
         }
     }
 
     public void disconnected(final IOSession session) {
-        NHttpClientIOTarget conn =
+        final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
         if (conn != null) {
             this.handler.closed(conn);
@@ -206,9 +206,9 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     }
 
     public void inputReady(final IOSession session) {
-        NHttpClientIOTarget conn =
+        final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        SSLIOSession sslSession =
+        final SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         try {
@@ -216,16 +216,16 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
                 conn.consumeInput(this.handler);
             }
             sslSession.inboundTransport();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             this.handler.exception(conn, ex);
             sslSession.shutdown();
         }
     }
 
     public void outputReady(final IOSession session) {
-        NHttpClientIOTarget conn =
+        final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        SSLIOSession sslSession =
+        final SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         try {
@@ -233,16 +233,16 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
                 conn.produceOutput(this.handler);
             }
             sslSession.outboundTransport();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             this.handler.exception(conn, ex);
             sslSession.shutdown();
         }
     }
 
     public void timeout(final IOSession session) {
-        NHttpClientIOTarget conn =
+        final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
-        SSLIOSession sslSession =
+        final SSLIOSession sslSession =
             (SSLIOSession) session.getAttribute(SSL_SESSION);
 
         this.handler.timeout(conn);

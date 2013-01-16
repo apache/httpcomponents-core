@@ -104,15 +104,15 @@ public class TestSyncHttp {
     @Test
     public void testSimpleBasicHttpRequests() throws Exception {
 
-        int reqNo = 20;
+        final int reqNo = 20;
 
-        Random rnd = new Random();
+        final Random rnd = new Random();
 
         // Prepare some random data
         final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
+            final int size = rnd.nextInt(5000);
+            final byte[] data = new byte[size];
             rnd.nextBytes(data);
             testData.add(data);
         }
@@ -129,9 +129,9 @@ public class TestSyncHttp {
                 if (s.startsWith("/?")) {
                     s = s.substring(2);
                 }
-                int index = Integer.parseInt(s);
-                byte[] data = testData.get(index);
-                ByteArrayEntity entity = new ByteArrayEntity(data);
+                final int index = Integer.parseInt(s);
+                final byte[] data = testData.get(index);
+                final ByteArrayEntity entity = new ByteArrayEntity(data);
                 response.setEntity(entity);
             }
 
@@ -139,8 +139,8 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
@@ -148,10 +148,10 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
-                HttpResponse response = this.client.execute(get, host, conn);
-                byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = testData.get(r);
+                final BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
+                final HttpResponse response = this.client.execute(get, host, conn);
+                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] expected = testData.get(r);
 
                 Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -163,7 +163,7 @@ public class TestSyncHttp {
             }
 
             //Verify the connection metrics
-            HttpConnectionMetrics cm = conn.getMetrics();
+            final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
 
@@ -180,15 +180,15 @@ public class TestSyncHttp {
     @Test
     public void testSimpleHttpPostsWithContentLength() throws Exception {
 
-        int reqNo = 20;
+        final int reqNo = 20;
 
-        Random rnd = new Random();
+        final Random rnd = new Random();
 
         // Prepare some random data
-        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
+            final int size = rnd.nextInt(5000);
+            final byte[] data = new byte[size];
             rnd.nextBytes(data);
             testData.add(data);
         }
@@ -202,14 +202,14 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException, IOException {
 
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] data = EntityUtils.toByteArray(incoming);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final byte[] data = EntityUtils.toByteArray(incoming);
 
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content");
+                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -218,8 +218,8 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
@@ -227,14 +227,14 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                byte[] data = testData.get(r);
-                ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final byte[] data = testData.get(r);
+                final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
 
-                HttpResponse response = this.client.execute(post, host, conn);
-                byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = testData.get(r);
+                final HttpResponse response = this.client.execute(post, host, conn);
+                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] expected = testData.get(r);
 
                 Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -245,7 +245,7 @@ public class TestSyncHttp {
                 }
             }
             //Verify the connection metrics
-            HttpConnectionMetrics cm = conn.getMetrics();
+            final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
 
@@ -262,15 +262,15 @@ public class TestSyncHttp {
     @Test
     public void testSimpleHttpPostsChunked() throws Exception {
 
-        int reqNo = 20;
+        final int reqNo = 20;
 
-        Random rnd = new Random();
+        final Random rnd = new Random();
 
         // Prepare some random data
-        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(20000);
-            byte[] data = new byte[size];
+            final int size = rnd.nextInt(20000);
+            final byte[] data = new byte[size];
             rnd.nextBytes(data);
             testData.add(data);
         }
@@ -284,14 +284,14 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException, IOException {
 
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] data = EntityUtils.toByteArray(incoming);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final byte[] data = EntityUtils.toByteArray(incoming);
 
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content");
+                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -300,8 +300,8 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
@@ -309,15 +309,15 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                byte[] data = testData.get(r);
-                ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final byte[] data = testData.get(r);
+                final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
                 post.setEntity(outgoing);
 
-                HttpResponse response = this.client.execute(post, host, conn);
-                byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = testData.get(r);
+                final HttpResponse response = this.client.execute(post, host, conn);
+                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] expected = testData.get(r);
 
                 Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -328,7 +328,7 @@ public class TestSyncHttp {
                 }
             }
             //Verify the connection metrics
-            HttpConnectionMetrics cm = conn.getMetrics();
+            final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
@@ -343,15 +343,15 @@ public class TestSyncHttp {
     @Test
     public void testSimpleHttpPostsHTTP10() throws Exception {
 
-        int reqNo = 20;
+        final int reqNo = 20;
 
-        Random rnd = new Random();
+        final Random rnd = new Random();
 
         // Prepare some random data
-        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
+            final int size = rnd.nextInt(5000);
+            final byte[] data = new byte[size];
             rnd.nextBytes(data);
             testData.add(data);
         }
@@ -365,14 +365,14 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException, IOException {
 
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] data = EntityUtils.toByteArray(incoming);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final byte[] data = EntityUtils.toByteArray(incoming);
 
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content");
+                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -381,8 +381,8 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
@@ -391,16 +391,16 @@ public class TestSyncHttp {
                 }
 
                 // Set protocol level to HTTP/1.0
-                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
+                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
                         "POST", "/", HttpVersion.HTTP_1_0);
-                byte[] data = testData.get(r);
-                ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                final byte[] data = testData.get(r);
+                final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
 
-                HttpResponse response = this.client.execute(post, host, conn);
+                final HttpResponse response = this.client.execute(post, host, conn);
                 Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-                byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = testData.get(r);
+                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] expected = testData.get(r);
 
                 Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -412,7 +412,7 @@ public class TestSyncHttp {
             }
 
             //Verify the connection metrics
-            HttpConnectionMetrics cm = conn.getMetrics();
+            final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
@@ -428,15 +428,15 @@ public class TestSyncHttp {
     @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
 
-        int reqNo = 20;
+        final int reqNo = 20;
 
-        Random rnd = new Random();
+        final Random rnd = new Random();
 
         // Prepare some random data
-        List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
         for (int i = 0; i < reqNo; i++) {
-            int size = rnd.nextInt(5000);
-            byte[] data = new byte[size];
+            final int size = rnd.nextInt(5000);
+            final byte[] data = new byte[size];
             rnd.nextBytes(data);
             testData.add(data);
         }
@@ -450,14 +450,14 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException, IOException {
 
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] data = EntityUtils.toByteArray(incoming);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final byte[] data = EntityUtils.toByteArray(incoming);
 
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content");
+                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -467,8 +467,8 @@ public class TestSyncHttp {
         this.server.start();
 
         // Activate 'expect: continue' handshake
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
@@ -476,15 +476,15 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
-                byte[] data = testData.get(r);
-                ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final byte[] data = testData.get(r);
+                final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
                 post.setEntity(outgoing);
 
-                HttpResponse response = this.client.execute(post, host, conn);
-                byte[] received = EntityUtils.toByteArray(response.getEntity());
-                byte[] expected = testData.get(r);
+                final HttpResponse response = this.client.execute(post, host, conn);
+                final byte[] received = EntityUtils.toByteArray(response.getEntity());
+                final byte[] expected = testData.get(r);
 
                 Assert.assertEquals(expected.length, received.length);
                 for (int i = 0; i < expected.length; i++) {
@@ -496,7 +496,7 @@ public class TestSyncHttp {
             }
 
             //Verify the connection metrics
-            HttpConnectionMetrics cm = conn.getMetrics();
+            final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
@@ -513,7 +513,7 @@ public class TestSyncHttp {
     @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
 
-        int reqNo = 3;
+        final int reqNo = 3;
 
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
@@ -523,7 +523,7 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                StringEntity outgoing = new StringEntity("No content");
+                final StringEntity outgoing = new StringEntity("No content");
                 response.setEntity(outgoing);
             }
 
@@ -535,18 +535,18 @@ public class TestSyncHttp {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException {
-                Header someheader = request.getFirstHeader("Secret");
+                final Header someheader = request.getFirstHeader("Secret");
                 if (someheader != null) {
                     int secretNumber;
                     try {
                         secretNumber = Integer.parseInt(someheader.getValue());
-                    } catch (NumberFormatException ex) {
+                    } catch (final NumberFormatException ex) {
                         response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
                         return;
                     }
                     if (secretNumber < 2) {
                         response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
-                        ByteArrayEntity outgoing = new ByteArrayEntity(
+                        final ByteArrayEntity outgoing = new ByteArrayEntity(
                                 EncodingUtils.getAsciiBytes("Wrong secret number"));
                         response.setEntity(outgoing);
                     }
@@ -557,8 +557,8 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
@@ -566,15 +566,15 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
-                ByteArrayEntity outgoing = new ByteArrayEntity(
+                final ByteArrayEntity outgoing = new ByteArrayEntity(
                         EncodingUtils.getAsciiBytes("No content " + r));
                 post.setEntity(outgoing);
 
-                HttpResponse response = this.client.execute(post, host, conn);
+                final HttpResponse response = this.client.execute(post, host, conn);
 
-                HttpEntity entity = response.getEntity();
+                final HttpEntity entity = response.getEntity();
                 Assert.assertNotNull(entity);
                 EntityUtils.consume(entity);
 
@@ -589,7 +589,7 @@ public class TestSyncHttp {
                 }
             }
             //Verify the connection metrics
-            HttpConnectionMetrics cm = conn.getMetrics();
+            final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
         } finally {
@@ -614,7 +614,7 @@ public class TestSyncHttp {
             // Java 5 OK:
             try {
                 b = content.getBytes(charset.name());
-            } catch (UnsupportedEncodingException ex) {
+            } catch (final UnsupportedEncodingException ex) {
                 b = content.getBytes();
             }
             this.raw = b;
@@ -651,7 +651,7 @@ public class TestSyncHttp {
     @Test
     public void testHttpContent() throws Exception {
 
-        String[] patterns = {
+        final String[] patterns = {
 
             "0123456789ABCDEF",
             "yadayada-blahblah-this-and-that-yadayada-blahblah-this-and-that-" +
@@ -690,20 +690,20 @@ public class TestSyncHttp {
                                 throw new HttpException("Invalid request: " +
                                         "number of repetitions cannot be negative or zero");
                             }
-                        } catch (NumberFormatException ex) {
+                        } catch (final NumberFormatException ex) {
                             throw new HttpException("Invalid request: " +
                                     "number of repetitions is invalid");
                         }
                     }
 
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    String line = EntityUtils.toString(incoming);
-                    ContentType contentType = ContentType.getOrDefault(incoming);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final String line = EntityUtils.toString(incoming);
+                    final ContentType contentType = ContentType.getOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
                         charset = HTTP.DEF_CONTENT_CHARSET;
                     }
-                    RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
+                    final RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
                     outgoing.setChunked(n % 2 == 0);
                     response.setEntity(outgoing);
                 } else {
@@ -714,33 +714,33 @@ public class TestSyncHttp {
         });
 
         this.server.start();
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
-            for (String pattern : patterns) {
+            for (final String pattern : patterns) {
                 for (int n = 1000; n < 1020; n++) {
                     if (!conn.isOpen()) {
                         client.connect(host, conn);
                     }
 
-                    BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
+                    final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
                             "POST", "/?n=" + n);
-                    StringEntity outgoing = new StringEntity(pattern);
+                    final StringEntity outgoing = new StringEntity(pattern);
                     outgoing.setChunked(n % 2 == 0);
                     post.setEntity(outgoing);
 
-                    HttpResponse response = this.client.execute(post, host, conn);
-                    HttpEntity incoming = response.getEntity();
+                    final HttpResponse response = this.client.execute(post, host, conn);
+                    final HttpEntity incoming = response.getEntity();
                     Assert.assertNotNull(incoming);
-                    InputStream instream = incoming.getContent();
-                    ContentType contentType = ContentType.getOrDefault(incoming);
+                    final InputStream instream = incoming.getContent();
+                    final ContentType contentType = ContentType.getOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
                         charset = HTTP.DEF_CONTENT_CHARSET;
                     }
                     Assert.assertNotNull(instream);
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
+                    final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
 
                     String line;
                     int count = 0;
@@ -770,12 +770,12 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException, IOException {
 
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] data = EntityUtils.toByteArray(incoming);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final byte[] data = EntityUtils.toByteArray(incoming);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content");
+                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -784,20 +784,20 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             if (!conn.isOpen()) {
                 client.connect(host, conn);
             }
 
-            BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
             post.setEntity(null);
 
-            HttpResponse response = this.client.execute(post, host, conn);
+            final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-            byte[] received = EntityUtils.toByteArray(response.getEntity());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assert.assertEquals(0, received.length);
         } finally {
             conn.close();
@@ -815,12 +815,12 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException, IOException {
 
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] data = EntityUtils.toByteArray(incoming);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final byte[] data = EntityUtils.toByteArray(incoming);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content");
+                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -829,15 +829,15 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             if (!conn.isOpen()) {
                 client.connect(host, conn);
             }
 
-            BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
@@ -847,9 +847,9 @@ public class TestSyncHttp {
                             new RequestUserAgent(),
                             new RequestExpectContinue() }));
 
-            HttpResponse response = this.client.execute(post, host, conn);
+            final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-            byte[] received = EntityUtils.toByteArray(response.getEntity());
+            final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assert.assertEquals(0, received.length);
         } finally {
             conn.close();
@@ -867,12 +867,12 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException, IOException {
 
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    byte[] data = EntityUtils.toByteArray(incoming);
-                    ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final byte[] data = EntityUtils.toByteArray(incoming);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     response.setEntity(outgoing);
                 } else {
-                    StringEntity outgoing = new StringEntity("No content");
+                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -881,15 +881,15 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             if (!conn.isOpen()) {
                 client.connect(host, conn);
             }
 
-            BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
@@ -908,7 +908,7 @@ public class TestSyncHttp {
                             new RequestUserAgent(),
                             new RequestExpectContinue() }));
 
-            HttpResponse response = this.client.execute(post, host, conn);
+            final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
         } finally {
             conn.close();
@@ -919,7 +919,7 @@ public class TestSyncHttp {
     @Test
     public void testNoContentResponse() throws Exception {
 
-        int reqNo = 20;
+        final int reqNo = 20;
 
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
@@ -935,8 +935,8 @@ public class TestSyncHttp {
 
         this.server.start();
 
-        DefaultBHttpClientConnection conn = client.createConnection();
-        HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
             for (int r = 0; r < reqNo; r++) {
@@ -944,8 +944,8 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
-                HttpResponse response = this.client.execute(get, host, conn);
+                final BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
+                final HttpResponse response = this.client.execute(get, host, conn);
                 Assert.assertNull(response.getEntity());
                 if (!this.client.keepAlive(response)) {
                     conn.close();
@@ -954,7 +954,7 @@ public class TestSyncHttp {
             }
 
             //Verify the connection metrics
-            HttpConnectionMetrics cm = conn.getMetrics();
+            final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
 

@@ -60,17 +60,17 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testBasicCoding() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
         encoder.write(wrap("more stuff"));
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -78,17 +78,17 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testCodingBeyondContentLimit() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
         encoder.write(wrap("more stuff; and a lot more stuff"));
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -96,23 +96,23 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testCodingEmptyBuffer() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
 
-        ByteBuffer empty = ByteBuffer.allocate(100);
+        final ByteBuffer empty = ByteBuffer.allocate(100);
         empty.flip();
         encoder.write(empty);
         encoder.write(null);
 
         encoder.write(wrap("more stuff"));
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -120,19 +120,19 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testCodingCompleted() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 5);
         encoder.write(wrap("stuff"));
 
         try {
             encoder.write(wrap("more stuff"));
             Assert.fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // ignore
         }
     }
@@ -140,17 +140,17 @@ public class TestLengthDelimitedEncoder {
     /* ----------------- FileChannel Part testing --------------------------- */
     @Test
     public void testCodingBeyondContentLimitFromFile() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
 
-        File tmpFile = File.createTempFile("testFile", ".txt");
-        FileOutputStream fout = new FileOutputStream(tmpFile);
-        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        final File tmpFile = File.createTempFile("testFile", ".txt");
+        final FileOutputStream fout = new FileOutputStream(tmpFile);
+        final OutputStreamWriter wrtout = new OutputStreamWriter(fout);
 
         wrtout.write("stuff;");
         wrtout.write("more stuff; and a lot more stuff");
@@ -158,11 +158,11 @@ public class TestLengthDelimitedEncoder {
         wrtout.flush();
         wrtout.close();
 
-        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+        final FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
 
         encoder.transfer(fchannel, 0, 20);
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -180,30 +180,30 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testCodingEmptyFile() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
         encoder.write(wrap("stuff;"));
 
         //Create an empty file
-        File tmpFile = File.createTempFile("testFile", ".txt");
-        FileOutputStream fout = new FileOutputStream(tmpFile);
-        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        final File tmpFile = File.createTempFile("testFile", ".txt");
+        final FileOutputStream fout = new FileOutputStream(tmpFile);
+        final OutputStreamWriter wrtout = new OutputStreamWriter(fout);
 
         wrtout.flush();
         wrtout.close();
 
-        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+        final FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
 
         encoder.transfer(fchannel, 0, 20);
 
         encoder.write(wrap("more stuff"));
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -214,29 +214,29 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testCodingCompletedFromFile() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 5);
         encoder.write(wrap("stuff"));
 
-        File tmpFile = File.createTempFile("testFile", ".txt");
-        FileOutputStream fout = new FileOutputStream(tmpFile);
-        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        final File tmpFile = File.createTempFile("testFile", ".txt");
+        final FileOutputStream fout = new FileOutputStream(tmpFile);
+        final OutputStreamWriter wrtout = new OutputStreamWriter(fout);
 
         wrtout.write("more stuff");
 
         wrtout.flush();
         wrtout.close();
 
-        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+        final FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
         try {
             encoder.transfer(fchannel, 0, 10);
             Assert.fail("IllegalStateException should have been thrown");
-        } catch (IllegalStateException ex) {
+        } catch (final IllegalStateException ex) {
             // ignore
         } finally {
             fchannel.close();
@@ -246,17 +246,17 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testCodingFromFileSmaller() throws Exception {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
+        final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
 
-        File tmpFile = File.createTempFile("testFile", ".txt");
-        FileOutputStream fout = new FileOutputStream(tmpFile);
-        OutputStreamWriter wrtout = new OutputStreamWriter(fout);
+        final File tmpFile = File.createTempFile("testFile", ".txt");
+        final FileOutputStream fout = new FileOutputStream(tmpFile);
+        final OutputStreamWriter wrtout = new OutputStreamWriter(fout);
 
         wrtout.write("stuff;");
         wrtout.write("more stuff;");
@@ -264,11 +264,11 @@ public class TestLengthDelimitedEncoder {
         wrtout.flush();
         wrtout.close();
 
-        FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
+        final FileChannel fchannel = new FileInputStream(tmpFile).getChannel();
 
         encoder.transfer(fchannel, 0, 20);
 
-        String s = baos.toString("US-ASCII");
+        final String s = baos.toString("US-ASCII");
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -279,33 +279,33 @@ public class TestLengthDelimitedEncoder {
 
     @Test
     public void testInvalidConstructor() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        WritableByteChannel channel = newChannel(baos);
-        SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
-        HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(baos);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         try {
             new LengthDelimitedEncoder(null, null, null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, null, null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, outbuf, null, 10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, outbuf, metrics, -10);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (IllegalArgumentException ex) {
+        } catch (final IllegalArgumentException ex) {
             // ignore
         }
     }

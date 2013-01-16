@@ -81,7 +81,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
 
     @Override
     protected int fillBuffer() throws IOException {
-        int i = super.fillBuffer();
+        final int i = super.fillBuffer();
         this.eof = i == -1;
         return i;
     }
@@ -89,12 +89,12 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
     public boolean isDataAvailable(final int timeout) throws IOException {
         boolean result = hasBufferedData();
         if (!result) {
-            int oldtimeout = this.socket.getSoTimeout();
+            final int oldtimeout = this.socket.getSoTimeout();
             try {
                 this.socket.setSoTimeout(timeout);
                 fillBuffer();
                 result = hasBufferedData();
-            } catch (SocketTimeoutException ex) {
+            } catch (final SocketTimeoutException ex) {
                 throw ex;
             } finally {
                 socket.setSoTimeout(oldtimeout);

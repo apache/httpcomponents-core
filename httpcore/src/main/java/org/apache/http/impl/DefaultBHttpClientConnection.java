@@ -128,7 +128,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         ensureOpen();
         try {
             return awaitInput(timeout);
-        } catch (SocketTimeoutException ex) {
+        } catch (final SocketTimeoutException ex) {
             return false;
         }
     }
@@ -146,18 +146,18 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         ensureOpen();
-        HttpEntity entity = request.getEntity();
+        final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
         }
-        OutputStream outstream = prepareOutput(request);
+        final OutputStream outstream = prepareOutput(request);
         entity.writeTo(outstream);
         outstream.close();
     }
 
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
         ensureOpen();
-        HttpResponse response = this.responseParser.parse();
+        final HttpResponse response = this.responseParser.parse();
         onResponseReceived(response);
         if (response.getStatusLine().getStatusCode() >= 200) {
             incrementResponseCount();
@@ -169,7 +169,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final HttpResponse response) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         ensureOpen();
-        HttpEntity entity = prepareInput(response);
+        final HttpEntity entity = prepareInput(response);
         response.setEntity(entity);
     }
 

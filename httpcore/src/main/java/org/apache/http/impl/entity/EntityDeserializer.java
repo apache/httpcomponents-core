@@ -91,9 +91,9 @@ public class EntityDeserializer {
     protected BasicHttpEntity doDeserialize(
             final SessionInputBuffer inbuffer,
             final HttpMessage message) throws HttpException, IOException {
-        BasicHttpEntity entity = new BasicHttpEntity();
+        final BasicHttpEntity entity = new BasicHttpEntity();
 
-        long len = this.lenStrategy.determineLength(message);
+        final long len = this.lenStrategy.determineLength(message);
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
             entity.setContentLength(-1);
@@ -108,11 +108,11 @@ public class EntityDeserializer {
             entity.setContent(new ContentLengthInputStream(inbuffer, len));
         }
 
-        Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
+        final Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader);
         }
-        Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
+        final Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
         if (contentEncodingHeader != null) {
             entity.setContentEncoding(contentEncodingHeader);
         }

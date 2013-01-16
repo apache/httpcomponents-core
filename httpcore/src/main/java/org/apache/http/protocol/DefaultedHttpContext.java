@@ -52,7 +52,7 @@ public final class DefaultedHttpContext implements HttpContext {
     }
 
     public Object getAttribute(final String id) {
-        Object obj = this.local.getAttribute(id);
+        final Object obj = this.local.getAttribute(id);
         if (obj == null) {
             return this.defaults.getAttribute(id);
         } else {
@@ -74,7 +74,7 @@ public final class DefaultedHttpContext implements HttpContext {
 
     @Override
     public String toString() {
-        StringBuilder buf = new StringBuilder();
+        final StringBuilder buf = new StringBuilder();
         buf.append("[local: ").append(this.local);
         buf.append("defaults: ").append(this.defaults);
         buf.append("]");

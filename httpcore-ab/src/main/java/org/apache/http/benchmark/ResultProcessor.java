@@ -54,10 +54,10 @@ public class ResultProcessor {
         long totalBytesRcvd  = 0;
         long totalBytesSent  = 0;
 
-        Stats stats = workers[0].getStats();
+        final Stats stats = workers[0].getStats();
 
-        for (BenchmarkWorker worker : workers) {
-            Stats s = worker.getStats();
+        for (final BenchmarkWorker worker : workers) {
+            final Stats s = worker.getStats();
             totalTimeNano  += s.getDuration();
             successCount   += s.getSuccessCount();
             failureCount   += s.getFailureCount();
@@ -67,7 +67,7 @@ public class ResultProcessor {
             totalBytesSent += s.getTotalBytesSent();
         }
 
-        Results results = new Results();
+        final Results results = new Results();
         results.serverName = stats.getServerName();
         results.hostName = host.getHostName();
         results.hostPort = host.getPort() > 0 ? host.getPort() :
@@ -87,11 +87,11 @@ public class ResultProcessor {
     }
 
     static void printResults(final Results results) {
-        int threads = results.getConcurrencyLevel();
-        double totalTimeMs  = (results.getTotalTimeNano() / threads) / 1000000; // convert nano secs to milli secs
-        double timePerReqMs = totalTimeMs / results.getSuccessCount();
-        double totalTimeSec = totalTimeMs / 1000;
-        double reqsPerSec   = results.getSuccessCount() / totalTimeSec;
+        final int threads = results.getConcurrencyLevel();
+        final double totalTimeMs  = (results.getTotalTimeNano() / threads) / 1000000; // convert nano secs to milli secs
+        final double timePerReqMs = totalTimeMs / results.getSuccessCount();
+        final double totalTimeSec = totalTimeMs / 1000;
+        final double reqsPerSec   = results.getSuccessCount() / totalTimeSec;
 
         System.out.println("\nServer Software:\t\t" + results.getServerName());
         System.out.println( "Server Hostname:\t\t" + results.getHostName());
