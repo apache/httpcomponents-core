@@ -285,8 +285,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     private void updateEventMask() {
+        // Graceful session termination
         if (this.status == CLOSING && this.sslEngine.isOutboundDone()
                 && (this.endOfStream || this.sslEngine.isInboundDone())) {
+            this.status = CLOSED;
+        }
+        // Abnormal session termination
+        if (this.status == ACTIVE && this.endOfStream
+                && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
             this.status = CLOSED;
         }
         if (this.status == CLOSED) {
