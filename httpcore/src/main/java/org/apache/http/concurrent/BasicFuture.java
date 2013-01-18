@@ -99,7 +99,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         }
     }
 
-    public synchronized boolean completed(final T result) {
+    public boolean completed(final T result) {
         synchronized(this) {
             if (this.completed) {
                 return false;
@@ -114,7 +114,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return true;
     }
 
-    public synchronized boolean failed(final Exception exception) {
+    public boolean failed(final Exception exception) {
         synchronized(this) {
             if (this.completed) {
                 return false;
@@ -129,7 +129,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return true;
     }
 
-    public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
+    public boolean cancel(final boolean mayInterruptIfRunning) {
         synchronized(this) {
             if (this.completed) {
                 return false;
