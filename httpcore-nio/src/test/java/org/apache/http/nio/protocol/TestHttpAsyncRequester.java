@@ -157,6 +157,7 @@ public class TestHttpAsyncRequester {
 
     @Test
     public void testSimpleExecute() throws Exception {
+        Mockito.when(this.conn.isOpen()).thenReturn(Boolean.TRUE);
         final Future<Object> future = this.requester.execute(
                 this.requestProducer,
                 this.responseConsumer,

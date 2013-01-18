@@ -135,7 +135,6 @@ public class HttpAsyncRequester {
     private <T> void initExection(
             final HttpAsyncRequestExecutionHandler<T> handler, final NHttpClientConnection conn) {
         conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
-        conn.requestOutput();
         if (!conn.isOpen()) {
             handler.failed(new ConnectionClosedException("Connection closed"));
             try {
@@ -143,6 +142,8 @@ public class HttpAsyncRequester {
             } catch (final IOException ex) {
                 log(ex);
             }
+        } else {
+            conn.requestOutput();
         }
     }
 
