@@ -224,8 +224,10 @@ public final class EntityUtils {
             }
             Charset charset = null;
             try {
-                final ContentType contentType = ContentType.getOrDefault(entity);
-                charset = contentType.getCharset();
+                final ContentType contentType = ContentType.get(entity);
+                if (contentType != null) {
+                    charset = contentType.getCharset();
+                }
             } catch (final UnsupportedCharsetException ex) {
                 throw new UnsupportedEncodingException(ex.getMessage());
             }

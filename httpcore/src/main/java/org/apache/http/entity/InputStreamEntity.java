@@ -54,7 +54,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
      *
      * @param instream
      * @throws IllegalArgumentException if {@code instream} is {@code null}
-     * @since 4.4
+     * @since 4.3
      */
     public InputStreamEntity(final InputStream instream) {
         this(instream, -1);
@@ -78,7 +78,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
      * @param instream
      * @param contentType
      * @throws IllegalArgumentException if {@code instream} is {@code null}
-     * @since 4.4
+     * @since 4.3
      */
     public InputStreamEntity(final InputStream instream, final ContentType contentType) {
         this(instream, -1, contentType);
