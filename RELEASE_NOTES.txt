@@ -1,17 +1,13 @@
-Release 4.3-ALPHA2 
+Changes since 4.3-ALPHA1 
 -------------------
 
-This is the second release from the 4.3.x release branch. The main theme of the 4.3 release
-series is streamlining of component configuration and deprecation of the old configuration
-API based on HttpParams in favor of constructor-based dependency injection and plain objects 
-for configuration parameters.
+* [HTTPCORE-330] Clarify InputStreamEntity length constructor argument.
+  Contributed by John McCarthy <jmsignup at gmail.com>
 
-We are kindly asking all upstream projects to review API changes and help us improve 
-the APIs by providing feedback and sharing ideas on dev@hc.apache.org. 
+* [HTTPCORE-323] Undocumented UnsupportedCharsetException in ContentType#getOrDefault.
+  Contributed by Gary D. Gregory <ggregory at apache.org>
 
-This release also includes all fixes from the stable 4.2.x release branch.
 
-* [HTTPCORE-323] Undocumented UnsupportedCharsetException in org.apache.http.entity.ContentType.getOrDefault.
 
 Release 4.3-ALPHA1 
 -------------------

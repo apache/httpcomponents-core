@@ -54,52 +54,74 @@ public class TestInputStreamEntity {
         Assert.assertTrue(httpentity.isStreaming());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testIllegalConstructor() throws Exception {
-        try {
-            new InputStreamEntity(null, 0);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
+        new InputStreamEntity(null, 0);
+    }
+
+    @Test
+    public void testUnknownLengthConstructor() throws Exception {
+        InputStream instream = new ByteArrayInputStream(new byte[0]);
+        InputStreamEntity httpentity = new InputStreamEntity(instream);
+        Assert.assertEquals(-1, httpentity.getContentLength());
     }
 
     @Test
     public void testWriteTo() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
+        final String message = "Message content";
+        final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
         InputStream instream = new ByteArrayInputStream(bytes);
-        InputStreamEntity httpentity = new InputStreamEntity(instream, 7);
+        InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
-        byte[] bytes2 = out.toByteArray();
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(7, bytes2.length);
-        final String s = new String(bytes2, Consts.ISO_8859_1.name());
-        Assert.assertEquals("Message", s);
+        final byte[] writtenBytes = out.toByteArray();
+        Assert.assertNotNull(writtenBytes);
+        Assert.assertEquals(bytes.length, writtenBytes.length);
 
-        instream = new ByteArrayInputStream(bytes);
-        httpentity = new InputStreamEntity(instream, 20);
-        out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
-        bytes2 = out.toByteArray();
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.length, bytes2.length);
-
-        instream = new ByteArrayInputStream(bytes);
-        httpentity = new InputStreamEntity(instream, -1);
-        out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
-        bytes2 = out.toByteArray();
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.length, bytes2.length);
-
-        try {
-            httpentity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
+        final String s = new String(writtenBytes, Consts.ISO_8859_1.name());
+        Assert.assertEquals(message, s);
     }
 
+    @Test
+    public void testWriteToPartialContent() throws Exception {
+        final String message = "Message content";
+        final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
+        InputStream instream = new ByteArrayInputStream(bytes);
+        final int contentLength = 7;
+        InputStreamEntity httpentity = new InputStreamEntity(instream, contentLength);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        httpentity.writeTo(out);
+        final byte[] writtenBytes = out.toByteArray();
+        Assert.assertNotNull(writtenBytes);
+        Assert.assertEquals(contentLength, writtenBytes.length);
+
+        final String s = new String(writtenBytes, Consts.ISO_8859_1.name());
+        Assert.assertEquals(message.substring(0, contentLength), s);
+    }
+
+    @Test
+    public void testWriteToUnknownLength() throws Exception {
+        final String message = "Message content";
+        final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
+        InputStream instream = new ByteArrayInputStream(bytes);
+        InputStreamEntity httpentity = new InputStreamEntity(instream);
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        httpentity.writeTo(out);
+        final byte[] writtenBytes = out.toByteArray();
+        Assert.assertNotNull(writtenBytes);
+        Assert.assertEquals(bytes.length, writtenBytes.length);
+
+        final String s = new String(writtenBytes, Consts.ISO_8859_1.name());
+        Assert.assertEquals(message, s);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWriteToNull() throws Exception {
+        InputStream instream = new ByteArrayInputStream(new byte[0]);
+        InputStreamEntity httpentity = new InputStreamEntity(instream, 0);
+        httpentity.writeTo(null);
+    }
 }

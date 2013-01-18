@@ -48,11 +48,47 @@ public class InputStreamEntity extends AbstractHttpEntity {
     private final InputStream content;
     private final long length;
 
+    /**
+     * Creates an entity with an unknown length.
+     * Equivalent to {@code new InputStreamEntity(instream, -1)}.
+     *
+     * @param instream
+     * @throws IllegalArgumentException if {@code instream} is {@code null}
+     * @since 4.4
+     */
+    public InputStreamEntity(final InputStream instream) {
+        this(instream, -1);
+    }
+
+    /**
+     * Creates an entity with a specified content length.
+     *
+     * @param instream
+     * @param length of the input stream, {@code -1} if unknown
+     * @throws IllegalArgumentException if {@code instream} is {@code null}
+     */
     public InputStreamEntity(final InputStream instream, final long length) {
         this(instream, length, null);
     }
 
     /**
+     * Creates an entity with a content type and unknown length.
+     * Equivalent to {@code new InputStreamEntity(instream, -1, contentType)}.
+     *
+     * @param instream
+     * @param contentType
+     * @throws IllegalArgumentException if {@code instream} is {@code null}
+     * @since 4.4
+     */
+    public InputStreamEntity(final InputStream instream, final ContentType contentType) {
+        this(instream, -1, contentType);
+    }
+
+    /**
+     * @param instream
+     * @param length of the input stream, {@code -1} if unknown
+     * @param contentType for specifying the {@code Content-Type} header, may be {@code null}
+     * @throws IllegalArgumentException if {@code instream} is {@code null}
      * @since 4.2
      */
     public InputStreamEntity(final InputStream instream, final long length, final ContentType contentType) {
@@ -68,6 +104,9 @@ public class InputStreamEntity extends AbstractHttpEntity {
         return false;
     }
 
+    /**
+     * @return the content length or {@code -1} if unknown
+     */
     public long getContentLength() {
         return this.length;
     }
@@ -76,6 +115,13 @@ public class InputStreamEntity extends AbstractHttpEntity {
         return this.content;
     }
 
+    /**
+     * Writes bytes from the {@code InputStream} this entity was constructed
+     * with to an {@code OutputStream}.  The content length
+     * determines how many bytes are written.  If the length is unknown ({@code -1}), the
+     * stream will be completely consumed (to the end of the stream).
+     *
+     */
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         final InputStream instream = this.content;
