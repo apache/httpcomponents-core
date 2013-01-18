@@ -1,6 +1,9 @@
 Changes since 4.3-ALPHA1 
 -------------------
 
+* [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-330] Clarify InputStreamEntity length constructor argument.
   Contributed by John McCarthy <jmsignup at gmail.com>
 

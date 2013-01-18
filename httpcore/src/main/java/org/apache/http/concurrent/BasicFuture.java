@@ -100,41 +100,47 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     }
 
     public synchronized boolean completed(final T result) {
-        if (this.completed) {
-            return false;
+        synchronized(this) {
+            if (this.completed) {
+                return false;
+            }
+            this.completed = true;
+            this.result = result;
+            notifyAll();
         }
-        this.completed = true;
-        this.result = result;
         if (this.callback != null) {
             this.callback.completed(result);
         }
-        notifyAll();
         return true;
     }
 
     public synchronized boolean failed(final Exception exception) {
-        if (this.completed) {
-            return false;
+        synchronized(this) {
+            if (this.completed) {
+                return false;
+            }
+            this.completed = true;
+            this.ex = exception;
+            notifyAll();
         }
-        this.completed = true;
-        this.ex = exception;
         if (this.callback != null) {
             this.callback.failed(exception);
         }
-        notifyAll();
         return true;
     }
 
     public synchronized boolean cancel(final boolean mayInterruptIfRunning) {
-        if (this.completed) {
-            return false;
+        synchronized(this) {
+            if (this.completed) {
+                return false;
+            }
+            this.completed = true;
+            this.cancelled = true;
+            notifyAll();
         }
-        this.completed = true;
-        this.cancelled = true;
         if (this.callback != null) {
             this.callback.cancelled();
         }
-        notifyAll();
         return true;
     }
 
