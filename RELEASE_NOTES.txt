@@ -1,5 +1,8 @@
 Changes since 4.2.3
 
+* [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-319] Non-blocking SSLIOSession can fail to shut down correctly when the underlying
   connection gets terminated abnormally by the opposite endpoint in case there is a truncated or
   corrupted encrypted content in the input buffer and there is still data in the output buffer
