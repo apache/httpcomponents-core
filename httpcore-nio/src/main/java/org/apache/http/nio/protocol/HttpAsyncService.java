@@ -390,6 +390,13 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     public void endOfInput(final NHttpServerConnection conn) throws IOException {
+        // Closing connection in an orderly manner and
+        // waiting for output buffer to get flushed.
+        // Do not want to wait indefinitely, though, in case
+        // the opposite end is not reading
+        if (conn.getSocketTimeout() <= 0) {
+            conn.setSocketTimeout(1000);
+        }
         conn.close();
     }
 
