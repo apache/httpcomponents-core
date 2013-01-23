@@ -27,7 +27,7 @@
 
 package org.apache.http.impl;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HttpContext;

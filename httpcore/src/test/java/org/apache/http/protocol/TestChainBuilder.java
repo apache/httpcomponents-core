@@ -30,7 +30,7 @@ package org.apache.http.protocol;
 import java.util.LinkedList;
 import java.util.List;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.HttpRequestInterceptor;
 import org.junit.Test;

@@ -28,7 +28,7 @@ package org.apache.http.pool;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.HttpConnection;
 import org.junit.Test;

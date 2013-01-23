@@ -26,7 +26,7 @@
  */
 package org.apache.http.config;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

@@ -29,7 +29,7 @@ package org.apache.http.pool;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.HttpConnection;
 import org.junit.Test;
