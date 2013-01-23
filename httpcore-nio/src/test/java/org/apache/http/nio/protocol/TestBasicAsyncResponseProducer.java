@@ -27,16 +27,16 @@
 
 package org.apache.http.nio.protocol;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.never;
-import org.junit.Assert;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

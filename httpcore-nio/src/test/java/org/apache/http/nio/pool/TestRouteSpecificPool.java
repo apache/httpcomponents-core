@@ -30,12 +30,11 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Assert;
-
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.pool.PoolEntry;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 

@@ -27,7 +27,6 @@
 package org.apache.http.config;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 public class TestRegistry {

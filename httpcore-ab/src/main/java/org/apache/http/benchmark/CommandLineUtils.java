@@ -26,14 +26,14 @@
  */
 package org.apache.http.benchmark;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class CommandLineUtils {
 

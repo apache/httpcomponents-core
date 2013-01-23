@@ -29,9 +29,8 @@ package org.apache.http.pool;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-
 import org.apache.http.HttpConnection;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 

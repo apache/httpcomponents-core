@@ -30,8 +30,6 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
-import org.junit.Assert;
-
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
@@ -54,6 +52,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

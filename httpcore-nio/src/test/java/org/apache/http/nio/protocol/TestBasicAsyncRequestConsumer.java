@@ -30,7 +30,6 @@ package org.apache.http.nio.protocol;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.junit.Assert;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.entity.StringEntity;
@@ -38,6 +37,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

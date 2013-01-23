@@ -26,9 +26,9 @@
  */
 package org.apache.http.benchmark;
 
-import org.apache.http.HttpHost;
-
 import java.text.NumberFormat;
+
+import org.apache.http.HttpHost;
 
 public class ResultProcessor {
 

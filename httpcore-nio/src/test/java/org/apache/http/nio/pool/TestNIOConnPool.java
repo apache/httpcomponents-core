@@ -34,8 +34,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Assert;
-
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOSession;
@@ -43,6 +41,7 @@ import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.pool.PoolStats;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 

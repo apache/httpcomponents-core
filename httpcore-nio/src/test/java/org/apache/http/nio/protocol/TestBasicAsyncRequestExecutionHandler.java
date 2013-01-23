@@ -29,8 +29,6 @@ package org.apache.http.nio.protocol;
 
 import java.util.concurrent.ExecutionException;
 
-import org.junit.Assert;
-
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -44,6 +42,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

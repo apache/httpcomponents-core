@@ -28,9 +28,8 @@ package org.apache.http.pool;
 
 import java.io.IOException;
 
-import org.junit.Assert;
-
 import org.apache.http.HttpConnection;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 

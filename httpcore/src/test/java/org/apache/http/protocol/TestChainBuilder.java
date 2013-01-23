@@ -30,9 +30,8 @@ package org.apache.http.protocol;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.junit.Assert;
-
 import org.apache.http.HttpRequestInterceptor;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TestChainBuilder {

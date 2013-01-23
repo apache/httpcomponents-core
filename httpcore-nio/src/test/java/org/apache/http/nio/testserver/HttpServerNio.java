@@ -32,8 +32,8 @@ import java.net.InetSocketAddress;
 import java.util.List;
 
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpConnectionFactory;
