@@ -34,7 +34,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.ConnectingIOReactor;

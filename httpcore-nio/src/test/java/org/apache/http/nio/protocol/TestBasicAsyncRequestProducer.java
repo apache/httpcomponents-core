@@ -30,7 +30,7 @@ package org.apache.http.nio.protocol;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;

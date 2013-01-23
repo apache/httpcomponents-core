@@ -30,7 +30,7 @@ package org.apache.http.nio.protocol;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;

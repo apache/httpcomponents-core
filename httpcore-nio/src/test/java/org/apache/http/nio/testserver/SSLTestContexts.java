@@ -37,7 +37,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class SSLTestContexts {
 

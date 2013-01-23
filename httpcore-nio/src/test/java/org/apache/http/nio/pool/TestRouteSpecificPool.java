@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutionException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.IOSession;

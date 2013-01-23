@@ -27,7 +27,7 @@
 
 package org.apache.http.nio.protocol;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;

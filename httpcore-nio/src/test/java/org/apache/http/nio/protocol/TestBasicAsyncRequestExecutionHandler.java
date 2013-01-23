@@ -29,7 +29,7 @@ package org.apache.http.nio.protocol;
 
 import java.util.concurrent.ExecutionException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;

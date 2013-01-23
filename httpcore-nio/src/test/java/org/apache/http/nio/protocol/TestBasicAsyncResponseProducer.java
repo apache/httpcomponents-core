@@ -31,7 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.never;
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentEncoder;

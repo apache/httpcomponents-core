@@ -30,7 +30,7 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
