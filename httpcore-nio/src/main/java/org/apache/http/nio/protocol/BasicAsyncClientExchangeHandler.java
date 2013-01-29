@@ -30,6 +30,7 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -183,6 +184,10 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     public boolean keepAlive(final HttpResponse response) {
         return this.connReuseStrategy.keepAlive(response, this.localContext);
+    }
+
+    public void inputTerminated() {
+        failed(new ConnectionClosedException("Connection closed"));
     }
 
     public void failed(final Exception ex) {

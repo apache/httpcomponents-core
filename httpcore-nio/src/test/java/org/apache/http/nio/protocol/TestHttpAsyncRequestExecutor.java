@@ -538,6 +538,20 @@ public class TestHttpAsyncRequestExecutor {
     }
 
     @Test
+    public void testPrematureEndOfInputRequestReady() throws Exception {
+        final State state = new HttpAsyncRequestExecutor.State();
+        state.setRequestState(MessageState.READY);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
+
+        this.protocolHandler.endOfInput(this.conn);
+
+        Assert.assertTrue(state.isValid());
+
+        Mockito.verify(this.exchangeHandler).inputTerminated();
+    }
+
+    @Test
     public void testTimeoutNoHandler() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);

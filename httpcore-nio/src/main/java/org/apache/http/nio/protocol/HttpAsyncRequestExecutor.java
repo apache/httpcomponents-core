@@ -244,8 +244,14 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         if (state != null) {
             if (state.getRequestState().compareTo(MessageState.READY) != 0) {
                 state.invalidate();
-                HttpAsyncClientExchangeHandler handler = getHandler(conn);
-                handler.failed(new ConnectionClosedException("Connection closed"));
+            }
+            HttpAsyncClientExchangeHandler handler = getHandler(conn);
+            if (handler != null) {
+                if (state.isValid()) {
+                    handler.inputTerminated();
+                } else {
+                    handler.failed(new ConnectionClosedException("Connection closed"));
+                }
             }
         }
         // Closing connection in an orderly manner and

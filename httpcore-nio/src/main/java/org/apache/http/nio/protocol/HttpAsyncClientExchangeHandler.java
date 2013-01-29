@@ -139,6 +139,12 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
     boolean keepAlive(HttpResponse response);
 
     /**
+     * Invoked to signal that the connection has been terminated prematurely
+     * by the opposite end.
+     */
+    void inputTerminated();
+
+    /**
      * Invoked to signal that the response processing terminated abnormally.
      *
      * @param ex exception

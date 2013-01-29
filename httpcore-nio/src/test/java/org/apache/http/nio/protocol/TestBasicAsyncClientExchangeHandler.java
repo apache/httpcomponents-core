@@ -29,6 +29,9 @@ package org.apache.http.nio.protocol;
 
 import java.util.concurrent.ExecutionException;
 
+import junit.framework.Assert;
+
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
@@ -42,7 +45,6 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -346,6 +348,17 @@ public class TestBasicAsyncClientExchangeHandler {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         this.exchangeHandler.keepAlive(response);
         Mockito.verify(this.reuseStrategy).keepAlive(response, this.context);
+    }
+
+    @Test
+    public void testInputTerminated() throws Exception {
+        this.exchangeHandler.inputTerminated();
+        Mockito.verify(this.responseConsumer).failed(Mockito.<ConnectionClosedException>any());
+        try {
+            this.exchangeHandler.getFuture().get();
+            Assert.fail("ExecutionException expected");
+        } catch (final ExecutionException exex) {
+        }
     }
 
     @Test
