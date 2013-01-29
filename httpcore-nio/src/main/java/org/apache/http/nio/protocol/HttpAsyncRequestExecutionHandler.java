@@ -40,6 +40,7 @@ import org.apache.http.protocol.HttpProcessor;
  * @param <T> the result type of request execution.
  * @since 4.2
  */
+@Deprecated
 public interface HttpAsyncRequestExecutionHandler<T>
     extends HttpAsyncRequestProducer, HttpAsyncResponseConsumer<T> {
 

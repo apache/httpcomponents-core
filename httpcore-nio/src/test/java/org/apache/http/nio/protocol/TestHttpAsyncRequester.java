@@ -280,14 +280,14 @@ public class TestHttpAsyncRequester {
 
         final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        final BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
+        final BasicAsyncClientExchangeHandler exchangeHandler = (BasicAsyncClientExchangeHandler) this.connContext.getAttribute(
                 HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
 
         final Object result = new Object();
         Mockito.when(this.responseConsumer.getResult()).thenReturn(result);
-        exchangeHandler.responseCompleted(this.exchangeContext);
+        exchangeHandler.responseCompleted();
         Mockito.verify(this.callback).completed(result);
         Mockito.verify(this.responseConsumer).close();
         Mockito.verify(this.requestProducer).close();
@@ -313,7 +313,7 @@ public class TestHttpAsyncRequester {
 
         final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        final BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
+        final BasicAsyncClientExchangeHandler exchangeHandler = (BasicAsyncClientExchangeHandler) this.connContext.getAttribute(
                 HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();
@@ -346,7 +346,7 @@ public class TestHttpAsyncRequester {
 
         final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
         connRequestCallback.completed(entry);
-        final BasicAsyncRequestExecutionHandler exchangeHandler = (BasicAsyncRequestExecutionHandler) this.connContext.getAttribute(
+        final BasicAsyncClientExchangeHandler exchangeHandler = (BasicAsyncClientExchangeHandler) this.connContext.getAttribute(
                 HttpAsyncRequestExecutor.HTTP_HANDLER);
         Assert.assertNotNull(exchangeHandler);
         Mockito.verify(this.conn).requestOutput();

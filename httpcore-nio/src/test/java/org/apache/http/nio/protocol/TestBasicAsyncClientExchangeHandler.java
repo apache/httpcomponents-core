@@ -30,7 +30,6 @@ package org.apache.http.nio.protocol;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicHttpRequest;
@@ -39,6 +38,7 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.junit.After;
@@ -47,7 +47,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TestBasicAsyncRequestExecutionHandler {
+public class TestBasicAsyncClientExchangeHandler {
 
     private HttpAsyncRequestProducer requestProducer;
     private HttpAsyncResponseConsumer<Object> responseConsumer;
@@ -55,7 +55,7 @@ public class TestBasicAsyncRequestExecutionHandler {
     private HttpProcessor httpProcessor;
     private NHttpClientConnection conn;
     private ConnectionReuseStrategy reuseStrategy;
-    private BasicAsyncRequestExecutionHandler<Object> exchangeHandler;
+    private BasicAsyncClientExchangeHandler<Object> exchangeHandler;
     private ContentEncoder encoder;
     private ContentDecoder decoder;
 
@@ -65,13 +65,15 @@ public class TestBasicAsyncRequestExecutionHandler {
         this.requestProducer = Mockito.mock(HttpAsyncRequestProducer.class);
         this.responseConsumer = Mockito.mock(HttpAsyncResponseConsumer.class);
         this.context = new BasicHttpContext();
+        this.conn = Mockito.mock(NHttpClientConnection.class);
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        this.exchangeHandler = new BasicAsyncRequestExecutionHandler<Object>(
+        this.exchangeHandler = new BasicAsyncClientExchangeHandler<Object>(
                 this.requestProducer,
                 this.responseConsumer,
                 null,
                 this.context,
+                this.conn,
                 this.httpProcessor,
                 this.reuseStrategy);
         this.encoder = Mockito.mock(ContentEncoder.class);
@@ -85,32 +87,47 @@ public class TestBasicAsyncRequestExecutionHandler {
     @Test
     public void testInvalidExecution() throws Exception {
         try {
-            new BasicAsyncRequestExecutionHandler<Object>(
+            new BasicAsyncClientExchangeHandler<Object>(
                     null,
                     this.responseConsumer,
                     null,
                     this.context,
+                    this.conn,
                     this.httpProcessor,
                     this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException ex) {
         }
         try {
-            new BasicAsyncRequestExecutionHandler<Object>(
+            new BasicAsyncClientExchangeHandler<Object>(
                     this.requestProducer,
                     null,
                     null,
                     this.context,
+                    this.conn,
                     this.httpProcessor,
                     this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException ex) {
         }
         try {
-            new BasicAsyncRequestExecutionHandler<Object>(
+            new BasicAsyncClientExchangeHandler<Object>(
                     this.requestProducer,
                     this.responseConsumer,
                     null,
+                    null,
+                    this.conn,
+                    this.httpProcessor,
+                    this.reuseStrategy);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (final IllegalArgumentException ex) {
+        }
+        try {
+            new BasicAsyncClientExchangeHandler<Object>(
+                    this.requestProducer,
+                    this.responseConsumer,
+                    null,
+                    this.context,
                     null,
                     this.httpProcessor,
                     this.reuseStrategy);
@@ -118,11 +135,12 @@ public class TestBasicAsyncRequestExecutionHandler {
         } catch (final IllegalArgumentException ex) {
         }
         try {
-            new BasicAsyncRequestExecutionHandler<Object>(
+            new BasicAsyncClientExchangeHandler<Object>(
                     this.requestProducer,
                     this.responseConsumer,
                     null,
                     this.context,
+                    this.conn,
                     null,
                     this.reuseStrategy);
             Assert.fail("IllegalArgumentException expected");
@@ -140,13 +158,6 @@ public class TestBasicAsyncRequestExecutionHandler {
     }
 
     @Test
-    public void testGetTarget() throws Exception {
-        final HttpHost target = new HttpHost("somehost");
-        Mockito.when(this.requestProducer.getTarget()).thenReturn(target);
-        Assert.assertSame(target, this.exchangeHandler.getTarget());
-    }
-
-    @Test
     public void testGenerateRequest() throws Exception {
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
         Mockito.when(this.requestProducer.generateRequest()).thenReturn(request);
@@ -156,6 +167,9 @@ public class TestBasicAsyncRequestExecutionHandler {
         Assert.assertSame(request, result);
 
         Mockito.verify(this.requestProducer).generateRequest();
+        Assert.assertSame(request, this.context.getAttribute(ExecutionContext.HTTP_REQUEST));
+        Assert.assertSame(this.conn, this.context.getAttribute(ExecutionContext.HTTP_CONNECTION));
+        Mockito.verify(this.httpProcessor).process(request, this.context);
     }
 
     @Test
@@ -178,7 +192,7 @@ public class TestBasicAsyncRequestExecutionHandler {
 
     @Test
     public void testRequestCompleted() throws Exception {
-        this.exchangeHandler.requestCompleted(this.context);
+        this.exchangeHandler.requestCompleted();
 
         Mockito.verify(this.requestProducer).requestCompleted(this.context);
     }
@@ -190,6 +204,8 @@ public class TestBasicAsyncRequestExecutionHandler {
         this.exchangeHandler.responseReceived(response);
 
         Mockito.verify(this.responseConsumer).responseReceived(response);
+        Assert.assertSame(response, this.context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Mockito.verify(this.httpProcessor).process(response, this.context);
     }
 
     @Test
@@ -218,7 +234,7 @@ public class TestBasicAsyncRequestExecutionHandler {
     @Test
     public void testFailedAfterRequest() throws Exception {
         final Exception ooopsie = new Exception();
-        this.exchangeHandler.requestCompleted(this.context);
+        this.exchangeHandler.requestCompleted();
         this.exchangeHandler.failed(ooopsie);
 
         Mockito.verify(this.requestProducer, Mockito.never()).failed(ooopsie);
@@ -282,7 +298,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         final Object obj = new Object();
         Mockito.when(this.responseConsumer.getResult()).thenReturn(obj);
 
-        this.exchangeHandler.responseCompleted(this.context);
+        this.exchangeHandler.responseCompleted();
 
         Mockito.verify(this.responseConsumer).responseCompleted(this.context);
         Mockito.verify(this.requestProducer).close();
@@ -296,7 +312,7 @@ public class TestBasicAsyncRequestExecutionHandler {
         final Exception ooopsie = new Exception();
         Mockito.when(this.responseConsumer.getException()).thenReturn(ooopsie);
 
-        this.exchangeHandler.responseCompleted(this.context);
+        this.exchangeHandler.responseCompleted();
 
         Mockito.verify(this.responseConsumer).responseCompleted(this.context);
         Mockito.verify(this.requestProducer).close();
@@ -312,7 +328,7 @@ public class TestBasicAsyncRequestExecutionHandler {
     public void testResponseCompletedWithException() throws Exception {
         Mockito.doThrow(new RuntimeException()).when(this.responseConsumer).responseCompleted(this.context);
         try {
-            this.exchangeHandler.responseCompleted(this.context);
+            this.exchangeHandler.responseCompleted();
             Assert.fail("RuntimeException expected");
         } catch (final RuntimeException ex) {
             Mockito.verify(this.requestProducer).close();
@@ -326,27 +342,16 @@ public class TestBasicAsyncRequestExecutionHandler {
     }
 
     @Test
-    public void testMisc() throws Exception {
-        Assert.assertFalse(this.exchangeHandler.isRepeatable());
-        final Object obj = new Object();
-        Mockito.when(this.responseConsumer.getResult()).thenReturn(obj);
+    public void testKeepAlive() throws Exception {
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        this.exchangeHandler.keepAlive(response);
+        Mockito.verify(this.reuseStrategy).keepAlive(response, this.context);
+    }
 
-        final Object result = this.exchangeHandler.getResult();
-        Assert.assertSame(obj, result);
-        Mockito.verify(this.responseConsumer).getResult();
-
-        final Exception ooopsie = new Exception();
-        Mockito.when(this.responseConsumer.getException()).thenReturn(ooopsie);
-
-        final Exception ex = this.exchangeHandler.getException();
-        Assert.assertSame(ooopsie, ex);
-        Mockito.verify(this.responseConsumer).getException();
-
+    @Test
+    public void testIsDone() throws Exception {
         this.exchangeHandler.isDone();
         Mockito.verify(this.responseConsumer).isDone();
-
-        Assert.assertSame(this.context, this.exchangeHandler.getContext());
-        Assert.assertSame(this.reuseStrategy, this.exchangeHandler.getConnectionReuseStrategy());
     }
 
 }

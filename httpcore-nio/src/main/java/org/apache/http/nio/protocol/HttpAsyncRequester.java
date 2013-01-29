@@ -61,7 +61,7 @@ import org.apache.http.util.Args;
 public class HttpAsyncRequester {
 
     private final HttpProcessor httppocessor;
-    private final ConnectionReuseStrategy reuseStrategy;
+    private final ConnectionReuseStrategy connReuseStrategy;
 
     /**
      * @deprecated (4.3) use {@link HttpAsyncRequester#HttpAsyncRequester(HttpProcessor,
@@ -78,25 +78,19 @@ public class HttpAsyncRequester {
     /**
      * Creates new instance of HttpAsyncRequester.
      *
-     * @param httppocessor the HTTP protocol processor.
-     * @param reuseStrategy the connection re-use strategy. If <code>null</code>
-     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
-     *
      * @since 4.3
      */
     public HttpAsyncRequester(
             final HttpProcessor httppocessor,
-            final ConnectionReuseStrategy reuseStrategy) {
+            final ConnectionReuseStrategy connReuseStrategy) {
         super();
-        this.httppocessor = httppocessor;
-        this.reuseStrategy = reuseStrategy != null ? reuseStrategy :
+        this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
+        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
     }
 
     /**
      * Creates new instance of HttpAsyncRequester.
-     *
-     * @param httppocessor the HTTP protocol processor.
      *
      * @since 4.3
      */
@@ -125,15 +119,15 @@ public class HttpAsyncRequester {
         Args.notNull(responseConsumer, "HTTP response consumer");
         Args.notNull(conn, "HTTP connection");
         Args.notNull(context, "HTTP context");
-        final BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
-                requestProducer, responseConsumer, callback, context,
-                this.httppocessor, this.reuseStrategy);
+        final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
+                requestProducer, responseConsumer, callback, context, conn,
+                this.httppocessor, this.connReuseStrategy);
         initExection(handler, conn);
         return handler.getFuture();
     }
 
-    private <T> void initExection(
-            final HttpAsyncRequestExecutionHandler<T> handler, final NHttpClientConnection conn) {
+    private void initExection(
+            final HttpAsyncClientExchangeHandler handler, final NHttpClientConnection conn) {
         conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
         if (!conn.isOpen()) {
             handler.failed(new ConnectionClosedException("Connection closed"));
@@ -241,11 +235,11 @@ public class HttpAsyncRequester {
         Args.notNull(context, "HTTP context");
         final BasicFuture<T> future = new BasicFuture<T>(callback);
         final NHttpClientConnection conn = poolEntry.getConnection();
-        final BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+        final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
                 requestProducer, responseConsumer,
                 new RequestExecutionCallback<T, E>(future, poolEntry, connPool),
-                context,
-                this.httppocessor, this.reuseStrategy);
+                context, conn,
+                this.httppocessor, this.connReuseStrategy);
         initExection(handler, conn);
         return future;
     }
@@ -314,10 +308,10 @@ public class HttpAsyncRequester {
                 return;
             }
             final NHttpClientConnection conn = result.getConnection();
-            final BasicAsyncRequestExecutionHandler<T> handler = new BasicAsyncRequestExecutionHandler<T>(
+            final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
-                    this.context, httppocessor, reuseStrategy);
+                    this.context, conn, httppocessor, connReuseStrategy);
             initExection(handler, conn);
         }
 

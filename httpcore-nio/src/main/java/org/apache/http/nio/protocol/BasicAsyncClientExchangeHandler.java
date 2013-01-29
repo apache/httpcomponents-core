@@ -32,71 +32,85 @@ import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.params.HttpParams;
+import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
 
 /**
- * Basic implementation of {@link HttpAsyncRequestExecutionHandler} that executes
+ * Basic implementation of {@link HttpAsyncClientExchangeHandler} that executes
  * a single HTTP request / response exchange.
  *
  * @param <T> the result type of request execution.
- * @since 4.2
- *
- * @deprecated (4.3) use {@link BasicAsyncClientExchangeHandler}.
+ * @since 4.3
  */
-@Deprecated
-public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExecutionHandler<T> {
+public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchangeHandler {
 
     private final HttpAsyncRequestProducer requestProducer;
     private final HttpAsyncResponseConsumer<T> responseConsumer;
     private final BasicFuture<T> future;
     private final HttpContext localContext;
+    private final NHttpClientConnection conn;
     private final HttpProcessor httppocessor;
-    private final ConnectionReuseStrategy reuseStrategy;
+    private final ConnectionReuseStrategy connReuseStrategy;
 
     private volatile boolean requestSent;
 
-    public BasicAsyncRequestExecutionHandler(
+    /**
+     * Creates new instance of BasicAsyncRequestExecutionHandler.
+     *
+     * @param requestProducer the request producer.
+     * @param responseConsumer the response consumer.
+     * @param callback the future callback invoked when the operation is completed.
+     * @param localContext the local execution context.
+     * @param conn the actual connection.
+     * @param httppocessor the HTTP protocol processor.
+     * @param connReuseStrategy the connection re-use strategy.
+     */
+    public BasicAsyncClientExchangeHandler(
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final FutureCallback<T> callback,
             final HttpContext localContext,
+            final NHttpClientConnection conn,
             final HttpProcessor httppocessor,
-            final ConnectionReuseStrategy reuseStrategy,
-            final HttpParams params) {
+            final ConnectionReuseStrategy connReuseStrategy) {
         super();
-        Args.notNull(requestProducer, "Request producer");
-        Args.notNull(responseConsumer, "Response consumer");
-        Args.notNull(localContext, "HTTP context");
-        Args.notNull(httppocessor, "HTTP processor");
-        Args.notNull(reuseStrategy, "Connection reuse strategy");
-        Args.notNull(params, "HTTP parameters");
-        this.requestProducer = requestProducer;
-        this.responseConsumer = responseConsumer;
+        this.requestProducer = Args.notNull(requestProducer, "Request producer");
+        this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
         this.future = new BasicFuture<T>(callback);
-        this.localContext = localContext;
-        this.httppocessor = httppocessor;
-        this.reuseStrategy = reuseStrategy;
+        this.localContext = Args.notNull(localContext, "HTTP context");
+        this.conn = Args.notNull(conn, "HTTP connection");
+        this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
+        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
+            DefaultConnectionReuseStrategy.INSTANCE;
     }
 
-    public BasicAsyncRequestExecutionHandler(
+    /**
+     * Creates new instance of BasicAsyncRequestExecutionHandler.
+     *
+     * @param requestProducer the request producer.
+     * @param responseConsumer the response consumer.
+     * @param localContext the local execution context.
+     * @param conn the actual connection.
+     * @param httppocessor the HTTP protocol processor.
+     */
+    public BasicAsyncClientExchangeHandler(
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final HttpContext localContext,
-            final HttpProcessor httppocessor,
-            final ConnectionReuseStrategy reuseStrategy,
-            final HttpParams params) {
-        this(requestProducer, responseConsumer, null, localContext, httppocessor, reuseStrategy, params);
+            final NHttpClientConnection conn,
+            final HttpProcessor httppocessor) {
+        this(requestProducer, responseConsumer, null, localContext, conn, httppocessor, null);
     }
 
     public Future<T> getFuture() {
@@ -121,12 +135,12 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         }
     }
 
-    public HttpHost getTarget() {
-        return this.requestProducer.getTarget();
-    }
-
     public HttpRequest generateRequest() throws IOException, HttpException {
-        return this.requestProducer.generateRequest();
+        HttpRequest request = this.requestProducer.generateRequest();
+        this.localContext.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+        this.localContext.setAttribute(ExecutionContext.HTTP_CONNECTION, this.conn);
+        this.httppocessor.process(request, this.localContext);
+        return request;
     }
 
     public void produceContent(
@@ -134,25 +148,41 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         this.requestProducer.produceContent(encoder, ioctrl);
     }
 
-    public void requestCompleted(final HttpContext context) {
-        this.requestProducer.requestCompleted(context);
+    public void requestCompleted() {
+        this.requestProducer.requestCompleted(this.localContext);
         this.requestSent = true;
     }
 
-    public boolean isRepeatable() {
-        return false;
-    }
-
-    public void resetRequest() {
-    }
-
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
+        this.localContext.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+        this.httppocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
     }
 
     public void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         this.responseConsumer.consumeContent(decoder, ioctrl);
+    }
+
+    public void responseCompleted() {
+        try {
+            this.responseConsumer.responseCompleted(this.localContext);
+            final T result = this.responseConsumer.getResult();
+            final Exception ex = this.responseConsumer.getException();
+            if (ex == null) {
+                this.future.completed(result);
+            } else {
+                this.future.failed(ex);
+            }
+            releaseResources();
+        } catch (final RuntimeException ex) {
+            failed(ex);
+            throw ex;
+        }
+    }
+
+    public boolean keepAlive(final HttpResponse response) {
+        return this.connReuseStrategy.keepAlive(response, this.localContext);
     }
 
     public void failed(final Exception ex) {
@@ -180,43 +210,6 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
             failed(ex);
             throw ex;
         }
-    }
-
-    public void responseCompleted(final HttpContext context) {
-        try {
-            this.responseConsumer.responseCompleted(context);
-            final T result = this.responseConsumer.getResult();
-            final Exception ex = this.responseConsumer.getException();
-            if (ex == null) {
-                this.future.completed(result);
-            } else {
-                this.future.failed(ex);
-            }
-            releaseResources();
-        } catch (final RuntimeException ex) {
-            failed(ex);
-            throw ex;
-        }
-    }
-
-    public T getResult() {
-        return this.responseConsumer.getResult();
-    }
-
-    public Exception getException() {
-        return this.responseConsumer.getException();
-    }
-
-    public HttpContext getContext() {
-        return this.localContext;
-    }
-
-    public HttpProcessor getHttpProcessor() {
-        return this.httppocessor;
-    }
-
-    public ConnectionReuseStrategy getConnectionReuseStrategy() {
-        return this.reuseStrategy;
     }
 
     public boolean isDone() {
