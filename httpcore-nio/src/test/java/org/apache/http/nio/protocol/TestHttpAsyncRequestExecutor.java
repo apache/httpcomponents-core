@@ -148,7 +148,6 @@ public class TestHttpAsyncRequestExecutor {
         this.protocolHandler.exception(this.conn, httpex);
 
         Mockito.verify(this.exchangeHandler).failed(httpex);
-        Mockito.verify(this.exchangeHandler).close();
         Mockito.verify(this.conn).shutdown();
     }
 
@@ -164,7 +163,6 @@ public class TestHttpAsyncRequestExecutor {
         this.protocolHandler.exception(this.conn, ioex);
 
         Mockito.verify(this.exchangeHandler).failed(ioex);
-        Mockito.verify(this.exchangeHandler).close();
         Mockito.verify(this.conn).shutdown();
     }
 
