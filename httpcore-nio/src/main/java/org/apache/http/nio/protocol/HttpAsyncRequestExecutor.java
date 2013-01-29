@@ -110,8 +110,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void closed(final NHttpClientConnection conn) {
         final State state = getState(conn);
         final HttpAsyncRequestExecutionHandler<?> handler = getHandler(conn);
-        if (state == null || !state.isValid()) {
-            closeHandler(handler, null);
+        if (state == null || (handler != null && handler.isDone())) {
+            closeHandler(handler);
         }
         if (state != null) {
             state.reset();
@@ -123,7 +123,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         shutdownConnection(conn);
         final HttpAsyncRequestExecutionHandler<?> handler = getHandler(conn);
         if (handler != null) {
-            closeHandler(handler, cause);
+            handler.failed(cause);
         } else {
             log(cause);
         }
@@ -137,7 +137,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
         HttpAsyncRequestExecutionHandler<?> handler = getHandler(conn);
         if (handler != null && handler.isDone()) {
-            closeHandler(handler, null);
+            closeHandler(handler);
             state.reset();
             handler = null;
         }
@@ -260,7 +260,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         if (state != null) {
             if (state.getRequestState().compareTo(MessageState.READY) != 0) {
                 state.invalidate();
-                closeHandler(getHandler(conn), new ConnectionClosedException("Connection closed"));
+                HttpAsyncRequestExecutionHandler<?> handler = getHandler(conn);
+                handler.failed(new ConnectionClosedException("Connection closed"));
             }
         }
         // Closing connection in an orderly manner and
@@ -285,7 +286,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 return;
             } else {
                 state.invalidate();
-                closeHandler(getHandler(conn), new SocketTimeoutException());
+                HttpAsyncRequestExecutionHandler<?> handler = getHandler(conn);
+                if (handler != null) {
+                    handler.failed(new SocketTimeoutException());
+                    handler.close();
+                }
             }
         }
         if (conn.getStatus() == NHttpConnection.ACTIVE) {
@@ -335,18 +340,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
-    private void closeHandler(final HttpAsyncRequestExecutionHandler<?> handler, final Exception ex) {
+    private void closeHandler(final HttpAsyncRequestExecutionHandler<?> handler) {
         if (handler != null) {
             try {
-                if (ex != null) {
-                    handler.failed(ex);
-                }
-            } finally {
-                try {
-                    handler.close();
-                } catch (final IOException ioex) {
-                    log(ioex);
-                }
+                handler.close();
+            } catch (final IOException ioex) {
+                log(ioex);
             }
         }
     }
