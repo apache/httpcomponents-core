@@ -80,6 +80,10 @@
     <api.comparison.version>4.2</api.comparison.version>
   </properties>
 
+<prerequisites>
+  <maven>2.2.1</maven>
+</prerequisites>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
