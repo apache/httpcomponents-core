@@ -31,6 +31,7 @@ import java.io.IOException;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
@@ -39,6 +40,7 @@ import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
@@ -119,11 +121,11 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
     public BasicNIOConnFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
-            final HttpResponseFactory responseFactory,
+            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig config) {
-        this(new DefaultNHttpClientConnectionFactory(responseFactory, allocator, config),
-                new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, responseFactory,
+        this(new DefaultNHttpClientConnectionFactory(responseParserFactory, allocator, config),
+                new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, responseParserFactory,
                         allocator, config));
     }
 

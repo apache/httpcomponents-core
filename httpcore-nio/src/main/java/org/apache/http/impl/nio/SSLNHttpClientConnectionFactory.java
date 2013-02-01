@@ -71,7 +71,7 @@ public class SSLNHttpClientConnectionFactory
     /**
      * @deprecated (4.3) use {@link
      *   SSLNHttpClientConnectionFactory#SSLNHttpClientConnectionFactory(SSLContext,
-     *     SSLSetupHandler, HttpResponseFactory, ByteBufferAllocator, ConnectionConfig)}
+     *      SSLSetupHandler, NHttpMessageParserFactory, ByteBufferAllocator, ConnectionConfig)}
      */
     @Deprecated
     public SSLNHttpClientConnectionFactory(
@@ -120,14 +120,15 @@ public class SSLNHttpClientConnectionFactory
     public SSLNHttpClientConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
-            final HttpResponseFactory responseFactory,
+            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig config) {
         super();
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
         this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
-        this.responseParserFactory = new DefaultHttpResponseParserFactory(null, responseFactory);
+        this.responseParserFactory = responseParserFactory != null ? responseParserFactory :
+            DefaultHttpResponseParserFactory.INSTANCE;
         this.config = config != null ? config : ConnectionConfig.DEFAULT;
     }
 

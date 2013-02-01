@@ -64,7 +64,7 @@ public class DefaultNHttpClientConnectionFactory
     /**
      * @deprecated (4.3) use {@link
      *   DefaultNHttpClientConnectionFactory#DefaultNHttpClientConnectionFactory(
-     *     HttpResponseFactory, ByteBufferAllocator, ConnectionConfig)}
+     *      NHttpMessageParserFactory, ByteBufferAllocator, ConnectionConfig)}
      */
     @Deprecated
     public DefaultNHttpClientConnectionFactory(
@@ -93,12 +93,13 @@ public class DefaultNHttpClientConnectionFactory
      * @since 4.3
      */
     public DefaultNHttpClientConnectionFactory(
-            final HttpResponseFactory responseFactory,
+            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig config) {
         super();
         this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
-        this.responseParserFactory = new DefaultHttpResponseParserFactory(null, responseFactory);
+        this.responseParserFactory = responseParserFactory != null ? responseParserFactory :
+            DefaultHttpResponseParserFactory.INSTANCE;
         this.config = config != null ? config : ConnectionConfig.DEFAULT;
     }
 
