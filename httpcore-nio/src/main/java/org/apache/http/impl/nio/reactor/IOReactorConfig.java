@@ -41,7 +41,7 @@ import org.apache.http.annotation.NotThreadSafe;
 public final class IOReactorConfig implements Cloneable {
 
     private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();
-    
+
     private long selectInterval;
     private long shutdownGracePeriod;
     private boolean interestOpQueued;
@@ -52,6 +52,8 @@ public final class IOReactorConfig implements Cloneable {
     private boolean soKeepAlive;
     private boolean tcpNoDelay;
     private int connectTimeout;
+    private int sndBufSize;
+    private int rcvBufSize;
 
     public IOReactorConfig() {
         super();
@@ -285,6 +287,50 @@ public final class IOReactorConfig implements Cloneable {
         this.connectTimeout = connectTimeout;
     }
 
+    /**
+     * Determines the default value of the {@link SocketOptions#SO_SNDBUF} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @see SocketOptions#SO_SNDBUF
+     */
+    public int getSndBufSize() {
+        return sndBufSize;
+    }
+
+    /**
+     * Defines the default value of the {@link SocketOptions#SO_SNDBUF} parameter
+     * for newly created sockets.
+     *
+     * @see SocketOptions#SO_SNDBUF
+     */
+    public void setSndBufSize(int sndBufSize) {
+        this.sndBufSize = sndBufSize;
+    }
+
+    /**
+     * Determines the default value of the {@link SocketOptions#SO_RCVBUF} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @see SocketOptions#SO_RCVBUF
+     */
+    public int getRcvBufSize() {
+        return rcvBufSize;
+    }
+
+    /**
+     * Defines the default value of the {@link SocketOptions#SO_RCVBUF} parameter
+     * for newly created sockets.
+     *
+     * @see SocketOptions#SO_RCVBUF
+     */
+    public void setRcvBufSize(int rcvBufSize) {
+        this.rcvBufSize = rcvBufSize;
+    }
+
     @Override
     protected IOReactorConfig clone() throws CloneNotSupportedException {
         return (IOReactorConfig) super.clone();
@@ -302,7 +348,10 @@ public final class IOReactorConfig implements Cloneable {
                 .append(", soLinger=").append(this.soLinger)
                 .append(", soKeepAlive=").append(this.soKeepAlive)
                 .append(", tcpNoDelay=").append(this.tcpNoDelay)
-                .append(", connectTimeout=").append(this.connectTimeout).append("]");
+                .append(", connectTimeout=").append(this.connectTimeout)
+                .append(", sndBufSize=").append(this.sndBufSize)
+                .append(", rcvBufSize=").append(this.rcvBufSize)
+                .append("]");
         return builder.toString();
     }
 

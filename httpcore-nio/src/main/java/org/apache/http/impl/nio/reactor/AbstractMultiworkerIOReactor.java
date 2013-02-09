@@ -523,8 +523,17 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      */
     protected void prepareSocket(final Socket socket) throws IOException {
         socket.setTcpNoDelay(this.config.isTcpNoDelay());
-        socket.setSoTimeout(this.config.getSoTimeout());
         socket.setKeepAlive(this.config.isSoKeepalive());
+        socket.setReuseAddress(this.config.isSoReuseAddress());
+        if (this.config.getSoTimeout() > 0) {
+            socket.setSoTimeout(this.config.getSoTimeout());
+        }
+        if (this.config.getSndBufSize() > 0) {
+            socket.setSendBufferSize(this.config.getSndBufSize());
+        }
+        if (this.config.getRcvBufSize() > 0) {
+            socket.setReceiveBufferSize(this.config.getRcvBufSize());
+        }
         int linger = this.config.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
