@@ -162,18 +162,20 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             if (key.isAcceptable()) {
 
                 ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
-                SocketChannel socketChannel = null;
-                try {
-                    socketChannel = serverChannel.accept();
-                } catch (IOException ex) {
-                    if (this.exceptionHandler == null ||
-                            !this.exceptionHandler.handle(ex)) {
-                        throw new IOReactorException(
-                                "Failure accepting connection", ex);
+                for (;;) {
+                    SocketChannel socketChannel = null;
+                    try {
+                        socketChannel = serverChannel.accept();
+                    } catch (IOException ex) {
+                        if (this.exceptionHandler == null ||
+                                !this.exceptionHandler.handle(ex)) {
+                            throw new IOReactorException(
+                                    "Failure accepting connection", ex);
+                        }
                     }
-                }
-
-                if (socketChannel != null) {
+                    if (socketChannel == null) {
+                        break;
+                    }
                     try {
                         prepareSocket(socketChannel.socket());
                     } catch (IOException ex) {
