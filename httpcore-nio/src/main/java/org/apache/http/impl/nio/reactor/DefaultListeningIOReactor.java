@@ -28,6 +28,7 @@
 package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
@@ -231,8 +232,10 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 throw new IOReactorException("Failure opening server socket", ex);
             }
             try {
+                final ServerSocket socket = serverChannel.socket();
+                socket.setReuseAddress(this.config.isSoReuseAddress());
                 serverChannel.configureBlocking(false);
-                serverChannel.socket().bind(address);
+                socket.bind(address);
             } catch (final IOException ex) {
                 closeChannel(serverChannel);
                 request.failed(ex);

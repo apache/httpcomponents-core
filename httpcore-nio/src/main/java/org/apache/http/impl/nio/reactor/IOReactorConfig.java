@@ -56,6 +56,8 @@ public final class IOReactorConfig implements Cloneable {
     private boolean soKeepAlive;
     private boolean tcpNoDelay;
     private int connectTimeout;
+    private int sndBufSize;
+    private int rcvBufSize;
 
     @Deprecated
     public IOReactorConfig() {
@@ -70,6 +72,8 @@ public final class IOReactorConfig implements Cloneable {
         this.soKeepAlive = false;
         this.tcpNoDelay = true;
         this.connectTimeout = 0;
+        this.sndBufSize = 0;
+        this.rcvBufSize = 0;
     }
 
     IOReactorConfig(
@@ -82,7 +86,9 @@ public final class IOReactorConfig implements Cloneable {
             final int soLinger,
             final boolean soKeepAlive,
             final boolean tcpNoDelay,
-            final int connectTimeout) {
+            final int connectTimeout,
+            final int sndBufSize,
+            final int rcvBufSize) {
         super();
         this.selectInterval = selectInterval;
         this.shutdownGracePeriod = shutdownGracePeriod;
@@ -94,6 +100,8 @@ public final class IOReactorConfig implements Cloneable {
         this.soKeepAlive = soKeepAlive;
         this.tcpNoDelay = tcpNoDelay;
         this.connectTimeout = connectTimeout;
+        this.sndBufSize = sndBufSize;
+        this.rcvBufSize = rcvBufSize;
     }
 
     /**
@@ -261,6 +269,52 @@ public final class IOReactorConfig implements Cloneable {
         this.connectTimeout = connectTimeout;
     }
 
+    /**
+     * Determines the default value of the {@link SocketOptions#SO_SNDBUF} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @see SocketOptions#SO_SNDBUF
+     */
+    public int getSndBufSize() {
+        return sndBufSize;
+    }
+
+    /**
+     * Defines the default value of the {@link SocketOptions#SO_SNDBUF} parameter
+     * for newly created sockets.
+     *
+     * @see SocketOptions#SO_SNDBUF
+     */
+    @Deprecated
+    public void setSndBufSize(final int sndBufSize) {
+        this.sndBufSize = sndBufSize;
+    }
+
+    /**
+     * Determines the default value of the {@link SocketOptions#SO_RCVBUF} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @see SocketOptions#SO_RCVBUF
+     */
+    public int getRcvBufSize() {
+        return rcvBufSize;
+    }
+
+    /**
+     * Defines the default value of the {@link SocketOptions#SO_RCVBUF} parameter
+     * for newly created sockets.
+     *
+     * @see SocketOptions#SO_RCVBUF
+     */
+    @Deprecated
+    public void setRcvBufSize(final int rcvBufSize) {
+        this.rcvBufSize = rcvBufSize;
+    }
+
     @Override
     protected IOReactorConfig clone() throws CloneNotSupportedException {
         return (IOReactorConfig) super.clone();
@@ -297,6 +351,8 @@ public final class IOReactorConfig implements Cloneable {
         private boolean soKeepAlive;
         private boolean tcpNoDelay;
         private int connectTimeout;
+        private int sndBufSize;
+        private int rcvBufSize;
 
         Builder() {
             this.selectInterval = 1000;
@@ -309,6 +365,8 @@ public final class IOReactorConfig implements Cloneable {
             this.soKeepAlive = false;
             this.tcpNoDelay = true;
             this.connectTimeout = 0;
+            this.sndBufSize = 0;
+            this.rcvBufSize = 0;
         }
 
         public Builder setSelectInterval(final long selectInterval) {
@@ -361,10 +419,21 @@ public final class IOReactorConfig implements Cloneable {
             return this;
         }
 
+        public Builder setSndBufSize(final int sndBufSize) {
+            this.sndBufSize = sndBufSize;
+            return this;
+        }
+
+        public Builder setRcvBufSize(final int rcvBufSize) {
+            this.rcvBufSize = rcvBufSize;
+            return this;
+        }
+
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval, shutdownGracePeriod, interestOpQueued, ioThreadCount,
-                    soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay, connectTimeout);
+                    soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
+                    connectTimeout, sndBufSize, rcvBufSize);
         }
 
     }
@@ -381,7 +450,10 @@ public final class IOReactorConfig implements Cloneable {
                 .append(", soLinger=").append(this.soLinger)
                 .append(", soKeepAlive=").append(this.soKeepAlive)
                 .append(", tcpNoDelay=").append(this.tcpNoDelay)
-                .append(", connectTimeout=").append(this.connectTimeout).append("]");
+                .append(", connectTimeout=").append(this.connectTimeout)
+                .append(", sndBufSize=").append(this.sndBufSize)
+                .append(", rcvBufSize=").append(this.rcvBufSize)
+                .append("]");
         return builder.toString();
     }
 
