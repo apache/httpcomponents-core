@@ -114,6 +114,9 @@ public final class IOReactorConfig implements Cloneable {
         return this.selectInterval;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setSelectInterval(long)}
+     */
     @Deprecated
     public void setSelectInterval(final long selectInterval) {
         Args.positive(selectInterval, "Select internal");
@@ -130,6 +133,9 @@ public final class IOReactorConfig implements Cloneable {
         return this.shutdownGracePeriod;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setShutdownGracePeriod(long)}
+     */
     @Deprecated
     public void setShutdownGracePeriod(final long gracePeriod) {
         Args.positive(gracePeriod, "Shutdown grace period");
@@ -151,6 +157,9 @@ public final class IOReactorConfig implements Cloneable {
         return this.interestOpQueued;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setInterestOpQueued(boolean)}
+     */
     @Deprecated
     public void setInterestOpQueued(final boolean interestOpQueued) {
         this.interestOpQueued = interestOpQueued;
@@ -165,6 +174,9 @@ public final class IOReactorConfig implements Cloneable {
         return this.ioThreadCount;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setIoThreadCount(int)}
+     */
     @Deprecated
     public void setIoThreadCount(final int ioThreadCount) {
         Args.positive(ioThreadCount, "I/O thread count");
@@ -182,6 +194,9 @@ public final class IOReactorConfig implements Cloneable {
         return soTimeout;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setSoTimeout(int)}
+     */
     @Deprecated
     public void setSoTimeout(final int soTimeout) {
         this.soTimeout = soTimeout;
@@ -199,6 +214,9 @@ public final class IOReactorConfig implements Cloneable {
         return soReuseAddress;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setSoReuseAddress(boolean)}
+     */
     @Deprecated
     public void setSoReuseAddress(final boolean soReuseAddress) {
         this.soReuseAddress = soReuseAddress;
@@ -216,6 +234,9 @@ public final class IOReactorConfig implements Cloneable {
         return soLinger;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setSoLinger(int)}
+     */
     @Deprecated
     public void setSoLinger(final int soLinger) {
         this.soLinger = soLinger;
@@ -233,6 +254,9 @@ public final class IOReactorConfig implements Cloneable {
         return this.soKeepAlive;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setSoKeepAlive(boolean)}
+     */
     @Deprecated
     public void setSoKeepalive(final boolean soKeepAlive) {
         this.soKeepAlive = soKeepAlive;
@@ -250,6 +274,9 @@ public final class IOReactorConfig implements Cloneable {
         return tcpNoDelay;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setTcpNoDelay(boolean)}
+     */
     @Deprecated
     public void setTcpNoDelay(final boolean tcpNoDelay) {
         this.tcpNoDelay = tcpNoDelay;
@@ -264,6 +291,9 @@ public final class IOReactorConfig implements Cloneable {
         return connectTimeout;
     }
 
+    /**
+     * @deprecated (4.3) use {@link Builder#setConnectTimeout(int)}
+     */
     @Deprecated
     public void setConnectTimeout(final int connectTimeout) {
         this.connectTimeout = connectTimeout;
@@ -282,10 +312,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Defines the default value of the {@link SocketOptions#SO_SNDBUF} parameter
-     * for newly created sockets.
-     *
-     * @see SocketOptions#SO_SNDBUF
+     * @deprecated (4.3) use {@link Builder#setSndBufSize(int)}
      */
     @Deprecated
     public void setSndBufSize(final int sndBufSize) {
@@ -305,10 +332,7 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Defines the default value of the {@link SocketOptions#SO_RCVBUF} parameter
-     * for newly created sockets.
-     *
-     * @see SocketOptions#SO_RCVBUF
+     * @deprecated (4.3) use {@link Builder#setRcvBufSize(int)}
      */
     @Deprecated
     public void setRcvBufSize(final int rcvBufSize) {
