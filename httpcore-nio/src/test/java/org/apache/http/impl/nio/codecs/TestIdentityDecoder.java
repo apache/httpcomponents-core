@@ -183,6 +183,7 @@ public class TestIdentityDecoder {
         Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
 
         deleteWithCheck(fileHandle);
+        testfile.close();
     }
 
     private void deleteWithCheck(final File handle){
@@ -224,6 +225,7 @@ public class TestIdentityDecoder {
         Assert.assertEquals("stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
 
         deleteWithCheck(fileHandle);
+        testfile.close();
     }
 
     @Test
@@ -267,6 +269,7 @@ public class TestIdentityDecoder {
         Assert.assertEquals("beginning; stuff; more stuff; a lot more stuff!", readFromFile(fileHandle));
 
         deleteWithCheck(fileHandle);
+        testfile.close();
     }
 
     @Test

@@ -35,6 +35,7 @@ import java.io.OutputStream;
 
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.TruncatedChunkException;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
@@ -149,6 +150,7 @@ public class TestChunkCoding {
         Assert.assertEquals(0, in.available());
         in.read();
         Assert.assertEquals(4, in.available());
+        in.close();
     }
 
     @Test
@@ -210,7 +212,8 @@ public class TestChunkCoding {
         final byte[] tmp = new byte[5];
         Assert.assertEquals(5, in.read(tmp));
         Assert.assertEquals(-1, in.read());
-    }
+        in.close();
+}
 
     // Missing \r\n at the end of the first chunk
     @Test
@@ -245,7 +248,8 @@ public class TestChunkCoding {
         } catch(final MalformedChunkCodingException e) {
             /* expected exception */
         }
-    }
+        in.close();
+}
 
     // Invalid chunk size
     @Test
@@ -260,7 +264,11 @@ public class TestChunkCoding {
         } catch(final MalformedChunkCodingException e) {
             /* expected exception */
         }
-    }
+        try {
+            in.close();
+        } catch (TruncatedChunkException expected) {
+        }
+}
 
     // Negative chunk size
     @Test
@@ -275,7 +283,11 @@ public class TestChunkCoding {
         } catch(final MalformedChunkCodingException e) {
             /* expected exception */
         }
-    }
+        try {
+            in.close();
+        } catch (TruncatedChunkException expected) {
+        }
+}
 
     // Truncated chunk
     @Test
@@ -292,7 +304,8 @@ public class TestChunkCoding {
         } catch(final MalformedChunkCodingException e) {
             /* expected exception */
         }
-    }
+        in.close();
+}
 
     // Invalid footer
     @Test
@@ -308,7 +321,8 @@ public class TestChunkCoding {
         } catch(final MalformedChunkCodingException e) {
             /* expected exception */
         }
-    }
+        in.close();
+}
 
     @Test
     public void testEmptyChunkedInputStream() throws IOException {
@@ -323,7 +337,8 @@ public class TestChunkCoding {
             out.write(buffer, 0, len);
         }
         Assert.assertEquals(0, out.size());
-    }
+        in.close();
+}
 
     @Test
     public void testChunkedConsistence() throws IOException {
@@ -348,7 +363,8 @@ public class TestChunkCoding {
 
         final String output = EncodingUtils.getString(result.toByteArray(), CONTENT_CHARSET);
         Assert.assertEquals(input, output);
-    }
+        in.close();
+}
 
     @Test
     public void testChunkedOutputStream() throws IOException {
@@ -461,7 +477,8 @@ public class TestChunkCoding {
         }
         Assert.assertEquals(20, bytesRead);
         Assert.assertEquals(2, timeouts);
-    }
+        in.close();
+}
 
     @Test
     public void testResumeOnSocketTimeoutInChunk() throws IOException {
@@ -488,7 +505,8 @@ public class TestChunkCoding {
         }
         Assert.assertEquals(20, bytesRead);
         Assert.assertEquals(5, timeouts);
-    }
+        in.close();
+}
 
 }
 

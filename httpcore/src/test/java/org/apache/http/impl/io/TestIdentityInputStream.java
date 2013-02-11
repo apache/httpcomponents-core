@@ -64,6 +64,7 @@ public class TestIdentityInputStream {
         Assert.assertEquals(-1, instream.read());
         Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
         Assert.assertEquals(-1, instream.read());
+        instream.close();
     }
 
     @Test
@@ -90,6 +91,7 @@ public class TestIdentityInputStream {
         final IdentityInputStream instream = new IdentityInputStream(receiver);
         instream.read();
         Assert.assertEquals(2, instream.available());
+        instream.close();
     }
 
 }

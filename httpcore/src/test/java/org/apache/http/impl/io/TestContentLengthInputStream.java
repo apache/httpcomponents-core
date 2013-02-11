@@ -74,6 +74,7 @@ public class TestContentLengthInputStream {
 
         final String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         Assert.assertEquals(result, "1234567890");
+        in.close();
     }
 
     @Test
@@ -86,6 +87,7 @@ public class TestContentLengthInputStream {
         in.read();
         Assert.assertEquals(9, in.skip(10));
         Assert.assertTrue(in.read() == -1);
+        in.close();
 
         in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 2L);
         in.read();
@@ -93,10 +95,12 @@ public class TestContentLengthInputStream {
         Assert.assertTrue(in.skip(10) <= 0);
         Assert.assertTrue(in.skip(-1) == 0);
         Assert.assertTrue(in.read() == -1);
+        in.close();
 
         in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 10L);
         Assert.assertEquals(5,in.skip(5));
         Assert.assertEquals(5, in.read(new byte[20]));
+        in.close();
     }
 
     @Test
