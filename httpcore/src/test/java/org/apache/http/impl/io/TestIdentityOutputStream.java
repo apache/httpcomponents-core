@@ -39,7 +39,7 @@ public class TestIdentityOutputStream {
 
     @Test
     public void testConstructors() throws Exception {
-        new IdentityOutputStream(new SessionOutputBufferMock());
+        new IdentityOutputStream(new SessionOutputBufferMock()).close();
         try {
             new IdentityOutputStream(null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -89,7 +89,7 @@ public class TestIdentityOutputStream {
     @Test
     public void testConstructor() throws Exception {
         final SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
-        new IdentityOutputStream(transmitter);
+        new IdentityOutputStream(transmitter).close();
         try {
             new IdentityOutputStream(null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -114,6 +114,7 @@ public class TestIdentityOutputStream {
         for (int i = 0; i < expected.length; i++) {
             Assert.assertEquals(expected[i], input[i]);
         }
+        outstream.close();
     }
 
     @Test
