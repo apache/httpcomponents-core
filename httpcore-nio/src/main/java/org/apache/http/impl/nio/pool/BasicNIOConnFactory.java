@@ -79,7 +79,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
 
     /**
      * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
-     *   SSLSetupHandler, HttpResponseFactory, ByteBufferAllocator, ConnectionConfig)}
+     *   SSLSetupHandler, NHttpMessageParserFactory, ByteBufferAllocator, ConnectionConfig)}
      */
     @Deprecated
     public BasicNIOConnFactory(
