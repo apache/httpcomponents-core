@@ -27,9 +27,13 @@
 
 package org.apache.http.nio.testserver;
 
+import org.apache.http.HttpHost;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
+import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.pool.NIOConnFactory;
 import org.junit.After;
 
 /**
@@ -47,6 +51,11 @@ public abstract class HttpCoreNIOTestBase {
     protected abstract NHttpConnectionFactory<DefaultNHttpClientConnection>
         createClientConnectionFactory() throws Exception;
 
+    protected NIOConnFactory<HttpHost, NHttpClientConnection> createPoolConnectionFactory()
+        throws Exception {
+        return new BasicNIOConnFactory(createClientConnectionFactory(), null);
+    }
+
     public void initServer() throws Exception {
         this.server = new HttpServerNio(createServerConnectionFactory());
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
@@ -54,7 +63,7 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     public void initClient() throws Exception {
-        this.client = new HttpClientNio(createClientConnectionFactory());
+        this.client = new HttpClientNio(createPoolConnectionFactory());
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.client.setTimeout(5000);
     }

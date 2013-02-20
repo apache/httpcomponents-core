@@ -39,16 +39,18 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
+import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
+import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
@@ -83,7 +85,6 @@ public class HttpClientNio {
                     new RequestExpectContinue()});
 
     private final DefaultConnectingIOReactor ioReactor;
-    private final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
     private final BasicNIOConnPool connpool;
 
     private volatile  HttpAsyncRequester executor;
@@ -91,11 +92,19 @@ public class HttpClientNio {
     private volatile int timeout;
 
     public HttpClientNio(
-            final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory) throws IOException {
+            final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory) throws IOException {
         super();
         this.ioReactor = new DefaultConnectingIOReactor();
-        this.connFactory = connFactory;
-        this.connpool = new BasicNIOConnPool(this.ioReactor, new BasicNIOConnFactory(connFactory), 0);
+        this.connpool = new BasicNIOConnPool(this.ioReactor, new NIOConnFactory<HttpHost, NHttpClientConnection>() {
+
+            public NHttpClientConnection create(
+                final HttpHost route, final IOSession session) throws IOException {
+                final NHttpClientConnection conn = connFactory.create(route, session);
+                conn.setSocketTimeout(timeout);
+                return conn;
+            }
+
+        }, 0);
     }
 
     public int getTimeout() {
@@ -198,7 +207,8 @@ public class HttpClientNio {
     }
 
     private void execute(final NHttpClientEventHandler clientHandler) throws IOException {
-        final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler, this.connFactory) {
+        final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler,
+            new DefaultNHttpClientConnectionFactory(ConnectionConfig.DEFAULT)) {
 
             @Override
             protected DefaultNHttpClientConnection createConnection(final IOSession session) {
