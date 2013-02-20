@@ -55,7 +55,6 @@ import org.junit.After;
 
 /**
  * Base class for all HttpCore NIO tests
- *
  */
 public abstract class HttpCoreNIOTestBase {
 
@@ -73,6 +72,11 @@ public abstract class HttpCoreNIOTestBase {
 
     protected abstract NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory(
             HttpParams params) throws Exception;
+
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientSSLConnectionFactory(
+            HttpParams params) throws Exception {
+        return null;
+    }
 
     public void initServer() throws Exception {
         this.serverParams = new SyncBasicHttpParams();
@@ -115,7 +119,8 @@ public abstract class HttpCoreNIOTestBase {
     public void initConnPool() throws Exception {
         this.connpool = new BasicNIOConnPool(
                 this.client.getIoReactor(),
-                new BasicNIOConnFactory(createClientConnectionFactory(this.clientParams)),
+                new BasicNIOConnFactory(createClientConnectionFactory(this.clientParams),
+                        createClientSSLConnectionFactory(this.clientParams)),
                 this.clientParams);
         this.executor = new HttpAsyncRequester(
                 this.clientHttpProc,

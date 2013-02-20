@@ -1,5 +1,9 @@
 Changes since 4.2.3
 
+* [HTTPCORE-334] https request to a non-responsive but alive port results in a busy loop 
+  in one of I/O dispatch threads. 
+  Contributed by Scott Stanton <snstanton at gmail.com> 
+
 * [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

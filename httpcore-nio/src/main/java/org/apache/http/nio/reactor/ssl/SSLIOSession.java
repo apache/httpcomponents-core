@@ -310,7 +310,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             newMask = EventMask.READ_WRITE;
             break;
         case NEED_UNWRAP:
-            newMask = EventMask.READ | (this.appEventMask & EventMask.WRITE);
+            newMask = EventMask.READ;
             break;
         case NOT_HANDSHAKING:
             newMask = this.appEventMask;
