@@ -27,6 +27,8 @@
 
 package org.apache.http.impl.nio.codecs;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.http.annotation.NotThreadSafe;
@@ -73,6 +75,62 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
 
     public boolean isCompleted() {
         return this.completed;
+    }
+
+    /**
+     * Reads from the channel to the destination.
+     *
+     * @param dst destination.
+     * @return number of bytes transferred.
+     *
+     * @since 4.3
+     */
+    protected int readFromChannel(final ByteBuffer dst) throws IOException {
+        final int bytesRead = this.channel.read(dst);
+        if (bytesRead > 0) {
+            this.metrics.incrementBytesTransferred(bytesRead);
+        }
+        return bytesRead;
+    }
+
+    /**
+     * Reads from the channel to the session buffer.
+     * @return number of bytes transferred.
+     *
+     * @since 4.3
+     */
+    protected int fillBufferFromChannel() throws IOException {
+        final int bytesRead = this.buffer.fill(this.channel);
+        if (bytesRead > 0) {
+            this.metrics.incrementBytesTransferred(bytesRead);
+        }
+        return bytesRead;
+    }
+
+    /**
+     * Reads from the channel to the destination.
+     *
+     * @param dst destination.
+     * @param limit max number of bytes to transfer.
+     * @return number of bytes transferred.
+     *
+     * @since 4.3
+     */
+    protected int readFromChannel(final ByteBuffer dst, final int limit) throws IOException {
+        final int bytesRead;
+        if (dst.remaining() > limit) {
+            final int oldLimit = dst.limit();
+            final int newLimit = oldLimit - (dst.remaining() - limit);
+            dst.limit(newLimit);
+            bytesRead = this.channel.read(dst);
+            dst.limit(oldLimit);
+        } else {
+            bytesRead = this.channel.read(dst);
+        }
+        if (bytesRead > 0) {
+            this.metrics.incrementBytesTransferred(bytesRead);
+        }
+        return bytesRead;
     }
 
 }

@@ -53,11 +53,32 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 public class IdentityEncoder extends AbstractContentEncoder
         implements FileContentEncoder {
 
+    private final int fragHint;
+
+    /**
+     * @since 4.3
+     *
+     * @param channel underlying channel.
+     * @param buffer  session buffer.
+     * @param metrics transport metrics.
+     * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
+     *   that should be written out directly to the channel bypassing the session buffer.
+     *   Value <code>0</code> disables fragment buffering.
+     */
+    public IdentityEncoder(
+            final WritableByteChannel channel,
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics,
+            final int fragementSizeHint) {
+        super(channel, buffer, metrics);
+        this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
+    }
+
     public IdentityEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
-        super(channel, buffer, metrics);
+        this(channel, buffer, metrics, 0);
     }
 
     public int write(final ByteBuffer src) throws IOException {
@@ -65,11 +86,36 @@ public class IdentityEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        final int bytesWritten = this.channel.write(src);
-        if (bytesWritten > 0) {
-            this.metrics.incrementBytesTransferred(bytesWritten);
+
+        int total = 0;
+        while (src.hasRemaining()) {
+            if (this.buffer.hasData() || this.fragHint > 0) {
+                if (src.remaining() <= this.fragHint) {
+                    final int capacity = this.fragHint - this.buffer.length();
+                    if (capacity > 0) {
+                        final int limit = Math.min(capacity, src.remaining());
+                        final int bytesWritten = writeToBuffer(src, limit);
+                        total += bytesWritten;
+                    }
+                }
+            }
+            if (this.buffer.hasData()) {
+                if (this.buffer.length() >= this.fragHint || src.hasRemaining()) {
+                    final int bytesWritten = flushToChannel();
+                    if (bytesWritten == 0) {
+                        break;
+                    }
+                }
+            }
+            if (!this.buffer.hasData() && src.remaining() > this.fragHint) {
+                final int bytesWritten = writeToChannel(src);
+                total += bytesWritten;
+                if (bytesWritten == 0) {
+                    break;
+                }
+            }
         }
-        return bytesWritten;
+        return total;
     }
 
     public long transfer(
@@ -81,6 +127,12 @@ public class IdentityEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
+
+        flushToChannel();
+        if (this.buffer.hasData()) {
+            return 0;
+        }
+
         final long bytesWritten = src.transferTo(position, count, this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);

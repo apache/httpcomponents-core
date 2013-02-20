@@ -29,21 +29,24 @@ package org.apache.http;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.Charset;
 
 import org.apache.http.util.EncodingUtils;
 
 public class ReadableByteChannelMock implements ReadableByteChannel {
 
     private final String[] chunks;
-    private final String charset;
+    private final Charset charset;
 
     private int chunkCount = 0;
 
     private ByteBuffer currentChunk;
+    private boolean eof = false;
     private boolean closed = false;
 
-    public ReadableByteChannelMock(final String[] chunks, final String charset) {
+    public ReadableByteChannelMock(final String[] chunks, final Charset charset) {
         super();
         this.chunks = chunks;
         this.charset = charset;
@@ -54,16 +57,19 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
             if (this.chunkCount < this.chunks.length) {
                 final String s = this.chunks[this.chunkCount];
                 this.chunkCount++;
-                this.currentChunk = ByteBuffer.wrap(EncodingUtils.getBytes(s, this.charset));
+                this.currentChunk = ByteBuffer.wrap(EncodingUtils.getBytes(s, this.charset.name()));
             } else {
-                this.closed = true;
+                this.eof = true;
             }
         }
     }
 
     public int read(final ByteBuffer dst) throws IOException {
-        prepareChunk();
         if (this.closed) {
+            throw new ClosedChannelException();
+        }
+        prepareChunk();
+        if (this.eof) {
             return -1;
         }
         int i = 0;
@@ -79,8 +85,7 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
     }
 
     public boolean isOpen() {
-        return !this.closed;
+        return !this.closed && !this.eof;
     }
-
 
 }

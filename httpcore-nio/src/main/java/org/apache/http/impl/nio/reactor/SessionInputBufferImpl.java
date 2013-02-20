@@ -131,8 +131,12 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     /**
      * @since 4.3
      */
-    public SessionInputBufferImpl(final int buffersize) {
-        this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
+    public SessionInputBufferImpl(
+            final int buffersize,
+            final int lineBuffersize,
+            final Charset charset) {
+        this(buffersize, lineBuffersize,
+                charset != null ? charset.newDecoder() : null, HeapByteBufferAllocator.INSTANCE);
     }
 
     /**
@@ -140,10 +144,15 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      */
     public SessionInputBufferImpl(
             final int buffersize,
-            final int lineBuffersize,
-            final Charset charset) {
-        this(buffersize, lineBuffersize,
-                charset != null ? charset.newDecoder() : null, HeapByteBufferAllocator.INSTANCE);
+            final int lineBuffersize) {
+        this(buffersize, lineBuffersize, null, HeapByteBufferAllocator.INSTANCE);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SessionInputBufferImpl(final int buffersize) {
+        this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
     }
 
     public int fill(final ReadableByteChannel channel) throws IOException {

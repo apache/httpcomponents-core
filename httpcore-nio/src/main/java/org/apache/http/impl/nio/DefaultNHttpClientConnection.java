@@ -110,6 +110,7 @@ public class DefaultNHttpClientConnection
      *
      * @param session the underlying I/O session.
      * @param buffersize buffer size. Must be a positive number.
+     * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
      *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
@@ -128,6 +129,7 @@ public class DefaultNHttpClientConnection
     public DefaultNHttpClientConnection(
             final IOSession session,
             final int buffersize,
+            final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -136,8 +138,8 @@ public class DefaultNHttpClientConnection
             final ContentLengthStrategy outgoingContentStrategy,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(session, buffersize, allocator, chardecoder, charencoder, constraints,
-                incomingContentStrategy, outgoingContentStrategy);
+        super(session, buffersize, fragmentSizeHint,  allocator, chardecoder, charencoder,
+                constraints, incomingContentStrategy, outgoingContentStrategy);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create(this.outbuf);
         this.responseParser = (responseParserFactory != null ? responseParserFactory :
@@ -153,7 +155,7 @@ public class DefaultNHttpClientConnection
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
-        this(session, buffersize, null, chardecoder, charencoder, constraints,
+        this(session, buffersize, buffersize, null, chardecoder, charencoder, constraints,
                 null, null, null, null);
     }
 
@@ -161,7 +163,7 @@ public class DefaultNHttpClientConnection
      * @since 4.3
      */
     public DefaultNHttpClientConnection(final IOSession session, final int buffersize) {
-        this(session, buffersize, null, null, null, null, null, null, null, null);
+        this(session, buffersize, buffersize, null, null, null, null, null, null, null, null);
     }
 
     /**
@@ -280,6 +282,17 @@ public class DefaultNHttpClientConnection
 
     public void produceOutput(final NHttpClientEventHandler handler) {
         try {
+            if (this.status == ACTIVE) {
+                if (this.contentEncoder == null) {
+                    handler.requestReady(this);
+                }
+                if (this.contentEncoder != null) {
+                    handler.outputReady(this, this.contentEncoder);
+                    if (this.contentEncoder.isCompleted()) {
+                        resetOutput();
+                    }
+                }
+            }
             if (this.outbuf.hasData()) {
                 final int bytesWritten = this.outbuf.flush(this.session.channel());
                 if (bytesWritten > 0) {
@@ -291,31 +304,15 @@ public class DefaultNHttpClientConnection
                     this.session.close();
                     this.status = CLOSED;
                     resetOutput();
-                    return;
-                } else {
-                    if (this.contentEncoder != null) {
-                        handler.outputReady(this, this.contentEncoder);
-                        if (this.contentEncoder.isCompleted()) {
-                            resetOutput();
-                        }
-                    }
                 }
-
-                if (this.contentEncoder == null && !this.outbuf.hasData()) {
-                    if (this.status == CLOSING) {
-                        this.session.close();
-                        this.status = CLOSED;
-                    }
-                    if (this.status != CLOSED) {
-                        this.session.clearEvent(EventMask.WRITE);
-                        handler.requestReady(this);
-                    }
+                if (this.contentEncoder == null && this.status != CLOSED) {
+                    this.session.clearEvent(EventMask.WRITE);
                 }
             }
         } catch (final Exception ex) {
             handler.exception(this, ex);
         } finally {
-            // Finally set buffered output flag
+            // Finally set the buffered output flag
             this.hasBufferedOutput = this.outbuf.hasData();
         }
     }

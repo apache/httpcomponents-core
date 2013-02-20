@@ -1,6 +1,10 @@
 Changes since 4.3-ALPHA1 
 -------------------
 
+* Reduced TCP packet fragmentation when writing out message content with non-blocking content 
+  codecs.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

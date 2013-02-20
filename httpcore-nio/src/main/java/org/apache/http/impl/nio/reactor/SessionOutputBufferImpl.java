@@ -148,6 +148,15 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                 charset != null ? charset.newEncoder() : null, HeapByteBufferAllocator.INSTANCE);
     }
 
+    /**
+     * @since 4.3
+     */
+    public SessionOutputBufferImpl(
+            final int buffersize,
+            final int linebuffersize) {
+        this(buffersize, linebuffersize, null, HeapByteBufferAllocator.INSTANCE);
+    }
+
     public void reset(final HttpParams params) {
         clear();
     }

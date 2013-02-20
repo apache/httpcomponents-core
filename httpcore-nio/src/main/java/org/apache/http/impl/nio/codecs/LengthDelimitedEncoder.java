@@ -56,18 +56,44 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         implements FileContentEncoder {
 
     private final long contentLength;
+    private final int fragHint;
 
-    private long len;
+    private long remaining;
+
+    /**
+     * @since 4.3
+     *
+     * @param channel underlying channel.
+     * @param buffer  session buffer.
+     * @param metrics transport metrics.
+     * @param contentLength content length.
+     * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
+     *   that should be written out directly to the channel bypassing the session buffer.
+     *   Value <code>0</code> disables fragment buffering.
+     */
+    public LengthDelimitedEncoder(
+            final WritableByteChannel channel,
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics,
+            final long contentLength,
+            final int fragementSizeHint) {
+        super(channel, buffer, metrics);
+        Args.notNegative(contentLength, "Content length");
+        this.contentLength = contentLength;
+        this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
+        this.remaining = contentLength;
+    }
 
     public LengthDelimitedEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
             final long contentLength) {
-        super(channel, buffer, metrics);
-        Args.notNegative(contentLength, "Content length");
-        this.contentLength = contentLength;
-        this.len = 0;
+        this(channel, buffer, metrics, contentLength, 0);
+    }
+
+    private int nextChunk(final ByteBuffer src) {
+        return (int) Math.min(Math.min(this.remaining, Integer.MAX_VALUE), src.remaining());
     }
 
     public int write(final ByteBuffer src) throws IOException {
@@ -75,26 +101,47 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
-        int bytesWritten;
-        if (src.remaining() > chunk) {
-            final int oldLimit = src.limit();
-            final int newLimit = oldLimit - (src.remaining() - chunk);
-            src.limit(newLimit);
-            bytesWritten = this.channel.write(src);
-            src.limit(oldLimit);
-        } else {
-            bytesWritten = this.channel.write(src);
+        int total = 0;
+        while (src.hasRemaining() && this.remaining > 0) {
+            if (this.buffer.hasData() || this.fragHint > 0) {
+                final int chunk = nextChunk(src);
+                if (chunk <= this.fragHint) {
+                    final int capacity = this.fragHint - this.buffer.length();
+                    if (capacity > 0) {
+                        final int limit = Math.min(capacity, chunk);
+                        final int bytesWritten = writeToBuffer(src, limit);
+                        this.remaining -= bytesWritten;
+                        total += bytesWritten;
+                    }
+                }
+            }
+            if (this.buffer.hasData()) {
+                final int chunk = nextChunk(src);
+                if (this.buffer.length() >= this.fragHint || chunk > 0) {
+                    final int bytesWritten = flushToChannel();
+                    if (bytesWritten == 0) {
+                        break;
+                    }
+                }
+            }
+            if (!this.buffer.hasData()) {
+                final int chunk = nextChunk(src);
+                if (chunk > this.fragHint) {
+                    final int limit = chunk;
+                    final int bytesWritten = writeToChannel(src, limit);
+                    this.remaining -= bytesWritten;
+                    total += bytesWritten;
+                    if (bytesWritten == 0) {
+                        break;
+                    }
+                }
+            }
         }
-        if (bytesWritten > 0) {
-            this.metrics.incrementBytesTransferred(bytesWritten);
-        }
-        this.len += bytesWritten;
-        if (this.len >= this.contentLength) {
+        if (this.remaining <= 0) {
             this.completed = true;
         }
-        return bytesWritten;
+        return total;
     }
 
     public long transfer(
@@ -106,13 +153,19 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             return 0;
         }
         assertNotCompleted();
-        final long chunk = Math.min((this.contentLength - this.len), count);
+
+        flushToChannel();
+        if (this.buffer.hasData()) {
+            return 0;
+        }
+
+        final long chunk = Math.min(this.remaining, count);
         final long bytesWritten = src.transferTo(position, chunk, this.channel);
         if (bytesWritten > 0) {
             this.metrics.incrementBytesTransferred(bytesWritten);
         }
-        this.len += bytesWritten;
-        if (this.len >= this.contentLength) {
+        this.remaining -= bytesWritten;
+        if (this.remaining <= 0) {
             this.completed = true;
         }
         return bytesWritten;
@@ -124,7 +177,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         buffer.append("[content length: ");
         buffer.append(this.contentLength);
         buffer.append("; pos: ");
-        buffer.append(this.len);
+        buffer.append(this.contentLength - this.remaining);
         buffer.append("; completed: ");
         buffer.append(this.completed);
         buffer.append("]");

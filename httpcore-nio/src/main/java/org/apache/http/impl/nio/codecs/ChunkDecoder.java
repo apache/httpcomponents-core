@@ -163,10 +163,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         while (this.state != COMPLETED) {
 
             if (!this.buffer.hasData() || this.chunkSize == -1) {
-                final int bytesRead = this.buffer.fill(this.channel);
-                if (bytesRead > 0) {
-                    this.metrics.incrementBytesTransferred(bytesRead);
-                }
+                final int bytesRead = fillBufferFromChannel();
                 if (bytesRead == -1) {
                     this.endOfStream = true;
                 }

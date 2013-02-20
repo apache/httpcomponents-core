@@ -82,18 +82,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             final int maxLen = Math.min(chunk, this.buffer.length());
             bytesRead = this.buffer.read(dst, maxLen);
         } else {
-            if (dst.remaining() > chunk) {
-                final int oldLimit = dst.limit();
-                final int newLimit = oldLimit - (dst.remaining() - chunk);
-                dst.limit(newLimit);
-                bytesRead = this.channel.read(dst);
-                dst.limit(oldLimit);
-            } else {
-                bytesRead = this.channel.read(dst);
-            }
-            if (bytesRead > 0) {
-                this.metrics.incrementBytesTransferred(bytesRead);
-            }
+            bytesRead = readFromChannel(dst, chunk);
         }
         if (bytesRead == -1) {
             this.completed = true;

@@ -46,15 +46,28 @@ import org.apache.http.util.CharArrayBuffer;
 @NotThreadSafe
 public class ChunkEncoder extends AbstractContentEncoder {
 
+    private final int fragHint;
     private final CharArrayBuffer lineBuffer;
 
     private final BufferInfo bufferinfo;
 
+    /**
+     * @since 4.3
+     *
+     * @param channel underlying channel.
+     * @param buffer  session buffer.
+     * @param metrics transport metrics.
+     * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
+     *   that should be written out directly to the channel bypassing the session buffer.
+     *   Value <code>0</code> disables fragment buffering.
+     */
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final HttpTransportMetricsImpl metrics,
+            final int fragementSizeHint) {
         super(channel, buffer, metrics);
+        this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
         if (buffer instanceof BufferInfo) {
             this.bufferinfo = (BufferInfo) buffer;
@@ -63,53 +76,63 @@ public class ChunkEncoder extends AbstractContentEncoder {
         }
     }
 
+    public ChunkEncoder(
+            final WritableByteChannel channel,
+            final SessionOutputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        this(channel, buffer, metrics, 0);
+    }
+
     public int write(final ByteBuffer src) throws IOException {
         if (src == null) {
             return 0;
         }
         assertNotCompleted();
-        int chunk = src.remaining();
-        if (chunk == 0) {
-            return 0;
-        }
 
-        final long bytesWritten = this.buffer.flush(this.channel);
-        if (bytesWritten > 0) {
-            this.metrics.incrementBytesTransferred(bytesWritten);
-        }
-        int avail;
-        if (this.bufferinfo != null) {
-            avail = this.bufferinfo.available();
-        } else {
-            avail = 4096;
-        }
+        int total = 0;
+        while (src.hasRemaining()) {
+            int chunk = src.remaining();
+            int avail;
+            if (this.bufferinfo != null) {
+                avail = this.bufferinfo.available();
+            } else {
+                avail = 4096;
+            }
 
-        // subtract the length of the longest chunk header
-        // 12345678\r\n
-        // <chunk-data>\r\n
-        avail -= 12;
-        if (avail <= 0) {
-            return 0;
-        } else if (avail < chunk) {
-            // write no more than 'avail' bytes
-            chunk = avail;
-            this.lineBuffer.clear();
-            this.lineBuffer.append(Integer.toHexString(chunk));
-            this.buffer.writeLine(this.lineBuffer);
-            final int oldlimit = src.limit();
-            src.limit(src.position() + chunk);
-            this.buffer.write(src);
-            src.limit(oldlimit);
-        } else {
-            // write all
-            this.lineBuffer.clear();
-            this.lineBuffer.append(Integer.toHexString(chunk));
-            this.buffer.writeLine(this.lineBuffer);
-            this.buffer.write(src);
+            // subtract the length of the longest chunk header
+            // 12345678\r\n
+            // <chunk-data>\r\n
+            avail -= 12;
+            if (avail > 0) {
+                if (avail < chunk) {
+                    // write no more than 'avail' bytes
+                    chunk = avail;
+                    this.lineBuffer.clear();
+                    this.lineBuffer.append(Integer.toHexString(chunk));
+                    this.buffer.writeLine(this.lineBuffer);
+                    final int oldlimit = src.limit();
+                    src.limit(src.position() + chunk);
+                    this.buffer.write(src);
+                    src.limit(oldlimit);
+                } else {
+                    // write all
+                    this.lineBuffer.clear();
+                    this.lineBuffer.append(Integer.toHexString(chunk));
+                    this.buffer.writeLine(this.lineBuffer);
+                    this.buffer.write(src);
+                }
+                this.lineBuffer.clear();
+                this.buffer.writeLine(this.lineBuffer);
+                total += chunk;
+            }
+            if (this.buffer.length() >= this.fragHint || src.hasRemaining()) {
+                final int bytesWritten = flushToChannel();
+                if (bytesWritten == 0) {
+                    break;
+                }
+            }
         }
-        this.lineBuffer.clear();
-        this.buffer.writeLine(this.lineBuffer);
-        return chunk;
+        return total;
     }
 
     @Override

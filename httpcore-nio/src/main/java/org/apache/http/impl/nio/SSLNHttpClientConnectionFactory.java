@@ -204,7 +204,9 @@ public class SSLNHttpClientConnectionFactory
             charencoder.onUnmappableCharacter(unmappableInputAction);
         }
         return new DefaultNHttpClientConnection(
-                ssliosession, 8 * 1024,
+                ssliosession,
+                this.config.getBufferSize(),
+                this.config.getFragmentSizeHint(),
                 this.allocator,
                 chardecoder, charencoder, this.config.getMessageConstraints(),
                 null, null, null,

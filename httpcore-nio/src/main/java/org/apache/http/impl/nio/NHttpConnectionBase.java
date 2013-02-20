@@ -102,6 +102,7 @@ public class NHttpConnectionBase
 
     protected final SessionInputBufferImpl inbuf;
     protected final SessionOutputBufferImpl outbuf;
+    private final int fragmentSizeHint;
 
     protected final HttpTransportMetricsImpl inTransportMetrics;
     protected final HttpTransportMetricsImpl outTransportMetrics;
@@ -164,6 +165,7 @@ public class NHttpConnectionBase
         }
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, decoder, allocator);
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, encoder, allocator);
+        this.fragmentSizeHint = buffersize;
 
         this.incomingContentStrategy = createIncomingContentStrategy();
         this.outgoingContentStrategy = createOutgoingContentStrategy();
@@ -183,6 +185,7 @@ public class NHttpConnectionBase
      *
      * @param session the underlying I/O session.
      * @param buffersize buffer size. Must be a positive number.
+     * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
      *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
@@ -201,6 +204,7 @@ public class NHttpConnectionBase
     protected NHttpConnectionBase(
             final IOSession session,
             final int buffersize,
+            final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -215,6 +219,7 @@ public class NHttpConnectionBase
         }
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, chardecoder, allocator);
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, charencoder, allocator);
+        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : buffersize;
 
         this.inTransportMetrics = new HttpTransportMetricsImpl();
         this.outTransportMetrics = new HttpTransportMetricsImpl();
@@ -422,11 +427,11 @@ public class NHttpConnectionBase
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkEncoder(channel, buffer, metrics);
+            return new ChunkEncoder(channel, buffer, metrics, this.fragmentSizeHint);
         } else if (len == ContentLengthStrategy.IDENTITY) {
-            return new IdentityEncoder(channel, buffer, metrics);
+            return new IdentityEncoder(channel, buffer, metrics, this.fragmentSizeHint);
         } else {
-            return new LengthDelimitedEncoder(channel, buffer, metrics, len);
+            return new LengthDelimitedEncoder(channel, buffer, metrics, len, this.fragmentSizeHint);
         }
     }
 

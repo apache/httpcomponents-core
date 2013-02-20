@@ -139,7 +139,9 @@ public class DefaultNHttpClientConnectionFactory
             charencoder.onUnmappableCharacter(unmappableInputAction);
         }
         return new DefaultNHttpClientConnection(
-                session, 8 * 1024,
+                session,
+                this.config.getBufferSize(),
+                this.config.getFragmentSizeHint(),
                 this.allocator,
                 chardecoder, charencoder, this.config.getMessageConstraints(),
                 null, null, null,

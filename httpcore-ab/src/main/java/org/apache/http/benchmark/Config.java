@@ -247,4 +247,33 @@ public class Config {
     public void setIdentityStorePassword(final String identityStorePassword) {
         this.identityStorePassword = identityStorePassword;
     }
+
+    public Config copy() {
+        final Config copy = new Config();
+        copy.url = this.url;
+        copy.requests = this.requests;
+        copy.threads = this.threads;
+        copy.keepAlive = this.keepAlive;
+        copy.verbosity = this.verbosity;
+        copy.headInsteadOfGet = this.headInsteadOfGet;
+        copy.useHttp1_0 = this.useHttp1_0;
+        copy.contentType = this.contentType;
+        copy.headers = this.headers;
+        copy.socketTimeout = this.socketTimeout;
+        copy.method = this.method;
+        copy.useChunking = this.useChunking;
+        copy.useExpectContinue = this.useExpectContinue;
+        copy.useAcceptGZip = this.useAcceptGZip;
+        copy.payloadFile = this.payloadFile;
+        copy.payloadText = this.payloadText;
+        copy.soapAction = this.soapAction;
+
+        copy.disableSSLVerification = this.disableSSLVerification;
+        copy.trustStorePath = this.trustStorePath;
+        copy.identityStorePath = this.identityStorePath;
+        copy.trustStorePassword = this.trustStorePassword;
+        copy.identityStorePassword = this.identityStorePassword;
+        return copy;
+    }
+
 }

@@ -44,21 +44,35 @@ public class ConnectionConfig implements Cloneable {
 
     public static final ConnectionConfig DEFAULT = new Builder().build();
 
+    private final int bufferSize;
+    private final int fragmentSizeHint;
     private final Charset charset;
     private final CodingErrorAction malformedInputAction;
     private final CodingErrorAction unmappableInputAction;
     private final MessageConstraints messageConstraints;
 
     ConnectionConfig(
+            final int bufferSize,
+            final int fragmentSizeHint,
             final Charset charset,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction,
             final MessageConstraints messageConstraints) {
         super();
+        this.bufferSize = bufferSize;
+        this.fragmentSizeHint = fragmentSizeHint;
         this.charset = charset;
         this.malformedInputAction = malformedInputAction;
         this.unmappableInputAction = unmappableInputAction;
         this.messageConstraints = messageConstraints;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
+    }
+
+    public int getFragmentSizeHint() {
+        return fragmentSizeHint;
     }
 
     public Charset getCharset() {
@@ -85,7 +99,9 @@ public class ConnectionConfig implements Cloneable {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[charset=").append(this.charset)
+        builder.append("[bufferSize=").append(this.bufferSize)
+                .append(", fragmentSizeHint=").append(this.fragmentSizeHint)
+                .append(", charset=").append(this.charset)
                 .append(", malformedInputAction=").append(this.malformedInputAction)
                 .append(", unmappableInputAction=").append(this.unmappableInputAction)
                 .append(", messageConstraints=").append(this.messageConstraints)
@@ -108,16 +124,25 @@ public class ConnectionConfig implements Cloneable {
 
     public static class Builder {
 
+        private int bufferSize;
+        private int fragmentSizeHint;
         private Charset charset;
         private CodingErrorAction malformedInputAction;
         private CodingErrorAction unmappableInputAction;
         private MessageConstraints messageConstraints;
 
         Builder() {
+            this.fragmentSizeHint = -1;
         }
 
-        public Charset getCharset() {
-            return charset;
+        public Builder setBufferSize(final int bufferSize) {
+            this.bufferSize = bufferSize;
+            return this;
+        }
+
+        public Builder setFragmentSizeHint(final int fragmentSizeHint) {
+            this.fragmentSizeHint = fragmentSizeHint;
+            return this;
         }
 
         public Builder setCharset(final Charset charset) {
@@ -151,7 +176,11 @@ public class ConnectionConfig implements Cloneable {
             if (cs == null && (malformedInputAction != null || unmappableInputAction != null)) {
                 cs = Consts.ASCII;
             }
+            final int bufSize = this.bufferSize > 0 ? this.bufferSize : 8 * 1024;
+            final int fragmentHintSize  = this.fragmentSizeHint >= 0 ? this.fragmentSizeHint : bufSize;
             return new ConnectionConfig(
+                    bufSize,
+                    fragmentHintSize,
                     charset,
                     malformedInputAction,
                     unmappableInputAction,

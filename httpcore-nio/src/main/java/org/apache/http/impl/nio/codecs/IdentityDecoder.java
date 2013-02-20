@@ -82,10 +82,7 @@ public class IdentityDecoder extends AbstractContentDecoder
         if (this.buffer.hasData()) {
             bytesRead = this.buffer.read(dst);
         } else {
-            bytesRead = this.channel.read(dst);
-            if (bytesRead > 0) {
-                this.metrics.incrementBytesTransferred(bytesRead);
-            }
+            bytesRead = readFromChannel(dst);
         }
         if (bytesRead == -1) {
             this.completed = true;

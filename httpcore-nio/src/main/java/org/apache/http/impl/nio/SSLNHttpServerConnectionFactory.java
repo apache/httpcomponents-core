@@ -203,7 +203,9 @@ public class SSLNHttpServerConnectionFactory
             charencoder.onMalformedInput(malformedInputAction);
             charencoder.onUnmappableCharacter(unmappableInputAction);
         }
-        return new DefaultNHttpServerConnection(ssliosession, 8 * 1024,
+        return new DefaultNHttpServerConnection(ssliosession,
+                this.config.getBufferSize(),
+                this.config.getFragmentSizeHint(),
                 this.allocator,
                 chardecoder, charencoder, this.config.getMessageConstraints(),
                 null, null,

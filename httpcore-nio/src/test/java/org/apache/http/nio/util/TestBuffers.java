@@ -54,7 +54,7 @@ public class TestBuffers {
     @Test
     public void testInputBufferOperations() throws IOException {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {"stuff;", "more stuff"}, "US-ASCII");
+                new String[] {"stuff;", "more stuff"}, Consts.ASCII);
 
         final ContentDecoder decoder = new ContentDecoderMock(channel);
 

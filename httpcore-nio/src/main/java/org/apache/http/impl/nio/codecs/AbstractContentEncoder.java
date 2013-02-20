@@ -28,6 +28,7 @@
 package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.annotation.NotThreadSafe;
@@ -83,6 +84,97 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
 
     protected void assertNotCompleted() {
         Asserts.check(!this.completed, "Encoding process already completed");
+    }
+
+    /**
+     * Flushes content of the session buffer to the channel and updates transport metrics.
+     *
+     * @return number of bytes written to the channel.
+     *
+     * @since 4.3
+     */
+    protected int flushToChannel() throws IOException {
+        if (!this.buffer.hasData()) {
+            return 0;
+        }
+        final int bytesWritten = this.buffer.flush(this.channel);
+        if (bytesWritten > 0) {
+            this.metrics.incrementBytesTransferred(bytesWritten);
+        }
+        return bytesWritten;
+    }
+
+    /**
+     * Flushes content of the given buffer to the channel and updates transport metrics.
+     *
+     * @return number of bytes written to the channel.
+     *
+     * @since 4.3
+     */
+    protected int writeToChannel(final ByteBuffer src) throws IOException {
+        if (!src.hasRemaining()) {
+            return 0;
+        }
+        final int bytesWritten = this.channel.write(src);
+        if (bytesWritten > 0) {
+            this.metrics.incrementBytesTransferred(bytesWritten);
+        }
+        return bytesWritten;
+    }
+
+    /**
+     * Transfers content of the source to the channel and updates transport metrics.
+     *
+     * @param src source.
+     * @param limit max number of bytes to transfer.
+     * @return number of bytes transferred.
+     *
+     * @since 4.3
+     */
+    protected int writeToChannel(final ByteBuffer src, final int limit) throws IOException {
+        return doWriteChunk(src, limit, true);
+    }
+
+    /**
+     * Transfers content of the source to the buffer and updates transport metrics.
+     *
+     * @param src source.
+     * @param limit max number of bytes to transfer.
+     * @return number of bytes transferred.
+     *
+     * @since 4.3
+     */
+    protected int writeToBuffer(final ByteBuffer src, final int limit) throws IOException {
+        return doWriteChunk(src, limit, false);
+    }
+
+    private int doWriteChunk(
+        final ByteBuffer src, final int chunk, final boolean direct) throws IOException {
+        int bytesWritten;
+        if (src.remaining() > chunk) {
+            final int oldLimit = src.limit();
+            final int newLimit = oldLimit - (src.remaining() - chunk);
+            src.limit(newLimit);
+            bytesWritten = doWriteChunk(src, direct);
+            src.limit(oldLimit);
+        } else {
+            bytesWritten = doWriteChunk(src, direct);
+        }
+        return bytesWritten;
+    }
+
+    private int doWriteChunk(final ByteBuffer src, final boolean direct) throws IOException {
+        if (direct) {
+            final int bytesWritten = this.channel.write(src);
+            if (bytesWritten > 0) {
+                this.metrics.incrementBytesTransferred(bytesWritten);
+            }
+            return bytesWritten;
+        } else {
+            final int chunk = src.remaining();
+            this.buffer.write(src);
+            return chunk;
+        }
     }
 
 }
