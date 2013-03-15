@@ -39,6 +39,8 @@ import org.apache.http.protocol.HttpProcessor;
  *
  * @param <T> the result type of request execution.
  * @since 4.2
+ *
+ * @deprecated use {@link HttpAsyncClientExchangeHandler}
  */
 @Deprecated
 public interface HttpAsyncRequestExecutionHandler<T>

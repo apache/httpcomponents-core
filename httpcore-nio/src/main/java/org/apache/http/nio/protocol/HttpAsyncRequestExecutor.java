@@ -166,7 +166,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     public void outputReady(
             final NHttpClientConnection conn,
-            final ContentEncoder encoder) throws IOException {
+            final ContentEncoder encoder) throws IOException, HttpException {
         final State state = ensureNotNull(getState(conn));
         final HttpAsyncClientExchangeHandler handler = ensureNotNull(getHandler(conn));
         if (state.getRequestState() == MessageState.ACK_EXPECTED) {
@@ -229,7 +229,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     public void inputReady(
             final NHttpClientConnection conn,
-            final ContentDecoder decoder) throws IOException {
+            final ContentDecoder decoder) throws IOException, HttpException {
         final State state = ensureNotNull(getState(conn));
         final HttpAsyncClientExchangeHandler handler = ensureNotNull(getHandler(conn));
         handler.consumeContent(decoder, conn);
@@ -245,7 +245,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             if (state.getRequestState().compareTo(MessageState.READY) != 0) {
                 state.invalidate();
             }
-            HttpAsyncClientExchangeHandler handler = getHandler(conn);
+            final HttpAsyncClientExchangeHandler handler = getHandler(conn);
             if (handler != null) {
                 if (state.isValid()) {
                     handler.inputTerminated();
@@ -276,7 +276,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 return;
             } else {
                 state.invalidate();
-                HttpAsyncClientExchangeHandler handler = getHandler(conn);
+                final HttpAsyncClientExchangeHandler handler = getHandler(conn);
                 if (handler != null) {
                     handler.failed(new SocketTimeoutException());
                     handler.close();
@@ -343,7 +343,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     private void processResponse(
             final NHttpClientConnection conn,
             final State state,
-            final HttpAsyncClientExchangeHandler handler) throws IOException {
+            final HttpAsyncClientExchangeHandler handler) throws IOException, HttpException {
         if (state.isValid()) {
             final HttpRequest request = state.getRequest();
             final HttpResponse response = state.getResponse();

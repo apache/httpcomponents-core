@@ -129,7 +129,7 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
     /**
      * Invoked to signal that the response has been fully processed.
      */
-    void responseCompleted();
+    void responseCompleted() throws IOException, HttpException;
 
     /**
      * Determines if current connection can be kept alive after the given HTTP response.
