@@ -41,8 +41,8 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.junit.After;
 import org.junit.Before;
@@ -169,8 +169,8 @@ public class TestBasicAsyncClientExchangeHandler {
         Assert.assertSame(request, result);
 
         Mockito.verify(this.requestProducer).generateRequest();
-        Assert.assertSame(request, this.context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(this.conn, this.context.getAttribute(ExecutionContext.HTTP_CONNECTION));
+        Assert.assertSame(request, this.context.getAttribute(HttpCoreContext.HTTP_REQUEST));
+        Assert.assertSame(this.conn, this.context.getAttribute(HttpCoreContext.HTTP_CONNECTION));
         Mockito.verify(this.httpProcessor).process(request, this.context);
     }
 
@@ -206,7 +206,7 @@ public class TestBasicAsyncClientExchangeHandler {
         this.exchangeHandler.responseReceived(response);
 
         Mockito.verify(this.responseConsumer).responseReceived(response);
-        Assert.assertSame(response, this.context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(response, this.context.getAttribute(HttpCoreContext.HTTP_RESPONSE));
         Mockito.verify(this.httpProcessor).process(response, this.context);
     }
 

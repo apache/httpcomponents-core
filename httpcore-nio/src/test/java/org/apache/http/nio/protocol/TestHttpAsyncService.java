@@ -49,9 +49,9 @@ import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.HttpAsyncService.State;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.junit.After;
 import org.junit.Assert;
@@ -281,8 +281,8 @@ public class TestHttpAsyncService {
         Assert.assertSame(request, state.getRequest());
         Assert.assertSame(this.requestHandler, state.getRequestHandler());
         Assert.assertSame(this.requestConsumer, state.getRequestConsumer());
-        Assert.assertSame(request, exchangeContext.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(this.conn, exchangeContext.getAttribute(ExecutionContext.HTTP_CONNECTION));
+        Assert.assertSame(request, exchangeContext.getAttribute(HttpCoreContext.HTTP_REQUEST));
+        Assert.assertSame(this.conn, exchangeContext.getAttribute(HttpCoreContext.HTTP_CONNECTION));
 
         Mockito.verify(this.httpProcessor).process(request, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
@@ -335,8 +335,8 @@ public class TestHttpAsyncService {
         Assert.assertSame(request, state.getRequest());
         Assert.assertSame(this.requestHandler, state.getRequestHandler());
         Assert.assertSame(this.requestConsumer, state.getRequestConsumer());
-        Assert.assertSame(request, exchangeContext.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(this.conn, exchangeContext.getAttribute(ExecutionContext.HTTP_CONNECTION));
+        Assert.assertSame(request, exchangeContext.getAttribute(HttpCoreContext.HTTP_REQUEST));
+        Assert.assertSame(this.conn, exchangeContext.getAttribute(HttpCoreContext.HTTP_CONNECTION));
 
         Mockito.verify(this.httpProcessor).process(request, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
@@ -364,8 +364,8 @@ public class TestHttpAsyncService {
         Assert.assertSame(request, state.getRequest());
         Assert.assertSame(this.requestHandler, state.getRequestHandler());
         Assert.assertSame(this.requestConsumer, state.getRequestConsumer());
-        Assert.assertSame(request, exchangeContext.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(this.conn, exchangeContext.getAttribute(ExecutionContext.HTTP_CONNECTION));
+        Assert.assertSame(request, exchangeContext.getAttribute(HttpCoreContext.HTTP_REQUEST));
+        Assert.assertSame(this.conn, exchangeContext.getAttribute(HttpCoreContext.HTTP_CONNECTION));
 
         Mockito.verify(this.httpProcessor).process(request, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
@@ -407,8 +407,8 @@ public class TestHttpAsyncService {
         Assert.assertSame(request, state.getRequest());
         Assert.assertSame(this.requestHandler, state.getRequestHandler());
         Assert.assertSame(this.requestConsumer, state.getRequestConsumer());
-        Assert.assertSame(request, exchangeContext.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(this.conn, exchangeContext.getAttribute(ExecutionContext.HTTP_CONNECTION));
+        Assert.assertSame(request, exchangeContext.getAttribute(HttpCoreContext.HTTP_REQUEST));
+        Assert.assertSame(this.conn, exchangeContext.getAttribute(HttpCoreContext.HTTP_CONNECTION));
 
         Mockito.verify(this.httpProcessor).process(request, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);

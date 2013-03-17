@@ -42,8 +42,8 @@ import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
 
@@ -139,8 +139,8 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     public HttpRequest generateRequest() throws IOException, HttpException {
         final HttpRequest request = this.requestProducer.generateRequest();
-        this.localContext.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-        this.localContext.setAttribute(ExecutionContext.HTTP_CONNECTION, this.conn);
+        this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
         this.httppocessor.process(request, this.localContext);
         return request;
     }
@@ -156,7 +156,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
-        this.localContext.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+        this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         this.httppocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
         this.keepAlive = this.connReuseStrategy.keepAlive(response, this.localContext);

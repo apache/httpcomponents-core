@@ -162,7 +162,7 @@ public class HttpRequestExecutor {
         Args.notNull(request, "HTTP request");
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
-        context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         processor.process(request, context);
     }
 
@@ -198,8 +198,8 @@ public class HttpRequestExecutor {
 
         HttpResponse response = null;
 
-        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
-        context.setAttribute(ExecutionContext.HTTP_REQ_SENT, Boolean.FALSE);
+        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
+        context.setAttribute(HttpCoreContext.HTTP_REQ_SENT, Boolean.FALSE);
 
         conn.sendRequestHeader(request);
         if (request instanceof HttpEntityEnclosingRequest) {
@@ -238,7 +238,7 @@ public class HttpRequestExecutor {
             }
         }
         conn.flush();
-        context.setAttribute(ExecutionContext.HTTP_REQ_SENT, Boolean.TRUE);
+        context.setAttribute(HttpCoreContext.HTTP_REQ_SENT, Boolean.TRUE);
         return response;
     }
 
@@ -305,7 +305,7 @@ public class HttpRequestExecutor {
         Args.notNull(response, "HTTP response");
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
-        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         processor.process(response, context);
     }
 

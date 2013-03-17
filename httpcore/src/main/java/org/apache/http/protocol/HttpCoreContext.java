@@ -41,7 +41,38 @@ import org.apache.http.util.Args;
  * @since 4.3
  */
 @NotThreadSafe
-public class HttpCoreContext implements HttpContext, ExecutionContext {
+public class HttpCoreContext implements HttpContext {
+
+    /**
+     * Attribute name of a {@link org.apache.http.HttpConnection} object that
+     * represents the actual HTTP connection.
+     */
+    public static final String HTTP_CONNECTION  = "http.connection";
+
+    /**
+     * Attribute name of a {@link org.apache.http.HttpRequest} object that
+     * represents the actual HTTP request.
+     */
+    public static final String HTTP_REQUEST     = "http.request";
+
+    /**
+     * Attribute name of a {@link org.apache.http.HttpResponse} object that
+     * represents the actual HTTP response.
+     */
+    public static final String HTTP_RESPONSE    = "http.response";
+
+    /**
+     * Attribute name of a {@link org.apache.http.HttpHost} object that
+     * represents the connection target.
+     */
+    public static final String HTTP_TARGET_HOST = "http.target_host";
+
+    /**
+     * Attribute name of a {@link Boolean} object that represents the
+     * the flag indicating whether the actual request has been fully transmitted
+     * to the target host.
+     */
+    public static final String HTTP_REQ_SENT    = "http.request_sent";
 
     public static HttpCoreContext create() {
         return new HttpCoreContext(new BasicHttpContext());

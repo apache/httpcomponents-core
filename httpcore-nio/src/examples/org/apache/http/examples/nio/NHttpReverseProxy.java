@@ -82,8 +82,8 @@ import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.pool.PoolStats;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
@@ -762,7 +762,7 @@ public class NHttpReverseProxy {
         @Override
         public boolean keepAlive(final HttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
+                    HttpCoreContext.HTTP_CONNECTION);
             boolean keepAlive = super.keepAlive(response, context);
             if (keepAlive) {
                 System.out.println("[client->proxy] connection kept alive " + conn);
@@ -777,7 +777,7 @@ public class NHttpReverseProxy {
         @Override
         public boolean keepAlive(final HttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                    ExecutionContext.HTTP_CONNECTION);
+                    HttpCoreContext.HTTP_CONNECTION);
             boolean keepAlive = super.keepAlive(response, context);
             if (keepAlive) {
                 System.out.println("[proxy->origin] connection kept alive " + conn);

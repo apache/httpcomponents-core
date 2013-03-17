@@ -59,8 +59,8 @@ import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
 import org.apache.http.nio.testserver.LoggingServerConnectionFactory;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -112,7 +112,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 final HttpConnection conn = (HttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
+                        HttpCoreContext.HTTP_CONNECTION);
                 conn.shutdown();
                 return new BasicAsyncRequestConsumer();
             }
@@ -171,7 +171,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                     final HttpAsyncExchange httpExchange,
                     final HttpContext context) throws HttpException, IOException {
                 final HttpConnection conn = (HttpConnection) context.getAttribute(
-                        ExecutionContext.HTTP_CONNECTION);
+                        HttpCoreContext.HTTP_CONNECTION);
                 conn.shutdown();
                 final HttpResponse response = httpExchange.getResponse();
                 response.setEntity(new NStringEntity("all is well", ContentType.TEXT_PLAIN));

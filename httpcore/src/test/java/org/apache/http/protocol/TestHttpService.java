@@ -79,7 +79,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -91,9 +91,9 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(response, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(response, context.getResponse());
 
         Mockito.verify(httprocessor).process(request, context);
         Mockito.verify(httprocessor).process(response, context);
@@ -115,7 +115,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -140,7 +140,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpRequest request = new BasicHttpRequest("GET", "/", new HttpVersion(20, 45));
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -165,7 +165,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         final InputStream instream = Mockito.mock(InputStream.class);
@@ -181,9 +181,9 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(response, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(response, context.getResponse());
 
         Mockito.verify(conn).receiveRequestEntity(request);
         Mockito.verify(httprocessor).process(request, context);
@@ -207,7 +207,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
@@ -226,9 +226,9 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(response, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(response, context.getResponse());
 
         Mockito.verify(conn).sendResponseHeader(resp100);
         Mockito.verify(conn).receiveRequestEntity(request);
@@ -265,7 +265,7 @@ public class TestHttpService {
                 responseFactory,
                 handlerResolver,
                 expectationVerifier);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
@@ -280,9 +280,9 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(response, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(response, context.getResponse());
 
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusLine().getStatusCode());
 
@@ -309,7 +309,7 @@ public class TestHttpService {
                 responseFactory,
                 handlerResolver,
                 expectationVerifier);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
@@ -327,9 +327,9 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(response, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(response, context.getResponse());
 
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
 
@@ -355,7 +355,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpRequest request = new BasicHttpRequest("whatever", "/");
 
@@ -371,9 +371,9 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(error, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(error, context.getResponse());
 
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, error.getStatusLine().getStatusCode());
 
@@ -398,7 +398,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpRequest request = new BasicHttpRequest("whatever", "/");
 
@@ -414,9 +414,9 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(error, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(error, context.getResponse());
 
         Assert.assertEquals(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED, error.getStatusLine().getStatusCode());
 
@@ -441,7 +441,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpRequest request = new BasicHttpRequest("whatever", "/");
 
@@ -457,9 +457,9 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(error, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(error, context.getResponse());
 
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, error.getStatusLine().getStatusCode());
 
@@ -484,7 +484,7 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver);
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -497,9 +497,9 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
 
-        Assert.assertSame(conn, context.getAttribute(ExecutionContext.HTTP_CONNECTION));
-        Assert.assertSame(request, context.getAttribute(ExecutionContext.HTTP_REQUEST));
-        Assert.assertSame(response, context.getAttribute(ExecutionContext.HTTP_RESPONSE));
+        Assert.assertSame(conn, context.getConnection());
+        Assert.assertSame(request, context.getRequest());
+        Assert.assertSame(response, context.getResponse());
 
         Mockito.verify(httprocessor).process(request, context);
         Mockito.verify(httprocessor).process(response, context);

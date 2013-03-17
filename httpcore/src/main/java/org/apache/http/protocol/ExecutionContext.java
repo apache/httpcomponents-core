@@ -31,7 +31,10 @@ package org.apache.http.protocol;
  * {@link HttpContext} attribute names for protocol execution.
  *
  * @since 4.0
+ *
+ * @deprecated (4.3) use {@link HttpCoreContext}.
  */
+@Deprecated
 public interface ExecutionContext {
 
     /**
