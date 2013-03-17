@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -73,21 +74,30 @@ public class TestNIOConnPool {
 
     }
 
+    static class LocalAddressResolver implements SocketAddressResolver<String> {
+
+        public SocketAddress resolveLocalAddress(final String route) {
+            return null;
+        }
+
+        public SocketAddress resolveRemoteAddress(final String route) {
+            return InetSocketAddress.createUnresolved(route, 80);
+        }
+
+    }
+
     static class LocalSessionPool extends AbstractNIOConnPool<String, IOSession, LocalPoolEntry> {
 
         public LocalSessionPool(
                 final ConnectingIOReactor ioreactor, final int defaultMaxPerRoute, final int maxTotal) {
-            super(ioreactor, new LocalConnFactory(), defaultMaxPerRoute, maxTotal);
+            super(ioreactor, new LocalConnFactory(), new LocalAddressResolver(), defaultMaxPerRoute, maxTotal);
         }
 
-        @Override
-        protected SocketAddress resolveRemoteAddress(final String route) {
-            return InetSocketAddress.createUnresolved(route, 80);
-        }
-
-        @Override
-        protected SocketAddress resolveLocalAddress(final String route) {
-            return InetSocketAddress.createUnresolved(route, 80);
+        public LocalSessionPool(
+                final ConnectingIOReactor ioreactor,
+                final SocketAddressResolver<String> addressResolver,
+                final int defaultMaxPerRoute, final int maxTotal) {
+            super(ioreactor, new LocalConnFactory(), addressResolver, defaultMaxPerRoute, maxTotal);
         }
 
         @Override
@@ -280,6 +290,28 @@ public class TestNIOConnPool {
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
+    }
+
+    @Test
+    public void testConnectUnknownHost() throws Exception {
+        final SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
+        Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
+        Mockito.when(sessionRequest.getException()).thenReturn(new IOException());
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        @SuppressWarnings("unchecked")
+        final SocketAddressResolver<String> addressResolver = Mockito.mock(SocketAddressResolver.class);
+        Mockito.when(addressResolver.resolveRemoteAddress("somehost")).thenThrow(new UnknownHostException());
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, addressResolver, 2, 10);
+        final Future<LocalPoolEntry> future = pool.lease("somehost", null);
+
+        Assert.assertTrue(future.isDone());
+        Assert.assertFalse(future.isCancelled());
+        try {
+            future.get();
+            Assert.fail("ExecutionException should have been thrown");
+        } catch (final ExecutionException ex) {
+            Assert.assertTrue(ex.getCause() instanceof UnknownHostException);
+        }
     }
 
     @Test

@@ -70,6 +70,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
     private final ConnectingIOReactor ioreactor;
     private final NIOConnFactory<T, C> connFactory;
+    private final SocketAddressResolver<T> addressResolver;
     private final SessionRequestCallback sessionRequestCallback;
     private final Map<T, RouteSpecificPool<T, C, E>> routeToPool;
     private final LinkedList<LeaseRequest<T, C, E>> leasingRequests;
@@ -83,6 +84,11 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     private volatile int defaultMaxPerRoute;
     private volatile int maxTotal;
 
+    /**
+     * @deprecated use {@link AbstractNIOConnPool#AbstractNIOConnPool(ConnectingIOReactor,
+     *   NIOConnFactory, SocketAddressResolver, int, int)}
+     */
+    @Deprecated
     public AbstractNIOConnPool(
             final ConnectingIOReactor ioreactor,
             final NIOConnFactory<T, C> connFactory,
@@ -95,6 +101,17 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         Args.positive(maxTotal, "Max total value");
         this.ioreactor = ioreactor;
         this.connFactory = connFactory;
+        this.addressResolver = new SocketAddressResolver<T>() {
+
+            public SocketAddress resolveLocalAddress(final T route) throws IOException {
+                return AbstractNIOConnPool.this.resolveLocalAddress(route);
+            }
+
+            public SocketAddress resolveRemoteAddress(final T route) throws IOException {
+                return AbstractNIOConnPool.this.resolveRemoteAddress(route);
+            }
+
+        };
         this.sessionRequestCallback = new InternalSessionRequestCallback();
         this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
         this.leasingRequests = new LinkedList<LeaseRequest<T, C, E>>();
@@ -107,9 +124,51 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         this.maxTotal = maxTotal;
     }
 
-    protected abstract SocketAddress resolveRemoteAddress(T route);
+    /**
+     * @since 4.3
+     */
+    public AbstractNIOConnPool(
+            final ConnectingIOReactor ioreactor,
+            final NIOConnFactory<T, C> connFactory,
+            final SocketAddressResolver<T> addressResolver,
+            final int defaultMaxPerRoute,
+            final int maxTotal) {
+        super();
+        Args.notNull(ioreactor, "I/O reactor");
+        Args.notNull(connFactory, "Connection factory");
+        Args.notNull(addressResolver, "Address resolver");
+        Args.positive(defaultMaxPerRoute, "Max per route value");
+        Args.positive(maxTotal, "Max total value");
+        this.ioreactor = ioreactor;
+        this.connFactory = connFactory;
+        this.addressResolver = addressResolver;
+        this.sessionRequestCallback = new InternalSessionRequestCallback();
+        this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
+        this.leasingRequests = new LinkedList<LeaseRequest<T, C, E>>();
+        this.pending = new HashSet<SessionRequest>();
+        this.leased = new HashSet<E>();
+        this.available = new LinkedList<E>();
+        this.maxPerRoute = new HashMap<T, Integer>();
+        this.lock = new ReentrantLock();
+        this.defaultMaxPerRoute = defaultMaxPerRoute;
+        this.maxTotal = maxTotal;
+    }
 
-    protected abstract SocketAddress resolveLocalAddress(T route);
+    /**
+     * @deprecated (4.3) use {@link SocketAddressResolver}
+     */
+    @Deprecated
+    protected SocketAddress resolveRemoteAddress(final T route) {
+        return null;
+    }
+
+    /**
+     * @deprecated (4.3) use {@link SocketAddressResolver}
+     */
+    @Deprecated
+    protected SocketAddress resolveLocalAddress(final T route) {
+        return null;
+    }
 
     protected abstract E createEntry(T route, C conn);
 
@@ -288,11 +347,19 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                     }
                 }
                 it.remove();
+
+                final SocketAddress localAddress;
+                final SocketAddress remoteAddress;
+                try {
+                    remoteAddress = this.addressResolver.resolveRemoteAddress(route);
+                    localAddress = this.addressResolver.resolveLocalAddress(route);
+                } catch (final IOException ex) {
+                    future.failed(ex);
+                    continue;
+                }
+
                 final SessionRequest sessionRequest = this.ioreactor.connect(
-                        resolveRemoteAddress(route),
-                        resolveLocalAddress(route),
-                        route,
-                        this.sessionRequestCallback);
+                        remoteAddress, localAddress, route, this.sessionRequestCallback);
                 final int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
                         (int) request.getConnectTimeout() : Integer.MAX_VALUE;
                 sessionRequest.setConnectTimeout(timout);

@@ -39,6 +39,7 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.pool.AbstractNIOConnPool;
 import org.apache.http.nio.pool.NIOConnFactory;
+import org.apache.http.nio.pool.SocketAddressResolver;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -62,6 +63,18 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     private static AtomicLong COUNTER = new AtomicLong();
 
     private final int connectTimeout;
+
+    static class BasicAddressResolver implements SocketAddressResolver<HttpHost> {
+
+        public SocketAddress resolveLocalAddress(final HttpHost host) {
+            return null;
+        }
+
+        public SocketAddress resolveRemoteAddress(final HttpHost host) {
+            return new InetSocketAddress(host.getHostName(), host.getPort());
+        }
+
+    }
 
     /**
      * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor, NIOConnFactory, int)}
@@ -93,7 +106,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final ConnectingIOReactor ioreactor,
             final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
             final int connectTimeout) {
-        super(ioreactor, connFactory, 2, 20);
+        super(ioreactor, connFactory, new BasicAddressResolver(), 2, 20);
         this.connectTimeout = connectTimeout;
     }
 
@@ -116,11 +129,19 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
         this(ioreactor, new BasicNIOConnFactory(config), 0);
     }
 
+    /**
+     * @deprecated (4.3) use {@link SocketAddressResolver}
+     */
+    @Deprecated
     @Override
     protected SocketAddress resolveRemoteAddress(final HttpHost host) {
         return new InetSocketAddress(host.getHostName(), host.getPort());
     }
 
+    /**
+     * @deprecated (4.3) use {@link SocketAddressResolver}
+     */
+    @Deprecated
     @Override
     protected SocketAddress resolveLocalAddress(final HttpHost host) {
         return null;
