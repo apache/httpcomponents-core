@@ -344,10 +344,18 @@ public class TestBasicAsyncClientExchangeHandler {
     }
 
     @Test
-    public void testKeepAlive() throws Exception {
+    public void testResponseNoKeepAlive() throws Exception {
+        final Object obj = new Object();
+        Mockito.when(this.responseConsumer.getResult()).thenReturn(obj);
+
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        this.exchangeHandler.keepAlive(response);
-        Mockito.verify(this.reuseStrategy).keepAlive(response, this.context);
+
+        Mockito.when(reuseStrategy.keepAlive(response, this.context)).thenReturn(Boolean.FALSE);
+
+        this.exchangeHandler.responseReceived(response);
+        this.exchangeHandler.responseCompleted();
+
+        Mockito.verify(this.conn).close();
     }
 
     @Test

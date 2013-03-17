@@ -132,13 +132,6 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
     void responseCompleted() throws IOException, HttpException;
 
     /**
-     * Determines if current connection can be kept alive after the given HTTP response.
-     * @param response message
-     * @return <code>true</code> to keep connection alive, <code>false</code> otherwise.
-     */
-    boolean keepAlive(HttpResponse response);
-
-    /**
      * Invoked to signal that the connection has been terminated prematurely
      * by the opposite end.
      */

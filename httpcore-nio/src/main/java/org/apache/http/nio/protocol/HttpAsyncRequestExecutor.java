@@ -344,17 +344,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             final NHttpClientConnection conn,
             final State state,
             final HttpAsyncClientExchangeHandler handler) throws IOException, HttpException {
-        if (state.isValid()) {
-            final HttpRequest request = state.getRequest();
-            final HttpResponse response = state.getResponse();
-            final String method = request.getRequestLine().getMethod();
-            final int status = response.getStatusLine().getStatusCode();
-            if (!(method.equalsIgnoreCase("CONNECT") && status < 300)) {
-                if (!handler.keepAlive(response)) {
-                    conn.close();
-                }
-            }
-        } else {
+        if (!state.isValid()) {
             conn.close();
         }
         handler.responseCompleted();

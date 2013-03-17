@@ -65,6 +65,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     private final ConnectionReuseStrategy connReuseStrategy;
 
     private volatile boolean requestSent;
+    private volatile boolean keepAlive;
 
     /**
      * Creates new instance of BasicAsyncRequestExecutionHandler.
@@ -137,7 +138,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     public HttpRequest generateRequest() throws IOException, HttpException {
-        HttpRequest request = this.requestProducer.generateRequest();
+        final HttpRequest request = this.requestProducer.generateRequest();
         this.localContext.setAttribute(ExecutionContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(ExecutionContext.HTTP_CONNECTION, this.conn);
         this.httppocessor.process(request, this.localContext);
@@ -158,6 +159,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.localContext.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
         this.httppocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
+        this.keepAlive = this.connReuseStrategy.keepAlive(response, this.localContext);
     }
 
     public void consumeContent(
@@ -165,8 +167,11 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.responseConsumer.consumeContent(decoder, ioctrl);
     }
 
-    public void responseCompleted() {
+    public void responseCompleted() throws IOException {
         try {
+            if (!this.keepAlive) {
+                this.conn.close();
+            }
             this.responseConsumer.responseCompleted(this.localContext);
             final T result = this.responseConsumer.getResult();
             final Exception ex = this.responseConsumer.getException();
@@ -180,10 +185,6 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
             failed(ex);
             throw ex;
         }
-    }
-
-    public boolean keepAlive(final HttpResponse response) {
-        return this.connReuseStrategy.keepAlive(response, this.localContext);
     }
 
     public void inputTerminated() {
