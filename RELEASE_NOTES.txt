@@ -1,7 +1,14 @@
-Changes since 4.2.3
+Release 4.2.3
+-------------------
 
-* [HTTPCORE-334] https request to a non-responsive but alive port results in a busy loop 
-  in one of I/O dispatch threads. 
+This maintenance release fixes a number of bugs found in NIO components since 4.2.3. We advise 
+users of HttpCore NIO of all versions to upgrade.
+
+Changelog
+-------------------
+
+* [HTTPCORE-334] https request to a non-responsive but alive port over a non-blocking connection
+  results in a busy loop in one of I/O dispatch threads. 
   Contributed by Scott Stanton <snstanton at gmail.com> 
 
 * [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
