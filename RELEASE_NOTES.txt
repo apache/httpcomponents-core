@@ -1,15 +1,23 @@
-Changes since 4.3-ALPHA1 
+Release 4.3-ALPHA1 
 -------------------
 
-* Reduced TCP packet fragmentation when writing out message content with non-blocking content 
-  codecs.
-  Contributed by Oleg Kalnichevski <olegk at apache.org>
+This is the first BETA release from the 4.3.x release branch. The main theme of the 4.3 release
+series is streamlining of component configuration and deprecation of the old configuration
+API based on HttpParams in favor of constructor-based dependency injection and plain objects 
+for configuration parameters.
 
-* [HTTPCORE-334] https request to a non-responsive but alive port results in a busy loop 
-  in one of I/O dispatch threads. 
-  Contributed by Scott Stanton <snstanton at gmail.com> 
+This release also includes performance optimizations intended to reduce TCP packet fragmentation 
+when writing out HTTP messages both in blocking and non-blocking I/O modes, which should result 
+in up to 20% higher throughput for short entity enclosing messages.  
 
-* [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
+This release also includes all fixes from the stable 4.2.x release branch.
+
+
+Changelog
+-------------------
+
+* Reduced TCP packet fragmentation when writing out message content with blocking and 
+  non-blocking connections.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-330] Clarify InputStreamEntity length constructor argument.
@@ -18,11 +26,7 @@ Changes since 4.3-ALPHA1
 * [HTTPCORE-323] Undocumented UnsupportedCharsetException in ContentType#getOrDefault.
   Contributed by Gary D. Gregory <ggregory at apache.org>
 
-* [HTTPCORE-319] Non-blocking SSLIOSession can fail to shut down correctly when the underlying
-  connection gets terminated abnormally by the opposite endpoint in case there is a truncated or
-  corrupted encrypted content in the input buffer and there is still data in the output buffer
-  that needs to be flushed out (most likely to occur with POST or PUT requests).
-  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 
 
 Release 4.3-ALPHA1 
