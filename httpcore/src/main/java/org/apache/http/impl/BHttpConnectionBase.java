@@ -328,18 +328,22 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    private int fillInputBuffer(final int timeout) throws IOException {
+        final int oldtimeout = this.socket.getSoTimeout();
+        try {
+            this.socket.setSoTimeout(timeout);
+            return this.inbuffer.fillBuffer();
+        } finally {
+            this.socket.setSoTimeout(oldtimeout);
+        }
+    }
+
     protected boolean awaitInput(final int timeout) throws IOException {
         if (this.inbuffer.hasBufferedData()) {
             return true;
         }
-        final int oldtimeout = this.socket.getSoTimeout();
-        try {
-            this.socket.setSoTimeout(timeout);
-            this.inbuffer.fillBuffer();
-            return this.inbuffer.hasBufferedData();
-        } finally {
-            this.socket.setSoTimeout(oldtimeout);
-        }
+        fillInputBuffer(timeout);
+        return this.inbuffer.hasBufferedData();
     }
 
     public boolean isStale() {
@@ -347,7 +351,8 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             return true;
         }
         try {
-            return !awaitInput(1);
+            final int bytesRead = fillInputBuffer(1);
+            return bytesRead < 0;
         } catch (final SocketTimeoutException ex) {
             return false;
         } catch (final IOException ex) {
@@ -380,7 +385,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             }
             return buffer.toString();
         } else {
-            return super.toString();
+            return "[Not bound]";
         }
     }
 
