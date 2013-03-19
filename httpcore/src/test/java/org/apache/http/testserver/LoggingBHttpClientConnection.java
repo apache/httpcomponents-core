@@ -57,6 +57,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
 
     public LoggingBHttpClientConnection(
             final int buffersize,
+            final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints,
@@ -64,7 +65,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(buffersize, chardecoder, charencoder,
+        super(buffersize, fragmentSizeHint, chardecoder, charencoder,
                 constraints, incomingContentStrategy, outgoingContentStrategy,
                 requestWriterFactory, responseParserFactory);
         this.id = "http-outgoing-" + COUNT.incrementAndGet();
@@ -74,7 +75,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
     }
 
     public LoggingBHttpClientConnection(final int buffersize) {
-        this(buffersize, null, null, null, null, null, null, null);
+        this(buffersize, buffersize, null, null, null, null, null, null, null);
     }
 
     @Override

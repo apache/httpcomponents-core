@@ -89,6 +89,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
      * Creates new instance of BHttpConnectionBase.
      *
      * @param buffersize buffer size. Must be a positive number.
+     * @param fragmentSizeHint fragment size hint.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
@@ -102,6 +103,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
      */
     protected BHttpConnectionBase(
             final int buffersize,
+            final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints,
@@ -113,7 +115,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         final HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
         this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
                 constraints != null ? constraints : MessageConstraints.DEFAULT, chardecoder);
-        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, -1,
+        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, fragmentSizeHint,
                 charencoder);
         this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :

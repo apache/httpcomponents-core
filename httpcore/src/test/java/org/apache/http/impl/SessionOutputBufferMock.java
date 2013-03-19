@@ -47,9 +47,9 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
             final int buffersize,
-            final int minChunkLimit,
+            final int fragementSizeHint,
             final CharsetEncoder encoder) {
-        super(new HttpTransportMetricsImpl(), buffersize, minChunkLimit, encoder);
+        super(new HttpTransportMetricsImpl(), buffersize, fragementSizeHint, encoder);
         bind(buffer);
         this.buffer = buffer;
     }
@@ -57,21 +57,22 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
             final int buffersize) {
-        this(buffer, buffersize, -1, null);
+        this(buffer, buffersize, buffersize, null);
     }
 
     public SessionOutputBufferMock(
             final CharsetEncoder encoder) {
-        this(new ByteArrayOutputStream(), BUFFER_SIZE, -1, encoder);
+        this(new ByteArrayOutputStream(), BUFFER_SIZE, BUFFER_SIZE, encoder);
     }
 
     public SessionOutputBufferMock(
             final Charset charset) {
-        this(new ByteArrayOutputStream(), BUFFER_SIZE, -1, charset != null ? charset.newEncoder() : null);
+        this(new ByteArrayOutputStream(), BUFFER_SIZE, BUFFER_SIZE,
+                charset != null ? charset.newEncoder() : null);
     }
 
     public SessionOutputBufferMock(final ByteArrayOutputStream buffer) {
-        this(buffer, BUFFER_SIZE, -1, null);
+        this(buffer, BUFFER_SIZE, BUFFER_SIZE, null);
     }
 
     public SessionOutputBufferMock() {

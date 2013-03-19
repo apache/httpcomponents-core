@@ -69,6 +69,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
      * Creates new instance of DefaultBHttpClientConnection.
      *
      * @param buffersize buffer size. Must be a positive number.
+     * @param fragmentSizeHint fragment size hint.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
@@ -86,6 +87,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
      */
     public DefaultBHttpClientConnection(
             final int buffersize,
+            final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints,
@@ -93,7 +95,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(buffersize, chardecoder, charencoder,
+        super(buffersize, fragmentSizeHint, chardecoder, charencoder,
                 constraints, incomingContentStrategy, outgoingContentStrategy);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create(getSessionOutputBuffer());
@@ -106,11 +108,11 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
-        this(buffersize, chardecoder, charencoder, constraints, null, null, null, null);
+        this(buffersize, buffersize, chardecoder, charencoder, constraints, null, null, null, null);
     }
 
     public DefaultBHttpClientConnection(final int buffersize) {
-        this(buffersize, null, null, null, null, null, null, null);
+        this(buffersize, buffersize, null, null, null, null, null, null, null);
     }
 
     protected void onResponseReceived(final HttpResponse response) {

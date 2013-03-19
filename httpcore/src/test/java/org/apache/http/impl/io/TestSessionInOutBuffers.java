@@ -27,6 +27,7 @@
 
 package org.apache.http.impl.io;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
@@ -41,6 +42,7 @@ import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 public class TestSessionInOutBuffers {
 
@@ -325,6 +327,33 @@ public class TestSessionInOutBuffers {
         Assert.assertEquals(-1, inbuffer.read());
         final long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(out.length, bytesRead);
+    }
+
+    @Test
+    public void testWriteSmallFragmentBuffering() throws Exception {
+        final ByteArrayOutputStream outstream = Mockito.spy(new ByteArrayOutputStream());
+        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(outstream, 16, 16, null);
+        outbuffer.write(1);
+        outbuffer.write(2);
+        outbuffer.write(new byte[] {1, 2});
+        outbuffer.write(new byte[] {3, 4});
+        outbuffer.flush();
+        Mockito.verify(outstream, Mockito.times(1)).write(
+                Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
+        Mockito.verify(outstream, Mockito.never()).write(Mockito.anyInt());
+    }
+
+    @Test
+    public void testWriteSmallFragmentNoBuffering() throws Exception {
+        final ByteArrayOutputStream outstream = Mockito.spy(new ByteArrayOutputStream());
+        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(outstream, 16, 0, null);
+        outbuffer.write(1);
+        outbuffer.write(2);
+        outbuffer.write(new byte[] {1, 2});
+        outbuffer.write(new byte[] {3, 4});
+        Mockito.verify(outstream, Mockito.times(2)).write(
+                Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
+        Mockito.verify(outstream, Mockito.times(2)).write(Mockito.anyInt());
     }
 
     @Test

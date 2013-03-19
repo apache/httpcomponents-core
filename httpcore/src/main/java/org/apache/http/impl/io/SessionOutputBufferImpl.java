@@ -61,7 +61,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
 
     private final HttpTransportMetricsImpl metrics;
     private final ByteArrayBuffer buffer;
-    private final int minChunkLimit;
+    private final int fragementSizeHint;
     private final CharsetEncoder encoder;
 
     private OutputStream outstream;
@@ -72,25 +72,23 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      *
      * @param metrics HTTP transport metrics.
      * @param buffersize buffer size. Must be a positive number.
-     * @param minChunkLimit size limit below which data chunks should be buffered in memory
-     *   in order to minimize native method invocations on the underlying network socket.
-     *   The optimal value of this parameter can be platform specific and defines a trade-off
-     *   between performance of memory copy operations and that of native method invocation.
-     *   If negative default chunk limited will be used.
+     * @param fragementSizeHint fragment size hint defining a minimal size of a fragment
+     *   that should be written out directly to the socket bypassing the session buffer.
+     *   Value <code>0</code> disables fragment buffering.
      * @param charencoder charencoder to be used for encoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for char to byte conversion.
      */
     public SessionOutputBufferImpl(
             final HttpTransportMetricsImpl metrics,
             final int buffersize,
-            final int minChunkLimit,
+            final int fragementSizeHint,
             final CharsetEncoder charencoder) {
         super();
         Args.positive(buffersize, "Buffer size");
         Args.notNull(metrics, "HTTP transport metrcis");
         this.metrics = metrics;
         this.buffer = new ByteArrayBuffer(buffersize);
-        this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
+        this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : 0;
         this.encoder = charencoder;
     }
 
@@ -146,7 +144,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         // Do not want to buffer large-ish chunks
         // if the byte array is larger then MIN_CHUNK_LIMIT
         // write it directly to the output stream
-        if (len > this.minChunkLimit || len > this.buffer.capacity()) {
+        if (len > this.fragementSizeHint || len > this.buffer.capacity()) {
             // flush the buffer
             flushBuffer();
             // write directly to the out stream
@@ -172,10 +170,15 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
     }
 
     public void write(final int b) throws IOException {
-        if (this.buffer.isFull()) {
+        if (this.fragementSizeHint > 0) {
+            if (this.buffer.isFull()) {
+                flushBuffer();
+            }
+            this.buffer.append(b);
+        } else {
             flushBuffer();
+            this.outstream.write(b);
         }
-        this.buffer.append(b);
     }
 
     /**

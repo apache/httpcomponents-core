@@ -171,9 +171,12 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
             charencoder.onMalformedInput(malformedInputAction);
             charencoder.onUnmappableCharacter(unmappableInputAction);
         }
-        final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024,
+        final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(
+                this.cconfig.getBufferSize(),
+                this.cconfig.getFragmentSizeHint(),
                 chardecoder, charencoder,
-                this.cconfig.getMessageConstraints());
+                this.cconfig.getMessageConstraints(),
+                null, null, null, null);
         conn.bind(socket);
         return conn;
     }
