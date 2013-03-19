@@ -87,8 +87,9 @@ public class DefaultNHttpClientConnection
      * @param params HTTP parameters.
      *
      * @deprecated (4.3) use {@link DefaultNHttpClientConnection#DefaultNHttpClientConnection(
-     *  IOSession, int, ByteBufferAllocator, CharsetDecoder, CharsetEncoder, MessageConstraints,
-     *  ContentLengthStrategy, ContentLengthStrategy, NHttpMessageWriterFactory, NHttpMessageParserFactory)}
+     *   IOSession, int, int, ByteBufferAllocator, CharsetDecoder, CharsetEncoder,
+     *   MessageConstraints, ContentLengthStrategy, ContentLengthStrategy,
+     *   NHttpMessageWriterFactory, NHttpMessageParserFactory)}
      */
     @Deprecated
     public DefaultNHttpClientConnection(

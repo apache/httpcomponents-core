@@ -128,7 +128,7 @@ public class NHttpConnectionBase
      * @param params HTTP parameters.
      *
      * @deprecated (4.3) use
-     *   {@link NHttpConnectionBase#NHttpConnectionBase(IOSession, int, ByteBufferAllocator,
+     *   {@link NHttpConnectionBase#NHttpConnectionBase(IOSession, int, int, ByteBufferAllocator,
      *   CharsetDecoder, CharsetEncoder, MessageConstraints, ContentLengthStrategy, ContentLengthStrategy)}
      */
     @Deprecated
