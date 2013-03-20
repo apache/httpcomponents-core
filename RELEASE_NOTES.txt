@@ -1,4 +1,4 @@
-Release 4.2.3
+Release 4.2.4
 -------------------
 
 This maintenance release fixes a number of bugs found in NIO components since 4.2.3. We advise 
