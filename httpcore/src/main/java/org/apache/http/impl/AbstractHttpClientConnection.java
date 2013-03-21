@@ -38,6 +38,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpStatus;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.EntityDeserializer;
@@ -281,7 +282,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
             throws HttpException, IOException {
         assertOpen();
         final HttpResponse response = this.responseParser.parse();
-        if (response.getStatusLine().getStatusCode() >= 200) {
+        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
             this.metrics.incrementResponseCount();
         }
         return response;
