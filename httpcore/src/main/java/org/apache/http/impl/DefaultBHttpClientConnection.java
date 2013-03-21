@@ -40,6 +40,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -161,7 +162,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         ensureOpen();
         final HttpResponse response = this.responseParser.parse();
         onResponseReceived(response);
-        if (response.getStatusLine().getStatusCode() >= 200) {
+        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
             incrementResponseCount();
         }
         return response;
