@@ -27,7 +27,7 @@
 
   <!-- Use property to define the source file types, as it is needed twice -->
   <property name="src.file.types" 
-  	value="**/*.txt **/*.xml **/*.properties **/*.java **/*.html **/*.css **/*.apt **/*.xsl"/>
+  	value="asl2.header **/*.txt **/*.xml **/*.properties **/*.java **/*.html **/*.css **/*.apt **/*.xsl"/>
 
   <target name="fixarchives" depends="_eolcheck,fixzip,fixtgz">
   </target>
