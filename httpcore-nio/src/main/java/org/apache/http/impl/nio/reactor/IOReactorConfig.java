@@ -294,6 +294,7 @@ public final class IOReactorConfig implements Cloneable {
      * Default: <code>0</code> (system default)
      *
      * @see SocketOptions#SO_SNDBUF
+     * @since 4.2.4
      */
     public int getSndBufSize() {
         return sndBufSize;
@@ -304,6 +305,7 @@ public final class IOReactorConfig implements Cloneable {
      * for newly created sockets.
      *
      * @see SocketOptions#SO_SNDBUF
+     * @since 4.2.4
      */
     public void setSndBufSize(int sndBufSize) {
         this.sndBufSize = sndBufSize;
@@ -316,6 +318,7 @@ public final class IOReactorConfig implements Cloneable {
      * Default: <code>0</code> (system default)
      *
      * @see SocketOptions#SO_RCVBUF
+     * @since 4.2.4
      */
     public int getRcvBufSize() {
         return rcvBufSize;
@@ -326,6 +329,7 @@ public final class IOReactorConfig implements Cloneable {
      * for newly created sockets.
      *
      * @see SocketOptions#SO_RCVBUF
+     * @since 4.2.4
      */
     public void setRcvBufSize(int rcvBufSize) {
         this.rcvBufSize = rcvBufSize;
