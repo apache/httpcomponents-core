@@ -34,10 +34,10 @@ import org.apache.http.HttpMessage;
 
 /**
  * Abstract message parser intended to build HTTP messages from an arbitrary data source.
- * 
+ *
  * @param <T>
  *            {@link HttpMessage} or a subclass
- * 
+ *
  * @since 4.0
  */
 public interface HttpMessageParser<T extends HttpMessage> {
