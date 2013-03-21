@@ -265,15 +265,15 @@ public class HttpRequestExecutor {
         Args.notNull(conn, "Client connection");
         Args.notNull(context, "HTTP context");
         HttpResponse response = null;
-        int statuscode = 0;
+        int statusCode = 0;
 
-        while (response == null || statuscode < HttpStatus.SC_OK) {
+        while (response == null || statusCode < HttpStatus.SC_OK) {
 
             response = conn.receiveResponseHeader();
             if (canResponseHaveBody(request, response)) {
                 conn.receiveResponseEntity(response);
             }
-            statuscode = response.getStatusLine().getStatusCode();
+            statusCode = response.getStatusLine().getStatusCode();
 
         } // while intermediate response
 
