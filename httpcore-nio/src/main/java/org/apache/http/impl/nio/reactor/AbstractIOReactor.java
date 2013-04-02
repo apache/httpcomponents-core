@@ -399,22 +399,25 @@ public abstract class AbstractIOReactor implements IOReactor {
                 };
             }
 
-            final IOSession session = new IOSessionImpl(key, interestOpsCallback, sessionClosedCallback);
-
-            int timeout = 0;
+            final IOSession session;
             try {
-                timeout = channel.socket().getSoTimeout();
-            } catch (final IOException ex) {
-                // Very unlikely to happen and is not fatal
-                // as the protocol layer is expected to overwrite
-                // this value anyways
+                session = new IOSessionImpl(key, interestOpsCallback, sessionClosedCallback);
+                int timeout = 0;
+                try {
+                    timeout = channel.socket().getSoTimeout();
+                } catch (final IOException ex) {
+                    // Very unlikely to happen and is not fatal
+                    // as the protocol layer is expected to overwrite
+                    // this value anyways
+                }
+
+                session.setAttribute(IOSession.ATTACHMENT_KEY, entry.getAttachment());
+                session.setSocketTimeout(timeout);
+            } catch (final CancelledKeyException ex) {
+                continue;
             }
-
-            session.setAttribute(IOSession.ATTACHMENT_KEY, entry.getAttachment());
-            session.setSocketTimeout(timeout);
-            this.sessions.add(session);
-
             try {
+                this.sessions.add(session);
                 final SessionRequestImpl sessionRequest = entry.getSessionRequest();
                 if (sessionRequest != null) {
                     sessionRequest.completed(session);

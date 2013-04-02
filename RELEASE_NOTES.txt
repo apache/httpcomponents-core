@@ -1,3 +1,10 @@
+Changes since Release 4.3-BETA1
+-------------------
+
+* [HTTPCORE-336]  Unhandled CancelledKeyException leads to a shutdown of the underlying IOReactor.
+  Contributed by Thomas Dudek <mail.dudek at gmail.com> 
+
+
 Release 4.3-BETA1 
 -------------------
 
