@@ -46,6 +46,11 @@ import org.apache.http.protocol.HTTP;
 @NotThreadSafe
 public abstract class AbstractHttpEntity implements HttpEntity {
 
+    /**
+     * Buffer size for output stream processing.
+     */
+    protected static final int OUTPUT_BUFFER_SIZE = 4096;
+
     protected Header contentType;
     protected Header contentEncoding;
     protected boolean chunked;

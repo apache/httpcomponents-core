@@ -109,7 +109,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
         final InputStream instream = getContent();
         try {
             int l;
-            final byte[] tmp = new byte[2048];
+            final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
             while ((l = instream.read(tmp)) != -1) {
                 outstream.write(tmp, 0, l);
             }

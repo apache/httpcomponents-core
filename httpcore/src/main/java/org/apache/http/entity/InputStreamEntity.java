@@ -43,8 +43,6 @@ import org.apache.http.util.Args;
 @NotThreadSafe
 public class InputStreamEntity extends AbstractHttpEntity {
 
-    private final static int BUFFER_SIZE = 2048;
-
     private final InputStream content;
     private final long length;
 
@@ -126,7 +124,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
         Args.notNull(outstream, "Output stream");
         final InputStream instream = this.content;
         try {
-            final byte[] buffer = new byte[BUFFER_SIZE];
+            final byte[] buffer = new byte[OUTPUT_BUFFER_SIZE];
             int l;
             if (this.length < 0) {
                 // consume until EOF
@@ -137,7 +135,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
                 // consume no more than length
                 long remaining = this.length;
                 while (remaining > 0) {
-                    l = instream.read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+                    l = instream.read(buffer, 0, (int)Math.min(OUTPUT_BUFFER_SIZE, remaining));
                     if (l == -1) {
                         break;
                     }
