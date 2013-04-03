@@ -48,7 +48,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
     /**
      * Buffer size for output stream processing.
-     * 
+     *
      * @since 4.3
      */
     protected static final int OUTPUT_BUFFER_SIZE = 4096;
