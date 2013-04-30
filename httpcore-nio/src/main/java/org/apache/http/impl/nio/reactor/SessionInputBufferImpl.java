@@ -177,8 +177,15 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         setOutputMode();
         final int len = Math.min(dst.remaining(), maxLen);
         final int chunk = Math.min(this.buffer.remaining(), len);
-        for (int i = 0; i < chunk; i++) {
-            dst.put(this.buffer.get());
+        if (this.buffer.remaining() > chunk) {
+            final int oldLimit = this.buffer.limit();
+            final int newLimit = this.buffer.position() + chunk;
+            this.buffer.limit(newLimit);
+            dst.put(this.buffer);
+            this.buffer.limit(oldLimit);
+            return len;
+        } else {
+            dst.put(this.buffer);
         }
         return chunk;
     }
