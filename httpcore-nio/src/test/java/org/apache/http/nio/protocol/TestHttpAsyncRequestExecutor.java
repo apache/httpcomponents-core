@@ -478,6 +478,7 @@ public class TestHttpAsyncRequestExecutor {
         state.setRequest(request);
         BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
+        Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.TRUE);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
         Mockito.when(this.reuseStrategy.keepAlive(response, this.exchangeContext)).thenReturn(true);
@@ -490,6 +491,26 @@ public class TestHttpAsyncRequestExecutor {
         Mockito.verify(this.exchangeHandler).consumeContent(this.decoder, this.conn);
         Mockito.verify(this.exchangeHandler).responseCompleted(this.exchangeContext);
         Mockito.verify(this.conn, Mockito.never()).close();
+    }
+
+    @Test
+    public void testResponseContentOutputCompletedHandlerNotDone() throws Exception {
+        final State state = new HttpAsyncRequestExecutor.State();
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        state.setRequest(request);
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        state.setResponse(response);
+        Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.FALSE);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
+        Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.TRUE);
+
+        this.protocolHandler.inputReady(this.conn, this.decoder);
+
+        Assert.assertEquals(MessageState.READY, state.getRequestState());
+        Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Mockito.verify(this.exchangeHandler).consumeContent(this.decoder, this.conn);
+        Mockito.verify(this.conn).requestOutput();
     }
 
     @Test
