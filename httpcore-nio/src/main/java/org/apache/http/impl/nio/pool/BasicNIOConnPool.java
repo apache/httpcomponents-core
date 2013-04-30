@@ -71,7 +71,16 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
         }
 
         public SocketAddress resolveRemoteAddress(final HttpHost host) {
-            return new InetSocketAddress(host.getHostName(), host.getPort());
+            final String hostname = host.getHostName();
+            int port = host.getPort();
+            if (port == -1) {
+                if (host.getSchemeName().equalsIgnoreCase("http")) {
+                    port = 80;
+                } else if (host.getSchemeName().equalsIgnoreCase("https")) {
+                    port = 443;
+                }
+            }
+            return new InetSocketAddress(hostname, port);
         }
 
     }

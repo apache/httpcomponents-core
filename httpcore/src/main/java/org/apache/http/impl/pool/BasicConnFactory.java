@@ -149,8 +149,18 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         if (socket == null) {
             throw new IOException(scheme + " scheme is not supported");
         }
+        final String hostname = host.getHostName();
+        int port = host.getPort();
+        if (port == -1) {
+            if (host.getSchemeName().equalsIgnoreCase("http")) {
+                port = 80;
+            } else if (host.getSchemeName().equalsIgnoreCase("https")) {
+                port = 443;
+            }
+        }
+
         socket.setSoTimeout(this.sconfig.getSoTimeout());
-        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.connectTimeout);
+        socket.connect(new InetSocketAddress(hostname, port), this.connectTimeout);
         socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
         final int linger = this.sconfig.getSoLinger();
         if (linger >= 0) {
