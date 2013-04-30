@@ -349,6 +349,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
         handler.responseCompleted();
         state.reset();
+        if (!handler.isDone()) {
+            conn.requestOutput();
+        }
     }
 
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
