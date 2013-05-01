@@ -234,9 +234,9 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             final long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
             final BasicFuture<E> future = new BasicFuture<E>(callback);
             final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, future);
-            this.leasingRequests.add(request);
-
-            processPendingRequests();
+            if (!processPendingRequest(request)) {
+                this.leasingRequests.add(request);
+            }
             return future;
         } finally {
             this.lock.unlock();
@@ -268,7 +268,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 } else {
                     entry.close();
                 }
-                processPendingRequests();
+                processNextPendingRequest();
             }
         } finally {
             this.lock.unlock();
@@ -279,93 +279,109 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             final LeaseRequest<T, C, E> request = it.next();
-
-            final T route = request.getRoute();
-            final Object state = request.getState();
-            final long deadline = request.getDeadline();
-            final BasicFuture<E> future = request.getFuture();
-
-            final long now = System.currentTimeMillis();
-            if (now > deadline) {
+            if (processPendingRequest(request)) {
                 it.remove();
-                future.failed(new TimeoutException());
-                continue;
             }
+        }
+    }
 
-            final RouteSpecificPool<T, C, E> pool = getPool(route);
-            E entry = null;
-            for (;;) {
-                entry = pool.getFree(state);
-                if (entry == null) {
-                    break;
-                }
-                if (entry.isClosed() || entry.isExpired(System.currentTimeMillis())) {
-                    entry.close();
-                    this.available.remove(entry);
-                    pool.free(entry, false);
-                } else {
-                    break;
-                }
-            }
-            if (entry != null) {
+    private void processNextPendingRequest() {
+        final ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
+        while (it.hasNext()) {
+            final LeaseRequest<T, C, E> request = it.next();
+            if (processPendingRequest(request)) {
                 it.remove();
+                return;
+            }
+        }
+    }
+
+    private boolean processPendingRequest(final LeaseRequest<T, C, E> request) {
+        final T route = request.getRoute();
+        final Object state = request.getState();
+        final long deadline = request.getDeadline();
+        final BasicFuture<E> future = request.getFuture();
+
+        final long now = System.currentTimeMillis();
+        if (now > deadline) {
+            future.failed(new TimeoutException());
+            return true;
+        }
+
+        final RouteSpecificPool<T, C, E> pool = getPool(route);
+        E entry = null;
+        for (;;) {
+            entry = pool.getFree(state);
+            if (entry == null) {
+                break;
+            }
+            if (entry.isClosed() || entry.isExpired(System.currentTimeMillis())) {
+                entry.close();
                 this.available.remove(entry);
-                this.leased.add(entry);
-                future.completed(entry);
-                continue;
+                pool.free(entry, false);
+            } else {
+                break;
             }
+        }
+        if (entry != null) {
+            this.available.remove(entry);
+            this.leased.add(entry);
+            future.completed(entry);
+            return true;
+        }
 
-            // New connection is needed
-            final int maxPerRoute = getMax(route);
-            // Shrink the pool prior to allocating a new connection
-            final int excess = Math.max(0, pool.getAllocatedCount() + 1 - maxPerRoute);
-            if (excess > 0) {
-                for (int i = 0; i < excess; i++) {
-                    final E lastUsed = pool.getLastUsed();
-                    if (lastUsed == null) {
-                        break;
-                    }
+        // New connection is needed
+        final int maxPerRoute = getMax(route);
+        // Shrink the pool prior to allocating a new connection
+        final int excess = Math.max(0, pool.getAllocatedCount() + 1 - maxPerRoute);
+        if (excess > 0) {
+            for (int i = 0; i < excess; i++) {
+                final E lastUsed = pool.getLastUsed();
+                if (lastUsed == null) {
+                    break;
+                }
+                lastUsed.close();
+                this.available.remove(lastUsed);
+                pool.remove(lastUsed);
+            }
+        }
+
+        if (pool.getAllocatedCount() < maxPerRoute) {
+            final int totalUsed = this.pending.size() + this.leased.size();
+            final int freeCapacity = Math.max(this.maxTotal - totalUsed, 0);
+            if (freeCapacity == 0) {
+                return false;
+            }
+            final int totalAvailable = this.available.size();
+            if (totalAvailable > freeCapacity - 1) {
+                if (!this.available.isEmpty()) {
+                    final E lastUsed = this.available.removeLast();
                     lastUsed.close();
-                    this.available.remove(lastUsed);
-                    pool.remove(lastUsed);
+                    final RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
+                    otherpool.remove(lastUsed);
                 }
             }
 
-            if (pool.getAllocatedCount() < maxPerRoute) {
-                final int totalUsed = this.pending.size() + this.leased.size();
-                final int freeCapacity = Math.max(this.maxTotal - totalUsed, 0);
-                if (freeCapacity == 0) {
-                    continue;
-                }
-                final int totalAvailable = this.available.size();
-                if (totalAvailable > freeCapacity - 1) {
-                    if (!this.available.isEmpty()) {
-                        final E lastUsed = this.available.removeLast();
-                        lastUsed.close();
-                        final RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
-                        otherpool.remove(lastUsed);
-                    }
-                }
-                it.remove();
-
-                final SocketAddress localAddress;
-                final SocketAddress remoteAddress;
-                try {
-                    remoteAddress = this.addressResolver.resolveRemoteAddress(route);
-                    localAddress = this.addressResolver.resolveLocalAddress(route);
-                } catch (final IOException ex) {
-                    future.failed(ex);
-                    continue;
-                }
-
-                final SessionRequest sessionRequest = this.ioreactor.connect(
-                        remoteAddress, localAddress, route, this.sessionRequestCallback);
-                final int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
-                        (int) request.getConnectTimeout() : Integer.MAX_VALUE;
-                sessionRequest.setConnectTimeout(timout);
-                this.pending.add(sessionRequest);
-                pool.addPending(sessionRequest, future);
+            final SocketAddress localAddress;
+            final SocketAddress remoteAddress;
+            try {
+                remoteAddress = this.addressResolver.resolveRemoteAddress(route);
+                localAddress = this.addressResolver.resolveLocalAddress(route);
+            } catch (final IOException ex) {
+                future.failed(ex);
+                return true;
             }
+
+            final SessionRequest sessionRequest = this.ioreactor.connect(
+                    remoteAddress, localAddress, route, this.sessionRequestCallback);
+            final int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
+                    (int) request.getConnectTimeout() : Integer.MAX_VALUE;
+            sessionRequest.setConnectTimeout(timout);
+            this.pending.add(sessionRequest);
+            pool.addPending(sessionRequest, future);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -426,7 +442,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             final RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.cancelled(request);
-            processPendingRequests();
+            processNextPendingRequest();
         } finally {
             this.lock.unlock();
         }
@@ -444,7 +460,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             final RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.failed(request, request.getException());
-            processPendingRequests();
+            processNextPendingRequest();
         } finally {
             this.lock.unlock();
         }
@@ -462,7 +478,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             final RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.timeout(request);
-            processPendingRequests();
+            processNextPendingRequest();
         } finally {
             this.lock.unlock();
         }
