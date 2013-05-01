@@ -187,9 +187,9 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
             BasicFuture<E> future = new BasicFuture<E>(callback);
             LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, future);
-            this.leasingRequests.add(request);
-
-            processPendingRequests();
+            if (!processPendingRequest(request)) {
+                this.leasingRequests.add(request);
+            }
             return future;
         } finally {
             this.lock.unlock();
@@ -221,7 +221,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 } else {
                     entry.close();
                 }
-                processPendingRequests();
+                processNextPendingRequest();
             }
         } finally {
             this.lock.unlock();
@@ -232,85 +232,101 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             LeaseRequest<T, C, E> request = it.next();
-
-            T route = request.getRoute();
-            Object state = request.getState();
-            long deadline = request.getDeadline();
-            BasicFuture<E> future = request.getFuture();
-
-            long now = System.currentTimeMillis();
-            if (now > deadline) {
+            if (processPendingRequest(request)) {
                 it.remove();
-                future.failed(new TimeoutException());
-                continue;
             }
+        }
+    }
 
-            RouteSpecificPool<T, C, E> pool = getPool(route);
-            E entry = null;
-            for (;;) {
-                entry = pool.getFree(state);
-                if (entry == null) {
-                    break;
-                }
-                if (entry.isClosed() || entry.isExpired(System.currentTimeMillis())) {
-                    entry.close();
-                    this.available.remove(entry);
-                    pool.free(entry, false);
-                } else {
-                    break;
-                }
-            }
-            if (entry != null) {
+    private void processNextPendingRequest() {
+        ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
+        while (it.hasNext()) {
+            LeaseRequest<T, C, E> request = it.next();
+            if (processPendingRequest(request)) {
                 it.remove();
+                return;
+            }
+        }
+    }
+
+    private boolean processPendingRequest(final LeaseRequest<T, C, E> request) {
+        T route = request.getRoute();
+        Object state = request.getState();
+        long deadline = request.getDeadline();
+        BasicFuture<E> future = request.getFuture();
+
+        long now = System.currentTimeMillis();
+        if (now > deadline) {
+            future.failed(new TimeoutException());
+            return true;
+        }
+
+        RouteSpecificPool<T, C, E> pool = getPool(route);
+        E entry = null;
+        for (;;) {
+            entry = pool.getFree(state);
+            if (entry == null) {
+                break;
+            }
+            if (entry.isClosed() || entry.isExpired(System.currentTimeMillis())) {
+                entry.close();
                 this.available.remove(entry);
-                this.leased.add(entry);
-                future.completed(entry);
-                continue;
+                pool.free(entry, false);
+            } else {
+                break;
             }
+        }
+        if (entry != null) {
+            this.available.remove(entry);
+            this.leased.add(entry);
+            future.completed(entry);
+            return true;
+        }
 
-            // New connection is needed
-            int maxPerRoute = getMax(route);
-            // Shrink the pool prior to allocating a new connection
-            int excess = Math.max(0, pool.getAllocatedCount() + 1 - maxPerRoute);
-            if (excess > 0) {
-                for (int i = 0; i < excess; i++) {
-                    E lastUsed = pool.getLastUsed();
-                    if (lastUsed == null) {
-                        break;
-                    }
+        // New connection is needed
+        int maxPerRoute = getMax(route);
+        // Shrink the pool prior to allocating a new connection
+        int excess = Math.max(0, pool.getAllocatedCount() + 1 - maxPerRoute);
+        if (excess > 0) {
+            for (int i = 0; i < excess; i++) {
+                E lastUsed = pool.getLastUsed();
+                if (lastUsed == null) {
+                    break;
+                }
+                lastUsed.close();
+                this.available.remove(lastUsed);
+                pool.remove(lastUsed);
+            }
+        }
+
+        if (pool.getAllocatedCount() < maxPerRoute) {
+            int totalUsed = this.pending.size() + this.leased.size();
+            int freeCapacity = Math.max(this.maxTotal - totalUsed, 0);
+            if (freeCapacity == 0) {
+                return false;
+            }
+            int totalAvailable = this.available.size();
+            if (totalAvailable > freeCapacity - 1) {
+                if (!this.available.isEmpty()) {
+                    E lastUsed = this.available.removeLast();
                     lastUsed.close();
-                    this.available.remove(lastUsed);
-                    pool.remove(lastUsed);
+                    RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
+                    otherpool.remove(lastUsed);
                 }
             }
-
-            if (pool.getAllocatedCount() < maxPerRoute) {
-                int totalUsed = this.pending.size() + this.leased.size();
-                int freeCapacity = Math.max(this.maxTotal - totalUsed, 0);
-                if (freeCapacity == 0) {
-                    continue;
-                }
-                int totalAvailable = this.available.size();
-                if (totalAvailable > freeCapacity - 1) {
-                    if (!this.available.isEmpty()) {
-                        E lastUsed = this.available.removeLast();
-                        lastUsed.close();
-                        RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
-                        otherpool.remove(lastUsed);
-                    }
-                }
-                it.remove();
-                SessionRequest sessionRequest = this.ioreactor.connect(
-                        resolveRemoteAddress(route),
-                        resolveLocalAddress(route),
-                        route,
-                        this.sessionRequestCallback);
-                int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
-                        (int) request.getConnectTimeout() : Integer.MAX_VALUE;
-                sessionRequest.setConnectTimeout(timout);
-                this.pending.add(sessionRequest);
-                pool.addPending(sessionRequest, future);
-            }
+            SessionRequest sessionRequest = this.ioreactor.connect(
+                    resolveRemoteAddress(route),
+                    resolveLocalAddress(route),
+                    route,
+                    this.sessionRequestCallback);
+            int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
+                    (int) request.getConnectTimeout() : Integer.MAX_VALUE;
+            sessionRequest.setConnectTimeout(timout);
+            this.pending.add(sessionRequest);
+            pool.addPending(sessionRequest, future);
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -369,7 +385,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.cancelled(request);
-            processPendingRequests();
+            processNextPendingRequest();
         } finally {
             this.lock.unlock();
         }
@@ -386,7 +402,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.failed(request, request.getException());
-            processPendingRequests();
+            processNextPendingRequest();
         } finally {
             this.lock.unlock();
         }
@@ -403,7 +419,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.timeout(request);
-            processPendingRequests();
+            processNextPendingRequest();
         } finally {
             this.lock.unlock();
         }

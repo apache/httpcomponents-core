@@ -1,6 +1,15 @@
 Changes since Release 4.2.4
 -------------------
 
+* Non-blocking connection pool to avoid scanning the entire queue of pending connection requests 
+  on each connection lease / release operation (under heavy load the request queue can contain 
+  a significant number of pending requests, a full linear scan of which can cause massive 
+  performance degradation).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Use bulk ByteBuffer#put method instead of single byte ByteBuffer#put
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-336]  Unhandled CancelledKeyException leads to a shutdown of the underlying IOReactor.
   Contributed by Thomas Dudek <mail.dudek at gmail.com> 
 
