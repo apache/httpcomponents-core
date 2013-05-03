@@ -1,4 +1,11 @@
-Changes since Release 4.3-BETA1
+Release 4.3-BETA2 
+-------------------
+
+This is the second BETA release from the 4.3.x release branch. This release addresses performance 
+issues in the non-blocking connection pool implementation and also includes a number of performance
+improvements in the low level NIO based transport components.
+
+Changelog
 -------------------
 
 * [HTTPCORE-300] ContentType to provide support for custom parameters.
