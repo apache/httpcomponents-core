@@ -113,7 +113,21 @@ public class TestContentType {
         final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"");
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("US-ASCII", contentType.getCharset().name());
-        Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
+        Assert.assertEquals("text/plain; charset=ascii", contentType.toString());
+    }
+
+    @Test
+    public void testParseMultiparam() throws Exception {
+        final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"; " +
+                "p0 ; p1 = \"blah-blah\"  ; p2 = \" yada yada \" ");
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertEquals("US-ASCII", contentType.getCharset().name());
+        Assert.assertEquals("text/plain; charset=ascii; p0; p1=blah-blah; p2=\" yada yada \"",
+                contentType.toString());
+        Assert.assertEquals(null, contentType.getParameter("p0"));
+        Assert.assertEquals("blah-blah", contentType.getParameter("p1"));
+        Assert.assertEquals(" yada yada ", contentType.getParameter("p2"));
+        Assert.assertEquals(null, contentType.getParameter("p3"));
     }
 
     @Test

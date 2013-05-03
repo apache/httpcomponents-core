@@ -1,6 +1,9 @@
 Changes since Release 4.3-BETA1
 -------------------
 
+* [HTTPCORE-300] ContentType to provide support for custom parameters.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * Non-blocking connection pool to avoid scanning the entire queue of pending connection requests 
   on each connection lease / release operation (under heavy load the request queue can contain 
   a significant number of pending requests, a full linear scan of which can cause massive 

@@ -39,8 +39,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.message.BasicHeaderValueFormatter;
 import org.apache.http.message.BasicHeaderValueParser;
+import org.apache.http.message.ParserCursor;
 import org.apache.http.util.Args;
+import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.TextUtils;
 
 /**
@@ -89,17 +92,23 @@ public final class ContentType implements Serializable {
 
     private final String mimeType;
     private final Charset charset;
+    private final NameValuePair[] params;
 
-    /**
-     * Given a MIME type and a character set, constructs a ContentType.
-     * @param mimeType The MIME type to use for the ContentType header.
-     * @param charset The optional character set to use with the ContentType header.
-     * @throws  UnsupportedCharsetException
-     *          If no support for the named charset is available in this Java virtual machine
-     */
-    ContentType(final String mimeType, final Charset charset) {
+    ContentType(
+            final String mimeType,
+            final Charset charset) {
         this.mimeType = mimeType;
         this.charset = charset;
+        this.params = null;
+    }
+
+    ContentType(
+            final String mimeType,
+            final NameValuePair[] params) throws UnsupportedCharsetException {
+        this.mimeType = mimeType;
+        this.params = params;
+        final String s = getParameter("charset");
+        this.charset = s != null ? Charset.forName(s) : null;
     }
 
     public String getMimeType() {
@@ -111,14 +120,33 @@ public final class ContentType implements Serializable {
     }
 
     /**
-     * Converts a ContentType to a string which can be used as a ContentType header.
-     * If a charset is provided by the ContentType, it will be included in the string.
+     * @since 4.3
+     */
+    public String getParameter(final String name) {
+        Args.notEmpty(name, "Parameter name");
+        if (this.params == null) {
+            return null;
+        }
+        for (final NameValuePair param: this.params) {
+            if (param.getName().equalsIgnoreCase(name)) {
+                return param.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Generates textual representation of this content type which can be used as the value
+     * of a <code>Content-Type</code> header.
      */
     @Override
     public String toString() {
-        final StringBuilder buf = new StringBuilder();
+        final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.append(this.mimeType);
-        if (this.charset != null) {
+        if (this.params != null) {
+            buf.append("; ");
+            BasicHeaderValueFormatter.INSTANCE.formatParameters(buf, this.params, false);
+        } else if (this.charset != null) {
             buf.append("; charset=");
             buf.append(this.charset.name());
         }
@@ -178,12 +206,8 @@ public final class ContentType implements Serializable {
 
     private static ContentType create(final HeaderElement helem) {
         final String mimeType = helem.getName();
-        String charset = null;
-        final NameValuePair param = helem.getParameterByName("charset");
-        if (param != null) {
-            charset = param.getValue();
-        }
-        return create(mimeType, charset);
+        final NameValuePair[] params = helem.getParameters();
+        return new ContentType(mimeType, params != null && params.length > 0 ? params : null);
     }
 
     /**
@@ -199,7 +223,10 @@ public final class ContentType implements Serializable {
     public static ContentType parse(
             final String s) throws ParseException, UnsupportedCharsetException {
         Args.notNull(s, "Content type");
-        final HeaderElement[] elements = BasicHeaderValueParser.parseElements(s, null);
+        final CharArrayBuffer buf = new CharArrayBuffer(s.length());
+        buf.append(s);
+        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(buf, cursor);
         if (elements.length > 0) {
             return create(elements[0]);
         } else {
