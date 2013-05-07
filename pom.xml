@@ -34,7 +34,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
   <name>HttpComponents Core</name>
-  <version>4.3-beta2-SNAPSHOT</version>
+  <version>4.3-beta3-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
