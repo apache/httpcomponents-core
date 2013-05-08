@@ -41,7 +41,8 @@ public class TestIdentityInputStream {
     @Test
     public void testConstructor() throws Exception {
         final SessionInputBuffer receiver = new SessionInputBufferMock(new byte[] {});
-        new IdentityInputStream(receiver);
+        final IdentityInputStream in = new IdentityInputStream(receiver);
+        in.close();
         try {
             new IdentityInputStream(null);
             Assert.fail("IllegalArgumentException should have been thrown");

@@ -39,7 +39,9 @@ public class TestContentLengthOutputStream {
 
     @Test
     public void testConstructors() throws Exception {
-        new ContentLengthOutputStream(new SessionOutputBufferMock(), 10L);
+        final ContentLengthOutputStream in = new ContentLengthOutputStream(
+                new SessionOutputBufferMock(), 10L);
+        in.close();
         try {
             new ContentLengthOutputStream(null, 10L);
             Assert.fail("IllegalArgumentException should have been thrown");
