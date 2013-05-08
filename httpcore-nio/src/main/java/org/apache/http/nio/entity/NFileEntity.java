@@ -32,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
 import org.apache.http.annotation.NotThreadSafe;
@@ -57,6 +58,7 @@ public class NFileEntity extends AbstractHttpEntity
                          implements HttpAsyncContentProducer, ProducingNHttpEntity {
 
     private final File file;
+    private RandomAccessFile accessfile;
     private FileChannel fileChannel;
     private long idx = -1;
     private boolean useFileChannels;
@@ -128,11 +130,11 @@ public class NFileEntity extends AbstractHttpEntity
      * @since 4.2
      */
     public void close() throws IOException {
-        final FileChannel local = fileChannel;
-        fileChannel = null;
-        if (local != null) {
-            local.close();
+        if (accessfile != null) {
+            accessfile.close();
         }
+        accessfile = null;
+        fileChannel = null;
     }
 
     /**
@@ -155,9 +157,11 @@ public class NFileEntity extends AbstractHttpEntity
 
     public void produceContent(final ContentEncoder encoder, final IOControl ioctrl)
             throws IOException {
+        if (accessfile == null) {
+            accessfile = new RandomAccessFile(this.file, "r");
+        }
         if (fileChannel == null) {
-            final FileInputStream in = new FileInputStream(file);
-            fileChannel = in.getChannel();
+            fileChannel = accessfile.getChannel();
             idx = 0;
         }
 
