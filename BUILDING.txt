@@ -55,11 +55,16 @@ Fix the archive files so the source files have the correct EOL settings:
 
 mvn antrun:run
 
-(7) Building project web site with Clover reports
+(7) Building project web site
 
 Execute the following command in order to generate the project web site:
 
-mvn site -Dmaven.clover.licenseLocation=<path>/clover.license
+mvn site
+
+Execute the following command in order to generate the project web site with Clover reports.
+This step is optional:
+
+mvn site -Pclover -Dmaven.clover.licenseLocation=<path>/clover.license
 
 where <path> is a full path to Clover license file
 
