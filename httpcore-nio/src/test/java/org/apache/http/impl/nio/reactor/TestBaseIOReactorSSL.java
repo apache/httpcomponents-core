@@ -161,7 +161,7 @@ public class TestBaseIOReactorSSL extends HttpCoreNIOTestBase {
         writer.flush();
 
         synchronized (result) {
-            result.wait(500);
+            result.wait(5000);
         }
         Assert.assertEquals(1, result[0]);
     }
