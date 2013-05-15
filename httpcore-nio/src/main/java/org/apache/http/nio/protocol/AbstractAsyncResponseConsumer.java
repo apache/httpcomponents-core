@@ -109,6 +109,14 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     protected abstract void releaseResources();
 
     /**
+     * Invoked when the consumer is being closed.
+     *
+     * @since 4.3
+     */
+    protected void onClose() throws IOException {
+    }
+
+    /**
      * Use {@link #onResponseReceived(HttpResponse)} instead.
      */
     public final synchronized void responseReceived(
@@ -164,12 +172,13 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         releaseResources();
     }
 
-    public final synchronized void close() {
+    public final synchronized void close() throws IOException {
         if (this.completed) {
             return;
         }
         this.completed = true;
         releaseResources();
+        onClose();
     }
 
     public Exception getException() {
