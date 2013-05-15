@@ -108,7 +108,7 @@ public final class ContentType implements Serializable {
         this.mimeType = mimeType;
         this.params = params;
         final String s = getParameter("charset");
-        this.charset = s != null ? Charset.forName(s) : null;
+        this.charset = !TextUtils.isBlank(s) ? Charset.forName(s) : null;
     }
 
     public String getMimeType() {

@@ -131,6 +131,13 @@ public class TestContentType {
     }
 
     @Test
+    public void testParseEmptyCharset() throws Exception {
+        final ContentType contentType = ContentType.parse("text/plain; charset=\" \"");
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertEquals(null, contentType.getCharset());
+    }
+
+    @Test
     public void testParseInvalidInput() throws Exception {
         try {
             ContentType.parse(null);
