@@ -310,6 +310,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         this.open = false;
         final Socket sock = this.socket;
         try {
+            this.inbuffer.clear();
             this.outbuffer.flush();
             try {
                 try {

@@ -157,6 +157,11 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return this.bufferpos < this.bufferlen;
     }
 
+    public void clear() {
+        this.bufferpos = 0;
+        this.bufferlen = 0;;
+    }
+
     public int read() throws IOException {
         int noRead = 0;
         while (!hasBufferedData()) {

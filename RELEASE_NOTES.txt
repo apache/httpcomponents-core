@@ -1,3 +1,11 @@
+Changes since Release 4.3-BETA2 
+-------------------
+
+* Blocking connections do not clean session input buffer when closed (input data from a read
+  operation may still remain in the buffer if the connection is re-opened).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.3-BETA2 
 -------------------
 
