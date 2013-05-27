@@ -5,3 +5,5 @@
 .clover
 target
 maven-eclipse.xml
+.idea
+*.iml
