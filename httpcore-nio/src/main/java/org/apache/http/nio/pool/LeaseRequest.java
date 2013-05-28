@@ -39,17 +39,26 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
     private final long deadline;
     private final BasicFuture<E> future;
 
+    /**
+     * Contructor
+     * @param route route
+     * @param state state
+     * @param connectTimeout http connection timeout
+     * @param leaseTimeout timeout to wait in a request queue until kicked off
+     * @param future future callback
+     */
     public LeaseRequest(
             final T route,
             final Object state,
             final long connectTimeout,
+            final long leaseTimeout,
             final BasicFuture<E> future) {
         super();
         this.route = route;
         this.state = state;
         this.connectTimeout = connectTimeout;
-        this.deadline = connectTimeout > 0 ? System.currentTimeMillis() + connectTimeout :
-            Long.MAX_VALUE;
+        this.deadline = leaseTimeout > 0 ? System.currentTimeMillis() + leaseTimeout :
+                Long.MAX_VALUE;
         this.future = future;
     }
 

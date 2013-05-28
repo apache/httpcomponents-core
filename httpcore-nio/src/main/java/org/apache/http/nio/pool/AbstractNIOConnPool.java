@@ -226,6 +226,16 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             final T route, final Object state,
             final long connectTimeout, final TimeUnit tunit,
             final FutureCallback<E> callback) {
+        return this.lease(route, state, connectTimeout, connectTimeout, tunit, callback);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public Future<E> lease(
+            final T route, final Object state,
+            final long connectTimeout, final long leaseTimeout, final TimeUnit tunit,
+            final FutureCallback<E> callback) {
         Args.notNull(route, "Route");
         Args.notNull(tunit, "Time unit");
         Asserts.check(!this.isShutDown, "Connection pool shut down");
@@ -233,7 +243,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         try {
             final long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
             final BasicFuture<E> future = new BasicFuture<E>(callback);
-            final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, future);
+            final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, leaseTimeout, future);
             if (!processPendingRequest(request)) {
                 this.leasingRequests.add(request);
             }
