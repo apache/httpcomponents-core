@@ -66,7 +66,7 @@ public class NHttpClient {
                 .add(new RequestTargetHost())
                 .add(new RequestConnControl())
                 .add(new RequestUserAgent("Test/1.1"))
-                .add(new RequestExpectContinue()).build();
+                .add(new RequestExpectContinue(true)).build();
         // Create client-side HTTP protocol handler
         HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
         // Create client-side I/O event dispatch

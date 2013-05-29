@@ -144,7 +144,7 @@ public class NHttpReverseProxy {
                         new RequestTargetHost(),
                         new RequestConnControl(),
                         new RequestUserAgent("Test/1.1"),
-                        new RequestExpectContinue()
+                        new RequestExpectContinue(true)
         });
 
         ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();

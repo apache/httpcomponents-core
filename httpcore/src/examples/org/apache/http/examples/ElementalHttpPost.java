@@ -65,7 +65,7 @@ public class ElementalHttpPost {
             .add(new RequestTargetHost())
             .add(new RequestConnControl())
             .add(new RequestUserAgent("Test/1.1"))
-            .add(new RequestExpectContinue()).build();
+            .add(new RequestExpectContinue(true)).build();
 
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 

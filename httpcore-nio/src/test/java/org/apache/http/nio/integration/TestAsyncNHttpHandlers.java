@@ -396,7 +396,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
@@ -491,7 +491,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
@@ -671,7 +671,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
@@ -792,7 +792,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
@@ -887,7 +887,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
@@ -989,7 +989,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,
@@ -1087,7 +1087,7 @@ public class TestAsyncNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final AsyncNHttpClientHandler clientHandler = new AsyncNHttpClientHandler(
                 clientHttpProc,

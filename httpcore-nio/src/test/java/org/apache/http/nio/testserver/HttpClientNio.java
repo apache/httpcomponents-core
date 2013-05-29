@@ -82,7 +82,7 @@ public class HttpClientNio {
                     new RequestTargetHost(),
                     new RequestConnControl(),
                     new RequestUserAgent("TEST-CLIENT/1.1"),
-                    new RequestExpectContinue()});
+                    new RequestExpectContinue(true)});
 
     private final DefaultConnectingIOReactor ioReactor;
     private final BasicNIOConnPool connpool;

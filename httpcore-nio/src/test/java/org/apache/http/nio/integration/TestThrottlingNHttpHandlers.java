@@ -414,7 +414,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
@@ -512,7 +512,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
@@ -633,7 +633,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,
@@ -797,7 +797,7 @@ public class TestThrottlingNHttpHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final ThrottlingHttpClientHandler clientHandler = new ThrottlingHttpClientHandler(
                 clientHttpProc,

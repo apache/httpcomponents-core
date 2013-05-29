@@ -338,7 +338,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final InetSocketAddress address = start(clientHttpProc, null, registry, null);
 
@@ -379,7 +379,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue()});
+                new RequestExpectContinue(true)});
 
         final InetSocketAddress address = start(clientHttpProc, null, registry, null);
 

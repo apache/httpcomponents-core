@@ -90,7 +90,7 @@ class BenchmarkWorker implements Runnable {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent("HttpCore-AB/1.1"),
-                new RequestExpectContinue());
+                new RequestExpectContinue(true));
         this.httpexecutor = new HttpRequestExecutor();
 
         this.connstrategy = DefaultConnectionReuseStrategy.INSTANCE;

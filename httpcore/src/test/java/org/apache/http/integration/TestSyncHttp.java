@@ -845,7 +845,7 @@ public class TestSyncHttp {
                             new RequestTargetHost(),
                             new RequestConnControl(),
                             new RequestUserAgent(),
-                            new RequestExpectContinue() }));
+                            new RequestExpectContinue(true) }));
 
             final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
@@ -906,7 +906,7 @@ public class TestSyncHttp {
                             new RequestTargetHost(),
                             new RequestConnControl(),
                             new RequestUserAgent(),
-                            new RequestExpectContinue() }));
+                            new RequestExpectContinue(true) }));
 
             final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
