@@ -78,17 +78,6 @@ public class ConsumingNHttpEntityTemplate
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
-    /**
-     * This method is equivalent to the {@link #finish()} method.
-     * <br/>
-     * TODO: The name of this method is misnomer. It will be renamed to
-     * #finish() in the next major release.
-     */
-    @Override
-    public void consumeContent() throws IOException {
-        finish();
-    }
-
     public void consumeContent(
             final ContentDecoder decoder,
             final IOControl ioctrl) throws IOException {

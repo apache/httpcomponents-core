@@ -57,6 +57,6 @@ public enum IOReactorStatus {
     /**
      * The reactor has shut down.
      */
-    SHUT_DOWN;
+    SHUT_DOWN
 
 }

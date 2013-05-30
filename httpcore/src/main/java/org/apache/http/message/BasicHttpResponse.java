@@ -92,7 +92,13 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      * @param statusline        the status line
      */
     public BasicHttpResponse(final StatusLine statusline) {
-        this(statusline, null, null);
+        super();
+        this.statusline = Args.notNull(statusline, "Status line");
+        this.ver = statusline.getProtocolVersion();
+        this.code = statusline.getStatusCode();
+        this.reasonPhrase = statusline.getReasonPhrase();
+        this.reasonCatalog = null;
+        this.locale = null;
     }
 
     /**
@@ -130,7 +136,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
             this.statusline = new BasicStatusLine(
                     this.ver != null ? this.ver : HttpVersion.HTTP_1_1,
                     this.code,
-                    this.reasonPhrase != null ? this.reasonPhrase : getReason(this.code));
+                    this.reasonPhrase);
         }
         return this.statusline;
     }

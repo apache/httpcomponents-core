@@ -251,7 +251,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         try {
             for (;;) {
 
-                int readyCount;
+                final int readyCount;
                 try {
                     readyCount = this.selector.select(this.selectTimeout);
                 } catch (final InterruptedIOException ex) {
@@ -301,7 +301,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
             }
 
-        } catch (final ClosedSelectorException ex) {
+        } catch (final ClosedSelectorException ignore) {
         } finally {
             hardShutdown();
             synchronized (this.statusMutex) {
@@ -362,8 +362,8 @@ public abstract class AbstractIOReactor implements IOReactor {
         ChannelEntry entry;
         while ((entry = this.newChannels.poll()) != null) {
 
-            SocketChannel channel;
-            SelectionKey key;
+            final SocketChannel channel;
+            final SelectionKey key;
             try {
                 channel = entry.getChannel();
                 channel.configureBlocking(false);

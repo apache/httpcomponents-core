@@ -193,7 +193,7 @@ public class VersionInfo {
      * @return  the version information for all packages found,
      *          never <code>null</code>
      */
-    public final static VersionInfo[] loadVersionInfo(final String[] pckgs,
+    public static VersionInfo[] loadVersionInfo(final String[] pckgs,
                                                       final ClassLoader clsldr) {
         Args.notNull(pckgs, "Package identifier array");
         final List<VersionInfo> vil = new ArrayList<VersionInfo>(pckgs.length);
@@ -220,7 +220,7 @@ public class VersionInfo {
      * @return  the version information for the argument package, or
      *          <code>null</code> if not available
      */
-    public final static VersionInfo loadVersionInfo(final String pckg,
+    public static VersionInfo loadVersionInfo(final String pckg,
                                                     ClassLoader clsldr) {
         Args.notNull(pckg, "Package identifier");
         if (clsldr == null) {
@@ -265,7 +265,7 @@ public class VersionInfo {
      *
      * @return  the version information
      */
-    protected final static VersionInfo fromMap(final String pckg, final Map<?, ?> info,
+    protected static VersionInfo fromMap(final String pckg, final Map<?, ?> info,
                                                final ClassLoader clsldr) {
         Args.notNull(pckg, "Package identifier");
         String module = null;

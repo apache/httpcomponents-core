@@ -29,6 +29,7 @@ package org.apache.http.message;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -125,9 +126,7 @@ public class HeaderGroup implements Cloneable, Serializable {
         if (headers == null) {
             return;
         }
-        for (final Header header : headers) {
-            this.headers.add(header);
-        }
+        Collections.addAll(this.headers, headers);
     }
 
     /**
@@ -173,8 +172,7 @@ public class HeaderGroup implements Cloneable, Serializable {
     public Header[] getHeaders(final String name) {
         final List<Header> headersFound = new ArrayList<Header>();
 
-        for (int i = 0; i < headers.size(); i++) {
-            final Header header = headers.get(i);
+        for (final Header header : headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 headersFound.add(header);
             }
@@ -192,8 +190,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @return the first header or <code>null</code>
      */
     public Header getFirstHeader(final String name) {
-        for (int i = 0; i < headers.size(); i++) {
-            final Header header = headers.get(i);
+        for (final Header header : headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 return header;
             }
@@ -240,8 +237,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * contained, <code>false</code> otherwise
      */
     public boolean containsHeader(final String name) {
-        for (int i = 0; i < headers.size(); i++) {
-            final Header header = headers.get(i);
+        for (final Header header : headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 return true;
             }

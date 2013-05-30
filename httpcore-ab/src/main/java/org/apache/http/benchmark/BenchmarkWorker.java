@@ -123,7 +123,7 @@ class BenchmarkWorker implements Runnable {
                 resetHeader(request);
                 if (!conn.isOpen()) {
 
-                    Socket socket;
+                    final Socket socket;
                     if (socketFactory != null) {
                         socket = socketFactory.createSocket();
                     } else {
@@ -171,7 +171,7 @@ class BenchmarkWorker implements Runnable {
                     }
                     long contentlen = 0;
                     final InputStream instream = entity.getContent();
-                    int l = 0;
+                    int l;
                     while ((l = instream.read(this.buffer)) != -1) {
                         contentlen += l;
                         if (config.getVerbosity() >= 4) {

@@ -106,18 +106,18 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         }
         if (value == null) {
             if (REQUEST_COUNT.equals(metricName)) {
-                value = new Long(requestCount);
+                value = requestCount;
             } else if (RESPONSE_COUNT.equals(metricName)) {
-                value = new Long(responseCount);
+                value = responseCount;
             } else if (RECEIVED_BYTES_COUNT.equals(metricName)) {
                 if (this.inTransportMetric != null) {
-                    return new Long(this.inTransportMetric.getBytesTransferred());
+                    return this.inTransportMetric.getBytesTransferred();
                 } else {
                     return null;
                 }
             } else if (SENT_BYTES_COUNT.equals(metricName)) {
                 if (this.outTransportMetric != null) {
-                    return new Long(this.outTransportMetric.getBytesTransferred());
+                    return this.outTransportMetric.getBytesTransferred();
                 } else {
                     return null;
                 }

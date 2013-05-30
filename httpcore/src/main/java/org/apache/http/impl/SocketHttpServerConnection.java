@@ -45,15 +45,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
-/**
- * Implementation of a server-side HTTP connection that can be bound to a
- * network Socket in order to receive and transmit data.
- *
- * @since 4.0
- *
- * @deprecated (4.3) use {@link DefaultBHttpServerConnection}
- */
-@NotThreadSafe
 @Deprecated
 public class SocketHttpServerConnection extends
         AbstractHttpServerConnection implements HttpInetConnection {

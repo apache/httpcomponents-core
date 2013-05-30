@@ -150,7 +150,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
 
     private int doWriteChunk(
         final ByteBuffer src, final int chunk, final boolean direct) throws IOException {
-        int bytesWritten;
+        final int bytesWritten;
         if (src.remaining() > chunk) {
             final int oldLimit = src.limit();
             final int newLimit = oldLimit - (src.remaining() - chunk);

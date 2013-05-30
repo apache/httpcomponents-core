@@ -112,7 +112,7 @@ public class HttpBenchmark {
             se.setChunked(config.isUseChunking());
             entity = se;
         }
-        HttpRequest request;
+        final HttpRequest request;
         if ("POST".equals(config.getMethod())) {
             final BasicHttpEntityEnclosingRequest httppost =
                     new BasicHttpEntityEnclosingRequest("POST", url.getPath());

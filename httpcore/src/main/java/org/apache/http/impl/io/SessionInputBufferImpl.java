@@ -140,7 +140,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
             this.bufferpos = 0;
             this.bufferlen = len;
         }
-        int l;
+        final int l;
         final int off = this.bufferlen;
         final int len = this.buffer.length - off;
         l = streamRead(this.buffer, off, len);
@@ -159,11 +159,11 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
 
     public void clear() {
         this.bufferpos = 0;
-        this.bufferlen = 0;;
+        this.bufferlen = 0;
     }
 
     public int read() throws IOException {
-        int noRead = 0;
+        int noRead;
         while (!hasBufferedData()) {
             noRead = fillBuffer();
             if (noRead == -1) {

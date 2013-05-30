@@ -143,7 +143,7 @@ public interface SessionInputBuffer {
      * specific implementations of this interface.
      *
      * @param dst the destination buffer.
-     * @param endOfStream
+     * @param endOfStream end of stream flag
      * @return <code>true</code> if a sequence of chars representing a complete
      *  line has been transferred to the destination buffer, <code>false</code>
      *  otherwise.
@@ -168,7 +168,7 @@ public interface SessionInputBuffer {
      * The choice of a char encoding and line delimiter sequence is up to the
      * specific implementations of this interface.
      *
-     * @param endOfStream
+     * @param endOfStream end of stream flag
      * @return a string representing a complete line, if available.
      * <code>null</code> otherwise.
      *

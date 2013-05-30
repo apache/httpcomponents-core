@@ -52,7 +52,7 @@ import org.apache.http.pool.ConnPool;
 @ThreadSafe
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
-    private static AtomicLong COUNTER = new AtomicLong();
+    private static final AtomicLong COUNTER = new AtomicLong();
 
     public BasicConnPool(final ConnFactory<HttpHost, HttpClientConnection> connFactory) {
         super(connFactory, 2, 20);

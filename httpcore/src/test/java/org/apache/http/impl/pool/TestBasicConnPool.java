@@ -53,7 +53,6 @@ public class TestBasicConnPool {
     private ServerSocket server;
     private int serverPort;
 
-    private SSLServerSocket sslServer;
     private int sslServerPort;
 
     @Before
@@ -63,7 +62,7 @@ public class TestBasicConnPool {
         serverPort = server.getLocalPort();
 
         // setup an "https" server
-        sslServer = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(0);
+        final SSLServerSocket sslServer = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(0);
         sslServerPort = sslServer.getLocalPort();
 
         final SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();

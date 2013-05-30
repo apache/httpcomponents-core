@@ -89,8 +89,6 @@ public interface HttpAsyncExchange {
      * connection times out or gets terminated prematurely by the client. This
      * callback can be used to cancel a long running response generating
      * process if a response is no longer needed.
-     *
-     * @param cancellable
      */
     void setCallback(Cancellable cancellable);
 

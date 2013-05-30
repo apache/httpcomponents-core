@@ -49,8 +49,6 @@ public interface HttpAsyncResponseProducer extends Closeable {
      * Invoked to generate a HTTP response message head.
      *
      * @return HTTP response message.
-     * @throws HttpException in case of HTTP protocol violation
-     * @throws IOException in case of an I/O error
      */
     HttpResponse generateResponse();
 

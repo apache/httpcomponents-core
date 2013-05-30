@@ -63,7 +63,7 @@ public class BasicTokenIterator implements TokenIterator {
     protected String currentHeader;
 
     /**
-     * The token to be returned by the next call to {@link #currentToken}.
+     * The token to be returned by the next call to {@link #nextToken()}.
      * <code>null</code> if the iteration is over.
      */
     protected String currentToken;

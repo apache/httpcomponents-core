@@ -253,7 +253,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             if (request.isCompleted()) {
                 continue;
             }
-            SocketChannel socketChannel;
+            final SocketChannel socketChannel;
             try {
                 socketChannel = SocketChannel.open();
             } catch (final IOException ex) {

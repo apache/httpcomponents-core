@@ -136,7 +136,7 @@ public class HttpRequestExecutor {
         }
     }
 
-    private final static void closeConnection(final HttpClientConnection conn) {
+    private static void closeConnection(final HttpClientConnection conn) {
         try {
             conn.close();
         } catch (final IOException ignore) {

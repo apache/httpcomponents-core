@@ -565,7 +565,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.session.setAttribute(name, obj);
     }
 
-    private static void formatOps(final StringBuilder buffer, int ops) {
+    private static void formatOps(final StringBuilder buffer, final int ops) {
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');
         }

@@ -82,7 +82,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         // We use Transfer-Encoding if present and ignore Content-Length.
         // RFC2616, 4.4 item number 3
         if (transferEncodingHeader != null) {
-            HeaderElement[] encodings = null;
+            final HeaderElement[] encodings;
             try {
                 encodings = transferEncodingHeader.getElements();
             } catch (final ParseException px) {
@@ -110,7 +110,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
                 try {
                     contentlen = Long.parseLong(header.getValue());
                     break;
-                } catch (final NumberFormatException e) {
+                } catch (final NumberFormatException ignore) {
                 }
                 // See if we can have better luck with another header, if present
             }

@@ -94,8 +94,6 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
                 this.socket.setSoTimeout(timeout);
                 fillBuffer();
                 result = hasBufferedData();
-            } catch (final SocketTimeoutException ex) {
-                throw ex;
             } finally {
                 socket.setSoTimeout(oldtimeout);
             }

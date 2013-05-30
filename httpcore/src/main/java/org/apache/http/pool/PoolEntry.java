@@ -143,7 +143,7 @@ public abstract class PoolEntry<T, C> {
     public synchronized void updateExpiry(final long time, final TimeUnit tunit) {
         Args.notNull(tunit, "Time unit");
         this.updated = System.currentTimeMillis();
-        long newExpiry;
+        final long newExpiry;
         if (time > 0) {
             newExpiry = this.updated + tunit.toMillis(time);
         } else {

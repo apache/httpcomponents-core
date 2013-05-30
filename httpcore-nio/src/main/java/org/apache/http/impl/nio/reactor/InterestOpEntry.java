@@ -59,7 +59,15 @@ class InterestOpEntry {
 
     @Override
     public boolean equals(final Object obj) {
-        return this.key.equals(obj);
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof InterestOpEntry) {
+            final InterestOpEntry that = (InterestOpEntry) obj;
+            return this.key.equals(that.key);
+        } else {
+            return false;
+        }
     }
 
     @Override

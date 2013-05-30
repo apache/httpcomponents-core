@@ -171,7 +171,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     static IOReactorConfig convert(final int workerCount, final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
-        final IOReactorConfig config = IOReactorConfig.custom()
+        return IOReactorConfig.custom()
             .setSelectInterval(NIOReactorParams.getSelectInterval(params))
             .setShutdownGracePeriod(NIOReactorParams.getGracePeriod(params))
             .setInterestOpQueued(NIOReactorParams.getInterestOpsQueueing(params))
@@ -183,8 +183,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             .setConnectTimeout(HttpConnectionParams.getConnectionTimeout(params))
             .setSoReuseAddress(HttpConnectionParams.getSoReuseaddr(params))
             .build();
-
-        return config;
     }
 
     /**
@@ -338,7 +336,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             }
 
             for (;;) {
-                int readyCount;
+                final int readyCount;
                 try {
                     readyCount = this.selector.select(this.selectTimeout);
                 } catch (final InterruptedIOException ex) {

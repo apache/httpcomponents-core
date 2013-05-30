@@ -150,7 +150,7 @@ public class SSLNHttpClientConnectionFactory
     }
 
     private SSLContext getDefaultSSLContext() {
-        SSLContext sslcontext;
+        final SSLContext sslcontext;
         try {
             sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(null, null, null);

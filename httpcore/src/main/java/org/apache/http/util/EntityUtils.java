@@ -65,7 +65,7 @@ public final class EntityUtils {
     public static void consumeQuietly(final HttpEntity entity) {
         try {
           consume(entity);
-        } catch (final IOException ioex) {
+        } catch (final IOException ignore) {
         }
     }
 

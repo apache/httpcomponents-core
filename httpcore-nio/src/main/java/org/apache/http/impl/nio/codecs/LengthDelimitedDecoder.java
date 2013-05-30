@@ -77,7 +77,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         }
         final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
-        int bytesRead;
+        final int bytesRead;
         if (this.buffer.hasData()) {
             final int maxLen = Math.min(chunk, this.buffer.length());
             bytesRead = this.buffer.read(dst, maxLen);
@@ -117,7 +117,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
 
         final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
 
-        long bytesRead;
+        final long bytesRead;
         if (this.buffer.hasData()) {
             final int maxLen = Math.min(chunk, this.buffer.length());
             dst.position(position);

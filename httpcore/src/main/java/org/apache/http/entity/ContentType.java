@@ -281,7 +281,7 @@ public final class ContentType implements Serializable {
     /**
      * Creates a new instance with this MIME type and the given Charset.
      *
-     * @param charset
+     * @param charset charset
      * @return a new instance with this MIME type and the given Charset.
      * @since 4.3
      */

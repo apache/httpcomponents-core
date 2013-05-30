@@ -26,6 +26,8 @@
  */
 package org.apache.http.concurrent;
 
+import org.apache.http.util.Args;
+
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -77,6 +79,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
 
     public synchronized T get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
+        Args.notNull(unit, "Time unit");
         final long msecs = unit.toMillis(timeout);
         final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
         long waitTime = msecs;

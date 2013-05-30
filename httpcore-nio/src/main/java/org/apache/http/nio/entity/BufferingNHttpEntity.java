@@ -84,10 +84,6 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
         this.finished = true;
     }
 
-    @Override
-    public void consumeContent() throws IOException {
-    }
-
     /**
      * Obtains entity's content as {@link InputStream}.
      *

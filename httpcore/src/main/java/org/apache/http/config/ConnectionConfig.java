@@ -181,7 +181,7 @@ public class ConnectionConfig implements Cloneable {
             return new ConnectionConfig(
                     bufSize,
                     fragmentHintSize,
-                    charset,
+                    cs,
                     malformedInputAction,
                     unmappableInputAction,
                     messageConstraints);

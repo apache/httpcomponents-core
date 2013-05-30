@@ -125,8 +125,6 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
 
     /**
      * Ensures the buffer can accommodate the required capacity.
-     *
-     * @param requiredCapacity
      */
     protected void ensureCapacity(final int requiredCapacity) {
         if (requiredCapacity > this.buffer.capacity()) {

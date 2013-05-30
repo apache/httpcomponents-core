@@ -92,8 +92,7 @@ public class HttpClient {
     }
 
     public DefaultBHttpClientConnection createConnection() {
-        final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(8 * 1024);
-        return conn;
+        return new LoggingBHttpClientConnection(8 * 1024);
     }
 
     public void connect(final HttpHost host, final DefaultBHttpClientConnection conn) throws IOException {

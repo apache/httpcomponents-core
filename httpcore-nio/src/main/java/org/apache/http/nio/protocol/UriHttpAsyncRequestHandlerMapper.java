@@ -63,7 +63,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
     }
 
     /**
-     * Registers the given {@link NHttpRequestHandler} as a handler for URIs
+     * Registers the given {@link HttpAsyncRequestHandler} as a handler for URIs
      * matching the given pattern.
      *
      * @param pattern the pattern to register the handler for.

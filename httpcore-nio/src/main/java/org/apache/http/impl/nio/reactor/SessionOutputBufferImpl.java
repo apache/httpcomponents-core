@@ -164,8 +164,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     public int flush(final WritableByteChannel channel) throws IOException {
         Args.notNull(channel, "Channel");
         setOutputMode();
-        final int noWritten = channel.write(this.buffer);
-        return noWritten;
+        return channel.write(this.buffer);
     }
 
     public void write(final ByteBuffer src) {

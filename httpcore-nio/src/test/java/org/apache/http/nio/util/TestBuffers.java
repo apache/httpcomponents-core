@@ -111,16 +111,15 @@ public class TestBuffers {
     @Test
     public void testBufferInfo() throws Exception {
         final SimpleOutputBuffer buffer = new SimpleOutputBuffer(8, DirectByteBufferAllocator.INSTANCE);
-        final BufferInfo bufferinfo = buffer;
 
-        Assert.assertEquals(0, bufferinfo.length());
-        Assert.assertEquals(8, bufferinfo.available());
+        Assert.assertEquals(0, buffer.length());
+        Assert.assertEquals(8, buffer.available());
         buffer.write(new byte[] {'1', '2', '3', '4'});
-        Assert.assertEquals(4, bufferinfo.length());
-        Assert.assertEquals(4, bufferinfo.available());
+        Assert.assertEquals(4, buffer.length());
+        Assert.assertEquals(4, buffer.available());
         buffer.write(new byte[] {'1', '2', '3', '4', '5', '6', '7', '8'});
-        Assert.assertEquals(12, bufferinfo.length());
-        Assert.assertEquals(0, bufferinfo.available());
+        Assert.assertEquals(12, buffer.length());
+        Assert.assertEquals(0, buffer.available());
     }
 
     @Test

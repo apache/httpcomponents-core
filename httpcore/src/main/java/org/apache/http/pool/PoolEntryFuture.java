@@ -37,6 +37,7 @@ import java.util.concurrent.locks.Lock;
 
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.concurrent.FutureCallback;
+import org.apache.http.util.Args;
 
 @ThreadSafe
 abstract class PoolEntryFuture<T> implements Future<T> {
@@ -92,6 +93,7 @@ abstract class PoolEntryFuture<T> implements Future<T> {
     public T get(
             final long timeout,
             final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        Args.notNull(unit, "Time unit");
         this.lock.lock();
         try {
             if (this.completed) {
@@ -124,7 +126,7 @@ abstract class PoolEntryFuture<T> implements Future<T> {
             if (this.cancelled) {
                 throw new InterruptedException("Operation interrupted");
             }
-            boolean success = false;
+            final boolean success;
             if (deadline != null) {
                 success = this.condition.awaitUntil(deadline);
             } else {

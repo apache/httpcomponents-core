@@ -174,8 +174,6 @@ public interface IOSession {
      * <p>
      * I/O sessions can be made aware of the status of external session buffers
      * using the {@link SessionBufferStatus} interface.
-     *
-     * @param status
      */
     void setBufferStatus(SessionBufferStatus status);
 

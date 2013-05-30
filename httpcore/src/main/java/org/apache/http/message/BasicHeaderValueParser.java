@@ -81,7 +81,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      *
      * @return  array holding the header elements, never <code>null</code>
      */
-    public final static
+    public static
         HeaderElement[] parseElements(final String value,
                                       HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
@@ -120,7 +120,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      *
      * @return  the parsed header element
      */
-    public final static
+    public static
         HeaderElement parseHeaderElement(final String value,
                                          HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
@@ -174,7 +174,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      *
      * @return  array holding the parameters, never <code>null</code>
      */
-    public final static
+    public static
         NameValuePair[] parseParameters(final String value,
                                         HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
@@ -232,7 +232,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      *
      * @return  the parsed name-value pair
      */
-    public final static
+    public static
        NameValuePair parseNameValuePair(final String value,
                                         HeaderValueParser parser) throws ParseException {
         Args.notNull(value, "Value");
@@ -277,7 +277,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         final int indexTo = cursor.getUpperBound();
 
         // Find name
-        String name = null;
+        final String name;
         while (pos < indexTo) {
             final char ch = buffer.charAt(pos);
             if (ch == '=') {
@@ -304,7 +304,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         }
 
         // Find value
-        String value = null;
+        final String value;
         int i1 = pos;
 
         boolean qouted = false;

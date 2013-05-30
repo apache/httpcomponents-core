@@ -69,7 +69,7 @@ public final class ExceptionUtils {
     public static void initCause(final Throwable throwable, final Throwable cause) {
         if (INIT_CAUSE_METHOD != null) {
             try {
-                INIT_CAUSE_METHOD.invoke(throwable, new Object[] { cause });
+                INIT_CAUSE_METHOD.invoke(throwable, cause);
             } catch (final Exception e) {
                 // Well, with no logging, the only option is to munch the exception
             }

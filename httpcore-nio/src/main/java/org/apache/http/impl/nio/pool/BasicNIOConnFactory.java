@@ -147,7 +147,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
     }
 
     public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {
-        NHttpClientConnection conn;
+        final NHttpClientConnection conn;
         if (route.getSchemeName().equalsIgnoreCase("https")) {
             if (this.sslFactory == null) {
                 throw new IOException("SSL not supported");

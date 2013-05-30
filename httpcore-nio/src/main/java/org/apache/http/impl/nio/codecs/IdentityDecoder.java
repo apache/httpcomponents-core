@@ -78,7 +78,7 @@ public class IdentityDecoder extends AbstractContentDecoder
             return -1;
         }
 
-        int bytesRead;
+        final int bytesRead;
         if (this.buffer.hasData()) {
             bytesRead = this.buffer.read(dst);
         } else {

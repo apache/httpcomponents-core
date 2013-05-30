@@ -165,7 +165,7 @@ public class NFileEntity extends AbstractHttpEntity
             idx = 0;
         }
 
-        long transferred;
+        final long transferred;
         if (useFileChannels && encoder instanceof FileContentEncoder) {
             transferred = ((FileContentEncoder)encoder)
                 .transfer(fileChannel, idx, Long.MAX_VALUE);

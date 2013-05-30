@@ -200,7 +200,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     private ListenerEndpointImpl createEndpoint(final SocketAddress address) {
-        final ListenerEndpointImpl endpoint = new ListenerEndpointImpl(
+        return new ListenerEndpointImpl(
                 address,
                 new ListenerEndpointClosedCallback() {
 
@@ -209,7 +209,6 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                     }
 
                 });
-        return endpoint;
     }
 
     public ListenerEndpoint listen(final SocketAddress address) {
@@ -225,7 +224,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         ListenerEndpointImpl request;
         while ((request = this.requestQueue.poll()) != null) {
             final SocketAddress address = request.getAddress();
-            ServerSocketChannel serverChannel;
+            final ServerSocketChannel serverChannel;
             try {
                 serverChannel = ServerSocketChannel.open();
             } catch (final IOException ex) {
@@ -283,9 +282,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
         this.paused = true;
         synchronized (this.endpoints) {
-            final Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
-            while (it.hasNext()) {
-                final ListenerEndpoint endpoint = it.next();
+            for (final ListenerEndpointImpl endpoint : this.endpoints) {
                 if (!endpoint.isClosed()) {
                     endpoint.close();
                     this.pausedEndpoints.add(endpoint.getAddress());

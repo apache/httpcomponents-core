@@ -176,13 +176,12 @@ public final class BasicHttpProcessor implements
         Args.notNull(list, "Inteceptor list");
         this.requestInterceptors.clear();
         this.responseInterceptors.clear();
-        for (int i = 0; i < list.size(); i++) {
-            final Object obj = list.get(i);
+        for (final Object obj : list) {
             if (obj instanceof HttpRequestInterceptor) {
-                addInterceptor((HttpRequestInterceptor)obj);
+                addInterceptor((HttpRequestInterceptor) obj);
             }
             if (obj instanceof HttpResponseInterceptor) {
-                addInterceptor((HttpResponseInterceptor)obj);
+                addInterceptor((HttpResponseInterceptor) obj);
             }
         }
     }
@@ -199,9 +198,7 @@ public final class BasicHttpProcessor implements
             final HttpRequest request,
             final HttpContext context)
             throws IOException, HttpException {
-        for (int i = 0; i < this.requestInterceptors.size(); i++) {
-            final HttpRequestInterceptor interceptor =
-                this.requestInterceptors.get(i);
+        for (final HttpRequestInterceptor interceptor : this.requestInterceptors) {
             interceptor.process(request, context);
         }
     }
@@ -210,9 +207,7 @@ public final class BasicHttpProcessor implements
             final HttpResponse response,
             final HttpContext context)
             throws IOException, HttpException {
-        for (int i = 0; i < this.responseInterceptors.size(); i++) {
-            final HttpResponseInterceptor interceptor =
-                this.responseInterceptors.get(i);
+        for (final HttpResponseInterceptor interceptor : this.responseInterceptors) {
             interceptor.process(response, context);
         }
     }

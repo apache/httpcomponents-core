@@ -227,8 +227,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
             }
         }
         if (this.state == COMPLETED) {
-            for (int i = 0; i < this.headerBufs.size(); i++) {
-                final CharArrayBuffer buffer = this.headerBufs.get(i);
+            for (final CharArrayBuffer buffer : this.headerBufs) {
                 try {
                     this.message.addHeader(lineParser.parseHeader(buffer));
                 } catch (final ParseException ex) {

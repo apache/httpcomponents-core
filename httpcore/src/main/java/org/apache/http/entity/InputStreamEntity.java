@@ -50,7 +50,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
      * Creates an entity with an unknown length.
      * Equivalent to {@code new InputStreamEntity(instream, -1)}.
      *
-     * @param instream
+     * @param instream input stream
      * @throws IllegalArgumentException if {@code instream} is {@code null}
      * @since 4.3
      */
@@ -61,7 +61,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     /**
      * Creates an entity with a specified content length.
      *
-     * @param instream
+     * @param instream input stream
      * @param length of the input stream, {@code -1} if unknown
      * @throws IllegalArgumentException if {@code instream} is {@code null}
      */
@@ -73,8 +73,8 @@ public class InputStreamEntity extends AbstractHttpEntity {
      * Creates an entity with a content type and unknown length.
      * Equivalent to {@code new InputStreamEntity(instream, -1, contentType)}.
      *
-     * @param instream
-     * @param contentType
+     * @param instream input stream
+     * @param contentType content type
      * @throws IllegalArgumentException if {@code instream} is {@code null}
      * @since 4.3
      */
@@ -83,7 +83,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     }
 
     /**
-     * @param instream
+     * @param instream input stream
      * @param length of the input stream, {@code -1} if unknown
      * @param contentType for specifying the {@code Content-Type} header, may be {@code null}
      * @throws IllegalArgumentException if {@code instream} is {@code null}
@@ -150,18 +150,6 @@ public class InputStreamEntity extends AbstractHttpEntity {
 
     public boolean isStreaming() {
         return true;
-    }
-
-    /**
-     * @deprecated (4.1) Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
-     * otherwise call {@link #writeTo(OutputStream)} which is required to free the resources.
-     */
-    @Deprecated
-    @Override
-    public void consumeContent() throws IOException {
-        // If the input stream is from a connection, closing it will read to
-        // the end of the content. Otherwise, we don't care what it does.
-        this.content.close();
     }
 
 }

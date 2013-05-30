@@ -60,7 +60,7 @@ import org.apache.http.util.Args;
 @ThreadSafe
 public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
 
-    private static AtomicLong COUNTER = new AtomicLong();
+    private static final AtomicLong COUNTER = new AtomicLong();
 
     private final int connectTimeout;
 

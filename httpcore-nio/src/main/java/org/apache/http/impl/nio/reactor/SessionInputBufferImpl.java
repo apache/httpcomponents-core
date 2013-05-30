@@ -161,8 +161,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         if (!this.buffer.hasRemaining()) {
             expand();
         }
-        final int readNo = channel.read(this.buffer);
-        return readNo;
+        return channel.read(this.buffer);
     }
 
     public int read() {
@@ -202,7 +201,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             return 0;
         }
         setOutputMode();
-        int bytesRead;
+        final int bytesRead;
         if (this.buffer.remaining() > maxLen) {
             final int oldLimit = this.buffer.limit();
             final int newLimit = oldLimit - (this.buffer.remaining() - maxLen);

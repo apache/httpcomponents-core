@@ -85,7 +85,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  the formatted header elements
      */
-    public final static
+    public static
         String formatElements(final HeaderElement[] elems,
                               final boolean quote,
                               HeaderValueFormatter formatter) {
@@ -152,7 +152,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  the formatted header element
      */
-    public final static
+    public static
         String formatHeaderElement(final HeaderElement elem,
                                    final boolean quote,
                                    HeaderValueFormatter formatter) {
@@ -238,7 +238,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  the formatted parameters
      */
-    public final static
+    public static
         String formatParameters(final NameValuePair[] nvps,
                                 final boolean quote,
                                 HeaderValueFormatter formatter) {
@@ -304,7 +304,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @return  the formatted name-value pair
      */
-    public final static
+    public static
         String formatNameValuePair(final NameValuePair nvp,
                                    final boolean quote,
                                    HeaderValueFormatter formatter) {

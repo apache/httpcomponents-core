@@ -144,7 +144,7 @@ public class TestDefaultNHttpServerConnection {
             conn.submitResponse(response);
             return null;
         }
-    };
+    }
 
     static class ProduceContentAnswer implements Answer<Void> {
 
@@ -162,7 +162,7 @@ public class TestDefaultNHttpServerConnection {
             contentProducer.produceContent(encoder, ioctrl);
             return null;
         }
-    };
+    }
 
     @Test
     public void testProduceOutputShortMessageAfterSubmit() throws Exception {
@@ -450,7 +450,7 @@ public class TestDefaultNHttpServerConnection {
             return null;
         }
 
-    };
+    }
 
     @Test
     public void testConsumeInputShortMessage() throws Exception {

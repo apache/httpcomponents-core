@@ -85,7 +85,7 @@
           <source>${maven.compile.source}</source>
           <target>${maven.compile.target}</target>
           <optimize>${maven.compile.optimize}</optimize>
-          <showDeprecations>${maven.compile.deprecation}</showDeprecations>
+          <showDeprecation>${maven.compile.deprecation}</showDeprecation>
           <fork>${httpcore.compiler.fork}</fork>
           <compilerVersion>${httpcore.compiler.compilerVersion}</compilerVersion>
           <executable>${httpcore.compiler.javac}</executable>

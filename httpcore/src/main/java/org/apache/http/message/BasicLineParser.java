@@ -102,7 +102,7 @@ public class BasicLineParser implements LineParser {
     }
 
 
-    public final static
+    public static
         ProtocolVersion parseProtocolVersion(final String value,
                                              LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
@@ -161,7 +161,7 @@ public class BasicLineParser implements LineParser {
                 ("Invalid protocol version number: " +
                  buffer.substring(indexFrom, indexTo));
         }
-        int major;
+        final int major;
         try {
             major = Integer.parseInt(buffer.substringTrimmed(i, period));
         } catch (final NumberFormatException e) {
@@ -175,7 +175,7 @@ public class BasicLineParser implements LineParser {
         if (blank == -1) {
             blank = indexTo;
         }
-        int minor;
+        final int minor;
         try {
             minor = Integer.parseInt(buffer.substringTrimmed(i, blank));
         } catch (final NumberFormatException e) {
@@ -253,7 +253,7 @@ public class BasicLineParser implements LineParser {
 
 
 
-    public final static
+    public static
         RequestLine parseRequestLine(final String value,
                                      LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
@@ -342,7 +342,7 @@ public class BasicLineParser implements LineParser {
 
 
 
-    public final static
+    public static
         StatusLine parseStatusLine(final String value,
                                    LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
@@ -377,7 +377,7 @@ public class BasicLineParser implements LineParser {
             if (blank < 0) {
                 blank = indexTo;
             }
-            int statusCode = 0;
+            final int statusCode;
             final String s = buffer.substringTrimmed(i, blank);
             for (int j = 0; j < s.length(); j++) {
                 if (!Character.isDigit(s.charAt(j))) {
@@ -395,7 +395,7 @@ public class BasicLineParser implements LineParser {
             }
             //handle the Reason-Phrase
             i = blank;
-            String reasonPhrase = null;
+            final String reasonPhrase;
             if (i < indexTo) {
                 reasonPhrase = buffer.substringTrimmed(i, indexTo);
             } else {
@@ -428,7 +428,7 @@ public class BasicLineParser implements LineParser {
 
 
 
-    public final static
+    public static
         Header parseHeader(final String value,
                            LineParser parser) throws ParseException {
         Args.notNull(value, "Value");

@@ -66,7 +66,7 @@ class NullRequestConsumer implements HttpAsyncRequestConsumer<Object> {
     }
 
     public Object getResult() {
-        return Boolean.valueOf(this.completed);
+        return this.completed;
     }
 
     public Exception getException() {

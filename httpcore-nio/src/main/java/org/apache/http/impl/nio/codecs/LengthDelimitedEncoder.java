@@ -128,8 +128,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             if (!this.buffer.hasData()) {
                 final int chunk = nextChunk(src);
                 if (chunk > this.fragHint) {
-                    final int limit = chunk;
-                    final int bytesWritten = writeToChannel(src, limit);
+                    final int bytesWritten = writeToChannel(src, chunk);
                     this.remaining -= bytesWritten;
                     total += bytesWritten;
                     if (bytesWritten == 0) {

@@ -154,7 +154,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
             this.bufferpos = 0;
             this.bufferlen = len;
         }
-        int l;
+        final int l;
         final int off = this.bufferlen;
         final int len = this.buffer.length - off;
         l = this.instream.read(this.buffer, off, len);
@@ -172,7 +172,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     }
 
     public int read() throws IOException {
-        int noRead = 0;
+        int noRead;
         while (!hasBufferedData()) {
             noRead = fillBuffer();
             if (noRead == -1) {

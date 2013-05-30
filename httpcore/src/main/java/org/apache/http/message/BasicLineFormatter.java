@@ -96,7 +96,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @return  the formatted protocol version
      */
-    public final static
+    public static
         String formatProtocolVersion(final ProtocolVersion version,
                                      LineFormatter formatter) {
         if (formatter == null) {
@@ -153,7 +153,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @return  the formatted request line
      */
-    public final static String formatRequestLine(final RequestLine reqline,
+    public static String formatRequestLine(final RequestLine reqline,
                                                  LineFormatter formatter) {
         if (formatter == null) {
             formatter = BasicLineFormatter.INSTANCE;
@@ -210,7 +210,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @return  the formatted status line
      */
-    public final static String formatStatusLine(final StatusLine statline,
+    public static String formatStatusLine(final StatusLine statline,
                                                 LineFormatter formatter) {
         if (formatter == null) {
             formatter = BasicLineFormatter.INSTANCE;
@@ -269,7 +269,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @return  the formatted header
      */
-    public final static String formatHeader(final Header header,
+    public static String formatHeader(final Header header,
                                             LineFormatter formatter) {
         if (formatter == null) {
             formatter = BasicLineFormatter.INSTANCE;
@@ -282,7 +282,7 @@ public class BasicLineFormatter implements LineFormatter {
     public CharArrayBuffer formatHeader(final CharArrayBuffer buffer,
                                         final Header header) {
         Args.notNull(header, "Header");
-        CharArrayBuffer result = null;
+        final CharArrayBuffer result;
 
         if (header instanceof FormattedHeader) {
             // If the header is backed by a buffer, re-use the buffer
