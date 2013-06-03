@@ -111,7 +111,7 @@ public class HttpCoreContext implements HttpContext {
         return context.removeAttribute(id);
     }
 
-    protected <T> T getAttribute(final String attribname, final Class<T> clazz) {
+    public <T> T getAttribute(final String attribname, final Class<T> clazz) {
         Args.notNull(clazz, "Attribute class");
         final Object obj = getAttribute(attribname);
         if (obj == null) {
