@@ -73,6 +73,10 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
         return this.future;
     }
 
+    public boolean isDone() {
+        return this.future.isDone();
+    }
+
     @Override
     public String toString() {
         StringBuilder buffer = new StringBuilder();

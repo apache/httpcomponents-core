@@ -187,7 +187,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
             BasicFuture<E> future = new BasicFuture<E>(callback);
             LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, future);
-            if (!processPendingRequest(request)) {
+            boolean completed = processPendingRequest(request);
+            if (!request.isDone() && !completed) {
                 this.leasingRequests.add(request);
             }
             return future;
@@ -232,7 +233,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             LeaseRequest<T, C, E> request = it.next();
-            if (processPendingRequest(request)) {
+            processPendingRequest(request);
+            if (request.isDone()) {
                 it.remove();
             }
         }
@@ -242,8 +244,11 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             LeaseRequest<T, C, E> request = it.next();
-            if (processPendingRequest(request)) {
+            boolean completed = processPendingRequest(request);
+            if (request.isDone() || completed) {
                 it.remove();
+            }
+            if (completed) {
                 return;
             }
         }
@@ -258,7 +263,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         long now = System.currentTimeMillis();
         if (now > deadline) {
             future.failed(new TimeoutException());
-            return true;
+            return false;
         }
 
         RouteSpecificPool<T, C, E> pool = getPool(route);
