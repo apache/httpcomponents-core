@@ -244,7 +244,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             final long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
             final BasicFuture<E> future = new BasicFuture<E>(callback);
             final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, leaseTimeout, future);
-            if (!processPendingRequest(request)) {
+            final boolean completed = processPendingRequest(request);
+            if (!request.isDone() && !completed) {
                 this.leasingRequests.add(request);
             }
             return future;
@@ -289,7 +290,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             final LeaseRequest<T, C, E> request = it.next();
-            if (processPendingRequest(request)) {
+            processPendingRequest(request);
+            if (request.isDone()) {
                 it.remove();
             }
         }
@@ -299,8 +301,11 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             final LeaseRequest<T, C, E> request = it.next();
-            if (processPendingRequest(request)) {
+            final boolean completed = processPendingRequest(request);
+            if (request.isDone() || completed) {
                 it.remove();
+            }
+            if (completed) {
                 return;
             }
         }
@@ -315,7 +320,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final long now = System.currentTimeMillis();
         if (now > deadline) {
             future.failed(new TimeoutException());
-            return true;
+            return false;
         }
 
         final RouteSpecificPool<T, C, E> pool = getPool(route);
@@ -379,7 +384,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 localAddress = this.addressResolver.resolveLocalAddress(route);
             } catch (final IOException ex) {
                 future.failed(ex);
-                return true;
+                return false;
             }
 
             final SessionRequest sessionRequest = this.ioreactor.connect(
