@@ -50,18 +50,24 @@ public class TestNIOConnPool {
 
     static class LocalPoolEntry extends PoolEntry<String, IOSession> {
 
+        private boolean closed;
+
         public LocalPoolEntry(final String route, final IOSession conn) {
             super(null, route, conn);
         }
 
         @Override
         public void close() {
+            if (this.closed) {
+                return;
+            }
+            this.closed = true;
             getConnection().close();
         }
 
         @Override
         public boolean isClosed() {
-            return getConnection().isClosed();
+            return this.closed;
         }
 
     }

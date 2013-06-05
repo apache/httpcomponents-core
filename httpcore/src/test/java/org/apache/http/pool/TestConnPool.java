@@ -46,12 +46,18 @@ public class TestConnPool {
 
     static class LocalPoolEntry extends PoolEntry<String, HttpConnection> {
 
+        private boolean closed;
+
         public LocalPoolEntry(final String route, final HttpConnection conn) {
             super(null, route, conn);
         }
 
         @Override
         public void close() {
+            if (this.closed) {
+                return;
+            }
+            this.closed = true;
             try {
                 getConnection().close();
             } catch (final IOException ignore) {
@@ -60,7 +66,7 @@ public class TestConnPool {
 
         @Override
         public boolean isClosed() {
-            return !getConnection().isOpen();
+            return this.closed;
         }
 
     }

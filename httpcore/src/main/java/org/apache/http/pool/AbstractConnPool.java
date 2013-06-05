@@ -413,6 +413,46 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     /**
+     * Enumerates all available connections.
+     *
+     * @since 4.3
+     */
+    protected void enumAvailable(final PoolEntryCallback<T, C> callback) {
+        this.lock.lock();
+        try {
+            enumEntries(this.available.iterator(), callback);
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    /**
+     * Enumerates all leased connections.
+     *
+     * @since 4.3
+     */
+    protected void enumLeased(final PoolEntryCallback<T, C> callback) {
+        this.lock.lock();
+        try {
+            enumEntries(this.leased.iterator(), callback);
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    private void enumEntries(final Iterator<E> it, final PoolEntryCallback<T, C> callback) {
+        while (it.hasNext()) {
+            final E entry = it.next();
+            callback.process(entry);
+            if (entry.isClosed()) {
+                final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
+                pool.remove(entry);
+                it.remove();
+            }
+        }
+    }
+
+    /**
      * Closes connections that have been idle longer than the given period
      * of time and evicts them from the pool.
      *
@@ -426,22 +466,16 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             time = 0;
         }
         final long deadline = System.currentTimeMillis() - time;
-        this.lock.lock();
-        try {
-            final Iterator<E> it = this.available.iterator();
-            while (it.hasNext()) {
-                final E entry = it.next();
+        enumAvailable(new PoolEntryCallback<T, C>() {
+
+            @Override
+            public void process(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
                     entry.close();
-                    final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
-                    pool.remove(entry);
-                    it.remove();
-                    notifyPending(pool);
                 }
             }
-        } finally {
-            this.lock.unlock();
-        }
+
+        });
     }
 
     /**
@@ -449,22 +483,16 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      */
     public void closeExpired() {
         final long now = System.currentTimeMillis();
-        this.lock.lock();
-        try {
-            final Iterator<E> it = this.available.iterator();
-            while (it.hasNext()) {
-                final E entry = it.next();
+        enumAvailable(new PoolEntryCallback<T, C>() {
+
+            @Override
+            public void process(final PoolEntry<T, C> entry) {
                 if (entry.isExpired(now)) {
                     entry.close();
-                    final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
-                    pool.remove(entry);
-                    it.remove();
-                    notifyPending(pool);
                 }
             }
-        } finally {
-            this.lock.unlock();
-        }
+
+        });
     }
 
     @Override

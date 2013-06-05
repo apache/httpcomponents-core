@@ -51,6 +51,7 @@ import org.apache.http.nio.reactor.SessionRequestCallback;
 import org.apache.http.pool.ConnPool;
 import org.apache.http.pool.ConnPoolControl;
 import org.apache.http.pool.PoolEntry;
+import org.apache.http.pool.PoolEntryCallback;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -595,6 +596,47 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    /**
+     * Enumerates all available connections.
+     *
+     * @since 4.3
+     */
+    protected void enumAvailable(final PoolEntryCallback<T, C> callback) {
+        this.lock.lock();
+        try {
+            enumEntries(this.available.iterator(), callback);
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    /**
+     * Enumerates all leased connections.
+     *
+     * @since 4.3
+     */
+    protected void enumLeased(final PoolEntryCallback<T, C> callback) {
+        this.lock.lock();
+        try {
+            enumEntries(this.leased.iterator(), callback);
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    protected void enumEntries(final Iterator<E> it, final PoolEntryCallback<T, C> callback) {
+        while (it.hasNext()) {
+            final E entry = it.next();
+            callback.process(entry);
+            if (entry.isClosed()) {
+                final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
+                pool.remove(entry);
+                it.remove();
+            }
+        }
+        processPendingRequests();
+    }
+
     public void closeIdle(final long idletime, final TimeUnit tunit) {
         Args.notNull(tunit, "Time unit");
         long time = tunit.toMillis(idletime);
@@ -602,42 +644,30 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             time = 0;
         }
         final long deadline = System.currentTimeMillis() - time;
-        this.lock.lock();
-        try {
-            final Iterator<E> it = this.available.iterator();
-            while (it.hasNext()) {
-                final E entry = it.next();
+        enumAvailable(new PoolEntryCallback<T, C>() {
+
+            @Override
+            public void process(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
                     entry.close();
-                    final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
-                    pool.remove(entry);
-                    it.remove();
                 }
             }
-            processPendingRequests();
-        } finally {
-            this.lock.unlock();
-        }
+
+        });
     }
 
     public void closeExpired() {
         final long now = System.currentTimeMillis();
-        this.lock.lock();
-        try {
-            final Iterator<E> it = this.available.iterator();
-            while (it.hasNext()) {
-                final E entry = it.next();
+        enumAvailable(new PoolEntryCallback<T, C>() {
+
+            @Override
+            public void process(final PoolEntry<T, C> entry) {
                 if (entry.isExpired(now)) {
                     entry.close();
-                    final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
-                    pool.remove(entry);
-                    it.remove();
                 }
             }
-            processPendingRequests();
-        } finally {
-            this.lock.unlock();
-        }
+
+        });
     }
 
     @Override
