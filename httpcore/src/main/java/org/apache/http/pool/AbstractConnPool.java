@@ -468,7 +468,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         final long deadline = System.currentTimeMillis() - time;
         enumAvailable(new PoolEntryCallback<T, C>() {
 
-            @Override
             public void process(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
                     entry.close();
@@ -485,7 +484,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         final long now = System.currentTimeMillis();
         enumAvailable(new PoolEntryCallback<T, C>() {
 
-            @Override
             public void process(final PoolEntry<T, C> entry) {
                 if (entry.isExpired(now)) {
                     entry.close();
