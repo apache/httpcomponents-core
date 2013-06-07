@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetAddress;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -60,21 +61,28 @@ public class TestHttpHost {
         Assert.assertEquals(443, host4.getPort());
         Assert.assertEquals("https", host4.getSchemeName());
         try {
-            new HttpHost(null, -1, null);
+            new HttpHost((String) null, -1, null);
             Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            //expected
+        } catch (final IllegalArgumentException expected) {
+        }
+        try {
+            new HttpHost((InetAddress) null, -1, null);
+            Assert.fail("IllegalArgumentException should have been thrown");
+        } catch (final IllegalArgumentException expected) {
         }
     }
 
     @Test
-    public void testHashCode() {
+    public void testHashCode() throws Exception {
         final HttpHost host1 = new HttpHost("somehost", 8080, "http");
         final HttpHost host2 = new HttpHost("somehost", 80, "http");
         final HttpHost host3 = new HttpHost("someotherhost", 8080, "http");
         final HttpHost host4 = new HttpHost("somehost", 80, "http");
         final HttpHost host5 = new HttpHost("SomeHost", 80, "http");
         final HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
+        final HttpHost host7 = new HttpHost(
+                InetAddress.getByAddress(new byte[] {127,0,0,1}), 80, "http");
+        final HttpHost host8 = new HttpHost("127.0.0.1", 80, "http");
 
         Assert.assertTrue(host1.hashCode() == host1.hashCode());
         Assert.assertTrue(host1.hashCode() != host2.hashCode());
@@ -82,16 +90,20 @@ public class TestHttpHost {
         Assert.assertTrue(host2.hashCode() == host4.hashCode());
         Assert.assertTrue(host2.hashCode() == host5.hashCode());
         Assert.assertTrue(host5.hashCode() != host6.hashCode());
+        Assert.assertTrue(host7.hashCode() == host8.hashCode());
     }
 
     @Test
-    public void testEquals() {
+    public void testEquals() throws Exception {
         final HttpHost host1 = new HttpHost("somehost", 8080, "http");
         final HttpHost host2 = new HttpHost("somehost", 80, "http");
         final HttpHost host3 = new HttpHost("someotherhost", 8080, "http");
         final HttpHost host4 = new HttpHost("somehost", 80, "http");
         final HttpHost host5 = new HttpHost("SomeHost", 80, "http");
         final HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
+        final HttpHost host7 = new HttpHost(
+                InetAddress.getByAddress(new byte[] {127,0,0,1}), 80, "http");
+        final HttpHost host8 = new HttpHost("127.0.0.1", 80, "http");
 
         Assert.assertTrue(host1.equals(host1));
         Assert.assertFalse(host1.equals(host2));
@@ -99,12 +111,13 @@ public class TestHttpHost {
         Assert.assertTrue(host2.equals(host4));
         Assert.assertTrue(host2.equals(host5));
         Assert.assertFalse(host5.equals(host6));
+        Assert.assertTrue(host7.equals(host8));
         Assert.assertFalse(host1.equals(null));
         Assert.assertFalse(host1.equals("http://somehost"));
     }
 
     @Test
-    public void testToString() {
+    public void testToString() throws Exception {
         final HttpHost host1 = new HttpHost("somehost");
         Assert.assertEquals("http://somehost", host1.toString());
         final HttpHost host2 = new HttpHost("somehost", -1);
@@ -117,6 +130,9 @@ public class TestHttpHost {
         Assert.assertEquals("myhttp://somehost", host5.toString());
         final HttpHost host6 = new HttpHost("somehost", 80, "myhttp");
         Assert.assertEquals("myhttp://somehost:80", host6.toString());
+        final HttpHost host7 = new HttpHost(
+                InetAddress.getByAddress(new byte[] {127,0,0,1}), 80, "http");
+        Assert.assertEquals("http://127.0.0.1:80", host7.toString());
     }
 
     @Test

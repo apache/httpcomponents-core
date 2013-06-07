@@ -28,6 +28,7 @@
 package org.apache.http;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.Locale;
 
 import org.apache.http.annotation.Immutable;
@@ -62,6 +63,7 @@ public final class HttpHost implements Cloneable, Serializable {
     /** The scheme (lowercased) */
     protected final String schemeName;
 
+    protected final InetAddress address;
 
     /**
      * Creates a new {@link HttpHost HttpHost}, specifying all values.
@@ -84,6 +86,7 @@ public final class HttpHost implements Cloneable, Serializable {
             this.schemeName = DEFAULT_SCHEME_NAME;
         }
         this.port = port;
+        this.address = null;
     }
 
     /**
@@ -107,12 +110,68 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
+     * Creates a new {@link HttpHost HttpHost}, specifying all values.
+     * Constructor for HttpHost.
+     *
+     * @param address   the inet address.
+     * @param port      the port number.
+     *                  <code>-1</code> indicates the scheme default port.
+     * @param scheme    the name of the scheme.
+     *                  <code>null</code> indicates the
+     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *
+     * @since 4.3
+     */
+    public HttpHost(final InetAddress address, final int port, final String scheme) {
+        super();
+        this.address = Args.notNull(address, "Inet address");
+        this.hostname = address.getHostAddress();
+        this.lcHostname = this.hostname.toLowerCase(Locale.ENGLISH);
+        if (scheme != null) {
+            this.schemeName = scheme.toLowerCase(Locale.ENGLISH);
+        } else {
+            this.schemeName = DEFAULT_SCHEME_NAME;
+        }
+        this.port = port;
+    }
+
+    /**
+     * Creates a new {@link HttpHost HttpHost}, with default scheme.
+     *
+     * @param address   the inet address.
+     * @param port      the port number.
+     *                  <code>-1</code> indicates the scheme default port.
+     *
+     * @since 4.3
+     */
+    public HttpHost(final InetAddress address, final int port) {
+        this(address, port, null);
+    }
+
+    /**
+     * Creates a new {@link HttpHost HttpHost}, with default scheme and port.
+     *
+     * @param address   the inet address.
+     *
+     * @since 4.3
+     */
+    public HttpHost(final InetAddress address) {
+        this(address, -1, null);
+    }
+
+    /**
      * Copy constructor for {@link HttpHost HttpHost}.
      *
      * @param httphost the HTTP host to copy details from
      */
     public HttpHost (final HttpHost httphost) {
-        this(httphost.hostname, httphost.port, httphost.schemeName);
+        super();
+        Args.notNull(httphost, "HTTP host");
+        this.hostname   = httphost.hostname;
+        this.lcHostname = httphost.lcHostname;
+        this.schemeName = httphost.schemeName;
+        this.port = httphost.port;
+        this.address = httphost.address;
     }
 
     /**
@@ -140,6 +199,17 @@ public final class HttpHost implements Cloneable, Serializable {
      */
     public String getSchemeName() {
         return this.schemeName;
+    }
+
+    /**
+     * Returns the inet address if explicitly set by a constructor,
+     *   <code>null</code> otherwise.
+     * @return the inet address
+     *
+     * @since 4.3
+     */
+    public InetAddress getAddress() {
+        return this.address;
     }
 
     /**
