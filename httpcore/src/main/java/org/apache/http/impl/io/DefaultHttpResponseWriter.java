@@ -32,7 +32,6 @@ import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
 
 /**
@@ -47,7 +46,8 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpRespons
      * Creates an instance of DefaultHttpResponseWriter.
      *
      * @param buffer the session output buffer.
-     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
+     * @param formatter the line formatter If <code>null</code>
+     *  {@link org.apache.http.message.BasicLineFormatter#INSTANCE}
      *   will be used.
      */
     public DefaultHttpResponseWriter(

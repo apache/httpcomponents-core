@@ -28,11 +28,8 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -63,9 +60,9 @@ import org.apache.http.protocol.HttpRequestHandlerResolver;
  * main I/O thread and therefore individual HTTP request handlers should not
  * block indefinitely.
  * <p>
- * When using this protocol handler {@link HttpEntity}'s content can be
- * generated / consumed using standard {@link InputStream}/{@link OutputStream}
- * classes.
+ * When using this protocol handler {@link org.apache.http.HttpEntity}'s content
+ * can be generated / consumed using standard {@link java.io.InputStream}/
+ * {@link java.io.OutputStream} classes.
  * <p>
  * IMPORTANT: This protocol handler should be used only when dealing with HTTP
  * messages that are known to be limited in length.

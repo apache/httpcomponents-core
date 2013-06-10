@@ -39,7 +39,6 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
-import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -48,7 +47,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default factory for plain (non-encrypted), non-blocking {@link NHttpServerConnection}s.
+ * Default factory for plain (non-encrypted), non-blocking
+ * {@link org.apache.http.nio.NHttpServerConnection}s.
  *
  * @since 4.2
  */

@@ -44,8 +44,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
 import org.apache.http.io.HttpMessageParser;
@@ -78,9 +76,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
      * @param constraints Message constraints. If <code>null</code>
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
-     *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
+     *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
-     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     *   {@link org.apache.http.impl.entity.StrictContentLengthStrategy#INSTANCE} will be used.
      * @param requestWriterFactory request writer factory. If <code>null</code>
      *   {@link DefaultHttpRequestWriterFactory#INSTANCE} will be used.
      * @param responseParserFactory response parser factory. If <code>null</code>

@@ -32,7 +32,6 @@ import java.io.IOException;
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
@@ -72,7 +71,7 @@ public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
      * @param buffer the session input buffer.
      * @param parser the line parser.
      * @param requestFactory the factory to use to create
-     *    {@link HttpRequest}s.
+     *    {@link org.apache.http.HttpRequest}s.
      * @param params HTTP parameters.
      */
     public HttpRequestParser(

@@ -38,7 +38,6 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
 import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
@@ -52,8 +51,6 @@ import org.apache.http.io.HttpMessageWriter;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.message.LineFormatter;
-import org.apache.http.message.LineParser;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -116,7 +113,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * <p>
      * This method can be overridden in a super class in order to create
      * instances of {@link EntityDeserializer} using a custom
-     * {@link ContentLengthStrategy}.
+     * {@link org.apache.http.entity.ContentLengthStrategy}.
      *
      * @return HTTP entity deserializer
      */
@@ -132,7 +129,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * <p>
      * This method can be overridden in a super class in order to create
      * instances of {@link EntitySerializer} using a custom
-     * {@link ContentLengthStrategy}.
+     * {@link org.apache.http.entity.ContentLengthStrategy}.
      *
      * @return HTTP entity serialzier.
      */
@@ -160,8 +157,9 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * <p>
      * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpMessageParser} interface or
-     * to pass a different implementation of the {@link LineParser} to the
-     * the {@link DefaultHttpRequestParser} constructor.
+     * to pass a different implementation of the
+     * {@link org.apache.http.message.LineParser} to the
+     * {@link DefaultHttpRequestParser} constructor.
      *
      * @param buffer the session input buffer.
      * @param requestFactory the HTTP request factory.
@@ -181,8 +179,9 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * <p>
      * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpMessageWriter} interface or
-     * to pass a different implementation of {@link LineFormatter} to the
-     * the default implementation {@link HttpResponseWriter}.
+     * to pass a different implementation of
+     * {@link org.apache.http.message.LineFormatter} to the the default
+     * implementation {@link HttpResponseWriter}.
      *
      * @param buffer the session output buffer
      * @param params HTTP parameters

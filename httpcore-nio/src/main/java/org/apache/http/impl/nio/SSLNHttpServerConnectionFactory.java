@@ -41,7 +41,6 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
-import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.http.nio.reactor.ssl.SSLMode;
@@ -53,7 +52,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default factory for SSL encrypted, non-blocking {@link NHttpServerConnection}s.
+ * Default factory for SSL encrypted, non-blocking
+ * {@link org.apache.http.nio.NHttpServerConnection}s.
  *
  * @since 4.2
  */

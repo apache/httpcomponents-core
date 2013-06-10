@@ -41,13 +41,10 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriter;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParser;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
-import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpClientIOTarget;
@@ -60,13 +57,13 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default implementation of the {@link NHttpClientConnection} interface.
+ * Default implementation of the {@link org.apache.http.nio.NHttpClientConnection}
+ * interface.
  *
  * @since 4.0
  */
@@ -113,7 +110,8 @@ public class DefaultNHttpClientConnection
      * @param buffersize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
-     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     *   If <code>null</code> {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
+     *   will be used.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
@@ -121,9 +119,9 @@ public class DefaultNHttpClientConnection
      * @param constraints Message constraints. If <code>null</code>
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
-     *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
+     *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
-     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     *   {@link org.apache.http.impl.entity.StrictContentLengthStrategy#INSTANCE} will be used.
      *
      * @since 4.3
      */

@@ -27,12 +27,10 @@
 
 package org.apache.http.nio.protocol;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -432,10 +430,11 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     /**
-     * This method can be used to log I/O exception thrown while closing {@link Closeable}
-     * objects (such as {@link HttpConnection}).
+     * This method can be used to log I/O exception thrown while closing
+     * {@link java.io.Closeable} objects (such as
+     * {@link org.apache.http.HttpConnection}).
      *
-     * @param ex I/O exception thrown by {@link Closeable#close()}
+     * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
     }

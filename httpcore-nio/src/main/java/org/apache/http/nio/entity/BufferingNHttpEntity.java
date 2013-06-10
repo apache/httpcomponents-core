@@ -36,8 +36,6 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
-import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.util.Args;
@@ -51,7 +49,9 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.0
  *
- * @deprecated (4.2) use {@link BasicAsyncRequestConsumer} or {@link BasicAsyncResponseConsumer}
+ * @deprecated use (4.2)
+ *  {@link org.apache.http.nio.protocol.BasicAsyncRequestProducer}
+ *  or {@link org.apache.http.nio.protocol.BasicAsyncResponseProducer}
  */
 @NotThreadSafe
 @Deprecated

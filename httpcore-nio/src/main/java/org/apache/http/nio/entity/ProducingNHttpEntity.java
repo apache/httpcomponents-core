@@ -32,8 +32,6 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
-import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 
 /**
  * An {@link HttpEntity} that can stream content out into a
@@ -41,7 +39,9 @@ import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
  *
  * @since 4.0
  *
- * @deprecated use (4.2) {@link BasicAsyncRequestProducer} or {@link BasicAsyncResponseProducer}
+ * @deprecated use (4.2)
+ *  {@link org.apache.http.nio.protocol.BasicAsyncRequestProducer}
+ *  or {@link org.apache.http.nio.protocol.BasicAsyncResponseProducer}
  */
 @Deprecated
 public interface ProducingNHttpEntity extends HttpEntity {

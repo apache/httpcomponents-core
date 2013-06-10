@@ -30,7 +30,6 @@ package org.apache.http.nio.protocol;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -38,7 +37,6 @@ import org.apache.http.concurrent.Cancellable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.protocol.HttpProcessor;
 
 /**
  * <tt>HttpAsyncClientExchangeHandler</tt> represents a callback interface whose
@@ -46,10 +44,11 @@ import org.apache.http.protocol.HttpProcessor;
  * on the client side.
  * <p/>
  * Individual <tt>HttpAsyncClientExchangeHandler</tt> are expected to make use of
- * a {@link HttpProcessor} to generate mandatory protocol headers for all outgoing
- * messages and apply common, cross-cutting message transformations to all incoming
- * and outgoing messages. <tt>HttpAsyncClientExchangeHandler</tt>s can delegate
- * implementation of application specific content generation and processing to
+ * a {@link org.apache.http.protocol.HttpProcessor} to generate mandatory protocol
+ * headers for all outgoing messages and apply common, cross-cutting message
+ * transformations to all incoming and outgoing messages.
+ * <tt>HttpAsyncClientExchangeHandler</tt>s can delegate implementation
+ * of application specific content generation and processing to
  * a {@link HttpAsyncRequestProducer} and a {@link HttpAsyncResponseConsumer}.
  *
  * @since 4.3
@@ -58,10 +57,11 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
 
     /**
      * Invoked to generate a HTTP request message head. The message is expected
-     * to implement the {@link HttpEntityEnclosingRequest} interface if it is
-     * to enclose a content entity. The {@link #produceContent(ContentEncoder, IOControl)}
-     * method will not be invoked if {@link HttpEntityEnclosingRequest#getEntity()}
-     * returns <code>null</code>.
+     * to implement the {@link org.apache.http.HttpEntityEnclosingRequest} interface if it is
+     * to enclose a content entity. The {@link #produceContent(ContentEncoder,
+     * IOControl)} method will not be invoked if
+     * {@link org.apache.http.HttpEntityEnclosingRequest#getEntity()} returns
+     * <code>null</code>.
      *
      * @return HTTP request message.
      * @throws HttpException in case of HTTP protocol violation

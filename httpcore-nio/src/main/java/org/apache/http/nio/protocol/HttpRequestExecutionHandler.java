@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -55,7 +54,7 @@ public interface HttpRequestExecutionHandler {
      * made. The attachment may optionally contain some state information
      * required in order to correctly initialize the HTTP context.
      *
-     * @see ConnectingIOReactor#connect
+     * @see org.apache.http.nio.reactor.ConnectingIOReactor#connect
      *
      * @param context the actual HTTP context
      * @param attachment the object passed to the connecting I/O reactor

@@ -37,7 +37,6 @@ import java.util.Set;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOSession;
@@ -45,9 +44,10 @@ import org.apache.http.util.Args;
 
 /**
  * Default implementation of {@link AbstractIOReactor} that serves as a base
- * for more advanced {@link IOReactor} implementations. This class adds
- * support for the I/O event dispatching using {@link IOEventDispatch},
- * management of buffering sessions, and session timeout handling.
+ * for more advanced {@link org.apache.http.nio.reactor.IOReactor}
+ * implementations. This class adds support for the I/O event dispatching
+ * using {@link IOEventDispatch}, management of buffering sessions, and
+ * session timeout handling.
  *
  * @since 4.0
  */

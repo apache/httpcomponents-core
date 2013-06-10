@@ -27,12 +27,10 @@
 
 package org.apache.http.nio.protocol;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -46,7 +44,6 @@ import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
@@ -65,10 +62,11 @@ import org.apache.http.util.Asserts;
  * be used to facilitate initiation of asynchronous HTTP request execution.
  * <p/>
  * Individual <tt>HttpAsyncClientExchangeHandler</tt> are expected to make use of
- * a {@link HttpProcessor} to generate mandatory protocol headers for all outgoing
- * messages and apply common, cross-cutting message transformations to all incoming
- * and outgoing messages. <tt>HttpAsyncClientExchangeHandler</tt>s can delegate
- * implementation of application specific content generation and processing to
+ * a {@link org.apache.http.protocol.HttpProcessor} to generate mandatory protocol
+ * headers for all outgoing messages and apply common, cross-cutting message
+ * transformations to all incoming and outgoing messages.
+ * <tt>HttpAsyncClientExchangeHandler</tt>s can delegate implementation of
+ * application specific content generation and processing to
  * a {@link HttpAsyncRequestProducer} and a {@link HttpAsyncResponseConsumer}.
  *
  * @see HttpAsyncClientExchangeHandler
@@ -296,10 +294,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     }
 
     /**
-     * This method can be used to log I/O exception thrown while closing {@link Closeable}
-     * objects (such as {@link HttpConnection}}).
+     * This method can be used to log I/O exception thrown while closing
+     * {@link java.io.Closeable} objects (such as
+     * {@link org.apache.http.HttpConnection}}).
      *
-     * @param ex I/O exception thrown by {@link Closeable#close()}
+     * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
     }

@@ -32,24 +32,22 @@ import javax.net.ssl.SSLException;
 
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
-import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.impl.nio.reactor.SSLSetupHandler;
 import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.NHttpClientIOTarget;
-import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default implementation of {@link IOEventDispatch} interface for SSL
- * (encrypted) client-side HTTP connections.
+ * Default implementation of {@link org.apache.http.nio.reactor.IOEventDispatch}
+ * interface for SSL (encrypted) client-side HTTP connections.
  *
  * @since 4.1
  *
- * @deprecated (4.2) use {@link DefaultHttpClientIODispatch}
+ * @deprecated (4.2) use {@link org.apache.http.impl.nio.DefaultHttpClientIODispatch}
  */
 @Deprecated
 @Immutable // provided injected dependencies are immutable

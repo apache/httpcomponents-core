@@ -36,7 +36,6 @@ import org.apache.http.HttpMessage;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.BHttpConnectionBase;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.IdentityInputStream;
@@ -60,7 +59,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  *
- * @deprecated (4.3) use {@link BHttpConnectionBase}
+ * @deprecated (4.3) use {@link org.apache.http.impl.BHttpConnectionBase}
  */
 @Immutable // assuming injected dependencies are immutable
 @Deprecated

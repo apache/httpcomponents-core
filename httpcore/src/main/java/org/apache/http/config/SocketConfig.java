@@ -27,8 +27,6 @@
 
 package org.apache.http.config;
 
-import java.net.SocketOptions;
-
 import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 
@@ -67,55 +65,55 @@ public class SocketConfig implements Cloneable {
      * <p/>
      * Default: <code>0</code> (no timeout)
      *
-     * @see SocketOptions#SO_TIMEOUT
+     * @see java.net.SocketOptions#SO_TIMEOUT
      */
     public int getSoTimeout() {
         return soTimeout;
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_REUSEADDR} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>false</code>
      *
-     * @see SocketOptions#SO_REUSEADDR
+     * @see java.net.SocketOptions#SO_REUSEADDR
      */
     public boolean isSoReuseAddress() {
         return soReuseAddress;
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_LINGER} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>-1</code>
      *
-     * @see SocketOptions#SO_LINGER
+     * @see java.net.SocketOptions#SO_LINGER
      */
     public int getSoLinger() {
         return soLinger;
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>-1</code>
      *
-     * @see SocketOptions#SO_KEEPALIVE
+     * @see java.net.SocketOptions#SO_KEEPALIVE
      */
     public boolean isSoKeepAlive() {
         return this.soKeepAlive;
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#TCP_NODELAY} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>false</code>
      *
-     * @see SocketOptions#TCP_NODELAY
+     * @see java.net.SocketOptions#TCP_NODELAY
      */
     public boolean isTcpNoDelay() {
         return tcpNoDelay;

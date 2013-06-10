@@ -27,12 +27,10 @@
 
 package org.apache.http.nio;
 
-import org.apache.http.nio.reactor.IOEventDispatch;
-
 /**
  * Extended version of the {@link NHttpClientConnection} used by
- * {@link IOEventDispatch} implementations to inform client-side connection
- * objects of I/O events.
+ * {@link org.apache.http.nio.reactor.IOEventDispatch} implementations
+ * to inform client-side connection objects of I/O events.
  *
  * @since 4.0
  *

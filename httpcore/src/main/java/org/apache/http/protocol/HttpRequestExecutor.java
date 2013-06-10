@@ -30,7 +30,6 @@ package org.apache.http.protocol;
 import java.io.IOException;
 
 import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -287,7 +286,7 @@ public class HttpRequestExecutor {
      * This method does <i>not</i> read the response entity, if any.
      * The connection over which content of the response entity is being
      * streamed from cannot be reused until
-     * {@link org.apache.http.util.EntityUtils#consume(HttpEntity)}
+     * {@link org.apache.http.util.EntityUtils#consume(org.apache.http.HttpEntity)}
      * has been invoked.
      *
      * @param response  the response object to post-process

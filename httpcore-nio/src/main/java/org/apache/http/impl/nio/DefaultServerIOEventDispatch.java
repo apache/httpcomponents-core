@@ -29,14 +29,12 @@ package org.apache.http.impl.nio;
 
 import java.io.IOException;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
-import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
@@ -45,8 +43,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default implementation of {@link IOEventDispatch} interface for plain
- * (unencrypted) server-side HTTP connections.
+ * Default implementation of {@link org.apache.http.nio.reactor.IOEventDispatch}
+ * interface for plain (unencrypted) server-side HTTP connections.
  *
  * @since 4.0
  *
@@ -93,7 +91,8 @@ public class DefaultServerIOEventDispatch extends AbstractIODispatch<NHttpServer
 
     /**
      * Creates an instance of {@link DefaultHttpRequestFactory} to be used
-     * by HTTP connections for creating {@link HttpRequest} objects.
+     * by HTTP connections for creating {@link org.apache.http.HttpRequest}
+     * objects.
      * <p>
      * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpRequestFactory} interface.

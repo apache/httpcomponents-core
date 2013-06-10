@@ -36,14 +36,12 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ReasonPhraseCatalog;
 import org.apache.http.StatusLine;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.util.Args;
 
 /**
  * Basic implementation of {@link HttpResponse}.
  *
- * @see DefaultHttpResponseFactory
+ * @see org.apache.http.impl.DefaultHttpResponseFactory
  *
  * @since 4.0
  */
@@ -69,7 +67,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      * @param locale            the locale for looking up reason phrases, or
      *                          <code>null</code> for the system locale
      *
-     * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
+     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
      */
     @Deprecated
     public BasicHttpResponse(final StatusLine statusline,
@@ -147,7 +145,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     /**
-     * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
+     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
      */
     @Deprecated
     public Locale getLocale() {
@@ -200,7 +198,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     /**
-     * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
+     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
      */
     @Deprecated
     public void setLocale(final Locale locale) {
@@ -217,7 +215,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      *
      * @return  the reason phrase, or <code>null</code> if there is none
      *
-     * @deprecated (4.3) use {@link DefaultHttpRequestFactory}
+     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
      */
     @Deprecated
     protected String getReason(final int code) {

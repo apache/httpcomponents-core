@@ -603,17 +603,15 @@ public class TestSyncHttp {
         private final byte[] raw;
         private final int n;
 
-        public RepeatingEntity(final String content, Charset charset, final int n) {
+        public RepeatingEntity(final String content, final Charset charset, final int n) {
             super();
-            if (charset == null) {
-                charset = Charset.forName("US-ASCII"); // US-ASCII is built-in
-            }
+            final Charset cs = charset != null ? charset : Charset.forName("US-ASCII");
             byte[] b;
             // Java 6 only:
             // b = content.getBytes(charset);
             // Java 5 OK:
             try {
-                b = content.getBytes(charset.name());
+                b = content.getBytes(cs.name());
             } catch (final UnsupportedEncodingException ex) {
                 b = content.getBytes();
             }

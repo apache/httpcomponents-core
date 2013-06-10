@@ -37,7 +37,6 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
-import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.reactor.IOSession;
@@ -48,7 +47,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default factory for plain (non-encrypted), non-blocking {@link NHttpClientConnection}s.
+ * Default factory for plain (non-encrypted), non-blocking
+ * {@link org.apache.http.nio.NHttpClientConnection}s.
  *
  * @since 4.2
  */

@@ -36,15 +36,15 @@ import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerEventHandler;
-import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
- * and SSL encrypted server side HTTP connections.
+ * Default {@link org.apache.http.nio.reactor.IOEventDispatch} implementation
+ * that supports both plain (non-encrypted) and SSL encrypted server side HTTP
+ * connections.
  *
  * @since 4.2
  */

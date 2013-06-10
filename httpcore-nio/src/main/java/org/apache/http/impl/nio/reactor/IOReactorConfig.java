@@ -27,9 +27,6 @@
 
 package org.apache.http.impl.nio.reactor;
 
-import java.net.SocketOptions;
-import java.nio.channels.SelectionKey;
-
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
@@ -145,13 +142,13 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines whether or not I/O interest operations are to be queued and executed
      * asynchronously by the I/O reactor thread or to be applied to the underlying
-     * {@link SelectionKey} immediately.
+     * {@link java.nio.channels.SelectionKey} immediately.
      * <p/>
      * Default: <code>false</code>
      *
-     * @see SelectionKey
-     * @see SelectionKey#interestOps()
-     * @see SelectionKey#interestOps(int)
+     * @see java.nio.channels.SelectionKey
+     * @see java.nio.channels.SelectionKey#interestOps()
+     * @see java.nio.channels.SelectionKey#interestOps(int)
      */
     public boolean isInterestOpQueued() {
         return this.interestOpQueued;
@@ -188,7 +185,7 @@ public final class IOReactorConfig implements Cloneable {
      * <p/>
      * Default: <code>0</code> (no timeout)
      *
-     * @see SocketOptions#SO_TIMEOUT
+     * @see java.net.SocketOptions#SO_TIMEOUT
      */
     public int getSoTimeout() {
         return soTimeout;
@@ -203,12 +200,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_REUSEADDR} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>false</code>
      *
-     * @see SocketOptions#SO_REUSEADDR
+     * @see java.net.SocketOptions#SO_REUSEADDR
      */
     public boolean isSoReuseAddress() {
         return soReuseAddress;
@@ -223,12 +220,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_LINGER} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>-1</code>
      *
-     * @see SocketOptions#SO_LINGER
+     * @see java.net.SocketOptions#SO_LINGER
      */
     public int getSoLinger() {
         return soLinger;
@@ -243,12 +240,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>-1</code>
      *
-     * @see SocketOptions#SO_KEEPALIVE
+     * @see java.net.SocketOptions#SO_KEEPALIVE
      */
     public boolean isSoKeepalive() {
         return this.soKeepAlive;
@@ -263,12 +260,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#TCP_NODELAY} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>false</code>
      *
-     * @see SocketOptions#TCP_NODELAY
+     * @see java.net.SocketOptions#TCP_NODELAY
      */
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
@@ -300,12 +297,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_SNDBUF} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>0</code> (system default)
      *
-     * @see SocketOptions#SO_SNDBUF
+     * @see java.net.SocketOptions#SO_SNDBUF
      */
     public int getSndBufSize() {
         return sndBufSize;
@@ -320,12 +317,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * Determines the default value of the {@link SocketOptions#SO_RCVBUF} parameter
+     * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
      * for newly created sockets.
      * <p/>
      * Default: <code>0</code> (system default)
      *
-     * @see SocketOptions#SO_RCVBUF
+     * @see java.net.SocketOptions#SO_RCVBUF
      */
     public int getRcvBufSize() {
         return rcvBufSize;

@@ -32,7 +32,6 @@ import java.io.IOException;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
@@ -124,7 +123,8 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
 
     /**
      * Creates an instance of {@link DefaultHttpRequestFactory} to be used
-     * by HTTP connections for creating {@link HttpRequest} objects.
+     * by HTTP connections for creating {@link org.apache.http.HttpRequest}
+     * objects.
      * <p>
      * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpRequestFactory} interface.

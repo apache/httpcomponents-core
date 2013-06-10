@@ -43,15 +43,14 @@ import org.apache.http.nio.pool.SocketAddressResolver;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
-import org.apache.http.pool.ConnPool;
 import org.apache.http.util.Args;
 
 /**
- * A very basic {@link ConnPool} implementation that represents a pool
- * of non-blocking {@link NHttpClientConnection} connections identified by
- * an {@link HttpHost} instance. Please note this pool implementation
- * does not support complex routes via a proxy cannot differentiate between
- * direct and proxied connections.
+ * A very basic {@link org.apache.http.pool.ConnPool} implementation that
+ * represents a pool of non-blocking {@link NHttpClientConnection} connections
+ * identified by an {@link HttpHost} instance. Please note this pool
+ * implementation does not support complex routes via a proxy cannot
+ * differentiate between direct and proxied connections.
  *
  * @see HttpHost
  * @since 4.2

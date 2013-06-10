@@ -27,14 +27,13 @@
 
 package org.apache.http.nio.params;
 
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.params.HttpAbstractParamBean;
 import org.apache.http.params.HttpParams;
 
 /**
  * @since 4.0
  *
- * @deprecated (4.2) use {@link IOReactorConfig}
+ * @deprecated (4.2) use {@link org.apache.http.impl.nio.reactor.IOReactorConfig}
  */
 @Deprecated
 public class NIOReactorParamBean extends HttpAbstractParamBean {

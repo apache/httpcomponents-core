@@ -27,11 +27,9 @@
 
 package org.apache.http.nio.protocol;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.Cancellable;
-import org.apache.http.nio.entity.HttpAsyncContentProducer;
 
 /**
  * <tt>HttpAsyncExchange</tt> represents a server-side HTTP message exchange
@@ -59,8 +57,9 @@ public interface HttpAsyncExchange {
 
     /**
      * Submits the default HTTP response and completed the message exchange.
-     * If the response encloses an {@link HttpEntity} instance the entity is
-     * also expected to implement the {@link HttpAsyncContentProducer}
+     * If the response encloses an {@link org.apache.http.HttpEntity} instance
+     * the entity is also expected to implement the
+     * {@link org.apache.http.nio.entity.HttpAsyncContentProducer }
      * interface for efficient content streaming to a non-blocking HTTP
      * connection.
      *

@@ -67,7 +67,7 @@ class TimeoutByteArrayInputStream extends InputStream {
     }
 
     @Override
-    public int read(final byte b[], final int off, int len) throws IOException {
+    public int read(final byte b[], final int off, final int len) throws IOException {
         if (b == null) {
             throw new NullPointerException();
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -77,17 +77,18 @@ class TimeoutByteArrayInputStream extends InputStream {
         if (this.pos >= this.count) {
             return -1;
         }
+        int chunk = len;
         if (this.pos + len > this.count) {
-            len = this.count - this.pos;
+            chunk = this.count - this.pos;
         }
-        if (len <= 0) {
+        if (chunk <= 0) {
             return 0;
         }
         if ((this.buf[this.pos] & 0xff) == 0) {
             this.pos++;
             throw new InterruptedIOException("Timeout");
         }
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < chunk; i++) {
             final int v = this.buf[this.pos] & 0xff;
             if (v == 0) {
                 return i;
@@ -96,19 +97,20 @@ class TimeoutByteArrayInputStream extends InputStream {
                 this.pos++;
             }
         }
-        return len;
+        return chunk;
     }
 
     @Override
-    public long skip(long n) {
+    public long skip(final long n) {
+        long chunk = n;
         if (this.pos + n > this.count) {
-            n = this.count - this.pos;
+            chunk = this.count - this.pos;
         }
-        if (n < 0) {
+        if (chunk < 0) {
             return 0;
         }
-        this.pos += n;
-        return n;
+        this.pos += chunk;
+        return chunk;
     }
 
     @Override

@@ -29,16 +29,15 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.EofSensor;
-import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * {@link SessionInputBuffer} implementation bound to a {@link Socket}.
+ * {@link org.apache.http.io.SessionInputBuffer} implementation
+ * bound to a {@link Socket}.
  *
  * @since 4.0
  *

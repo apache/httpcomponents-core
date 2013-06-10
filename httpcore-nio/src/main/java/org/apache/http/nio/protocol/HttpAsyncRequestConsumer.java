@@ -29,7 +29,6 @@ package org.apache.http.nio.protocol;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.nio.ContentDecoder;
@@ -50,8 +49,8 @@ public interface HttpAsyncRequestConsumer<T> extends Closeable {
      * Invoked when a HTTP request message is received. Please note
      * that the {@link #consumeContent(ContentDecoder, IOControl)} method
      * will be invoked only for if the request message implements
-     * {@link HttpEntityEnclosingRequest} interface and has a content
-     * entity enclosed.
+     * {@link org.apache.http.HttpEntityEnclosingRequest} interface and
+     * has a content entity enclosed.
      *
      * @param request HTTP request message.
      * @throws HttpException in case of HTTP protocol violation

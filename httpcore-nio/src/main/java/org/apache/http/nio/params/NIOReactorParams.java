@@ -27,7 +27,6 @@
 
 package org.apache.http.nio.params;
 
-import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -38,7 +37,7 @@ import org.apache.http.util.Args;
  *
  * @see NIOReactorPNames
  *
- * @deprecated (4.2) use {@link IOReactorConfig}
+ * @deprecated (4.2) use {@link org.apache.http.impl.nio.reactor.IOReactorConfig}
  */
 @Deprecated
 public final class NIOReactorParams implements NIOReactorPNames {

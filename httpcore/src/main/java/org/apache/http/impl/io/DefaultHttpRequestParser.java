@@ -39,7 +39,6 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.params.HttpParams;
@@ -87,8 +86,8 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      * Creates new instance of DefaultHttpRequestParser.
      *
      * @param buffer the session input buffer.
-     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} will
-     *   be used.
+     * @param lineParser the line parser. If <code>null</code>
+     *   {@link org.apache.http.message.BasicLineParser#INSTANCE} will be used.
      * @param requestFactory the response factory. If <code>null</code>
      *   {@link DefaultHttpRequestFactory#INSTANCE} will be used.
      * @param constraints the message constraints. If <code>null</code>

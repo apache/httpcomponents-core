@@ -36,14 +36,13 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.AbstractConnPool;
 import org.apache.http.pool.ConnFactory;
-import org.apache.http.pool.ConnPool;
 
 /**
- * A very basic {@link ConnPool} implementation that represents a pool
- * of blocking {@link HttpClientConnection} connections identified by
- * an {@link HttpHost} instance. Please note this pool implementation
- * does not support complex routes via a proxy cannot differentiate between
- * direct and proxied connections.
+ * A very basic {@link org.apache.http.pool.ConnPool} implementation that
+ * represents a pool of blocking {@link HttpClientConnection} connections
+ * identified by an {@link HttpHost} instance. Please note this pool
+ * implementation does not support complex routes via a proxy cannot
+ * differentiate between direct and proxied connections.
  *
  * @see HttpHost
  * @since 4.2

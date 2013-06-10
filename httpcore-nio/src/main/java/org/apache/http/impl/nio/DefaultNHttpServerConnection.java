@@ -52,7 +52,6 @@ import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.NHttpMessageWriterFactory;
-import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.NHttpServerIOTarget;
 import org.apache.http.nio.NHttpServiceHandler;
@@ -61,13 +60,13 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * Default implementation of the {@link NHttpServerConnection} interface.
+ * Default implementation of the {@link org.apache.http.nio.NHttpServerConnection}
+ * interface.
  *
  * @since 4.0
  */
@@ -111,7 +110,8 @@ public class DefaultNHttpServerConnection
      * @param buffersize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
-     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     *   If <code>null</code> {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
+     *   will be used.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.

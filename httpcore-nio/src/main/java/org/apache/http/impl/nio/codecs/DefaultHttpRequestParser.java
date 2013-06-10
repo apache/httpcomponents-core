@@ -35,17 +35,16 @@ import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
-import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Default {@link NHttpMessageParser} implementation for {@link HttpRequest}s.
+ * Default {@link org.apache.http.nio.NHttpMessageParser} implementation
+ * for {@link HttpRequest}s.
  *
  * @since 4.1
  */
@@ -81,8 +80,8 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      * Creates an instance of DefaultHttpRequestParser.
      *
      * @param buffer the session input buffer.
-     * @param parser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE} will
-     *   be used.
+     * @param parser the line parser. If <code>null</code>
+     *   {@link org.apache.http.message.BasicLineParser#INSTANCE} will be used.
      * @param requestFactory the request factory. If <code>null</code>
      *   {@link DefaultHttpRequestFactory#INSTANCE} will be used.
      * @param constraints Message constraints. If <code>null</code>

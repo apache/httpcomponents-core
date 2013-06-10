@@ -32,8 +32,6 @@ import java.io.IOException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.entity.ConsumingNHttpEntity;
-import org.apache.http.nio.entity.ProducingNHttpEntity;
-import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.protocol.HttpContext;
 
 /**
@@ -61,7 +59,7 @@ public interface NHttpRequestExecutionHandler {
      * made. The attachment may optionally contain some state information
      * required in order to correctly initalize the HTTP context.
      *
-     * @see ConnectingIOReactor#connect
+     * @see org.apache.http.nio.reactor.ConnectingIOReactor#connect
      *
      * @param context the actual HTTP context
      * @param attachment the object passed to the connecting I/O reactor
@@ -77,7 +75,7 @@ public interface NHttpRequestExecutionHandler {
      * can be activated at a later point.
      * <p>
      * If the request has an entity, the entity <b>must</b> be an
-     * instance of {@link ProducingNHttpEntity}.
+     * instance of {@link org.apache.http.nio.entity.ProducingNHttpEntity}.
      *
      * @param context the actual HTTP context
      * @return an HTTP request to be sent or <code>null</null> if no

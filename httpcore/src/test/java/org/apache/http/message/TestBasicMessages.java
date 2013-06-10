@@ -27,7 +27,6 @@
 
 package org.apache.http.message;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -38,7 +37,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link Header}.
+ * Unit tests for {@link org.apache.http.HttpMessage}.
  *
  */
 public class TestBasicMessages {

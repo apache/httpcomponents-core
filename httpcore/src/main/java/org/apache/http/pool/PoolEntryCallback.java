@@ -26,8 +26,6 @@
  */
 package org.apache.http.pool;
 
-import java.io.IOException;
-
 /**
  * Pool entry callabck.
  *

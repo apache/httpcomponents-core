@@ -32,13 +32,13 @@ import java.io.IOException;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.message.LineFormatter;
-import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Default {@link NHttpMessageWriter} implementation for {@link HttpRequest}s.
+ * Default {@link org.apache.http.nio.NHttpMessageWriter} implementation
+ * for {@link HttpRequest}s.
  *
  * @since 4.0
  *

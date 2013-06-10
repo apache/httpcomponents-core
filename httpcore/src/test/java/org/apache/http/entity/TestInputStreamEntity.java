@@ -61,8 +61,8 @@ public class TestInputStreamEntity {
 
     @Test
     public void testUnknownLengthConstructor() throws Exception {
-        InputStream instream = new ByteArrayInputStream(new byte[0]);
-        InputStreamEntity httpentity = new InputStreamEntity(instream);
+        final InputStream instream = new ByteArrayInputStream(new byte[0]);
+        final InputStreamEntity httpentity = new InputStreamEntity(instream);
         Assert.assertEquals(-1, httpentity.getContentLength());
     }
 
@@ -70,10 +70,10 @@ public class TestInputStreamEntity {
     public void testWriteTo() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
-        InputStream instream = new ByteArrayInputStream(bytes);
-        InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
+        final InputStream instream = new ByteArrayInputStream(bytes);
+        final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] writtenBytes = out.toByteArray();
         Assert.assertNotNull(writtenBytes);
@@ -87,11 +87,11 @@ public class TestInputStreamEntity {
     public void testWriteToPartialContent() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
-        InputStream instream = new ByteArrayInputStream(bytes);
+        final InputStream instream = new ByteArrayInputStream(bytes);
         final int contentLength = 7;
-        InputStreamEntity httpentity = new InputStreamEntity(instream, contentLength);
+        final InputStreamEntity httpentity = new InputStreamEntity(instream, contentLength);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] writtenBytes = out.toByteArray();
         Assert.assertNotNull(writtenBytes);
@@ -105,10 +105,10 @@ public class TestInputStreamEntity {
     public void testWriteToUnknownLength() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
-        InputStream instream = new ByteArrayInputStream(bytes);
-        InputStreamEntity httpentity = new InputStreamEntity(instream);
+        final InputStream instream = new ByteArrayInputStream(bytes);
+        final InputStreamEntity httpentity = new InputStreamEntity(instream);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] writtenBytes = out.toByteArray();
         Assert.assertNotNull(writtenBytes);
@@ -120,8 +120,8 @@ public class TestInputStreamEntity {
 
     @Test(expected = IllegalArgumentException.class)
     public void testWriteToNull() throws Exception {
-        InputStream instream = new ByteArrayInputStream(new byte[0]);
-        InputStreamEntity httpentity = new InputStreamEntity(instream, 0);
+        final InputStream instream = new ByteArrayInputStream(new byte[0]);
+        final InputStreamEntity httpentity = new InputStreamEntity(instream, 0);
         httpentity.writeTo(null);
     }
 }

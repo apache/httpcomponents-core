@@ -43,7 +43,6 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.io.DefaultHttpResponseWriterFactory;
 import org.apache.http.io.HttpMessageParser;
@@ -78,7 +77,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
      * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
      *   {@link DisallowIdentityContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
-     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     *   {@link org.apache.http.impl.entity.StrictContentLengthStrategy#INSTANCE} will be used.
      * @param requestParserFactory request parser factory. If <code>null</code>
      *   {@link DefaultHttpRequestParserFactory#INSTANCE} will be used.
      * @param responseWriterFactory response writer factory. If <code>null</code>

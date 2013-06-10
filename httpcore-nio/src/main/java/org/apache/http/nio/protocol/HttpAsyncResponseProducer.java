@@ -30,7 +30,6 @@ package org.apache.http.nio.protocol;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;

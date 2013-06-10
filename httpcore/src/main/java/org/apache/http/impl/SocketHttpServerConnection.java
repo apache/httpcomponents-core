@@ -35,7 +35,6 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 
 import org.apache.http.HttpInetConnection;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.SocketInputBuffer;
 import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.http.io.SessionInputBuffer;

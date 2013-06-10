@@ -31,12 +31,12 @@ import java.io.IOException;
 import java.net.Socket;
 
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
- * {@link SessionOutputBuffer} implementation bound to a {@link Socket}.
+ * {@link org.apache.http.io.SessionOutputBuffer} implementation
+ * bound to a {@link Socket}.
  *
  * @since 4.0
  *

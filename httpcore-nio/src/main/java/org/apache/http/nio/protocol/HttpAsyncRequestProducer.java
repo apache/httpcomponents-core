@@ -29,7 +29,6 @@ package org.apache.http.nio.protocol;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -59,9 +58,10 @@ public interface HttpAsyncRequestProducer extends Closeable {
 
     /**
      * Invoked to generate a HTTP request message head. The message is expected
-     * to implement the {@link HttpEntityEnclosingRequest} interface if it is
-     * to enclose a content entity. The {@link #produceContent(ContentEncoder, IOControl)}
-     * method will not be invoked if {@link HttpEntityEnclosingRequest#getEntity()}
+     * to implement the {@link org.apache.http.HttpEntityEnclosingRequest} interface
+     * if it is to enclose a content entity. The {@link #produceContent(
+     * ContentEncoder, IOControl)} method will not be invoked if
+     * {@link org.apache.http.HttpEntityEnclosingRequest#getEntity()}
      * returns <code>null</code>.
      *
      * @return HTTP request message.

@@ -27,8 +27,6 @@
 
 package org.apache.http.params;
 
-import org.apache.http.ProtocolVersion;
-
 /**
  * Defines parameter names for protocol execution in HttpCore.
  *
@@ -41,9 +39,9 @@ import org.apache.http.ProtocolVersion;
 public interface CoreProtocolPNames {
 
     /**
-     * Defines the {@link ProtocolVersion} used per default.
+     * Defines the {@link org.apache.http.ProtocolVersion} used per default.
      * <p>
-     * This parameter expects a value of type {@link ProtocolVersion}.
+     * This parameter expects a value of type {@link org.apache.http.ProtocolVersion}.
      * </p>
      */
     public static final String PROTOCOL_VERSION = "http.protocol.version";
