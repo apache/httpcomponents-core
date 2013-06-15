@@ -30,6 +30,8 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.pool.PoolEntry;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 @Immutable
 class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
@@ -38,6 +40,9 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
     private final long connectTimeout;
     private final long deadline;
     private final BasicFuture<E> future;
+    private final AtomicBoolean completed;
+    private volatile E result;
+    private volatile Exception ex;
 
     /**
      * Contructor
@@ -60,6 +65,7 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
         this.deadline = leaseTimeout > 0 ? System.currentTimeMillis() + leaseTimeout :
                 Long.MAX_VALUE;
         this.future = future;
+        this.completed = new AtomicBoolean(false);
     }
 
     public T getRoute() {
@@ -78,12 +84,32 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
         return this.deadline;
     }
 
+    public boolean isDone() {
+        return this.completed.get();
+    }
+
+    public void failed(final Exception ex) {
+        if (this.completed.compareAndSet(false, true)) {
+            this.ex = ex;
+        }
+    }
+
+    public void completed(final E result) {
+        if (this.completed.compareAndSet(false, true)) {
+            this.result = result;
+        }
+    }
+
     public BasicFuture<E> getFuture() {
         return this.future;
     }
 
-    public boolean isDone() {
-        return this.future.isDone();
+    public E getResult() {
+        return this.result;
+    }
+
+    public Exception getException() {
+        return this.ex;
     }
 
     @Override

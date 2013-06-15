@@ -1,5 +1,8 @@
 Changes since Release 4.3-BETA2 
 -------------------
+* [HTTPCORE-343] AbstractNIOConnPool to fire request callbacks outside the pool lock.
+  This makes it possible to re-enter pool methods from a callback event.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-340] AbstractNIOConnPool to support lease timeout distinct from connect timeout.  
   Contributed by Ignat Alexeyenko <ignatalexeyenko at gmail.com>
