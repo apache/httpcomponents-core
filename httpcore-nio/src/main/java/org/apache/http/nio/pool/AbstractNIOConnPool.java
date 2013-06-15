@@ -233,8 +233,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             LeaseRequest<T, C, E> request = it.next();
-            processPendingRequest(request);
-            if (request.isDone()) {
+            boolean completed = processPendingRequest(request);
+            if (request.isDone() || completed) {
                 it.remove();
             }
         }
