@@ -134,7 +134,7 @@ public class HttpCoreContext implements HttpContext {
 
     public boolean isRequestSent() {
         final Boolean b = getAttribute(HTTP_REQ_SENT, Boolean.class);
-        return b != null && b;
+        return b != null && b.booleanValue();
     }
 
     public HttpResponse getResponse() {
