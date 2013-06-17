@@ -51,7 +51,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     protected final SessionOutputBuffer buffer;
     protected final HttpTransportMetricsImpl metrics;
 
-    protected boolean completed;
+    protected boolean completed; // TODO this should be private; it has getter/setter
 
     /**
      * Creates an instance of this class.
