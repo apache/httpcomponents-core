@@ -138,7 +138,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
             }
         }
         if (this.remaining <= 0) {
-            this.completed = true;
+            this.completed = true; // == super.complete()
         }
         return total;
     }
@@ -165,7 +165,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         }
         this.remaining -= bytesWritten;
         if (this.remaining <= 0) {
-            this.completed = true;
+            this.completed = true; // == super.complete()
         }
         return bytesWritten;
     }
