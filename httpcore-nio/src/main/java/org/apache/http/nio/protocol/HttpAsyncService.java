@@ -534,7 +534,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     private void processRequest(
             final NHttpServerConnection conn,
-            final State state) throws HttpException, IOException {
+            final State state) throws IOException {
         final HttpAsyncRequestHandler<Object> handler = state.getRequestHandler();
         final HttpContext context = state.getContext();
         final HttpAsyncRequestConsumer<?> consumer = state.getRequestConsumer();

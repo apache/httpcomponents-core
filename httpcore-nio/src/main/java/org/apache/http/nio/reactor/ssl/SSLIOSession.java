@@ -204,7 +204,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     //
     // sun.security.pkcs11.wrapper.PKCS11Exception is re-thrown as
     // plain RuntimeException in sun.security.ssl.Handshaker#checkThrown
-    private SSLException convert(final RuntimeException ex) throws SSLException {
+    private SSLException convert(final RuntimeException ex) {
         Throwable cause = ex.getCause();
         if (cause == null) {
             cause = ex;
