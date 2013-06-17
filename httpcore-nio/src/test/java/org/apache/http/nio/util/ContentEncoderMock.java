@@ -38,24 +38,11 @@ import org.apache.http.util.Asserts;
 
 public class ContentEncoderMock extends AbstractContentEncoder {
 
-    // TODO? remove this field and the complete() and isCompleted() methods
-    private boolean completed;
-
     public ContentEncoderMock(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
-    }
-
-    @Override
-    public boolean isCompleted() {
-        return this.completed;
-    }
-
-    @Override
-    public void complete() throws IOException {
-        this.completed = true;
     }
 
     public int write(final ByteBuffer src) throws IOException {
