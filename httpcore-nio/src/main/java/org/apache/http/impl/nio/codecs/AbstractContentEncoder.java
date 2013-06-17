@@ -51,7 +51,12 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     protected final SessionOutputBuffer buffer;
     protected final HttpTransportMetricsImpl metrics;
 
-    protected boolean completed; // TODO this should be private; it has getter/setter
+    /**
+     * @deprecated since 4.3-beta3 - use {@link #isCompleted()} or {@link #complete()} instead
+     * Will probably be made private at some point.
+     */
+    @Deprecated
+    protected boolean completed;
 
     /**
      * Creates an instance of this class.
