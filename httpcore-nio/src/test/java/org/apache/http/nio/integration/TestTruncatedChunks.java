@@ -119,7 +119,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
         @Override
         public void complete() throws IOException {
-            this.completed = true;
+            super.complete();
         }
 
         public int write(final ByteBuffer src) throws IOException {
