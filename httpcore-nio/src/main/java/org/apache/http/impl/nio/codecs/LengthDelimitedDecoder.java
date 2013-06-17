@@ -106,7 +106,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
     public long transfer(
             final FileChannel dst,
             final long position,
-            long count) throws IOException {
+            final long count) throws IOException {
 
         if (dst == null) {
             return 0;
@@ -123,15 +123,12 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             dst.position(position);
             bytesRead = this.buffer.read(dst, maxLen);
         } else {
-            if (count > chunk) {
-                count = chunk;
-            }
             if (this.channel.isOpen()) {
                 if (position > dst.size()) {
                     throw new IOException("Position past end of file [" + position +
                             " > " + dst.size() + "]");
                 }
-                bytesRead = dst.transferFrom(this.channel, position, count);
+                bytesRead = dst.transferFrom(this.channel, position, count < chunk ? count : chunk);
             } else {
                 bytesRead = -1;
             }

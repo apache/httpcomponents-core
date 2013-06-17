@@ -221,17 +221,15 @@ public class VersionInfo {
      *          <code>null</code> if not available
      */
     public static VersionInfo loadVersionInfo(final String pckg,
-                                                    ClassLoader clsldr) {
+                                              final ClassLoader clsldr) {
         Args.notNull(pckg, "Package identifier");
-        if (clsldr == null) {
-            clsldr = Thread.currentThread().getContextClassLoader();
-        }
+        final ClassLoader cl = clsldr != null ? clsldr : Thread.currentThread().getContextClassLoader();
 
         Properties vip = null; // version info properties, if available
         try {
             // org.apache.http      becomes
             // org/apache/http/version.properties
-            final InputStream is = clsldr.getResourceAsStream
+            final InputStream is = cl.getResourceAsStream
                 (pckg.replace('.', '/') + "/" + VERSION_PROPERTY_FILE);
             if (is != null) {
                 try {
@@ -248,7 +246,7 @@ public class VersionInfo {
 
         VersionInfo result = null;
         if (vip != null) {
-            result = fromMap(pckg, vip, clsldr);
+            result = fromMap(pckg, vip, cl);
         }
 
         return result;

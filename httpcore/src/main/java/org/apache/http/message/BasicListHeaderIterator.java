@@ -93,13 +93,14 @@ public class BasicListHeaderIterator implements HeaderIterator {
     /**
      * Determines the index of the next header.
      *
-     * @param from      one less than the index to consider first,
+     * @param pos       one less than the index to consider first,
      *                  -1 to search for the first header
      *
      * @return  the index of the next header that matches the filter name,
      *          or negative if there are no more headers
      */
-    protected int findNext(int from) {
+    protected int findNext(final int pos) {
+        int from = pos;
         if (from < -1) {
             return -1;
         }

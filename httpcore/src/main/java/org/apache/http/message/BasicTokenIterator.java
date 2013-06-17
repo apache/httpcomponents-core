@@ -152,7 +152,7 @@ public class BasicTokenIterator implements TokenIterator {
      * will be obtained from {@link #headerIt}.
      * If not found, {@link #currentToken} is set to <code>null</code>.
      *
-     * @param from      the position in the current header at which to
+     * @param pos       the position in the current header at which to
      *                  start the search, -1 to search in the first header
      *
      * @return  the position after the found token in the current header, or
@@ -160,9 +160,8 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @throws ParseException   if an invalid header value is encountered
      */
-    protected int findNext(int from)
-        throws ParseException {
-
+    protected int findNext(final int pos) throws ParseException {
+        int from = pos;
         if (from < 0) {
             // called from the constructor, initialize the first header
             if (!this.headerIt.hasNext()) {
@@ -216,14 +215,14 @@ public class BasicTokenIterator implements TokenIterator {
      * Determines the starting position of the next token.
      * This method will iterate over headers if necessary.
      *
-     * @param from      the position in the current header at which to
+     * @param pos       the position in the current header at which to
      *                  start the search
      *
      * @return  the position of the token start in the current header,
      *          negative if no token start could be found
      */
-    protected int findTokenStart(int from) {
-        Args.notNegative(from, "Search position");
+    protected int findTokenStart(final int pos) {
+        int from = Args.notNegative(pos, "Search position");
         boolean found = false;
         while (!found && (this.currentHeader != null)) {
 
@@ -263,7 +262,7 @@ public class BasicTokenIterator implements TokenIterator {
      * header value is a token separator. This method does
      * therefore not need to iterate over headers.
      *
-     * @param from      the position in the current header at which to
+     * @param pos       the position in the current header at which to
      *                  start the search
      *
      * @return  the position of a token separator in the current header,
@@ -274,8 +273,8 @@ public class BasicTokenIterator implements TokenIterator {
      *         RFC 2616, section 2.1 explicitly requires a comma between
      *         tokens for <tt>#</tt>.
      */
-    protected int findTokenSeparator(int from) {
-        Args.notNegative(from, "Search position");
+    protected int findTokenSeparator(final int pos) {
+        int from = Args.notNegative(pos, "Search position");
         boolean found = false;
         final int to = this.currentHeader.length();
         while (!found && (from < to)) {

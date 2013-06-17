@@ -63,19 +63,20 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
      */
     public SocketInputBuffer(
             final Socket socket,
-            int buffersize,
+            final int buffersize,
             final HttpParams params) throws IOException {
         super();
         Args.notNull(socket, "Socket");
         this.socket = socket;
         this.eof = false;
-        if (buffersize < 0) {
-            buffersize = socket.getReceiveBufferSize();
+        int n = buffersize;
+        if (n < 0) {
+            n = socket.getReceiveBufferSize();
         }
-        if (buffersize < 1024) {
-            buffersize = 1024;
+        if (n < 1024) {
+            n = 1024;
         }
-        init(socket.getInputStream(), buffersize, params);
+        init(socket.getInputStream(), n, params);
     }
 
     @Override

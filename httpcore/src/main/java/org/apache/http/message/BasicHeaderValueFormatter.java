@@ -88,20 +88,19 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public static
         String formatElements(final HeaderElement[] elems,
                               final boolean quote,
-                              HeaderValueFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicHeaderValueFormatter.INSTANCE;
-        }
-        return formatter.formatElements(null, elems, quote).toString();
+                              final HeaderValueFormatter formatter) {
+        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
+                .formatElements(null, elems, quote).toString();
     }
 
 
     // non-javadoc, see interface HeaderValueFormatter
-    public CharArrayBuffer formatElements(CharArrayBuffer buffer,
+    public CharArrayBuffer formatElements(final CharArrayBuffer charBuffer,
                                           final HeaderElement[] elems,
                                           final boolean quote) {
         Args.notNull(elems, "Header element array");
         final int len = estimateElementsLen(elems);
+        CharArrayBuffer buffer = charBuffer;
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -155,20 +154,19 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public static
         String formatHeaderElement(final HeaderElement elem,
                                    final boolean quote,
-                                   HeaderValueFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicHeaderValueFormatter.INSTANCE;
-        }
-        return formatter.formatHeaderElement(null, elem, quote).toString();
+                                   final HeaderValueFormatter formatter) {
+        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
+                .formatHeaderElement(null, elem, quote).toString();
     }
 
 
     // non-javadoc, see interface HeaderValueFormatter
-    public CharArrayBuffer formatHeaderElement(CharArrayBuffer buffer,
+    public CharArrayBuffer formatHeaderElement(final CharArrayBuffer charBuffer,
                                                final HeaderElement elem,
                                                final boolean quote) {
         Args.notNull(elem, "Header element");
         final int len = estimateHeaderElementLen(elem);
+        CharArrayBuffer buffer = charBuffer;
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -241,20 +239,19 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public static
         String formatParameters(final NameValuePair[] nvps,
                                 final boolean quote,
-                                HeaderValueFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicHeaderValueFormatter.INSTANCE;
-        }
-        return formatter.formatParameters(null, nvps, quote).toString();
+                                final HeaderValueFormatter formatter) {
+        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
+                .formatParameters(null, nvps, quote).toString();
     }
 
 
     // non-javadoc, see interface HeaderValueFormatter
-    public CharArrayBuffer formatParameters(CharArrayBuffer buffer,
+    public CharArrayBuffer formatParameters(final CharArrayBuffer charBuffer,
                                             final NameValuePair[] nvps,
                                             final boolean quote) {
         Args.notNull(nvps, "Header parameter array");
         final int len = estimateParametersLen(nvps);
+        CharArrayBuffer buffer = charBuffer;
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -307,20 +304,19 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     public static
         String formatNameValuePair(final NameValuePair nvp,
                                    final boolean quote,
-                                   HeaderValueFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicHeaderValueFormatter.INSTANCE;
-        }
-        return formatter.formatNameValuePair(null, nvp, quote).toString();
+                                   final HeaderValueFormatter formatter) {
+        return (formatter != null ? formatter : BasicHeaderValueFormatter.INSTANCE)
+                .formatNameValuePair(null, nvp, quote).toString();
     }
 
 
     // non-javadoc, see interface HeaderValueFormatter
-    public CharArrayBuffer formatNameValuePair(CharArrayBuffer buffer,
+    public CharArrayBuffer formatNameValuePair(final CharArrayBuffer charBuffer,
                                                final NameValuePair nvp,
                                                final boolean quote) {
         Args.notNull(nvp, "Name / value pair");
         final int len = estimateNameValuePairLen(nvp);
+        CharArrayBuffer buffer = charBuffer;
         if (buffer == null) {
             buffer = new CharArrayBuffer(len);
         } else {
@@ -372,15 +368,16 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      */
     protected void doFormatValue(final CharArrayBuffer buffer,
                                  final String value,
-                                 boolean quote) {
+                                 final boolean quote) {
 
-        if (!quote) {
-            for (int i = 0; (i < value.length()) && !quote; i++) {
-                quote = isSeparator(value.charAt(i));
+        boolean quoteFlag = quote;
+        if (!quoteFlag) {
+            for (int i = 0; (i < value.length()) && !quoteFlag; i++) {
+                quoteFlag = isSeparator(value.charAt(i));
             }
         }
 
-        if (quote) {
+        if (quoteFlag) {
             buffer.append('"');
         }
         for (int i = 0; i < value.length(); i++) {
@@ -390,7 +387,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
             }
             buffer.append(ch);
         }
-        if (quote) {
+        if (quoteFlag) {
             buffer.append('"');
         }
     }

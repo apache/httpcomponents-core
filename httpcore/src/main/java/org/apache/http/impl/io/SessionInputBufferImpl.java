@@ -316,8 +316,9 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return len;
     }
 
-    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos)
+    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, final int position)
             throws IOException {
+        int pos = position;
         final int off = this.bufferpos;
         int len;
         this.bufferpos = pos + 1;

@@ -301,18 +301,20 @@ public final class ByteArrayBuffer implements Serializable {
      * the <code>endIndex</code>, <code>-1</code> is returned.
      *
      * @param   b            the byte to search for.
-     * @param   beginIndex   the index to start the search from.
-     * @param   endIndex     the index to finish the search at.
+     * @param   from         the index to start the search from.
+     * @param   to           the index to finish the search at.
      * @return  the index of the first occurrence of the byte in the buffer
      *   within the given bounds, or <code>-1</code> if the byte does
      *   not occur.
      *
      * @since 4.1
      */
-    public int indexOf(final byte b, int beginIndex, int endIndex) {
+    public int indexOf(final byte b, final int from, final int to) {
+        int beginIndex = from;
         if (beginIndex < 0) {
             beginIndex = 0;
         }
+        int endIndex = to;
         if (endIndex > this.len) {
             endIndex = this.len;
         }

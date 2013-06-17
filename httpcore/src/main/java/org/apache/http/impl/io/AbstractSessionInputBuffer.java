@@ -324,16 +324,16 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         return len;
     }
 
-    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, int pos)
+    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, final int position)
             throws IOException {
         final int off = this.bufferpos;
-        int len;
-        this.bufferpos = pos + 1;
-        if (pos > off && this.buffer[pos - 1] == HTTP.CR) {
+        int i = position;
+        this.bufferpos = i + 1;
+        if (i > off && this.buffer[i - 1] == HTTP.CR) {
             // skip CR if found
-            pos--;
+            i--;
         }
-        len = pos - off;
+        int len = i - off;
         if (this.ascii) {
             charbuffer.append(this.buffer, off, len);
         } else {

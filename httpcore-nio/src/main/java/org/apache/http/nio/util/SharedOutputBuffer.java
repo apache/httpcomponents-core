@@ -209,10 +209,11 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
 
-    public void write(final byte[] b, int off, final int len) throws IOException {
+    public void write(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return;
         }
+        int pos = off;
         this.lock.lock();
         try {
             Asserts.check(!this.shutdown && !this.endOfStream, "Buffer already closed for writing");
@@ -224,9 +225,9 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                     setInputMode();
                 }
                 final int chunk = Math.min(remaining, this.buffer.remaining());
-                this.buffer.put(b, off, chunk);
+                this.buffer.put(b, pos, chunk);
                 remaining -= chunk;
-                off += chunk;
+                pos += chunk;
             }
         } finally {
             this.lock.unlock();

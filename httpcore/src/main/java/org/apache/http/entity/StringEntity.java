@@ -94,18 +94,14 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      * @deprecated (4.1.3) use {@link #StringEntity(String, ContentType)}
      */
     @Deprecated
-    public StringEntity(final String string, String mimeType, String charset)
-            throws UnsupportedEncodingException {
+    public StringEntity(
+            final String string, final String mimeType, final String charset) throws UnsupportedEncodingException {
         super();
         Args.notNull(string, "Source string");
-        if (mimeType == null) {
-            mimeType = HTTP.PLAIN_TEXT_TYPE;
-        }
-        if (charset == null) {
-            charset = HTTP.DEFAULT_CONTENT_CHARSET;
-        }
-        this.content = string.getBytes(charset);
-        setContentType(mimeType + HTTP.CHARSET_PARAM + charset);
+        final String mt = mimeType != null ? mimeType : HTTP.PLAIN_TEXT_TYPE;
+        final String cs = charset != null ? charset :HTTP.DEFAULT_CONTENT_CHARSET;
+        this.content = string.getBytes(cs);
+        setContentType(mt + HTTP.CHARSET_PARAM + cs);
     }
 
     /**

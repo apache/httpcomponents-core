@@ -71,12 +71,13 @@ public class BasicLineFormatter implements LineFormatter {
     /**
      * Obtains a buffer for formatting.
      *
-     * @param buffer    a buffer already available, or <code>null</code>
+     * @param charBuffer a buffer already available, or <code>null</code>
      *
      * @return  the cleared argument buffer if there is one, or
      *          a new empty buffer that can be used for formatting
      */
-    protected CharArrayBuffer initBuffer(CharArrayBuffer buffer) {
+    protected CharArrayBuffer initBuffer(final CharArrayBuffer charBuffer) {
+        CharArrayBuffer buffer = charBuffer;
         if (buffer != null) {
             buffer.clear();
         } else {
@@ -98,11 +99,9 @@ public class BasicLineFormatter implements LineFormatter {
      */
     public static
         String formatProtocolVersion(final ProtocolVersion version,
-                                     LineFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicLineFormatter.INSTANCE;
-        }
-        return formatter.appendProtocolVersion(null, version).toString();
+                                     final LineFormatter formatter) {
+        return (formatter != null ? formatter : BasicLineFormatter.INSTANCE)
+                .appendProtocolVersion(null, version).toString();
     }
 
 
@@ -154,11 +153,9 @@ public class BasicLineFormatter implements LineFormatter {
      * @return  the formatted request line
      */
     public static String formatRequestLine(final RequestLine reqline,
-                                                 LineFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicLineFormatter.INSTANCE;
-        }
-        return formatter.formatRequestLine(null, reqline).toString();
+                                           final LineFormatter formatter) {
+        return (formatter != null ? formatter : BasicLineFormatter.INSTANCE)
+                .formatRequestLine(null, reqline).toString();
     }
 
 
@@ -211,11 +208,9 @@ public class BasicLineFormatter implements LineFormatter {
      * @return  the formatted status line
      */
     public static String formatStatusLine(final StatusLine statline,
-                                                LineFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicLineFormatter.INSTANCE;
-        }
-        return formatter.formatStatusLine(null, statline).toString();
+                                          final LineFormatter formatter) {
+        return (formatter != null ? formatter : BasicLineFormatter.INSTANCE)
+                .formatStatusLine(null, statline).toString();
     }
 
 
@@ -270,11 +265,9 @@ public class BasicLineFormatter implements LineFormatter {
      * @return  the formatted header
      */
     public static String formatHeader(final Header header,
-                                            LineFormatter formatter) {
-        if (formatter == null) {
-            formatter = BasicLineFormatter.INSTANCE;
-        }
-        return formatter.formatHeader(null, header).toString();
+                                      final LineFormatter formatter) {
+        return (formatter != null ? formatter : BasicLineFormatter.INSTANCE)
+                .formatHeader(null, header).toString();
     }
 
 

@@ -86,11 +86,8 @@ public class BasicLineParser implements LineParser {
      *                  <code>null</code> for HTTP. The actual version
      *                  is not relevant, only the protocol name.
      */
-    public BasicLineParser(ProtocolVersion proto) {
-        if (proto == null) {
-            proto = HttpVersion.HTTP_1_1;
-        }
-        this.protocol = proto;
+    public BasicLineParser(final ProtocolVersion proto) {
+        this.protocol = proto != null? proto : HttpVersion.HTTP_1_1;
     }
 
 
@@ -104,16 +101,14 @@ public class BasicLineParser implements LineParser {
 
     public static
         ProtocolVersion parseProtocolVersion(final String value,
-                                             LineParser parser) throws ParseException {
+                                             final LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null) {
-            parser = BasicLineParser.INSTANCE;
-        }
 
         final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
         final ParserCursor cursor = new ParserCursor(0, value.length());
-        return parser.parseProtocolVersion(buffer, cursor);
+        return (parser != null ? parser : BasicLineParser.INSTANCE)
+                .parseProtocolVersion(buffer, cursor);
     }
 
 
@@ -255,16 +250,14 @@ public class BasicLineParser implements LineParser {
 
     public static
         RequestLine parseRequestLine(final String value,
-                                     LineParser parser) throws ParseException {
+                                     final LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null) {
-            parser = BasicLineParser.INSTANCE;
-        }
 
         final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
         final ParserCursor cursor = new ParserCursor(0, value.length());
-        return parser.parseRequestLine(buffer, cursor);
+        return (parser != null ? parser : BasicLineParser.INSTANCE)
+            .parseRequestLine(buffer, cursor);
     }
 
 
@@ -344,16 +337,14 @@ public class BasicLineParser implements LineParser {
 
     public static
         StatusLine parseStatusLine(final String value,
-                                   LineParser parser) throws ParseException {
+                                   final LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null) {
-            parser = BasicLineParser.INSTANCE;
-        }
 
         final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
         final ParserCursor cursor = new ParserCursor(0, value.length());
-        return parser.parseStatusLine(buffer, cursor);
+        return (parser != null ? parser : BasicLineParser.INSTANCE)
+                .parseStatusLine(buffer, cursor);
     }
 
 
@@ -430,15 +421,13 @@ public class BasicLineParser implements LineParser {
 
     public static
         Header parseHeader(final String value,
-                           LineParser parser) throws ParseException {
+                           final LineParser parser) throws ParseException {
         Args.notNull(value, "Value");
-        if (parser == null) {
-            parser = BasicLineParser.INSTANCE;
-        }
 
         final CharArrayBuffer buffer = new CharArrayBuffer(value.length());
         buffer.append(value);
-        return parser.parseHeader(buffer);
+        return (parser != null ? parser : BasicLineParser.INSTANCE)
+                .parseHeader(buffer);
     }
 
 

@@ -100,16 +100,14 @@ public final class CharArrayBuffer implements Serializable {
      *
      * @param str    the string.
      */
-    public void append(String str) {
-        if (str == null) {
-            str = "null";
-        }
-        final int strlen = str.length();
+    public void append(final String str) {
+        final String s = str != null ? str : "null";
+        final int strlen = s.length();
         final int newlen = this.len + strlen;
         if (newlen > this.buffer.length) {
             expand(newlen);
         }
-        str.getChars(0, strlen, this.buffer, this.len);
+        s.getChars(0, strlen, this.buffer, this.len);
         this.len = newlen;
     }
 
@@ -362,17 +360,19 @@ public final class CharArrayBuffer implements Serializable {
      * {@link #length()}. If the <code>beginIndex</code> is greater than
      * the <code>endIndex</code>, <code>-1</code> is returned.
      *
-     * @param   ch          the char to search for.
-     * @param   beginIndex   the index to start the search from.
-     * @param   endIndex   the index to finish the search at.
+     * @param   ch     the char to search for.
+     * @param   from   the index to start the search from.
+     * @param   to     the index to finish the search at.
      * @return  the index of the first occurrence of the character in the buffer
      *   within the given bounds, or <code>-1</code> if the character does
      *   not occur.
      */
-    public int indexOf(final int ch, int beginIndex, int endIndex) {
+    public int indexOf(final int ch, final int from, final int to) {
+        int beginIndex = from;
         if (beginIndex < 0) {
             beginIndex = 0;
         }
+        int endIndex = to;
         if (endIndex > this.len) {
             endIndex = this.len;
         }
@@ -426,8 +426,8 @@ public final class CharArrayBuffer implements Serializable {
      * non-whitespace character with the index lesser than
      * <code>endIndex</code>.
      *
-     * @param      beginIndex   the beginning index, inclusive.
-     * @param      endIndex     the ending index, exclusive.
+     * @param      from   the beginning index, inclusive.
+     * @param      to     the ending index, exclusive.
      * @return     the specified substring.
      * @exception  IndexOutOfBoundsException  if the
      *             <code>beginIndex</code> is negative, or
@@ -435,7 +435,9 @@ public final class CharArrayBuffer implements Serializable {
      *             buffer, or <code>beginIndex</code> is larger than
      *             <code>endIndex</code>.
      */
-    public String substringTrimmed(int beginIndex, int endIndex) {
+    public String substringTrimmed(final int from, final int to) {
+        int beginIndex = from;
+        int endIndex = to;
         if (beginIndex < 0) {
             throw new IndexOutOfBoundsException("Negative beginIndex: "+beginIndex);
         }

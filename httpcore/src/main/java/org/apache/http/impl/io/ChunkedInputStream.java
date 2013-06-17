@@ -156,7 +156,7 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException in case of an I/O error
      */
     @Override
-    public int read (final byte[] b, final int off, int len) throws IOException {
+    public int read (final byte[] b, final int off, final int len) throws IOException {
 
         if (closed) {
             throw new IOException("Attempted read from closed stream.");
@@ -171,8 +171,7 @@ public class ChunkedInputStream extends InputStream {
                 return -1;
             }
         }
-        len = Math.min(len, chunkSize - pos);
-        final int bytesRead = in.read(b, off, len);
+        final int bytesRead = in.read(b, off, Math.min(len, chunkSize - pos));
         if (bytesRead != -1) {
             pos += bytesRead;
             if (pos >= chunkSize) {
@@ -226,8 +225,8 @@ public class ChunkedInputStream extends InputStream {
         switch (st) {
         case CHUNK_CRLF:
             this.buffer.clear();
-            int i = this.in.readLine(this.buffer);
-            if (i == -1) {
+            final int bytesRead1 = this.in.readLine(this.buffer);
+            if (bytesRead1 == -1) {
                 return 0;
             }
             if (!this.buffer.isEmpty()) {
@@ -238,8 +237,8 @@ public class ChunkedInputStream extends InputStream {
             //$FALL-THROUGH$
         case CHUNK_LEN:
             this.buffer.clear();
-            i = this.in.readLine(this.buffer);
-            if (i == -1) {
+            final int bytesRead2 = this.in.readLine(this.buffer);
+            if (bytesRead2 == -1) {
                 return 0;
             }
             int separator = this.buffer.indexOf(';');

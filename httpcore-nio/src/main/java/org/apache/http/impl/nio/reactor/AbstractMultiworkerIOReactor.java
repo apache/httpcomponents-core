@@ -230,17 +230,14 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @param timestamp the time stamp of the exception. Can be
      * <code>null</code> in which case the current date / time will be used.
      */
-    protected synchronized void addExceptionEvent(final Throwable ex, Date timestamp) {
+    protected synchronized void addExceptionEvent(final Throwable ex, final Date timestamp) {
         if (ex == null) {
             return;
-        }
-        if (timestamp == null) {
-            timestamp = new Date();
         }
         if (this.auditLog == null) {
             this.auditLog = new ArrayList<ExceptionEvent>();
         }
-        this.auditLog.add(new ExceptionEvent(ex, timestamp));
+        this.auditLog.add(new ExceptionEvent(ex, timestamp != null ? timestamp : new Date()));
     }
 
     /**

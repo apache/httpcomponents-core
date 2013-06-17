@@ -140,13 +140,11 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             final SessionInputBuffer inbuffer,
             final int maxHeaderCount,
             final int maxLineLen,
-            LineParser parser)
-        throws HttpException, IOException {
-        if (parser == null) {
-            parser = BasicLineParser.INSTANCE;
-        }
+            final LineParser parser) throws HttpException, IOException {
         final List<CharArrayBuffer> headerLines = new ArrayList<CharArrayBuffer>();
-        return parseHeaders(inbuffer, maxHeaderCount, maxLineLen, parser, headerLines);
+        return parseHeaders(inbuffer, maxHeaderCount, maxLineLen,
+                parser != null ? parser : BasicLineParser.INSTANCE,
+                headerLines);
     }
 
     /**

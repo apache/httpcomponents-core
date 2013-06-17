@@ -102,17 +102,18 @@ public class ContentLengthOutputStream extends OutputStream {
     }
 
     @Override
-    public void write(final byte[] b, final int off, int len) throws IOException {
+    public void write(final byte[] b, final int off, final int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
         if (this.total < this.contentLength) {
             final long max = this.contentLength - this.total;
-            if (len > max) {
-                len = (int) max;
+            int chunk = len;
+            if (chunk > max) {
+                chunk = (int) max;
             }
-            this.out.write(b, off, len);
-            this.total += len;
+            this.out.write(b, off, chunk);
+            this.total += chunk;
         }
     }
 

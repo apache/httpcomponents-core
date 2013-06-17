@@ -162,7 +162,7 @@ public class ContentLengthInputStream extends InputStream {
      * @throws java.io.IOException Should an error occur on the wrapped stream.
      */
     @Override
-    public int read (final byte[] b, final int off, int len) throws java.io.IOException {
+    public int read (final byte[] b, final int off, final int len) throws java.io.IOException {
         if (closed) {
             throw new IOException("Attempted read from closed stream.");
         }
@@ -171,10 +171,11 @@ public class ContentLengthInputStream extends InputStream {
             return -1;
         }
 
+        int chunk = len;
         if (pos + len > contentLength) {
-            len = (int) (contentLength - pos);
+            chunk = (int) (contentLength - pos);
         }
-        final int count = this.in.read(b, off, len);
+        final int count = this.in.read(b, off, chunk);
         if (count == -1 && pos < contentLength) {
             throw new ConnectionClosedException(
                     "Premature end of Content-Length delimited message body (expected: "

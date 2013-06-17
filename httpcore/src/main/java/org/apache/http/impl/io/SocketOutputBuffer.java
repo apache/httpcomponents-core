@@ -58,17 +58,18 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
      */
     public SocketOutputBuffer(
             final Socket socket,
-            int buffersize,
+            final int buffersize,
             final HttpParams params) throws IOException {
         super();
         Args.notNull(socket, "Socket");
-        if (buffersize < 0) {
-            buffersize = socket.getSendBufferSize();
+        int n = buffersize;
+        if (n < 0) {
+            n = socket.getSendBufferSize();
         }
-        if (buffersize < 1024) {
-            buffersize = 1024;
+        if (n < 1024) {
+            n = 1024;
         }
-        init(socket.getOutputStream(), buffersize, params);
+        init(socket.getOutputStream(), n, params);
     }
 
 }
