@@ -41,7 +41,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link HttpResponseParser}.
+ * Unit tests for {@link DefaultHttpResponseParser}.
  */
 public class TestResponseParser {
 
