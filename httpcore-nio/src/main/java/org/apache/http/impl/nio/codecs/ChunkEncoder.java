@@ -150,7 +150,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
     public String toString() {
         final StringBuilder buffer = new StringBuilder();
         buffer.append("[chunk-coded; completed: ");
-        buffer.append(this.completed);
+        buffer.append(isCompleted());
         buffer.append("]");
         return buffer.toString();
     }

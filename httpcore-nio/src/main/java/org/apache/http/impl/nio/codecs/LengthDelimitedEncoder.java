@@ -178,7 +178,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         buffer.append("; pos: ");
         buffer.append(this.contentLength - this.remaining);
         buffer.append("; completed: ");
-        buffer.append(this.completed);
+        buffer.append(isCompleted());
         buffer.append("]");
         return buffer.toString();
     }
