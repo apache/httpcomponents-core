@@ -97,6 +97,18 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      */
     protected abstract E createEntry(T route, C conn);
 
+    /**
+     * @since 4.3
+     */
+    protected void onLease(final E entry) {
+    }
+
+    /**
+     * @since 4.3
+     */
+    protected void onRelease(final E entry) {
+    }
+
     public boolean isShutdown() {
         return this.isShutDown;
     }
@@ -162,7 +174,9 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     final long timeout,
                     final TimeUnit tunit)
                         throws InterruptedException, TimeoutException, IOException {
-                return getPoolEntryBlocking(route, state, timeout, tunit, this);
+                final E entry = getPoolEntryBlocking(route, state, timeout, tunit, this);
+                onLease(entry);
+                return entry;
             }
 
         };
@@ -306,6 +320,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                 pool.free(entry, reusable);
                 if (reusable && !this.isShutDown) {
                     this.available.addFirst(entry);
+                    onRelease(entry);
                 } else {
                     entry.close();
                 }

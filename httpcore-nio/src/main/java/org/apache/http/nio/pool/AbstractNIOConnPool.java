@@ -180,6 +180,18 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
     protected abstract E createEntry(T route, C conn);
 
+    /**
+     * @since 4.3
+     */
+    protected void onLease(final E entry) {
+    }
+
+    /**
+     * @since 4.3
+     */
+    protected void onRelease(final E entry) {
+    }
+
     public boolean isShutdown() {
         return this.isShutDown.get();
     }
@@ -287,6 +299,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 pool.free(entry, reusable);
                 if (reusable) {
                     this.available.addFirst(entry);
+                    onRelease(entry);
                 } else {
                     entry.close();
                 }
@@ -359,6 +372,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.available.remove(entry);
             this.leased.add(entry);
             request.completed(entry);
+            onLease(entry);
             return true;
         }
 
