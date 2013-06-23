@@ -44,6 +44,8 @@ import org.apache.http.pool.PoolEntry;
 @ThreadSafe
 public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection> {
 
+    private volatile int socketTimeout;
+
     public BasicNIOPoolEntry(final String id, final HttpHost route, final NHttpClientConnection conn) {
         super(id, route, conn);
     }
@@ -59,6 +61,14 @@ public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection
     @Override
     public boolean isClosed() {
         return !getConnection().isOpen();
+    }
+
+    int getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    void setSocketTimeout(final int socketTimeout) {
+        this.socketTimeout = socketTimeout;
     }
 
 }

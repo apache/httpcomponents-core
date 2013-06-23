@@ -157,7 +157,10 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     @Override
     protected BasicNIOPoolEntry createEntry(final HttpHost host, final NHttpClientConnection conn) {
-        return new BasicNIOPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
+        final BasicNIOPoolEntry entry = new BasicNIOPoolEntry(
+                Long.toString(COUNTER.getAndIncrement()), host, conn);
+        entry.setSocketTimeout(conn.getSocketTimeout());
+        return entry;
     }
 
     @Override
@@ -175,6 +178,19 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final Object state) {
         return super.lease(route, state,
                 this.connectTimeout, TimeUnit.MILLISECONDS, null);
+    }
+
+    @Override
+    protected void onLease(final BasicNIOPoolEntry entry) {
+        final NHttpClientConnection conn = entry.getConnection();
+        conn.setSocketTimeout(entry.getSocketTimeout());
+    }
+
+    @Override
+    protected void onRelease(final BasicNIOPoolEntry entry) {
+        final NHttpClientConnection conn = entry.getConnection();
+        entry.setSocketTimeout(conn.getSocketTimeout());
+        conn.setSocketTimeout(0);
     }
 
 }

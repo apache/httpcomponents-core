@@ -484,7 +484,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 final E entry = pool.createEntry(request, conn);
                 this.leased.add(entry);
                 pool.completed(request, entry);
-
+                onLease(entry);
             } catch (final IOException ex) {
                 pool.failed(request, ex);
             }
