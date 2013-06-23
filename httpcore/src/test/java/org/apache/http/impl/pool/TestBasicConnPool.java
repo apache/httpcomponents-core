@@ -96,6 +96,7 @@ public class TestBasicConnPool {
     public void testHttpsCreateConnection() throws Exception {
         final SocketConfig sconfig = SocketConfig.custom().setSoTimeout(100).build();
         connFactory = new BasicConnFactory(
+                null,
                 (SSLSocketFactory)SSLSocketFactory.getDefault(),
                 0, sconfig, ConnectionConfig.DEFAULT);
         host = new HttpHost("localhost", sslServerPort, "https");

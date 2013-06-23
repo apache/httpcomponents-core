@@ -26,17 +26,13 @@
  */
 package org.apache.http.impl.nio;
 
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
-
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
+import org.apache.http.impl.ConnSupport;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
@@ -66,7 +62,7 @@ public class SSLNHttpServerConnectionFactory
     private final ByteBufferAllocator allocator;
     private final SSLContext sslcontext;
     private final SSLSetupHandler sslHandler;
-    private final ConnectionConfig config;
+    private final ConnectionConfig cconfig;
 
     /**
      * @deprecated (4.3) use {@link
@@ -88,7 +84,7 @@ public class SSLNHttpServerConnectionFactory
         this.sslHandler = sslHandler;
         this.allocator = allocator;
         this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
-        this.config = HttpParamConfig.getConnectionConfig(params);
+        this.cconfig = HttpParamConfig.getConnectionConfig(params);
     }
 
     /**
@@ -122,14 +118,14 @@ public class SSLNHttpServerConnectionFactory
             final SSLSetupHandler sslHandler,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final ByteBufferAllocator allocator,
-            final ConnectionConfig config) {
+            final ConnectionConfig cconfig) {
         super();
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
         this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
         this.requestParserFactory = requestParserFactory != null ? requestParserFactory :
             DefaultHttpRequestParserFactory.INSTANCE;
-        this.config = config != null ? config : ConnectionConfig.DEFAULT;
+        this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
     }
 
     /**
@@ -188,26 +184,13 @@ public class SSLNHttpServerConnectionFactory
 
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
         final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
-        CharsetDecoder chardecoder = null;
-        CharsetEncoder charencoder = null;
-        final Charset charset = this.config.getCharset();
-        final CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
-                this.config.getMalformedInputAction() : CodingErrorAction.REPORT;
-        final CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
-                this.config.getUnmappableInputAction() : CodingErrorAction.REPORT;
-        if (charset != null) {
-            chardecoder = charset.newDecoder();
-            chardecoder.onMalformedInput(malformedInputAction);
-            chardecoder.onUnmappableCharacter(unmappableInputAction);
-            charencoder = charset.newEncoder();
-            charencoder.onMalformedInput(malformedInputAction);
-            charencoder.onUnmappableCharacter(unmappableInputAction);
-        }
         return new DefaultNHttpServerConnection(ssliosession,
-                this.config.getBufferSize(),
-                this.config.getFragmentSizeHint(),
+                this.cconfig.getBufferSize(),
+                this.cconfig.getFragmentSizeHint(),
                 this.allocator,
-                chardecoder, charencoder, this.config.getMessageConstraints(),
+                ConnSupport.createDecoder(this.cconfig),
+                ConnSupport.createEncoder(this.cconfig),
+                this.cconfig.getMessageConstraints(),
                 null, null,
                 this.requestParserFactory,
                 null);

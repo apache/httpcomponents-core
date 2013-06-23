@@ -494,7 +494,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     protected void prepareSocket(final Socket socket) throws IOException {
         socket.setTcpNoDelay(this.config.isTcpNoDelay());
         socket.setKeepAlive(this.config.isSoKeepalive());
-        socket.setReuseAddress(this.config.isSoReuseAddress());
         if (this.config.getSoTimeout() > 0) {
             socket.setSoTimeout(this.config.getSoTimeout());
         }

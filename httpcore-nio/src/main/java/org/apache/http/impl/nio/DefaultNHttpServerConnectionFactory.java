@@ -26,15 +26,11 @@
  */
 package org.apache.http.impl.nio;
 
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
-
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
+import org.apache.http.impl.ConnSupport;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
@@ -59,7 +55,7 @@ public class DefaultNHttpServerConnectionFactory
 
     private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
     private final ByteBufferAllocator allocator;
-    private final ConnectionConfig config;
+    private final ConnectionConfig cconfig;
 
     /**
      * @deprecated (4.3) use {@link
@@ -77,7 +73,7 @@ public class DefaultNHttpServerConnectionFactory
         Args.notNull(params, "HTTP parameters");
         this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
         this.allocator = allocator;
-        this.config = HttpParamConfig.getConnectionConfig(params);
+        this.cconfig = HttpParamConfig.getConnectionConfig(params);
     }
 
     /**
@@ -107,12 +103,12 @@ public class DefaultNHttpServerConnectionFactory
     public DefaultNHttpServerConnectionFactory(
             final ByteBufferAllocator allocator,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final ConnectionConfig config) {
+            final ConnectionConfig cconfig) {
         super();
         this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
         this.requestParserFactory = requestParserFactory != null ? requestParserFactory :
             DefaultHttpRequestParserFactory.INSTANCE;
-        this.config = config != null ? config : ConnectionConfig.DEFAULT;
+        this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
     }
 
     /**
@@ -123,26 +119,13 @@ public class DefaultNHttpServerConnectionFactory
     }
 
     public DefaultNHttpServerConnection createConnection(final IOSession session) {
-        CharsetDecoder chardecoder = null;
-        CharsetEncoder charencoder = null;
-        final Charset charset = this.config.getCharset();
-        final CodingErrorAction malformedInputAction = this.config.getMalformedInputAction() != null ?
-                this.config.getMalformedInputAction() : CodingErrorAction.REPORT;
-        final CodingErrorAction unmappableInputAction = this.config.getUnmappableInputAction() != null ?
-                this.config.getUnmappableInputAction() : CodingErrorAction.REPORT;
-        if (charset != null) {
-            chardecoder = charset.newDecoder();
-            chardecoder.onMalformedInput(malformedInputAction);
-            chardecoder.onUnmappableCharacter(unmappableInputAction);
-            charencoder = charset.newEncoder();
-            charencoder.onMalformedInput(malformedInputAction);
-            charencoder.onUnmappableCharacter(unmappableInputAction);
-        }
         return new DefaultNHttpServerConnection(session,
-                this.config.getBufferSize(),
-                this.config.getFragmentSizeHint(),
+                this.cconfig.getBufferSize(),
+                this.cconfig.getFragmentSizeHint(),
                 this.allocator,
-                chardecoder, charencoder, this.config.getMessageConstraints(),
+                ConnSupport.createDecoder(this.cconfig),
+                ConnSupport.createEncoder(this.cconfig),
+                this.cconfig.getMessageConstraints(),
                 null, null,
                 this.requestParserFactory,
                 null);

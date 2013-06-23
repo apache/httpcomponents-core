@@ -29,11 +29,8 @@ package org.apache.http.impl.pool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 
+import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.HttpClientConnection;
@@ -41,6 +38,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.impl.ConnSupport;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
@@ -60,6 +58,7 @@ import org.apache.http.util.Args;
 @Immutable
 public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnection> {
 
+    private final SocketFactory plainfactory;
     private final SSLSocketFactory sslfactory;
     private final int connectTimeout;
     private final SocketConfig sconfig;
@@ -67,12 +66,14 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
 
     /**
      * @deprecated (4.3) use
-     *   {@link BasicConnFactory#BasicConnFactory(SSLSocketFactory, int, SocketConfig, ConnectionConfig)}.
+     *   {@link BasicConnFactory#BasicConnFactory(SocketFactory, SSLSocketFactory, int,
+     *     SocketConfig, ConnectionConfig)}.
      */
     @Deprecated
     public BasicConnFactory(final SSLSocketFactory sslfactory, final HttpParams params) {
         super();
         Args.notNull(params, "HTTP params");
+        this.plainfactory = null;
         this.sslfactory = sslfactory;
         this.connectTimeout = HttpConnectionParams.getConnectionTimeout(params);
         this.sconfig = HttpParamConfig.getSocketConfig(params);
@@ -92,11 +93,13 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
      * @since 4.3
      */
     public BasicConnFactory(
+            final SocketFactory plainfactory,
             final SSLSocketFactory sslfactory,
             final int connectTimeout,
             final SocketConfig sconfig,
             final ConnectionConfig cconfig) {
         super();
+        this.plainfactory = plainfactory;
         this.sslfactory = sslfactory;
         this.connectTimeout = connectTimeout;
         this.sconfig = sconfig != null ? sconfig : SocketConfig.DEFAULT;
@@ -108,21 +111,21 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
      */
     public BasicConnFactory(
             final int connectTimeout, final SocketConfig sconfig, final ConnectionConfig cconfig) {
-        this(null, connectTimeout, sconfig, cconfig);
+        this(null, null, connectTimeout, sconfig, cconfig);
     }
 
     /**
      * @since 4.3
      */
     public BasicConnFactory(final SocketConfig sconfig, final ConnectionConfig cconfig) {
-        this(null, 0, sconfig, cconfig);
+        this(null, null, 0, sconfig, cconfig);
     }
 
     /**
      * @since 4.3
      */
     public BasicConnFactory() {
-        this(null, 0, SocketConfig.DEFAULT, ConnectionConfig.DEFAULT);
+        this(null, null, 0, SocketConfig.DEFAULT, ConnectionConfig.DEFAULT);
     }
 
     /**
@@ -140,7 +143,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         final String scheme = host.getSchemeName();
         Socket socket = null;
         if ("http".equalsIgnoreCase(scheme)) {
-            socket = new Socket();
+            socket = this.plainfactory != null ? this.plainfactory.createSocket() :
+                    new Socket();
         } if ("https".equalsIgnoreCase(scheme)) {
             if (this.sslfactory != null) {
                 socket = this.sslfactory.createSocket();
@@ -158,7 +162,6 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
                 port = 443;
             }
         }
-
         socket.setSoTimeout(this.sconfig.getSoTimeout());
         socket.connect(new InetSocketAddress(hostname, port), this.connectTimeout);
         socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
@@ -166,25 +169,11 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
         }
-        CharsetDecoder chardecoder = null;
-        CharsetEncoder charencoder = null;
-        final Charset charset = this.cconfig.getCharset();
-        final CodingErrorAction malformedInputAction = this.cconfig.getMalformedInputAction() != null ?
-                this.cconfig.getMalformedInputAction() : CodingErrorAction.REPORT;
-        final CodingErrorAction unmappableInputAction = this.cconfig.getUnmappableInputAction() != null ?
-                this.cconfig.getUnmappableInputAction() : CodingErrorAction.REPORT;
-        if (charset != null) {
-            chardecoder = charset.newDecoder();
-            chardecoder.onMalformedInput(malformedInputAction);
-            chardecoder.onUnmappableCharacter(unmappableInputAction);
-            charencoder = charset.newEncoder();
-            charencoder.onMalformedInput(malformedInputAction);
-            charencoder.onUnmappableCharacter(unmappableInputAction);
-        }
         final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(
                 this.cconfig.getBufferSize(),
                 this.cconfig.getFragmentSizeHint(),
-                chardecoder, charencoder,
+                ConnSupport.createDecoder(this.cconfig),
+                ConnSupport.createEncoder(this.cconfig),
                 this.cconfig.getMessageConstraints(),
                 null, null, null, null);
         conn.bind(socket);
