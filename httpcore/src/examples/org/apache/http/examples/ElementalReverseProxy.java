@@ -66,12 +66,7 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 
 /**
- * Rudimentary HTTP/1.1 reverse proxy.
- * <p>
- * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP reverse proxy.
- *
- *
+ * Elemental HTTP/1.1 reverse proxy.
  */
 public class ElementalReverseProxy {
 

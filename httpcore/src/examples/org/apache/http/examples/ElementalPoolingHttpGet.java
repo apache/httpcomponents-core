@@ -54,9 +54,6 @@ import org.apache.http.util.EntityUtils;
 /**
  * Elemental example for executing multiple GET requests from different threads using a connection
  * pool.
- * <p>
- * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP client.
  */
 public class ElementalPoolingHttpGet {
 

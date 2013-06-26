@@ -32,8 +32,10 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
+import java.security.KeyStore;
 import java.util.Locale;
 
 import org.apache.http.ConnectionClosedException;
@@ -62,13 +64,13 @@ import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 import org.apache.http.util.EntityUtils;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
+
 /**
  * Basic, yet fully functional and spec compliant, HTTP/1.1 file server.
- * <p>
- * Please note the purpose of this application is demonstrate the usage of HttpCore APIs.
- * It is NOT intended to demonstrate the most efficient way of building an HTTP file server.
- *
- *
  */
 public class ElementalHttpServer {
 
@@ -77,7 +79,48 @@ public class ElementalHttpServer {
             System.err.println("Please specify document root directory");
             System.exit(1);
         }
-        Thread t = new RequestListenerThread(8080, args[0]);
+        // Document root directory
+        String docRoot = args[0];
+        int port = 8080;
+        if (args.length >= 2) {
+            port = Integer.parseInt(args[1]);
+        }
+
+        // Set up the HTTP protocol processor
+        HttpProcessor httpproc = HttpProcessorBuilder.create()
+                .add(new ResponseDate())
+                .add(new ResponseServer("Test/1.1"))
+                .add(new ResponseContent())
+                .add(new ResponseConnControl()).build();
+
+        // Set up request handlers
+        UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
+        reqistry.register("*", new HttpFileHandler(docRoot));
+
+        // Set up the HTTP service
+        HttpService httpService = new HttpService(httpproc, reqistry);
+
+        SSLServerSocketFactory sf = null;
+        if (port == 8443) {
+            // Initialize SSL context
+            ClassLoader cl = ElementalHttpServer.class.getClassLoader();
+            URL url = cl.getResource("my.keystore");
+            if (url == null) {
+                System.out.println("Keystore not found");
+                System.exit(1);
+            }
+            KeyStore keystore  = KeyStore.getInstance("jks");
+            keystore.load(url.openStream(), "secret".toCharArray());
+            KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(
+                    KeyManagerFactory.getDefaultAlgorithm());
+            kmfactory.init(keystore, "secret".toCharArray());
+            KeyManager[] keymanagers = kmfactory.getKeyManagers();
+            SSLContext sslcontext = SSLContext.getInstance("TLS");
+            sslcontext.init(keymanagers, null, null);
+            sf = sslcontext.getServerSocketFactory();
+        }
+
+        Thread t = new RequestListenerThread(port, httpService, sf);
         t.setDaemon(false);
         t.start();
     }
@@ -144,22 +187,12 @@ public class ElementalHttpServer {
         private final ServerSocket serversocket;
         private final HttpService httpService;
 
-        public RequestListenerThread(int port, final String docroot) throws IOException {
-            this.serversocket = new ServerSocket(port);
-
-            // Set up the HTTP protocol processor
-            HttpProcessor httpproc = HttpProcessorBuilder.create()
-                .add(new ResponseDate())
-                .add(new ResponseServer("Test/1.1"))
-                .add(new ResponseContent())
-                .add(new ResponseConnControl()).build();
-
-            // Set up request handlers
-            UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
-            reqistry.register("*", new HttpFileHandler(docroot));
-
-            // Set up the HTTP service
-            this.httpService = new HttpService(httpproc, reqistry);
+        public RequestListenerThread(
+                final int port,
+                final HttpService httpService,
+                final SSLServerSocketFactory sf) throws IOException {
+            this.serversocket = sf != null ? sf.createServerSocket(port) : new ServerSocket(port);
+            this.httpService = httpService;
         }
 
         @Override
