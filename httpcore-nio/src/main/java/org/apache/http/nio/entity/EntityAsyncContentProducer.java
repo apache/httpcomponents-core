@@ -28,6 +28,7 @@
 package org.apache.http.nio.entity;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -85,6 +86,10 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
         this.channel = null;
         if (local != null) {
             local.close();
+        }
+        if (this.entity.isStreaming()) {
+            InputStream instream = this.entity.getContent();
+            instream.close();
         }
     }
 

@@ -1,6 +1,10 @@
 Changes since Release 4.2.4
 -------------------
 
+* [HTTPCORE-345] EntityAsyncContentProducer fails to release resources allocated by the underlying 
+  entity when #produceContent is never invoked. 
+  Contributed by Tad Whitenight <tadwhitenight at gmail.com>
+
 * Non-blocking connection pool to avoid scanning the entire queue of pending connection requests 
   on each connection lease / release operation (under heavy load the request queue can contain 
   a significant number of pending requests, a full linear scan of which can cause massive 
