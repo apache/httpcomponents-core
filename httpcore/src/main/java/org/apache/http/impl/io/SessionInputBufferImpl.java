@@ -105,6 +105,12 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         this.decoder = chardecoder;
     }
 
+    public SessionInputBufferImpl(
+            final HttpTransportMetricsImpl metrics,
+            final int buffersize) {
+        this(metrics, buffersize, buffersize, null, null);
+    }
+
     public void bind(final InputStream instream) {
         this.instream = instream;
     }

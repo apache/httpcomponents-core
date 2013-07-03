@@ -72,6 +72,13 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpRespons
         super(buffer, formatter);
     }
 
+    /**
+     * @since 4.3
+     */
+    public DefaultHttpResponseWriter(final SessionOutputBuffer buffer) {
+        super(buffer, null);
+    }
+
     @Override
     protected void writeHeadLine(final HttpResponse message) throws IOException {
         final CharArrayBuffer buffer = lineFormatter.formatStatusLine(

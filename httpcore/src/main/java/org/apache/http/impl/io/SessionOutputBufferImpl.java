@@ -92,6 +92,12 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         this.encoder = charencoder;
     }
 
+    public SessionOutputBufferImpl(
+            final HttpTransportMetricsImpl metrics,
+            final int buffersize) {
+        this(metrics, buffersize, buffersize, null);
+    }
+
     public void bind(final OutputStream outstream) {
         this.outstream = outstream;
     }

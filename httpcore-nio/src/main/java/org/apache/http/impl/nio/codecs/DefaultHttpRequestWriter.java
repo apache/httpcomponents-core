@@ -57,7 +57,6 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
         super(buffer, formatter, params);
     }
 
-
     /**
      * Creates an instance of DefaultHttpRequestWriter.
      *
@@ -71,6 +70,13 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
             final SessionOutputBuffer buffer,
             final LineFormatter formatter) {
         super(buffer, formatter);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public DefaultHttpRequestWriter(final SessionOutputBuffer buffer) {
+        super(buffer, null);
     }
 
     @Override

@@ -25,31 +25,6 @@
 <chapter id="nio">
     <title>NIO extensions</title>
     <section>
-        <title>Benefits and shortcomings of the non-blocking I/O model</title>
-        <para>
-        Contrary to the popular belief, the performance of NIO in terms of raw data throughput is
-        significantly lower than that of blocking I/O. NIO does not necessarily fit all use cases
-        and should be used only where appropriate:
-        </para>
-        <itemizedlist>
-            <listitem>
-                <para>
-                handling of thousands of connections, a significant number of which can be idle.
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                handling high latency connections.
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                request / response handling needs to be decoupled.
-                </para>
-            </listitem>
-        </itemizedlist>
-    </section>
-    <section>
         <title>Differences from other NIO frameworks</title>
         <para>
         Solves similar problems as other frameworks, but has certain distinct features:
@@ -91,10 +66,8 @@
         thread per CPU core.
         </para>
         <programlisting><![CDATA[
-HttpParams params = new BasicHttpParams();
-int workerCount = 2;
-IOReactor ioreactor = new DefaultConnectingIOReactor(workerCount,
-    params);
+IOReactorConfig config = IOReactorConfig.DEFAULT;
+IOReactor ioreactor = new DefaultConnectingIOReactor(config);
 ]]></programlisting>
         <section>
             <title>I/O dispatchers</title>
@@ -108,10 +81,10 @@ IOReactor ioreactor = new DefaultConnectingIOReactor(workerCount,
             events.
             </para>
             <programlisting><![CDATA[
-HttpParams params = new BasicHttpParams();
-IOReactor ioreactor = new DefaultConnectingIOReactor(2, params);
+IOReactorConfig config = IOReactorConfig.DEFAULT;
+IOReactor ioreactor = new DefaultConnectingIOReactor(config);
 
-IOEventDispatch eventDispatch = new MyIOEventDispatch();
+IOEventDispatch eventDispatch = <...>
 ioreactor.execute(eventDispatch);
 ]]></programlisting>
             <para>
@@ -171,6 +144,7 @@ ioreactor.execute(eventDispatch);
             remaining sessions.
             </para>
             <programlisting><![CDATA[
+IOReactor ioreactor = <...>
 long gracePeriod = 3000L; // milliseconds
 ioreactor.shutdown(gracePeriod);
 ]]></programlisting>
@@ -191,7 +165,7 @@ ioreactor.shutdown(gracePeriod);
             to the session.
             </para>
             <programlisting><![CDATA[
-IOSession iosession;
+IOSession iosession = <...>
 ReadableByteChannel ch = (ReadableByteChannel) iosession.channel();
 ByteBuffer dst = ByteBuffer.allocate(2048);
 ch.read(dst);
@@ -205,9 +179,11 @@ ch.read(dst);
             be stored within the session itself.
             </para>
             <programlisting><![CDATA[
-IOSession iosession;
-Object someState;
+IOSession iosession = <...>
+Object someState = <...>
 iosession.setAttribute("state", someState);
+...
+IOSession iosession = <...>
 Object currentState = iosession.getAttribute("state");
 ]]></programlisting>
             <para>
@@ -222,7 +198,7 @@ Object currentState = iosession.getAttribute("state");
             session by setting its event mask.
             </para>
             <programlisting><![CDATA[
-IOSession iosession;
+IOSession iosession = <...>
 iosession.setEventMask(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 ]]></programlisting>
             <para>
@@ -230,6 +206,7 @@ iosession.setEventMask(SelectionKey.OP_READ | SelectionKey.OP_WRITE);
             individually.
             </para>
             <programlisting><![CDATA[
+IOSession iosession = <...>
 iosession.setEvent(SelectionKey.OP_READ);
 iosession.clearEvent(SelectionKey.OP_READ);
 ]]></programlisting>
@@ -253,8 +230,8 @@ iosession.clearEvent(SelectionKey.OP_READ);
             SessionBufferStatus</interfacename> interface.
             </para>
             <programlisting><![CDATA[
-IOSession iosession;
-SessionBufferStatus myBufferStatus = new MySessionBufferStatus();
+IOSession iosession = <...>
+SessionBufferStatus myBufferStatus = <...>
 iosession.setBufferStatus(myBufferStatus);
 iosession.hasBufferedInput();
 iosession.hasBufferedOutput();
@@ -278,12 +255,10 @@ iosession.hasBufferedOutput();
             listening for incoming connections on one or several ports.
             </para>
             <programlisting><![CDATA[
-ListeningIOReactor ioreactor;
-
-ListenerEndpoint ep1 = ioreactor.listen(new InetSocketAddress(8081));
+ListeningIOReactor ioreactor = <...>
+ListenerEndpoint ep1 = ioreactor.listen(new InetSocketAddress(8081) );
 ListenerEndpoint ep2 = ioreactor.listen(new InetSocketAddress(8082));
 ListenerEndpoint ep3 = ioreactor.listen(new InetSocketAddress(8083));
-
 // Wait until all endpoints are up
 ep1.waitFor();
 ep2.waitFor();
@@ -299,7 +274,7 @@ ep3.waitFor();
             endpoint at runtime, and close it if desired.
             </para>
             <programlisting><![CDATA[
-ListeningIOReactor ioreactor;
+ListeningIOReactor ioreactor = <...>
 
 Set<ListenerEndpoint> eps = ioreactor.getEndpoints();
 for (ListenerEndpoint ep: eps) {
@@ -323,7 +298,7 @@ for (ListenerEndpoint ep: eps) {
             establishing connections with remote hosts.
             </para>
             <programlisting><![CDATA[
-ConnectingIOReactor ioreactor;
+ConnectingIOReactor ioreactor = <...>
 
 SessionRequest sessionRequest = ioreactor.connect(
         new InetSocketAddress("www.google.com", 80),
@@ -367,7 +342,7 @@ if (!sessionRequest.isCompleted()) {
             local address.
             </para>
             <programlisting><![CDATA[
-ConnectingIOReactor ioreactor;
+ConnectingIOReactor ioreactor = <...>
 
 SessionRequest sessionRequest = ioreactor.connect(
         new InetSocketAddress("www.google.com", 80),
@@ -396,7 +371,7 @@ HttpHost virtualHost = (HttpHost) iosession.getAttribute(
             as request completion, cancellation, failure or timeout.
             </para>
             <programlisting><![CDATA[
-ConnectingIOReactor ioreactor;
+ConnectingIOReactor ioreactor = <...>
 
 SessionRequest sessionRequest = ioreactor.connect(
         new InetSocketAddress("www.google.com", 80), null, null,
@@ -435,9 +410,10 @@ SessionRequest sessionRequest = ioreactor.connect(
             thread only when the I/O selector is not engaged in a select operation.
             </para>
             <programlisting><![CDATA[
-HttpParams params = new BasicHttpParams();
-NIOReactorParams.setInterestOpsQueueing(params, true);
-ListeningIOReactor ioreactor = new DefaultListeningIOReactor(2, params);
+IOReactorConfig config = IOReactorConfig.custom()
+        .setInterestOpQueued(true)
+        .build();
+ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 ]]></programlisting>
         </section>
     </section>
@@ -459,7 +435,7 @@ ListeningIOReactor ioreactor = new DefaultListeningIOReactor(2, params);
         IOReactorExceptionHandler</interfacename> interface.
         </para>
         <programlisting><![CDATA[
-DefaultConnectingIOReactor ioreactor;
+DefaultConnectingIOReactor ioreactor = <...>
 
 ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {
 
@@ -502,7 +478,7 @@ ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {
             I/O reactor.
             </para>
             <programlisting><![CDATA[
-DefaultConnectingIOReactor ioreactor;
+DefaultConnectingIOReactor ioreactor = <...>
 
 // Give it 5 sec grace period
 ioreactor.shutdown(5000);
@@ -532,10 +508,8 @@ for (ExceptionEvent event: events) {
             </interfacename> instance is thread-safe and can be manipulated from multiple threads.
             </para>
             <programlisting><![CDATA[
-// Get non-blocking HTTP connection
-DefaultNHttpClientConnection conn;
-// State
-Object myStateObject;
+DefaultNHttpClientConnection conn = <...>
+Object myStateObject = <...>
 
 HttpContext context = conn.getContext();
 context.setAttribute("state", myStateObject);
@@ -549,17 +523,17 @@ context.setAttribute("state", myStateObject);
             be null if there is no incoming or outgoing message currently being transferred.
             </para>
             <programlisting><![CDATA[
-NHttpConnection conn;
+NHttpConnection conn = <...>
 
 HttpRequest request = conn.getHttpRequest();
 if (request != null) {
     System.out.println("Transferring request: " +
-        request.getRequestLine());
+            request.getRequestLine());
 }
 HttpResponse response = conn.getHttpResponse();
 if (response != null) {
     System.out.println("Transferring response: " +
-        response.getStatusLine());
+            response.getStatusLine());
 }
 ]]></programlisting>
             <para>
@@ -574,15 +548,11 @@ if (response != null) {
             Over-simplified process of submitting a request on the client side may look like this:
             </para>
             <programlisting><![CDATA[
-// Obtain HTTP connection
-NHttpClientConnection conn;
-
+NHttpClientConnection conn = <...>
 // Obtain execution context
 HttpContext context = conn.getContext();
-
 // Obtain processing state
 Object state = context.getAttribute("state");
-
 // Generate a request based on the state information
 HttpRequest request = new BasicHttpRequest("GET", "/");
 
@@ -593,12 +563,9 @@ System.out.println(conn.isRequestSubmitted());
             Over-simplified process of submitting a response on the server side may look like this:
             </para>
             <programlisting><![CDATA[
-// Obtain HTTP connection
-NHttpServerConnection conn;
-
+NHttpServerConnection conn = <...>
 // Obtain execution context
 HttpContext context = conn.getContext();
-
 // Obtain processing state
 Object state = context.getAttribute("state");
 
@@ -687,8 +654,7 @@ System.out.println(conn.isResponseSubmitted());
             transferred.
             </para>
             <programlisting><![CDATA[
-//Obtain content decoder
-ContentDecoder decoder;
+ContentDecoder decoder = <...>
 //Read data in
 ByteBuffer dst = ByteBuffer.allocate(2048);
 decoder.read(dst);
@@ -703,8 +669,7 @@ if (decoder.isCompleted()) {
             marked as fully transferred.
             </para>
             <programlisting><![CDATA[
-// Obtain content encoder
-ContentEncoder encoder;
+ContentEncoder encoder = <...>
 // Prepare output data
 ByteBuffer src = ByteBuffer.allocate(2048);
 // Write data out
@@ -721,8 +686,7 @@ encoder.complete();
             HttpEntity#writeTo()</methodname> methods of the enclosed entities.
             </para>
             <programlisting><![CDATA[
-// Obtain HTTP connection
-NHttpServerConnection conn;
+NHttpServerConnection conn  = <...>
 
 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
     HttpStatus.SC_OK, "OK");
@@ -743,8 +707,7 @@ conn.submitResponse(response);
             of the incoming entity such as content length.
             </para>
             <programlisting><![CDATA[
-// Obtain HTTP connection
-NHttpClientConnection conn;
+NHttpClientConnection conn = <...>
 
 HttpResponse response = conn.getHttpResponse();
 HttpEntity entity = response.getEntity();
@@ -812,8 +775,7 @@ if (entity != null) {
             file bypassing an intermediate <classname>java.nio.ByteBuffer</classname>.
             </para>
             <programlisting><![CDATA[
-//Obtain content decoder
-ContentDecoder decoder;
+ContentDecoder decoder = <...>
 //Prepare file channel
 FileChannel dst;
 //Make use of direct file I/O if possible
@@ -833,8 +795,7 @@ if (decoder instanceof FileContentDecoder) {
             from a file bypassing an intermediate <classname>java.nio.ByteBuffer</classname>.
             </para>
             <programlisting><![CDATA[
-// Obtain content encoder
-ContentEncoder encoder;
+ContentEncoder encoder = <...>
 // Prepare file channel
 FileChannel src;
 // Make use of direct file I/O if possible
@@ -1146,9 +1107,8 @@ if (encoder instanceof FileContentEncoder) {
                 a given byte array. This byte array is supplied to the constructor.
                 </para>
                 <programlisting><![CDATA[
-String myData = "Hello world on the other side!!";
-NByteArrayEntity entity = new NByteArrayEntity(myData.getBytes());
-    ]]></programlisting>
+NByteArrayEntity entity = new NByteArrayEntity(new byte[] {1, 2, 3});
+]]></programlisting>
             </section>
             <section id="string-n-entity">
                 <title><classname>NStringEntity</classname></title>
@@ -1159,11 +1119,8 @@ NByteArrayEntity entity = new NByteArrayEntity(myData.getBytes());
                 the data in the <classname>java.lang.String</classname>.
                 </para>
                 <programlisting><![CDATA[
-String myData = "Hello world on the other side!!";
-// construct without a character encoding
-NStringEntity myEntity1 = new NStringEntity(myData);
-// alternatively construct with an encoding
-NStringEntity myEntity2 = new NStringEntity(myData, "UTF-8");
+NStringEntity myEntity = new NStringEntity("important message",
+        Consts.UTF_8);
     ]]></programlisting>
             </section>
             <section id="file-n-entity">
@@ -1176,7 +1133,7 @@ NStringEntity myEntity2 = new NStringEntity(myData, "UTF-8");
                 </para>
                 <programlisting><![CDATA[
 File staticFile = new File("/path/to/myapp.jar");
-NHttpEntity entity = new NFileEntity(staticFile,
+NFileEntity entity = new NFileEntity(staticFile,
     ContentType.create("application/java-archive", null));
     ]]></programlisting>
                 <para>
@@ -1216,23 +1173,18 @@ NHttpEntity entity = new NFileEntity(staticFile,
             application specific content generation and processing.
             </para>
             <programlisting><![CDATA[
-HttpParams params;
-// Initialize HTTP parameters
-HttpProcessor httpproc;
-// Initialize HTTP processor
-HttpAsyncRequestHandlerResolver handlerResolver;
-// Initialize HTTP request resolver
-HttpAsyncService protocolHandler = new HttpAsyncService(
-        httpproc,
-        new DefaultConnectionReuseStrategy(),
-        new DefaultHttpResponseFactory(),
-        handlerResolver,
-        null,
-        params);
-NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
-// Initialize HTTP connection factory
+HttpProcessor httpproc = HttpProcessorBuilder.create()
+        .add(new ResponseDate())
+        .add(new ResponseServer("MyServer-HTTP/1.1"))
+        .add(new ResponseContent())
+        .add(new ResponseConnControl())
+        .build();
+HttpAsyncService protocolHandler = new HttpAsyncService(httpproc, null);
 IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(
-    protocolHandler, connFactory);
+        protocolHandler,
+        new DefaultNHttpServerConnectionFactory(ConnectionConfig.DEFAULT));
+ListeningIOReactor ioreactor = new DefaultListeningIOReactor();
+ioreactor.execute(ioEventDispatch);
 ]]></programlisting>
             <section>
                 <title>Non-blocking HTTP request handlers</title>
@@ -1262,7 +1214,7 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
         HttpResponse response = httpexchange.getResponse();
         response.setStatusCode(HttpStatus.SC_OK);
         NFileEntity body = new NFileEntity(new File("static.html"),
-                ContentType.create("text/html", null));
+                ContentType.create("text/html", Consts.UTF_8));
         response.setEntity(body);
         httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
     }
@@ -1377,7 +1329,7 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
                 HttpResponse response = httpexchange.getResponse();
                 response.setStatusCode(HttpStatus.SC_OK);
                 NFileEntity body = new NFileEntity(new File("static.html"),
-                        ContentType.create("text/html", null));
+                        ContentType.create("text/html", Consts.UTF_8));
                 response.setEntity(body);
                 httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
             }
@@ -1610,8 +1562,11 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
                 <literal>*&lt;uri&gt;</literal>.
                 </para>
                 <programlisting><![CDATA[
-HttpAsyncRequestHandlerRegistry handlerReqistry =
-    new HttpAsyncRequestHandlerRegistry();
+HttpAsyncRequestHandler<?> myRequestHandler1 = <...>
+HttpAsyncRequestHandler<?> myRequestHandler2 = <...>
+HttpAsyncRequestHandler<?> myRequestHandler3 = <...>
+UriHttpAsyncRequestHandlerMapper handlerReqistry =
+        new UriHttpAsyncRequestHandlerMapper();
 handlerReqistry.register("/service/*", myRequestHandler1);
 handlerReqistry.register("*.do", myRequestHandler2);
 handlerReqistry.register("*", myRequestHandler3);
@@ -1649,9 +1604,10 @@ handlerReqistry.register("*", myRequestHandler3);
             </para>
             <programlisting><![CDATA[
 HttpAsyncRequestExecutor ph = new HttpAsyncRequestExecutor();
-NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
-// Initialize HTTP connection factory
-IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(ph, connFactory);
+IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(ph,
+        new DefaultNHttpClientConnectionFactory(ConnectionConfig.DEFAULT));
+ConnectingIOReactor ioreactor = new DefaultConnectingIOReactor();
+ioreactor.execute(ioEventDispatch);
 ]]></programlisting>
             <para>
             The <classname>HttpAsyncRequester</classname> utility class can be used to abstract
@@ -1661,17 +1617,15 @@ IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(ph, connFactor
             authentication and does not handle redirects automatically.
             </para>
             <programlisting><![CDATA[
-HttpParams params;
-// Initialize HTTP parameters
-HttpProcessor httpprocessor;
-// Initialize HTTP processor
-HttpAsyncRequester requester = new HttpAsyncRequester(
-        httpprocessor,
-        new DefaultConnectionReuseStrategy(),
-        params);
-
-//Obtain HTTP connection
-NHttpClientConnection conn;
+HttpProcessor httpproc = HttpProcessorBuilder.create()
+        .add(new RequestContent())
+        .add(new RequestTargetHost())
+        .add(new RequestConnControl())
+        .add(new RequestUserAgent("MyAgent-HTTP/1.1"))
+        .add(new RequestExpectContinue(true))
+        .build();
+HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
+NHttpClientConnection conn = <...>
 Future<HttpResponse> future = requester.execute(
         new BasicAsyncRequestProducer(
                 new HttpHost("localhost"),
@@ -1924,20 +1878,15 @@ HttpResponse response = future.get();
             special preconditions or modifications.
             </para>
             <programlisting><![CDATA[
-// Initialize HTTP parameters
-HttpParams params;
-// Initialize default SSL context
-SSLContext sslcontext = SSLContext.getInstance("SSL");
+SSLContext sslcontext = SSLContext.getInstance("Default");
 sslcontext.init(null, null, null);
 // Plain I/O session
-IOSession iosession;
+IOSession iosession = <...>
 SSLIOSession sslsession = new SSLIOSession(
         iosession, SSLMode.CLIENT, sslcontext, null);
 iosession.setAttribute(SSLIOSession.SESSION_KEY, sslsession);
 NHttpClientConnection conn = new DefaultNHttpClientConnection(
-        sslsession,
-        new DefaultHttpResponseFactory(),
-        new HeapByteBufferAllocator(), params);
+        sslsession, 8 * 1024);
 ]]></programlisting>
             <para>
             One can also use <classname>SSLNHttpClientConnectionFactory</classname> or <classname>
@@ -1945,12 +1894,12 @@ NHttpClientConnection conn = new DefaultNHttpClientConnection(
             encrypterd HTTP connections.
             </para>
             <programlisting><![CDATA[
-// Initialize HTTP parameters
-HttpParams params;
+SSLContext sslcontext = SSLContext.getInstance("Default");
+sslcontext.init(null, null, null);
 // Plain I/O session
-IOSession iosession;
+IOSession iosession = <...>
 SSLNHttpClientConnectionFactory connfactory = new SSLNHttpClientConnectionFactory(
-        params);
+        sslcontext, null, ConnectionConfig.DEFAULT);
 NHttpClientConnection conn = connfactory.createConnection(iosession);
 ]]></programlisting>
             <section>
@@ -1989,14 +1938,13 @@ NHttpClientConnection conn = connfactory.createConnection(iosession);
                     </listitem>
                 </itemizedlist>
                 <programlisting><![CDATA[
-// Plain I/O session
-IOSession iosession;
-// Initialize default SSL context
-SSLContext sslcontext = SSLContext.getInstance("SSL");
+SSLContext sslcontext = SSLContext.getInstance("Default");
 sslcontext.init(null, null, null);
+// Plain I/O session
+IOSession iosession = <...>
 
 SSLIOSession sslsession = new SSLIOSession(
-    iosession, SSLMode.CLIENT, sslcontext, new SSLSetupHandler() {
+        iosession, SSLMode.CLIENT, sslcontext, new SSLSetupHandler() {
 
     public void initalize(final SSLEngine sslengine) throws SSLException {
         // Enforce strong ciphers
@@ -2024,11 +1972,11 @@ SSLIOSession sslsession = new SSLIOSession(
             SSLNHttpServerConnectionFactory</classname> classes.
             </para>
             <programlisting><![CDATA[
-// Initialize HTTP parameters
-HttpParams params;
-// Initialize default SSL context
-SSLContext sslcontext = SSLContext.getInstance("SSL");
+SSLContext sslcontext = SSLContext.getInstance("Default");
 sslcontext.init(null, null, null);
+// Plain I/O session
+IOSession iosession = <...>
+
 SSLSetupHandler mysslhandler = new SSLSetupHandler() {
 
     public void initalize(final SSLEngine sslengine) throws SSLException {
@@ -2045,11 +1993,8 @@ SSLSetupHandler mysslhandler = new SSLSetupHandler() {
 
 
 };
-// Plain I/O session
-IOSession iosession;
 SSLNHttpClientConnectionFactory connfactory = new SSLNHttpClientConnectionFactory(
-        sslcontext, mysslhandler, params);
-// Create SSL connection
+        sslcontext, mysslhandler, ConnectionConfig.DEFAULT);
 NHttpClientConnection conn = connfactory.createConnection(iosession);
 ]]></programlisting>
             </section>

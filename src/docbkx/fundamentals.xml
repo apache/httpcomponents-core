@@ -286,11 +286,10 @@ c3 = c
                 </para>
                 <programlisting><![CDATA[
 StringEntity myEntity = new StringEntity("important message",
-    "UTF-8");
+    Consts.UTF_8);
 
 System.out.println(myEntity.getContentType());
 System.out.println(myEntity.getContentLength());
-System.out.println(EntityUtils.getContentCharSet(myEntity));
 System.out.println(EntityUtils.toString(myEntity));
 System.out.println(EntityUtils.toByteArray(myEntity).length);
 ]]></programlisting>
@@ -298,7 +297,6 @@ System.out.println(EntityUtils.toByteArray(myEntity).length);
                 <programlisting><![CDATA[
 Content-Type: text/plain; charset=UTF-8
 17
-UTF-8
 important message
 17
 ]]></programlisting>
@@ -431,8 +429,8 @@ myEntity.setContentLength(340); // sets the length to 340
                 to the constructor.
                 </para>
                 <programlisting><![CDATA[
-String myData = "Hello world on the other side!!";
-ByteArrayEntity myEntity = new ByteArrayEntity(myData.getBytes());
+ByteArrayEntity myEntity = new ByteArrayEntity(new byte[] {1,2,3},
+        ContentType.APPLICATION_OCTET_STREAM);
 ]]></programlisting>
             </section>
             <section id="string-entity">
@@ -447,19 +445,21 @@ ByteArrayEntity myEntity = new ByteArrayEntity(myData.getBytes());
                 <programlisting><![CDATA[
 StringBuilder sb = new StringBuilder();
 Map<String, String> env = System.getenv();
-for (Entry<String, String> envEntry : env.entrySet()) {
-    sb.append(envEntry.getKey()).append(": ")
-    .append(envEntry.getValue()).append("\n");
+for (Map.Entry<String, String> envEntry : env.entrySet()) {
+    sb.append(envEntry.getKey())
+            .append(": ").append(envEntry.getValue())
+            .append("\r\n");
 }
 
 // construct without a character encoding (defaults to ISO-8859-1)
 HttpEntity myEntity1 = new StringEntity(sb.toString());
 
 // alternatively construct with an encoding (mime type defaults to "text/plain")
-HttpEntity myEntity2 = new StringEntity(sb.toString(), "UTF-8");
+HttpEntity myEntity2 = new StringEntity(sb.toString(), Consts.UTF_8);
 
 // alternatively construct with an encoding and a mime type
-HttpEntity myEntity3 = new StringEntity(sb.toString(), "text/html", "UTF-8");
+HttpEntity myEntity3 = new StringEntity(sb.toString(),
+        ContentType.create("text/plain", Consts.UTF_8));
 ]]></programlisting>
             </section>
             <section id="input-stream-entity">
@@ -490,7 +490,7 @@ InputStreamEntity myEntity = new InputStreamEntity(instream, 16);
                 </para>
                 <programlisting><![CDATA[
 HttpEntity entity = new FileEntity(staticFile,
-    "application/java-archive");
+        ContentType.create("application/java-archive"));
 ]]></programlisting>
             </section>
             <section id="entity-wrapper">
@@ -548,17 +548,16 @@ BufferedHttpEntity myBufferedEntity = new BufferedHttpEntity(
             HTTP connections can be bound to any arbitrary network socket.
             </para>
             <programlisting><![CDATA[
-Socket socket = new Socket();
-// Initialize socket
-BasicHttpParams params = new BasicHttpParams();
-DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
-conn.bind(socket, params);
-conn.isOpen();
+Socket socket = <...>
+
+DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
+conn.bind(socket);
+System.out.println(conn.isOpen());
 HttpConnectionMetrics metrics = conn.getMetrics();
-metrics.getRequestCount();
-metrics.getResponseCount();
-metrics.getReceivedBytesCount();
-metrics.getSentBytesCount();
+System.out.println(metrics.getRequestCount());
+System.out.println(metrics.getResponseCount());
+System.out.println(metrics.getReceivedBytesCount());
+System.out.println(metrics.getSentBytesCount());
 ]]></programlisting>
             <para>
             HTTP connection interfaces, both client and server, send and receive messages in two
@@ -573,11 +572,10 @@ metrics.getSentBytesCount();
             Over-simplified process of client side request execution may look like this:
             </para>
             <programlisting><![CDATA[
-Socket socket = new Socket();
-// Initialize socket
-HttpParams params = new BasicHttpParams();
-DefaultHttpClientConnection conn = new DefaultHttpClientConnection();
-conn.bind(socket, params);
+Socket socket = <...>
+
+DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
+conn.bind(socket);
 HttpRequest request = new BasicHttpRequest("GET", "/");
 conn.sendRequestHeader(request);
 HttpResponse response = conn.receiveResponseHeader();
@@ -594,16 +592,15 @@ if (entity != null) {
             Over-simplified process of server side request handling may look like this:
             </para>
             <programlisting><![CDATA[
-Socket socket = new Socket();
-// Initialize socket
-HttpParams params = new BasicHttpParams();
-DefaultHttpServerConnection conn = new DefaultHttpServerConnection();
-conn.bind(socket, params);
+Socket socket = <...>
+
+DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(8 * 1024);
+conn.bind(socket);
 HttpRequest request = conn.receiveRequestHeader();
 if (request instanceof HttpEntityEnclosingRequest) {
     conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
     HttpEntity entity = ((HttpEntityEnclosingRequest) request)
-        .getEntity();
+            .getEntity();
     if (entity != null) {
         // Do something useful with the entity and, when done, ensure all
         // content has been consumed, so that the underlying connection
@@ -612,8 +609,8 @@ if (request instanceof HttpEntityEnclosingRequest) {
     }
 }
 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
-    200, "OK");
-response.setEntity(new StringEntity("Got it"));
+        200, "OK") ;
+response.setEntity(new StringEntity("Got it") );
 conn.sendResponseHeader(response);
 conn.sendResponseEntity(response);
 ]]></programlisting>
@@ -840,25 +837,26 @@ conn.sendResponseEntity(response);
             executing application specific processing logic and to post-process outgoing messages.
             </para>
             <programlisting><![CDATA[
-BasicHttpProcessor httpproc = new BasicHttpProcessor();
-// Required protocol interceptors
-httpproc.addInterceptor(new RequestContent());
-httpproc.addInterceptor(new RequestTargetHost());
-// Recommended protocol interceptors
-httpproc.addInterceptor(new RequestConnControl());
-httpproc.addInterceptor(new RequestUserAgent());
-httpproc.addInterceptor(new RequestExpectContinue());
+HttpProcessor httpproc = HttpProcessorBuilder.create()
+        // Required protocol interceptors
+        .add(new RequestContent())
+        .add(new RequestTargetHost())
+        // Recommended protocol interceptors
+        .add(new RequestConnControl())
+        .add(new RequestUserAgent("MyAgent-HTTP/1.1"))
+        // Optional protocol interceptors
+        .add(new RequestExpectContinue(true))
+        .build();
 
-HttpContext context = new BasicHttpContext();
-
+HttpCoreContext context = HttpCoreContext.create();
 HttpRequest request = new BasicHttpRequest("GET", "/");
 httpproc.process(request, context);
-HttpResponse response = null;
 ]]></programlisting>
             <para>
             Send the request to the target host and get a response.
             </para>
             <programlisting><![CDATA[
+HttpResponse = <...>
 httpproc.process(response, context);
 ]]></programlisting>
             <para>
@@ -880,159 +878,22 @@ httpproc.process(response, context);
             messages.
             </para>
             <programlisting><![CDATA[
-BasicHttpProcessor httpproc = new BasicHttpProcessor();
-httpproc.addInterceptor(new HttpRequestInterceptor() {
+HttpProcessor httpproc = HttpProcessorBuilder.create()
+        .add(new HttpRequestInterceptor() {
+            public void process(
+                    HttpRequest request,
+                    HttpContext context) throws HttpException, IOException {
+                String id = (String) context.getAttribute("session-id");
+                if (id != null) {
+                    request.addHeader("Session-ID", id);
+                }
+            }
+        })
+        .build();
 
-    public void process(
-            HttpRequest request,
-            HttpContext context) throws HttpException, IOException {
-        String id = (String) context.getAttribute("session-id");
-        if (id != null) {
-            request.addHeader("Session-ID", id);
-        }
-    }
-
-
-});
+HttpCoreContext context = HttpCoreContext.create();
 HttpRequest request = new BasicHttpRequest("GET", "/");
 httpproc.process(request, context);
-]]></programlisting>
-            <para>
-            <interfacename>HttpContext</interfacename> instances can be linked together to form a
-            hierarchy. In the simplest form one context can use content of another context to
-            obtain default values of attributes not present in the local context.
-            </para>
-            <programlisting><![CDATA[
-HttpContext parentContext = new BasicHttpContext();
-parentContext.setAttribute("param1", Integer.valueOf(1));
-parentContext.setAttribute("param2", Integer.valueOf(2));
-
-HttpContext localContext = new BasicHttpContext();
-localContext.setAttribute("param2", Integer.valueOf(0));
-localContext.setAttribute("param3", Integer.valueOf(3));
-HttpContext stack = new DefaultedHttpContext(localContext,
-    parentContext);
-
-System.out.println(stack.getAttribute("param1"));
-System.out.println(stack.getAttribute("param2"));
-System.out.println(stack.getAttribute("param3"));
-System.out.println(stack.getAttribute("param4"));
-]]></programlisting>
-                <para>stdout &gt;</para>
-                <programlisting><![CDATA[
-1
-0
-3
-null
-]]></programlisting>
-        </section>
-    </section>
-    <section>
-        <title>HTTP parameters</title>
-        <para>
-        <interfacename>HttpParams</interfacename> interface represents a collection of immutable
-        values that define a runtime behavior of a component. In many ways <interfacename>HttpParams
-        </interfacename> is similar to <interfacename>HttpContext</interfacename>. The main
-        distinction between the two lies in their use at runtime. Both interfaces represent a
-        collection of objects that are organized as a map of textual names to object values, but
-        serve distinct purposes:
-        </para>
-        <itemizedlist>
-            <listitem>
-                <para>
-                <interfacename>HttpParams</interfacename> is intended to contain simple objects:
-                integers, doubles, strings, collections and objects that remain immutable at
-                runtime. <interfacename>HttpParams</interfacename> is expected to be used in the
-                'write once - read many' mode. <interfacename>HttpContext</interfacename> is
-                intended to contain complex objects that are very likely to mutate in the course of
-                HTTP message processing.
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                The purpose of <interfacename>HttpParams</interfacename> is to define a behavior of
-                other components. Usually each complex component has its own <interfacename>
-                HttpParams</interfacename> object. The purpose of <interfacename>HttpContext
-                </interfacename> is to represent an execution state of an HTTP process. Usually
-                the same execution context is shared among many collaborating objects.
-                </para>
-            </listitem>
-        </itemizedlist>
-        <para>
-        <interfacename>HttpParams</interfacename>, like <interfacename>HttpContext</interfacename>
-        can be linked together to form a hierarchy. In the simplest form one set of parameters can
-        use content of another one to obtain default values of parameters not present in the local
-        set.
-        </para>
-        <programlisting><![CDATA[
-HttpParams parentParams = new BasicHttpParams();
-parentParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
-    HttpVersion.HTTP_1_0);
-parentParams.setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET,
-    "UTF-8");
-
-HttpParams localParams = new BasicHttpParams();
-localParams.setParameter(CoreProtocolPNames.PROTOCOL_VERSION,
-    HttpVersion.HTTP_1_1);
-localParams.setParameter(CoreProtocolPNames.USE_EXPECT_CONTINUE,
-    Boolean.FALSE);
-HttpParams stack = new DefaultedHttpParams(localParams,
-    parentParams);
-
-System.out.println(stack.getParameter(
-    CoreProtocolPNames.PROTOCOL_VERSION));
-System.out.println(stack.getParameter(
-    CoreProtocolPNames.HTTP_CONTENT_CHARSET));
-System.out.println(stack.getParameter(
-    CoreProtocolPNames.USE_EXPECT_CONTINUE));
-System.out.println(stack.getParameter(
-    CoreProtocolPNames.USER_AGENT));
-]]></programlisting>
-        <para>stdout &gt;</para>
-        <programlisting><![CDATA[
-HTTP/1.1
-UTF-8
-false
-null
-]]></programlisting>
-        <para>
-        Please note the <classname>BasicHttpParams</classname> class does not synchronize access to
-        its internal structures and therefore may not be thread-safe.
-        </para>
-        <section>
-            <title>HTTP parameter beans</title>
-            <para>
-            <interfacename>HttpParams</interfacename> interface allows for a great deal of
-            flexibility in handling configuration of components. Most importantly, new parameters
-            can be introduced without affecting binary compatibility with older versions. However,
-            <interfacename>HttpParams</interfacename> also has a certain disadvantage compared to
-            regular Java beans: <interfacename>HttpParams</interfacename> cannot be assembled using
-            a DI framework. To mitigate the limitation, HttpCore includes a number of bean classes
-            that can be used in order to initialize <interfacename>HttpParams</interfacename> objects
-            using standard Java bean conventions.
-            </para>
-            <programlisting><![CDATA[
-HttpParams params = new BasicHttpParams();
-HttpProtocolParamBean paramsBean = new HttpProtocolParamBean(params);
-paramsBean.setVersion(HttpVersion.HTTP_1_1);
-paramsBean.setContentCharset("UTF-8");
-paramsBean.setUseExpectContinue(true);
-
-System.out.println(params.getParameter(
-    CoreProtocolPNames.PROTOCOL_VERSION));
-System.out.println(params.getParameter(
-    CoreProtocolPNames.HTTP_CONTENT_CHARSET));
-System.out.println(params.getParameter(
-    CoreProtocolPNames.USE_EXPECT_CONTINUE));
-System.out.println(params.getParameter(
-    CoreProtocolPNames.USER_AGENT));
-]]></programlisting>
-        <para>stdout &gt;</para>
-        <programlisting><![CDATA[
-HTTP/1.1
-UTF-8
-false
-null
 ]]></programlisting>
         </section>
     </section>
@@ -1053,16 +914,13 @@ null
             application specific content generation and processing.
             </para>
             <programlisting><![CDATA[
-HttpParams params;
-// Initialize HTTP parameters
-HttpProcessor httpproc;
-// Initialize HTTP processor
-
-HttpService httpService = new HttpService(
-        httpproc,
-        new DefaultConnectionReuseStrategy(),
-        new DefaultHttpResponseFactory());
-httpService.setParams(params);
+HttpProcessor httpproc = HttpProcessorBuilder.create()
+        .add(new ResponseDate())
+        .add(new ResponseServer("MyServer-HTTP/1.1"))
+        .add(new ResponseContent())
+        .add(new ResponseConnControl())
+        .build();
+HttpService httpService = new HttpService(httpproc, null);
 ]]></programlisting>
             <section>
                 <title>HTTP request handlers</title>
@@ -1083,9 +941,9 @@ HttpRequestHandler myRequestHandler = new HttpRequestHandler() {
             HttpResponse response,
             HttpContext context) throws HttpException, IOException {
         response.setStatusCode(HttpStatus.SC_OK);
-        response.addHeader("Content-Type", "text/plain");
         response.setEntity(
-            new StringEntity("some important message"));
+                new StringEntity("some important message",
+                        ContentType.TEXT_PLAIN));
     }
 
 };
@@ -1103,17 +961,17 @@ HttpRequestHandler myRequestHandler = new HttpRequestHandler() {
                 <literal>*&lt;uri&gt;</literal>.
                 </para>
                 <programlisting><![CDATA[
-HttpService httpService;
-// Initialize HTTP service
+HttpProcessor httpproc = <...>
 
-HttpRequestHandlerRegistry handlerResolver =
-    new HttpRequestHandlerRegistry();
-handlerReqistry.register("/service/*", myRequestHandler1);
-handlerReqistry.register("*.do", myRequestHandler2);
-handlerReqistry.register("*", myRequestHandler3);
+HttpRequestHandler myRequestHandler1 = <...>
+HttpRequestHandler myRequestHandler2 = <...>
+HttpRequestHandler myRequestHandler3 = <...>
 
-// Inject handler resolver
-httpService.setHandlerResolver(handlerResolver);
+UriHttpRequestHandlerMapper handlerMapper = new UriHttpRequestHandlerMapper();
+handlerMapper.register("/service/*", myRequestHandler1);
+handlerMapper.register("*.do", myRequestHandler2);
+handlerMapper.register("*", myRequestHandler3);
+HttpService httpService = new HttpService(httpproc, handlerMapper);
 ]]></programlisting>
                 <para>
                 Users are encouraged to provide more sophisticated implementations of
@@ -1135,12 +993,9 @@ httpService.setHandlerResolver(handlerResolver);
                 by the <classname>HttpService</classname> are thread-safe.
                 </para>
                 <programlisting><![CDATA[
-HttpService httpService;
-// Initialize HTTP service
-HttpServerConnection conn;
-// Initialize connection
-HttpContext context;
-// Initialize HTTP context
+HttpService httpService = <...>
+HttpServerConnection conn = <...>
+HttpContext context = <...>
 
 boolean active = true;
 try {
@@ -1167,23 +1022,21 @@ try {
             response has been received.
             </para>
             <programlisting><![CDATA[
-HttpClientConnection conn;
-// Create connection
-HttpParams params;
-// Initialize HTTP parameters
-HttpProcessor httpproc;
-// Initialize HTTP processor
-HttpContext context;
-// Initialize HTTP context
+HttpClientConnection conn = <...>
 
+HttpProcessor httpproc = HttpProcessorBuilder.create()
+        .add(new RequestContent())
+        .add(new RequestTargetHost())
+        .add(new RequestConnControl())
+        .add(new RequestUserAgent("MyClient/1.1"))
+        .add(new RequestExpectContinue(true))
+        .build();
 HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
-BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-request.setParams(params);
+HttpRequest request = new BasicHttpRequest("GET", "/");
+HttpCoreContext context = HttpCoreContext.create();
 httpexecutor.preProcess(request, httpproc, context);
-HttpResponse response = httpexecutor.execute(
-    request, conn, context);
-response.setParams(params);
+HttpResponse response = httpexecutor.execute(request, conn, context);
 httpexecutor.postProcess(response, httpproc, context);
 
 HttpEntity entity = response.getEntity();

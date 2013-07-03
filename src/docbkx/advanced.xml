@@ -89,12 +89,12 @@ CharArrayBuffer buf = new CharArrayBuffer(64);
 buf.append("HTTP/1.1 200");
 ParserCursor cursor = new ParserCursor(0, buf.length());
 
-LineParser parser = new BasicLineParser();
+LineParser parser = BasicLineParser.INSTANCE;
 ProtocolVersion ver = parser.parseProtocolVersion(buf, cursor);
 System.out.println(ver);
 System.out.println(buf.substringTrimmed(
-    cursor.getPos(),
-    cursor.getUpperBound()));
+        cursor.getPos(),
+        cursor.getUpperBound()));
 ]]></programlisting>
             <para>stdout &gt;</para>
             <programlisting><![CDATA[
@@ -202,14 +202,13 @@ name1="value1"; param1="p1", name2="value2", name3="value3"
             reading and writing <literal>CR-LF</literal> delimited lines.
             </para>
             <programlisting><![CDATA[
-Socket socket1;
-Socket socket2;
-HttpParams params = new BasicHttpParams();
-SessionInputBuffer inbuffer = new SocketInputBuffer(
-    socket1, 4096, params);
-SessionOutputBuffer outbuffer = new SocketOutputBuffer(
-    socket2, 4096, params);
-
+Socket socket1 = <...>
+Socket socket2 = <...>
+HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+SessionInputBufferImpl inbuffer = new SessionInputBufferImpl(metrics, 8 * 1024);
+inbuffer.bind(socket1.getInputStream());
+SessionOutputBufferImpl outbuffer = new SessionOutputBufferImpl(metrics, 8 * 1024);
+outbuffer.bind(socket2.getOutputStream());
 CharArrayBuffer linebuf = new CharArrayBuffer(1024);
 inbuffer.readLine(linebuf);
 outbuffer.writeLine(linebuf);
@@ -220,14 +219,11 @@ outbuffer.writeLine(linebuf);
             with <literal>CR-LF</literal> delimited lines in a non-blocking I/O mode.
             </para>
             <programlisting><![CDATA[
-ReadableByteChannel channel1;
-WritableByteChannel channel2;
+ReadableByteChannel channel1 = <...>
+WritableByteChannel channel2 = <...>
 
-HttpParams params = new BasicHttpParams();
-SessionInputBuffer inbuffer = new SessionInputBufferImpl(
-    4096, 1024, params);
-SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(
-    4096, 1024, params);
+SessionInputBuffer inbuffer = new SessionInputBufferImpl(8 * 1024);
+SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(8 * 1024);
 
 CharArrayBuffer linebuf = new CharArrayBuffer(1024);
 boolean endOfStream = false;
@@ -256,96 +252,56 @@ if (outbuffer.hasData()) {
             Example of HTTP request parsing / writing for blocking HTTP connections:
             </para>
             <programlisting><![CDATA[
-SessionInputBuffer inbuffer;
-SessionOutputBuffer outbuffer;
+SessionInputBuffer inbuffer = <...>
+SessionOutputBuffer outbuffer = <...>
 
-HttpParams params = new BasicHttpParams();
-
-HttpMessageParser requestParser = new HttpRequestParser(
-        inbuffer,
-        new BasicLineParser(),
-        new DefaultHttpRequestFactory(),
-        params);
-
-HttpRequest request = (HttpRequest) requestParser.parse();
-
-HttpMessageWriter requestWriter = new HttpRequestWriter(
-        outbuffer,
-        new BasicLineFormatter(),
-        params);
-
+HttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(
+    inbuffer);
+HttpRequest request = requestParser.parse();
+HttpMessageWriter<HttpRequest> requestWriter = new DefaultHttpRequestWriter(
+    outbuffer);
 requestWriter.write(request);
 ]]></programlisting>
             <para>
             Example of HTTP response parsing / writing for blocking HTTP connections:
             </para>
             <programlisting><![CDATA[
-SessionInputBuffer inbuffer;
-SessionOutputBuffer outbuffer;
+SessionInputBuffer inbuffer = <...>
+SessionOutputBuffer outbuffer = <...>
 
-HttpParams params = new BasicHttpParams();
-
-HttpMessageParser responseParser = new HttpResponseParser(
-        inbuffer,
-        new BasicLineParser(),
-        new DefaultHttpResponseFactory(),
-        params);
-
-HttpResponse response = (HttpResponse) responseParser.parse();
-
-HttpMessageWriter responseWriter = new HttpResponseWriter(
-        outbuffer,
-        new BasicLineFormatter(),
-        params);
-
+HttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser(
+        inbuffer);
+HttpResponse response = responseParser.parse();
+HttpMessageWriter<HttpResponse> responseWriter = new DefaultHttpResponseWriter(
+        outbuffer);
 responseWriter.write(response);
 ]]></programlisting>
             <para>
             Example of HTTP request parsing / writing for non-blocking HTTP connections:
             </para>
             <programlisting><![CDATA[
-SessionInputBuffer inbuffer;
-SessionOutputBuffer outbuffer;
+SessionInputBuffer inbuffer = <...>
+SessionOutputBuffer outbuffer  = <...>
 
-HttpParams params = new BasicHttpParams();
-
-NHttpMessageParser requestParser = new DefaultHttpRequestParser(
-        inbuffer,
-        new BasicLineParser(),
-        new DefaultHttpRequestFactory(),
-        params);
-
-HttpRequest request = (HttpRequest) requestParser.parse();
-
-NHttpMessageWriter requestWriter = new DefaultHttpRequestWriter(
-        outbuffer,
-        new BasicLineFormatter(),
-        params);
-
+NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(
+        inbuffer);
+HttpRequest request = requestParser.parse();
+NHttpMessageWriter<HttpRequest> requestWriter = new DefaultHttpRequestWriter(
+        outbuffer);
 requestWriter.write(request);
 ]]></programlisting>
             <para>
             Example of HTTP response parsing / writing for non-blocking HTTP connections:
             </para>
             <programlisting><![CDATA[
-SessionInputBuffer inbuffer;
-SessionOutputBuffer outbuffer;
+SessionInputBuffer inbuffer = <...>
+SessionOutputBuffer outbuffer  = <...>
 
-HttpParams params = new BasicHttpParams();
-
-NHttpMessageParser responseParser = new DefaultHttpResponseParser(
-        inbuffer,
-        new BasicLineParser(),
-        new DefaultHttpResponseFactory(),
-        params);
-
-HttpResponse response = (HttpResponse) responseParser.parse();
-
+NHttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser(
+        inbuffer);
+HttpResponse response = responseParser.parse();
 NHttpMessageWriter responseWriter = new DefaultHttpResponseWriter(
-        outbuffer,
-        new BasicLineFormatter(),
-        params);
-
+        outbuffer);
 responseWriter.write(response);
 ]]></programlisting>
         </section>
@@ -360,6 +316,7 @@ responseWriter.write(response);
             optional <interfacename>FormattedHeader</interfacename> interface.
             </para>
             <programlisting><![CDATA[
+HttpResponse response = <...>
 Header h1 = response.getFirstHeader("Content-Type");
 if (h1 instanceof FormattedHeader) {
     CharArrayBuffer buf = ((FormattedHeader) h1).getBuffer();
@@ -367,92 +324,5 @@ if (h1 instanceof FormattedHeader) {
 }
 ]]></programlisting>
         </section>
-    </section>
-    <section>
-        <title>Customizing HTTP connections</title>
-        <para>
-        One can customize the way HTTP connections parse and format HTTP messages by extending the
-        default implementations and overriding factory methods and replacing the default parser or
-        formatter implementations with a custom one.
-        </para>
-        <para>
-        For blocking HTTP connections one also can provide custom implementation of session
-        input/output buffers.
-        </para>
-        <programlisting><![CDATA[
-class MyDefaultHttpClientConnection
-                        extends DefaultHttpClientConnection {
-
-    @Override
-    protected SessionInputBuffer createSessionInputBuffer(
-            Socket socket,
-            int buffersize,
-            HttpParams params) throws IOException {
-        return new MySocketInputBuffer(socket, buffersize, params);
-    }
-
-    @Override
-    protected SessionOutputBuffer createSessionOutputBuffer(
-            Socket socket,
-            int buffersize,
-            HttpParams params) throws IOException {
-        return new MySocketOutputBuffer(socket, buffersize, params);
-    }
-
-    @Override
-    protected HttpMessageWriter createRequestWriter(
-            SessionOutputBuffer buffer,
-            HttpParams params) {
-        return new MyHttpRequestWriter(
-            buffer, new BasicLineFormatter(), params);
-    }
-
-    @Override
-    protected HttpMessageParser createResponseParser(
-            SessionInputBuffer buffer,
-            HttpResponseFactory responseFactory,
-            HttpParams params) {
-        return new MyHttpResponseParser(
-        buffer, new BasicLineParser(), responseFactory, params);
-    }
-
-};
-]]></programlisting>
-        <para>
-        For non-blocking HTTP connection implementation one can replace the default HTTP message
-        parser and formatter implementations. The session input/output buffer implementations can
-        be overridden at the I/O reactor level.
-        </para>
-        <programlisting><![CDATA[
-class MyDefaultNHttpClientConnection
-                        extends DefaultNHttpClientConnection {
-
-    public MyDefaultNHttpClientConnection(
-            IOSession session,
-            HttpResponseFactory responseFactory,
-            ByteBufferAllocator allocator,
-            HttpParams params) {
-        super(session, responseFactory, allocator, params);
-    }
-
-    @Override
-    protected NHttpMessageWriter createRequestWriter(
-            SessionOutputBuffer buffer,
-            HttpParams params) {
-        return new HttpRequestWriter(
-            buffer, new BasicLineFormatter(), params);
-    }
-
-    @Override
-    protected NHttpMessageParser createResponseParser(
-            SessionInputBuffer buffer,
-            HttpResponseFactory responseFactory,
-            HttpParams params) {
-        return new HttpResponseParser(
-            buffer, new BasicLineParser(), responseFactory, params);
-    }
-
-};
-]]></programlisting>
     </section>
 </chapter>
