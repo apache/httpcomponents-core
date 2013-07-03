@@ -183,7 +183,8 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
     @Test
     public void testConnectionTerminatedHandlingRequest() throws Exception {
         final CountDownLatch responseStreamClosed = new CountDownLatch(1);
-        final InputStream testInputStream = new ByteArrayInputStream("all is well".getBytes(Consts.ASCII)) {
+        final InputStream testInputStream = new ByteArrayInputStream(
+                "all is well".getBytes(Consts.ASCII.name())) {
             @Override
             public void close() throws IOException {
                 responseStreamClosed.countDown();
