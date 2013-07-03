@@ -1,5 +1,10 @@
 Changes since Release 4.3-BETA2 
 -------------------
+
+* [HTTPCORE-345] EntityAsyncContentProducer fails to release resources allocated by the underlying 
+  entity when #produceContent is never invoked. 
+  Contributed by Tad Whitenight <tadwhitenight at gmail.com>
+
 * [HTTPCORE-343] AbstractNIOConnPool to fire request callbacks outside the pool lock.
   This makes it possible to re-enter pool methods from a callback event.
   Contributed by Oleg Kalnichevski <olegk at apache.org>

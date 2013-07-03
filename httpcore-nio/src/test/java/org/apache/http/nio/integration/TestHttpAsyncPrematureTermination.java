@@ -26,11 +26,14 @@
  */
 package org.apache.http.nio.integration;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -38,6 +41,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.message.BasicHttpRequest;
@@ -158,6 +162,15 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
     @Test
     public void testConnectionTerminatedHandlingRequest() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        final CountDownLatch responseStreamClosed = new CountDownLatch(1);
+        final InputStream testInputStream = new ByteArrayInputStream(
+                "all is well".getBytes(Consts.ASCII.name())) {
+            @Override
+            public void close() throws IOException {
+                responseStreamClosed.countDown();
+                super.close();
+            }
+        };
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -174,7 +187,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                         HttpCoreContext.HTTP_CONNECTION);
                 conn.shutdown();
                 final HttpResponse response = httpExchange.getResponse();
-                response.setEntity(new NStringEntity("all is well", ContentType.TEXT_PLAIN));
+                response.setEntity(new InputStreamEntity(testInputStream, -1));
                 httpExchange.submitResponse();
             }
 
@@ -205,6 +218,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         this.client.execute(target, request, context, callback);
 
         Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+        Assert.assertTrue(responseStreamClosed.await(5, TimeUnit.SECONDS));
     }
 
     @Test
