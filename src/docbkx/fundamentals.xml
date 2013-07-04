@@ -23,7 +23,7 @@
 
 -->
 <chapter id="fundamentals">
-    <title>Fundamentals</title>
+    <title>HTTP message fundamentals and classic synchronous I/O</title>
     <section>
         <title>HTTP messages</title>
         <section>
@@ -1066,5 +1066,95 @@ EntityUtils.consume(entity);
             properties of the enclosed entity, if available.
             </para>
         </section>
+    </section>
+    <section>
+        <title>Connection pools</title>
+        <para>
+        Efficient client-side HTTP transports often requires effective re-use of persistent
+        connections. HttpCore facilitates the process of connection re-use by providing support
+        for managing pools of persistent HTTP connections. Connection pool implementations are
+        thread-safe and can be used concurrently by multiple consumers.
+        </para>
+        <para>
+        By default the pool allows only 20 concurrent connections in total and two concurrent
+        connections per a unique route. The two connection limit is due to the requirements of the
+        HTTP specification. However, in practical terms this can often be too restrictive. One can
+        change the pool configuration at runtime to allow for more concurrent connections depending
+        on a particular application context.
+        </para>
+        <programlisting><![CDATA[
+HttpHost target = new HttpHost("localhost");
+BasicConnPool connpool = new BasicConnPool();
+connpool.setMaxTotal(200);
+connpool.setDefaultMaxPerRoute(10);
+connpool.setMaxPerRoute(target, 20);
+Future<BasicPoolEntry> future = connpool.lease(target, null);
+BasicPoolEntry poolEntry = future.get();
+HttpClientConnection conn = poolEntry.getConnection();
+]]></programlisting>
+        <para>
+        Please note that the connection pool has no way of knowing whether or not a leased
+        connection is still being used. It is the responsibility of the connection pool user
+        to ensure that the connection is released back to the pool once it is not longer needed,
+        even if the connection is not reusable.
+        </para>
+        <programlisting><![CDATA[
+BasicConnPool connpool = <...>
+Future<BasicPoolEntry> future = connpool.lease(target, null);
+BasicPoolEntry poolEntry = future.get();
+try {
+    HttpClientConnection conn = poolEntry.getConnection();
+} finally {
+    connpool.release(poolEntry, conn.isOpen());
+}
+]]></programlisting>
+        <para>
+        The state of the connection pool can be interrogated at runtime.
+        </para>
+        <programlisting><![CDATA[
+HttpHost target = new HttpHost("localhost");
+BasicConnPool connpool = <...>
+PoolStats totalStats = connpool.getTotalStats();
+System.out.println("total available: " + totalStats.getAvailable());
+System.out.println("total leased: " + totalStats.getLeased());
+System.out.println("total pending: " + totalStats.getPending());
+PoolStats targetStats = connpool.getStats(target);
+System.out.println("target available: " + targetStats.getAvailable());
+System.out.println("target leased: " + targetStats.getLeased());
+System.out.println("target pending: " + targetStats.getPending());
+]]></programlisting>
+        <para>
+        Please note that connection pools do not pro-actively evict expired connections. Even though
+        expired connection cannot be leased to the requester, the pool may accumulate stale
+        connections over time especially after a period of inactivity. It is generally advisable
+        to force eviction of expired and idle connections from the pool after an extensive period
+        of inactivity.
+        </para>
+        <programlisting><![CDATA[
+BasicConnPool connpool = <...>
+connpool.closeExpired();
+connpool.closeIdle(1, TimeUnit.MINUTES);
+]]></programlisting>
+    </section>
+    <section>
+        <title>TLS/SSL support</title>
+        <para>
+        Blocking connections can be bound to any arbitrary socket. This makes SSL support quite
+        straight-forward. Any <classname>SSLSocket</classname> instance can be bound to a blocking
+        connection in order to make all messages transmitted over than connection secured by
+        TLS/SSL.
+        </para>
+        <programlisting><![CDATA[
+SSLContext sslcontext = SSLContext.getInstance("Default");
+sslcontext.init(null, null, null);
+SocketFactory sf = sslcontext.getSocketFactory();
+SSLSocket socket = (SSLSocket) sf.createSocket("somehost", 443);
+socket.setEnabledCipherSuites(new String[] {
+        "TLS_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
+        "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" });
+DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1204);
+conn.bind(socket);
+]]></programlisting>
     </section>
 </chapter>

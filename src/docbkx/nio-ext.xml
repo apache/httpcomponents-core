@@ -23,9 +23,9 @@
 
 -->
 <chapter id="nio">
-    <title>NIO extensions</title>
+    <title>Asynchronous I/O based on NIO</title>
     <section>
-        <title>Differences from other NIO frameworks</title>
+        <title>Differences from other I/O frameworks</title>
         <para>
         Solves similar problems as other frameworks, but has certain distinct features:
         </para>
@@ -81,8 +81,7 @@ IOReactor ioreactor = new DefaultConnectingIOReactor(config);
             events.
             </para>
             <programlisting><![CDATA[
-IOReactorConfig config = IOReactorConfig.DEFAULT;
-IOReactor ioreactor = new DefaultConnectingIOReactor(config);
+IOReactor ioreactor = new DefaultConnectingIOReactor();
 
 IOEventDispatch eventDispatch = <...>
 ioreactor.execute(eventDispatch);
@@ -397,6 +396,31 @@ SessionRequest sessionRequest = ioreactor.connect(
         });
 ]]></programlisting>
         </section>
+    </section>
+    <section>
+        <title>I/O reactor configuration</title>
+        <para>
+        I/O reactors by default use system dependent configuration which in most cases should be
+        sensible enough.
+        </para>
+        <programlisting><![CDATA[
+IOReactorConfig config = IOReactorConfig.DEFAULT;
+IOReactor ioreactor = new DefaultListeningIOReactor(config);
+]]></programlisting>
+        <para>
+        However in some cases custom settings may be necessary, for instance, in order to alter
+        default socket properties and timeout values. One should rarely need to change other
+        parameters.
+        </para>
+        <programlisting><![CDATA[
+IOReactorConfig config = IOReactorConfig.custom()
+        .setTcpNoDelay(true)
+        .setSoTimeout(5000)
+        .setSoReuseAddress(true)
+        .setConnectTimeout(5000)
+        .build();
+IOReactor ioreactor = new DefaultListeningIOReactor(config);
+]]></programlisting>
         <section>
             <title>Queuing of I/O interest set operations</title>
             <para>
@@ -413,7 +437,6 @@ SessionRequest sessionRequest = ioreactor.connect(
 IOReactorConfig config = IOReactorConfig.custom()
         .setInterestOpQueued(true)
         .build();
-ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 ]]></programlisting>
         </section>
     </section>
@@ -1866,6 +1889,62 @@ HttpResponse response = future.get();
             </section>
         </section>
     </section>
+    <section>
+        <title>Non-blocking connection pools</title>
+        <para>
+        Non-blocking connection pools are quite similar to blocking one with one significant
+        distinction that they have to reply an I/O reactor to establish new connections.
+        As a result connections leased from a non-blocking pool are returned fully initialized and
+        already bound to a particular I/O session. Non-blocking connections managed by a connection
+        pool cannot be bound to an arbitrary I/O session.
+        </para>
+        <programlisting><![CDATA[
+HttpHost target = new HttpHost("localhost");
+ConnectingIOReactor ioreactor = <...>
+BasicNIOConnPool connpool = new BasicNIOConnPool(ioreactor);
+connpool.lease(target, null,
+        10, TimeUnit.SECONDS,
+        new FutureCallback<BasicNIOPoolEntry>() {
+            @Override
+            public void completed(BasicNIOPoolEntry entry) {
+                NHttpClientConnection conn = entry.getConnection();
+                System.out.println("Connection successfully leased");
+                // Update connection context and request output
+                conn.requestOutput();
+            }
+
+            @Override
+            public void failed(Exception ex) {
+                System.out.println("Connection request failed");
+                ex.printStackTrace();
+            }
+
+            @Override
+            public void cancelled() {
+            }
+        });
+]]></programlisting>
+        <para>
+        Please note due to event-driven nature of asynchronous communication model it is quite
+        difficult to ensure proper release of persistent connections back to the pool. One can make
+        use of <classname>HttpAsyncRequester</classname> to handle connection lease and release
+        behind the scene.
+        </para>
+        <programlisting><![CDATA[
+ConnectingIOReactor ioreactor = <...>
+HttpProcessor httpproc = <...>
+BasicNIOConnPool connpool = new BasicNIOConnPool(ioreactor);
+HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
+HttpHost target = new HttpHost("localhost");
+Future<HttpResponse> future = requester.execute(
+        new BasicAsyncRequestProducer(
+                new HttpHost("localhost"),
+                new BasicHttpRequest("GET", "/")),
+        new BasicAsyncResponseConsumer(),
+        connpool);
+]]></programlisting>
+    </section>
+
     <section>
         <title>Non-blocking TLS/SSL</title>
         <section>

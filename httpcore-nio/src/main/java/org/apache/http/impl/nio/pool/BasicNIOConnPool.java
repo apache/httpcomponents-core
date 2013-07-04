@@ -138,6 +138,13 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
     }
 
     /**
+     * @since 4.3
+     */
+    public BasicNIOConnPool(final ConnectingIOReactor ioreactor) {
+        this(ioreactor, new BasicNIOConnFactory(ConnectionConfig.DEFAULT), 0);
+    }
+
+    /**
      * @deprecated (4.3) use {@link SocketAddressResolver}
      */
     @Deprecated
