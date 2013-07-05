@@ -149,9 +149,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
             socket = this.plainfactory != null ? this.plainfactory.createSocket() :
                     new Socket();
         } if ("https".equalsIgnoreCase(scheme)) {
-            if (this.sslfactory != null) {
-                socket = this.sslfactory.createSocket();
-            }
+            socket = (this.sslfactory != null ? this.sslfactory :
+                    SSLSocketFactory.getDefault()).createSocket();
         }
         if (socket == null) {
             throw new IOException(scheme + " scheme is not supported");

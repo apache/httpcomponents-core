@@ -196,17 +196,6 @@ public class SSLNHttpClientConnectionFactory
         this(null, null, null, null, null, null);
     }
 
-    private SSLContext getDefaultSSLContext() {
-        final SSLContext sslcontext;
-        try {
-            sslcontext = SSLContext.getInstance("TLS");
-            sslcontext.init(null, null, null);
-        } catch (final Exception ex) {
-            throw new IllegalStateException("Failure initializing default SSL context", ex);
-        }
-        return sslcontext;
-    }
-
     /**
      * @deprecated (4.3) no longer used.
      */
@@ -227,7 +216,7 @@ public class SSLNHttpClientConnectionFactory
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler) {
         final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.CLIENT,
-                (sslcontext != null ? sslcontext : getDefaultSSLContext()),
+                (sslcontext != null ? sslcontext : SSLContextUtils.getDefault()),
                 sslHandler);
         iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return ssliosession;
