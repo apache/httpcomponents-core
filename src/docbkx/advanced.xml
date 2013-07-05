@@ -277,6 +277,38 @@ HttpMessageWriter<HttpResponse> responseWriter = new DefaultHttpResponseWriter(
 responseWriter.write(response);
 ]]></programlisting>
             <para>
+            Custom message parsers and writers can be plugged into the message processing pipeline
+            through a custom connection factory:
+            </para>
+            <programlisting><![CDATA[
+HttpMessageWriterFactory<HttpResponse> responseWriterFactory =
+                                new HttpMessageWriterFactory<HttpResponse>() {
+    @Override
+    public HttpMessageWriter<HttpResponse> create(
+            SessionOutputBuffer buffer) {
+        HttpMessageWriter<HttpResponse> customWriter = <...>
+        return customWriter;
+    }
+};
+HttpMessageParserFactory<HttpRequest> requestParserFactory =
+                                new HttpMessageParserFactory<HttpRequest>() {
+    @Override
+    public HttpMessageParser<HttpRequest> create(
+            SessionInputBuffer buffer,
+            MessageConstraints constraints) {
+        HttpMessageParser<HttpRequest> customParser = <...>
+        return customParser;
+    }
+};
+HttpConnectionFactory<DefaultBHttpServerConnection> cf =
+                                new DefaultBHttpServerConnectionFactory(
+        ConnectionConfig.DEFAULT,
+        requestParserFactory,
+        responseWriterFactory);
+Socket socket = <...>
+DefaultBHttpServerConnection conn = cf.createConnection(socket);
+]]></programlisting>
+            <para>
             Example of HTTP request parsing / writing for non-blocking HTTP connections:
             </para>
             <programlisting><![CDATA[
@@ -305,6 +337,37 @@ NHttpMessageWriter responseWriter = new DefaultHttpResponseWriter(
 responseWriter.write(response);
 ]]></programlisting>
         </section>
+        <para>
+        Custom non-blocking message parsers and writers can be plugged into the message processing
+        pipeline through a custom connection factory:
+        </para>
+        <programlisting><![CDATA[
+NHttpMessageWriterFactory<HttpResponse> responseWriterFactory =
+                        new NHttpMessageWriterFactory<HttpResponse>() {
+    @Override
+    public NHttpMessageWriter<HttpResponse> create(SessionOutputBuffer buffer) {
+        NHttpMessageWriter<HttpResponse> customWriter = <...>
+        return customWriter;
+    }
+};
+NHttpMessageParserFactory<HttpRequest> requestParserFactory =
+                        new NHttpMessageParserFactory<HttpRequest>() {
+    @Override
+    public NHttpMessageParser<HttpRequest> create(
+            SessionInputBuffer buffer, MessageConstraints constraints) {
+        NHttpMessageParser<HttpRequest> customParser = <...>
+        return customParser;
+    }
+};
+NHttpConnectionFactory<DefaultNHttpServerConnection> cf =
+                        new DefaultNHttpServerConnectionFactory(
+        null,
+        requestParserFactory,
+        responseWriterFactory,
+        ConnectionConfig.DEFAULT);
+IOSession iosession = <...>
+DefaultNHttpServerConnection conn = cf.createConnection(iosession);
+]]></programlisting>
         <section>
             <title>HTTP header parsing on demand</title>
             <para>

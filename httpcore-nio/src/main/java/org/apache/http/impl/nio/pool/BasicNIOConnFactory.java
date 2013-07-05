@@ -31,6 +31,7 @@ import java.io.IOException;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
@@ -41,6 +42,7 @@ import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
+import org.apache.http.nio.NHttpMessageWriterFactory;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
@@ -79,7 +81,8 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
 
     /**
      * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
-     *   SSLSetupHandler, NHttpMessageParserFactory, ByteBufferAllocator, ConnectionConfig)}
+     *   SSLSetupHandler, NHttpMessageParserFactory, NHttpMessageWriterFactory,
+     *   ByteBufferAllocator, ConnectionConfig)}
      */
     @Deprecated
     public BasicNIOConnFactory(
@@ -122,10 +125,13 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
+            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig config) {
-        this(new DefaultNHttpClientConnectionFactory(responseParserFactory, allocator, config),
-                new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, responseParserFactory,
+        this(new DefaultNHttpClientConnectionFactory(
+                    responseParserFactory, requestWriterFactory, allocator, config),
+                new SSLNHttpClientConnectionFactory(
+                        sslcontext, sslHandler, responseParserFactory, requestWriterFactory,
                         allocator, config));
     }
 
@@ -136,7 +142,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
             final ConnectionConfig config) {
-        this(sslcontext, sslHandler, null, null, config);
+        this(sslcontext, sslHandler, null, null, null, config);
     }
 
     /**

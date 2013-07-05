@@ -39,6 +39,7 @@ import java.security.KeyStore;
 import java.util.Locale;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.HttpConnectionFactory;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -50,7 +51,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.DefaultBHttpServerConnection;
+import org.apache.http.impl.DefaultBHttpServerConnectionFactory;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -184,6 +185,7 @@ public class ElementalHttpServer {
 
     static class RequestListenerThread extends Thread {
 
+        private final HttpConnectionFactory<HttpServerConnection> connFactory;
         private final ServerSocket serversocket;
         private final HttpService httpService;
 
@@ -191,6 +193,7 @@ public class ElementalHttpServer {
                 final int port,
                 final HttpService httpService,
                 final SSLServerSocketFactory sf) throws IOException {
+            this.connFactory = DefaultBHttpServerConnectionFactory.INSTANCE;
             this.serversocket = sf != null ? sf.createServerSocket(port) : new ServerSocket(port);
             this.httpService = httpService;
         }
@@ -202,9 +205,8 @@ public class ElementalHttpServer {
                 try {
                     // Set up HTTP connection
                     Socket socket = this.serversocket.accept();
-                    DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(8 * 1024);
                     System.out.println("Incoming connection from " + socket.getInetAddress());
-                    conn.bind(socket);
+                    HttpServerConnection conn = this.connFactory.createConnection(socket);
 
                     // Start worker thread
                     Thread t = new WorkerThread(this.httpService, conn);

@@ -88,6 +88,7 @@ public class ElementalPoolingHttpGet {
 
             @Override
             public void run() {
+                ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
                 try {
                     Future<BasicPoolEntry> future = pool.lease(this.target, null);
 
@@ -108,7 +109,6 @@ public class ElementalPoolingHttpGet {
                         System.out.println("<< Response: " + response.getStatusLine());
                         System.out.println(EntityUtils.toString(response.getEntity()));
 
-                        ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
                         reusable = connStrategy.keepAlive(response, coreContext);
                     } catch (IOException ex) {
                         throw ex;

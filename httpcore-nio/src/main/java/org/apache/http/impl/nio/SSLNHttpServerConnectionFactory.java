@@ -30,13 +30,16 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
+import org.apache.http.HttpResponse;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
+import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.ConnSupport;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
+import org.apache.http.nio.NHttpMessageWriterFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.http.nio.reactor.ssl.SSLMode;
@@ -58,16 +61,20 @@ import org.apache.http.util.Args;
 public class SSLNHttpServerConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
-    private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
-    private final ByteBufferAllocator allocator;
     private final SSLContext sslcontext;
     private final SSLSetupHandler sslHandler;
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
+    private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
+    private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
+    private final ByteBufferAllocator allocator;
     private final ConnectionConfig cconfig;
 
     /**
      * @deprecated (4.3) use {@link
      *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(SSLContext,
-     *      SSLSetupHandler, NHttpMessageParserFactory, ByteBufferAllocator, ConnectionConfig)}
+     *      SSLSetupHandler, NHttpMessageParserFactory, NHttpMessageWriterFactory,
+     *      ByteBufferAllocator, ConnectionConfig)}
      */
     @Deprecated
     public SSLNHttpServerConnectionFactory(
@@ -82,8 +89,11 @@ public class SSLNHttpServerConnectionFactory
         Args.notNull(params, "HTTP parameters");
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
-        this.allocator = allocator;
+        this.incomingContentStrategy = null;
+        this.outgoingContentStrategy = null;
         this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
+        this.responseWriterFactory = null;
+        this.allocator = allocator;
         this.cconfig = HttpParamConfig.getConnectionConfig(params);
     }
 
@@ -116,15 +126,20 @@ public class SSLNHttpServerConnectionFactory
     public SSLNHttpServerConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
+            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig cconfig) {
         super();
         this.sslcontext = sslcontext;
         this.sslHandler = sslHandler;
-        this.allocator = allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE;
-        this.requestParserFactory = requestParserFactory != null ? requestParserFactory :
-            DefaultHttpRequestParserFactory.INSTANCE;
+        this.incomingContentStrategy = incomingContentStrategy;
+        this.outgoingContentStrategy = outgoingContentStrategy;
+        this.requestParserFactory = requestParserFactory;
+        this.responseWriterFactory = responseWriterFactory;
+        this.allocator = allocator;
         this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
     }
 
@@ -134,15 +149,49 @@ public class SSLNHttpServerConnectionFactory
     public SSLNHttpServerConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
+            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
+            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
+            final ByteBufferAllocator allocator,
+            final ConnectionConfig cconfig) {
+        this(sslcontext, sslHandler,
+                null, null, requestParserFactory, responseWriterFactory, allocator, cconfig);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SSLNHttpServerConnectionFactory(
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler,
+            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
+            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
+            final ConnectionConfig cconfig) {
+        this(sslcontext, sslHandler,
+                null, null, requestParserFactory, responseWriterFactory, null, cconfig);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SSLNHttpServerConnectionFactory(
+            final SSLContext sslcontext,
+            final SSLSetupHandler sslHandler,
             final ConnectionConfig config) {
-        this(sslcontext, sslHandler, null, null, config);
+        this(sslcontext, sslHandler, null, null, null, null, null, config);
     }
 
     /**
      * @since 4.3
      */
     public SSLNHttpServerConnectionFactory(final ConnectionConfig config) {
-        this(null, null, null, null, config);
+        this(null, null, null, null, null, null, null, config);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SSLNHttpServerConnectionFactory() {
+        this(null, null, null, null, null, null, null, null);
     }
 
     private SSLContext getDefaultSSLContext() {
@@ -191,9 +240,10 @@ public class SSLNHttpServerConnectionFactory
                 ConnSupport.createDecoder(this.cconfig),
                 ConnSupport.createEncoder(this.cconfig),
                 this.cconfig.getMessageConstraints(),
-                null, null,
+                this.incomingContentStrategy,
+                this.outgoingContentStrategy,
                 this.requestParserFactory,
-                null);
+                this.responseWriterFactory);
     }
 
 }

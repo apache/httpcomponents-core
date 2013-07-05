@@ -34,12 +34,13 @@ import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.http.HttpClientConnection;
+import org.apache.http.HttpConnectionFactory;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.impl.ConnSupport;
 import org.apache.http.impl.DefaultBHttpClientConnection;
+import org.apache.http.impl.DefaultBHttpClientConnectionFactory;
 import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParamConfig;
@@ -62,7 +63,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
     private final SSLSocketFactory sslfactory;
     private final int connectTimeout;
     private final SocketConfig sconfig;
-    private final ConnectionConfig cconfig;
+    private final HttpConnectionFactory<? extends HttpClientConnection> connFactory;
 
     /**
      * @deprecated (4.3) use
@@ -77,7 +78,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         this.sslfactory = sslfactory;
         this.connectTimeout = HttpConnectionParams.getConnectionTimeout(params);
         this.sconfig = HttpParamConfig.getSocketConfig(params);
-        this.cconfig = HttpParamConfig.getConnectionConfig(params);
+        this.connFactory = new DefaultBHttpClientConnectionFactory(
+                HttpParamConfig.getConnectionConfig(params));
     }
 
     /**
@@ -103,7 +105,8 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         this.sslfactory = sslfactory;
         this.connectTimeout = connectTimeout;
         this.sconfig = sconfig != null ? sconfig : SocketConfig.DEFAULT;
-        this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
+        this.connFactory = new DefaultBHttpClientConnectionFactory(
+                cconfig != null ? cconfig : ConnectionConfig.DEFAULT);
     }
 
     /**
@@ -169,15 +172,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
         }
-        final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(
-                this.cconfig.getBufferSize(),
-                this.cconfig.getFragmentSizeHint(),
-                ConnSupport.createDecoder(this.cconfig),
-                ConnSupport.createEncoder(this.cconfig),
-                this.cconfig.getMessageConstraints(),
-                null, null, null, null);
-        conn.bind(socket);
-        return conn;
+        return this.connFactory.createConnection(socket);
     }
 
 }
