@@ -51,6 +51,7 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnectionFactory;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -185,7 +186,7 @@ public class ElementalHttpServer {
 
     static class RequestListenerThread extends Thread {
 
-        private final HttpConnectionFactory<HttpServerConnection> connFactory;
+        private final HttpConnectionFactory<DefaultBHttpServerConnection> connFactory;
         private final ServerSocket serversocket;
         private final HttpService httpService;
 
