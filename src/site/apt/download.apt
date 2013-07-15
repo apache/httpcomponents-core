@@ -33,7 +33,7 @@ HttpCore Downloads
     The latest release available for download:
 
     {{{http://hc.apache.org/downloads.cgi}Release packages}} - 
-    {{{http://www.apache.org/dist/httpcomponents/httpcore/RELEASE_NOTES.txt}Release Notes}} -
+    {{{http://www.apache.org/dist/httpcomponents/httpcore/RELEASE_NOTES-4.2.x.txt}Release Notes}} -
     {{{http://www.apache.org/licenses/LICENSE-2.0.html}License}}
 
 {Dependency management with Maven}
@@ -42,24 +42,24 @@ HttpCore Downloads
     in your {{{http://maven.apache.org/guides/introduction/introduction-to-the-pom.html}pom.xml}} 
     by adding the following block to the dependency descriptor:
 
-* {HttpComponents Core 4.2.4 (GA)}
+* {HttpComponents Core 4.2.5 (GA)}
 
 -------------------------
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcore</artifactId>
-    <version>4.2.4</version>
+    <version>4.2.5</version>
     <scope>compile</scope>
   </dependency>
 -------------------------
 
-* {HttpComponents Core NIO 4.2.4 (GA)}
+* {HttpComponents Core NIO 4.2.5 (GA)}
 
 -------------------------
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcore-nio</artifactId>
-    <version>4.2.4</version>
+    <version>4.2.5</version>
     <scope>compile</scope>
   </dependency>
 -------------------------
