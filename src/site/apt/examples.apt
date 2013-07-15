@@ -43,6 +43,11 @@ HttpCore Examples
     
     This is an example of an HTTP/1.1 file server based on a synchronous (blocking) I/O model.
 
+    * {{{./httpcore/examples/org/apache/http/examples/ElementalReverseProxy.java} Basic
+    HTTP reverse proxy}}
+
+    This is an example of an HTTP/1.1 reverse proxy based on a synchronous (blocking) I/O model.
+
     * {{{./httpcore-nio/examples/org/apache/http/examples/nio/NHttpClient.java} Asynchronous HTTP GET}}
     
     This example demonstrates how HttpCore NIO can be used to execute multiple HTTP requests 

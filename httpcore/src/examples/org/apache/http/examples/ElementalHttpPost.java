@@ -31,10 +31,12 @@ import java.io.ByteArrayInputStream;
 import java.net.Socket;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
@@ -77,13 +79,16 @@ public class ElementalHttpPost {
 
             HttpEntity[] requestBodies = {
                     new StringEntity(
-                            "This is the first test request", "UTF-8"),
+                            "This is the first test request",
+                            ContentType.create("text/plain", Consts.UTF_8)),
                     new ByteArrayEntity(
-                            "This is the second test request".getBytes("UTF-8")),
+                            "This is the second test request".getBytes("UTF-8"),
+                            ContentType.APPLICATION_OCTET_STREAM),
                     new InputStreamEntity(
                             new ByteArrayInputStream(
                                     "This is the third test request (will be chunked)"
-                                    .getBytes("UTF-8")), -1)
+                                    .getBytes("UTF-8")),
+                            ContentType.APPLICATION_OCTET_STREAM)
             };
 
             for (int i = 0; i < requestBodies.length; i++) {
