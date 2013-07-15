@@ -1,9 +1,27 @@
-Changes since Release 4.3-BETA2 
+Release 4.3 
 -------------------
 
-* [HTTPCORE-345] EntityAsyncContentProducer fails to release resources allocated by the underlying 
-  entity when #produceContent is never invoked. 
-  Contributed by Tad Whitenight <tadwhitenight at gmail.com>
+This is the first stable (GA) release of HttpCore 4.3. The most notable features in the 4.3
+branch are:
+
+* Deprecation of preference and configuration API based on HttpParams interface in favor of
+  constructor injection and plain configuration objects.
+
+* Reliance on object immutability instead of access synchronization for thread safety. 
+  Several old classes whose instances can be shared by multiple request exchanges have
+  been replaced by immutable equivalents. 
+
+The 4.3 branch also contains performance optimizations such as reduced TCP packet fragmentation
+and more efficient lease / release operations for pools of persistent connections on the client
+side. 
+
+This release also includes all fixes from the 4.2.x release branch.
+
+Users of HttpCore 4.2 are encouraged to upgrade.
+
+
+Changelog
+-------------------
 
 * [HTTPCORE-343] AbstractNIOConnPool to fire request callbacks outside the pool lock.
   This makes it possible to re-enter pool methods from a callback event.
@@ -15,6 +33,37 @@ Changes since Release 4.3-BETA2
 * Blocking connections do not clean session input buffer when closed (input data from a read
   operation may still remain in the buffer if the connection is re-opened).
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
+Release 4.2.5
+-------------------
+
+This maintenance release fixes a number of bugs found in NIO components since 4.2.4. We advise 
+users of HttpCore NIO of all versions to upgrade.
+
+This is likely to be the last release in the 4.2.x branch.
+
+
+Changelog
+-------------------
+
+* [HTTPCORE-345] EntityAsyncContentProducer fails to release resources allocated by the underlying 
+  entity when #produceContent is never invoked. 
+  Contributed by Tad Whitenight <tadwhitenight at gmail.com>
+
+* Non-blocking connection pool to avoid scanning the entire queue of pending connection requests 
+  on each connection lease / release operation (under heavy load the request queue can contain 
+  a significant number of pending requests, a full linear scan of which can cause massive 
+  performance degradation).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Use bulk ByteBuffer#put method instead of single byte ByteBuffer#put
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-336]  Unhandled CancelledKeyException leads to a shutdown of the underlying IOReactor.
+  Contributed by Thomas Dudek <mail.dudek at gmail.com> 
+
 
 
 Release 4.3-BETA2 
@@ -77,19 +126,43 @@ Changelog
 
 
 
-
-Release 4.3-BETA1 
+Release 4.2.4
 -------------------
 
-This is the first release from the 4.3.x release branch. The main theme of the 4.3 release
+This maintenance release fixes a number of bugs found in NIO components since 4.2.3. We advise 
+users of HttpCore NIO of all versions to upgrade.
+
+Changelog
+-------------------
+
+* [HTTPCORE-334] https request to a non-responsive but alive port over a non-blocking connection
+  results in a busy loop in one of I/O dispatch threads. 
+  Contributed by Scott Stanton <snstanton at gmail.com> 
+
+* [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-319] Non-blocking SSLIOSession can fail to shut down correctly when the underlying
+  connection gets terminated abnormally by the opposite endpoint in case there is a truncated or
+  corrupted encrypted content in the input buffer and there is still data in the output buffer
+  that needs to be flushed out (most likely to occur with POST or PUT requests).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
+Release 4.1-ALPHA1 
+-------------------
+
+This is the first release from the 4.3.x release branch. The main focus of the 4.3 release
 series is streamlining of component configuration and deprecation of the old configuration
-API based on HttpParams in favor of constructor-based dependency injection and plain objects 
+API based on HttpParams in favor of constructor based dependency injection and plain objects 
 for configuration parameters.
 
 We are kindly asking all upstream projects to review API changes and help us improve 
 the APIs by providing feedback and sharing ideas on dev@hc.apache.org. 
 
 This release also includes all fixes from the stable 4.2.x release branch.
+
 
 
 Release 4.2.3
