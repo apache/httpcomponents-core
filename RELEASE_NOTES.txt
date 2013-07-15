@@ -1,4 +1,13 @@
-Changes since Release 4.2.4
+Release 4.2.5
+-------------------
+
+This maintenance release fixes a number of bugs found in NIO components since 4.2.4. We advise 
+users of HttpCore NIO of all versions to upgrade.
+
+This is likely to be the last release in the 4.2.x branch.
+
+
+Changelog
 -------------------
 
 * [HTTPCORE-345] EntityAsyncContentProducer fails to release resources allocated by the underlying 
