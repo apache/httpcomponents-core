@@ -33,7 +33,7 @@
     <version>4.3-beta3-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore-nio</artifactId>
-  <name>HttpCore NIO</name>
+  <name>Apache HttpCore NIO</name>
   <inceptionYear>2005</inceptionYear>
   <description>
    HttpComponents Core (non-blocking I/O)
