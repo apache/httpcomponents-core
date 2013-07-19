@@ -237,8 +237,8 @@ c3 = c
             <section>
                 <title>Repeatable entities</title>
                 <para>
-                An entity can be repeatable, meaning its content can be read more than once. This
-                is only possible with self contained entities (like
+                An entity can be repeatable, meaning you can read its content more than once. This
+                is only possible with self-contained entities (like
                 <classname>ByteArrayEntity</classname> or <classname>StringEntity</classname>).
                 </para>
             </section>
@@ -246,7 +246,7 @@ c3 = c
                 <title>Using HTTP entities</title>
                 <para>
                 Since an entity can represent both binary and character content, it has support
-                for character encodings (to support the latter, ie. character content).
+                for character encodings (to support the latter, i.e. character content).
                 </para>
                 <para>
                 The entity is created when executing a request with enclosed content or when the
@@ -261,10 +261,10 @@ c3 = c
                 return once all content has been written to the given stream.
                 </para>
                 <para>
-                The <classname>EntityUtils</classname> class exposes several static methods to
-                more easily read the content or information from an entity. Instead of reading
-                the <classname>java.io.InputStream</classname> directly, one can retrieve the whole
-                content body in a string / byte array by using the methods from this class.
+                The <classname>EntityUtils</classname> class exposes several static methods to read 
+                more easily the content or information from an entity. Instead of reading
+                the <classname>java.io.InputStream</classname> directly, one can retrieve the complete
+                content body in a string or byte array by using the methods from this class.
                 </para>
                 <para>
                 When the entity has been received with an incoming message, the methods
@@ -338,8 +338,7 @@ if (entity != null) {
         <section>
             <title>Creating entities</title>
             <para>
-            There are a few ways to create entities. The following implementations are provided
-            by HttpCore:
+            There are a few ways to create entities. HttpCore provides the following implementations:
             </para>
             <itemizedlist>
                 <listitem>
@@ -402,11 +401,11 @@ if (entity != null) {
             <section id="basic-entity">
                 <title><classname>BasicHttpEntity</classname></title>
                 <para>
-                This is exactly as the name implies, a basic entity that represents an underlying
-                stream. This is generally used for the entities received from HTTP messages.
+                Exactly as the name implies, this basic entity represents an underlying stream. 
+                In general, use this class for entities received from HTTP messages.
                 </para>
                 <para>
-                This entity has an empty constructor. After construction it represents no content,
+                This entity has an empty constructor. After construction, it represents no content,
                 and has a negative content length.
                 </para>
                 <para>
@@ -424,9 +423,9 @@ myEntity.setContentLength(340); // sets the length to 340
             <section id="byte-array-entity">
                 <title><classname>ByteArrayEntity</classname></title>
                 <para>
-                <classname>ByteArrayEntity</classname> is a self contained, repeatable entity
-                that obtains its content from a given byte array. This byte array is supplied
-                to the constructor.
+                <classname>ByteArrayEntity</classname> is a self-contained, repeatable entity
+                that obtains its content from a given byte array. Supply the byte array to the 
+                constructor.
                 </para>
                 <programlisting><![CDATA[
 ByteArrayEntity myEntity = new ByteArrayEntity(new byte[] {1,2,3},
@@ -436,7 +435,7 @@ ByteArrayEntity myEntity = new ByteArrayEntity(new byte[] {1,2,3},
             <section id="string-entity">
                 <title><classname>StringEntity</classname></title>
                 <para>
-                <classname>StringEntity</classname> is a self contained, repeatable entity that
+                <classname>StringEntity</classname> is a self-contained, repeatable entity that
                 obtains its content from a <classname>java.lang.String</classname> object. It has
                 three constructors, one simply constructs with a given <classname>java.lang.String
                 </classname> object; the second also takes a character encoding for the data in the
@@ -466,13 +465,13 @@ HttpEntity myEntity3 = new StringEntity(sb.toString(),
                 <title><classname>InputStreamEntity</classname></title>
                 <para>
                 <classname>InputStreamEntity</classname> is a streamed, non-repeatable entity that
-                obtains its content from an input stream. It is constructed by supplying the input
-                stream and the content length. The content length is used to limit the amount of
-                data read from the <classname>java.io.InputStream</classname>. If the length matches
+                obtains its content from an input stream. Construct it by supplying the input
+                stream and the content length. Use the content length to limit the amount of data
+                read from the <classname>java.io.InputStream</classname>. If the length matches
                 the content length available on the input stream, then all data will be sent.
-                Alternatively a negative content length will read all data from the input stream,
-                which is the same as supplying the exact content length, so the length is most
-                often used to limit the length.
+                Alternatively, a negative content length will read all data from the input stream,
+                which is the same as supplying the exact content length, so use the length to limit 
+                the amount of data to read.
                 </para>
                 <programlisting><![CDATA[
 InputStream instream = getSomeInputStream();
@@ -482,9 +481,9 @@ InputStreamEntity myEntity = new InputStreamEntity(instream, 16);
             <section id="file-entity">
                 <title><classname>FileEntity</classname></title>
                 <para>
-                <classname>FileEntity</classname> is a self contained, repeatable entity that
-                obtains its content from a file. Since this is mostly used to stream large files
-                of different types, one needs to supply the content type of the file, for
+                <classname>FileEntity</classname> is a self-contained, repeatable entity that
+                obtains its content from a file. Use this mostly to stream large files of different 
+                types, where you need to supply the content type of the file, for
                 instance, sending a zip file would require the content type <literal>
                 application/zip</literal>, for XML <literal>application/xml</literal>.
                 </para>
@@ -506,13 +505,13 @@ HttpEntity entity = new FileEntity(staticFile,
                 <title><classname>BufferedHttpEntity</classname></title>
                 <para>
                 <classname>BufferedHttpEntity</classname> is a subclass of <classname>
-                HttpEntityWrapper</classname>. It is constructed by supplying another entity. It
+                HttpEntityWrapper</classname>. Construct it by supplying another entity. It
                 reads the content from the supplied entity, and buffers it in memory.
                 </para>
                 <para>
                 This makes it possible to make a repeatable entity, from a non-repeatable entity.
-                If the supplied entity is already repeatable, calls are simply passed through to the
-                underlying entity.
+                If the supplied entity is already repeatable, it simply passes calls through to 
+                the underlying entity.
                 </para>
                 <programlisting><![CDATA[
 myNonRepeatableEntity.setContent(someInputStream);
@@ -533,8 +532,8 @@ BufferedHttpEntity myBufferedEntity = new BufferedHttpEntity(
         addresses.
         </para>
         <para>
-        It is important to bear in mind that HTTP connections are not thread-safe. It is strongly
-        recommended to limit all interactions with HTTP connection objects to one thread. The only
+        It is important to bear in mind that HTTP connections are not thread-safe. We strongly 
+        recommend limiting all interactions with HTTP connection objects to one thread. The only
         method of <interfacename>HttpConnection</interfacename> interface and its sub-interfaces
         which is safe to invoke from another thread is <methodname> HttpConnection#shutdown()
         </methodname>.
@@ -562,14 +561,14 @@ System.out.println(metrics.getSentBytesCount());
             <para>
             HTTP connection interfaces, both client and server, send and receive messages in two
             stages. The message head is transmitted first. Depending on properties of the message
-            head it may be followed by a message body. Please note it is very important to always
+            head, a message body may follow it. Please note it is very important to always
             close the underlying content stream in order to signal that the processing of
             the message is complete. HTTP entities that stream out their content directly from the
-            input stream of the underlying connection must ensure the content of the message body
-            is fully consumed for that connection to be potentially re-usable.
+            input stream of the underlying connection must ensure they fully consume the content 
+            of the message body for that connection to be potentially re-usable.
             </para>
             <para>
-            Over-simplified process of client side request execution may look like this:
+            Over-simplified process of request execution on the client side may look like this:
             </para>
             <programlisting><![CDATA[
 Socket socket = <...>
@@ -589,7 +588,7 @@ if (entity != null) {
 }
 ]]></programlisting>
             <para>
-            Over-simplified process of server side request handling may look like this:
+            Over-simplified process of request handling on the server side may look like this:
             </para>
             <programlisting><![CDATA[
 Socket socket = <...>
@@ -630,10 +629,10 @@ conn.sendResponseEntity(response);
             incoming data. They merely inject an appropriate content codec based on the properties
             of the incoming message. The content can be retrieved by reading from the content input
             stream of the enclosed entity using <methodname>HttpEntity#getContent()</methodname>.
-            The incoming data will be decoded automatically, and completely transparently to the data
+            The incoming data will be decoded automatically and completely transparently to the data
             consumer. Likewise, HTTP connections rely on <methodname>
             HttpEntity#writeTo(OutputStream)</methodname> method to generate the content of an
-            outgoing message. If an outgoing messages encloses an entity, the content will be
+            outgoing message. If an outgoing message encloses an entity, the content will be
             encoded automatically based on the properties of the message.
             </para>
         </section>
@@ -660,7 +659,7 @@ conn.sendResponseEntity(response);
                     <para>
                     The end of the content entity is demarcated by closing the underlying
                     connection (end of stream condition). For obvious reasons the identity encoding
-                    can only be used on the server side. Max entity length: unlimited.
+                    can only be used on the server side. Maximum entity length: unlimited.
                     </para>
                     </formalpara>
                 </listitem>
@@ -668,7 +667,7 @@ conn.sendResponseEntity(response);
                     <formalpara>
                     <title>Chunk coding:</title>
                     <para>
-                    The content is sent in small chunks. Max entity length: unlimited.
+                    The content is sent in small chunks. Maximum entity length: unlimited.
                     </para>
                     </formalpara>
                 </listitem>

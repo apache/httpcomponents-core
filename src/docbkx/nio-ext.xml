@@ -1126,7 +1126,7 @@ if (encoder instanceof FileContentEncoder) {
             <section id="bytearray-n-entity">
                 <title><classname>NByteArrayEntity</classname></title>
                 <para>
-                This is a simple self contained repeatable entity, which receives its content from
+                This is a simple self-contained repeatable entity, which receives its content from
                 a given byte array. This byte array is supplied to the constructor.
                 </para>
                 <programlisting><![CDATA[
@@ -1136,7 +1136,7 @@ NByteArrayEntity entity = new NByteArrayEntity(new byte[] {1, 2, 3});
             <section id="string-n-entity">
                 <title><classname>NStringEntity</classname></title>
                 <para>
-                It's is a simple, self contained, repeatable entity that retrieves its data from a
+                It's is a simple, self-contained, repeatable entity that retrieves its data from a
                 <classname>java.lang.String</classname> object. It has 2 constructors, one simply
                 constructs with a given string where the other also takes a character encoding for
                 the data in the <classname>java.lang.String</classname>.
