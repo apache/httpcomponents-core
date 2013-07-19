@@ -36,7 +36,7 @@
             enclose a content body.
             </para>
             <para>
-            HttpCore defines the HTTP message object model to closely follow this definition and
+            HttpCore defines the HTTP message object model to follow closely this definition and
             provides extensive support for serialization (formatting) and deserialization
             (parsing) of HTTP message elements.
             </para>
@@ -47,7 +47,7 @@
                 <title>HTTP request message</title>
                 <para>
                 HTTP request is a message sent from the client to the server. The first line of
-                that message includes the method to be applied to the resource, the identifier of
+                that message includes the method to apply to the resource, the identifier of
                 the resource, and the protocol version in use.
                 </para>
                 <programlisting><![CDATA[
@@ -96,8 +96,8 @@ HTTP/1.1 200 OK
                 <title>HTTP message common properties and methods</title>
                 <para>
                 An HTTP message can contain a number of headers describing properties of the
-                message such as the content length, content type and so on. HttpCore provides
-                methods to retrieve, add, remove and enumerate such headers.
+                message such as the content length, content type, and so on. HttpCore provides
+                methods to retrieve, add, remove, and enumerate such headers.
                 </para>
                 <programlisting><![CDATA[
 HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
@@ -177,9 +177,9 @@ c3 = c
  domain=localhost
 ]]></programlisting>
                 <para>
-                HTTP headers get tokenized into individual header elements only on demand. HTTP
+                HTTP headers are tokenized into individual header elements only on demand. HTTP
                 headers received over an HTTP connection are stored internally as an array of
-                characters and parsed lazily only when their properties are accessed.
+                characters and parsed lazily only when you access their properties.
                 </para>
             </section>
         </section>
@@ -188,8 +188,8 @@ c3 = c
             <para>
             HTTP messages can carry a content entity associated with the request or response.
             Entities can be found in some requests and in some responses, as they are optional.
-            Requests that use entities are referred to as entity enclosing requests. The HTTP
-            specification defines two entity enclosing methods: POST and PUT. Responses are
+            Requests that use entities are referred to as entity-enclosing requests. The HTTP
+            specification defines two entity-enclosing methods: POST and PUT. Responses are
             usually expected to enclose a content entity. There are exceptions to this rule such
             as responses to HEAD method and 204 No Content, 304 Not Modified, 205 Reset Content
             responses.
@@ -228,10 +228,10 @@ c3 = c
                 </listitem>
             </itemizedlist>
             <para>
-            This distinction is important for connection management with incoming entities. For
-            entities that are created by an application and only sent using the HttpCore framework,
+            This distinction is important for connection management with incoming entities. For 
+            an application that creates entities and only sends them using the HttpCore framework,
             the difference between streamed and self-contained is of little importance. In that
-            case, it is suggested to consider non-repeatable entities as streamed, and those that
+            case, we suggest you consider non-repeatable entities as streamed, and those that
             are repeatable as self-contained.
             </para>
             <section>
