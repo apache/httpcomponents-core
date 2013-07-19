@@ -73,7 +73,7 @@
             </listitem>
             <listitem>
                 <para>
-                Self contained library (no external dependencies beyond JRE)
+                Self-contained library (no external dependencies beyond JRE)
                 </para>
             </listitem>
         </itemizedlist>
