@@ -33,7 +33,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
-  <name>HttpComponents Core</name>
+  <name>Apache HttpComponents Core</name>
   <version>4.2.5-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
@@ -105,21 +105,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <artifactId>maven-notice-plugin</artifactId>
-        <groupId>org.apache.httpcomponents</groupId>
-        <executions>
-          <execution>
-            <id>attach-notice-license</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <projectTitle>Apache HttpComponents</projectTitle>
-        </configuration>
-      </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
         <configuration>
