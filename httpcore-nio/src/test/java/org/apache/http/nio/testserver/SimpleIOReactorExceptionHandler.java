@@ -31,7 +31,7 @@ import java.io.IOException;
 import org.apache.http.OoopsieRuntimeException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 
-class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandler {
+public class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandler {
 
     public boolean handle(final RuntimeException ex) {
         if (!(ex instanceof OoopsieRuntimeException)) {

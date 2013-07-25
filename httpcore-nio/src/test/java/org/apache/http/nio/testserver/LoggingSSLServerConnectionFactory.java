@@ -33,19 +33,27 @@ import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.http.nio.reactor.ssl.SSLMode;
+import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 
 public class LoggingSSLServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
     private final SSLContext sslcontext;
+    private final SSLSetupHandler setupHandler;
 
-    public LoggingSSLServerConnectionFactory(final SSLContext sslcontext) {
+    public LoggingSSLServerConnectionFactory(
+            final SSLContext sslcontext, final SSLSetupHandler setupHandler) {
         super();
         this.sslcontext = sslcontext;
+        this.setupHandler = setupHandler;
+    }
+
+    public LoggingSSLServerConnectionFactory(final SSLContext sslcontext) {
+        this(sslcontext, null);
     }
 
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
         final SSLIOSession ssliosession = new SSLIOSession(
-                iosession, SSLMode.SERVER, this.sslcontext, null);
+                iosession, SSLMode.SERVER, this.sslcontext, this.setupHandler);
         iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return new LoggingNHttpServerConnection(ssliosession);
     }
