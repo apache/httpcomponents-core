@@ -40,14 +40,6 @@
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
 
-  <properties>
-    <!-- default compiler and surefire plugin settings for "java" profiles -->
-    <httpcore.compiler.fork>false</httpcore.compiler.fork>
-    <httpcore.compiler.compilerVersion />
-    <httpcore.compiler.javac />
-    <httpcore.surefire.java />
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -67,20 +59,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${maven.compile.source}</source>
-          <target>${maven.compile.target}</target>
-          <optimize>${maven.compile.optimize}</optimize>
-          <showDeprecation>${maven.compile.deprecation}</showDeprecation>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 
 </project>

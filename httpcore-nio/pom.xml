@@ -41,14 +41,6 @@
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
 
-  <properties>
-    <!-- default compiler and surefire plugin settings for "java" profiles -->
-    <httpcore.compiler.fork>false</httpcore.compiler.fork>
-    <httpcore.compiler.compilerVersion />
-    <httpcore.compiler.javac />
-    <httpcore.surefire.java />
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
@@ -85,16 +77,6 @@
     </resources>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>${maven.compile.source}</source>
-          <target>${maven.compile.target}</target>
-          <optimize>${maven.compile.optimize}</optimize>
-          <showDeprecation>${maven.compile.deprecation}</showDeprecation>
-        </configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
     </plugins>
@@ -109,7 +91,7 @@
         <configuration>
           <!-- reduce console output. Can override with -Dquiet=false -->
           <quiet>true</quiet>
-          <source>${maven.compile.source}</source>
+          <source>${maven.compiler.source}</source>
           <links>
             <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
             <link>http://hc.apache.org/httpcomponents-core-ga/httpcore/apidocs/</link>
