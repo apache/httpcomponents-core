@@ -871,15 +871,15 @@ if (encoder instanceof FileContentEncoder) {
                 Triggered when the underlying channel is ready for reading a new portion of
                 the request entity through the corresponding content decoder. If the content
                 consumer is unable to process the incoming content, input event notifications can
-                temporarily suspended using <interfacename>IOControl</interfacename> interface 
+                temporarily suspended using <interfacename>IOControl</interfacename> interface
                 (super interface of <interfacename>NHttpServerConnection</interfacename>).
                 </para>
                 <para>
-                Please note that the <interfacename>NHttpServerConnection</interfacename> and 
-                <interfacename>ContentDecoder</interfacename> objects are not thread-safe and 
+                Please note that the <interfacename>NHttpServerConnection</interfacename> and
+                <interfacename>ContentDecoder</interfacename> objects are not thread-safe and
                 should only be used within the context of this method call. The <interfacename>
-                IOControl</interfacename> object can be shared and used on other thread to resume 
-                input event notifications when the handler is capable of processing more content.  
+                IOControl</interfacename> object can be shared and used on other thread to resume
+                input event notifications when the handler is capable of processing more content.
                 </para>
                 </formalpara>
             </listitem>
@@ -903,11 +903,11 @@ if (encoder instanceof FileContentEncoder) {
                 (super interface of <interfacename>NHttpServerConnection</interfacename>).
                 </para>
                 <para>
-                Please note that the <interfacename>NHttpServerConnection</interfacename> and 
-                <interfacename>ContentEncoder</interfacename> objects are not thread-safe and 
+                Please note that the <interfacename>NHttpServerConnection</interfacename> and
+                <interfacename>ContentEncoder</interfacename> objects are not thread-safe and
                 should only be used within the context of this method call. The <interfacename>
-                IOControl</interfacename> object can be shared and used on other thread to resume 
-                output event notifications when more content is made available.  
+                IOControl</interfacename> object can be shared and used on other thread to resume
+                output event notifications when more content is made available.
                 </para>
                 </formalpara>
             </listitem>
@@ -947,8 +947,8 @@ if (encoder instanceof FileContentEncoder) {
                 <formalpara>
                 <title><methodname>connected</methodname>:</title>
                 <para>
-                Triggered when a new outgoing connection has been created. The attachment object 
-                passed as a parameter to this event is an arbitrary object that was attached to 
+                Triggered when a new outgoing connection has been created. The attachment object
+                passed as a parameter to this event is an arbitrary object that was attached to
                 the session request.
                 </para>
                 </formalpara>
@@ -957,7 +957,7 @@ if (encoder instanceof FileContentEncoder) {
                 <formalpara>
                 <title><methodname>requestReady</methodname>:</title>
                 <para>
-                Triggered when the connection is ready to accept new HTTP request. The protocol 
+                Triggered when the connection is ready to accept new HTTP request. The protocol
                 handler does not have to submit a request if it is not ready.
                 </para>
                 </formalpara>
@@ -967,17 +967,17 @@ if (encoder instanceof FileContentEncoder) {
                 <title><methodname>outputReady</methodname>:</title>
                 <para>
                 Triggered when the underlying channel is ready for writing a next portion of the
-                request entity through the corresponding content encoder. If the content producer 
-                is unable to generate the outgoing content, output event notifications can be 
+                request entity through the corresponding content encoder. If the content producer
+                is unable to generate the outgoing content, output event notifications can be
                 temporarily suspended using <interfacename>IOControl</interfacename> interface
                 (super interface of <interfacename>NHttpClientConnection</interfacename>).
                 </para>
                 <para>
-                Please note that the <interfacename>NHttpClientConnection</interfacename> and 
-                <interfacename>ContentEncoder</interfacename> objects are not thread-safe and 
+                Please note that the <interfacename>NHttpClientConnection</interfacename> and
+                <interfacename>ContentEncoder</interfacename> objects are not thread-safe and
                 should only be used within the context of this method call. The <interfacename>
-                IOControl</interfacename> object can be shared and used on other thread to resume 
-                output event notifications when more content is made available.  
+                IOControl</interfacename> object can be shared and used on other thread to resume
+                output event notifications when more content is made available.
                 </para>
                 </formalpara>
             </listitem>
@@ -997,17 +997,17 @@ if (encoder instanceof FileContentEncoder) {
                 <title><methodname>inputReady</methodname>:</title>
                 <para>
                 Triggered when the underlying channel is ready for reading a new portion of the
-                response entity through the corresponding content decoder. If the content consumer 
-                is unable to process the incoming content, input event notifications can be 
-                temporarily suspended using <interfacename>IOControl</interfacename> interface 
+                response entity through the corresponding content decoder. If the content consumer
+                is unable to process the incoming content, input event notifications can be
+                temporarily suspended using <interfacename>IOControl</interfacename> interface
                 (super interface of <interfacename>NHttpClientConnection</interfacename>).
                 </para>
                 <para>
-                Please note that the <interfacename>NHttpClientConnection</interfacename> and 
-                <interfacename>ContentDecoder</interfacename> objects are not thread-safe and 
+                Please note that the <interfacename>NHttpClientConnection</interfacename> and
+                <interfacename>ContentDecoder</interfacename> objects are not thread-safe and
                 should only be used within the context of this method call. The <interfacename>
-                IOControl</interfacename> object can be shared and used on other thread to resume 
-                input event notifications when the handler is capable of processing more content.  
+                IOControl</interfacename> object can be shared and used on other thread to resume
+                input event notifications when the handler is capable of processing more content.
                 </para>
                 </formalpara>
             </listitem>
@@ -1068,10 +1068,10 @@ if (encoder instanceof FileContentEncoder) {
                 the entity to be incorrectly delimited.
                 </para>
                 <para>
-                Please note that the <interfacename>ContentEncoder</interfacename> object is 
-                not thread-safe and should only be used within the context of this method call. 
-                The <interfacename>IOControl</interfacename> object can be shared and used on other 
-                thread resume output event notifications when more content is made available.  
+                Please note that the <interfacename>ContentEncoder</interfacename> object is
+                not thread-safe and should only be used within the context of this method call.
+                The <interfacename>IOControl</interfacename> object can be shared and used on other
+                thread resume output event notifications when more content is made available.
                 </para>
                 </formalpara>
             </listitem>
@@ -1405,10 +1405,10 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
                         has been fully consumed.
                         </para>
                         <para>
-                        Please note that the <interfacename>ContentDecoder</interfacename> object 
-                        is not thread-safe and should only be used within the context of this 
-                        method call. The <interfacename>IOControl</interfacename> object can be 
-                        shared and used on other thread to resume input event notifications 
+                        Please note that the <interfacename>ContentDecoder</interfacename> object
+                        is not thread-safe and should only be used within the context of this
+                        method call. The <interfacename>IOControl</interfacename> object can be
+                        shared and used on other thread to resume input event notifications
                         when the consumer is capable of processing more content.
                         </para>
                         <para>
@@ -1520,11 +1520,11 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
                         the entity to be incorrectly delimited.
                         </para>
                         <para>
-                        Please note that the <interfacename>ContentEncoder</interfacename> object 
-                        is not thread-safe and should only be used within the context of this 
-                        method call. The <interfacename>IOControl</interfacename> object can be 
-                        shared and used on other thread resume output event notifications when 
-                        more content is made available.  
+                        Please note that the <interfacename>ContentEncoder</interfacename> object
+                        is not thread-safe and should only be used within the context of this
+                        method call. The <interfacename>IOControl</interfacename> object can be
+                        shared and used on other thread resume output event notifications when
+                        more content is made available.
                         </para>
                         <para>
                         This event is invoked only for if the outgoing response message has
@@ -1710,11 +1710,11 @@ HttpResponse response = future.get();
                         the entity to be incorrectly delimited
                         </para>
                         <para>
-                        Please note that the <interfacename>ContentEncoder</interfacename> object 
-                        is not thread-safe and should only be used within the context of this 
-                        method call. The <interfacename>IOControl</interfacename> object can be 
-                        shared and used on other thread resume output event notifications when 
-                        more content is made available.  
+                        Please note that the <interfacename>ContentEncoder</interfacename> object
+                        is not thread-safe and should only be used within the context of this
+                        method call. The <interfacename>IOControl</interfacename> object can be
+                        shared and used on other thread resume output event notifications when
+                        more content is made available.
                         </para>
                         <para>
                         This event is invoked only for if the outgoing request message has
@@ -1808,10 +1808,10 @@ HttpResponse response = future.get();
                         has been fully consumed.
                         </para>
                         <para>
-                        Please note that the <interfacename>ContentDecoder</interfacename> object 
-                        is not thread-safe and should only be used within the context of this 
-                        method call. The <interfacename>IOControl</interfacename> object can be 
-                        shared and used on other thread to resume input event notifications 
+                        Please note that the <interfacename>ContentDecoder</interfacename> object
+                        is not thread-safe and should only be used within the context of this
+                        method call. The <interfacename>IOControl</interfacename> object can be
+                        shared and used on other thread to resume input event notifications
                         when the consumer is capable of processing more content.
                         </para>
                         <para>

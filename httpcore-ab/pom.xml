@@ -38,7 +38,7 @@
    AB clone based on HttpCore
   </description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
-  <packaging>jar</packaging>  
+  <packaging>jar</packaging>
 
   <properties>
     <!-- default compiler and surefire plugin settings for "java" profiles -->

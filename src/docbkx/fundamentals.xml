@@ -228,7 +228,7 @@ c3 = c
                 </listitem>
             </itemizedlist>
             <para>
-            This distinction is important for connection management with incoming entities. For 
+            This distinction is important for connection management with incoming entities. For
             an application that creates entities and only sends them using the HttpCore framework,
             the difference between streamed and self-contained is of little importance. In that
             case, we suggest you consider non-repeatable entities as streamed, and those that
@@ -261,7 +261,7 @@ c3 = c
                 return once all content has been written to the given stream.
                 </para>
                 <para>
-                The <classname>EntityUtils</classname> class exposes several static methods to read 
+                The <classname>EntityUtils</classname> class exposes several static methods to read
                 more easily the content or information from an entity. Instead of reading
                 the <classname>java.io.InputStream</classname> directly, one can retrieve the complete
                 content body in a string or byte array by using the methods from this class.
@@ -401,7 +401,7 @@ if (entity != null) {
             <section id="basic-entity">
                 <title><classname>BasicHttpEntity</classname></title>
                 <para>
-                Exactly as the name implies, this basic entity represents an underlying stream. 
+                Exactly as the name implies, this basic entity represents an underlying stream.
                 In general, use this class for entities received from HTTP messages.
                 </para>
                 <para>
@@ -424,7 +424,7 @@ myEntity.setContentLength(340); // sets the length to 340
                 <title><classname>ByteArrayEntity</classname></title>
                 <para>
                 <classname>ByteArrayEntity</classname> is a self-contained, repeatable entity
-                that obtains its content from a given byte array. Supply the byte array to the 
+                that obtains its content from a given byte array. Supply the byte array to the
                 constructor.
                 </para>
                 <programlisting><![CDATA[
@@ -470,7 +470,7 @@ HttpEntity myEntity3 = new StringEntity(sb.toString(),
                 read from the <classname>java.io.InputStream</classname>. If the length matches
                 the content length available on the input stream, then all data will be sent.
                 Alternatively, a negative content length will read all data from the input stream,
-                which is the same as supplying the exact content length, so use the length to limit 
+                which is the same as supplying the exact content length, so use the length to limit
                 the amount of data to read.
                 </para>
                 <programlisting><![CDATA[
@@ -482,7 +482,7 @@ InputStreamEntity myEntity = new InputStreamEntity(instream, 16);
                 <title><classname>FileEntity</classname></title>
                 <para>
                 <classname>FileEntity</classname> is a self-contained, repeatable entity that
-                obtains its content from a file. Use this mostly to stream large files of different 
+                obtains its content from a file. Use this mostly to stream large files of different
                 types, where you need to supply the content type of the file, for
                 instance, sending a zip file would require the content type <literal>
                 application/zip</literal>, for XML <literal>application/xml</literal>.
@@ -510,7 +510,7 @@ HttpEntity entity = new FileEntity(staticFile,
                 </para>
                 <para>
                 This makes it possible to make a repeatable entity, from a non-repeatable entity.
-                If the supplied entity is already repeatable, it simply passes calls through to 
+                If the supplied entity is already repeatable, it simply passes calls through to
                 the underlying entity.
                 </para>
                 <programlisting><![CDATA[
@@ -532,7 +532,7 @@ BufferedHttpEntity myBufferedEntity = new BufferedHttpEntity(
         addresses.
         </para>
         <para>
-        It is important to bear in mind that HTTP connections are not thread-safe. We strongly 
+        It is important to bear in mind that HTTP connections are not thread-safe. We strongly
         recommend limiting all interactions with HTTP connection objects to one thread. The only
         method of <interfacename>HttpConnection</interfacename> interface and its sub-interfaces
         which is safe to invoke from another thread is <methodname> HttpConnection#shutdown()
@@ -564,7 +564,7 @@ System.out.println(metrics.getSentBytesCount());
             head, a message body may follow it. Please note it is very important to always
             close the underlying content stream in order to signal that the processing of
             the message is complete. HTTP entities that stream out their content directly from the
-            input stream of the underlying connection must ensure they fully consume the content 
+            input stream of the underlying connection must ensure they fully consume the content
             of the message body for that connection to be potentially re-usable.
             </para>
             <para>
@@ -765,7 +765,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>RequestConnControl</classname></title>
                 <para>
-                <classname>RequestConnControl</classname> is responsible for adding the 
+                <classname>RequestConnControl</classname> is responsible for adding the
                 <literal>Connection</literal> header to the outgoing requests, which is essential
                 for managing persistence of <literal>HTTP/1.0</literal> connections. This
                 interceptor is recommended for client side protocol processors.
@@ -807,7 +807,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>RequestTargetHost</classname></title>
                 <para>
-                <classname>RequestTargetHost</classname> is responsible for adding the 
+                <classname>RequestTargetHost</classname> is responsible for adding the
                 <literal>Host</literal> header. This interceptor is required for client side
                 protocol processors.
                 </para>
@@ -815,7 +815,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>RequestUserAgent</classname></title>
                 <para>
-                <classname>RequestUserAgent</classname> is responsible for adding the 
+                <classname>RequestUserAgent</classname> is responsible for adding the
                 <literal>User-Agent</literal> header. This interceptor is recommended for client
                 side protocol processors.
                 </para>
@@ -823,7 +823,7 @@ conn.sendResponseEntity(response);
             <section>
                 <title><classname>ResponseServer</classname></title>
                 <para>
-                <classname>ResponseServer</classname> is responsible for adding the 
+                <classname>ResponseServer</classname> is responsible for adding the
                 <literal>Server</literal> header. This interceptor is recommended for server side
                 protocol processors.
                 </para>

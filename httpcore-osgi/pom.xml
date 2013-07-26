@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
    ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one
    or more contributor license agreements.  See the NOTICE file
@@ -39,7 +39,7 @@
    HttpComponents Core (OSGi bundle)
   </description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
-  <packaging>bundle</packaging>  
+  <packaging>bundle</packaging>
 
   <dependencies>
     <dependency>
