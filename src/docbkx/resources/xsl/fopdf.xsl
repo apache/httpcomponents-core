@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- 
+<!--
    ====================================================================
    Licensed to the Apache Software Foundation (ASF) under one
    or more contributor license agreements.  See the NOTICE file
@@ -31,7 +31,7 @@
     Thanks are due to Christian Bauer of the Hibernate project
     team for writing the original stylesheet upon which this one
     is based.
-    
+
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:fo="http://www.w3.org/1999/XSL/Format"
@@ -219,7 +219,7 @@
         </xsl:attribute>
     </xsl:attribute-set>
 
-    <!-- Why is the font-size for chapters hardcoded in the XSL FO templates? 
+    <!-- Why is the font-size for chapters hardcoded in the XSL FO templates?
         Let's remove it, so this sucker can use our attribute-set only... -->
     <xsl:template match="title" mode="chapter.titlepage.recto.auto.mode">
         <fo:block xmlns:fo="http://www.w3.org/1999/XSL/Format"
@@ -377,5 +377,5 @@
             </xsl:choose>
         </fo:basic-link>
     </xsl:template>
-    
+
 </xsl:stylesheet>
