@@ -38,7 +38,6 @@ import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerEventHandler;
-import org.apache.http.nio.NHttpServiceHandler;
 import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.protocol.HttpAsyncService;
@@ -55,7 +54,6 @@ import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
 
-@SuppressWarnings("deprecation")
 public class HttpServerNio {
 
     public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
@@ -135,12 +133,6 @@ public class HttpServerNio {
 
     public void start(final HttpAsyncRequestHandlerMapper handlerMapper) {
         start(null, handlerMapper, null);
-    }
-
-    public void start(final NHttpServiceHandler handler) {
-        this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
-        this.thread = new IOReactorThread(new NHttpServerEventHandlerAdaptor(handler));
-        this.thread.start();
     }
 
     public ListeningIOReactor getIoReactor() {

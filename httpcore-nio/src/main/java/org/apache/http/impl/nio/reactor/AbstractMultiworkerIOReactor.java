@@ -42,14 +42,14 @@ import java.util.List;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.nio.params.NIOReactorParams;
+import org.apache.http.nio.params.NIOReactorPNames;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.CoreConnectionPNames;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -169,19 +169,21 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this(null, null);
     }
 
+    @Deprecated
     static IOReactorConfig convert(final int workerCount, final HttpParams params) {
         Args.notNull(params, "HTTP parameters");
         return IOReactorConfig.custom()
-            .setSelectInterval(NIOReactorParams.getSelectInterval(params))
-            .setShutdownGracePeriod(NIOReactorParams.getGracePeriod(params))
-            .setInterestOpQueued(NIOReactorParams.getInterestOpsQueueing(params))
+            .setSelectInterval(params.getLongParameter(NIOReactorPNames.SELECT_INTERVAL, 1000))
+            .setShutdownGracePeriod(params.getLongParameter(NIOReactorPNames.GRACE_PERIOD, 500))
+            .setInterestOpQueued(params.getBooleanParameter(NIOReactorPNames.SELECT_INTERVAL, false))
             .setIoThreadCount(workerCount)
-            .setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params))
-            .setSoTimeout(HttpConnectionParams.getSoTimeout(params))
-            .setSoLinger(HttpConnectionParams.getLinger(params))
-            .setSoKeepAlive(HttpConnectionParams.getSoKeepalive(params))
-            .setConnectTimeout(HttpConnectionParams.getConnectionTimeout(params))
-            .setSoReuseAddress(HttpConnectionParams.getSoReuseaddr(params))
+            .setSoTimeout(params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0))
+            .setConnectTimeout(params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0))
+            .setSoTimeout(params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0))
+            .setSoReuseAddress(params.getBooleanParameter(CoreConnectionPNames.SO_REUSEADDR, false))
+            .setSoKeepAlive(params.getBooleanParameter(CoreConnectionPNames.SO_KEEPALIVE, false))
+            .setSoLinger(params.getIntParameter(CoreConnectionPNames.SO_LINGER, -1))
+            .setTcpNoDelay(params.getBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true))
             .build();
     }
 

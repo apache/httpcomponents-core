@@ -49,7 +49,6 @@ import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.ExceptionEvent;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
-import org.apache.http.nio.NHttpClientHandler;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
@@ -248,11 +247,6 @@ public class HttpClientNio {
 
     public void start() {
         start(null, new HttpAsyncRequestExecutor());
-    }
-
-    public void start(final NHttpClientHandler handler) {
-        this.thread = new IOReactorThread(new NHttpClientEventHandlerAdaptor(handler));
-        this.thread.start();
     }
 
     public ConnectingIOReactor getIoReactor() {

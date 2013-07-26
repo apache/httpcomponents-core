@@ -50,7 +50,6 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.HttpConnectionMetricsImpl;
@@ -77,8 +76,8 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.params.HttpParams;
-import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
@@ -128,7 +127,7 @@ public class NHttpConnectionBase
      *
      * @deprecated (4.3) use
      *   {@link NHttpConnectionBase#NHttpConnectionBase(IOSession, int, int, ByteBufferAllocator,
-     *   CharsetDecoder, CharsetEncoder, MessageConstraints, ContentLengthStrategy, ContentLengthStrategy)}
+     *   CharsetDecoder, CharsetEncoder, ContentLengthStrategy, ContentLengthStrategy)}
      */
     @Deprecated
     public NHttpConnectionBase(
@@ -150,17 +149,18 @@ public class NHttpConnectionBase
 
         CharsetDecoder decoder = null;
         CharsetEncoder encoder = null;
-        Charset charset = CharsetUtils.lookup(HttpProtocolParams.getHttpElementCharset(params));
+        Charset charset = CharsetUtils.lookup(
+                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
         if (charset != null) {
             charset = Consts.ASCII;
             decoder = charset.newDecoder();
             encoder = charset.newEncoder();
-            final CodingErrorAction malformedCharAction = HttpProtocolParams.getMalformedInputAction(params);
-            final CodingErrorAction unmappableCharAction = HttpProtocolParams.getUnmappableInputAction(params);
-            decoder.onMalformedInput(malformedCharAction);
-            decoder.onUnmappableCharacter(unmappableCharAction);
-            encoder.onMalformedInput(malformedCharAction);
-            encoder.onUnmappableCharacter(unmappableCharAction);
+            final CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
+                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
+            final CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
+                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
+            decoder.onMalformedInput(malformedCharAction).onUnmappableCharacter(unmappableCharAction);
+            encoder.onMalformedInput(malformedCharAction).onUnmappableCharacter(unmappableCharAction);
         }
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, decoder, allocator);
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, encoder, allocator);
@@ -192,8 +192,6 @@ public class NHttpConnectionBase
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for char to byte conversion.
-     * @param constraints Message constraints. If <code>null</code>
-     *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
      *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
@@ -208,7 +206,6 @@ public class NHttpConnectionBase
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
         Args.notNull(session, "I/O session");

@@ -47,11 +47,11 @@ public final class HttpParamConfig {
 
     public static SocketConfig getSocketConfig(final HttpParams params) {
         return SocketConfig.custom()
-                .setSoTimeout(HttpConnectionParams.getSoTimeout(params))
-                .setSoReuseAddress(HttpConnectionParams.getSoReuseaddr(params))
-                .setSoKeepAlive(HttpConnectionParams.getSoKeepalive(params))
-                .setSoLinger(HttpConnectionParams.getLinger(params))
-                .setTcpNoDelay(HttpConnectionParams.getTcpNoDelay(params))
+                .setSoTimeout(params.getIntParameter(CoreConnectionPNames.SO_TIMEOUT, 0))
+                .setSoReuseAddress(params.getBooleanParameter(CoreConnectionPNames.SO_REUSEADDR, false))
+                .setSoKeepAlive(params.getBooleanParameter(CoreConnectionPNames.SO_KEEPALIVE, false))
+                .setSoLinger(params.getIntParameter(CoreConnectionPNames.SO_LINGER, -1))
+                .setTcpNoDelay(params.getBooleanParameter(CoreConnectionPNames.TCP_NODELAY, true))
                 .build();
     }
 
@@ -64,7 +64,7 @@ public final class HttpParamConfig {
 
     public static ConnectionConfig getConnectionConfig(final HttpParams params) {
         final MessageConstraints messageConstraints = getMessageConstraints(params);
-        final String csname = HttpProtocolParams.getHttpElementCharset(params);
+        final String csname = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         return ConnectionConfig.custom()
                 .setCharset(csname != null ? Charset.forName(csname) : null)
                 .setMalformedInputAction((CodingErrorAction)

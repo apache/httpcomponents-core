@@ -35,7 +35,6 @@ import junit.framework.Assert;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpVersion;
-import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.ChunkDecoder;
@@ -69,7 +68,6 @@ public class TestNHttpConnectionBase {
         MockitoAnnotations.initMocks(this);
         conn = new NHttpConnectionBase(session, 1024, 1024, HeapByteBufferAllocator.INSTANCE,
             null, null,
-            MessageConstraints.DEFAULT,
             LaxContentLengthStrategy.INSTANCE,
             StrictContentLengthStrategy.INSTANCE);
     }

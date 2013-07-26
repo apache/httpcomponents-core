@@ -298,7 +298,7 @@ public class HttpService {
             final HttpServerConnection conn,
             final HttpContext context) throws IOException, HttpException {
 
-        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
         HttpResponse response = null;
 
@@ -332,7 +332,7 @@ public class HttpService {
                 }
             }
 
-            context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
+            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
             if (response == null) {
                 response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
@@ -354,7 +354,7 @@ public class HttpService {
             handleException(ex, response);
         }
 
-        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
 
         this.processor.process(response, context);
         conn.sendResponseHeader(response);

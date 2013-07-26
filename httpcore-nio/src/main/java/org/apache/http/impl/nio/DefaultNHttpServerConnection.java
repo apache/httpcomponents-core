@@ -142,7 +142,6 @@ public class DefaultNHttpServerConnection
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
         super(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder,
-                constraints,
                 incomingContentStrategy != null ? incomingContentStrategy :
                     DisallowIdentityContentLengthStrategy.INSTANCE,
                 outgoingContentStrategy != null ? outgoingContentStrategy :

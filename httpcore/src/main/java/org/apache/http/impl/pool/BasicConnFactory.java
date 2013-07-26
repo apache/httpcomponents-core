@@ -42,7 +42,6 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpClientConnectionFactory;
 import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
@@ -76,7 +75,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         Args.notNull(params, "HTTP params");
         this.plainfactory = null;
         this.sslfactory = sslfactory;
-        this.connectTimeout = HttpConnectionParams.getConnectionTimeout(params);
+        this.connectTimeout = params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
         this.sconfig = HttpParamConfig.getSocketConfig(params);
         this.connFactory = new DefaultBHttpClientConnectionFactory(
                 HttpParamConfig.getConnectionConfig(params));

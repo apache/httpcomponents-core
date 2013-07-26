@@ -55,8 +55,8 @@ import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -273,8 +273,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         final HttpRequest request = conn.getHttpRequest();
         final HttpContext context = state.getContext();
 
-        context.setAttribute(ExecutionContext.HTTP_REQUEST, request);
-        context.setAttribute(ExecutionContext.HTTP_CONNECTION, conn);
+        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         this.httpProcessor.process(request, context);
 
         state.setRequest(request);
@@ -569,7 +569,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         final HttpRequest request = state.getRequest();
         final HttpResponse response = state.getResponse();
 
-        context.setAttribute(ExecutionContext.HTTP_RESPONSE, response);
+        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         this.httpProcessor.process(response, context);
 
         HttpEntity entity = response.getEntity();
