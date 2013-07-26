@@ -1,4 +1,4 @@
-Release 4.3 
+Release 4.3
 -------------------
 
 This is the first stable (GA) release of HttpCore 4.3. The most notable features in the 4.3
@@ -7,13 +7,13 @@ branch are:
 * Deprecation of preference and configuration API based on HttpParams interface in favor of
   constructor injection and plain configuration objects.
 
-* Reliance on object immutability instead of access synchronization for thread safety. 
+* Reliance on object immutability instead of access synchronization for thread safety.
   Several old classes whose instances can be shared by multiple request exchanges have
-  been replaced by immutable equivalents. 
+  been replaced by immutable equivalents.
 
 The 4.3 branch also contains performance optimizations such as reduced TCP packet fragmentation
 and more efficient lease / release operations for pools of persistent connections on the client
-side. 
+side.
 
 This release also includes all fixes from the 4.2.x release branch.
 
@@ -27,7 +27,7 @@ Changelog
   This makes it possible to re-enter pool methods from a callback event.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-340] AbstractNIOConnPool to support lease timeout distinct from connect timeout.  
+* [HTTPCORE-340] AbstractNIOConnPool to support lease timeout distinct from connect timeout.
   Contributed by Ignat Alexeyenko <ignatalexeyenko at gmail.com>
 
 * Blocking connections do not clean session input buffer when closed (input data from a read
@@ -39,7 +39,7 @@ Changelog
 Release 4.2.5
 -------------------
 
-This maintenance release fixes a number of bugs found in NIO components since 4.2.4. We advise 
+This maintenance release fixes a number of bugs found in NIO components since 4.2.4. We advise
 users of HttpCore NIO of all versions to upgrade.
 
 This is likely to be the last release in the 4.2.x branch.
@@ -48,13 +48,13 @@ This is likely to be the last release in the 4.2.x branch.
 Changelog
 -------------------
 
-* [HTTPCORE-345] EntityAsyncContentProducer fails to release resources allocated by the underlying 
-  entity when #produceContent is never invoked. 
+* [HTTPCORE-345] EntityAsyncContentProducer fails to release resources allocated by the underlying
+  entity when #produceContent is never invoked.
   Contributed by Tad Whitenight <tadwhitenight at gmail.com>
 
-* Non-blocking connection pool to avoid scanning the entire queue of pending connection requests 
-  on each connection lease / release operation (under heavy load the request queue can contain 
-  a significant number of pending requests, a full linear scan of which can cause massive 
+* Non-blocking connection pool to avoid scanning the entire queue of pending connection requests
+  on each connection lease / release operation (under heavy load the request queue can contain
+  a significant number of pending requests, a full linear scan of which can cause massive
   performance degradation).
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -62,14 +62,14 @@ Changelog
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-336]  Unhandled CancelledKeyException leads to a shutdown of the underlying IOReactor.
-  Contributed by Thomas Dudek <mail.dudek at gmail.com> 
+  Contributed by Thomas Dudek <mail.dudek at gmail.com>
 
 
 
-Release 4.3-BETA2 
+Release 4.3-BETA2
 -------------------
 
-This is the second BETA release from the 4.3.x release branch. This release addresses performance 
+This is the second BETA release from the 4.3.x release branch. This release addresses performance
 issues in the non-blocking connection pool implementation and also includes a number of performance
 improvements in the low level NIO based transport components.
 
@@ -79,13 +79,13 @@ Changelog
 * [HTTPCORE-300] ContentType to provide support for custom parameters.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Non-blocking connection pool to avoid scanning the entire queue of pending connection requests 
-  on each connection lease / release operation (under heavy load the request queue can contain 
-  a significant number of pending requests, a full linear scan of which can cause massive 
+* Non-blocking connection pool to avoid scanning the entire queue of pending connection requests
+  on each connection lease / release operation (under heavy load the request queue can contain
+  a significant number of pending requests, a full linear scan of which can cause massive
   performance degradation).
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Basic connection pool implementations to perform default port resolution for HTTP and HTTPS 
+* Basic connection pool implementations to perform default port resolution for HTTP and HTTPS
   schemes.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -93,20 +93,20 @@ Changelog
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-336]  Unhandled CancelledKeyException leads to a shutdown of the underlying IOReactor.
-  Contributed by Thomas Dudek <mail.dudek at gmail.com> 
+  Contributed by Thomas Dudek <mail.dudek at gmail.com>
 
 
-Release 4.3-BETA1 
+Release 4.3-BETA1
 -------------------
 
 This is the first BETA release from the 4.3.x release branch. The main theme of the 4.3 release
 series is streamlining of component configuration and deprecation of the old configuration
-API based on HttpParams in favor of constructor-based dependency injection and plain objects 
+API based on HttpParams in favor of constructor-based dependency injection and plain objects
 for configuration parameters.
 
-This release also includes performance optimizations intended to reduce TCP packet fragmentation 
-when writing out HTTP messages both in blocking and non-blocking I/O modes, which should result 
-in up to 20% higher throughput for short entity enclosing messages.  
+This release also includes performance optimizations intended to reduce TCP packet fragmentation
+when writing out HTTP messages both in blocking and non-blocking I/O modes, which should result
+in up to 20% higher throughput for short entity enclosing messages.
 
 This release also includes all fixes from the stable 4.2.x release branch.
 
@@ -114,7 +114,7 @@ This release also includes all fixes from the stable 4.2.x release branch.
 Changelog
 -------------------
 
-* Reduced TCP packet fragmentation when writing out message content with blocking and 
+* Reduced TCP packet fragmentation when writing out message content with blocking and
   non-blocking connections.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -129,15 +129,15 @@ Changelog
 Release 4.2.4
 -------------------
 
-This maintenance release fixes a number of bugs found in NIO components since 4.2.3. We advise 
+This maintenance release fixes a number of bugs found in NIO components since 4.2.3. We advise
 users of HttpCore NIO of all versions to upgrade.
 
 Changelog
 -------------------
 
 * [HTTPCORE-334] https request to a non-responsive but alive port over a non-blocking connection
-  results in a busy loop in one of I/O dispatch threads. 
-  Contributed by Scott Stanton <snstanton at gmail.com> 
+  results in a busy loop in one of I/O dispatch threads.
+  Contributed by Scott Stanton <snstanton at gmail.com>
 
 * [HTTPCORE-331] BasicFuture no longer executes notification callbacks inside a synchronized block.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
@@ -150,16 +150,16 @@ Changelog
 
 
 
-Release 4.1-ALPHA1 
+Release 4.1-ALPHA1
 -------------------
 
 This is the first release from the 4.3.x release branch. The main focus of the 4.3 release
 series is streamlining of component configuration and deprecation of the old configuration
-API based on HttpParams in favor of constructor based dependency injection and plain objects 
+API based on HttpParams in favor of constructor based dependency injection and plain objects
 for configuration parameters.
 
-We are kindly asking all upstream projects to review API changes and help us improve 
-the APIs by providing feedback and sharing ideas on dev@hc.apache.org. 
+We are kindly asking all upstream projects to review API changes and help us improve
+the APIs by providing feedback and sharing ideas on dev@hc.apache.org.
 
 This release also includes all fixes from the stable 4.2.x release branch.
 
@@ -168,8 +168,8 @@ This release also includes all fixes from the stable 4.2.x release branch.
 Release 4.2.3
 -------------------
 
-This maintenance release fixes a number of bugs and found since 4.2.2 including 
-a major bug in the NIO module that can cause an infinite loop in SSL sessions under special 
+This maintenance release fixes a number of bugs and found since 4.2.2 including
+a major bug in the NIO module that can cause an infinite loop in SSL sessions under special
 circumstances when the remote peer terminates the session in the middle of SSL handshake.
 Please note this issue does not affect blocking I/O components used by HttpClient.
 
@@ -178,21 +178,21 @@ We advise users of HttpCore NIO of all versions to upgrade.
 Changelog
 -------------------
 
-* [HTTPCORE-319, HTTPCORE-322] Non-blocking SSLIOSession can enter an infinite loop under 
+* [HTTPCORE-319, HTTPCORE-322] Non-blocking SSLIOSession can enter an infinite loop under
   special circumstances when the remote peer terminates the session in the middle of SSL handshake.
-  Contributed by Paul Donohue <apache-jira at PaulSD.com> and 
+  Contributed by Paul Donohue <apache-jira at PaulSD.com> and
   Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-316] HeaderGroup#clone removes headers from the original object.
-  Contributed by Markus Thies <markus at dr-thies.com> 
+  Contributed by Markus Thies <markus at dr-thies.com>
 
-* [HTTPCORE-315] AbstractNIOConnPool fails to correctly deallocate connection if it is immediately 
+* [HTTPCORE-315] AbstractNIOConnPool fails to correctly deallocate connection if it is immediately
   released from the session request callback causing a resource leak.
-  Contributed by Scott Stanton <snstanton at gmail.com> 
+  Contributed by Scott Stanton <snstanton at gmail.com>
 
-* [HTTPCORE-313] ContentType#parse now ignores empty and blank charset attributes. 
-  HttpEntityUtils#toString now throws checked I/O exception if it  encounters an unsupported 
-  charset. 
+* [HTTPCORE-313] ContentType#parse now ignores empty and blank charset attributes.
+  HttpEntityUtils#toString now throws checked I/O exception if it  encounters an unsupported
+  charset.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
@@ -211,22 +211,22 @@ Changelog
 * [HTTPCORE-312] NIO length delimited content encoder incorrectly handles messages larger than 2GB.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-310] Fixed regression in DefaultConnectionReuseStrategy causing it to incorrectly 
-  flag connections as non-reusable after a 204, 205 or 304 response. 
+* [HTTPCORE-310] Fixed regression in DefaultConnectionReuseStrategy causing it to incorrectly
+  flag connections as non-reusable after a 204, 205 or 304 response.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-309] Fixed regression in HttpAsyncRequestExecutor causing it to handle 204, 205 
+* [HTTPCORE-309] Fixed regression in HttpAsyncRequestExecutor causing it to handle 204, 205
   and 304 responses incorrectly by returning a message with an enclosed content body.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-306] I/O reactor TCP_NODELAY parameter now defaults to true.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPASYNC-21] request execution handler does not get closed in case of a premature HTTP 
+* [HTTPASYNC-21] request execution handler does not get closed in case of a premature HTTP
   exchange termination.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-303] ContentType made Serializable. 
+* [HTTPCORE-303] ContentType made Serializable.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
@@ -234,19 +234,19 @@ Changelog
 Release 4.2.1
 -------------------
 
-This is a maintenance release that fixes a non-critical number of bugs found since 4.2. 
+This is a maintenance release that fixes a non-critical number of bugs found since 4.2.
 Users of HttpCore 4.2 are encouraged to upgrade.
 
 Changelog
 -------------------
 
-* [HTTPCORE-299] ContentType should rely on Charset#name() instead of Charset#toString() 
+* [HTTPCORE-299] ContentType should rely on Charset#name() instead of Charset#toString()
   for building header value.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-263] Under rare circumstances incorrectly delineated or garbled HTTP message
   can cause an IndexOutOfBoundsException in AbstractSessionInputBuffer#readLine()
-  Contributed by Michael Pujos <bubbleguuum at free.fr> 
+  Contributed by Michael Pujos <bubbleguuum at free.fr>
 
 * Made connection pools use FIFO algorithm instead of LIFO when leasing / releasing persistent
   connections.
@@ -254,7 +254,7 @@ Changelog
 
 * [HTTPCORE-298] Fixed non-blocking SSLIOSession state can getting out of sync with the underlying
   IOSession in case the I/O session is terminated by the I/O reactor rather than by the protocol
-  handler. 
+  handler.
   Contributed by Sandeep Tamhankar <sandman at electric-cloud.com>
 
 * Fixed NPE in StringEntity constructor thrown if ContentType#getCharset is null.
@@ -264,39 +264,39 @@ Changelog
 Release 4.2
 -------------------
 
-This is the first stable (GA) release of HttpCore 4.2. The most notable features included in this 
-release are connection pool components for blocking and non-blocking HTTP connections and new 
+This is the first stable (GA) release of HttpCore 4.2. The most notable features included in this
+release are connection pool components for blocking and non-blocking HTTP connections and new
 asynchronous client and server side protocol handlers.
 
-New protocol handling API used in conjunction with connection pooling components is expected to 
+New protocol handling API used in conjunction with connection pooling components is expected to
 make development of asynchronous HTTP client agents and HTTP proxies easier and less error prone.
 
-Connection pool components are based on mature code migrated from HttpClient and HttpAsyncClient 
-modules but have a slightly different API that makes a better use of Java standard concurrent 
-primitives. 
+Connection pool components are based on mature code migrated from HttpClient and HttpAsyncClient
+modules but have a slightly different API that makes a better use of Java standard concurrent
+primitives.
 
 Changelog
 -------------------
 
-* Fixed HttpAsyncRequestExecutor incorrect execution of message exchanges that span across multiple 
-  hosts (for instance, in case of a request redirect).  
+* Fixed HttpAsyncRequestExecutor incorrect execution of message exchanges that span across multiple
+  hosts (for instance, in case of a request redirect).
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * AbstractHttpClientConnection#isResponseAvailable method now catches SocketTimeoutException
   and returns false.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-296] Server side connections (both blocking and non-blocking) can now handle entity 
+* [HTTPCORE-296] Server side connections (both blocking and non-blocking) can now handle entity
   enclosing requests without Content-Length and Transfer-Encoding headers.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-295] [HTTPCORE-288] Provided direct access to the underlying socket of non-blocking 
+* [HTTPCORE-295] [HTTPCORE-288] Provided direct access to the underlying socket of non-blocking
   HTTP connection to allow modification of socket level settings such as TCP_NODELAY, SO_KEEPALIVE,
   TrafficClass, etc.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-289] HttpAsyncService fails to invoke Cancellable#cancel() when the ongoing HTTP 
-  exchange is aborted by the client. 
+* [HTTPCORE-289] HttpAsyncService fails to invoke Cancellable#cancel() when the ongoing HTTP
+  exchange is aborted by the client.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 Incompatible changes
@@ -321,14 +321,14 @@ org.apache.http.nio.protocol.NHttpServiceHandlerBase
 Release 4.2-BETA1
 -------------------
 
-This is the first BETA release of HttpCore 4.2. This release comes with completely redesigned 
-and rewritten asynchronous protocol handlers. New protocol handling API used in conjunction with 
-connection pooling components is expected to make development of asynchronous HTTP client agents 
+This is the first BETA release of HttpCore 4.2. This release comes with completely redesigned
+and rewritten asynchronous protocol handlers. New protocol handling API used in conjunction with
+connection pooling components is expected to make development of asynchronous HTTP client agents
 and HTTP proxies easier and less error prone.
 
-Sample application shipped with the release include an example of an HTTP file server capable of 
-direct channel (zero copy) data transfer and an example of a non-blocking, fully streaming reverse 
-proxy.  
+Sample application shipped with the release include an example of an HTTP file server capable of
+direct channel (zero copy) data transfer and an example of a non-blocking, fully streaming reverse
+proxy.
 
 This release also incorporates bug fixes from the stable 4.1.x branch and includes an updated
 HttpCore tutorial.
@@ -338,7 +338,7 @@ HttpCore tutorial.
 Release 4.1.4
 -------------------
 
-This is a maintenance release that fixes a number of bugs found since 4.1.3. It is also likely 
+This is a maintenance release that fixes a number of bugs found since 4.1.3. It is also likely
 to be the last release in the 4.1.x branch.
 
 Changelog
@@ -348,22 +348,22 @@ Changelog
   leading to an abnormal termination of the I/O reactor.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-257] Fixed incorrect results produced by DefaultConnectionReuseStrategy when handling 
-  response messages whose content entity has been decoded or modified by a protocol interceptor. 
+* [HTTPCORE-257] Fixed incorrect results produced by DefaultConnectionReuseStrategy when handling
+  response messages whose content entity has been decoded or modified by a protocol interceptor.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-283] Workaround for a bug causing termination of the I/O reactor in case of exception 
+* [HTTPCORE-283] Workaround for a bug causing termination of the I/O reactor in case of exception
   thrown by NHttpServiceHandler#requestReceived or NHttpClientHandler#responseReceived
   methods. A more comprehensive fix for the bug applied to the 4.2 branch.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-281] ResponseConnControl protocol interceptor does not correctly populate connection
-  persistence control headers when sending a HTTP/1.1 response message in response to a HTTP/1.0 
+  persistence control headers when sending a HTTP/1.1 response message in response to a HTTP/1.0
   request message.
   Contributed by William R. Speirs <bill.speirs at gmail.com>
 
-* [HTTPCORE-282] The default value of the internal event mask of newly created non-blocking I/O 
-  is not correctly initialized, which causes the READ interest bit to get cleared in the interest 
+* [HTTPCORE-282] The default value of the internal event mask of newly created non-blocking I/O
+  is not correctly initialized, which causes the READ interest bit to get cleared in the interest
   op queuing mode unless the event mask is explicitly reset.
   Contributed by Sadeep Jayasumana <sadeep at wso2.com> and Oleg Kalnichevski <olegk at apache.org>
 
@@ -375,33 +375,33 @@ Changelog
 Release 4.2-ALPHA2
 -------------------
 
-This is the second ALPHA release of HttpCore 4.2. This release comes with completely redesigned 
-and rewritten asynchronous protocol handlers. New protocol handling API used in conjunction with 
-connection pooling components introduced in the previous ALPHA release is expected to make 
+This is the second ALPHA release of HttpCore 4.2. This release comes with completely redesigned
+and rewritten asynchronous protocol handlers. New protocol handling API used in conjunction with
+connection pooling components introduced in the previous ALPHA release is expected to make
 development of asynchronous HTTP client agents and HTTP proxies easier and less error prone.
 
-Sample application shipped with the release include an example of an HTTP file server capable of 
-direct channel (zero copy) data transfer and an example of a non-blocking, fully streaming reverse 
-proxy.  
+Sample application shipped with the release include an example of an HTTP file server capable of
+direct channel (zero copy) data transfer and an example of a non-blocking, fully streaming reverse
+proxy.
 
 We are kindly asking existing and prospective users of HttpCore to review and try out the
-new protocol handlers and give us feedback while the 4.2 API is still not final. If no major flaws 
-are discovered the 4.2 API is expected to be frozen with the next BETA release. 
+new protocol handlers and give us feedback while the 4.2 API is still not final. If no major flaws
+are discovered the 4.2 API is expected to be frozen with the next BETA release.
 
-Please note that new features included in this release are still considered experimental and 
-their API may change in the future ALPHA releases. This release also marks the end of support for 
-Java 1.3. As of this release HttpCore requires Java 1.5 for all its components. Several classes and 
-methods deprecated between versions 4.0-beta1 and 4.0 GA (more than two years ago) have been 
+Please note that new features included in this release are still considered experimental and
+their API may change in the future ALPHA releases. This release also marks the end of support for
+Java 1.3. As of this release HttpCore requires Java 1.5 for all its components. Several classes and
+methods deprecated between versions 4.0-beta1 and 4.0 GA (more than two years ago) have been
 removed in this release.
 
 Changelog
 -------------------
 
-* [HTTPCORE-270] Fixed IllegalStateException in AbstractSessionOutputBuffer and 
+* [HTTPCORE-270] Fixed IllegalStateException in AbstractSessionOutputBuffer and
   AbstractSessionInputBuffer.
   Contributed by William R. Speirs <bill.speirs at gmail.com>
 
-* [HTTPCORE-269] Connection pools incorrectly handle lease requests when the max limit for the given 
+* [HTTPCORE-269] Connection pools incorrectly handle lease requests when the max limit for the given
   route has been exceeded and all connections in the route pool are stateful.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -409,18 +409,18 @@ Changelog
 Release 4.2-ALPHA1
 -------------------
 
-This is the first ALPHA release of 4.2. The most notable feature included in this release is 
-support for connection pools of blocking and non-blocking HTTP connections. Connection pool 
-components are based on mature code migrated from HttpClient and HttpAsyncClient modules but have 
-a slightly different API that makes a better use of Java standard concurrent primitives. 
+This is the first ALPHA release of 4.2. The most notable feature included in this release is
+support for connection pools of blocking and non-blocking HTTP connections. Connection pool
+components are based on mature code migrated from HttpClient and HttpAsyncClient modules but have
+a slightly different API that makes a better use of Java standard concurrent primitives.
 
 Support for connection pools in HttpCore is expected to make development of client and proxy HTTP
 services easier and less error prone.
 
-Please note that new features included in this release are still considered experimental and 
-their API may change in the future ALPHA releases. This release also marks the end of support for 
-Java 1.3. As of this release HttpCore requires Java 1.5 for all its components. Several classes and 
-methods deprecated between versions 4.0-beta1 and 4.0 GA (more than two years ago) have been 
+Please note that new features included in this release are still considered experimental and
+their API may change in the future ALPHA releases. This release also marks the end of support for
+Java 1.3. As of this release HttpCore requires Java 1.5 for all its components. Several classes and
+methods deprecated between versions 4.0-beta1 and 4.0 GA (more than two years ago) have been
 removed in this release.
 
 Changelog
