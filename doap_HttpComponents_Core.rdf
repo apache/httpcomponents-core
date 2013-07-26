@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <?xml-stylesheet type="text/xsl"?>
 <rdf:RDF xml:lang="en"
-         xmlns="http://usefulinc.com/ns/doap#" 
-         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns="http://usefulinc.com/ns/doap#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
          xmlns:asfext="http://projects.apache.org/ns/asfext#"
          xmlns:foaf="http://xmlns.com/foaf/0.1/">
 <!--
@@ -47,11 +47,11 @@ including support for NIO.
     </shortdesc>
     <description>
     HttpCore is a set of low level HTTP transport components that can be used to build custom
-    client and server side HTTP services with a minimal footprint. HttpCore supports two I/O 
-    models: blocking I/O model based on the classic Java I/O and non-blocking, event driven I/O 
-    model based on Java NIO.  The blocking I/O model may be more appropriate for data intensive, 
-    low latency scenarios, whereas the non-blocking model may be more appropriate for high latency 
-    scenarios where raw data throughput is less important than the ability to handle thousands of 
+    client and server side HTTP services with a minimal footprint. HttpCore supports two I/O
+    models: blocking I/O model based on the classic Java I/O and non-blocking, event driven I/O
+    model based on Java NIO.  The blocking I/O model may be more appropriate for data intensive,
+    low latency scenarios, whereas the non-blocking model may be more appropriate for high latency
+    scenarios where raw data throughput is less important than the ability to handle thousands of
     simultaneous HTTP connections in a resource efficient manner.
     </description>
     <bug-database rdf:resource="http://issues.apache.org/jira/browse/HTTPCORE" />

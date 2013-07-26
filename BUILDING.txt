@@ -1,4 +1,4 @@
-Building HttpComponents Core 
+Building HttpComponents Core
 ============================
 
 (1) Requisites
@@ -6,7 +6,7 @@ Building HttpComponents Core
 JDK 1.5+ is required in order to compile and run HttpCore.
 
 HttpCore utilizes Maven as a distribution management and packaging tool.
-Version 3.0.3 or later is required. 
+Version 3.0.3 or later is required.
 
 Maven installation and configuration instructions can be found here:
 
@@ -18,9 +18,9 @@ Execute the following command in order to compile and test the components
 
 mvn test
 
-(3) Building packages 
+(3) Building packages
 
-Execute the following command in order to build the JAR packages and install 
+Execute the following command in order to build the JAR packages and install
 them to the local repository:
 
 mvn install
@@ -33,7 +33,7 @@ httpcore-osgi/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
 
 where <VERSION> is the release version
 
-(4) Building documentation 
+(4) Building documentation
 
 Execute the following command in order to generate javadoc:
 
