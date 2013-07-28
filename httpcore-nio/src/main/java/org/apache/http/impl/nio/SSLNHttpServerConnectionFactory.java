@@ -216,12 +216,12 @@ public class SSLNHttpServerConnectionFactory
         final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.SERVER,
                 (sslcontext != null ? sslcontext : SSLContextUtils.getDefault()),
                 sslHandler);
-        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return ssliosession;
     }
 
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
         final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
+        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return new DefaultNHttpServerConnection(ssliosession,
                 this.cconfig.getBufferSize(),
                 this.cconfig.getFragmentSizeHint(),
