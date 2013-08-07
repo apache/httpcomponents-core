@@ -261,8 +261,8 @@ c3 = c
                 return once all content has been written to the given stream.
                 </para>
                 <para>
-                The <classname>EntityUtils</classname> class exposes several static methods to read
-                more easily the content or information from an entity. Instead of reading
+                The <classname>EntityUtils</classname> class exposes several static methods to simplify 
+                extracting the content or information from an entity. Instead of reading
                 the <classname>java.io.InputStream</classname> directly, one can retrieve the complete
                 content body in a string or byte array by using the methods from this class.
                 </para>
