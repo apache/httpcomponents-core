@@ -36,7 +36,7 @@
             enclose a content body.
             </para>
             <para>
-            HttpCore defines the HTTP message object model to follow closely this definition and
+            HttpCore defines the HTTP message object model to follow this definition closely, and
             provides extensive support for serialization (formatting) and deserialization
             (parsing) of HTTP message elements.
             </para>
