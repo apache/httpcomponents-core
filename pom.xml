@@ -298,15 +298,6 @@
         <configuration>
           <comparisonVersion>${api.comparison.version}</comparisonVersion>
         </configuration>
-        <executions>
-          <execution>
-            <id>compatibility-check</id>
-            <phase>validate</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
