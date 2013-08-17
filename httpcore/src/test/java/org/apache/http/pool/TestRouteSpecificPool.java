@@ -274,11 +274,12 @@ public class TestRouteSpecificPool {
         pool.remove(null);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testWaitingThreadQueuing() throws Exception {
         final LocalRoutePool pool = new LocalRoutePool();
+        @SuppressWarnings("unchecked")
         final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
+        @SuppressWarnings("unchecked")
         final PoolEntryFuture<LocalPoolEntry> future2 = Mockito.mock(PoolEntryFuture.class);
 
         Assert.assertEquals(0, pool.getPendingCount());
