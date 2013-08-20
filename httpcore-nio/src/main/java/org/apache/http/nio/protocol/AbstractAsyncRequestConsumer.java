@@ -112,6 +112,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
 
     /**
      * Invoked when the consumer is being closed.
+     * @throws IOException may be thrown by subclassses
      *
      * @since 4.3
      */

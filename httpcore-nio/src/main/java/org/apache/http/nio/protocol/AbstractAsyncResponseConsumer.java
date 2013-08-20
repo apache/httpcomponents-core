@@ -110,6 +110,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
 
     /**
      * Invoked when the consumer is being closed.
+     * @throws IOException may be thrown by subclassses
      *
      * @since 4.3
      */
