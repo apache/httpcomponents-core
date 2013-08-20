@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,11 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Default implementations for interfaces in
-{@link org.apache.http org.apache.http.nio}.
 
-</body>
-</html>
+/**
+ * Core HTTP protocol execution framework and HTTP protocol handlers
+ * for synchronous, blocking communication.
+ */
+package org.apache.http.protocol;

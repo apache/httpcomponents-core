@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,19 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Deprecated
-</body>
-</html>
+
+/**
+ * Core HTTP component APIs and primitives.
+ * <p/>
+ * These deal with the fundamental things required for using the
+ * HTTP protocol, such as representing a
+ * {@link org.apache.http.HttpMessage message} including it's
+ * {@link org.apache.http.Header headers} and optional
+ * {@link org.apache.http.HttpEntity entity}, and
+ * {@link org.apache.http.HttpConnection connections}
+ * over which messages are sent. In order to prepare messages
+ * before sending or after receiving, there are interceptors for
+ * {@link org.apache.http.HttpRequestInterceptor requests} and
+ * {@link org.apache.http.HttpResponseInterceptor responses}.
+ */
+package org.apache.http;

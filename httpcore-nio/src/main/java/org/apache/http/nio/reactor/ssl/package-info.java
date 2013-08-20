@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Basic HTTP message implementations.
-</body>
-</html>
+
+/**
+ * TLS/SSL support for asynchronous, event driven communication.
+ */
+package org.apache.http.nio.reactor.ssl;

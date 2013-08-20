@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,12 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Default implementations for interfaces in
-{@link org.apache.http.entity org.apache.http.entity} and provides utility
-classes for serialization and deserialization of HTTP content entities.
 
-</body>
-</html>
+/**
+ * Default implementations of HTTP connections for synchronous,
+ * blocking communication.
+ */
+package org.apache.http.impl;

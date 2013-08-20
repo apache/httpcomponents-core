@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,12 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Blocking I/O session buffer, message parser / writer interfaces.
-<p/>
-This layer defines interfaces for transferring basic elements of
-HTTP messages over connections.
-</body>
-</html>
+
+/**
+ * Client side connection pools APIs for synchronous, blocking
+ * communication.
+ */
+package org.apache.http.pool;

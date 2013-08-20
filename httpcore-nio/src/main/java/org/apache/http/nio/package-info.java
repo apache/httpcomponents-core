@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,11 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Default implementations for interfaces in
-{@link org.apache.http.nio org.apache.http.nio} including default
-I/O reactor implementations and support for SSL/TLS transport security.
-</body>
-</html>
+
+/**
+ * Core HTTP component APIs and primitives for asynchronous, event
+ * driven communication.
+ */
+package org.apache.http.nio;

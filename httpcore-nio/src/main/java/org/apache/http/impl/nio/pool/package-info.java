@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Synchronous (blocking) connection pool components.
-</body>
-</html>
+
+/**
+ * Default implementations of client side connection pools
+ * for asynchronous, even driven communication.
+ */
+package org.apache.http.impl.nio.pool;

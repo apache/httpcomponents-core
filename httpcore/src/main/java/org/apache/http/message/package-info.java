@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Asynchronous (non-blocking) connection pool components.
-</body>
-</html>
+
+/**
+ * Core HTTP message components, message element parser
+ * and writer APIs and their default implementations.
+ */
+package org.apache.http.message;

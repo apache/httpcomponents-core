@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,21 +24,14 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Core HTTP components based on the blocking I/O model.
 
-These deal with the fundamental things required for using the
-HTTP protocol, such as representing a
-{@link org.apache.http.HttpMessage message} including it's
-{@link org.apache.http.Header headers} and optional
-{@link org.apache.http.HttpEntity entity}, and
-{@link org.apache.http.HttpConnection connections}
-over which messages are sent. In order to prepare messages
-before sending or after receiving, there are interceptors for
-{@link org.apache.http.HttpRequestInterceptor requests} and
-{@link org.apache.http.HttpResponseInterceptor responses}.
-
-</body>
-</html>
+/**
+ * Event driven network communication APIs loosely based on
+ <a href="http://gee.cs.oswego.edu/dl/">Doug Lea</a>'s
+ <a href="http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf">reactor pattern</a>.
+ <p/>
+ This API is not specific to HTTP communication. However, it is minimal
+ in the sense that it defines only what is required within the scope
+ of HTTP protocol.
+ */
+package org.apache.http.nio.reactor;

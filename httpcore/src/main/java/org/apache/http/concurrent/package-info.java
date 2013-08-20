@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,16 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Common HTTP entity implementations with extensions for
-asynchronous (non-blocking) data transfer.
 
-This package provides a basic selection of entity implementations
-that can obtain content from
-{@link org.apache.http.nio.entity.NByteArrayEntity byte array},
-{@link org.apache.http.nio.entity.NStringEntity string},
-{@link org.apache.http.nio.entity.NFileEntity file}, or through an
-</body>
-</html>
+/**
+ * Core concurrency APIs.
+ */
+package org.apache.http.concurrent;

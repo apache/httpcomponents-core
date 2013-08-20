@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,12 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Core HTTP components based on the non-blocking I/O model.
-<p/>
-This layer defines interfaces for transferring HTTP messages over non-blocking
-HTTP connections and event handlers for processing HTTP messages asynchronously.
-</body>
-</html>
+
+/**
+ * Core HTTP entity implementations.
+ */
+package org.apache.http.entity;

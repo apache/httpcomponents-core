@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,12 +24,11 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Resizable
-{@link org.apache.http.util.ByteArrayBuffer byte} and
-{@link org.apache.http.util.CharArrayBuffer char} arrays
-and various utility classes with static helper methods.
-</body>
-</html>
+
+/**
+ * Thread-safety annotations based on JCIP-ANNOTATIONS
+ * <br/>
+ * Copyright (c) 2005 Brian Goetz and Tim Peierls.
+ * See http://www.jcip.net
+ */
+package org.apache.http.annotation;

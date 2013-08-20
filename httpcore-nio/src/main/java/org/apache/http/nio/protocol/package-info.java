@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,11 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Thread-safety annotations based on JCIP-ANNOTATIONS
-<br/>
-Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
-</body>
-</html>
+
+/**
+ * Core HTTP protocol execution framework and HTTP protocol handlers
+ * for asynchronous, event driven communication.
+ */
+package org.apache.http.nio.protocol;

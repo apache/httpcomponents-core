@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-HTTP parameters for I/O reactors based on NIO model.
-</body>
-</html>
+
+/**
+ * Core utility classes.
+ */
+package org.apache.http.util;

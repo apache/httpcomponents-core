@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Asynchronous HTTP protocol handlers based on the non-blocking I/O model.
-</body>
-</html>
+
+/**
+ * Default implementations of HTTP connections for asynchronous,
+ * even driven communication.
+ */
+package org.apache.http.impl.nio;

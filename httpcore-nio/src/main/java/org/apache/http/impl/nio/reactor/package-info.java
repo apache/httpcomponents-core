@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Common concurrency components.
-</body>
-</html>
+
+/**
+ * Default implementation of event driven network communication APIs
+ * based on Java NIO.
+ */
+package org.apache.http.impl.nio.reactor;

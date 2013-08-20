@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,18 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Default implementations for interfaces in
-{@link org.apache.http.io org.apache.http.nio.codecs}.
 
-<br/>
-
-There are implementations of the transport encodings used by HTTP,
-in particular the chunked coding for
-{@link org.apache.http.impl.nio.codecs.ChunkEncoder sending} and
-{@link org.apache.http.impl.nio.codecs.ChunkDecoder receiving} entities.
-
-</body>
-</html>
+/**
+ * Apache Bench (AB) clone based on HttpCore.
+ */
+package org.apache.http.benchmark;

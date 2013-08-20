@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,10 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Basic implementations for interfaces in
-{@link org.apache.http.pool org.apache.http.pool}.
-</body>
-</html>
+
+/**
+ * Default implementations of client side connection pools
+ * for synchronous, blocking communication.
+ */
+package org.apache.http.impl.pool;

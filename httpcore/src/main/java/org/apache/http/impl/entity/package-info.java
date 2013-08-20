@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,9 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Non-blocking TLS/SSL session implementation.
-</body>
-</html>
+
+/**
+ * Default implementations of entity content strategies.
+ */
+package org.apache.http.impl.entity;

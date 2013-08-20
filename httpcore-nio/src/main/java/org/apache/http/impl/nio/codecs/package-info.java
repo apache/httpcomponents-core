@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,18 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Default implementations for interfaces in
-{@link org.apache.http.io org.apache.http.io}.
 
-<br/>
-
-There are implementations of the transport encodings used by HTTP,
-in particular the chunked coding for
-{@link org.apache.http.impl.io.ChunkedOutputStream sending} and
-{@link org.apache.http.impl.io.ChunkedInputStream receiving} entities.
-
-</body>
-</html>
+/**
+ * Default implementations of message parses and writers
+ * for asynchronous, even driven communication.
+ */
+package org.apache.http.impl.nio.codecs;

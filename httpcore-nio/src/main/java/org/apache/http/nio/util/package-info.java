@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,10 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-HTTP protocol execution framework and synchronous HTTP protocol handlers
-based on the blocking I/O model.
-</body>
-</html>
+
+/**
+ * Core utility classes for asynchronous, event driven communication.
+ */
+package org.apache.http.nio.util;

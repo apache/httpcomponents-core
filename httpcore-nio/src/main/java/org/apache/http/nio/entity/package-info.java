@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,10 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-The parameterization framework for HTTP components. This package also provides
-core protocol and I/O parameters.
-</body>
-</html>
+
+/**
+ * Core HTTP entity implementations with support for
+ * asynchronous, event driven communication.
+ */
+package org.apache.http.nio.entity;

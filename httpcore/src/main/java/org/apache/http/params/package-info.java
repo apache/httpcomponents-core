@@ -1,6 +1,3 @@
-<html>
-<head>
-<!--
 /*
  * ====================================================================
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -27,10 +24,9 @@
  * <http://www.apache.org/>.
  *
  */
--->
-</head>
-<body>
-Various buffering primitives intended to facilitate content streaming for
-non-blocking HTTP connections.
-</body>
-</html>
+
+/**
+ * Deprecated.
+ * @deprecated (4.3).
+ */
+package org.apache.http.params;
