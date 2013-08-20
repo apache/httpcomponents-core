@@ -299,7 +299,6 @@ public class TestRouteSpecificPool {
         Assert.assertNull(pool.nextPending());
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testShutdown() throws Exception {
         final LocalRoutePool pool = new LocalRoutePool();
@@ -308,6 +307,7 @@ public class TestRouteSpecificPool {
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final LocalPoolEntry entry2 = pool.add(conn2);
 
+        @SuppressWarnings("unchecked")
         final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
         pool.queue(future1);
 
