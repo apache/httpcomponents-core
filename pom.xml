@@ -305,19 +305,21 @@
   <reporting>
     <plugins>
 
-       <plugin>
-         <artifactId>maven-project-info-reports-plugin</artifactId>
-         <version>${hc.project-info.version}</version><!-- needed for mvn site -->
-         <reportSets>
-           <reportSet>
-             <reports>
-               <report>dependencies</report>
-               <report>project-team</report>
-               <report>issue-tracking</report>
-               <report>scm</report>
-             </reports>
-           </reportSet>
-         </reportSets>
+      <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>${hc.project-info.version}</version>
+        <inherited>false</inherited>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>dependency-management</report>
+              <report>issue-tracking</report>
+              <report>license</report>
+              <report>scm</report>
+              <report>summary</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
 
       <plugin>
