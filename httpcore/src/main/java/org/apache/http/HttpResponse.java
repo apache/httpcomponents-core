@@ -83,8 +83,6 @@ public interface HttpResponse extends HttpMessage {
 
     /**
      * Updates the status line of this response with a new status code.
-     * The status line can only be updated if it is available. It must
-     * have been set either explicitly or in a constructor.
      *
      * @param code the HTTP status code.
      *
@@ -100,8 +98,6 @@ public interface HttpResponse extends HttpMessage {
 
     /**
      * Updates the status line of this response with a new reason phrase.
-     * The status line can only be updated if it is available. It must
-     * have been set either explicitly or in a constructor.
      *
      * @param reason    the new reason phrase as a single-line string, or
      *                  <code>null</code> to unset the reason phrase
@@ -146,22 +142,14 @@ public interface HttpResponse extends HttpMessage {
      * It can be changed using {@link #setLocale setLocale}.
      *
      * @return  the locale of this response, never <code>null</code>
-     *
-     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
      */
-    @Deprecated
     Locale getLocale();
 
     /**
      * Changes the locale of this response.
-     * If there is a status line, it's reason phrase will be updated
-     * according to the status code and new locale.
      *
      * @param loc       the new locale
-     *
-     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
      */
-    @Deprecated
     void setLocale(Locale loc);
 
 }

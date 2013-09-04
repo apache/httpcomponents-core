@@ -66,10 +66,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      *                          reason phrase lookup
      * @param locale            the locale for looking up reason phrases, or
      *                          <code>null</code> for the system locale
-     *
-     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpResponseFactory}
      */
-    @Deprecated
     public BasicHttpResponse(final StatusLine statusline,
                              final ReasonPhraseCatalog catalog,
                              final Locale locale) {
@@ -134,7 +131,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
             this.statusline = new BasicStatusLine(
                     this.ver != null ? this.ver : HttpVersion.HTTP_1_1,
                     this.code,
-                    this.reasonPhrase);
+                    this.reasonPhrase != null ? this.reasonPhrase : getReason(this.code));
         }
         return this.statusline;
     }
@@ -144,10 +141,6 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         return this.entity;
     }
 
-    /**
-     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
-     */
-    @Deprecated
     public Locale getLocale() {
         return this.locale;
     }
@@ -184,6 +177,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         Args.notNegative(code, "Status code");
         this.statusline = null;
         this.code = code;
+        this.reasonPhrase = null;
     }
 
     // non-javadoc, see interface HttpResponse
@@ -197,10 +191,6 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         this.entity = entity;
     }
 
-    /**
-     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
-     */
-    @Deprecated
     public void setLocale(final Locale locale) {
         this.locale =  Args.notNull(locale, "Locale");
         this.statusline = null;
@@ -214,10 +204,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      * @param code      the status code for which to look up the reason
      *
      * @return  the reason phrase, or <code>null</code> if there is none
-     *
-     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
      */
-    @Deprecated
     protected String getReason(final int code) {
         return this.reasonCatalog != null ? this.reasonCatalog.getReason(code,
                 this.locale != null ? this.locale : Locale.getDefault()) : null;

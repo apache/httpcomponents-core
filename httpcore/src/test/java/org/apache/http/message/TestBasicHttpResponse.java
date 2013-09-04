@@ -58,7 +58,7 @@ public class TestBasicHttpResponse {
         response.setStatusCode(299);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(299, response.getStatusLine().getStatusCode());
-        Assert.assertEquals("Kind of OK", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals(null, response.getStatusLine().getReasonPhrase());
         response.setStatusLine(HttpVersion.HTTP_1_0, 298);
         Assert.assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(298, response.getStatusLine().getStatusCode());
