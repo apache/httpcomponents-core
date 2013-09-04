@@ -67,7 +67,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      * @param locale            the locale for looking up reason phrases, or
      *                          <code>null</code> for the system locale
      *
-     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpRequestFactory}
+     * @deprecated (4.3) use {@link org.apache.http.impl.DefaultHttpResponseFactory}
      */
     @Deprecated
     public BasicHttpResponse(final StatusLine statusline,
