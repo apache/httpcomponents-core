@@ -58,7 +58,7 @@ import org.apache.http.util.Args;
 @Immutable
 public class HttpAsyncRequester {
 
-    private final HttpProcessor httppocessor;
+    private final HttpProcessor httpprocessor;
     private final ConnectionReuseStrategy connReuseStrategy;
 
     /**
@@ -67,10 +67,10 @@ public class HttpAsyncRequester {
      */
     @Deprecated
     public HttpAsyncRequester(
-            final HttpProcessor httppocessor,
+            final HttpProcessor httpprocessor,
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
-        this(httppocessor, reuseStrategy);
+        this(httpprocessor, reuseStrategy);
     }
 
     /**
@@ -79,10 +79,10 @@ public class HttpAsyncRequester {
      * @since 4.3
      */
     public HttpAsyncRequester(
-            final HttpProcessor httppocessor,
+            final HttpProcessor httpprocessor,
             final ConnectionReuseStrategy connReuseStrategy) {
         super();
-        this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
+        this.httpprocessor = Args.notNull(httpprocessor, "HTTP processor");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
     }
@@ -92,8 +92,8 @@ public class HttpAsyncRequester {
      *
      * @since 4.3
      */
-    public HttpAsyncRequester(final HttpProcessor httppocessor) {
-        this(httppocessor, null);
+    public HttpAsyncRequester(final HttpProcessor httpprocessor) {
+        this(httpprocessor, null);
     }
 
     /**
@@ -119,7 +119,7 @@ public class HttpAsyncRequester {
         Args.notNull(context, "HTTP context");
         final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
                 requestProducer, responseConsumer, callback, context, conn,
-                this.httppocessor, this.connReuseStrategy);
+                this.httpprocessor, this.connReuseStrategy);
         initExection(handler, conn);
         return handler.getFuture();
     }
@@ -237,7 +237,7 @@ public class HttpAsyncRequester {
                 requestProducer, responseConsumer,
                 new RequestExecutionCallback<T, E>(future, poolEntry, connPool),
                 context, conn,
-                this.httppocessor, this.connReuseStrategy);
+                this.httpprocessor, this.connReuseStrategy);
         initExection(handler, conn);
         return future;
     }
@@ -309,7 +309,7 @@ public class HttpAsyncRequester {
             final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
-                    this.context, conn, httppocessor, connReuseStrategy);
+                    this.context, conn, httpprocessor, connReuseStrategy);
             initExection(handler, conn);
         }
 
