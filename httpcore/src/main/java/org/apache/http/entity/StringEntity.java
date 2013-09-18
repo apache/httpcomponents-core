@@ -118,7 +118,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      * this instance of the Java virtual machine
      */
     public StringEntity(final String string, final String charset)
-            throws UnsupportedEncodingException {
+            throws UnsupportedCharsetException {
         this(string, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
     }
 
