@@ -58,10 +58,11 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      *   MIME type {@link ContentType#TEXT_PLAIN} is assumed.
      *
      * @throws IllegalArgumentException if the string parameter is null
-     *
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * this instance of the Java virtual machine
      * @since 4.2
      */
-    public StringEntity(final String string, final ContentType contentType) {
+    public StringEntity(final String string, final ContentType contentType) throws UnsupportedCharsetException {
         super();
         Args.notNull(string, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
