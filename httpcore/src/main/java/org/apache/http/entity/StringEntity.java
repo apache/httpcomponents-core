@@ -88,6 +88,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      *   is {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain"
      * @param charset character set to be used. May be {@code null}, in which case the default
      *   is {@link HTTP#DEF_CONTENT_CHARSET} i.e. "ISO-8859-1"
+     * @throws  UnsupportedEncodingException If the named charset is not supported.
      *
      * @since 4.1
      * @throws IllegalArgumentException if the string parameter is null
