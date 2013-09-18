@@ -169,7 +169,7 @@ public final class EntityUtils {
     }
 
     /**
-     * Obtains mime type of the entity, if known.
+     * Obtains MIME type of the entity, if known.
      *
      * @param entity must not be null
      * @return the character set, or null if not found
