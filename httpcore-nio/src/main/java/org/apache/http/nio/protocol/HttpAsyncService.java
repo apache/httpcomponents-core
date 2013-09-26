@@ -610,7 +610,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     static class State {
 
-        private final BasicHttpContext context;
+        private volatile BasicHttpContext context;
         private volatile boolean terminated;
         private volatile HttpAsyncRequestHandler<Object> requestHandler;
         private volatile MessageState requestState;
@@ -705,7 +705,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
 
         public void reset() {
-            this.context.clear();
+            this.context = new BasicHttpContext();
             this.responseState = MessageState.READY;
             this.requestState = MessageState.READY;
             this.requestHandler = null;
