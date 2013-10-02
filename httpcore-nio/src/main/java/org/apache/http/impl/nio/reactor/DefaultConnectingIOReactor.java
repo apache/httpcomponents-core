@@ -274,7 +274,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                     prepareSocket(socketChannel.socket());
                     final ChannelEntry entry = new ChannelEntry(socketChannel, request);
                     addChannel(entry);
-                    return;
+                    continue;
                 }
             } catch (final IOException ex) {
                 closeChannel(socketChannel);
