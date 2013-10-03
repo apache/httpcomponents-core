@@ -66,6 +66,11 @@ public class TestHttpHost {
         } catch (final IllegalArgumentException expected) {
         }
         try {
+            new HttpHost("   ", -1, null);
+            Assert.fail("IllegalArgumentException should have been thrown");
+        } catch (final IllegalArgumentException expected) {
+        }
+        try {
             new HttpHost((InetAddress) null, -1, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
