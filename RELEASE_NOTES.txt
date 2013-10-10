@@ -1,6 +1,9 @@
 Changes since 4.3
 -------------------
 
+* [HTTPCORE-354] BasicConnFactory don't use SocketConfig#isSoKeepAlive.
+  Contributed by David Ignjic <ignjic at gmail.com>
+
 * [HTTPCORE-347] (Regression) HttpResponse#setStatusCode() does not update reason phrase.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
