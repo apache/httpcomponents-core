@@ -143,6 +143,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
 
         final HttpRequest request = handler.generateRequest();
+        if (request == null) {
+            return;
+        }
         state.setRequest(request);
 
         conn.submitRequest(request);

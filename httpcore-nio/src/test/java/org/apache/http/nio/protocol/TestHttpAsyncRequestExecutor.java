@@ -171,6 +171,21 @@ public class TestHttpAsyncRequestExecutor {
     }
 
     @Test
+    public void testNullRequest() throws Exception {
+        final State state = new HttpAsyncRequestExecutor.State();
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
+        Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(null);
+
+        this.protocolHandler.requestReady(this.conn);
+
+        Mockito.verify(this.exchangeHandler).generateRequest();
+        Assert.assertNull(state.getRequest());
+
+        Mockito.verify(this.conn, Mockito.never()).submitRequest(Mockito.<HttpRequest>any());
+    }
+
+    @Test
     public void testEntityEnclosingRequestWithoutExpectContinue() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);

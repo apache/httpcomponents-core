@@ -1,6 +1,10 @@
 Changes since 4.3
 -------------------
 
+* [HTTPCORE-355] HttpAsyncRequestExecutor fails when its handler is not ready to generate
+  a request.
+  Contributed by jd <j1234d2003 at yahoo.com>
+
 * [HTTPCORE-354] BasicConnFactory don't use SocketConfig#isSoKeepAlive.
   Contributed by David Ignjic <ignjic at gmail.com>
 
