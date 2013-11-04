@@ -190,7 +190,8 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @return the first header or <code>null</code>
      */
     public Header getFirstHeader(final String name) {
-        for (final Header header : headers) {
+        for (int i = 0; i < this.headers.size(); i++) {
+            final Header header = this.headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 return header;
             }

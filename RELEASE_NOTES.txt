@@ -1,6 +1,9 @@
 Changes since 4.3
 -------------------
 
+* [HTTPCORE-361] Reduced intermediate garbage in HeaderGroup#getFirstHeader()
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-355] HttpAsyncRequestExecutor fails when its handler is not ready to generate
   a request.
   Contributed by jd <j1234d2003 at yahoo.com>
