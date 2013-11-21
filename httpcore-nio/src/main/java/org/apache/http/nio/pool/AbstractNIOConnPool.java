@@ -675,6 +675,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    //TODO: this method should be private
     protected void enumEntries(final Iterator<E> it, final PoolEntryCallback<T, C> callback) {
         while (it.hasNext()) {
             final E entry = it.next();
@@ -686,6 +687,17 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             }
         }
         processPendingRequests();
+    }
+
+    private void purgePoolMap() {
+        final Iterator<Map.Entry<T, RouteSpecificPool<T, C, E>>> it = this.routeToPool.entrySet().iterator();
+        while (it.hasNext()) {
+            final Map.Entry<T, RouteSpecificPool<T, C, E>> entry = it.next();
+            final RouteSpecificPool<T, C, E> pool = entry.getValue();
+            if (pool.getAllocatedCount() == 0) {
+                it.remove();
+            }
+        }
     }
 
     public void closeIdle(final long idletime, final TimeUnit tunit) {
@@ -704,6 +716,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         });
+        purgePoolMap();
     }
 
     public void closeExpired() {
@@ -717,6 +730,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         });
+        purgePoolMap();
     }
 
     @Override

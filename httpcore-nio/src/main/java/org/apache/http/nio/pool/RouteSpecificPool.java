@@ -57,6 +57,10 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         this.pending = new HashMap<SessionRequest, BasicFuture<E>>();
     }
 
+    public T getRoute() {
+        return this.route;
+    }
+
     protected abstract E createEntry(T route, C conn);
 
     public int getLeasedCount() {

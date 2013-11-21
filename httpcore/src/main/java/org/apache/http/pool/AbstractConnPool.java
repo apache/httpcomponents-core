@@ -300,18 +300,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
-    private void notifyPending(final RouteSpecificPool<T, C, E> pool) {
-        PoolEntryFuture<E> future = pool.nextPending();
-        if (future != null) {
-            this.pending.remove(future);
-        } else {
-            future = this.pending.poll();
-        }
-        if (future != null) {
-            future.wakeup();
-        }
-    }
-
     public void release(final E entry, final boolean reusable) {
         this.lock.lock();
         try {
@@ -324,7 +312,15 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                 } else {
                     entry.close();
                 }
-                notifyPending(pool);
+                PoolEntryFuture<E> future = pool.nextPending();
+                if (future != null) {
+                    this.pending.remove(future);
+                } else {
+                    future = this.pending.poll();
+                }
+                if (future != null) {
+                    future.wakeup();
+                }
             }
         } finally {
             this.lock.unlock();
@@ -467,6 +463,17 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    private void purgePoolMap() {
+        final Iterator<Map.Entry<T, RouteSpecificPool<T, C, E>>> it = this.routeToPool.entrySet().iterator();
+        while (it.hasNext()) {
+            final Map.Entry<T, RouteSpecificPool<T, C, E>> entry = it.next();
+            final RouteSpecificPool<T, C, E> pool = entry.getValue();
+            if (pool.getPendingCount() + pool.getAllocatedCount() == 0) {
+                it.remove();
+            }
+        }
+    }
+
     /**
      * Closes connections that have been idle longer than the given period
      * of time and evicts them from the pool.
@@ -490,6 +497,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         });
+        purgePoolMap();
     }
 
     /**
@@ -506,6 +514,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         });
+        purgePoolMap();
     }
 
     @Override
