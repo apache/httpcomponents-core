@@ -119,9 +119,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         // Override the status buffer interface
         this.session.setBufferStatus(this);
 
-        final SocketAddress address = session.getRemoteAddress();
-
         if (this.sslMode == SSLMode.CLIENT) {
+            final SocketAddress address = session.getRemoteAddress();
             if (address instanceof InetSocketAddress) {
                 final String hostname = ((InetSocketAddress) address).getHostName();
                 final int port = ((InetSocketAddress) address).getPort();
