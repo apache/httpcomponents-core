@@ -1,6 +1,9 @@
 Changes since 4.3
 -------------------
 
+* [HTTPCORE-357] Avoid DNS lookups in SSLIOSessions in server mode.
+  Contributed by Isaac Cruz Ballesteros <icruzbal at gmail.com>
+
 * [HTTPCORE-362] Purge pool per route map after closing out expired or idle connections with 
   #closeExpired and #closeIdle methods. 
   Contributed by Oleg Kalnichevski <olegk at apache.org>

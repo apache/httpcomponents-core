@@ -78,7 +78,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     public static final String SESSION_KEY = "http.session.ssl";
 
     private final IOSession session;
-    private final SSLMode defaultMode;
     private final SSLEngine sslEngine;
     private final ByteBuffer inEncrypted;
     private final ByteBuffer outEncrypted;
@@ -91,6 +90,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private SessionBufferStatus appBufferStatus;
 
     private boolean endOfStream;
+    private volatile SSLMode sslMode;
     private volatile int status;
     private volatile boolean initialized;
 
@@ -98,20 +98,20 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * Creates new instance of <tt>SSLIOSession</tt> class.
      *
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
-     * @param defaultMode default mode (client or server)
+     * @param sslMode SSL mode (client or server)
      * @param sslContext SSL context to use for this I/O session.
      * @param handler optional SSL setup handler. May be <code>null</code>.
      */
     public SSLIOSession(
             final IOSession session,
-            final SSLMode defaultMode,
+            final SSLMode sslMode,
             final SSLContext sslContext,
             final SSLSetupHandler handler) {
         super();
         Args.notNull(session, "IO session");
         Args.notNull(sslContext, "SSL context");
         this.session = session;
-        this.defaultMode = defaultMode;
+        this.sslMode = sslMode;
         this.appEventMask = session.getEventMask();
         this.channel = new InternalByteChannel();
         this.handler = handler;
@@ -120,10 +120,15 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.session.setBufferStatus(this);
 
         final SocketAddress address = session.getRemoteAddress();
-        if (address instanceof InetSocketAddress) {
-            final String hostname = ((InetSocketAddress) address).getHostName();
-            final int port = ((InetSocketAddress) address).getPort();
-            this.sslEngine = sslContext.createSSLEngine(hostname, port);
+
+        if (this.sslMode == SSLMode.CLIENT) {
+            if (address instanceof InetSocketAddress) {
+                final String hostname = ((InetSocketAddress) address).getHostName();
+                final int port = ((InetSocketAddress) address).getPort();
+                this.sslEngine = sslContext.createSSLEngine(hostname, port);
+            } else {
+                this.sslEngine = sslContext.createSSLEngine();
+            }
         } else {
             this.sslEngine = sslContext.createSSLEngine();
         }
@@ -157,16 +162,28 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * if an instance of {@link SSLSetupHandler} was specified at
      * the construction time.
      *
-     * @param mode mode of operation (client or server).
+     * @deprecated (4.3) SSL mode must be set at construction time.
+     */
+    @Deprecated
+    public synchronized void initialize(final SSLMode sslMode) throws SSLException {
+        this.sslMode = sslMode;
+        initialize();
+    }
+
+    /**
+     * Initializes the session. This method invokes the {@link
+     * SSLSetupHandler#initalize(SSLEngine)} callback if an instance of
+     * {@link SSLSetupHandler} was specified at the construction time.
+     *
      * @throws SSLException in case of a SSL protocol exception.
      * @throws IllegalStateException if the session has already been initialized.
      */
-    public synchronized void initialize(final SSLMode mode) throws SSLException {
+    public synchronized void initialize() throws SSLException {
         Asserts.check(!this.initialized, "SSL I/O session already initialized");
         if (this.status >= IOSession.CLOSING) {
             return;
         }
-        switch (mode) {
+        switch (this.sslMode) {
         case CLIENT:
             this.sslEngine.setUseClientMode(true);
             break;
@@ -180,19 +197,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.initialized = true;
         this.sslEngine.beginHandshake();
         doHandshake();
-    }
-
-    /**
-     * Initializes the session in the default operation mode. This method
-     * invokes the {@link SSLSetupHandler#initalize(SSLEngine)} callback
-     * if an instance of {@link SSLSetupHandler} was specified at
-     * the construction time.
-     *
-     * @throws SSLException in case of a SSL protocol exception.
-     * @throws IllegalStateException if the session has already been initialized.
-     */
-    public void initialize() throws SSLException {
-        initialize(this.defaultMode);
     }
 
     public synchronized SSLSession getSSLSession() {
