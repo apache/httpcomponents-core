@@ -1,6 +1,8 @@
 Changes since 4.3
 -------------------
 
+* [HTTPCORE-364] IOSessionImpl.getLocalAddress() (etc.) creates unnecessary copy of channel
+
 * DefaultConnectingIOReactor / DefaultListeningIOReactor do not correctly apply some initial 
   socket settings.
   Contributed by Andreas Veithen <veithen at apache.org>

@@ -32,7 +32,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
-import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
@@ -117,18 +116,16 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     public SocketAddress getLocalAddress() {
-        final Channel channel = this.channel;
-        if (channel instanceof SocketChannel) {
-            return ((SocketChannel)channel).socket().getLocalSocketAddress();
+        if (this.channel instanceof SocketChannel) {
+            return ((SocketChannel)this.channel).socket().getLocalSocketAddress();
         } else {
             return null;
         }
     }
 
     public SocketAddress getRemoteAddress() {
-        final Channel channel = this.channel;
-        if (channel instanceof SocketChannel) {
-            return ((SocketChannel)channel).socket().getRemoteSocketAddress();
+        if (this.channel instanceof SocketChannel) {
+            return ((SocketChannel)this.channel).socket().getRemoteSocketAddress();
         } else {
             return null;
         }
@@ -355,9 +352,8 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     public Socket getSocket() {
-        final Channel channel = this.channel;
-        if (channel instanceof SocketChannel) {
-            return ((SocketChannel) channel).socket();
+        if (this.channel instanceof SocketChannel) {
+            return ((SocketChannel) this.channel).socket();
         } else {
             return null;
         }
