@@ -176,21 +176,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 }
                 key.cancel();
                 if (channel.isConnected()) {
-                    try {
-                        try {
-                            prepareSocket(channel.socket());
-                        } catch (final IOException ex) {
-                            if (this.exceptionHandler == null
-                                    || !this.exceptionHandler.handle(ex)) {
-                                throw new IOReactorException(
-                                        "Failure initalizing socket", ex);
-                            }
-                        }
-                        final ChannelEntry entry = new ChannelEntry(channel, sessionRequest);
-                        addChannel(entry);
-                    } catch (final IOException ex) {
-                        sessionRequest.failed(ex);
-                    }
+                    addChannel(new ChannelEntry(channel, sessionRequest));
                 }
             }
 
@@ -269,9 +255,9 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                     sock.setReuseAddress(this.config.isSoReuseAddress());
                     sock.bind(request.getLocalAddress());
                 }
+                prepareSocket(socketChannel.socket());
                 final boolean connected = socketChannel.connect(request.getRemoteAddress());
                 if (connected) {
-                    prepareSocket(socketChannel.socket());
                     final ChannelEntry entry = new ChannelEntry(socketChannel, request);
                     addChannel(entry);
                     continue;
