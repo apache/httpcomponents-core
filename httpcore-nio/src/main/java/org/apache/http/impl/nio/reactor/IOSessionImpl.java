@@ -241,13 +241,13 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     public boolean hasBufferedInput() {
-        final SessionBufferStatus bufferStatus = this.bufferStatus;
-        return bufferStatus != null && bufferStatus.hasBufferedInput();
+        final SessionBufferStatus buffStatus = this.bufferStatus;
+        return buffStatus != null && buffStatus.hasBufferedInput();
     }
 
     public boolean hasBufferedOutput() {
-        final SessionBufferStatus bufferStatus = this.bufferStatus;
-        return bufferStatus != null && bufferStatus.hasBufferedOutput();
+        final SessionBufferStatus buffStatus = this.bufferStatus;
+        return buffStatus != null && buffStatus.hasBufferedOutput();
     }
 
     public void setBufferStatus(final SessionBufferStatus bufferStatus) {
