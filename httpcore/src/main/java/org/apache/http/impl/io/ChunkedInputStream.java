@@ -283,8 +283,8 @@ public class ChunkedInputStream extends InputStream {
             try {
                 if (!eof) {
                     // read and discard the remainder of the message
-                    final byte buffer[] = new byte[BUFFER_SIZE];
-                    while (read(buffer) >= 0) {
+                    final byte buff[] = new byte[BUFFER_SIZE];
+                    while (read(buff) >= 0) {
                     }
                 }
             } finally {
