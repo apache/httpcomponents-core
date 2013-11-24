@@ -153,14 +153,14 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append("[content length: ");
-        buffer.append(this.contentLength);
-        buffer.append("; pos: ");
-        buffer.append(this.len);
-        buffer.append("; completed: ");
-        buffer.append(this.completed);
-        buffer.append("]");
-        return buffer.toString();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("[content length: ");
+        sb.append(this.contentLength);
+        sb.append("; pos: ");
+        sb.append(this.len);
+        sb.append("; completed: ");
+        sb.append(this.completed);
+        sb.append("]");
+        return sb.toString();
     }
 }

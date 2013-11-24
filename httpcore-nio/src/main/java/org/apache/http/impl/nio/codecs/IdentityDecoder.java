@@ -131,11 +131,11 @@ public class IdentityDecoder extends AbstractContentDecoder
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append("[identity; completed: ");
-        buffer.append(this.completed);
-        buffer.append("]");
-        return buffer.toString();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("[identity; completed: ");
+        sb.append(this.completed);
+        sb.append("]");
+        return sb.toString();
     }
 
 }

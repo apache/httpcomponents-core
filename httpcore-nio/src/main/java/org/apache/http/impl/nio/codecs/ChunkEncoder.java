@@ -148,11 +148,11 @@ public class ChunkEncoder extends AbstractContentEncoder {
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append("[chunk-coded; completed: ");
-        buffer.append(isCompleted());
-        buffer.append("]");
-        return buffer.toString();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("[chunk-coded; completed: ");
+        sb.append(isCompleted());
+        sb.append("]");
+        return sb.toString();
     }
 
 }

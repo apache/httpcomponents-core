@@ -172,15 +172,15 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append("[content length: ");
-        buffer.append(this.contentLength);
-        buffer.append("; pos: ");
-        buffer.append(this.contentLength - this.remaining);
-        buffer.append("; completed: ");
-        buffer.append(isCompleted());
-        buffer.append("]");
-        return buffer.toString();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("[content length: ");
+        sb.append(this.contentLength);
+        sb.append("; pos: ");
+        sb.append(this.contentLength - this.remaining);
+        sb.append("; completed: ");
+        sb.append(isCompleted());
+        sb.append("]");
+        return sb.toString();
     }
 
 }
