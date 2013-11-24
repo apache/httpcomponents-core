@@ -459,10 +459,9 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                             connState.setWorkerRunning(true);
                         }
 
-                        final HttpEntity entity = request.getEntity();
                         final OutputStream outstream = new ContentOutputStream(
                                 connState.getOutbuffer());
-                        entity.writeTo(outstream);
+                        request.getEntity().writeTo(outstream);
                         outstream.flush();
                         outstream.close();
 

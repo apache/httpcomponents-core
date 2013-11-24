@@ -142,9 +142,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
         if (count > 0) {
             this.footers = new Header[this.trailerBufs.size()];
             for (int i = 0; i < this.trailerBufs.size(); i++) {
-                final CharArrayBuffer buffer = this.trailerBufs.get(i);
                 try {
-                    this.footers[i] = new BufferedHeader(buffer);
+                    this.footers[i] = new BufferedHeader(this.trailerBufs.get(i));
                 } catch (final ParseException ex) {
                     throw new IOException(ex.getMessage());
                 }
@@ -250,11 +249,11 @@ public class ChunkDecoder extends AbstractContentDecoder {
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append("[chunk-coded; completed: ");
-        buffer.append(this.completed);
-        buffer.append("]");
-        return buffer.toString();
+        final StringBuilder sb = new StringBuilder();
+        sb.append("[chunk-coded; completed: ");
+        sb.append(this.completed);
+        sb.append("]");
+        return sb.toString();
     }
 
 }
