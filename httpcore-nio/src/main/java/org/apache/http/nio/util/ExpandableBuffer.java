@@ -184,8 +184,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("[mode=");
-        final int mode = getMode();
-        if (mode == INPUT_MODE) {
+        if (getMode() == INPUT_MODE) {
             sb.append("in");
         } else {
             sb.append("out");
