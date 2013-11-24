@@ -144,18 +144,18 @@ public class HeaderGroup implements Cloneable, Serializable {
      * headers by the given name are present
      */
     public Header getCondensedHeader(final String name) {
-        final Header[] headers = getHeaders(name);
+        final Header[] hdrs = getHeaders(name);
 
-        if (headers.length == 0) {
+        if (hdrs.length == 0) {
             return null;
-        } else if (headers.length == 1) {
-            return headers[0];
+        } else if (hdrs.length == 1) {
+            return hdrs[0];
         } else {
             final CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
-            valueBuffer.append(headers[0].getValue());
-            for (int i = 1; i < headers.length; i++) {
+            valueBuffer.append(hdrs[0].getValue());
+            for (int i = 1; i < hdrs.length; i++) {
                 valueBuffer.append(", ");
-                valueBuffer.append(headers[i].getValue());
+                valueBuffer.append(hdrs[i].getValue());
             }
 
             return new BasicHeader(name.toLowerCase(Locale.ENGLISH), valueBuffer.toString());
