@@ -190,6 +190,9 @@ public class HeaderGroup implements Cloneable, Serializable {
      * @return the first header or <code>null</code>
      */
     public Header getFirstHeader(final String name) {
+        // HTTPCORE-361 : we don't use the for-each syntax, i.e. 
+        //     for (Header header : headers)
+        // as that creates an Iterator that needs to be garbage-collected
         for (int i = 0; i < this.headers.size(); i++) {
             final Header header = this.headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
