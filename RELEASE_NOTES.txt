@@ -1,6 +1,9 @@
 Changes since 4.3
 -------------------
 
+* Apply IOReactorConfig#getRcvBufSize() value to server sockets open by DefaultListeningIOReactor.
+  Contributed by Andreas Veithen <veithen at apache.org>
+
 * [HTTPCORE-357] Avoid DNS lookups in SSLIOSessions in server mode.
   Contributed by Isaac Cruz Ballesteros <icruzbal at gmail.com>
 

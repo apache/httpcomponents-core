@@ -233,6 +233,12 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             try {
                 final ServerSocket socket = serverChannel.socket();
                 socket.setReuseAddress(this.config.isSoReuseAddress());
+                if (this.config.getSoTimeout() > 0) {
+                    socket.setSoTimeout(this.config.getSoTimeout());
+                }
+                if (this.config.getRcvBufSize() > 0) {
+                    socket.setReceiveBufferSize(this.config.getRcvBufSize());
+                }
                 serverChannel.configureBlocking(false);
                 socket.bind(address);
             } catch (final IOException ex) {
