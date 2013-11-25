@@ -327,10 +327,10 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     }
 
     public String readLine(final boolean endOfStream) throws CharacterCodingException {
-        final CharArrayBuffer charbuffer = new CharArrayBuffer(64);
-        final boolean found = readLine(charbuffer, endOfStream);
+        final CharArrayBuffer buffer = new CharArrayBuffer(64);
+        final boolean found = readLine(buffer, endOfStream);
         if (found) {
-            return charbuffer.toString();
+            return buffer.toString();
         } else {
             return null;
         }

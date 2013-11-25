@@ -69,7 +69,7 @@ public class TestDefaultNHttpClientConnection {
     @Mock
     private IOSession session;
     @Mock
-    private ByteChannel channel;
+    private ByteChannel byteChan;
     @Mock
     private NHttpClientEventHandler handler;
 
@@ -97,7 +97,7 @@ public class TestDefaultNHttpClientConnection {
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(new StringEntity("stuff"));
 
-        Mockito.when(session.channel()).thenReturn(channel);
+        Mockito.when(session.channel()).thenReturn(byteChan);
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
         conn.submitRequest(request);
@@ -116,7 +116,7 @@ public class TestDefaultNHttpClientConnection {
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.setEntity(new StringEntity("stuff"));
 
-        Mockito.when(session.channel()).thenReturn(channel);
+        Mockito.when(session.channel()).thenReturn(byteChan);
 
         conn.submitRequest(request);
 

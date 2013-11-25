@@ -69,7 +69,7 @@ public class TestDefaultNHttpServerConnection {
     @Mock
     private IOSession session;
     @Mock
-    private ByteChannel channel;
+    private ByteChannel byteChan;
     @Mock
     private NHttpServerEventHandler handler;
 
@@ -97,7 +97,7 @@ public class TestDefaultNHttpServerConnection {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.setEntity(new StringEntity("stuff"));
 
-        Mockito.when(session.channel()).thenReturn(channel);
+        Mockito.when(session.channel()).thenReturn(byteChan);
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
         conn.submitResponse(response);
@@ -116,7 +116,7 @@ public class TestDefaultNHttpServerConnection {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.setEntity(new StringEntity("stuff"));
 
-        Mockito.when(session.channel()).thenReturn(channel);
+        Mockito.when(session.channel()).thenReturn(byteChan);
 
         conn.submitResponse(response);
 
