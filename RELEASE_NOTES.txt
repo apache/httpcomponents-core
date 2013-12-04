@@ -1,6 +1,10 @@
 Changes since 4.3
 -------------------
 
+* [HTTPCORE-366] Non-blocking SSLIOSession can enter an infinite loop if the underlying
+  channel receives incoming data simultaneously with inactivity timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-364] IOSessionImpl.getLocalAddress() (etc.) creates unnecessary copy of channel
 
 * DefaultConnectingIOReactor / DefaultListeningIOReactor do not correctly apply some initial 
