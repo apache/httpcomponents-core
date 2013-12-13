@@ -1,6 +1,10 @@
 Changes since 4.3
 -------------------
 
+* [HTTPCORE-367] (Regression) Non-blocking connections can enter a tight loop while waiting 
+  for a chunk header split across multiple TCP frames.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-366] Non-blocking SSLIOSession can enter an infinite loop if the underlying
   channel receives incoming data simultaneously with inactivity timeout.
   Contributed by Oleg Kalnichevski <olegk at apache.org>

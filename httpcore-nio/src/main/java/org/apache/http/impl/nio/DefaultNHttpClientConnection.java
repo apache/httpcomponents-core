@@ -260,20 +260,12 @@ public class DefaultNHttpClientConnection
                     handler.endOfInput(this);
                 }
             }
-            if (this.contentDecoder != null) {
-                // Loop until there is interest in input,
-                // decoder is not done and there is buffered session data
-                while ((this.session.getEventMask() & SelectionKey.OP_READ) > 0) {
-                    handler.inputReady(this, this.contentDecoder);
-                    if (this.contentDecoder.isCompleted()) {
-                        // Response entity received
-                        // Ready to receive a new response
-                        resetInput();
-                        break;
-                    }
-                    if (!this.inbuf.hasData()) {
-                        break;
-                    }
+            if (this.contentDecoder != null && (this.session.getEventMask() & SelectionKey.OP_READ) > 0) {
+                handler.inputReady(this, this.contentDecoder);
+                if (this.contentDecoder.isCompleted()) {
+                    // Response entity received
+                    // Ready to receive a new response
+                    resetInput();
                 }
             }
         } catch (final HttpException ex) {
