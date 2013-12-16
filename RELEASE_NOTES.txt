@@ -1,4 +1,10 @@
-Changes since 4.3
+Release 4.3.1
+-------------------
+
+This maintenance release fixes a number of bugs regressions found since 4.3, mostly in the 
+NIO transport components. All users of HttpCore 4.3 are advised to upgrade.
+
+Changelog
 -------------------
 
 * [HTTPCORE-367] (Regression) Non-blocking connections can enter a tight loop while waiting 
@@ -10,6 +16,7 @@ Changes since 4.3
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-364] IOSessionImpl.getLocalAddress() (etc.) creates unnecessary copy of channel
+  Contributed Sebastian Bazley <sebb at apache.org>.
 
 * DefaultConnectingIOReactor / DefaultListeningIOReactor do not correctly apply some initial 
   socket settings.
