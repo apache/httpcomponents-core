@@ -351,7 +351,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
         handler.responseCompleted();
         state.reset();
-        if (!handler.isDone()) {
+        if (!handler.isDone() && conn.isOpen()) {
             conn.requestOutput();
         }
     }
