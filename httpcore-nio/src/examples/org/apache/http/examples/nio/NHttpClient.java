@@ -55,13 +55,15 @@ import org.apache.http.protocol.RequestUserAgent;
 
 /**
  * Minimal asynchronous HTTP/1.1 client.
- * <p>
+ * <p/>
  * Please note that this example represents a minimal HTTP client implementation.
  * It does not support HTTPS as is.
  * You either need to provide BasicNIOConnPool with a connection factory
  * that supports SSL or use a more complex HttpAsyncClient.
- * 
- * @see http://hc.apache.org/httpcomponents-asyncclient-4.0.x/index.html
+ *
+ * @see BasicNIOConnPool#BasicNIOConnPool(org.apache.http.nio.reactor.ConnectingIOReactor,
+ *   org.apache.http.nio.pool.NIOConnFactory, int)
+ * @see org.apache.http.impl.nio.pool.BasicNIOConnFactory
  */
 public class NHttpClient {
 
