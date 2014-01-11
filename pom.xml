@@ -33,7 +33,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
   <name>Apache HttpComponents Core</name>
-  <version>4.3.2-SNAPSHOT</version>
+  <version>4.4-alpha1-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
@@ -72,6 +72,8 @@
 
   <properties>
     <!-- Override parent 7 setting for deprecation (only - other settings stand)-->
+    <maven.compiler.source>1.6</maven.compiler.source>
+    <maven.compiler.target>1.6</maven.compiler.target>
     <maven.compiler.showDeprecation>false</maven.compiler.showDeprecation>
     <junit.version>4.9</junit.version>
     <mockito.version>1.8.5</mockito.version>
