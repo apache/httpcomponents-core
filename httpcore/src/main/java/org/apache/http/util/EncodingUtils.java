@@ -104,11 +104,7 @@ public final class EncodingUtils {
      */
     public static byte[] getAsciiBytes(final String data) {
         Args.notNull(data, "Input");
-        try {
-            return data.getBytes(Consts.ASCII.name());
-        } catch (final UnsupportedEncodingException e) {
-            throw new Error("ASCII not supported");
-        }
+        return data.getBytes(Consts.ASCII);
     }
 
     /**
@@ -123,11 +119,7 @@ public final class EncodingUtils {
      */
     public static String getAsciiString(final byte[] data, final int offset, final int length) {
         Args.notNull(data, "Input");
-        try {
-            return new String(data, offset, length, Consts.ASCII.name());
-        } catch (final UnsupportedEncodingException e) {
-            throw new Error("ASCII not supported");
-        }
+        return new String(data, offset, length, Consts.ASCII);
     }
 
     /**

@@ -35,6 +35,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
@@ -83,14 +84,14 @@ public class TestSessionInOutBuffers {
         return Channels.newChannel(new ByteArrayInputStream(bytes));
     }
 
-    private static ReadableByteChannel newChannel(final String s, final String charset)
+    private static ReadableByteChannel newChannel(final String s, final Charset charset)
             throws UnsupportedEncodingException {
         return Channels.newChannel(new ByteArrayInputStream(s.getBytes(charset)));
     }
 
     private static ReadableByteChannel newChannel(final String s)
             throws UnsupportedEncodingException {
-        return newChannel(s, "US-ASCII");
+        return newChannel(s, Consts.ASCII);
     }
 
     @Test
@@ -239,7 +240,7 @@ public class TestSessionInOutBuffers {
         }
         final String s1 = buffer.toString();
         buffer.append("\r\n");
-        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
+        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes(Consts.ASCII)));
 
         buffer.setLength(0);
         for (int i = 0; i < 15; i++) {
@@ -247,7 +248,7 @@ public class TestSessionInOutBuffers {
         }
         final String s2 = buffer.toString();
         buffer.append("\r\n");
-        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
+        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes(Consts.ASCII)));
 
         buffer.setLength(0);
         for (int i = 0; i < 16; i++) {
@@ -255,7 +256,7 @@ public class TestSessionInOutBuffers {
         }
         final String s3 = buffer.toString();
         buffer.append("\r\n");
-        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes("US-ASCII")));
+        outbuf.write(ByteBuffer.wrap(buffer.toString().getBytes(Consts.ASCII)));
 
         outbuf.write(ByteBuffer.wrap(new byte[] {'a'}));
 
@@ -303,7 +304,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadByteBuffer() throws Exception {
-        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF".getBytes(Consts.ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
@@ -320,7 +321,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadByteBufferWithMaxLen() throws Exception {
-        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF".getBytes(Consts.ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
@@ -340,7 +341,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadToChannel() throws Exception {
-        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF".getBytes(Consts.ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
@@ -355,7 +356,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadToChannelWithMaxLen() throws Exception {
-        final byte[] pattern = "0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF".getBytes(Consts.ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
         while (inbuf.fill(channel) > 0) {
@@ -372,7 +373,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteByteBuffer() throws Exception {
-        final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes(Consts.ASCII);
 
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
         final ReadableByteChannel src = newChannel(pattern);
@@ -387,7 +388,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteFromChannel() throws Exception {
-        final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes("US-ASCII");
+        final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes(Consts.ASCII);
 
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
         outbuf.write(ByteBuffer.wrap(pattern, 0, 16));
@@ -465,7 +466,7 @@ public class TestSessionInOutBuffers {
     @Test(expected=CharacterCodingException.class)
     public void testMalformedInputActionReport() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
-        final byte[] tmp = s.getBytes("ISO-8859-1");
+        final byte[] tmp = s.getBytes(Consts.ISO_8859_1);
 
         final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
@@ -480,7 +481,7 @@ public class TestSessionInOutBuffers {
     @Test
     public void testMalformedInputActionIgnore() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
-        final byte[] tmp = s.getBytes("ISO-8859-1");
+        final byte[] tmp = s.getBytes(Consts.ISO_8859_1);
 
         final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.IGNORE);
@@ -496,7 +497,7 @@ public class TestSessionInOutBuffers {
     @Test
     public void testMalformedInputActionReplace() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
-        final byte[] tmp = s.getBytes("ISO-8859-1");
+        final byte[] tmp = s.getBytes(Consts.ISO_8859_1);
 
         final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPLACE);

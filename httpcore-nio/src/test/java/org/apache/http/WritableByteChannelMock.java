@@ -28,7 +28,6 @@
 package org.apache.http;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.WritableByteChannel;
@@ -89,11 +88,7 @@ public class WritableByteChannelMock implements WritableByteChannel {
 
         private static String toString(
             final byte[] b, final int off, final int len, final Charset charset) {
-            try {
-                return new String(b, off, len, charset.name());
-            } catch (final UnsupportedEncodingException e) {
-                return new String(b, off, len);
-            }
+            return new String(b, off, len, charset);
         }
 
         public String dump(final Charset charset) {

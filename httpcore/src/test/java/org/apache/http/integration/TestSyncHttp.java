@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -614,14 +613,7 @@ public class TestSyncHttp {
             super();
             final Charset cs = charset != null ? charset : Charset.forName("US-ASCII");
             byte[] b;
-            // Java 6 only:
-            // b = content.getBytes(charset);
-            // Java 5 OK:
-            try {
-                b = content.getBytes(cs.name());
-            } catch (final UnsupportedEncodingException ex) {
-                b = content.getBytes();
-            }
+            b = content.getBytes(cs);
             this.raw = b;
             this.n = n;
         }

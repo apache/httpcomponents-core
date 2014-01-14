@@ -33,19 +33,17 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestChunkCoding {
-
-    private static final String CONTENT_CHARSET = "ISO-8859-1";
 
     @Test
     public void testConstructors() throws Exception {
@@ -69,8 +67,7 @@ public class TestChunkCoding {
     @Test
     public void testChunkedInputStreamLargeBuffer() throws IOException {
         final ChunkedInputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
+                new SessionInputBufferMock(CHUNKED_INPUT, Consts.ISO_8859_1));
         final byte[] buffer = new byte[300];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
@@ -82,7 +79,7 @@ public class TestChunkCoding {
 
         in.close();
 
-        final String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
+        final String result = new String(out.toByteArray(), Consts.ISO_8859_1);
         Assert.assertEquals(result, CHUNKED_RESULT);
 
         final Header[] footers = in.getFooters();
@@ -98,8 +95,7 @@ public class TestChunkCoding {
     @Test
     public void testChunkedInputStreamSmallBuffer() throws IOException {
         final ChunkedInputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                            EncodingUtils.getBytes(CHUNKED_INPUT, CONTENT_CHARSET)));
+                new SessionInputBufferMock(CHUNKED_INPUT, Consts.ISO_8859_1));
 
         final byte[] buffer = new byte[7];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -112,7 +108,6 @@ public class TestChunkCoding {
 
         in.close();
 
-        EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
         final Header[] footers = in.getFooters();
         Assert.assertNotNull(footers);
         Assert.assertEquals(2, footers.length);
@@ -127,8 +122,7 @@ public class TestChunkCoding {
     public void testChunkedInputStreamOneByteRead() throws IOException {
         final String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final ChunkedInputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         int ch;
         int i = '0';
         while ((ch = in.read()) != -1) {
@@ -145,8 +139,7 @@ public class TestChunkCoding {
     public void testAvailable() throws IOException {
         final String s = "5\r\n12345\r\n0\r\n";
         final ChunkedInputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         Assert.assertEquals(0, in.available());
         in.read();
         Assert.assertEquals(4, in.available());
@@ -157,8 +150,7 @@ public class TestChunkCoding {
     public void testChunkedInputStreamClose() throws IOException {
         final String s = "5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final ChunkedInputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         in.close();
         in.close();
         try {
@@ -207,8 +199,7 @@ public class TestChunkCoding {
     public void testChunkedInputStreamNoClosingChunk() throws IOException {
         final String s = "5\r\n01234\r\n";
         final ChunkedInputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         final byte[] tmp = new byte[5];
         Assert.assertEquals(5, in.read(tmp));
         Assert.assertEquals(-1, in.read());
@@ -220,8 +211,7 @@ public class TestChunkCoding {
     public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
         final String s = "5\r\n012345\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         final byte[] buffer = new byte[300];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
@@ -240,8 +230,7 @@ public class TestChunkCoding {
     public void testCorruptChunkedInputStreamMissingLF() throws IOException {
         final String s = "5\r01234\r\n5\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         try {
             in.read();
             Assert.fail("MalformedChunkCodingException should have been thrown");
@@ -256,8 +245,7 @@ public class TestChunkCoding {
     public void testCorruptChunkedInputStreamInvalidSize() throws IOException {
         final String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         try {
             in.read();
             Assert.fail("MalformedChunkCodingException should have been thrown");
@@ -275,8 +263,7 @@ public class TestChunkCoding {
     public void testCorruptChunkedInputStreamNegativeSize() throws IOException {
         final String s = "-5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         try {
             in.read();
             Assert.fail("MalformedChunkCodingException should have been thrown");
@@ -294,8 +281,7 @@ public class TestChunkCoding {
     public void testCorruptChunkedInputStreamTruncatedChunk() throws IOException {
         final String s = "3\r\n12";
         final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         final byte[] buffer = new byte[300];
         Assert.assertEquals(2, in.read(buffer));
         try {
@@ -312,8 +298,7 @@ public class TestChunkCoding {
     public void testCorruptChunkedInputStreamInvalidFooter() throws IOException {
         final String s = "1\r\n0\r\n0\r\nstuff\r\n";
         final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(s, CONTENT_CHARSET)));
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         try {
             in.read();
             in.read();
@@ -328,8 +313,7 @@ public class TestChunkCoding {
     public void testEmptyChunkedInputStream() throws IOException {
         final String input = "0\r\n";
         final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        EncodingUtils.getBytes(input, CONTENT_CHARSET)));
+                new SessionInputBufferMock(input, Consts.ISO_8859_1));
         final byte[] buffer = new byte[300];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
@@ -345,7 +329,7 @@ public class TestChunkCoding {
         final String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         final OutputStream out = new ChunkedOutputStream(2048, new SessionOutputBufferMock(buffer));
-        out.write(EncodingUtils.getBytes(input, CONTENT_CHARSET));
+        out.write(input.getBytes(Consts.ISO_8859_1));
         out.flush();
         out.close();
         out.close();
@@ -361,7 +345,7 @@ public class TestChunkCoding {
             result.write(d, 0, len);
         }
 
-        final String output = EncodingUtils.getString(result.toByteArray(), CONTENT_CHARSET);
+        final String output = new String(result.toByteArray(), Consts.ISO_8859_1);
         Assert.assertEquals(input, output);
         in.close();
 }
@@ -456,7 +440,7 @@ public class TestChunkCoding {
     public void testResumeOnSocketTimeoutInData() throws IOException {
         final String s = "5\r\n01234\r\n5\r\n5\0006789\r\na\r\n0123\000456789\r\n0\r\n";
         final SessionInputBuffer sessbuf = new SessionInputBufferMock(
-                new TimeoutByteArrayInputStream(s.getBytes("ISO-8859-1")), 16);
+                new TimeoutByteArrayInputStream(s.getBytes(Consts.ISO_8859_1)), 16);
         final InputStream in = new ChunkedInputStream(sessbuf);
 
         final byte[] tmp = new byte[3];
@@ -484,7 +468,7 @@ public class TestChunkCoding {
     public void testResumeOnSocketTimeoutInChunk() throws IOException {
         final String s = "5\000\r\000\n\00001234\r\n\0005\r\n56789\r\na\r\n0123456789\r\n\0000\r\n";
         final SessionInputBuffer sessbuf = new SessionInputBufferMock(
-                new TimeoutByteArrayInputStream(s.getBytes("ISO-8859-1")), 16);
+                new TimeoutByteArrayInputStream(s.getBytes(Consts.ISO_8859_1)), 16);
         final InputStream in = new ChunkedInputStream(sessbuf);
 
         final byte[] tmp = new byte[3];

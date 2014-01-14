@@ -176,7 +176,7 @@ class BenchmarkWorker implements Runnable {
                     while ((l = instream.read(this.buffer)) != -1) {
                         contentlen += l;
                         if (config.getVerbosity() >= 4) {
-                            final String s = new String(this.buffer, 0, l, charset.name());
+                            final String s = new String(this.buffer, 0, l, charset);
                             System.out.print(s);
                         }
                     }

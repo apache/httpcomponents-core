@@ -169,7 +169,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         final CountDownLatch responseStreamClosed = new CountDownLatch(1);
         final InputStream testInputStream = new ByteArrayInputStream(
-                "all is well".getBytes(Consts.ASCII.name())) {
+                "all is well".getBytes(Consts.ASCII)) {
             @Override
             public void close() throws IOException {
                 responseStreamClosed.countDown();

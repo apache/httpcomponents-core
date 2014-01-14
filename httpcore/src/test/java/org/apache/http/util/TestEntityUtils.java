@@ -29,7 +29,9 @@ package org.apache.http.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
+import org.apache.http.Consts;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHeader;
 import org.junit.Assert;
@@ -60,7 +62,7 @@ public class TestEntityUtils {
 
     @Test
     public void testMaxIntContentToByteArray() throws Exception {
-        final byte[] content = "Message content".getBytes("ISO-8859-1");
+        final byte[] content = "Message content".getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(content));
         httpentity.setContentLength(Integer.MAX_VALUE + 100L);
@@ -74,7 +76,7 @@ public class TestEntityUtils {
 
     @Test
     public void testUnknownLengthContentToByteArray() throws Exception {
-        final byte[] bytes = "Message content".getBytes("ISO-8859-1");
+        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(-1L);
@@ -88,7 +90,7 @@ public class TestEntityUtils {
 
     @Test
     public void testKnownLengthContentToByteArray() throws Exception {
-        final byte[] bytes = "Message content".getBytes("ISO-8859-1");
+        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(bytes.length);
@@ -119,7 +121,7 @@ public class TestEntityUtils {
 
     @Test
     public void testMaxIntContentToString() throws Exception {
-        final byte[] content = "Message content".getBytes("ISO-8859-1");
+        final byte[] content = "Message content".getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(content));
         httpentity.setContentLength(Integer.MAX_VALUE + 100L);
@@ -133,7 +135,7 @@ public class TestEntityUtils {
 
     @Test
     public void testUnknownLengthContentToString() throws Exception {
-        final byte[] bytes = "Message content".getBytes("ISO-8859-1");
+        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(-1L);
@@ -143,7 +145,7 @@ public class TestEntityUtils {
 
     @Test
     public void testKnownLengthContentToString() throws Exception {
-        final byte[] bytes = "Message content".getBytes("ISO-8859-1");
+        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(bytes.length);
@@ -173,7 +175,7 @@ public class TestEntityUtils {
     @Test
     public void testNoCharsetContentToString() throws Exception {
         final String content = constructString(SWISS_GERMAN_HELLO);
-        final byte[] bytes = content.getBytes("ISO-8859-1");
+        final byte[] bytes = content.getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain"));
@@ -184,7 +186,7 @@ public class TestEntityUtils {
     @Test
     public void testDefaultCharsetContentToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
-        final byte[] bytes = content.getBytes("KOI8-R");
+        final byte[] bytes = content.getBytes(Charset.forName("KOI8-R"));
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain"));
@@ -195,7 +197,7 @@ public class TestEntityUtils {
     @Test
     public void testContentWithContentTypeToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
-        final byte[] bytes = content.getBytes("UTF-8");
+        final byte[] bytes = content.getBytes(Consts.UTF_8);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset=UTF-8"));

@@ -43,7 +43,7 @@ public class TestInputStreamEntity {
 
     @Test
     public void testBasics() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
@@ -69,7 +69,7 @@ public class TestInputStreamEntity {
     @Test
     public void testWriteTo() throws Exception {
         final String message = "Message content";
-        final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = message.getBytes(Consts.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
@@ -86,7 +86,7 @@ public class TestInputStreamEntity {
     @Test
     public void testWriteToPartialContent() throws Exception {
         final String message = "Message content";
-        final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = message.getBytes(Consts.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final int contentLength = 7;
         final InputStreamEntity httpentity = new InputStreamEntity(instream, contentLength);
@@ -104,7 +104,7 @@ public class TestInputStreamEntity {
     @Test
     public void testWriteToUnknownLength() throws Exception {
         final String message = "Message content";
-        final byte[] bytes = message.getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = message.getBytes(Consts.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final InputStreamEntity httpentity = new InputStreamEntity(instream);
 

@@ -33,8 +33,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 
-import org.apache.http.util.EncodingUtils;
-
 public class ReadableByteChannelMock implements ReadableByteChannel {
 
     private final String[] chunks;
@@ -57,7 +55,7 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
             if (this.chunkCount < this.chunks.length) {
                 final String s = this.chunks[this.chunkCount];
                 this.chunkCount++;
-                this.currentChunk = ByteBuffer.wrap(EncodingUtils.getBytes(s, this.charset.name()));
+                this.currentChunk = ByteBuffer.wrap(s.getBytes(this.charset));
             } else {
                 this.eof = true;
             }

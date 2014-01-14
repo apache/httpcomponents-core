@@ -30,8 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.Socket;
 
-import junit.framework.Assert;
-
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
@@ -51,6 +50,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+
+import junit.framework.Assert;
 
 public class TestDefaultBHttpClientConnection {
 
@@ -80,7 +81,7 @@ public class TestDefaultBHttpClientConnection {
     @Test
     public void testReadRequestHead() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nUser-Agent: test\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes("ASCII"));
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
 
         conn.bind(socket);
@@ -98,7 +99,7 @@ public class TestDefaultBHttpClientConnection {
     @Test
     public void testReadRequestEntity() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes("ASCII"));
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
 
         conn.bind(socket);

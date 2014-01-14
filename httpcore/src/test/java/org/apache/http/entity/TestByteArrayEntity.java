@@ -41,7 +41,7 @@ public class TestByteArrayEntity {
 
     @Test
     public void testBasics() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
 
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
@@ -52,7 +52,7 @@ public class TestByteArrayEntity {
 
     @Test
     public void testBasicOffLen() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes, 8, 7);
 
         Assert.assertEquals(7, httpentity.getContentLength());
@@ -68,25 +68,25 @@ public class TestByteArrayEntity {
 
     @Test(expected=IndexOutOfBoundsException.class)
     public void testIllegalConstructorBadLen() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         new ByteArrayEntity(bytes, 0, bytes.length + 1);
     }
 
     @Test(expected=IndexOutOfBoundsException.class)
     public void testIllegalConstructorBadOff1() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         new ByteArrayEntity(bytes, -1, bytes.length);
     }
 
     @Test(expected=IndexOutOfBoundsException.class)
     public void testIllegalConstructorBadOff2() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         new ByteArrayEntity(bytes, bytes.length + 1, bytes.length);
     }
 
     @Test
     public void testWriteTo() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -117,7 +117,7 @@ public class TestByteArrayEntity {
 
     @Test
     public void testWriteToOffLen() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final int off = 8;
         final int len = 7;
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes, off, len);

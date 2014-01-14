@@ -137,7 +137,7 @@ public class TestSessionInOutBuffers {
         }
         final String s1 = buffer.toString();
         buffer.append("\r\n");
-        outbuffer.write(buffer.toString().getBytes("US-ASCII"));
+        outbuffer.write(buffer.toString().getBytes(Consts.ASCII));
         outbuffer.flush();
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 +2, bytesWritten);
@@ -148,7 +148,7 @@ public class TestSessionInOutBuffers {
         }
         final String s2 = buffer.toString();
         buffer.append("\r\n");
-        outbuffer.write(buffer.toString().getBytes("US-ASCII"));
+        outbuffer.write(buffer.toString().getBytes(Consts.ASCII));
         outbuffer.flush();
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 + 2 + 15 + 2 , bytesWritten);
@@ -159,7 +159,7 @@ public class TestSessionInOutBuffers {
         }
         final String s3 = buffer.toString();
         buffer.append("\r\n");
-        outbuffer.write(buffer.toString().getBytes("US-ASCII"));
+        outbuffer.write(buffer.toString().getBytes(Consts.ASCII));
         outbuffer.flush();
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2, bytesWritten);
@@ -359,7 +359,7 @@ public class TestSessionInOutBuffers {
     @Test
     public void testLineLimit() throws Exception {
         final String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
-        final byte[] tmp = s.getBytes("US-ASCII");
+        final byte[] tmp = s.getBytes(Consts.ASCII);
         // no limit
         final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5,
                 MessageConstraints.DEFAULT);
@@ -383,7 +383,7 @@ public class TestSessionInOutBuffers {
     @Test
     public void testReadLineFringeCase1() throws Exception {
         final String s = "abc\r\n";
-        final byte[] tmp = s.getBytes("US-ASCII");
+        final byte[] tmp = s.getBytes(Consts.ASCII);
         final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 128);
         Assert.assertEquals('a', inbuffer1.read());
         Assert.assertEquals('b', inbuffer1.read());
@@ -433,9 +433,9 @@ public class TestSessionInOutBuffers {
         }
         outbuffer.flush();
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        final long expected = ((s1.getBytes("UTF-8").length + 2)+
-                (s2.getBytes("UTF-8").length + 2) +
-                (s3.getBytes("UTF-8").length + 2)) * 10;
+        final long expected = ((s1.getBytes(Consts.UTF_8).length + 2)+
+                (s2.getBytes(Consts.UTF_8).length + 2) +
+                (s3.getBytes(Consts.UTF_8).length + 2)) * 10;
         Assert.assertEquals(expected, bytesWritten);
 
         final SessionInputBufferMock inbuffer = new SessionInputBufferMock(
@@ -495,7 +495,7 @@ public class TestSessionInOutBuffers {
         outbuffer.writeLine(chbuffer);
         outbuffer.flush();
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        final long expected = ((s1.toString().getBytes(Consts.ISO_8859_1.name()).length + 2)) * 10 + 2;
+        final long expected = ((s1.toString().getBytes(Consts.ISO_8859_1).length + 2)) * 10 + 2;
         Assert.assertEquals(expected, bytesWritten);
 
         final SessionInputBufferMock inbuffer = new SessionInputBufferMock(
@@ -554,7 +554,7 @@ public class TestSessionInOutBuffers {
 
     @Test(expected=CharacterCodingException.class)
     public void testMalformedInputActionReport() throws Exception {
-        final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
+        final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1);
         final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
@@ -564,7 +564,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testMalformedInputActionReplace() throws Exception {
-        final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
+        final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1);
         final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
@@ -575,7 +575,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testMalformedInputActionIgnore() throws Exception {
-        final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1.name());
+        final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(Consts.ISO_8859_1);
         final CharsetDecoder decoder = Consts.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.IGNORE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);

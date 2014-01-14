@@ -93,7 +93,7 @@ public class TestResponseParser {
             "Set-Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(
-                new TimeoutByteArrayInputStream(s.getBytes("US-ASCII")), 16);
+                new TimeoutByteArrayInputStream(s.getBytes(Consts.ASCII)), 16);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(inbuffer);
 

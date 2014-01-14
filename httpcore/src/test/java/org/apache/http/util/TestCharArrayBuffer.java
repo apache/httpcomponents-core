@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -296,8 +297,8 @@ public class TestCharArrayBuffer {
     public void testAppendAsciiByteArray() throws Exception {
         final String s1 = "stuff";
         final String s2 = " and more stuff";
-        final byte[] b1 = s1.getBytes("US-ASCII");
-        final byte[] b2 = s2.getBytes("US-ASCII");
+        final byte[] b1 = s1.getBytes(Consts.ASCII);
+        final byte[] b2 = s2.getBytes(Consts.ASCII);
 
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append(b1, 0, b1.length);

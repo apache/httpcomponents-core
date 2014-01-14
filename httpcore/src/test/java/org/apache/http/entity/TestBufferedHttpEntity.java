@@ -42,7 +42,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testBufferingEntity() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
         Assert.assertEquals(bytes.length, bufentity.getContentLength());
@@ -57,7 +57,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWrappingEntity() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         httpentity.setChunked(true);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
@@ -83,7 +83,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWriteToBuffered() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 
@@ -115,7 +115,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWriteToWrapped() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 

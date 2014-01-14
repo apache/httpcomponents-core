@@ -30,7 +30,6 @@ package org.apache.http.impl;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
@@ -99,8 +98,8 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
 
     public SessionInputBufferMock(
             final String s,
-            final Charset charset) throws UnsupportedEncodingException {
-        this(s.getBytes(charset.name()), charset);
+            final Charset charset) {
+        this(s.getBytes(charset), charset);
     }
 
     @Override

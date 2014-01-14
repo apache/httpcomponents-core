@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import org.apache.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -199,7 +200,7 @@ public class TestByteArrayBuffer {
     public void testIndexOf() throws Exception {
         final byte COLON = (byte) ':';
         final byte COMMA = (byte) ',';
-        final byte[] bytes = "name1: value1; name2: value2".getBytes("US-ASCII");
+        final byte[] bytes = "name1: value1; name2: value2".getBytes(Consts.ASCII);
         final int index1 = 5;
         final int index2 = 20;
 

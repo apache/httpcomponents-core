@@ -45,7 +45,7 @@ public class TestStringEntity {
         final String s = "Message content";
         final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
 
-        final byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = s.getBytes(Consts.ISO_8859_1);
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
         Assert.assertNotNull(httpentity.getContent());
         Assert.assertTrue(httpentity.isRepeatable());
@@ -113,7 +113,7 @@ public class TestStringEntity {
     @Test
     public void testWriteTo() throws Exception {
         final String s = "Message content";
-        final byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = s.getBytes(Consts.ISO_8859_1);
         final StringEntity httpentity = new StringEntity(s);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

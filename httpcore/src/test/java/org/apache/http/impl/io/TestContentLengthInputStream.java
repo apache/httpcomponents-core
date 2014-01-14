@@ -32,15 +32,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.Consts;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestContentLengthInputStream {
-
-    private static final String CONTENT_CHARSET = "ISO-8859-1";
 
     @Test
     public void testConstructors() throws Exception {
@@ -64,8 +62,8 @@ public class TestContentLengthInputStream {
     @Test
     public void testBasics() throws IOException {
         final String correct = "1234567890123456";
-        final InputStream in = new ContentLengthInputStream(new SessionInputBufferMock(
-            EncodingUtils.getBytes(correct, CONTENT_CHARSET)), 10L);
+        final InputStream in = new ContentLengthInputStream(
+                new SessionInputBufferMock(correct, Consts.ISO_8859_1), 10L);
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         final byte[] buffer = new byte[50];
@@ -74,7 +72,7 @@ public class TestContentLengthInputStream {
         len = in.read(buffer);
         out.write(buffer, 0, len);
 
-        final String result = EncodingUtils.getString(out.toByteArray(), CONTENT_CHARSET);
+        final String result = new String(out.toByteArray(), Consts.ISO_8859_1);
         Assert.assertEquals(result, "1234567890");
         in.close();
     }
@@ -118,8 +116,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testClose() throws IOException {
         final String correct = "1234567890123456-";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(EncodingUtils.getBytes(
-                correct, CONTENT_CHARSET));
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(correct, Consts.ISO_8859_1);
         final InputStream in = new ContentLengthInputStream(inbuffer, 16L);
         in.close();
         in.close();
@@ -148,8 +145,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testTruncatedContent() throws IOException {
         final String correct = "1234567890123456";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(EncodingUtils.getBytes(
-                correct, CONTENT_CHARSET));
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(correct, Consts.ISO_8859_1);
         final InputStream in = new ContentLengthInputStream(inbuffer, 32L);
         final byte[] tmp = new byte[32];
         final int byteRead = in.read(tmp);

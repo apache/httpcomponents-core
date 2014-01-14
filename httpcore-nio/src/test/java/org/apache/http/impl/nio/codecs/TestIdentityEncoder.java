@@ -158,8 +158,8 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes("US-ASCII"));
-            testfile.write("more stuff".getBytes("US-ASCII"));
+            testfile.write("stuff;".getBytes(Consts.ASCII));
+            testfile.write("more stuff".getBytes(Consts.ASCII));
         } finally {
             testfile.close();
         }
@@ -218,8 +218,8 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes("US-ASCII"));
-            testfile.write("more stuff".getBytes("US-ASCII"));
+            testfile.write("stuff;".getBytes(Consts.ASCII));
+            testfile.write("more stuff".getBytes(Consts.ASCII));
         } finally {
             testfile.close();
         }
@@ -250,8 +250,8 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes("US-ASCII"));
-            testfile.write("more stuff".getBytes("US-ASCII"));
+            testfile.write("stuff;".getBytes(Consts.ASCII));
+            testfile.write("more stuff".getBytes(Consts.ASCII));
         } finally {
             testfile.close();
         }
@@ -282,7 +282,7 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff".getBytes("US-ASCII"));
+            testfile.write("stuff".getBytes(Consts.ASCII));
         } finally {
             testfile.close();
         }

@@ -82,12 +82,12 @@ public class ElementalHttpPost {
                             "This is the first test request",
                             ContentType.create("text/plain", Consts.UTF_8)),
                     new ByteArrayEntity(
-                            "This is the second test request".getBytes("UTF-8"),
+                            "This is the second test request".getBytes(Consts.UTF_8),
                             ContentType.APPLICATION_OCTET_STREAM),
                     new InputStreamEntity(
                             new ByteArrayInputStream(
                                     "This is the third test request (will be chunked)"
-                                    .getBytes("UTF-8")),
+                                    .getBytes(Consts.UTF_8)),
                             ContentType.APPLICATION_OCTET_STREAM)
             };
 

@@ -70,7 +70,7 @@ public class TestHttpEntityWrapper {
     @Test
     public void testWriteTo() throws Exception {
         final String s = "Message content";
-        final byte[] bytes = s.getBytes(Consts.ISO_8859_1.name());
+        final byte[] bytes = s.getBytes(Consts.ISO_8859_1);
         final StringEntity httpentity = new StringEntity(s);
         final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 

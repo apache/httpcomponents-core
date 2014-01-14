@@ -44,7 +44,7 @@ public class TestBasicHttpEntity {
     @Test
     public void testBasics() throws Exception {
 
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final InputStream content = new ByteArrayInputStream(bytes);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);
@@ -57,7 +57,7 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testContent() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final InputStream content = new ByteArrayInputStream(bytes);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         try {
@@ -80,7 +80,7 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testWriteTo() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII.name());
+        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final InputStream content = new ByteArrayInputStream(bytes);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);

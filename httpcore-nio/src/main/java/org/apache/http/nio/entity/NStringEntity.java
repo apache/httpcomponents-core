@@ -34,7 +34,6 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
@@ -86,12 +85,7 @@ public class NStringEntity extends AbstractHttpEntity
         if (charset == null) {
             charset = HTTP.DEF_CONTENT_CHARSET;
         }
-        try {
-            this.b = s.getBytes(charset.name());
-        } catch (final UnsupportedEncodingException ex) {
-            // should never happen
-            throw new UnsupportedCharsetException(charset.name());
-        }
+        this.b = s.getBytes(charset);
         this.buf = ByteBuffer.wrap(this.b);
         this.content = b;
         this.buffer = this.buf;
@@ -109,7 +103,7 @@ public class NStringEntity extends AbstractHttpEntity
      *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * @throws UnsupportedEncodingException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public NStringEntity(final String s, final String charset)
