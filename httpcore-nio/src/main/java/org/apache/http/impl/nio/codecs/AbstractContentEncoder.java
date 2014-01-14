@@ -52,10 +52,8 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     protected final HttpTransportMetricsImpl metrics;
 
     /**
-     * @deprecated since 4.3-beta3 - use {@link #isCompleted()} or {@link #complete()} instead
-     * Will probably be made private at some point.
+     * TODO: make private
      */
-    @Deprecated
     protected boolean completed;
 
     /**
