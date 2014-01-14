@@ -78,6 +78,7 @@ public class TestDefaultListeningIOReactor {
 
         final Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 try {
                     ioreactor.execute(eventDispatch);
@@ -130,6 +131,7 @@ public class TestDefaultListeningIOReactor {
 
         final Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 try {
                     ioreactor.execute(eventDispatch);
@@ -173,10 +175,12 @@ public class TestDefaultListeningIOReactor {
 
         ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {
 
+            @Override
             public boolean handle(final IOException ex) {
                 return (ex instanceof BindException);
             }
 
+            @Override
             public boolean handle(final RuntimeException ex) {
                 return false;
             }
@@ -185,6 +189,7 @@ public class TestDefaultListeningIOReactor {
 
         final Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 try {
                     ioreactor.execute(eventDispatch);

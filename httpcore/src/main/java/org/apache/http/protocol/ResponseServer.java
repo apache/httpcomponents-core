@@ -58,6 +58,7 @@ public class ResponseServer implements HttpResponseInterceptor {
         this(null);
     }
 
+    @Override
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");

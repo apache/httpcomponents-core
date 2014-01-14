@@ -39,14 +39,17 @@ class SessionHttpContext implements HttpContext {
         this.iosession = iosession;
     }
 
+    @Override
     public Object getAttribute(final String id) {
         return this.iosession.getAttribute(id);
     }
 
+    @Override
     public Object removeAttribute(final String id) {
         return this.iosession.removeAttribute(id);
     }
 
+    @Override
     public void setAttribute(final String id, final Object obj) {
         this.iosession.setAttribute(id, obj);
     }

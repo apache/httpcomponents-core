@@ -112,6 +112,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                     final HttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
@@ -121,6 +122,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpAsyncExchange httpExchange,
@@ -138,14 +140,17 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
 
+            @Override
             public void cancelled() {
                 latch.countDown();
             }
 
+            @Override
             public void failed(final Exception ex) {
                 latch.countDown();
             }
 
+            @Override
             public void completed(final HttpResponse response) {
                 Assert.fail();
             }
@@ -173,12 +178,14 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         };
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                     final HttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpAsyncExchange httpExchange,
@@ -199,14 +206,17 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
 
+            @Override
             public void cancelled() {
                 latch.countDown();
             }
 
+            @Override
             public void failed(final Exception ex) {
                 latch.countDown();
             }
 
+            @Override
             public void completed(final HttpResponse response) {
                 Assert.fail();
             }
@@ -226,12 +236,14 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                     final HttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpAsyncExchange httpExchange,
@@ -258,14 +270,17 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
 
+            @Override
             public void cancelled() {
                 latch.countDown();
             }
 
+            @Override
             public void failed(final Exception ex) {
                 latch.countDown();
             }
 
+            @Override
             public void completed(final HttpResponse response) {
                 Assert.fail();
             }

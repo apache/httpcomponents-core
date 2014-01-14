@@ -201,11 +201,13 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         this(httpProcessor, null, null, handlerMapper, null);
     }
 
+    @Override
     public void connected(final NHttpServerConnection conn) {
         final State state = new State();
         conn.getContext().setAttribute(HTTP_EXCHANGE_STATE, state);
     }
 
+    @Override
     public void closed(final NHttpServerConnection conn) {
         final State state = getState(conn);
         if (state != null) {
@@ -219,6 +221,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
     }
 
+    @Override
     public void exception(
             final NHttpServerConnection conn, final Exception cause) {
         final State state = ensureNotNull(getState(conn));
@@ -264,6 +267,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
     }
 
+    @Override
     public void requestReceived(
             final NHttpServerConnection conn) throws IOException, HttpException {
         final State state = ensureNotNull(getState(conn));
@@ -309,6 +313,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
     }
 
+    @Override
     public void inputReady(
             final NHttpServerConnection conn,
             final ContentDecoder decoder) throws IOException, HttpException {
@@ -321,6 +326,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
     }
 
+    @Override
     public void responseReady(
             final NHttpServerConnection conn) throws IOException, HttpException {
         final State state = ensureNotNull(getState(conn));
@@ -365,6 +371,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
     }
 
+    @Override
     public void outputReady(
             final NHttpServerConnection conn,
             final ContentEncoder encoder) throws IOException {
@@ -387,6 +394,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
     }
 
+    @Override
     public void endOfInput(final NHttpServerConnection conn) throws IOException {
         // Closing connection in an orderly manner and
         // waiting for output buffer to get flushed.
@@ -398,6 +406,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         conn.close();
     }
 
+    @Override
     public void timeout(final NHttpServerConnection conn) throws IOException {
         final State state = getState(conn);
         if (state != null) {
@@ -758,14 +767,17 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             this.conn = conn;
         }
 
+        @Override
         public HttpRequest getRequest() {
             return this.request;
         }
 
+        @Override
         public HttpResponse getResponse() {
             return this.response;
         }
 
+        @Override
         public void setCallback(final Cancellable cancellable) {
             synchronized (this) {
                 Asserts.check(!this.completed, "Response already submitted");
@@ -778,6 +790,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
         }
 
+        @Override
         public void submitResponse(final HttpAsyncResponseProducer responseProducer) {
             Args.notNull(responseProducer, "Response producer");
             synchronized (this) {
@@ -796,18 +809,22 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
         }
 
+        @Override
         public void submitResponse() {
             submitResponse(new BasicAsyncResponseProducer(this.response));
         }
 
+        @Override
         public boolean isCompleted() {
             return this.completed;
         }
 
+        @Override
         public void setTimeout(final int timeout) {
             this.conn.setSocketTimeout(timeout);
         }
 
+        @Override
         public int getTimeout() {
             return this.conn.getSocketTimeout();
         }
@@ -826,6 +843,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             this.resolver = resolver;
         }
 
+        @Override
         public HttpAsyncRequestHandler<?> lookup(final HttpRequest request) {
             return resolver.lookup(request.getRequestLine().getUri());
         }

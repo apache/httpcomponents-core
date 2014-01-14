@@ -45,6 +45,7 @@ public class ContentEncoderMock extends AbstractContentEncoder {
         super(channel, buffer, metrics);
     }
 
+    @Override
     public int write(final ByteBuffer src) throws IOException {
         if (src == null) {
             return 0;

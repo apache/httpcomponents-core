@@ -122,6 +122,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
             super.complete();
         }
 
+        @Override
         public int write(final ByteBuffer src) throws IOException {
             int chunk;
             if (!this.done) {
@@ -152,6 +153,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
             super();
         }
 
+        @Override
         public DefaultNHttpServerConnection createConnection(final IOSession session) {
             return new LoggingNHttpServerConnection(session) {
 

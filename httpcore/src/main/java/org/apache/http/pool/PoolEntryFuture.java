@@ -56,6 +56,7 @@ abstract class PoolEntryFuture<T> implements Future<T> {
         this.callback = callback;
     }
 
+    @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
         this.lock.lock();
         try {
@@ -74,14 +75,17 @@ abstract class PoolEntryFuture<T> implements Future<T> {
         }
     }
 
+    @Override
     public boolean isCancelled() {
         return this.cancelled;
     }
 
+    @Override
     public boolean isDone() {
         return this.completed;
     }
 
+    @Override
     public T get() throws InterruptedException, ExecutionException {
         try {
             return get(0, TimeUnit.MILLISECONDS);
@@ -90,6 +94,7 @@ abstract class PoolEntryFuture<T> implements Future<T> {
         }
     }
 
+    @Override
     public T get(
             final long timeout,
             final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {

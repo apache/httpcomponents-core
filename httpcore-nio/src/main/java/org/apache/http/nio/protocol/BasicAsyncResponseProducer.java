@@ -99,10 +99,12 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         }
     }
 
+    @Override
     public synchronized HttpResponse generateResponse() {
         return this.response;
     }
 
+    @Override
     public synchronized void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.producer != null) {
@@ -113,12 +115,15 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         }
     }
 
+    @Override
     public void responseCompleted(final HttpContext context) {
     }
 
+    @Override
     public void failed(final Exception ex) {
     }
 
+    @Override
     public synchronized void close() throws IOException {
         if (this.producer != null) {
             this.producer.close();

@@ -121,6 +121,7 @@ public class BasicHeaderIterator implements HeaderIterator {
 
 
     // non-javadoc, see interface HeaderIterator
+    @Override
     public boolean hasNext() {
         return (this.currentIndex >= 0);
     }
@@ -133,6 +134,7 @@ public class BasicHeaderIterator implements HeaderIterator {
      *
      * @throws NoSuchElementException   if there are no more headers
      */
+    @Override
     public Header nextHeader()
         throws NoSuchElementException {
 
@@ -155,6 +157,7 @@ public class BasicHeaderIterator implements HeaderIterator {
      *
      * @throws NoSuchElementException   if there are no more headers
      */
+    @Override
     public final Object next()
         throws NoSuchElementException {
         return nextHeader();
@@ -166,6 +169,7 @@ public class BasicHeaderIterator implements HeaderIterator {
      *
      * @throws UnsupportedOperationException    always
      */
+    @Override
     public void remove()
         throws UnsupportedOperationException {
 

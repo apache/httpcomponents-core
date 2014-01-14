@@ -46,12 +46,15 @@ public class ContentDecoderChannel implements ReadableByteChannel {
         this.decoder = decoder;
     }
 
+    @Override
     public int read(final ByteBuffer dst) throws IOException {
         return decoder.read(dst);
     }
 
+    @Override
     public void close() {}
 
+    @Override
     public boolean isOpen() {
         return true;
     }

@@ -77,27 +77,33 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
        this(name, value, null);
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
 
+    @Override
     public String getValue() {
         return this.value;
     }
 
+    @Override
     public NameValuePair[] getParameters() {
         return this.parameters.clone();
     }
 
+    @Override
     public int getParameterCount() {
         return this.parameters.length;
     }
 
+    @Override
     public NameValuePair getParameter(final int index) {
         // ArrayIndexOutOfBoundsException is appropriate
         return this.parameters[index];
     }
 
+    @Override
     public NameValuePair getParameterByName(final String name) {
         Args.notNull(name, "Name");
         NameValuePair found = null;

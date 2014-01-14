@@ -57,14 +57,17 @@ public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
         this.protoversion = Args.notNull(version, "Version");
     }
 
+    @Override
     public String getMethod() {
         return this.method;
     }
 
+    @Override
     public ProtocolVersion getProtocolVersion() {
         return this.protoversion;
     }
 
+    @Override
     public String getUri() {
         return this.uri;
     }

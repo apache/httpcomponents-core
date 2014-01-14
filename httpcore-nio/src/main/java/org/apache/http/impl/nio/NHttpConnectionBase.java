@@ -291,34 +291,42 @@ public class NHttpConnectionBase
         return new HttpConnectionMetricsImpl(inTransportMetric, outTransportMetric);
     }
 
+    @Override
     public int getStatus() {
         return this.status;
     }
 
+    @Override
     public HttpContext getContext() {
         return this.context;
     }
 
+    @Override
     public HttpRequest getHttpRequest() {
         return this.request;
     }
 
+    @Override
     public HttpResponse getHttpResponse() {
         return this.response;
     }
 
+    @Override
     public void requestInput() {
         this.session.setEvent(EventMask.READ);
     }
 
+    @Override
     public void requestOutput() {
         this.session.setEvent(EventMask.WRITE);
     }
 
+    @Override
     public void suspendInput() {
         this.session.clearEvent(EventMask.READ);
     }
 
+    @Override
     public void suspendOutput() {
         this.session.clearEvent(EventMask.WRITE);
     }
@@ -432,10 +440,12 @@ public class NHttpConnectionBase
         }
     }
 
+    @Override
     public boolean hasBufferedInput() {
         return this.hasBufferedInput;
     }
 
+    @Override
     public boolean hasBufferedOutput() {
         return this.hasBufferedOutput;
     }
@@ -452,6 +462,7 @@ public class NHttpConnectionBase
         }
     }
 
+    @Override
     public void close() throws IOException {
         if (this.status != ACTIVE) {
             return;
@@ -465,14 +476,17 @@ public class NHttpConnectionBase
         }
     }
 
+    @Override
     public boolean isOpen() {
         return this.status == ACTIVE && !this.session.isClosed();
     }
 
+    @Override
     public boolean isStale() {
         return this.session.isClosed();
     }
 
+    @Override
     public InetAddress getLocalAddress() {
         final SocketAddress address = this.session.getLocalAddress();
         if (address instanceof InetSocketAddress) {
@@ -482,6 +496,7 @@ public class NHttpConnectionBase
         }
     }
 
+    @Override
     public int getLocalPort() {
         final SocketAddress address = this.session.getLocalAddress();
         if (address instanceof InetSocketAddress) {
@@ -491,6 +506,7 @@ public class NHttpConnectionBase
         }
     }
 
+    @Override
     public InetAddress getRemoteAddress() {
         final SocketAddress address = this.session.getRemoteAddress();
         if (address instanceof InetSocketAddress) {
@@ -500,6 +516,7 @@ public class NHttpConnectionBase
         }
     }
 
+    @Override
     public int getRemotePort() {
         final SocketAddress address = this.session.getRemoteAddress();
         if (address instanceof InetSocketAddress) {
@@ -509,19 +526,23 @@ public class NHttpConnectionBase
         }
     }
 
+    @Override
     public void setSocketTimeout(final int timeout) {
         this.session.setSocketTimeout(timeout);
     }
 
+    @Override
     public int getSocketTimeout() {
         return this.session.getSocketTimeout();
     }
 
+    @Override
     public void shutdown() throws IOException {
         this.status = CLOSED;
         this.session.shutdown();
     }
 
+    @Override
     public HttpConnectionMetrics getMetrics() {
         return this.connMetrics;
     }
@@ -552,6 +573,7 @@ public class NHttpConnectionBase
         return buffer.toString();
     }
 
+    @Override
     public Socket getSocket() {
         if (this.session instanceof SocketAccessor) {
             return ((SocketAccessor) this.session).getSocket();

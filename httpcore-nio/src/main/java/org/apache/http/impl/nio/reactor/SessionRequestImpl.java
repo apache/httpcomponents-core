@@ -72,18 +72,22 @@ public class SessionRequestImpl implements SessionRequest {
         this.connectTimeout = 0;
     }
 
+    @Override
     public SocketAddress getRemoteAddress() {
         return this.remoteAddress;
     }
 
+    @Override
     public SocketAddress getLocalAddress() {
         return this.localAddress;
     }
 
+    @Override
     public Object getAttachment() {
         return this.attachment;
     }
 
+    @Override
     public boolean isCompleted() {
         return this.completed;
     }
@@ -92,6 +96,7 @@ public class SessionRequestImpl implements SessionRequest {
         this.key = key;
     }
 
+    @Override
     public void waitFor() throws InterruptedException {
         if (this.completed) {
             return;
@@ -103,12 +108,14 @@ public class SessionRequestImpl implements SessionRequest {
         }
     }
 
+    @Override
     public IOSession getSession() {
         synchronized (this) {
             return this.session;
         }
     }
 
+    @Override
     public IOException getException() {
         synchronized (this) {
             return this.exception;
@@ -179,10 +186,12 @@ public class SessionRequestImpl implements SessionRequest {
         }
     }
 
+    @Override
     public int getConnectTimeout() {
         return this.connectTimeout;
     }
 
+    @Override
     public void setConnectTimeout(final int timeout) {
         if (this.connectTimeout != timeout) {
             this.connectTimeout = timeout;
@@ -193,6 +202,7 @@ public class SessionRequestImpl implements SessionRequest {
         }
     }
 
+    @Override
     public void cancel() {
         if (this.completed) {
             return;

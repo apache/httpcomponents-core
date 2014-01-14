@@ -48,6 +48,7 @@ public final class Registry<I> implements Lookup<I> {
         this.map = new ConcurrentHashMap<String, I>(map);
     }
 
+    @Override
     public I lookup(final String key) {
         if (key == null) {
             return null;

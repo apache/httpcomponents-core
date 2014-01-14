@@ -44,6 +44,7 @@ class DummyHttpMessage extends AbstractHttpMessage {
         this(HttpVersion.HTTP_1_1);
     }
 
+    @Override
     public ProtocolVersion getProtocolVersion() {
         return ver;
     }

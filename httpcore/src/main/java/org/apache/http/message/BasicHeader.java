@@ -60,10 +60,12 @@ public class BasicHeader implements Header, Cloneable, Serializable {
         this.value = value;
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
 
+    @Override
     public String getValue() {
         return this.value;
     }
@@ -74,6 +76,7 @@ public class BasicHeader implements Header, Cloneable, Serializable {
         return BasicLineFormatter.INSTANCE.formatHeader(null, this).toString();
     }
 
+    @Override
     public HeaderElement[] getElements() throws ParseException {
         if (this.value != null) {
             // result intentionally not cached, it's probably not used again

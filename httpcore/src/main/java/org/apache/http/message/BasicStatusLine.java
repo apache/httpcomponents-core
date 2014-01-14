@@ -74,14 +74,17 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
 
     // --------------------------------------------------------- Public Methods
 
+    @Override
     public int getStatusCode() {
         return this.statusCode;
     }
 
+    @Override
     public ProtocolVersion getProtocolVersion() {
         return this.protoVersion;
     }
 
+    @Override
     public String getReasonPhrase() {
         return this.reasonPhrase;
     }

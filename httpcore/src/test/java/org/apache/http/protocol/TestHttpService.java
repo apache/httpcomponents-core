@@ -250,6 +250,7 @@ public class TestHttpService {
 
         final HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
 
+            @Override
             public void verify(
                     final HttpRequest request,
                     final HttpResponse response,

@@ -74,6 +74,7 @@ public class TestNIOConnPool {
 
     static class LocalConnFactory implements NIOConnFactory<String, IOSession> {
 
+        @Override
         public IOSession create(final String route, final IOSession session) throws IOException {
             return session;
         }
@@ -82,10 +83,12 @@ public class TestNIOConnPool {
 
     static class LocalAddressResolver implements SocketAddressResolver<String> {
 
+        @Override
         public SocketAddress resolveLocalAddress(final String route) {
             return null;
         }
 
+        @Override
         public SocketAddress resolveRemoteAddress(final String route) {
             return InetSocketAddress.createUnresolved(route, 80);
         }

@@ -99,14 +99,17 @@ public class HttpCoreContext implements HttpContext {
         this.context = new BasicHttpContext();
     }
 
+    @Override
     public Object getAttribute(final String id) {
         return context.getAttribute(id);
     }
 
+    @Override
     public void setAttribute(final String id, final Object obj) {
         context.setAttribute(id, obj);
     }
 
+    @Override
     public Object removeAttribute(final String id) {
         return context.removeAttribute(id);
     }

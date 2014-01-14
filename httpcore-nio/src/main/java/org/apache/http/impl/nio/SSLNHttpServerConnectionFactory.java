@@ -219,6 +219,7 @@ public class SSLNHttpServerConnectionFactory
         return ssliosession;
     }
 
+    @Override
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
         final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
         iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);

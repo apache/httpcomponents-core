@@ -46,6 +46,7 @@ public class NoConnectionReuseStrategy implements ConnectionReuseStrategy {
         super();
     }
 
+    @Override
     public boolean keepAlive(final HttpResponse response, final HttpContext context) {
         return false;
     }

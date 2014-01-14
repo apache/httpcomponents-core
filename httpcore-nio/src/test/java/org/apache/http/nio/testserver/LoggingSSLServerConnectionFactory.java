@@ -51,6 +51,7 @@ public class LoggingSSLServerConnectionFactory implements NHttpConnectionFactory
         this(sslcontext, null);
     }
 
+    @Override
     public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
         final SSLIOSession ssliosession = new SSLIOSession(
                 iosession, SSLMode.SERVER, this.sslcontext, this.setupHandler);

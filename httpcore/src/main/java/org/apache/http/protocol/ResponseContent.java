@@ -87,6 +87,7 @@ public class ResponseContent implements HttpResponseInterceptor {
      * @throws ProtocolException If either the Content-Length or Transfer-Encoding headers are found.
      * @throws IllegalArgumentException If the response is null.
      */
+    @Override
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");

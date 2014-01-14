@@ -125,6 +125,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         super.bind(socket);
     }
 
+    @Override
     public boolean isResponseAvailable(final int timeout) throws IOException {
         ensureOpen();
         try {
@@ -134,6 +135,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
     }
 
+    @Override
     public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -143,6 +145,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         incrementRequestCount();
     }
 
+    @Override
     public void sendRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -156,6 +159,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         outstream.close();
     }
 
+    @Override
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
         ensureOpen();
         final HttpResponse response = this.responseParser.parse();
@@ -166,6 +170,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         return response;
     }
 
+    @Override
     public void receiveResponseEntity(
             final HttpResponse response) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
@@ -174,6 +179,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         response.setEntity(entity);
     }
 
+    @Override
     public void flush() throws IOException {
         ensureOpen();
         doFlush();

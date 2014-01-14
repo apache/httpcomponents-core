@@ -73,6 +73,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
 
     // non-javadoc, see interface HttpResponseFactory
+    @Override
     public HttpResponse newHttpResponse(
             final ProtocolVersion ver,
             final int status,
@@ -86,6 +87,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
 
     // non-javadoc, see interface HttpResponseFactory
+    @Override
     public HttpResponse newHttpResponse(
             final StatusLine statusline,
             final HttpContext context) {

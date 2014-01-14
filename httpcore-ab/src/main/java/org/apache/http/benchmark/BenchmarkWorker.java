@@ -97,6 +97,7 @@ class BenchmarkWorker implements Runnable {
         this.socketFactory = socketFactory;
     }
 
+    @Override
     public void run() {
         HttpResponse response = null;
         final BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);

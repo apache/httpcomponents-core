@@ -55,11 +55,13 @@ public class BasicAsyncRequestHandler implements HttpAsyncRequestHandler<HttpReq
         this.handler = handler;
     }
 
+    @Override
     public HttpAsyncRequestConsumer<HttpRequest> processRequest(final HttpRequest request,
             final HttpContext context) {
         return new BasicAsyncRequestConsumer();
     }
 
+    @Override
     public void handle(
             final HttpRequest request,
             final HttpAsyncExchange httpexchange,

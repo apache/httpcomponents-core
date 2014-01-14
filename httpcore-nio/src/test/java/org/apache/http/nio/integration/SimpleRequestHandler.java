@@ -54,6 +54,7 @@ final class SimpleRequestHandler implements HttpRequestHandler {
         this.chunking = chunking;
     }
 
+    @Override
     public void handle(
             final HttpRequest request,
             final HttpResponse response,

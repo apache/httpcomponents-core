@@ -198,6 +198,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         return (IOSession) key.attachment();
     }
 
+    @Override
     public IOReactorStatus getStatus() {
         return this.status;
     }
@@ -382,6 +383,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
             final SessionClosedCallback sessionClosedCallback = new SessionClosedCallback() {
 
+                @Override
                 public void sessionClosed(final IOSession session) {
                     queueClosedSession(session);
                 }
@@ -392,6 +394,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             if (this.interestOpsQueueing) {
                 interestOpsCallback = new InterestOpsCallback() {
 
+                    @Override
                     public void addInterestOps(final InterestOpEntry entry) {
                         queueInterestOps(entry);
                     }
@@ -598,6 +601,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
+    @Override
     public void shutdown(final long gracePeriod) throws IOReactorException {
         if (this.status != IOReactorStatus.INACTIVE) {
             gracefulShutdown();
@@ -611,6 +615,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
+    @Override
     public void shutdown() throws IOReactorException {
         shutdown(1000);
     }

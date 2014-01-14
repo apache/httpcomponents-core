@@ -45,9 +45,11 @@ class NullRequestConsumer implements HttpAsyncRequestConsumer<Object> {
         this.buffer = ByteBuffer.allocate(2048);
     }
 
+    @Override
     public void requestReceived(final HttpRequest request) {
     }
 
+    @Override
     public void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         int lastRead;
@@ -57,26 +59,32 @@ class NullRequestConsumer implements HttpAsyncRequestConsumer<Object> {
         } while (lastRead > 0);
     }
 
+    @Override
     public void requestCompleted(final HttpContext context) {
         this.completed = true;
     }
 
+    @Override
     public void failed(final Exception ex) {
         this.completed = true;
     }
 
+    @Override
     public Object getResult() {
         return Boolean.valueOf(this.completed);
     }
 
+    @Override
     public Exception getException() {
         return null;
     }
 
+    @Override
     public void close() throws IOException {
         this.completed = true;
     }
 
+    @Override
     public boolean isDone() {
         return this.completed;
     }

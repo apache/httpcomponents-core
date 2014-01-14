@@ -300,6 +300,7 @@ public class HttpAsyncRequester {
             this.context = context;
         }
 
+        @Override
         public void completed(final E result) {
             if (this.requestFuture.isDone()) {
                 this.connPool.release(result, true);
@@ -313,6 +314,7 @@ public class HttpAsyncRequester {
             initExection(handler, conn);
         }
 
+        @Override
         public void failed(final Exception ex) {
             try {
                 try {
@@ -325,6 +327,7 @@ public class HttpAsyncRequester {
             }
         }
 
+        @Override
         public void cancelled() {
             try {
                 try {
@@ -369,6 +372,7 @@ public class HttpAsyncRequester {
             this.connPool = connPool;
         }
 
+        @Override
         public void completed(final T result) {
             try {
                 this.connPool.release(this.poolEntry, true);
@@ -377,6 +381,7 @@ public class HttpAsyncRequester {
             }
         }
 
+        @Override
         public void failed(final Exception ex) {
             try {
                 this.connPool.release(this.poolEntry, false);
@@ -385,6 +390,7 @@ public class HttpAsyncRequester {
             }
         }
 
+        @Override
         public void cancelled() {
             try {
                 this.connPool.release(this.poolEntry, false);

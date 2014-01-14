@@ -75,6 +75,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
         this(IDENTITY);
     }
 
+    @Override
     public long determineLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
         // Although Transfer-Encoding is specified as a list, in practice

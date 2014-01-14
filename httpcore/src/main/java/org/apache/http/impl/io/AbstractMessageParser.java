@@ -252,6 +252,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
     protected abstract T parseHead(SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException;
 
+    @Override
     public T parse() throws IOException, HttpException {
         final int st = this.state;
         switch (st) {

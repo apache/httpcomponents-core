@@ -94,6 +94,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final HttpAsyncResponseProducer responseProducer = new HttpAsyncResponseProducer() {
 
+            @Override
             public HttpResponse generateResponse() {
                 final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
                 final BasicHttpEntity entity = new BasicHttpEntity();
@@ -103,19 +104,23 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
                 return response;
             }
 
+            @Override
             public void close() throws IOException {
                 latch.countDown();
             }
 
+            @Override
             public void responseCompleted(final HttpContext context) {
             }
 
+            @Override
             public void produceContent(
                     final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
                 // suspend output
                 ioctrl.suspendOutput();
             }
 
+            @Override
             public void failed(final Exception ex) {
             }
 
@@ -124,12 +129,14 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                     final HttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest data,
                     final HttpAsyncExchange httpExchange,
@@ -171,6 +178,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final Cancellable cancellable = new Cancellable() {
 
+            @Override
             public boolean cancel() {
                 latch.countDown();
                 return true;
@@ -180,12 +188,14 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                     final HttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest data,
                     final HttpAsyncExchange httpExchange,

@@ -75,18 +75,22 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
         this.file = Args.notNull(file, "File");
     }
 
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
+    @Override
     public long getContentLength() {
         return this.file.length();
     }
 
+    @Override
     public InputStream getContent() throws IOException {
         return new FileInputStream(this.file);
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         final InputStream instream = new FileInputStream(this.file);
@@ -107,6 +111,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
      *
      * @return <code>false</code>
      */
+    @Override
     public boolean isStreaming() {
         return false;
     }

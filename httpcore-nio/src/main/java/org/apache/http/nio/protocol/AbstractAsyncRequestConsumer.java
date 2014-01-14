@@ -122,6 +122,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     /**
      * Use {@link #onRequestReceived(HttpRequest)} instead.
      */
+    @Override
     public final synchronized void requestReceived(
             final HttpRequest request) throws HttpException, IOException {
         onRequestReceived(request);
@@ -137,6 +138,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     /**
      * Use {@link #onContentReceived(ContentDecoder, IOControl)} instead.
      */
+    @Override
     public final synchronized void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         onContentReceived(decoder, ioctrl);
@@ -145,6 +147,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     /**
      * Use {@link #buildResult(HttpContext)} instead.
      */
+    @Override
     public final synchronized void requestCompleted(final HttpContext context) {
         if (this.completed) {
             return;
@@ -159,6 +162,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         }
     }
 
+    @Override
     public final synchronized void failed(final Exception ex) {
         if (this.completed) {
             return;
@@ -168,6 +172,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         releaseResources();
     }
 
+    @Override
     public final synchronized void close() throws IOException {
         if (this.completed) {
             return;
@@ -177,14 +182,17 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
         onClose();
     }
 
+    @Override
     public Exception getException() {
         return this.ex;
     }
 
+    @Override
     public T getResult() {
         return this.result;
     }
 
+    @Override
     public boolean isDone() {
         return this.completed;
     }

@@ -64,6 +64,7 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
         }
     }
 
+    @Override
     public int read(final ByteBuffer dst) throws IOException {
         if (this.closed) {
             throw new ClosedChannelException();
@@ -80,10 +81,12 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
         return i;
     }
 
+    @Override
     public void close() throws IOException {
         this.closed = true;
     }
 
+    @Override
     public boolean isOpen() {
         return !this.closed && !this.eof;
     }

@@ -206,6 +206,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this(convert(workerCount, params), threadFactory);
     }
 
+    @Override
     public IOReactorStatus getStatus() {
         return this.status;
     }
@@ -301,6 +302,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @throws InterruptedIOException if the dispatch thread is interrupted.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
+    @Override
     public void execute(
             final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
         Args.notNull(eventDispatch, "Event dispatcher");
@@ -536,10 +538,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
+    @Override
     public void shutdown() throws IOException {
         shutdown(2000);
     }
 
+    @Override
     public void shutdown(final long waitMs) throws IOException {
         synchronized (this.statusLock) {
             if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
@@ -579,6 +583,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.eventDispatch = eventDispatch;
         }
 
+        @Override
         public void run() {
             try {
                 this.dispatcher.execute(this.eventDispatch);
@@ -597,6 +602,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
         private static volatile int COUNT = 0;
 
+        @Override
         public Thread newThread(final Runnable r) {
             return new Thread(r, "I/O dispatcher " + (++COUNT));
         }

@@ -88,6 +88,7 @@ public class SerializableEntity extends AbstractHttpEntity {
         this.objSer = baos.toByteArray();
     }
 
+    @Override
     public InputStream getContent() throws IOException, IllegalStateException {
         if (this.objSer == null) {
             createBytes(this.objRef);
@@ -95,6 +96,7 @@ public class SerializableEntity extends AbstractHttpEntity {
         return new ByteArrayInputStream(this.objSer);
     }
 
+    @Override
     public long getContentLength() {
         if (this.objSer ==  null) {
             return -1;
@@ -103,14 +105,17 @@ public class SerializableEntity extends AbstractHttpEntity {
         }
     }
 
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
+    @Override
     public boolean isStreaming() {
         return this.objSer == null;
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         if (this.objSer == null) {

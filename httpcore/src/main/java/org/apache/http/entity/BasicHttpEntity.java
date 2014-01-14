@@ -57,6 +57,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
         this.length = -1;
     }
 
+    @Override
     public long getContentLength() {
         return this.length;
     }
@@ -70,6 +71,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      * @throws IllegalStateException
      *          if the content has not been provided
      */
+    @Override
     public InputStream getContent() throws IllegalStateException {
         Asserts.check(this.content != null, "Content has not been provided");
         return this.content;
@@ -80,6 +82,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
      *
      * @return <code>false</code>
      */
+    @Override
     public boolean isRepeatable() {
         return false;
     }
@@ -104,6 +107,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
         this.content = instream;
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         final InputStream instream = getContent();
@@ -118,6 +122,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
         }
     }
 
+    @Override
     public boolean isStreaming() {
         return this.content != null;
     }

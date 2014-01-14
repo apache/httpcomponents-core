@@ -100,6 +100,7 @@ public class HttpServer {
         Asserts.check(this.listener == null, "Listener already running");
         this.listener = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 while (!shutdown && !Thread.interrupted()) {
                     try {

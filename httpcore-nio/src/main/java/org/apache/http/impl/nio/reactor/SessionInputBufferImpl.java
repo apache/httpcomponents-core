@@ -155,6 +155,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
     }
 
+    @Override
     public int fill(final ReadableByteChannel channel) throws IOException {
         Args.notNull(channel, "Channel");
         setInputMode();
@@ -164,11 +165,13 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return channel.read(this.buffer);
     }
 
+    @Override
     public int read() {
         setOutputMode();
         return this.buffer.get() & 0xff;
     }
 
+    @Override
     public int read(final ByteBuffer dst, final int maxLen) {
         if (dst == null) {
             return 0;
@@ -189,6 +192,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return chunk;
     }
 
+    @Override
     public int read(final ByteBuffer dst) {
         if (dst == null) {
             return 0;
@@ -196,6 +200,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return read(dst, dst.remaining());
     }
 
+    @Override
     public int read(final WritableByteChannel dst, final int maxLen) throws IOException {
         if (dst == null) {
             return 0;
@@ -214,6 +219,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return bytesRead;
     }
 
+    @Override
     public int read(final WritableByteChannel dst) throws IOException {
         if (dst == null) {
             return 0;
@@ -222,6 +228,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return dst.write(this.buffer);
     }
 
+    @Override
     public boolean readLine(
             final CharArrayBuffer linebuffer,
             final boolean endOfStream) throws CharacterCodingException {
@@ -326,6 +333,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return true;
     }
 
+    @Override
     public String readLine(final boolean endOfStream) throws CharacterCodingException {
         final CharArrayBuffer buffer = new CharArrayBuffer(64);
         final boolean found = readLine(buffer, endOfStream);

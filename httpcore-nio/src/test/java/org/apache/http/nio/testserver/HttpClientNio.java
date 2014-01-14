@@ -96,6 +96,7 @@ public class HttpClientNio {
         this.ioReactor = new DefaultConnectingIOReactor();
         this.connpool = new BasicNIOConnPool(this.ioReactor, new NIOConnFactory<HttpHost, NHttpClientConnection>() {
 
+            @Override
             public NHttpClientConnection create(
                 final HttpHost route, final IOSession session) throws IOException {
                 final NHttpClientConnection conn = connFactory.create(route, session);
@@ -142,6 +143,7 @@ public class HttpClientNio {
         this.connpool.lease(target, null, this.timeout, TimeUnit.MILLISECONDS,
             new FutureCallback<BasicNIOPoolEntry>() {
 
+                @Override
                 public void completed(final BasicNIOPoolEntry result) {
                     executor.execute(
                             requestProducer, responseConsumer,
@@ -149,14 +151,17 @@ public class HttpClientNio {
                             context != null ? context : new BasicHttpContext(),
                             new FutureCallback<T>() {
 
+                                @Override
                                 public void completed(final T result) {
                                     future.completed(result);
                                 }
 
+                                @Override
                                 public void failed(final Exception ex) {
                                     future.failed(ex);
                                 }
 
+                                @Override
                                 public void cancelled() {
                                     future.cancel();
                                 }
@@ -164,10 +169,12 @@ public class HttpClientNio {
                             });
                 }
 
+                @Override
                 public void failed(final Exception ex) {
                     future.failed(ex);
                 }
 
+                @Override
                 public void cancelled() {
                     future.cancel();
                 }

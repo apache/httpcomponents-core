@@ -57,6 +57,7 @@ public class BasicHttpContext implements HttpContext {
         this.parentContext = parentContext;
     }
 
+    @Override
     public Object getAttribute(final String id) {
         Args.notNull(id, "Id");
         Object obj = this.map.get(id);
@@ -66,6 +67,7 @@ public class BasicHttpContext implements HttpContext {
         return obj;
     }
 
+    @Override
     public void setAttribute(final String id, final Object obj) {
         Args.notNull(id, "Id");
         if (obj != null) {
@@ -75,6 +77,7 @@ public class BasicHttpContext implements HttpContext {
         }
     }
 
+    @Override
     public Object removeAttribute(final String id) {
         Args.notNull(id, "Id");
         return this.map.remove(id);

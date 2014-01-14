@@ -88,6 +88,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
+    @Override
     public void reset() {
         if (this.shutdown) {
             return;
@@ -104,6 +105,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     /**
      * @deprecated (4.3) use {@link #consumeContent(ContentDecoder, IOControl)}
      */
+    @Override
     @Deprecated
     public int consumeContent(final ContentDecoder decoder) throws IOException {
         return consumeContent(decoder, null);
@@ -246,6 +248,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         return this.shutdown || (!hasData() && this.endOfStream);
     }
 
+    @Override
     public int read() throws IOException {
         if (this.shutdown) {
             return -1;
@@ -264,6 +267,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         }
     }
 
+    @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
         if (this.shutdown) {
             return -1;

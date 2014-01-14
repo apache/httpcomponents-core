@@ -120,6 +120,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -196,6 +197,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -278,6 +280,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -359,6 +362,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -444,6 +448,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -518,6 +523,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -531,6 +537,7 @@ public class TestSyncHttp {
 
         this.server.setExpectationVerifier(new HttpExpectationVerifier() {
 
+            @Override
             public void verify(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -619,22 +626,27 @@ public class TestSyncHttp {
             this.n = n;
         }
 
+        @Override
         public InputStream getContent() throws IOException, IllegalStateException {
             throw new IllegalStateException("This method is not implemented");
         }
 
+        @Override
         public long getContentLength() {
             return (this.raw.length + 2) * this.n;
         }
 
+        @Override
         public boolean isRepeatable() {
             return true;
         }
 
+        @Override
         public boolean isStreaming() {
             return false;
         }
 
+        @Override
         public void writeTo(final OutputStream outstream) throws IOException {
             for (int i = 0; i < this.n; i++) {
                 outstream.write(this.raw);
@@ -672,6 +684,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -762,6 +775,7 @@ public class TestSyncHttp {
     public void testHttpPostNoEntity() throws Exception {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -807,6 +821,7 @@ public class TestSyncHttp {
     public void testHttpPostNoContentLength() throws Exception {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -859,6 +874,7 @@ public class TestSyncHttp {
     public void testHttpPostIdentity() throws Exception {
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -894,6 +910,7 @@ public class TestSyncHttp {
                     new HttpRequestInterceptor[] {
                             new HttpRequestInterceptor() {
 
+                                @Override
                                 public void process(
                                         final HttpRequest request,
                                         final HttpContext context) throws HttpException, IOException {
@@ -922,6 +939,7 @@ public class TestSyncHttp {
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,

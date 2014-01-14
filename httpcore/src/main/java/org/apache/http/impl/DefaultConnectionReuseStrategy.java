@@ -70,6 +70,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     }
 
     // see interface ConnectionReuseStrategy
+    @Override
     public boolean keepAlive(final HttpResponse response,
                              final HttpContext context) {
         Args.notNull(response, "HTTP response");

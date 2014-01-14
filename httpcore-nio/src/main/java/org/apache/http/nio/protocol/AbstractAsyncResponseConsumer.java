@@ -120,6 +120,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     /**
      * Use {@link #onResponseReceived(HttpResponse)} instead.
      */
+    @Override
     public final synchronized void responseReceived(
             final HttpResponse response) throws IOException, HttpException {
         onResponseReceived(response);
@@ -133,6 +134,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     /**
      * Use {@link #onContentReceived(ContentDecoder, IOControl)} instead.
      */
+    @Override
     public final synchronized void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         onContentReceived(decoder, ioctrl);
@@ -141,6 +143,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     /**
      * Use {@link #buildResult(HttpContext)} instead.
      */
+    @Override
     public final synchronized void responseCompleted(final HttpContext context) {
         if (this.completed) {
             return;
@@ -155,6 +158,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         }
     }
 
+    @Override
     public final synchronized boolean cancel() {
         if (this.completed) {
             return false;
@@ -164,6 +168,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         return true;
     }
 
+    @Override
     public final synchronized void failed(final Exception ex) {
         if (this.completed) {
             return;
@@ -173,6 +178,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         releaseResources();
     }
 
+    @Override
     public final synchronized void close() throws IOException {
         if (this.completed) {
             return;
@@ -182,14 +188,17 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         onClose();
     }
 
+    @Override
     public Exception getException() {
         return this.ex;
     }
 
+    @Override
     public T getResult() {
         return this.result;
     }
 
+    @Override
     public boolean isDone() {
         return this.completed;
     }

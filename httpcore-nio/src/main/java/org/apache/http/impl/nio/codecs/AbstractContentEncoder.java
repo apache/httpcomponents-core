@@ -77,10 +77,12 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
         this.metrics = metrics;
     }
 
+    @Override
     public boolean isCompleted() {
         return this.completed;
     }
 
+    @Override
     public void complete() throws IOException {
         this.completed = true;
     }

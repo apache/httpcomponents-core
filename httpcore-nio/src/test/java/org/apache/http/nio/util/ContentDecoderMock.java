@@ -43,6 +43,7 @@ public class ContentDecoderMock implements ContentDecoder {
         this.channel = channel;
     }
 
+    @Override
     public int read(final ByteBuffer dst) throws IOException {
         if (this.completed) {
             return -1;
@@ -54,6 +55,7 @@ public class ContentDecoderMock implements ContentDecoder {
         return bytesRead;
     }
 
+    @Override
     public boolean isCompleted() {
         return this.completed;
     }

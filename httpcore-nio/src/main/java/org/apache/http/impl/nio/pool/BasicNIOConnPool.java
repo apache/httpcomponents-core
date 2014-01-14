@@ -65,10 +65,12 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     static class BasicAddressResolver implements SocketAddressResolver<HttpHost> {
 
+        @Override
         public SocketAddress resolveLocalAddress(final HttpHost host) {
             return null;
         }
 
+        @Override
         public SocketAddress resolveRemoteAddress(final HttpHost host) {
             final String hostname = host.getHostName();
             int port = host.getPort();

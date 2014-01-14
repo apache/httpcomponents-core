@@ -60,6 +60,7 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
         this.buffer = ByteBuffer.allocate(4096);
     }
 
+    @Override
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.channel == null) {
@@ -76,10 +77,12 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
         }
     }
 
+    @Override
     public boolean isRepeatable() {
         return this.entity.isRepeatable();
     }
 
+    @Override
     public void close() throws IOException {
         final ReadableByteChannel local = this.channel;
         this.channel = null;

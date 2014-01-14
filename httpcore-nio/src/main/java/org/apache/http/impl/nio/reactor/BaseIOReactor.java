@@ -98,6 +98,7 @@ public class BaseIOReactor extends AbstractIOReactor {
      * @throws InterruptedIOException if the dispatch thread is interrupted.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
+    @Override
     public void execute(
             final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
         Args.notNull(eventDispatch, "Event dispatcher");

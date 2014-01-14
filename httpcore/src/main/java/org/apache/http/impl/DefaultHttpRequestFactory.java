@@ -77,6 +77,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         return false;
     }
 
+    @Override
     public HttpRequest newHttpRequest(final RequestLine requestline)
             throws MethodNotSupportedException {
         Args.notNull(requestline, "Request line");
@@ -92,6 +93,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         }
     }
 
+    @Override
     public HttpRequest newHttpRequest(final String method, final String uri)
             throws MethodNotSupportedException {
         if (isOneOf(RFC2616_COMMON_METHODS, method)) {

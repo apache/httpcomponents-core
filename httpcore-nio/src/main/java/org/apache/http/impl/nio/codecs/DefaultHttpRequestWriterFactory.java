@@ -56,6 +56,7 @@ public class DefaultHttpRequestWriterFactory implements NHttpMessageWriterFactor
         this(null);
     }
 
+    @Override
     public NHttpMessageWriter<HttpRequest> create(final SessionOutputBuffer buffer) {
         return new DefaultHttpRequestWriter(buffer, lineFormatter);
     }

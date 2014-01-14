@@ -127,6 +127,7 @@ public class WritableByteChannelMock implements WritableByteChannel {
         this(size, 0);
     }
 
+    @Override
     public int write(final ByteBuffer src) throws IOException {
         if (this.closed) {
             throw new ClosedChannelException();
@@ -134,10 +135,12 @@ public class WritableByteChannelMock implements WritableByteChannel {
         return this.buf.write(src);
     }
 
+    @Override
     public boolean isOpen() {
         return !this.closed;
     }
 
+    @Override
     public void close() throws IOException {
         this.closed = true;
     }

@@ -60,6 +60,7 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
         this.keepAlive = keepAlive;
     }
 
+    @Override
     public HttpResponse generateResponse() {
         if (this.keepAlive) {
             response.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
@@ -70,17 +71,21 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
         return response;
     }
 
+    @Override
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         this.contentProducer.produceContent(encoder, ioctrl);
     }
 
+    @Override
     public void responseCompleted(final HttpContext context) {
     }
 
+    @Override
     public void failed(final Exception ex) {
     }
 
+    @Override
     public void close() throws IOException {
         this.contentProducer.close();
     }

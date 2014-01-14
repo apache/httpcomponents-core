@@ -105,6 +105,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
      * @param request the request
      * @return handler or <code>null</code> if no match is found.
      */
+    @Override
     public HttpAsyncRequestHandler<?> lookup(final HttpRequest request) {
         return matcher.lookup(getRequestPath(request));
     }

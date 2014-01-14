@@ -93,24 +93,29 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
     }
 
 
+    @Override
     public String getName() {
         return this.name;
     }
 
+    @Override
     public String getValue() {
         return this.buffer.substringTrimmed(this.valuePos, this.buffer.length());
     }
 
+    @Override
     public HeaderElement[] getElements() throws ParseException {
         final ParserCursor cursor = new ParserCursor(0, this.buffer.length());
         cursor.updatePos(this.valuePos);
         return BasicHeaderValueParser.INSTANCE.parseElements(this.buffer, cursor);
     }
 
+    @Override
     public int getValuePos() {
         return this.valuePos;
     }
 
+    @Override
     public CharArrayBuffer getBuffer() {
         return this.buffer;
     }

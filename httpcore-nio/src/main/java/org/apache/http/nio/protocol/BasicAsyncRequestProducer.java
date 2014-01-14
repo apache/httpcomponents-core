@@ -110,14 +110,17 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         }
     }
 
+    @Override
     public synchronized HttpRequest generateRequest() {
         return this.request;
     }
 
+    @Override
     public HttpHost getTarget() {
         return this.target;
     }
 
+    @Override
     public synchronized void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.producer != null) {
@@ -128,22 +131,27 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         }
     }
 
+    @Override
     public void requestCompleted(final HttpContext context) {
     }
 
+    @Override
     public void failed(final Exception ex) {
     }
 
+    @Override
     public synchronized boolean isRepeatable() {
         return this.producer == null || this.producer.isRepeatable();
     }
 
+    @Override
     public synchronized void resetRequest() throws IOException {
         if (this.producer != null) {
             this.producer.close();
         }
     }
 
+    @Override
     public synchronized void close() throws IOException {
         if (this.producer != null) {
             this.producer.close();

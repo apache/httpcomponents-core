@@ -107,6 +107,7 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
      * @param request the request
      * @return handler or <code>null</code> if no match is found.
      */
+    @Override
     public HttpRequestHandler lookup(final HttpRequest request) {
         Args.notNull(request, "HTTP request");
         return matcher.lookup(getRequestPath(request));

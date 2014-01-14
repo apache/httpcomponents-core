@@ -153,18 +153,22 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
         this(string, ContentType.DEFAULT_TEXT);
     }
 
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
+    @Override
     public long getContentLength() {
         return this.content.length;
     }
 
+    @Override
     public InputStream getContent() throws IOException {
         return new ByteArrayInputStream(this.content);
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         outstream.write(this.content);
@@ -176,6 +180,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
      *
      * @return <code>false</code>
      */
+    @Override
     public boolean isStreaming() {
         return false;
     }

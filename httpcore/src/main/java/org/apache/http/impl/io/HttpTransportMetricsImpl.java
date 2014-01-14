@@ -44,6 +44,7 @@ public class HttpTransportMetricsImpl implements HttpTransportMetrics {
         super();
     }
 
+    @Override
     public long getBytesTransferred() {
         return this.bytesTransferred;
     }
@@ -56,6 +57,7 @@ public class HttpTransportMetricsImpl implements HttpTransportMetrics {
         this.bytesTransferred += count;
     }
 
+    @Override
     public void reset() {
         this.bytesTransferred = 0;
     }

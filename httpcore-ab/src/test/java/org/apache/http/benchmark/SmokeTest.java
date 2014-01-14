@@ -50,6 +50,7 @@ public class SmokeTest {
     public void setup() throws Exception {
         server = new HttpServer();
         server.registerHandler("/", new HttpRequestHandler() {
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,

@@ -73,6 +73,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      *
      * @return  the Content-Type header, or <code>null</code>
      */
+    @Override
     public Header getContentType() {
         return this.contentType;
     }
@@ -85,6 +86,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      *
      * @return  the Content-Encoding header, or <code>null</code>
      */
+    @Override
     public Header getContentEncoding() {
         return this.contentEncoding;
     }
@@ -96,6 +98,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      *
      * @return  the 'chunked' flag
      */
+    @Override
     public boolean isChunked() {
         return this.chunked;
     }
@@ -184,6 +187,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * @deprecated (4.1) Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
      * otherwise call {@link #writeTo(java.io.OutputStream)} which is required to free the resources.
      */
+    @Override
     @Deprecated
     public void consumeContent() throws IOException {
     }

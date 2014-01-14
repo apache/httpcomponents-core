@@ -107,10 +107,12 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         this.connFactory = connFactory;
         this.addressResolver = new SocketAddressResolver<T>() {
 
+            @Override
             public SocketAddress resolveLocalAddress(final T route) throws IOException {
                 return AbstractNIOConnPool.this.resolveLocalAddress(route);
             }
 
+            @Override
             public SocketAddress resolveRemoteAddress(final T route) throws IOException {
                 return AbstractNIOConnPool.this.resolveRemoteAddress(route);
             }
@@ -277,6 +279,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         return future;
     }
 
+    @Override
     public Future<E> lease(final T route, final Object state, final FutureCallback<E> callback) {
         return lease(route, state, -1, TimeUnit.MICROSECONDS, callback);
     }
@@ -285,6 +288,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         return lease(route, state, -1, TimeUnit.MICROSECONDS, null);
     }
 
+    @Override
     public void release(final E entry, final boolean reusable) {
         if (entry == null) {
             return;
@@ -560,6 +564,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public void setMaxTotal(final int max) {
         Args.positive(max, "Max value");
         this.lock.lock();
@@ -570,6 +575,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public int getMaxTotal() {
         this.lock.lock();
         try {
@@ -579,6 +585,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public void setDefaultMaxPerRoute(final int max) {
         Args.positive(max, "Max value");
         this.lock.lock();
@@ -589,6 +596,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public int getDefaultMaxPerRoute() {
         this.lock.lock();
         try {
@@ -598,6 +606,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public void setMaxPerRoute(final T route, final int max) {
         Args.notNull(route, "Route");
         Args.positive(max, "Max value");
@@ -609,6 +618,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public int getMaxPerRoute(final T route) {
         Args.notNull(route, "Route");
         this.lock.lock();
@@ -619,6 +629,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public PoolStats getTotalStats() {
         this.lock.lock();
         try {
@@ -632,6 +643,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public PoolStats getStats(final T route) {
         Args.notNull(route, "Route");
         this.lock.lock();
@@ -709,6 +721,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final long deadline = System.currentTimeMillis() - time;
         enumAvailable(new PoolEntryCallback<T, C>() {
 
+            @Override
             public void process(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
                     entry.close();
@@ -723,6 +736,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final long now = System.currentTimeMillis();
         enumAvailable(new PoolEntryCallback<T, C>() {
 
+            @Override
             public void process(final PoolEntry<T, C> entry) {
                 if (entry.isExpired(now)) {
                     entry.close();
@@ -748,18 +762,22 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
     class InternalSessionRequestCallback implements SessionRequestCallback {
 
+        @Override
         public void completed(final SessionRequest request) {
             requestCompleted(request);
         }
 
+        @Override
         public void cancelled(final SessionRequest request) {
             requestCancelled(request);
         }
 
+        @Override
         public void failed(final SessionRequest request) {
             requestFailed(request);
         }
 
+        @Override
         public void timeout(final SessionRequest request) {
             requestTimeout(request);
         }

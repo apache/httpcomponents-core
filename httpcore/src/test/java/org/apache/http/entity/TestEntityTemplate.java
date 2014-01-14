@@ -47,6 +47,7 @@ public class TestEntityTemplate {
 
         final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
+            @Override
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
             }
@@ -72,6 +73,7 @@ public class TestEntityTemplate {
     public void testWriteTo() throws Exception {
         final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
+            @Override
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
             }
@@ -96,6 +98,7 @@ public class TestEntityTemplate {
     public void testgetContent() throws Exception {
         final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
+            @Override
             public void writeTo(final OutputStream outstream) throws IOException {
                 outstream.write('a');
             }

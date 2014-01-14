@@ -86,10 +86,12 @@ public class TestCustomSSL {
     public void testCustomSSLContext() throws Exception {
         final SSLSetupHandler sslSetupHandler = new SSLSetupHandler() {
 
+            @Override
             public void initalize(
                     final SSLEngine sslengine) throws SSLException {
             }
 
+            @Override
             public void verify(
                     final IOSession iosession, final SSLSession sslsession) throws SSLException {
                 final BigInteger sslid = new BigInteger(sslsession.getId());
@@ -100,6 +102,7 @@ public class TestCustomSSL {
 
         final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,

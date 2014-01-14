@@ -95,6 +95,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
 
     // non-javadoc, see interface HeaderValueParser
+    @Override
     public HeaderElement[] parseElements(final CharArrayBuffer buffer,
                                          final ParserCursor cursor) {
         Args.notNull(buffer, "Char array buffer");
@@ -132,6 +133,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
 
     // non-javadoc, see interface HeaderValueParser
+    @Override
     public HeaderElement parseHeaderElement(final CharArrayBuffer buffer,
                                             final ParserCursor cursor) {
         Args.notNull(buffer, "Char array buffer");
@@ -185,6 +187,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
 
     // non-javadoc, see interface HeaderValueParser
+    @Override
     public NameValuePair[] parseParameters(final CharArrayBuffer buffer,
                                            final ParserCursor cursor) {
         Args.notNull(buffer, "Char array buffer");
@@ -240,6 +243,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
 
     // non-javadoc, see interface HeaderValueParser
+    @Override
     public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
                                             final ParserCursor cursor) {
         return parseNameValuePair(buffer, cursor, ALL_DELIMITERS);

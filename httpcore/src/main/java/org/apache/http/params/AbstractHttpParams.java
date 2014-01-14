@@ -49,6 +49,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         super();
     }
 
+    @Override
     public long getLongParameter(final String name, final long defaultValue) {
         final Object param = getParameter(name);
         if (param == null) {
@@ -57,11 +58,13 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Long) param).longValue();
     }
 
+    @Override
     public HttpParams setLongParameter(final String name, final long value) {
         setParameter(name, Long.valueOf(value));
         return this;
     }
 
+    @Override
     public int getIntParameter(final String name, final int defaultValue) {
         final Object param = getParameter(name);
         if (param == null) {
@@ -70,11 +73,13 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Integer) param).intValue();
     }
 
+    @Override
     public HttpParams setIntParameter(final String name, final int value) {
         setParameter(name, Integer.valueOf(value));
         return this;
     }
 
+    @Override
     public double getDoubleParameter(final String name, final double defaultValue) {
         final Object param = getParameter(name);
         if (param == null) {
@@ -83,11 +88,13 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Double) param).doubleValue();
     }
 
+    @Override
     public HttpParams setDoubleParameter(final String name, final double value) {
         setParameter(name, Double.valueOf(value));
         return this;
     }
 
+    @Override
     public boolean getBooleanParameter(final String name, final boolean defaultValue) {
         final Object param = getParameter(name);
         if (param == null) {
@@ -96,15 +103,18 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
         return ((Boolean) param).booleanValue();
     }
 
+    @Override
     public HttpParams setBooleanParameter(final String name, final boolean value) {
         setParameter(name, value ? Boolean.TRUE : Boolean.FALSE);
         return this;
     }
 
+    @Override
     public boolean isParameterTrue(final String name) {
         return getBooleanParameter(name, false);
     }
 
+    @Override
     public boolean isParameterFalse(final String name) {
         return !getBooleanParameter(name, false);
     }
@@ -117,6 +127,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
      * @since 4.2
      * @throws UnsupportedOperationException - always
      */
+    @Override
     public Set<String> getNames(){
         throw new UnsupportedOperationException();
     }

@@ -178,6 +178,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -241,6 +242,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -252,10 +254,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         final IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
 
+            @Override
             public boolean handle(final IOException ex) {
                 return false;
             }
 
+            @Override
             public boolean handle(final RuntimeException ex) {
                 requestConns.countDown();
                 return false;
@@ -318,6 +322,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -329,10 +334,12 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         final IOReactorExceptionHandler exceptionHandler = new IOReactorExceptionHandler() {
 
+            @Override
             public boolean handle(final IOException ex) {
                 return false;
             }
 
+            @Override
             public boolean handle(final RuntimeException ex) {
                 requestConns.countDown();
                 return true;

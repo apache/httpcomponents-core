@@ -46,12 +46,15 @@ public class ContentEncoderChannel implements WritableByteChannel {
         this.contentEncoder = contentEncoder;
     }
 
+    @Override
     public int write(final ByteBuffer src) throws IOException {
         return contentEncoder.write(src);
     }
 
+    @Override
     public void close() {}
 
+    @Override
     public boolean isOpen() {
         return true;
     }

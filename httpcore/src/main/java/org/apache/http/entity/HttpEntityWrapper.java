@@ -59,36 +59,44 @@ public class HttpEntityWrapper implements HttpEntity {
         this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
     } // constructor
 
+    @Override
     public boolean isRepeatable() {
         return wrappedEntity.isRepeatable();
     }
 
+    @Override
     public boolean isChunked() {
         return wrappedEntity.isChunked();
     }
 
+    @Override
     public long getContentLength() {
         return wrappedEntity.getContentLength();
     }
 
+    @Override
     public Header getContentType() {
         return wrappedEntity.getContentType();
     }
 
+    @Override
     public Header getContentEncoding() {
         return wrappedEntity.getContentEncoding();
     }
 
+    @Override
     public InputStream getContent()
         throws IOException {
         return wrappedEntity.getContent();
     }
 
+    @Override
     public void writeTo(final OutputStream outstream)
         throws IOException {
         wrappedEntity.writeTo(outstream);
     }
 
+    @Override
     public boolean isStreaming() {
         return wrappedEntity.isStreaming();
     }
@@ -97,6 +105,7 @@ public class HttpEntityWrapper implements HttpEntity {
      * @deprecated (4.1) Either use {@link #getContent()} and call {@link java.io.InputStream#close()} on that;
      * otherwise call {@link #writeTo(OutputStream)} which is required to free the resources.
      */
+    @Override
     @Deprecated
     public void consumeContent() throws IOException {
         wrappedEntity.consumeContent();

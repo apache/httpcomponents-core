@@ -141,6 +141,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         return conn;
     }
 
+    @Override
     public HttpClientConnection create(final HttpHost host) throws IOException {
         final String scheme = host.getSchemeName();
         Socket socket = null;

@@ -83,6 +83,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this(channel, buffer, metrics, 0);
     }
 
+    @Override
     public int write(final ByteBuffer src) throws IOException {
         if (src == null) {
             return 0;

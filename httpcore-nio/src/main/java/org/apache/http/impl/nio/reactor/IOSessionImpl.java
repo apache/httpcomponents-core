@@ -111,10 +111,12 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this(key, null, sessionClosedCallback);
     }
 
+    @Override
     public ByteChannel channel() {
         return this.channel;
     }
 
+    @Override
     public SocketAddress getLocalAddress() {
         if (this.channel instanceof SocketChannel) {
             return ((SocketChannel)this.channel).socket().getLocalSocketAddress();
@@ -123,6 +125,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         }
     }
 
+    @Override
     public SocketAddress getRemoteAddress() {
         if (this.channel instanceof SocketChannel) {
             return ((SocketChannel)this.channel).socket().getRemoteSocketAddress();
@@ -131,10 +134,12 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         }
     }
 
+    @Override
     public synchronized int getEventMask() {
         return this.interestOpsCallback != null ? this.currentEventMask : this.key.interestOps();
     }
 
+    @Override
     public synchronized void setEventMask(final int ops) {
         if (this.status == CLOSED) {
             return;
@@ -154,6 +159,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.key.selector().wakeup();
     }
 
+    @Override
     public synchronized void setEvent(final int op) {
         if (this.status == CLOSED) {
             return;
@@ -174,6 +180,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.key.selector().wakeup();
     }
 
+    @Override
     public synchronized void clearEvent(final int op) {
         if (this.status == CLOSED) {
             return;
@@ -194,15 +201,18 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.key.selector().wakeup();
     }
 
+    @Override
     public int getSocketTimeout() {
         return this.socketTimeout;
     }
 
+    @Override
     public synchronized void setSocketTimeout(final int timeout) {
         this.socketTimeout = timeout;
         this.lastAccessTime = System.currentTimeMillis();
     }
 
+    @Override
     public synchronized void close() {
         if (this.status == CLOSED) {
             return;
@@ -223,42 +233,51 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         }
     }
 
+    @Override
     public int getStatus() {
         return this.status;
     }
 
+    @Override
     public boolean isClosed() {
         return this.status == CLOSED;
     }
 
+    @Override
     public void shutdown() {
         // For this type of session, a close() does exactly
         // what we need and nothing more.
         close();
     }
 
+    @Override
     public boolean hasBufferedInput() {
         final SessionBufferStatus buffStatus = this.bufferStatus;
         return buffStatus != null && buffStatus.hasBufferedInput();
     }
 
+    @Override
     public boolean hasBufferedOutput() {
         final SessionBufferStatus buffStatus = this.bufferStatus;
         return buffStatus != null && buffStatus.hasBufferedOutput();
     }
 
+    @Override
     public void setBufferStatus(final SessionBufferStatus bufferStatus) {
         this.bufferStatus = bufferStatus;
     }
 
+    @Override
     public Object getAttribute(final String name) {
         return this.attributes.get(name);
     }
 
+    @Override
     public Object removeAttribute(final String name) {
         return this.attributes.remove(name);
     }
 
+    @Override
     public void setAttribute(final String name, final Object obj) {
         this.attributes.put(name, obj);
     }
@@ -351,6 +370,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         return buffer.toString();
     }
 
+    @Override
     public Socket getSocket() {
         if (this.channel instanceof SocketChannel) {
             return ((SocketChannel) this.channel).socket();

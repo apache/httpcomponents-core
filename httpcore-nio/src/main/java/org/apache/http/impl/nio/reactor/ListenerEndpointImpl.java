@@ -61,6 +61,7 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         this.callback = callback;
     }
 
+    @Override
     public SocketAddress getAddress() {
         return this.address;
     }
@@ -69,10 +70,12 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         return this.completed;
     }
 
+    @Override
     public IOException getException() {
         return this.exception;
     }
 
+    @Override
     public void waitFor() throws InterruptedException {
         if (this.completed) {
             return;
@@ -125,10 +128,12 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         this.key = key;
     }
 
+    @Override
     public boolean isClosed() {
         return this.closed || (this.key != null && !this.key.isValid());
     }
 
+    @Override
     public void close() {
         if (this.closed) {
             return;

@@ -119,14 +119,17 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return this.instream != null;
     }
 
+    @Override
     public int capacity() {
         return this.buffer.length;
     }
 
+    @Override
     public int length() {
         return this.bufferlen - this.bufferpos;
     }
 
+    @Override
     public int available() {
         return capacity() - length();
     }
@@ -168,6 +171,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         this.bufferlen = 0;
     }
 
+    @Override
     public int read() throws IOException {
         int noRead;
         while (!hasBufferedData()) {
@@ -179,6 +183,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return this.buffer[this.bufferpos++] & 0xff;
     }
 
+    @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return 0;
@@ -212,6 +217,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         }
     }
 
+    @Override
     public int read(final byte[] b) throws IOException {
         if (b == null) {
             return 0;
@@ -243,6 +249,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      * @return     one line of characters
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public int readLine(final CharArrayBuffer charbuffer) throws IOException {
         Args.notNull(charbuffer, "Char array buffer");
         int noRead = 0;
@@ -378,6 +385,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return len;
     }
 
+    @Override
     public String readLine() throws IOException {
         final CharArrayBuffer charbuffer = new CharArrayBuffer(64);
         final int l = readLine(charbuffer);
@@ -388,10 +396,12 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         }
     }
 
+    @Override
     public boolean isDataAvailable(final int timeout) throws IOException {
         return hasBufferedData();
     }
 
+    @Override
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }

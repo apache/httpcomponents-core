@@ -137,6 +137,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      *
      * @return total capacity.
      */
+    @Override
     public int capacity() {
         return this.buffer.capacity();
     }
@@ -157,6 +158,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      *
      * @return buffer length.
      */
+    @Override
     public int length() {
         setOutputMode();
         return this.buffer.remaining();
@@ -167,6 +169,7 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      *
      * @return buffer length.
      */
+    @Override
     public int available() {
         setInputMode();
         return this.buffer.remaining();

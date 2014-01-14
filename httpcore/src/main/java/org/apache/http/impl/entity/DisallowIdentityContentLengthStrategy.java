@@ -52,6 +52,7 @@ public class DisallowIdentityContentLengthStrategy implements ContentLengthStrat
         this.contentLengthStrategy = contentLengthStrategy;
     }
 
+    @Override
     public long determineLength(final HttpMessage message) throws HttpException {
         final long result = this.contentLengthStrategy.determineLength(message);
         if (result == ContentLengthStrategy.IDENTITY) {

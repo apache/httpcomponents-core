@@ -35,6 +35,7 @@ class BasicFutureCallback<T> implements FutureCallback<T> {
     private boolean failed;
     private boolean cancelled;
 
+    @Override
     public void completed(final T result) {
         this.result = result;
         this.completed = true;
@@ -48,11 +49,13 @@ class BasicFutureCallback<T> implements FutureCallback<T> {
         return this.ex;
     }
 
+    @Override
     public void failed(final Exception ex) {
         this.ex = ex;
         this.failed = true;
     }
 
+    @Override
     public void cancelled() {
         this.cancelled = true;
     }

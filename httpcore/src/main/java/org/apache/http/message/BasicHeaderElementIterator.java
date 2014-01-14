@@ -119,6 +119,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
         }
     }
 
+    @Override
     public boolean hasNext() {
         if (this.currentElement == null) {
             parseNextElement();
@@ -126,6 +127,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
         return this.currentElement != null;
     }
 
+    @Override
     public HeaderElement nextElement() throws NoSuchElementException {
         if (this.currentElement == null) {
             parseNextElement();
@@ -140,10 +142,12 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
         return element;
     }
 
+    @Override
     public final Object next() throws NoSuchElementException {
         return nextElement();
     }
 
+    @Override
     public void remove() throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Remove not supported");
     }

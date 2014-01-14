@@ -45,18 +45,22 @@ public class ByteChannelMock implements ByteChannel {
         this.writableChannel = writableChannel;
     }
 
+    @Override
     public int read(final ByteBuffer dst) throws IOException {
         return this.readableChannel.read(dst);
     }
 
+    @Override
     public int write(final ByteBuffer src) throws IOException {
         return this.writableChannel.write(src);
     }
 
+    @Override
     public boolean isOpen() {
         return !this.closed;
     }
 
+    @Override
     public void close() throws IOException {
         if (this.closed) {
             return;

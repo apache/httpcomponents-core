@@ -95,6 +95,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         this(DEFAULT_WAIT_FOR_CONTINUE);
     }
 
+    @Override
     public void connected(
             final NHttpClientConnection conn,
             final Object attachment) throws IOException, HttpException {
@@ -104,6 +105,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         requestReady(conn);
     }
 
+    @Override
     public void closed(final NHttpClientConnection conn) {
         final State state = getState(conn);
         final HttpAsyncClientExchangeHandler handler = getHandler(conn);
@@ -115,6 +117,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    @Override
     public void exception(
             final NHttpClientConnection conn, final Exception cause) {
         shutdownConnection(conn);
@@ -126,6 +129,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    @Override
     public void requestReady(
             final NHttpClientConnection conn) throws IOException, HttpException {
         final State state = ensureNotNull(getState(conn));
@@ -165,6 +169,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    @Override
     public void outputReady(
             final NHttpClientConnection conn,
             final ContentEncoder encoder) throws IOException, HttpException {
@@ -182,6 +187,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    @Override
     public void responseReceived(
             final NHttpClientConnection conn) throws HttpException, IOException {
         final State state = ensureNotNull(getState(conn));
@@ -228,6 +234,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    @Override
     public void inputReady(
             final NHttpClientConnection conn,
             final ContentDecoder decoder) throws IOException, HttpException {
@@ -240,6 +247,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    @Override
     public void endOfInput(final NHttpClientConnection conn) throws IOException {
         final State state = getState(conn);
         if (state != null) {
@@ -265,6 +273,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         conn.close();
     }
 
+    @Override
     public void timeout(
             final NHttpClientConnection conn) throws IOException {
         final State state = getState(conn);

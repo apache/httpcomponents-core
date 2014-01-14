@@ -130,6 +130,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         }
     }
 
+    @Override
     public void close() throws IOException {
         releaseResources();
         if (!this.future.isDone()) {
@@ -137,6 +138,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         }
     }
 
+    @Override
     public HttpRequest generateRequest() throws IOException, HttpException {
         final HttpRequest request = this.requestProducer.generateRequest();
         this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
@@ -145,16 +147,19 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         return request;
     }
 
+    @Override
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         this.requestProducer.produceContent(encoder, ioctrl);
     }
 
+    @Override
     public void requestCompleted() {
         this.requestProducer.requestCompleted(this.localContext);
         this.requestSent = true;
     }
 
+    @Override
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         this.httppocessor.process(response, this.localContext);
@@ -162,11 +167,13 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.keepAlive = this.connReuseStrategy.keepAlive(response, this.localContext);
     }
 
+    @Override
     public void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         this.responseConsumer.consumeContent(decoder, ioctrl);
     }
 
+    @Override
     public void responseCompleted() throws IOException {
         try {
             if (!this.keepAlive) {
@@ -187,10 +194,12 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         }
     }
 
+    @Override
     public void inputTerminated() {
         failed(new ConnectionClosedException("Connection closed"));
     }
 
+    @Override
     public void failed(final Exception ex) {
         try {
             if (!this.requestSent) {
@@ -206,6 +215,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         }
     }
 
+    @Override
     public boolean cancel() {
         try {
             final boolean cancelled = this.responseConsumer.cancel();
@@ -218,6 +228,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         }
     }
 
+    @Override
     public boolean isDone() {
         return this.responseConsumer.isDone();
     }

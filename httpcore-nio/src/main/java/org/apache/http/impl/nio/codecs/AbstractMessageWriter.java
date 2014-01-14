@@ -95,6 +95,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
         this.lineBuf = new CharArrayBuffer(64);
     }
 
+    @Override
     public void reset() {
     }
 
@@ -105,6 +106,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
      */
     protected abstract void writeHeadLine(T message) throws IOException;
 
+    @Override
     public void write(final T message) throws IOException, HttpException {
         Args.notNull(message, "HTTP message");
         writeHeadLine(message);

@@ -95,6 +95,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
 
     // non-javadoc, see interface HeaderValueFormatter
+    @Override
     public CharArrayBuffer formatElements(final CharArrayBuffer charBuffer,
                                           final HeaderElement[] elems,
                                           final boolean quote) {
@@ -161,6 +162,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
 
     // non-javadoc, see interface HeaderValueFormatter
+    @Override
     public CharArrayBuffer formatHeaderElement(final CharArrayBuffer charBuffer,
                                                final HeaderElement elem,
                                                final boolean quote) {
@@ -246,6 +248,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
 
     // non-javadoc, see interface HeaderValueFormatter
+    @Override
     public CharArrayBuffer formatParameters(final CharArrayBuffer charBuffer,
                                             final NameValuePair[] nvps,
                                             final boolean quote) {
@@ -311,6 +314,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
 
     // non-javadoc, see interface HeaderValueFormatter
+    @Override
     public CharArrayBuffer formatNameValuePair(final CharArrayBuffer charBuffer,
                                                final NameValuePair nvp,
                                                final boolean quote) {

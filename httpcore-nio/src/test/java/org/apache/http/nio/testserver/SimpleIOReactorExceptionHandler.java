@@ -33,6 +33,7 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 
 public class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandler {
 
+    @Override
     public boolean handle(final RuntimeException ex) {
         if (!(ex instanceof OoopsieRuntimeException)) {
             ex.printStackTrace(System.out);
@@ -40,6 +41,7 @@ public class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandle
         return false;
     }
 
+    @Override
     public boolean handle(final IOException ex) {
         ex.printStackTrace(System.out);
         return false;

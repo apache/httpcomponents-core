@@ -152,6 +152,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.trailerBufs.clear();
     }
 
+    @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
         if (this.state == COMPLETED) {

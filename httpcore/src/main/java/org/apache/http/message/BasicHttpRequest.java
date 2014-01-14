@@ -90,6 +90,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
      *
      * @see #BasicHttpRequest(String, String)
      */
+    @Override
     public ProtocolVersion getProtocolVersion() {
         return getRequestLine().getProtocolVersion();
     }
@@ -99,6 +100,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
      *
      * @see #BasicHttpRequest(String, String)
      */
+    @Override
     public RequestLine getRequestLine() {
         if (this.requestline == null) {
             this.requestline = new BasicRequestLine(this.method, this.uri, HttpVersion.HTTP_1_1);

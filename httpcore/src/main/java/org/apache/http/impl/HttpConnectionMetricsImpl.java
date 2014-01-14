@@ -67,6 +67,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
 
     /* ------------------  Public interface method -------------------------- */
 
+    @Override
     public long getReceivedBytesCount() {
         if (this.inTransportMetric != null) {
             return this.inTransportMetric.getBytesTransferred();
@@ -75,6 +76,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         }
     }
 
+    @Override
     public long getSentBytesCount() {
         if (this.outTransportMetric != null) {
             return this.outTransportMetric.getBytesTransferred();
@@ -83,6 +85,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         }
     }
 
+    @Override
     public long getRequestCount() {
         return this.requestCount;
     }
@@ -91,6 +94,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         this.requestCount++;
     }
 
+    @Override
     public long getResponseCount() {
         return this.responseCount;
     }
@@ -99,6 +103,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         this.responseCount++;
     }
 
+    @Override
     public Object getMetric(final String metricName) {
         Object value = null;
         if (this.metricsCache != null) {
@@ -133,6 +138,7 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
         this.metricsCache.put(metricName, obj);
     }
 
+    @Override
     public void reset() {
         if (this.outTransportMetric != null) {
             this.outTransportMetric.reset();

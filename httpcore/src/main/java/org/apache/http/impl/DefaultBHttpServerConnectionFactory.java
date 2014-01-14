@@ -85,6 +85,7 @@ public class DefaultBHttpServerConnectionFactory
         this(null, null, null, null, null);
     }
 
+    @Override
     public DefaultBHttpServerConnection createConnection(final Socket socket) throws IOException {
         final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(
                 this.cconfig.getBufferSize(),

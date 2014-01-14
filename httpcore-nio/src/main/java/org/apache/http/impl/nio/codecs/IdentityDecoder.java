@@ -72,6 +72,7 @@ public class IdentityDecoder extends AbstractContentDecoder
         this.completed = completed;
     }
 
+    @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
         if (this.completed) {
@@ -90,6 +91,7 @@ public class IdentityDecoder extends AbstractContentDecoder
         return bytesRead;
     }
 
+    @Override
     public long transfer(
             final FileChannel dst,
             final long position,

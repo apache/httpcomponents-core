@@ -43,6 +43,7 @@ public interface HeaderElementIterator extends Iterator<Object> {
      * @return  <code>true</code> if there is another header element,
      *          <code>false</code> otherwise
      */
+    @Override
     boolean hasNext();
 
     /**

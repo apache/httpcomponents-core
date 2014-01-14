@@ -104,6 +104,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
      */
     protected abstract void writeHeadLine(T message) throws IOException;
 
+    @Override
     public void write(final T message) throws IOException, HttpException {
         Args.notNull(message, "HTTP message");
         writeHeadLine(message);

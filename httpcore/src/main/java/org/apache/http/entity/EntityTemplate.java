@@ -50,25 +50,30 @@ public class EntityTemplate extends AbstractHttpEntity {
         this.contentproducer = Args.notNull(contentproducer, "Content producer");
     }
 
+    @Override
     public long getContentLength() {
         return -1;
     }
 
+    @Override
     public InputStream getContent() throws IOException {
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         writeTo(buf);
         return new ByteArrayInputStream(buf.toByteArray());
     }
 
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         this.contentproducer.writeTo(outstream);
     }
 
+    @Override
     public boolean isStreaming() {
         return false;
     }

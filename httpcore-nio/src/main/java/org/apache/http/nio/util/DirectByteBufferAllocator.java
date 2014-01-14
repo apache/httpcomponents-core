@@ -46,6 +46,7 @@ public class DirectByteBufferAllocator implements ByteBufferAllocator {
         super();
     }
 
+    @Override
     public ByteBuffer allocate(final int size) {
         return ByteBuffer.allocateDirect(size);
     }

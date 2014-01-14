@@ -110,6 +110,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,
@@ -187,6 +188,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final Cancellable cancellable = new Cancellable() {
 
+            @Override
             public boolean cancel() {
                 latch.countDown();
                 return true;
@@ -196,11 +198,13 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("/long", new HttpAsyncRequestHandler<HttpRequest>() {
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(final HttpRequest request,
                     final HttpContext context) {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpAsyncExchange httpexchange,
@@ -212,6 +216,7 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         });
         registry.register("/short", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,

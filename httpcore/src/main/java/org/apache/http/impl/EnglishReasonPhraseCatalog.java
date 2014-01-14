@@ -72,6 +72,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
      *
      * @return  the reason phrase, or <code>null</code>
      */
+    @Override
     public String getReason(final int status, final Locale loc) {
         Args.check(status >= 100 && status < 600, "Unknown category for status code " + status);
         final int category = status / 100;

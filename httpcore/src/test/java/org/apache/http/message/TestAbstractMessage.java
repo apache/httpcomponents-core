@@ -52,6 +52,7 @@ public class TestAbstractMessage {
             this(HttpVersion.HTTP_1_1);
         }
 
+        @Override
         public ProtocolVersion getProtocolVersion() {
             return ver;
         }

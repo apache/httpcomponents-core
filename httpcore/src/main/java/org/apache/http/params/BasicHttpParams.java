@@ -59,10 +59,12 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         super();
     }
 
+    @Override
     public Object getParameter(final String name) {
         return this.parameters.get(name);
     }
 
+    @Override
     public HttpParams setParameter(final String name, final Object value) {
         if (name == null) {
             return this;
@@ -75,6 +77,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         return this;
     }
 
+    @Override
     public boolean removeParameter(final String name) {
         //this is to avoid the case in which the key has a null value
         if (this.parameters.containsKey(name)) {
@@ -142,6 +145,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      *
      * @throws UnsupportedOperationException if the clone() fails
      */
+    @Override
     public HttpParams copy() {
         try {
             return (HttpParams) clone();

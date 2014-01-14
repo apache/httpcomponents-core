@@ -106,14 +106,17 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         return this.outstream != null;
     }
 
+    @Override
     public int capacity() {
         return this.buffer.capacity();
     }
 
+    @Override
     public int length() {
         return this.buffer.length();
     }
 
+    @Override
     public int available() {
         return capacity() - length();
     }
@@ -138,11 +141,13 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         }
     }
 
+    @Override
     public void flush() throws IOException {
         flushBuffer();
         flushStream();
     }
 
+    @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return;
@@ -168,6 +173,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         }
     }
 
+    @Override
     public void write(final byte[] b) throws IOException {
         if (b == null) {
             return;
@@ -175,6 +181,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         write(b, 0, b.length);
     }
 
+    @Override
     public void write(final int b) throws IOException {
         if (this.fragementSizeHint > 0) {
             if (this.buffer.isFull()) {
@@ -196,6 +203,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      * @param      s   the line.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void writeLine(final String s) throws IOException {
         if (s == null) {
             return;
@@ -222,6 +230,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      * @param      charbuffer the buffer containing chars of the line.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void writeLine(final CharArrayBuffer charbuffer) throws IOException {
         if (charbuffer == null) {
             return;
@@ -276,6 +285,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
         this.bbuf.compact();
     }
 
+    @Override
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }

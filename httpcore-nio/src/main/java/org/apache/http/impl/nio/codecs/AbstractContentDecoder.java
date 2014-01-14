@@ -73,6 +73,7 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
         this.metrics = metrics;
     }
 
+    @Override
     public boolean isCompleted() {
         return this.completed;
     }

@@ -369,6 +369,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
                 new HttpRequestInterceptor() {
 
+                    @Override
                     public void process(
                             final HttpRequest request,
                             final HttpContext context) throws HttpException, IOException {
@@ -441,6 +442,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsWithExpectationVerification() throws Exception {
         final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
+            @Override
             public void verify(
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException {
@@ -512,12 +514,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 this.requestHandler = new SimpleRequestHandler();
             }
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                     final HttpRequest request,
                     final HttpContext context) {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpAsyncExchange httpexchange,
@@ -576,6 +580,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsWithExpectationVerificationDelayedResponse() throws Exception {
         final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
+            @Override
             public void verify(
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException {
@@ -652,12 +657,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 super();
             }
 
+            @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                     final HttpRequest request,
                     final HttpContext context) {
                 return new BasicAsyncRequestConsumer();
             }
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpAsyncExchange httpexchange,
@@ -727,6 +734,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
+            @Override
             public void handle(
                     final HttpRequest request,
                     final HttpResponse response,

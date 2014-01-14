@@ -125,6 +125,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         super.bind(socket);
     }
 
+    @Override
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
         ensureOpen();
@@ -134,6 +135,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         return request;
     }
 
+    @Override
     public void receiveRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -142,6 +144,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         request.setEntity(entity);
     }
 
+    @Override
     public void sendResponseHeader(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
@@ -153,6 +156,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         }
     }
 
+    @Override
     public void sendResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
@@ -166,6 +170,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         outstream.close();
     }
 
+    @Override
     public void flush() throws IOException {
         ensureOpen();
         doFlush();

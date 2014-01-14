@@ -438,6 +438,7 @@ public class HttpService {
             this.resolver = resolver;
         }
 
+        @Override
         public HttpRequestHandler lookup(final HttpRequest request) {
             return resolver.lookup(request.getRequestLine().getUri());
         }

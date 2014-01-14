@@ -204,6 +204,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 address,
                 new ListenerEndpointClosedCallback() {
 
+                    @Override
                     public void endpointClosed(final ListenerEndpoint endpoint) {
                         endpoints.remove(endpoint);
                     }
@@ -211,6 +212,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 });
     }
 
+    @Override
     public ListenerEndpoint listen(final SocketAddress address) {
         Asserts.check(this.status.compareTo(IOReactorStatus.ACTIVE) <= 0,
                 "I/O reactor has been shut down");
@@ -266,6 +268,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
+    @Override
     public Set<ListenerEndpoint> getEndpoints() {
         final Set<ListenerEndpoint> set = new HashSet<ListenerEndpoint>();
         synchronized (this.endpoints) {
@@ -282,6 +285,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         return set;
     }
 
+    @Override
     public void pause() throws IOException {
         if (this.paused) {
             return;
@@ -298,6 +302,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
+    @Override
     public void resume() throws IOException {
         if (!this.paused) {
             return;

@@ -81,6 +81,7 @@ public class IdentityEncoder extends AbstractContentEncoder
         this(channel, buffer, metrics, 0);
     }
 
+    @Override
     public int write(final ByteBuffer src) throws IOException {
         if (src == null) {
             return 0;
@@ -118,6 +119,7 @@ public class IdentityEncoder extends AbstractContentEncoder
         return total;
     }
 
+    @Override
     public long transfer(
             final FileChannel src,
             final long position,

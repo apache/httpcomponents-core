@@ -91,6 +91,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
+    @Override
     public void reset() {
         if (this.shutdown) {
             return;
@@ -147,6 +148,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @deprecated (4.3) use {@link #produceContent(ContentEncoder, IOControl)}
      */
+    @Override
     @Deprecated
     public int produceContent(final ContentEncoder encoder) throws IOException {
         return produceContent(encoder, null);
@@ -209,6 +211,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
 
+    @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return;
@@ -241,6 +244,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         write(b, 0, b.length);
     }
 
+    @Override
     public void write(final int b) throws IOException {
         this.lock.lock();
         try {
@@ -256,6 +260,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
 
+    @Override
     public void flush() throws IOException {
     }
 
@@ -280,6 +285,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         }
     }
 
+    @Override
     public void writeCompleted() throws IOException {
         this.lock.lock();
         try {

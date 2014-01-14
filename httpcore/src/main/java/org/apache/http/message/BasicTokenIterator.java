@@ -88,6 +88,7 @@ public class BasicTokenIterator implements TokenIterator {
 
 
     // non-javadoc, see interface TokenIterator
+    @Override
     public boolean hasNext() {
         return (this.currentToken != null);
     }
@@ -101,6 +102,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @throws NoSuchElementException   if the iteration is already over
      * @throws ParseException   if an invalid header value is encountered
      */
+    @Override
     public String nextToken()
         throws NoSuchElementException, ParseException {
 
@@ -125,6 +127,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @throws NoSuchElementException   if there are no more tokens
      * @throws ParseException   if an invalid header value is encountered
      */
+    @Override
     public final Object next()
         throws NoSuchElementException, ParseException {
         return nextToken();
@@ -136,6 +139,7 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @throws UnsupportedOperationException    always
      */
+    @Override
     public final void remove()
         throws UnsupportedOperationException {
 

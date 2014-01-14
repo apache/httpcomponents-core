@@ -40,11 +40,13 @@ class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
         super();
     }
 
+    @Override
     public HttpAsyncRequestConsumer<Object> processRequest(
             final HttpRequest request, final HttpContext context) {
         return new NullRequestConsumer();
     }
 
+    @Override
     public void handle(
             final Object obj,
             final HttpAsyncExchange httpexchange,

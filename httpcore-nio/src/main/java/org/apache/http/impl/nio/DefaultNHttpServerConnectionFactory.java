@@ -151,6 +151,7 @@ public class DefaultNHttpServerConnectionFactory
         this(null, null, null, null, null, null);
     }
 
+    @Override
     public DefaultNHttpServerConnection createConnection(final IOSession session) {
         return new DefaultNHttpServerConnection(session,
                 this.cconfig.getBufferSize(),

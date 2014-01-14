@@ -44,6 +44,7 @@ public interface HttpConnection extends Closeable {
      * This method MUST NOT be called from a different thread to force
      * shutdown of the connection. Use {@link #shutdown shutdown} instead.
      */
+    @Override
     void close() throws IOException;
 
     /**

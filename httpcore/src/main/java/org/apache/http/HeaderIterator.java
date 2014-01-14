@@ -42,6 +42,7 @@ public interface HeaderIterator extends Iterator<Object> {
      * @return  <code>true</code> if there is another header,
      *          <code>false</code> otherwise
      */
+    @Override
     boolean hasNext();
 
     /**

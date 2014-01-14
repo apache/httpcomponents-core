@@ -75,6 +75,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         this(IDENTITY);
     }
 
+    @Override
     public long determineLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
 

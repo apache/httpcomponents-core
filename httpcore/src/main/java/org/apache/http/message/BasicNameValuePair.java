@@ -59,10 +59,12 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         this.value = value;
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
 
+    @Override
     public String getValue() {
         return this.value;
     }

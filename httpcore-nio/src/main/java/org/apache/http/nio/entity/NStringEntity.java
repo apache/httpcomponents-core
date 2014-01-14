@@ -146,10 +146,12 @@ public class NStringEntity extends AbstractHttpEntity
         this(s, ContentType.DEFAULT_TEXT);
     }
 
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
+    @Override
     public long getContentLength() {
         return this.b.length;
     }
@@ -159,6 +161,7 @@ public class NStringEntity extends AbstractHttpEntity
      *
      * @since 4.2
      */
+    @Override
     public void close() {
         this.buf.rewind();
     }
@@ -173,6 +176,7 @@ public class NStringEntity extends AbstractHttpEntity
         close();
     }
 
+    @Override
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         encoder.write(this.buf);
@@ -181,14 +185,17 @@ public class NStringEntity extends AbstractHttpEntity
         }
     }
 
+    @Override
     public boolean isStreaming() {
         return false;
     }
 
+    @Override
     public InputStream getContent() {
         return new ByteArrayInputStream(this.b);
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         outstream.write(this.b);

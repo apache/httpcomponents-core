@@ -70,6 +70,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         this.contentLength = contentLength;
     }
 
+    @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
         if (this.completed) {
@@ -103,6 +104,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         }
     }
 
+    @Override
     public long transfer(
             final FileChannel dst,
             final long position,

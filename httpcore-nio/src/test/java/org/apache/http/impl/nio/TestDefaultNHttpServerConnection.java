@@ -138,6 +138,7 @@ public class TestDefaultNHttpServerConnection {
             this.response = response;
         }
 
+        @Override
         public Void answer(final InvocationOnMock invocation) throws Throwable {
             final Object[] args = invocation.getArguments();
             final NHttpServerConnection conn = (NHttpServerConnection) args[0];
@@ -155,6 +156,7 @@ public class TestDefaultNHttpServerConnection {
             this.contentProducer = contentProducer;
         }
 
+        @Override
         public Void answer(final InvocationOnMock invocation) throws Throwable {
             final Object[] args = invocation.getArguments();
             final IOControl ioctrl = (IOControl) args[0];
@@ -420,6 +422,7 @@ public class TestDefaultNHttpServerConnection {
             this.requests = requests;
         }
 
+        @Override
         public Void answer(final InvocationOnMock invocation) throws Throwable {
             final Object[] args = invocation.getArguments();
             final NHttpServerConnection conn = (NHttpServerConnection) args[0];
@@ -443,6 +446,7 @@ public class TestDefaultNHttpServerConnection {
             this.buf = buf;
         }
 
+        @Override
         public Void answer(final InvocationOnMock invocation) throws Throwable {
             final Object[] args = invocation.getArguments();
             final ContentDecoder decoder = (ContentDecoder) args[1];

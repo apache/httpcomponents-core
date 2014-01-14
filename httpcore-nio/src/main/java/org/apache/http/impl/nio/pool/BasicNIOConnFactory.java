@@ -152,6 +152,7 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
         this(new DefaultNHttpClientConnectionFactory(config), null);
     }
 
+    @Override
     public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {
         final NHttpClientConnection conn;
         if (route.getSchemeName().equalsIgnoreCase("https")) {

@@ -55,10 +55,12 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         this.callback = callback;
     }
 
+    @Override
     public boolean isCancelled() {
         return this.cancelled;
     }
 
+    @Override
     public boolean isDone() {
         return this.completed;
     }
@@ -70,6 +72,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return this.result;
     }
 
+    @Override
     public synchronized T get() throws InterruptedException, ExecutionException {
         while (!this.completed) {
             wait();
@@ -77,6 +80,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return getResult();
     }
 
+    @Override
     public synchronized T get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         Args.notNull(unit, "Time unit");
@@ -132,6 +136,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return true;
     }
 
+    @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
         synchronized(this) {
             if (this.completed) {
@@ -147,6 +152,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return true;
     }
 
+    @Override
     public boolean cancel() {
         return cancel(true);
     }

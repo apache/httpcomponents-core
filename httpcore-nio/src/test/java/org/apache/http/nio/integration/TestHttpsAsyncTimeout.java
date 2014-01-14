@@ -115,14 +115,17 @@ public class TestHttpsAsyncTimeout extends HttpCoreNIOTestBase {
 
         final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
 
+            @Override
             public void cancelled() {
                 latch.countDown();
             }
 
+            @Override
             public void failed(final Exception ex) {
                 latch.countDown();
             }
 
+            @Override
             public void completed(final HttpResponse response) {
                 Assert.fail();
             }

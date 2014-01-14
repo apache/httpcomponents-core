@@ -204,6 +204,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         }
     }
 
+    @Override
     public SessionRequest connect(
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,

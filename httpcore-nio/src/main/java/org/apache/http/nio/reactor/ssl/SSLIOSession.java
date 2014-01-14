@@ -485,6 +485,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         }
     }
 
+    @Override
     public synchronized void close() {
         if (this.status >= CLOSING) {
             return;
@@ -494,6 +495,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         updateEventMask();
     }
 
+    @Override
     public synchronized void shutdown() {
         if (this.status == CLOSED) {
             return;
@@ -502,77 +504,94 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.session.shutdown();
     }
 
+    @Override
     public int getStatus() {
         return this.status;
     }
 
+    @Override
     public boolean isClosed() {
         return this.status >= CLOSING || this.session.isClosed();
     }
 
+    @Override
     public ByteChannel channel() {
         return this.channel;
     }
 
+    @Override
     public SocketAddress getLocalAddress() {
         return this.session.getLocalAddress();
     }
 
+    @Override
     public SocketAddress getRemoteAddress() {
         return this.session.getRemoteAddress();
     }
 
+    @Override
     public synchronized int getEventMask() {
         return this.appEventMask;
     }
 
+    @Override
     public synchronized void setEventMask(final int ops) {
         this.appEventMask = ops;
         updateEventMask();
     }
 
+    @Override
     public synchronized void setEvent(final int op) {
         this.appEventMask = this.appEventMask | op;
         updateEventMask();
     }
 
+    @Override
     public synchronized void clearEvent(final int op) {
         this.appEventMask = this.appEventMask & ~op;
         updateEventMask();
     }
 
+    @Override
     public int getSocketTimeout() {
         return this.session.getSocketTimeout();
     }
 
+    @Override
     public void setSocketTimeout(final int timeout) {
         this.session.setSocketTimeout(timeout);
     }
 
+    @Override
     public synchronized boolean hasBufferedInput() {
         return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput())
             || this.inEncrypted.position() > 0
             || this.inPlain.position() > 0;
     }
 
+    @Override
     public synchronized boolean hasBufferedOutput() {
         return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedOutput())
             || this.outEncrypted.position() > 0
             || this.outPlain.position() > 0;
     }
 
+    @Override
     public synchronized void setBufferStatus(final SessionBufferStatus status) {
         this.appBufferStatus = status;
     }
 
+    @Override
     public Object getAttribute(final String name) {
         return this.session.getAttribute(name);
     }
 
+    @Override
     public Object removeAttribute(final String name) {
         return this.session.removeAttribute(name);
     }
 
+    @Override
     public void setAttribute(final String name, final Object obj) {
         this.session.setAttribute(name, obj);
     }
@@ -627,6 +646,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         return buffer.toString();
     }
 
+    @Override
     public Socket getSocket(){
         if (this.session instanceof SocketAccessor){
             return ((SocketAccessor) this.session).getSocket();
@@ -637,18 +657,22 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
     private class InternalByteChannel implements ByteChannel {
 
+        @Override
         public int write(final ByteBuffer src) throws IOException {
             return SSLIOSession.this.writePlain(src);
         }
 
+        @Override
         public int read(final ByteBuffer dst) throws IOException {
             return SSLIOSession.this.readPlain(dst);
         }
 
+        @Override
         public void close() throws IOException {
             SSLIOSession.this.close();
         }
 
+        @Override
         public boolean isOpen() {
             return !SSLIOSession.this.isClosed();
         }

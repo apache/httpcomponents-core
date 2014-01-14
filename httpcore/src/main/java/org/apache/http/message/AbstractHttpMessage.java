@@ -64,63 +64,75 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public boolean containsHeader(final String name) {
         return this.headergroup.containsHeader(name);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public Header[] getHeaders(final String name) {
         return this.headergroup.getHeaders(name);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public Header getFirstHeader(final String name) {
         return this.headergroup.getFirstHeader(name);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public Header getLastHeader(final String name) {
         return this.headergroup.getLastHeader(name);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public Header[] getAllHeaders() {
         return this.headergroup.getAllHeaders();
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public void addHeader(final Header header) {
         this.headergroup.addHeader(header);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public void addHeader(final String name, final String value) {
         Args.notNull(name, "Header name");
         this.headergroup.addHeader(new BasicHeader(name, value));
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public void setHeader(final Header header) {
         this.headergroup.updateHeader(header);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public void setHeader(final String name, final String value) {
         Args.notNull(name, "Header name");
         this.headergroup.updateHeader(new BasicHeader(name, value));
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public void setHeaders(final Header[] headers) {
         this.headergroup.setHeaders(headers);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public void removeHeader(final Header header) {
         this.headergroup.removeHeader(header);
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public void removeHeaders(final String name) {
         if (name == null) {
             return;
@@ -134,11 +146,13 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public HeaderIterator headerIterator() {
         return this.headergroup.iterator();
     }
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public HeaderIterator headerIterator(final String name) {
         return this.headergroup.iterator(name);
     }
@@ -146,6 +160,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     /**
      * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
+    @Override
     @Deprecated
     public HttpParams getParams() {
         if (this.params == null) {
@@ -157,6 +172,7 @@ public abstract class AbstractHttpMessage implements HttpMessage {
     /**
      * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
      */
+    @Override
     @Deprecated
     public void setParams(final HttpParams params) {
         this.params = Args.notNull(params, "HTTP parameters");

@@ -45,6 +45,7 @@ public interface TokenIterator extends Iterator<Object> {
      * @return  <code>true</code> if there is another token,
      *          <code>false</code> otherwise
      */
+    @Override
     boolean hasNext();
 
     /**

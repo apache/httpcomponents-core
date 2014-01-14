@@ -36,6 +36,7 @@ public class LoggingClientConnectionFactory implements NHttpConnectionFactory<De
         super();
     }
 
+    @Override
     public DefaultNHttpClientConnection createConnection(final IOSession session) {
         return new LoggingNHttpClientConnection(session);
     }

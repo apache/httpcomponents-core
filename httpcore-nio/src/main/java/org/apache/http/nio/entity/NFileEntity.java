@@ -129,6 +129,7 @@ public class NFileEntity extends AbstractHttpEntity
      *
      * @since 4.2
      */
+    @Override
     public void close() throws IOException {
         if (accessfile != null) {
             accessfile.close();
@@ -147,14 +148,17 @@ public class NFileEntity extends AbstractHttpEntity
         close();
     }
 
+    @Override
     public long getContentLength() {
         return file.length();
     }
 
+    @Override
     public boolean isRepeatable() {
         return true;
     }
 
+    @Override
     public void produceContent(final ContentEncoder encoder, final IOControl ioctrl)
             throws IOException {
         if (accessfile == null) {
@@ -182,14 +186,17 @@ public class NFileEntity extends AbstractHttpEntity
         }
     }
 
+    @Override
     public boolean isStreaming() {
         return false;
     }
 
+    @Override
     public InputStream getContent() throws IOException {
         return new FileInputStream(this.file);
     }
 
+    @Override
     public void writeTo(final OutputStream outstream) throws IOException {
         Args.notNull(outstream, "Output stream");
         final InputStream instream = new FileInputStream(this.file);

@@ -54,11 +54,13 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
+    @Override
     public void reset() {
         this.endOfStream = false;
         super.clear();
     }
 
+    @Override
     public int consumeContent(final ContentDecoder decoder) throws IOException {
         setInputMode();
         int totalRead = 0;
@@ -84,6 +86,7 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         return !hasData() && this.endOfStream;
     }
 
+    @Override
     public int read() throws IOException {
         if (isEndOfStream()) {
             return -1;
@@ -92,6 +95,7 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         return this.buffer.get() & 0xff;
     }
 
+    @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
         if (isEndOfStream()) {
             return -1;

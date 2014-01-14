@@ -124,6 +124,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
         this(null, responseInterceptors);
     }
 
+    @Override
     public void process(
             final HttpRequest request,
             final HttpContext context) throws IOException, HttpException {
@@ -132,6 +133,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
         }
     }
 
+    @Override
     public void process(
             final HttpResponse response,
             final HttpContext context) throws IOException, HttpException {

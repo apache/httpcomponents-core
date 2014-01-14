@@ -121,11 +121,13 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
 
 
     // non-javadoc, see interface HttpMessage
+    @Override
     public ProtocolVersion getProtocolVersion() {
         return this.ver;
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public StatusLine getStatusLine() {
         if (this.statusline == null) {
             this.statusline = new BasicStatusLine(
@@ -137,15 +139,18 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public HttpEntity getEntity() {
         return this.entity;
     }
 
+    @Override
     public Locale getLocale() {
         return this.locale;
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public void setStatusLine(final StatusLine statusline) {
         this.statusline = Args.notNull(statusline, "Status line");
         this.ver = statusline.getProtocolVersion();
@@ -154,6 +159,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public void setStatusLine(final ProtocolVersion ver, final int code) {
         Args.notNegative(code, "Status code");
         this.statusline = null;
@@ -163,6 +169,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public void setStatusLine(
             final ProtocolVersion ver, final int code, final String reason) {
         Args.notNegative(code, "Status code");
@@ -173,6 +180,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public void setStatusCode(final int code) {
         Args.notNegative(code, "Status code");
         this.statusline = null;
@@ -181,16 +189,19 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public void setReasonPhrase(final String reason) {
         this.statusline = null;
         this.reasonPhrase = reason;
     }
 
     // non-javadoc, see interface HttpResponse
+    @Override
     public void setEntity(final HttpEntity entity) {
         this.entity = entity;
     }
 
+    @Override
     public void setLocale(final Locale locale) {
         this.locale =  Args.notNull(locale, "Locale");
         this.statusline = null;

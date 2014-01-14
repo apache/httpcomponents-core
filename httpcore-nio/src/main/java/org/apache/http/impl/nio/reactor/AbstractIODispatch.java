@@ -63,6 +63,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         Asserts.notNull(conn, "HTTP connection");
     }
 
+    @Override
     public void connected(final IOSession session) {
         @SuppressWarnings("unchecked")
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
@@ -92,6 +93,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         }
     }
 
+    @Override
     public void disconnected(final IOSession session) {
         @SuppressWarnings("unchecked")
         final
@@ -101,6 +103,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         }
     }
 
+    @Override
     public void inputReady(final IOSession session) {
         @SuppressWarnings("unchecked")
         final
@@ -131,6 +134,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         }
     }
 
+    @Override
     public void outputReady(final IOSession session) {
         @SuppressWarnings("unchecked")
         final
@@ -161,6 +165,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         }
     }
 
+    @Override
     public void timeout(final IOSession session) {
         @SuppressWarnings("unchecked")
         final

@@ -164,6 +164,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      * or {@link Future#get(long, TimeUnit)} method on the {@link Future}
      * returned by this method in order for the lease operation to complete.
      */
+    @Override
     public Future<E> lease(final T route, final Object state, final FutureCallback<E> callback) {
         Args.notNull(route, "Route");
         Asserts.check(!this.isShutDown, "Connection pool shut down");
@@ -300,6 +301,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public void release(final E entry, final boolean reusable) {
         this.lock.lock();
         try {
@@ -336,6 +338,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public void setMaxTotal(final int max) {
         Args.notNegative(max, "Max value");
         this.lock.lock();
@@ -346,6 +349,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public int getMaxTotal() {
         this.lock.lock();
         try {
@@ -355,6 +359,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public void setDefaultMaxPerRoute(final int max) {
         Args.notNegative(max, "Max per route value");
         this.lock.lock();
@@ -365,6 +370,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public int getDefaultMaxPerRoute() {
         this.lock.lock();
         try {
@@ -374,6 +380,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public void setMaxPerRoute(final T route, final int max) {
         Args.notNull(route, "Route");
         Args.notNegative(max, "Max per route value");
@@ -385,6 +392,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public int getMaxPerRoute(final T route) {
         Args.notNull(route, "Route");
         this.lock.lock();
@@ -395,6 +403,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public PoolStats getTotalStats() {
         this.lock.lock();
         try {
@@ -408,6 +417,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
     }
 
+    @Override
     public PoolStats getStats(final T route) {
         Args.notNull(route, "Route");
         this.lock.lock();
@@ -490,6 +500,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         final long deadline = System.currentTimeMillis() - time;
         enumAvailable(new PoolEntryCallback<T, C>() {
 
+            @Override
             public void process(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
                     entry.close();
@@ -507,6 +518,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         final long now = System.currentTimeMillis();
         enumAvailable(new PoolEntryCallback<T, C>() {
 
+            @Override
             public void process(final PoolEntry<T, C> entry) {
                 if (entry.isExpired(now)) {
                     entry.close();

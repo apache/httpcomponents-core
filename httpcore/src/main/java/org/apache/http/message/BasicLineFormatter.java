@@ -106,6 +106,7 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
+    @Override
     public CharArrayBuffer appendProtocolVersion(final CharArrayBuffer buffer,
                                                  final ProtocolVersion version) {
         Args.notNull(version, "Protocol version");
@@ -160,6 +161,7 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
+    @Override
     public CharArrayBuffer formatRequestLine(final CharArrayBuffer buffer,
                                              final RequestLine reqline) {
         Args.notNull(reqline, "Request line");
@@ -215,6 +217,7 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
+    @Override
     public CharArrayBuffer formatStatusLine(final CharArrayBuffer buffer,
                                             final StatusLine statline) {
         Args.notNull(statline, "Status line");
@@ -272,6 +275,7 @@ public class BasicLineFormatter implements LineFormatter {
 
 
     // non-javadoc, see interface LineFormatter
+    @Override
     public CharArrayBuffer formatHeader(final CharArrayBuffer buffer,
                                         final Header header) {
         Args.notNull(header, "Header");

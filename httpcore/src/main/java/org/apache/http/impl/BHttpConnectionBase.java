@@ -172,6 +172,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         this.outbuffer.flush();
     }
 
+    @Override
     public boolean isOpen() {
         return this.open;
     }
@@ -239,6 +240,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         return entity;
     }
 
+    @Override
     public InetAddress getLocalAddress() {
         if (this.socket != null) {
             return this.socket.getLocalAddress();
@@ -247,6 +249,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    @Override
     public int getLocalPort() {
         if (this.socket != null) {
             return this.socket.getLocalPort();
@@ -255,6 +258,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    @Override
     public InetAddress getRemoteAddress() {
         if (this.socket != null) {
             return this.socket.getInetAddress();
@@ -263,6 +267,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    @Override
     public int getRemotePort() {
         if (this.socket != null) {
             return this.socket.getPort();
@@ -271,6 +276,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    @Override
     public void setSocketTimeout(final int timeout) {
         if (this.socket != null) {
             try {
@@ -283,6 +289,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    @Override
     public int getSocketTimeout() {
         if (this.socket != null) {
             try {
@@ -295,6 +302,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    @Override
     public void shutdown() throws IOException {
         this.open = false;
         final Socket tmpsocket = this.socket;
@@ -303,6 +311,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         }
     }
 
+    @Override
     public void close() throws IOException {
         if (!this.open) {
             return;
@@ -347,6 +356,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         return this.inbuffer.hasBufferedData();
     }
 
+    @Override
     public boolean isStale() {
         if (!isOpen()) {
             return true;
@@ -369,6 +379,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         this.connMetrics.incrementResponseCount();
     }
 
+    @Override
     public HttpConnectionMetrics getMetrics() {
         return this.connMetrics;
     }

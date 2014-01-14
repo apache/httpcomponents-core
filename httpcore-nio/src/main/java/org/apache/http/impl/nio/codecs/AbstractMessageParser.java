@@ -125,6 +125,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         this.endOfStream = false;
     }
 
+    @Override
     public void reset() {
         this.state = READ_HEAD_LINE;
         this.endOfStream = false;
@@ -132,6 +133,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         this.message = null;
     }
 
+    @Override
     public int fillBuffer(final ReadableByteChannel channel) throws IOException {
         final int bytesRead = this.sessionBuffer.fill(channel);
         if (bytesRead == -1) {
@@ -182,6 +184,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         }
     }
 
+    @Override
     public T parse() throws IOException, HttpException {
         while (this.state != COMPLETED) {
             if (this.lineBuf == null) {

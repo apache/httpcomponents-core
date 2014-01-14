@@ -96,6 +96,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         return (int) Math.min(Math.min(this.remaining, Integer.MAX_VALUE), src.remaining());
     }
 
+    @Override
     public int write(final ByteBuffer src) throws IOException {
         if (src == null) {
             return 0;
@@ -143,6 +144,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
         return total;
     }
 
+    @Override
     public long transfer(
             final FileChannel src,
             final long position,

@@ -113,6 +113,7 @@ public class BasicLineParser implements LineParser {
 
 
     // non-javadoc, see interface LineParser
+    @Override
     public ProtocolVersion parseProtocolVersion(final CharArrayBuffer buffer,
                                                 final ParserCursor cursor) throws ParseException {
         Args.notNull(buffer, "Char array buffer");
@@ -202,6 +203,7 @@ public class BasicLineParser implements LineParser {
 
 
     // non-javadoc, see interface LineParser
+    @Override
     public boolean hasProtocolVersion(final CharArrayBuffer buffer,
                                       final ParserCursor cursor) {
         Args.notNull(buffer, "Char array buffer");
@@ -270,6 +272,7 @@ public class BasicLineParser implements LineParser {
      *
      * @throws ParseException        in case of a parse error
      */
+    @Override
     public RequestLine parseRequestLine(final CharArrayBuffer buffer,
                                         final ParserCursor cursor) throws ParseException {
 
@@ -349,6 +352,7 @@ public class BasicLineParser implements LineParser {
 
 
     // non-javadoc, see interface LineParser
+    @Override
     public StatusLine parseStatusLine(final CharArrayBuffer buffer,
                                       final ParserCursor cursor) throws ParseException {
         Args.notNull(buffer, "Char array buffer");
@@ -432,6 +436,7 @@ public class BasicLineParser implements LineParser {
 
 
     // non-javadoc, see interface LineParser
+    @Override
     public Header parseHeader(final CharArrayBuffer buffer)
         throws ParseException {
 

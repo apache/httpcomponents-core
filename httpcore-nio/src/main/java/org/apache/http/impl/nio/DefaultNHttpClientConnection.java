@@ -217,12 +217,14 @@ public class DefaultNHttpClientConnection
     protected void onRequestSubmitted(final HttpRequest request) {
     }
 
+    @Override
     public void resetInput() {
         this.response = null;
         this.contentDecoder = null;
         this.responseParser.reset();
     }
 
+    @Override
     public void resetOutput() {
         this.request = null;
         this.contentEncoder = null;
@@ -316,6 +318,7 @@ public class DefaultNHttpClientConnection
         }
     }
 
+    @Override
     public void submitRequest(final HttpRequest request) throws IOException, HttpException {
         Args.notNull(request, "HTTP request");
         assertNotClosed();
@@ -335,14 +338,17 @@ public class DefaultNHttpClientConnection
         this.session.setEvent(EventMask.WRITE);
     }
 
+    @Override
     public boolean isRequestSubmitted() {
         return this.request != null;
     }
 
+    @Override
     public void consumeInput(final NHttpClientHandler handler) {
         consumeInput(new NHttpClientEventHandlerAdaptor(handler));
     }
 
+    @Override
     public void produceOutput(final NHttpClientHandler handler) {
         produceOutput(new NHttpClientEventHandlerAdaptor(handler));
     }

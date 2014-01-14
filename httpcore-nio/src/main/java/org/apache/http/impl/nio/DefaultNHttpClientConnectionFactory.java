@@ -164,6 +164,7 @@ public class DefaultNHttpClientConnectionFactory
         return new DefaultNHttpClientConnection(session, responseFactory, allocator, params);
     }
 
+    @Override
     public DefaultNHttpClientConnection createConnection(final IOSession session) {
         return new DefaultNHttpClientConnection(
                 session,
