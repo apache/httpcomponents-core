@@ -1,3 +1,12 @@
+Changes since release 4.3.1
+-------------------
+
+* (Regression) Fixed synchronization issue in blocking and non-blocking connection pool 
+  implementations caused by HTTPCORE-362
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 4.3.1
 -------------------
 
