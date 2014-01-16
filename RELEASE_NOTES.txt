@@ -1,6 +1,9 @@
 Changes since release 4.3.1
 -------------------
 
+* [HTTPCORE-370] Race condition if connection request succeeds and times out at the same time.  
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * (Regression) Fixed synchronization issue in blocking and non-blocking connection pool 
   implementations caused by HTTPCORE-362
   Contributed by Oleg Kalnichevski <olegk at apache.org>
