@@ -441,7 +441,17 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     protected void enumAvailable(final PoolEntryCallback<T, C> callback) {
         this.lock.lock();
         try {
-            enumEntries(this.available.iterator(), callback);
+            final Iterator<E> it = this.available.iterator();
+            while (it.hasNext()) {
+                final E entry = it.next();
+                callback.process(entry);
+                if (entry.isClosed()) {
+                    final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
+                    pool.remove(entry);
+                    it.remove();
+                }
+            }
+            purgePoolMap();
         } finally {
             this.lock.unlock();
         }
@@ -455,21 +465,13 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     protected void enumLeased(final PoolEntryCallback<T, C> callback) {
         this.lock.lock();
         try {
-            enumEntries(this.leased.iterator(), callback);
+            final Iterator<E> it = this.leased.iterator();
+            while (it.hasNext()) {
+                final E entry = it.next();
+                callback.process(entry);
+            }
         } finally {
             this.lock.unlock();
-        }
-    }
-
-    private void enumEntries(final Iterator<E> it, final PoolEntryCallback<T, C> callback) {
-        while (it.hasNext()) {
-            final E entry = it.next();
-            callback.process(entry);
-            if (entry.isClosed()) {
-                final RouteSpecificPool<T, C, E> pool = getPool(entry.getRoute());
-                pool.remove(entry);
-                it.remove();
-            }
         }
     }
 
@@ -508,7 +510,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         });
-        purgePoolMap();
     }
 
     /**
@@ -526,7 +527,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         });
-        purgePoolMap();
     }
 
     @Override
