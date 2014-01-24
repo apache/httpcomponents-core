@@ -149,11 +149,9 @@ public class SessionRequestImpl implements SessionRequest {
         if (key != null) {
             key.cancel();
             final Channel channel = key.channel();
-            if (channel.isOpen()) {
-                try {
-                    channel.close();
-                } catch (final IOException ignore) {}
-            }
+            try {
+                channel.close();
+            } catch (final IOException ignore) {}
         }
         synchronized (this) {
             this.exception = exception;

@@ -28,7 +28,6 @@
 package org.apache.http.nio.reactor.ssl;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -43,6 +42,7 @@ import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
+import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
@@ -99,12 +99,16 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      *
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
      * @param sslMode SSL mode (client or server)
+     * @param host original host (applicable in client mode only)
      * @param sslContext SSL context to use for this I/O session.
      * @param handler optional SSL setup handler. May be <code>null</code>.
+     *
+     * @since 4.4
      */
     public SSLIOSession(
             final IOSession session,
             final SSLMode sslMode,
+            final HttpHost host,
             final SSLContext sslContext,
             final SSLSetupHandler handler) {
         super();
@@ -119,15 +123,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         // Override the status buffer interface
         this.session.setBufferStatus(this);
 
-        if (this.sslMode == SSLMode.CLIENT) {
-            final SocketAddress address = session.getRemoteAddress();
-            if (address instanceof InetSocketAddress) {
-                final String hostname = ((InetSocketAddress) address).getHostName();
-                final int port = ((InetSocketAddress) address).getPort();
-                this.sslEngine = sslContext.createSSLEngine(hostname, port);
-            } else {
-                this.sslEngine = sslContext.createSSLEngine();
-            }
+        if (this.sslMode == SSLMode.CLIENT && host != null) {
+            this.sslEngine = sslContext.createSSLEngine(host.getHostName(), host.getPort());
         } else {
             this.sslEngine = sslContext.createSSLEngine();
         }
@@ -141,6 +138,22 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         final int appBuffersize = this.sslEngine.getSession().getApplicationBufferSize();
         this.inPlain = ByteBuffer.allocate(appBuffersize);
         this.outPlain = ByteBuffer.allocate(appBuffersize);
+    }
+
+    /**
+     * Creates new instance of <tt>SSLIOSession</tt> class.
+     *
+     * @param session I/O session to be decorated with the TLS/SSL capabilities.
+     * @param sslMode SSL mode (client or server)
+     * @param sslContext SSL context to use for this I/O session.
+     * @param handler optional SSL setup handler. May be <code>null</code>.
+     */
+    public SSLIOSession(
+            final IOSession session,
+            final SSLMode sslMode,
+            final SSLContext sslContext,
+            final SSLSetupHandler handler) {
+        this(session, sslMode, null, sslContext, handler);
     }
 
     protected SSLSetupHandler getSSLSetupHandler() {

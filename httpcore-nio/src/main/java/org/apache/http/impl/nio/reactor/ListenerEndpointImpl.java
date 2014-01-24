@@ -143,11 +143,9 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         if (this.key != null) {
             this.key.cancel();
             final Channel channel = this.key.channel();
-            if (channel.isOpen()) {
-                try {
-                    channel.close();
-                } catch (final IOException ignore) {}
-            }
+            try {
+                channel.close();
+            } catch (final IOException ignore) {}
         }
         if (this.callback != null) {
             this.callback.endpointClosed(this);

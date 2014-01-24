@@ -55,6 +55,7 @@ public final class IOReactorConfig implements Cloneable {
     private int connectTimeout;
     private int sndBufSize;
     private int rcvBufSize;
+    private int backlogSize;
 
     @Deprecated
     public IOReactorConfig() {
@@ -71,6 +72,7 @@ public final class IOReactorConfig implements Cloneable {
         this.connectTimeout = 0;
         this.sndBufSize = 0;
         this.rcvBufSize = 0;
+        this.backlogSize = 0;
     }
 
     IOReactorConfig(
@@ -85,7 +87,8 @@ public final class IOReactorConfig implements Cloneable {
             final boolean tcpNoDelay,
             final int connectTimeout,
             final int sndBufSize,
-            final int rcvBufSize) {
+            final int rcvBufSize,
+            final int backlogSize) {
         super();
         this.selectInterval = selectInterval;
         this.shutdownGracePeriod = shutdownGracePeriod;
@@ -99,6 +102,7 @@ public final class IOReactorConfig implements Cloneable {
         this.connectTimeout = connectTimeout;
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
+        this.backlogSize = backlogSize;
     }
 
     /**
@@ -336,6 +340,17 @@ public final class IOReactorConfig implements Cloneable {
         this.rcvBufSize = rcvBufSize;
     }
 
+    /**
+     * Determines the default backlog size value for server sockets binds.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @since 4.4
+     */
+    public int getBacklogSize() {
+        return backlogSize;
+    }
+
     @Override
     protected IOReactorConfig clone() throws CloneNotSupportedException {
         return (IOReactorConfig) super.clone();
@@ -357,7 +372,10 @@ public final class IOReactorConfig implements Cloneable {
             .setSoLinger(config.getSoLinger())
             .setSoKeepAlive(config.isSoKeepalive())
             .setTcpNoDelay(config.isTcpNoDelay())
-            .setConnectTimeout(config.getConnectTimeout());
+            .setConnectTimeout(config.getConnectTimeout())
+            .setSndBufSize(config.getSndBufSize())
+            .setRcvBufSize(config.getRcvBufSize())
+            .setBacklogSize(config.getBacklogSize());
     }
 
     public static class Builder {
@@ -374,6 +392,7 @@ public final class IOReactorConfig implements Cloneable {
         private int connectTimeout;
         private int sndBufSize;
         private int rcvBufSize;
+        private int backlogSize;
 
         Builder() {
             this.selectInterval = 1000;
@@ -388,6 +407,7 @@ public final class IOReactorConfig implements Cloneable {
             this.connectTimeout = 0;
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
+            this.backlogSize = 0;
         }
 
         public Builder setSelectInterval(final long selectInterval) {
@@ -450,11 +470,16 @@ public final class IOReactorConfig implements Cloneable {
             return this;
         }
 
+        public Builder setBacklogSize(final int backlogSize) {
+            this.backlogSize = backlogSize;
+            return this;
+        }
+
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval, shutdownGracePeriod, interestOpQueued, ioThreadCount,
                     soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
-                    connectTimeout, sndBufSize, rcvBufSize);
+                    connectTimeout, sndBufSize, rcvBufSize, backlogSize);
         }
 
     }
@@ -474,6 +499,7 @@ public final class IOReactorConfig implements Cloneable {
                 .append(", connectTimeout=").append(this.connectTimeout)
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
+                .append(", backlogSize=").append(this.backlogSize)
                 .append("]");
         return builder.toString();
     }

@@ -242,7 +242,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                     socket.setReceiveBufferSize(this.config.getRcvBufSize());
                 }
                 serverChannel.configureBlocking(false);
-                socket.bind(address);
+                socket.bind(address, this.config.getBacklogSize());
             } catch (final IOException ex) {
                 closeChannel(serverChannel);
                 request.failed(ex);
