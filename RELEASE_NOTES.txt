@@ -1,6 +1,15 @@
 Changes since release 4.3.1
 -------------------
 
+* [HTTPCORE-368] Customizable buffer management strategies for SSLIOSession.
+  Contributed by offbynull <offbynull at gmail.com>
+
+* [HTTPCORE-358] Added I/O reactor listener backlog parameter.
+  Contributed by Dmitry Potapov <potapov.d at gmail.com>
+    
+* [HTTPCORE-357] Avoid DNS lookups in SSLIOSession.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * (Regression) Fixed synchronization issue in blocking and non-blocking connection pool 
   implementations caused by HTTPCORE-362
   Contributed by Oleg Kalnichevski <olegk at apache.org>

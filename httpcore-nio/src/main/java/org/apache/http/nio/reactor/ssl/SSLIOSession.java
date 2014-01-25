@@ -77,12 +77,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      */
     public static final String SESSION_KEY = "http.session.ssl";
 
+    private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
+
     private final IOSession session;
     private final SSLEngine sslEngine;
-    private final ByteBuffer inEncrypted;
-    private final ByteBuffer outEncrypted;
-    private final ByteBuffer inPlain;
-    private final ByteBuffer outPlain;
+    private final SSLBuffer inEncrypted;
+    private final SSLBuffer outEncrypted;
+    private final SSLBuffer inPlain;
+    private final SSLBuffer outPlain;
     private final InternalByteChannel channel;
     private final SSLSetupHandler handler;
 
@@ -95,7 +97,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private volatile boolean initialized;
 
     /**
-     * Creates new instance of <tt>SSLIOSession</tt> class.
+     * Creates new instance of <tt>SSLIOSession</tt> class. The instances created uses a
+     * {@link PermanentSSLBufferManagementStrategy} to manage its buffers.
      *
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
      * @param sslMode SSL mode (client or server)
@@ -111,9 +114,30 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             final HttpHost host,
             final SSLContext sslContext,
             final SSLSetupHandler handler) {
+        this(session, sslMode, host, sslContext, handler, new PermanentSSLBufferManagementStrategy());
+    }
+
+    /**
+     * Creates new instance of <tt>SSLIOSession</tt> class.
+     *
+     * @param session I/O session to be decorated with the TLS/SSL capabilities.
+     * @param sslMode SSL mode (client or server)
+     * @param host original host (applicable in client mode only)
+     * @param sslContext SSL context to use for this I/O session.
+     * @param handler optional SSL setup handler. May be <code>null</code>.
+     * @param bufferManagementStrategy buffer management strategy
+     */
+    public SSLIOSession(
+            final IOSession session,
+            final SSLMode sslMode,
+            final HttpHost host,
+            final SSLContext sslContext,
+            final SSLSetupHandler handler,
+            final SSLBufferManagementStrategy bufferManagementStrategy) {
         super();
         Args.notNull(session, "IO session");
         Args.notNull(sslContext, "SSL context");
+        Args.notNull(bufferManagementStrategy, "Buffer management strategy");
         this.session = session;
         this.sslMode = sslMode;
         this.appEventMask = session.getEventMask();
@@ -131,13 +155,13 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
         // Allocate buffers for network (encrypted) data
         final int netBuffersize = this.sslEngine.getSession().getPacketBufferSize();
-        this.inEncrypted = ByteBuffer.allocate(netBuffersize);
-        this.outEncrypted = ByteBuffer.allocate(netBuffersize);
+        this.inEncrypted = bufferManagementStrategy.constructBuffer(netBuffersize);
+        this.outEncrypted = bufferManagementStrategy.constructBuffer(netBuffersize);
 
         // Allocate buffers for application (unencrypted) data
         final int appBuffersize = this.sslEngine.getSession().getApplicationBufferSize();
-        this.inPlain = ByteBuffer.allocate(appBuffersize);
-        this.outPlain = ByteBuffer.allocate(appBuffersize);
+        this.inPlain = bufferManagementStrategy.constructBuffer(appBuffersize);
+        this.outPlain = bufferManagementStrategy.constructBuffer(appBuffersize);
     }
 
     /**
@@ -208,6 +232,12 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         }
         this.initialized = true;
         this.sslEngine.beginHandshake();
+
+        this.inEncrypted.release();
+        this.outEncrypted.release();
+        this.inPlain.release();
+        this.outPlain.release();
+
         doHandshake();
     }
 
@@ -263,23 +293,55 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             switch (this.sslEngine.getHandshakeStatus()) {
             case NEED_WRAP:
                 // Generate outgoing handshake data
-                this.outPlain.flip();
-                result = doWrap(this.outPlain, this.outEncrypted);
-                this.outPlain.compact();
+
+                // Acquire buffers
+                ByteBuffer outPlainBuf = this.outPlain.acquire();
+                final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+
+                // Perform operations
+                outPlainBuf.flip();
+                result = doWrap(outPlainBuf, outEncryptedBuf);
+                outPlainBuf.compact();
+
+                // Release outPlain if empty
+                if (outPlainBuf.position() == 0) {
+                    this.outPlain.release();
+                    outPlainBuf = null;
+                }
+
+
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
                 }
                 break;
             case NEED_UNWRAP:
                 // Process incoming handshake data
-                this.inEncrypted.flip();
-                result = doUnwrap(this.inEncrypted, this.inPlain);
-                this.inEncrypted.compact();
-                if (!this.inEncrypted.hasRemaining() && result.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
-                    throw new SSLException("Input buffer is full");
+
+                // Acquire buffers
+                ByteBuffer inEncryptedBuf = this.inEncrypted.acquire();
+                ByteBuffer inPlainBuf = this.inPlain.acquire();
+
+                // Perform operations
+                inEncryptedBuf.flip();
+                result = doUnwrap(inEncryptedBuf, inPlainBuf);
+                inEncryptedBuf.compact();
+
+
+                try {
+                    if (!inEncryptedBuf.hasRemaining() && result.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
+                        throw new SSLException("Input buffer is full");
+                    }
+                } finally {
+                    // Release inEncrypted if empty
+                    if (inEncryptedBuf.position() == 0) {
+                        this.inEncrypted.release();
+                        inEncryptedBuf = null;
+                    }
                 }
+
                 if (this.status >= IOSession.CLOSING) {
-                    this.inPlain.clear();
+                    this.inPlain.release();
+                    inPlainBuf = null;
                 }
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
@@ -341,7 +403,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         }
 
         // Do we have encrypted data ready to be sent?
-        if (this.outEncrypted.position() > 0) {
+        if (this.outEncrypted.hasData()) {
             newMask = newMask | EventMask.WRITE;
         }
 
@@ -352,9 +414,26 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     private int sendEncryptedData() throws IOException {
-        this.outEncrypted.flip();
-        final int bytesWritten = this.session.channel().write(this.outEncrypted);
-        this.outEncrypted.compact();
+        if (!this.outEncrypted.hasData()) {
+            // If the buffer isn't acquired or is empty, call write() with an empty buffer.
+            // This will ensure that tests performed by write() still take place without
+            // having to acquire and release an empty buffer (e.g. connection closed,
+            // interrupted thread, etc..)
+            return this.session.channel().write(EMPTY_BUFFER);
+        }
+
+        // Acquire buffer
+        final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+
+        // Perform operation
+        outEncryptedBuf.flip();
+        final int bytesWritten = this.session.channel().write(outEncryptedBuf);
+        outEncryptedBuf.compact();
+
+        // Release if empty
+        if (outEncryptedBuf.position() == 0) {
+            this.outEncrypted.release();
+        }
         return bytesWritten;
     }
 
@@ -362,28 +441,52 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.endOfStream) {
             return -1;
         }
-        return this.session.channel().read(this.inEncrypted);
+
+        // Acquire buffer
+        final ByteBuffer inEncryptedBuf = this.inEncrypted.acquire();
+
+        // Perform operation
+        final int ret = this.session.channel().read(inEncryptedBuf);
+
+        // Release if empty
+        if (inEncryptedBuf.position() == 0) {
+            this.inEncrypted.release();
+        }
+        return ret;
     }
 
     private boolean decryptData() throws SSLException {
         boolean decrypted = false;
-        while (this.inEncrypted.position() > 0) {
-            this.inEncrypted.flip();
-            final SSLEngineResult result = doUnwrap(this.inEncrypted, this.inPlain);
-            this.inEncrypted.compact();
-            if (!this.inEncrypted.hasRemaining() && result.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
-                throw new SSLException("Input buffer is full");
-            }
-            if (result.getStatus() == Status.OK) {
-                decrypted = true;
-            } else {
-                break;
-            }
-            if (result.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING) {
-                break;
-            }
-            if (this.endOfStream) {
-                break;
+        while (this.inEncrypted.hasData()) {
+            // Get buffers
+            final ByteBuffer inEncryptedBuf = this.inEncrypted.acquire();
+            final ByteBuffer inPlainBuf = this.inPlain.acquire();
+
+            // Perform operations
+            inEncryptedBuf.flip();
+            final SSLEngineResult result = doUnwrap(inEncryptedBuf, inPlainBuf);
+            inEncryptedBuf.compact();
+
+            try {
+                if (!inEncryptedBuf.hasRemaining() && result.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
+                    throw new SSLException("Input buffer is full");
+                }
+                if (result.getStatus() == Status.OK) {
+                    decrypted = true;
+                } else {
+                    break;
+                }
+                if (result.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING) {
+                    break;
+                }
+                if (this.endOfStream) {
+                    break;
+                }
+            } finally {
+                // Release inEncrypted if empty
+                if (this.inEncrypted.acquire().position() == 0) {
+                    this.inEncrypted.release();
+                }
             }
         }
         return decrypted;
@@ -407,7 +510,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         }
         // Some decrypted data is available or at the end of stream
         return (this.appEventMask & SelectionKey.OP_READ) > 0
-            && (this.inPlain.position() > 0
+            && (this.inPlain.hasData()
                     || (this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput())
                     || (this.endOfStream && this.status == ACTIVE));
     }
@@ -463,13 +566,25 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.status != ACTIVE) {
             return -1;
         }
-        if (this.outPlain.position() > 0) {
-            this.outPlain.flip();
-            doWrap(this.outPlain, this.outEncrypted);
-            this.outPlain.compact();
+        if (this.outPlain.hasData()) {
+            // Acquire buffers
+            ByteBuffer outPlainBuf = this.outPlain.acquire();
+            final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+
+            // Perform operations
+            outPlainBuf.flip();
+            doWrap(outPlainBuf, outEncryptedBuf);
+            outPlainBuf.compact();
+
+            // Release outPlain if empty
+            if (outPlainBuf.position() == 0) {
+                this.outPlain.release();
+                outPlainBuf = null;
+            }
         }
-        if (this.outPlain.position() == 0) {
-            final SSLEngineResult result = doWrap(src, this.outEncrypted);
+        if (!this.outPlain.hasData()) {
+            final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+            final SSLEngineResult result = doWrap(src, outEncryptedBuf);
             if (result.getStatus() == Status.CLOSED) {
                 this.status = CLOSED;
             }
@@ -481,13 +596,23 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
     private synchronized int readPlain(final ByteBuffer dst) {
         Args.notNull(dst, "Byte buffer");
-        if (this.inPlain.position() > 0) {
-            this.inPlain.flip();
-            final int n = Math.min(this.inPlain.remaining(), dst.remaining());
+        if (this.inPlain.hasData()) {
+            // Acquire buffer
+            ByteBuffer inPlainBuf = this.inPlain.acquire();
+
+            // Perform opertaions
+            inPlainBuf.flip();
+            final int n = Math.min(inPlainBuf.remaining(), dst.remaining());
             for (int i = 0; i < n; i++) {
-                dst.put(this.inPlain.get());
+                dst.put(inPlainBuf.get());
             }
-            this.inPlain.compact();
+            inPlainBuf.compact();
+
+            // Release if empty
+            if (inPlainBuf.position() == 0) {
+                this.inPlain.release();
+                inPlainBuf = null;
+            }
             return n;
         } else {
             if (this.endOfStream) {
@@ -503,6 +628,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.status >= CLOSING) {
             return;
         }
+
+        // deactivating buffers in here causes failed tests
+
         this.status = CLOSING;
         this.sslEngine.closeOutbound();
         updateEventMask();
@@ -513,6 +641,12 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.status == CLOSED) {
             return;
         }
+
+        this.inEncrypted.release();
+        this.outEncrypted.release();
+        this.inPlain.release();
+        this.outPlain.release();
+
         this.status = CLOSED;
         this.session.shutdown();
     }
@@ -578,15 +712,15 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     @Override
     public synchronized boolean hasBufferedInput() {
         return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput())
-            || this.inEncrypted.position() > 0
-            || this.inPlain.position() > 0;
+            || this.inEncrypted.hasData()
+            || this.inPlain.hasData();
     }
 
     @Override
     public synchronized boolean hasBufferedOutput() {
         return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedOutput())
-            || this.outEncrypted.position() > 0
-            || this.outPlain.position() > 0;
+            || this.outEncrypted.hasData()
+            || this.outPlain.hasData();
     }
 
     @Override
@@ -648,13 +782,13 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             buffer.append("][EOF][");
         }
         buffer.append("][");
-        buffer.append(this.inEncrypted.position());
+        buffer.append(!this.inEncrypted.hasData() ? 0 : inEncrypted.acquire().position());
         buffer.append("][");
-        buffer.append(this.inPlain.position());
+        buffer.append(!this.inPlain.hasData() ? 0 : inPlain.acquire().position());
         buffer.append("][");
-        buffer.append(this.outEncrypted.position());
+        buffer.append(!this.outEncrypted.hasData() ? 0 : outEncrypted.acquire().position());
         buffer.append("][");
-        buffer.append(this.outPlain.position());
+        buffer.append(!this.outPlain.hasData() ? 0 : outPlain.acquire().position());
         buffer.append("]");
         return buffer.toString();
     }
