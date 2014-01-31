@@ -6,6 +6,9 @@ Changes since release 4.3.1
 
 * [HTTPCORE-358] Added I/O reactor listener backlog parameter.
   Contributed by Dmitry Potapov <potapov.d at gmail.com>
+
+* [HTTPCORE-370] Race condition if connection request succeeds and times out at the same time.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
     
 * [HTTPCORE-357] Avoid DNS lookups in SSLIOSession.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
