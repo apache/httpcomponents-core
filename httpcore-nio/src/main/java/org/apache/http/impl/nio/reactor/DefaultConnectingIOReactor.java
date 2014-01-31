@@ -175,9 +175,14 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                     sessionRequest.failed(ex);
                 }
                 key.cancel();
-                if (channel.isConnected()) {
+                key.attach(null);
+                if (!sessionRequest.isCompleted()) {
                     addChannel(new ChannelEntry(channel, sessionRequest));
-                    key.attach(null);
+                } else {
+                    try {
+                        channel.close();
+                    } catch (IOException ignore) {
+                    }
                 }
             }
 
