@@ -383,15 +383,17 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * @throws IOException in case of an I/O error.
      */
     public synchronized boolean isAppInputReady() throws IOException {
-        final int bytesRead = receiveEncryptedData();
-        if (bytesRead == -1) {
-            this.endOfStream = true;
-        }
-        doHandshake();
-        final HandshakeStatus status = this.sslEngine.getHandshakeStatus();
-        if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
-            decryptData();
-        }
+        do {
+            final int bytesRead = receiveEncryptedData();
+            if (bytesRead == -1) {
+                this.endOfStream = true;
+            }
+            doHandshake();
+            final HandshakeStatus status = this.sslEngine.getHandshakeStatus();
+            if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
+                decryptData();
+            }
+        } while (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK);
         // Some decrypted data is available or at the end of stream
         return (this.appEventMask & SelectionKey.OP_READ) > 0
             && (this.inPlain.position() > 0
