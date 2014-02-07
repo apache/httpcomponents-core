@@ -143,6 +143,28 @@ public class TestChunkDecoder {
     }
 
     @Test
+    public void testMalformedChunk() throws Exception {
+        final String s = "5\r\n01234----------------------------------------------------------" +
+                "-----------------------------------------------------------------------------" +
+                "-----------------------------------------------------------------------------";
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
+                new String[] {s}, Consts.ASCII);
+
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(32, 32, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
+
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
+
+        try {
+            decoder.read(dst);
+            Assert.fail("MalformedChunkCodingException should have been thrown");
+        } catch (final MalformedChunkCodingException ex) {
+            // expected
+        }
+    }
+
+    @Test
     public void testIncompleteChunkDecoding() throws Exception {
         final String[] chunks = {
                 "10;",
@@ -211,7 +233,7 @@ public class TestChunkDecoder {
 
     @Test
     public void testMalformedChunkEndingDecoding() throws Exception {
-        final String s = "5\r\n01234\r\n5\r\n56789\n\r6\r\nabcdef\r\n0\r\n\r\n";
+        final String s = "5\r\n01234\r\n5\r\n56789\r\r6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, Consts.ASCII);
 
