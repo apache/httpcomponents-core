@@ -31,10 +31,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.ReadableByteChannelMock;
+import org.apache.http.TruncatedChunkException;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -211,7 +213,7 @@ public class TestChunkDecoder {
         Assert.assertTrue(decoder.isCompleted());
     }
 
-    @Test
+    @Test(expected=MalformedChunkCodingException.class)
     public void testMalformedChunkSizeDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5zz\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -222,16 +224,10 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-
-        try {
-            decoder.read(dst);
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch (final MalformedChunkCodingException ex) {
-            // expected
-        }
+        decoder.read(dst);
     }
 
-    @Test
+    @Test(expected=MalformedChunkCodingException.class)
     public void testMalformedChunkEndingDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5\r\n56789\r\r6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -242,16 +238,10 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-
-        try {
-            decoder.read(dst);
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch (final MalformedChunkCodingException ex) {
-            // expected
-        }
+        decoder.read(dst);
     }
 
-    @Test
+    @Test(expected=TruncatedChunkException.class)
     public void testMalformedChunkTruncatedChunk() throws Exception {
         final String s = "3\r\n12";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -263,12 +253,7 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
         Assert.assertEquals(2, decoder.read(dst));
-        try {
-            decoder.read(dst);
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch (final MalformedChunkCodingException ex) {
-            // expected
-        }
+        decoder.read(dst);
     }
 
     @Test
@@ -294,7 +279,7 @@ public class TestChunkDecoder {
         Assert.assertEquals("abcde  fghij", footers[0].getValue());
     }
 
-    @Test
+    @Test(expected=IOException.class)
     public void testMalformedFooters() throws Exception {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
@@ -306,17 +291,11 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-
-        try {
-            decoder.read(dst);
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-        }
+        decoder.read(dst);
     }
 
-    @Test
-    public void testEndOfStreamConditionReadingLastChunk() throws Exception {
+    @Test(expected=MalformedChunkCodingException.class)
+    public void testMissingLastCRLF() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -328,17 +307,38 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        int bytesRead = 0;
         while (dst.hasRemaining() && !decoder.isCompleted()) {
-            final int i = decoder.read(dst);
-            if (i > 0) {
-                bytesRead += i;
-            }
+            decoder.read(dst);
         }
+    }
 
-        Assert.assertEquals(26, bytesRead);
-        Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
-        Assert.assertTrue(decoder.isCompleted());
+    @Test(expected=ConnectionClosedException.class)
+    public void testMissingClosingChunk() throws Exception {
+        final String s = "10\r\n1234567890123456\r\n" +
+                "5\r\n12345\r\n5\r\n12345\r\n";
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
+                new String[] {s}, Consts.ASCII);
+
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
+
+        final ByteBuffer dst = ByteBuffer.allocate(1024);
+
+        long bytesRead = 0;
+        try {
+            while (dst.hasRemaining() && !decoder.isCompleted()) {
+                final int i = decoder.read(dst);
+                if (i > 0) {
+                    bytesRead += i;
+                }
+            }
+        } catch (final MalformedChunkCodingException ex) {
+            Assert.assertEquals(26L, bytesRead);
+            Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
+            Assert.assertTrue(decoder.isCompleted());
+            throw ex;
+        }
     }
 
     @Test
@@ -426,7 +426,7 @@ public class TestChunkDecoder {
         }
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testInvalidInput() throws Exception {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
@@ -436,13 +436,7 @@ public class TestChunkDecoder {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
-
-        try {
-            decoder.read(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
+        decoder.read(null);
     }
 
 }

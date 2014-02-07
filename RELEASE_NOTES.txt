@@ -1,5 +1,9 @@
-Changes since release 4.3.1
+Changes for release 4.4-alpha1
 -------------------
+
+* [HTTPCORE-372] Blocking and non-blocking chunk decoders to throw an I/O exception if data stream
+  is terminated without a closing chunk.
+  Contributed by Dmitry Potapov <potapov.d at gmail.com>
 
 * [HTTPCORE-368] Customizable buffer management strategies for SSLIOSession.
   Contributed by offbynull <offbynull at gmail.com>

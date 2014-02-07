@@ -33,6 +33,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.ParseException;
@@ -94,7 +95,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     throw new MalformedChunkCodingException("CRLF expected at end of chunk");
                 }
             } else {
-                if (this.buffer.length() > 2) {
+                if (this.buffer.length() > 2 || this.endOfStream) {
                     throw new MalformedChunkCodingException("CRLF expected at end of chunk");
                 }
                 return;
@@ -113,6 +114,9 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 throw new MalformedChunkCodingException("Bad chunk header");
             }
             this.pos = 0;
+        } else if (this.endOfStream) {
+            throw new ConnectionClosedException("Premature end of chunk coded message body: " +
+                    "closing chunk expected");
         }
     }
 
@@ -177,10 +181,6 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     readChunkHead();
                     if (this.chunkSize == -1) {
                         // Unable to read a chunk head
-                        if (this.endOfStream) {
-                            this.state = COMPLETED;
-                            this.completed = true;
-                        }
                         return totalRead;
                     }
                     if (this.chunkSize == 0) {

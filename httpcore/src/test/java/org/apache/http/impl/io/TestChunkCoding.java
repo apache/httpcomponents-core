@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
@@ -195,19 +196,29 @@ public class TestChunkCoding {
     }
 
     // Missing closing chunk
-    @Test
+    @Test(expected=ConnectionClosedException.class)
     public void testChunkedInputStreamNoClosingChunk() throws IOException {
         final String s = "5\r\n01234\r\n";
         final ChunkedInputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
         final byte[] tmp = new byte[5];
         Assert.assertEquals(5, in.read(tmp));
-        Assert.assertEquals(-1, in.read());
-        in.close();
-}
+        in.read();
+    }
+
+    // Truncated stream (missing closing CRLF)
+    @Test(expected=MalformedChunkCodingException.class)
+    public void testCorruptChunkedInputStreamTruncatedCRLF() throws IOException {
+        final String s = "5\r\n01234";
+        final ChunkedInputStream in = new ChunkedInputStream(
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
+        final byte[] tmp = new byte[5];
+        Assert.assertEquals(5, in.read(tmp));
+        in.read();
+    }
 
     // Missing \r\n at the end of the first chunk
-    @Test
+    @Test(expected=MalformedChunkCodingException.class)
     public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
         final String s = "5\r\n012345\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
@@ -215,29 +226,18 @@ public class TestChunkCoding {
         final byte[] buffer = new byte[300];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         int len;
-        try {
-            while ((len = in.read(buffer)) > 0) {
-                out.write(buffer, 0, len);
-            }
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch(final MalformedChunkCodingException e) {
-            /* expected exception */
+        while ((len = in.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
         }
     }
 
     // Missing LF
-    @Test
+    @Test(expected=MalformedChunkCodingException.class)
     public void testCorruptChunkedInputStreamMissingLF() throws IOException {
         final String s = "5\r01234\r\n5\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
-        try {
-            in.read();
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch(final MalformedChunkCodingException e) {
-            /* expected exception */
-        }
-        in.close();
+        in.read();
 }
 
     // Invalid chunk size

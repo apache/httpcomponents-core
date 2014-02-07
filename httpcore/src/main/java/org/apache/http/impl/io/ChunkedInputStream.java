@@ -30,6 +30,7 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.MalformedChunkCodingException;
@@ -227,7 +228,8 @@ public class ChunkedInputStream extends InputStream {
             this.buffer.clear();
             final int bytesRead1 = this.in.readLine(this.buffer);
             if (bytesRead1 == -1) {
-                return 0;
+                throw new MalformedChunkCodingException(
+                    "CRLF expected at end of chunk");
             }
             if (!this.buffer.isEmpty()) {
                 throw new MalformedChunkCodingException(
@@ -239,7 +241,8 @@ public class ChunkedInputStream extends InputStream {
             this.buffer.clear();
             final int bytesRead2 = this.in.readLine(this.buffer);
             if (bytesRead2 == -1) {
-                return 0;
+                throw new ConnectionClosedException("Premature end of chunk coded message body: " +
+                        "closing chunk expected");
             }
             int separator = this.buffer.indexOf(';');
             if (separator < 0) {
