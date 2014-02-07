@@ -41,7 +41,6 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -84,21 +83,23 @@ public class ChunkDecoder extends AbstractContentDecoder {
     }
 
     private void readChunkHead() throws IOException {
-        if (this.endOfChunk) {
-            if (this.buffer.length() < 2) {
-                return;
-            }
-            final int cr = this.buffer.read();
-            final int lf = this.buffer.read();
-            if (cr != HTTP.CR || lf != HTTP.LF) {
-                throw new MalformedChunkCodingException("CRLF expected at end of chunk");
-            }
-            this.endOfChunk = false;
-        }
         if (this.lineBuf == null) {
             this.lineBuf = new CharArrayBuffer(32);
         } else {
             this.lineBuf.clear();
+        }
+        if (this.endOfChunk) {
+            if (this.buffer.readLine(this.lineBuf, this.endOfStream)) {
+                if (!this.lineBuf.isEmpty()) {
+                    throw new MalformedChunkCodingException("CRLF expected at end of chunk");
+                }
+            } else {
+                if (this.buffer.length() > 2) {
+                    throw new MalformedChunkCodingException("CRLF expected at end of chunk");
+                }
+                return;
+            }
+            this.endOfChunk = false;
         }
         if (this.buffer.readLine(this.lineBuf, this.endOfStream)) {
             int separator = this.lineBuf.indexOf(';');
