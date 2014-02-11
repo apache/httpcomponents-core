@@ -37,7 +37,9 @@ import org.apache.http.ConnectionClosedException;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.MessageConstraintException;
 import org.apache.http.TruncatedChunkException;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
@@ -238,76 +240,59 @@ public class TestChunkCoding {
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
         in.read();
-}
+    }
 
     // Invalid chunk size
-    @Test
+    @Test(expected = MalformedChunkCodingException.class)
     public void testCorruptChunkedInputStreamInvalidSize() throws IOException {
         final String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
-        try {
-            in.read();
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch(final MalformedChunkCodingException e) {
-            /* expected exception */
-        }
-        try {
-            in.close();
-        } catch (TruncatedChunkException expected) {
-        }
-}
+        in.read();
+    }
 
     // Negative chunk size
-    @Test
+    @Test(expected = MalformedChunkCodingException.class)
     public void testCorruptChunkedInputStreamNegativeSize() throws IOException {
         final String s = "-5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
-        try {
-            in.read();
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch(final MalformedChunkCodingException e) {
-            /* expected exception */
-        }
-        try {
-            in.close();
-        } catch (TruncatedChunkException expected) {
-        }
-}
+        in.read();
+    }
 
     // Truncated chunk
-    @Test
+    @Test(expected = TruncatedChunkException.class)
     public void testCorruptChunkedInputStreamTruncatedChunk() throws IOException {
         final String s = "3\r\n12";
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
         final byte[] buffer = new byte[300];
         Assert.assertEquals(2, in.read(buffer));
-        try {
-            in.read(buffer);
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch(final MalformedChunkCodingException e) {
-            /* expected exception */
-        }
-        in.close();
-}
+        in.read(buffer);
+    }
 
     // Invalid footer
-    @Test
+    @Test(expected = MalformedChunkCodingException.class)
     public void testCorruptChunkedInputStreamInvalidFooter() throws IOException {
         final String s = "1\r\n0\r\n0\r\nstuff\r\n";
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
+        in.read();
+        in.read();
+    }
+
+    @Test
+    public void testCorruptChunkedInputStreamClose() throws IOException {
+        final String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
+        final InputStream in = new ChunkedInputStream(
+                new SessionInputBufferMock(s, Consts.ISO_8859_1));
         try {
             in.read();
-            in.read();
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch(final MalformedChunkCodingException e) {
-            /* expected exception */
+            Assert.fail("MalformedChunkCodingException expected");
+        } catch (MalformedChunkCodingException ex) {
         }
         in.close();
-}
+    }
 
     @Test
     public void testEmptyChunkedInputStream() throws IOException {
@@ -321,8 +306,24 @@ public class TestChunkCoding {
             out.write(buffer, 0, len);
         }
         Assert.assertEquals(0, out.size());
-        in.close();
-}
+    }
+
+    @Test
+    public void testTooLongChunkHeader() throws IOException {
+        final String input = "5; and some very looooong commend\r\n12345\r\n0\r\n";
+        final InputStream in1 = new ChunkedInputStream(
+                new SessionInputBufferMock(input, MessageConstraints.DEFAULT, Consts.ISO_8859_1));
+        final byte[] buffer = new byte[300];
+        Assert.assertEquals(5, in1.read(buffer));
+
+        final InputStream in2 = new ChunkedInputStream(
+                new SessionInputBufferMock(input, MessageConstraints.lineLen(10), Consts.ISO_8859_1));
+        try {
+            in2.read(buffer);
+            Assert.fail("MessageConstraintException expected");
+        } catch (MessageConstraintException ex) {
+        }
+    }
 
     @Test
     public void testChunkedConsistence() throws IOException {
@@ -334,9 +335,7 @@ public class TestChunkCoding {
         out.close();
         out.close();
         buffer.close();
-        final InputStream in = new ChunkedInputStream(
-                new SessionInputBufferMock(
-                        buffer.toByteArray()));
+        final InputStream in = new ChunkedInputStream(new SessionInputBufferMock(buffer.toByteArray()));
 
         final byte[] d = new byte[10];
         final ByteArrayOutputStream result = new ByteArrayOutputStream();

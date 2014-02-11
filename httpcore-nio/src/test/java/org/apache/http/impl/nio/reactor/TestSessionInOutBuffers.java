@@ -43,6 +43,8 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.http.Consts;
+import org.apache.http.MessageConstraintException;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
@@ -130,6 +132,52 @@ public class TestSessionInOutBuffers {
 
         line.clear();
         Assert.assertFalse(inbuf.readLine(line, true));
+    }
+
+    @Test
+    public void testLineLimit() throws Exception {
+        final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
+        final CharArrayBuffer line = new CharArrayBuffer(64);
+        final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(128, 128,
+                MessageConstraints.DEFAULT, null, this.allocator);
+        final ReadableByteChannel channel1 = newChannel(s);
+        inbuf1.fill(channel1);
+
+        Assert.assertTrue(inbuf1.readLine(line, false));
+
+        line.clear();
+        final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(128, 128,
+                MessageConstraints.lineLen(10), null, this.allocator);
+        final ReadableByteChannel channel2 = newChannel(s);
+        inbuf2.fill(channel2);
+        try {
+            inbuf2.readLine(line, false);
+            Assert.fail("MessageConstraintException expected");
+        } catch (MessageConstraintException ex) {
+        }
+    }
+
+    @Test
+    public void testLineLimitBufferFull() throws Exception {
+        final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
+        final CharArrayBuffer line = new CharArrayBuffer(64);
+        final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(32, 32,
+                MessageConstraints.DEFAULT, null, this.allocator);
+        final ReadableByteChannel channel1 = newChannel(s);
+        inbuf1.fill(channel1);
+
+        Assert.assertFalse(inbuf1.readLine(line, false));
+
+        line.clear();
+        final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(32, 32,
+                MessageConstraints.lineLen(10), null, this.allocator);
+        final ReadableByteChannel channel2 = newChannel(s);
+        inbuf2.fill(channel2);
+        try {
+            inbuf2.readLine(line, false);
+            Assert.fail("MessageConstraintException expected");
+        } catch (MessageConstraintException ex) {
+        }
     }
 
     @Test

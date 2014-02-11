@@ -50,6 +50,7 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.HttpConnectionMetricsImpl;
@@ -101,6 +102,7 @@ public class NHttpConnectionBase
     protected final SessionInputBufferImpl inbuf;
     protected final SessionOutputBufferImpl outbuf;
     private final int fragmentSizeHint;
+    private final MessageConstraints constraints;
 
     protected final HttpTransportMetricsImpl inTransportMetrics;
     protected final HttpTransportMetricsImpl outTransportMetrics;
@@ -165,6 +167,7 @@ public class NHttpConnectionBase
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, decoder, allocator);
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, encoder, allocator);
         this.fragmentSizeHint = buffersize;
+        this.constraints = MessageConstraints.DEFAULT;
 
         this.incomingContentStrategy = createIncomingContentStrategy();
         this.outgoingContentStrategy = createOutgoingContentStrategy();
@@ -174,6 +177,61 @@ public class NHttpConnectionBase
         this.connMetrics = createConnectionMetrics(
                 this.inTransportMetrics,
                 this.outTransportMetrics);
+
+        setSession(session);
+        this.status = ACTIVE;
+    }
+
+    /**
+     * Creates new instance NHttpConnectionBase given the underlying I/O session.
+     *
+     * @param session the underlying I/O session.
+     * @param buffersize buffer size. Must be a positive number.
+     * @param fragmentSizeHint fragment size hint.
+     * @param allocator memory allocator.
+     *   If <code>null</code> {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
+     *   will be used.
+     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
+     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
+     *
+     * @since 4.4
+     */
+    protected NHttpConnectionBase(
+            final IOSession session,
+            final int buffersize,
+            final int fragmentSizeHint,
+            final ByteBufferAllocator allocator,
+            final CharsetDecoder chardecoder,
+            final CharsetEncoder charencoder,
+            final MessageConstraints constraints,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy) {
+        Args.notNull(session, "I/O session");
+        Args.positive(buffersize, "Buffer size");
+        int linebuffersize = buffersize;
+        if (linebuffersize > 512) {
+            linebuffersize = 512;
+        }
+        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, chardecoder, allocator);
+        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, charencoder, allocator);
+        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : buffersize;
+
+        this.inTransportMetrics = new HttpTransportMetricsImpl();
+        this.outTransportMetrics = new HttpTransportMetricsImpl();
+        this.connMetrics = new HttpConnectionMetricsImpl(this.inTransportMetrics, this.outTransportMetrics);
+        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+            LaxContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+            StrictContentLengthStrategy.INSTANCE;
 
         setSession(session);
         this.status = ACTIVE;
@@ -208,26 +266,8 @@ public class NHttpConnectionBase
             final CharsetEncoder charencoder,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
-        Args.notNull(session, "I/O session");
-        Args.positive(buffersize, "Buffer size");
-        int linebuffersize = buffersize;
-        if (linebuffersize > 512) {
-            linebuffersize = 512;
-        }
-        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, chardecoder, allocator);
-        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, charencoder, allocator);
-        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : buffersize;
-
-        this.inTransportMetrics = new HttpTransportMetricsImpl();
-        this.outTransportMetrics = new HttpTransportMetricsImpl();
-        this.connMetrics = new HttpConnectionMetricsImpl(this.inTransportMetrics, this.outTransportMetrics);
-        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-            LaxContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-            StrictContentLengthStrategy.INSTANCE;
-
-        setSession(session);
-        this.status = ACTIVE;
+        this(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder,
+                null, incomingContentStrategy, outgoingContentStrategy);
     }
 
     private void setSession(final IOSession session) {
@@ -389,7 +429,7 @@ public class NHttpConnectionBase
             final SessionInputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
         if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkDecoder(channel, buffer, metrics);
+            return new ChunkDecoder(channel, buffer, this.constraints, metrics);
         } else if (len == ContentLengthStrategy.IDENTITY) {
             return new IdentityDecoder(channel, buffer, metrics);
         } else {

@@ -36,9 +36,11 @@ import java.util.List;
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.MessageConstraintException;
 import org.apache.http.ParseException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.message.BufferedHeader;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -66,13 +68,18 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private int chunkSize;
     private int pos;
 
+    private final MessageConstraints constraints;
     private final List<CharArrayBuffer> trailerBufs;
 
     private Header[] footers;
 
+    /**
+     * @since 4.4
+     */
     public ChunkDecoder(
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
+            final MessageConstraints constraints,
             final HttpTransportMetricsImpl metrics) {
         super(channel, buffer, metrics);
         this.state = READ_CONTENT;
@@ -80,7 +87,15 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.pos = 0;
         this.endOfChunk = false;
         this.endOfStream = false;
+        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.trailerBufs = new ArrayList<CharArrayBuffer>();
+    }
+
+    public ChunkDecoder(
+            final ReadableByteChannel channel,
+            final SessionInputBuffer buffer,
+            final HttpTransportMetricsImpl metrics) {
+        this(channel, buffer, null, metrics);
     }
 
     private void readChunkHead() throws IOException {
@@ -102,7 +117,14 @@ public class ChunkDecoder extends AbstractContentDecoder {
             }
             this.endOfChunk = false;
         }
-        if (this.buffer.readLine(this.lineBuf, this.endOfStream)) {
+        final boolean lineComplete = this.buffer.readLine(this.lineBuf, this.endOfStream);
+        final int maxLineLen = this.constraints.getMaxLineLength();
+        if (maxLineLen > 0 &&
+                (this.lineBuf.length() > maxLineLen ||
+                        (!lineComplete && this.buffer.length() > maxLineLen))) {
+            throw new MessageConstraintException("Maximum line length limit exceeded");
+        }
+        if (lineComplete) {
             int separator = this.lineBuf.indexOf(';');
             if (separator < 0) {
                 separator = this.lineBuf.length();
@@ -120,7 +142,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         }
     }
 
-    private void parseHeader() {
+    private void parseHeader() throws IOException {
         final CharArrayBuffer current = this.lineBuf;
         final int count = this.trailerBufs.size();
         if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
@@ -133,6 +155,10 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     break;
                 }
                 i++;
+            }
+            final int maxLineLen = this.constraints.getMaxLineLength();
+            if (maxLineLen > 0 && previous.length() + 1 + current.length() - i > maxLineLen) {
+                throw new MessageConstraintException("Maximum line length limit exceeded");
             }
             previous.append(' ');
             previous.append(current, i, current.length() - i);
@@ -228,6 +254,10 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     return totalRead;
                 }
                 if (this.lineBuf.length() > 0) {
+                    final int maxHeaderCount = this.constraints.getMaxHeaderCount();
+                    if (maxHeaderCount > 0 && trailerBufs.size() >= maxHeaderCount) {
+                        throw new MessageConstraintException("Maximum header count exceeded");
+                    }
                     parseHeader();
                 } else {
                     this.state = COMPLETED;

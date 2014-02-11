@@ -86,8 +86,16 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
     }
 
     public SessionInputBufferMock(
-            final byte[] bytes, final Charset charset) {
-        this(bytes, BUFFER_SIZE, null, charset != null ? charset.newDecoder() : null);
+            final byte[] bytes,
+            final MessageConstraints constrains,
+            final Charset charset) {
+        this(bytes, BUFFER_SIZE, constrains, charset != null ? charset.newDecoder() : null);
+    }
+
+    public SessionInputBufferMock(
+            final byte[] bytes,
+            final Charset charset) {
+        this(bytes, null, charset);
     }
 
     public SessionInputBufferMock(
@@ -98,8 +106,15 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
 
     public SessionInputBufferMock(
             final String s,
+            final MessageConstraints constrains,
             final Charset charset) {
-        this(s.getBytes(charset), charset);
+        this(s.getBytes(charset), constrains, charset);
+    }
+
+    public SessionInputBufferMock(
+            final String s,
+            final Charset charset) {
+        this(s.getBytes(charset), MessageConstraints.DEFAULT, charset);
     }
 
     @Override

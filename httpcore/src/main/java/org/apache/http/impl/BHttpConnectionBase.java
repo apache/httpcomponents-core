@@ -78,6 +78,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     private final SessionInputBufferImpl inbuffer;
     private final SessionOutputBufferImpl outbuffer;
+    private final MessageConstraints messageConstraints;
     private final HttpConnectionMetricsImpl connMetrics;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
@@ -94,7 +95,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
      *   If <code>null</code> simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
      *   If <code>null</code> simple type cast will be used for char to byte conversion.
-     * @param constraints Message constraints. If <code>null</code>
+     * @param messageConstraints Message constraints. If <code>null</code>
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
      *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
@@ -106,7 +107,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final MessageConstraints constraints,
+            final MessageConstraints messageConstraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
         super();
@@ -114,9 +115,10 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         final HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
         final HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
         this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
-                constraints != null ? constraints : MessageConstraints.DEFAULT, chardecoder);
+                messageConstraints != null ? messageConstraints : MessageConstraints.DEFAULT, chardecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, fragmentSizeHint,
                 charencoder);
+        this.messageConstraints = messageConstraints;
         this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
             LaxContentLengthStrategy.INSTANCE;
@@ -202,7 +204,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             final long len,
             final SessionInputBuffer inbuffer) {
         if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedInputStream(inbuffer);
+            return new ChunkedInputStream(inbuffer, this.messageConstraints);
         } else if (len == ContentLengthStrategy.IDENTITY) {
             return new IdentityInputStream(inbuffer);
         } else {

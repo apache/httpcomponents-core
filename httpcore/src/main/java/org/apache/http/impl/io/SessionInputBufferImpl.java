@@ -225,15 +225,6 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         return read(b, 0, b.length);
     }
 
-    private int locateLF() {
-        for (int i = this.bufferpos; i < this.bufferlen; i++) {
-            if (this.buffer[i] == HTTP.LF) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     /**
      * Reads a complete line of characters up to a line delimiter from this
      * session buffer into the given line buffer. The number of chars actually
@@ -252,21 +243,37 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
     @Override
     public int readLine(final CharArrayBuffer charbuffer) throws IOException {
         Args.notNull(charbuffer, "Char array buffer");
+        final int maxLineLen = this.constraints.getMaxLineLength();
         int noRead = 0;
         boolean retry = true;
         while (retry) {
             // attempt to find end of line (LF)
-            final int i = locateLF();
-            if (i != -1) {
+            int pos = -1;
+            for (int i = this.bufferpos; i < this.bufferlen; i++) {
+                if (this.buffer[i] == HTTP.LF) {
+                    pos = i;
+                    break;
+                }
+            }
+
+            if (maxLineLen > 0) {
+                final int currentLen = this.linebuffer.length()
+                        + (pos > 0 ? pos : this.bufferlen) - this.bufferpos;
+                if (currentLen >= maxLineLen) {
+                    throw new MessageConstraintException("Maximum line length limit exceeded");
+                }
+            }
+
+            if (pos != -1) {
                 // end of line found.
                 if (this.linebuffer.isEmpty()) {
                     // the entire line is preset in the read buffer
-                    return lineFromReadBuffer(charbuffer, i);
+                    return lineFromReadBuffer(charbuffer, pos);
                 }
                 retry = false;
-                final int len = i + 1 - this.bufferpos;
+                final int len = pos + 1 - this.bufferpos;
                 this.linebuffer.append(this.buffer, this.bufferpos, len);
-                this.bufferpos = i + 1;
+                this.bufferpos = pos + 1;
             } else {
                 // end of line not found
                 if (hasBufferedData()) {
@@ -278,10 +285,6 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
                 if (noRead == -1) {
                     retry = false;
                 }
-            }
-            final int maxLineLen = this.constraints.getMaxLineLength();
-            if (maxLineLen > 0 && this.linebuffer.length() >= maxLineLen) {
-                throw new MessageConstraintException("Maximum line length limit exceeded");
             }
         }
         if (noRead == -1 && this.linebuffer.isEmpty()) {

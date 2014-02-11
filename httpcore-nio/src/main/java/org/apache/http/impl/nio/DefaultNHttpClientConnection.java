@@ -137,8 +137,8 @@ public class DefaultNHttpClientConnection
             final ContentLengthStrategy outgoingContentStrategy,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(session, buffersize, fragmentSizeHint,  allocator, chardecoder, charencoder,
-                incomingContentStrategy, outgoingContentStrategy);
+        super(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder,
+                constraints, incomingContentStrategy, outgoingContentStrategy);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create(this.outbuf);
         this.responseParser = (responseParserFactory != null ? responseParserFactory :

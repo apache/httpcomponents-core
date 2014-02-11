@@ -28,13 +28,13 @@
 package org.apache.http.impl.io;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
+import org.apache.http.MessageConstraintException;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
@@ -336,10 +336,10 @@ public class TestSessionInOutBuffers {
         outbuffer.write(1);
         outbuffer.write(2);
         outbuffer.write(new byte[] {1, 2});
-        outbuffer.write(new byte[] {3, 4});
+        outbuffer.write(new byte[]{3, 4});
         outbuffer.flush();
         Mockito.verify(outstream, Mockito.times(1)).write(
-                Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
+                Mockito.<byte[]>any(), Mockito.anyInt(), Mockito.anyInt());
         Mockito.verify(outstream, Mockito.never()).write(Mockito.anyInt());
     }
 
@@ -350,7 +350,7 @@ public class TestSessionInOutBuffers {
         outbuffer.write(1);
         outbuffer.write(2);
         outbuffer.write(new byte[] {1, 2});
-        outbuffer.write(new byte[] {3, 4});
+        outbuffer.write(new byte[]{3, 4});
         Mockito.verify(outstream, Mockito.times(2)).write(
                 Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
         Mockito.verify(outstream, Mockito.times(2)).write(Mockito.anyInt());
@@ -358,13 +358,13 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testLineLimit() throws Exception {
-        final String s = "a very looooooooooooooooooooooooooooooooooooooong line\r\n     ";
+        final String s = "a very looooooooooooooooooooooooooooooooooooooooooong line\r\n";
         final byte[] tmp = s.getBytes(Consts.ASCII);
         // no limit
         final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5,
                 MessageConstraints.DEFAULT);
         Assert.assertNotNull(inbuffer1.readLine());
-        long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
+        final long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(60, bytesRead);
 
         // 15 char limit
@@ -372,11 +372,29 @@ public class TestSessionInOutBuffers {
                 MessageConstraints.lineLen(15));
         try {
             inbuffer2.readLine();
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-            bytesRead = inbuffer2.getMetrics().getBytesTransferred();
-            Assert.assertEquals(20, bytesRead);
+            Assert.fail("MessageConstraintException expected");
+        } catch (MessageConstraintException ex) {
+        }
+    }
+
+    @Test
+    public void testLineLimit2() throws Exception {
+        final String s = "just a line\r\n";
+        final byte[] tmp = s.getBytes(Consts.ASCII);
+        // no limit
+        final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 25,
+                MessageConstraints.DEFAULT);
+        Assert.assertNotNull(inbuffer1.readLine());
+        final long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
+        Assert.assertEquals(13, bytesRead);
+
+        // 10 char limit
+        final SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 25,
+                MessageConstraints.lineLen(10));
+        try {
+            inbuffer2.readLine();
+            Assert.fail("MessageConstraintException expected");
+        } catch (MessageConstraintException ex) {
         }
     }
 

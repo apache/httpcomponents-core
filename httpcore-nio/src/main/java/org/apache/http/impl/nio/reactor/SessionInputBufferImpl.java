@@ -38,7 +38,9 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
+import org.apache.http.MessageConstraintException;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
@@ -61,9 +63,37 @@ import org.apache.http.util.CharsetUtils;
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
     private final CharsetDecoder chardecoder;
+    private final MessageConstraints constraints;
     private final int lineBuffersize;
 
     private CharBuffer charbuffer;
+
+    /**
+     *  Creates SessionInputBufferImpl instance.
+     *
+     * @param buffersize input buffer size
+     * @param lineBuffersize buffer size for line operations. Has effect only if
+     *   <code>chardecoder</code> is not <code>null</code>.
+     * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
+     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param allocator memory allocator.
+     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     *
+     * @since 4.4
+     */
+    public SessionInputBufferImpl(
+            final int buffersize,
+            final int lineBuffersize,
+            final MessageConstraints constraints,
+            final CharsetDecoder chardecoder,
+            final ByteBufferAllocator allocator) {
+        super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
+        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
+        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
+        this.chardecoder = chardecoder;
+    }
 
     /**
      *  Creates SessionInputBufferImpl instance.
@@ -83,9 +113,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             final int lineBuffersize,
             final CharsetDecoder chardecoder,
             final ByteBufferAllocator allocator) {
-        super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
-        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        this.chardecoder = chardecoder;
+        this(buffersize, lineBuffersize, null, chardecoder, allocator);
     }
 
     /**
@@ -114,6 +142,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         } else {
             this.chardecoder = null;
         }
+        this.constraints = MessageConstraints.DEFAULT;
     }
 
     /**
@@ -135,7 +164,19 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             final int buffersize,
             final int lineBuffersize,
             final Charset charset) {
-        this(buffersize, lineBuffersize,
+        this(buffersize, lineBuffersize, null,
+                charset != null ? charset.newDecoder() : null, HeapByteBufferAllocator.INSTANCE);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SessionInputBufferImpl(
+            final int buffersize,
+            final int lineBuffersize,
+            final MessageConstraints constraints,
+            final Charset charset) {
+        this(buffersize, lineBuffersize, constraints,
                 charset != null ? charset.newDecoder() : null, HeapByteBufferAllocator.INSTANCE);
     }
 
@@ -145,14 +186,14 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     public SessionInputBufferImpl(
             final int buffersize,
             final int lineBuffersize) {
-        this(buffersize, lineBuffersize, null, HeapByteBufferAllocator.INSTANCE);
+        this(buffersize, lineBuffersize, null, null, HeapByteBufferAllocator.INSTANCE);
     }
 
     /**
      * @since 4.3
      */
     public SessionInputBufferImpl(final int buffersize) {
-        this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
+        this(buffersize, 256, null, null, HeapByteBufferAllocator.INSTANCE);
     }
 
     @Override
@@ -236,16 +277,23 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         setOutputMode();
         // See if there is LF char present in the buffer
         int pos = -1;
-        boolean hasLine = false;
         for (int i = this.buffer.position(); i < this.buffer.limit(); i++) {
             final int b = this.buffer.get(i);
             if (b == HTTP.LF) {
-                hasLine = true;
                 pos = i + 1;
                 break;
             }
         }
-        if (!hasLine) {
+
+        final int maxLineLen = this.constraints.getMaxLineLength();
+        if (maxLineLen > 0) {
+            final int currentLen = (pos > 0 ? pos : this.buffer.limit()) - this.buffer.position();
+            if (currentLen >= maxLineLen) {
+                throw new MessageConstraintException("Maximum line length limit exceeded");
+            }
+        }
+
+        if (pos == -1) {
             if (endOfStream && this.buffer.hasRemaining()) {
                 // No more data. Get the rest
                 pos = this.buffer.limit();

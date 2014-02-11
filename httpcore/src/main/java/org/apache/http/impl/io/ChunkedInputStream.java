@@ -36,6 +36,7 @@ import org.apache.http.HttpException;
 import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.Args;
@@ -63,13 +64,14 @@ public class ChunkedInputStream extends InputStream {
     private static final int CHUNK_LEN               = 1;
     private static final int CHUNK_DATA              = 2;
     private static final int CHUNK_CRLF              = 3;
+    private static final int CHUNK_INVALID           = Integer.MAX_VALUE;
 
     private static final int BUFFER_SIZE = 2048;
 
     /** The session input buffer */
     private final SessionInputBuffer in;
-
     private final CharArrayBuffer buffer;
+    private final MessageConstraints constraints;
 
     private int state;
 
@@ -91,13 +93,27 @@ public class ChunkedInputStream extends InputStream {
      * Wraps session input stream and reads chunk coded input.
      *
      * @param in The session input buffer
+     * @param constraints Message constraints. If <code>null</code>
+     *   {@link MessageConstraints#DEFAULT} will be used.
+     *
+     * @since 4.4
      */
-    public ChunkedInputStream(final SessionInputBuffer in) {
+    public ChunkedInputStream(final SessionInputBuffer in, final MessageConstraints constraints) {
         super();
         this.in = Args.notNull(in, "Session input buffer");
         this.pos = 0;
         this.buffer = new CharArrayBuffer(16);
+        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.state = CHUNK_LEN;
+    }
+
+    /**
+     * Wraps session input stream and reads chunk coded input.
+     *
+     * @param in The session input buffer
+     */
+    public ChunkedInputStream(final SessionInputBuffer in) {
+        this(in, null);
     }
 
     @Override
@@ -204,15 +220,23 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException in case of an I/O error
      */
     private void nextChunk() throws IOException {
-        chunkSize = getChunkSize();
-        if (chunkSize < 0) {
-            throw new MalformedChunkCodingException("Negative chunk size");
+        if (state == CHUNK_INVALID) {
+            throw new MalformedChunkCodingException("Corrupt data stream");
         }
-        state = CHUNK_DATA;
-        pos = 0;
-        if (chunkSize == 0) {
-            eof = true;
-            parseTrailerHeaders();
+        try {
+            chunkSize = getChunkSize();
+            if (chunkSize < 0) {
+                throw new MalformedChunkCodingException("Negative chunk size");
+            }
+            state = CHUNK_DATA;
+            pos = 0;
+            if (chunkSize == 0) {
+                eof = true;
+                parseTrailerHeaders();
+            }
+        } catch (MalformedChunkCodingException ex) {
+            state = CHUNK_INVALID;
+            throw ex;
         }
     }
 
@@ -264,8 +288,10 @@ public class ChunkedInputStream extends InputStream {
      */
     private void parseTrailerHeaders() throws IOException {
         try {
-            this.footers = AbstractMessageParser.parseHeaders
-                (in, -1, -1, null);
+            this.footers = AbstractMessageParser.parseHeaders(in,
+                    constraints.getMaxHeaderCount(),
+                    constraints.getMaxLineLength(),
+                    null);
         } catch (final HttpException ex) {
             final IOException ioe = new MalformedChunkCodingException("Invalid footer: "
                     + ex.getMessage());
@@ -284,7 +310,7 @@ public class ChunkedInputStream extends InputStream {
     public void close() throws IOException {
         if (!closed) {
             try {
-                if (!eof) {
+                if (!eof && state != CHUNK_INVALID) {
                     // read and discard the remainder of the message
                     final byte buff[] = new byte[BUFFER_SIZE];
                     while (read(buff) >= 0) {
