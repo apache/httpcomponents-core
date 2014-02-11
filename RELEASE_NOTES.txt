@@ -1,6 +1,9 @@
 Changes for release 4.4-alpha1
 -------------------
 
+* [HTTPCORE-373] Out of sequence HTTP response causes NPE in HttpAsyncRequestExecutor.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-372] Blocking and non-blocking chunk decoders to throw an I/O exception if data stream
   is terminated without a closing chunk.
   Contributed by Dmitry Potapov <potapov.d at gmail.com>
@@ -13,7 +16,7 @@ Changes for release 4.4-alpha1
 
 * [HTTPCORE-370] Race condition if connection request succeeds and times out at the same time.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
-    
+
 * [HTTPCORE-357] Avoid DNS lookups in SSLIOSession.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

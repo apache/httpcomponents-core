@@ -191,9 +191,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void responseReceived(
             final NHttpClientConnection conn) throws HttpException, IOException {
         final State state = ensureNotNull(getState(conn));
+        final HttpRequest request = state.getRequest();
+        if (request == null) {
+            throw new HttpException("Out of sequence response");
+        }
         final HttpAsyncClientExchangeHandler handler = ensureNotNull(getHandler(conn));
         final HttpResponse response = conn.getHttpResponse();
-        final HttpRequest request = state.getRequest();
 
         final int statusCode = response.getStatusLine().getStatusCode();
         if (statusCode < HttpStatus.SC_OK) {
