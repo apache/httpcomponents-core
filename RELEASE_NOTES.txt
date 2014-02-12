@@ -1,5 +1,14 @@
-Changes since release 4.3.1
+Release 4.3.2
 -------------------
+
+This maintenance release fixes a number of bugs and regressions found since 4.3.1, mostly in the 
+NIO transport components. All users of HttpCore 4.3 are advised to upgrade.
+
+Changelog
+-------------------
+
+* [HTTPCORE-371] Support for SSL re-negotiation with NIO.
+  Contributed by Asankha Perera <asankha at apache.org>
 
 * [HTTPCORE-373] Out of sequence HTTP response causes NPE in HttpAsyncRequestExecutor.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
