@@ -33,7 +33,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
   <name>Apache HttpComponents Core</name>
-  <version>4.3.2-SNAPSHOT</version>
+  <version>4.3.3-SNAPSHOT</version>
   <description>Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
@@ -58,9 +58,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</developerConnection>
-    <url>https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</url>
+    <connection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.3.x</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.3.x</developerConnection>
+    <url>https://svn.apache.org/repos/asf/httpcomponents/httpcore/branches/4.3.x</url>
   </scm>
 
   <modules>
