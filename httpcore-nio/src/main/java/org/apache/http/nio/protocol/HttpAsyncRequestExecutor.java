@@ -107,11 +107,15 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void closed(final NHttpClientConnection conn) {
         final State state = getState(conn);
         final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+        if (state != null) {
+            if (state.getRequestState() != MessageState.READY || state.getResponseState() != MessageState.READY) {
+                if (handler != null) {
+                    handler.failed(new ConnectionClosedException("Connection closed unexpectedly"));
+                }
+            }
+        }
         if (state == null || (handler != null && handler.isDone())) {
             closeHandler(handler);
-        }
-        if (state != null) {
-            state.reset();
         }
     }
 
