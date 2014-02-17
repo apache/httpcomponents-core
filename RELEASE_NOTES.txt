@@ -1,6 +1,10 @@
 Changes for release 4.4-alpha1
 -------------------
 
+* [HTTPASYNC-69]: async request handler is closed by HttpAsyncRequestExecutor#closed 
+  if the underlying connection is found to be in an inconsistent state.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-373] Out of sequence HTTP response causes NPE in HttpAsyncRequestExecutor.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 

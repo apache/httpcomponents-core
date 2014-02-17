@@ -101,15 +101,13 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testClosed() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        state.setRequestState(MessageState.COMPLETED);
-        state.setResponseState(MessageState.COMPLETED);
+        state.setRequestState(MessageState.READY);
+        state.setResponseState(MessageState.READY);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
 
         this.protocolHandler.closed(this.conn);
 
-        Assert.assertEquals(MessageState.READY, state.getRequestState());
-        Assert.assertEquals(MessageState.READY, state.getResponseState());
         Mockito.verify(this.exchangeHandler, Mockito.never()).close();
     }
 
@@ -120,6 +118,19 @@ public class TestHttpAsyncRequestExecutor {
         this.protocolHandler.closed(this.conn);
 
         Mockito.verify(this.exchangeHandler).close();
+    }
+
+    @Test
+    public void testClosedInconsistentState() throws Exception {
+        final State state = new HttpAsyncRequestExecutor.State();
+        state.setRequestState(MessageState.COMPLETED);
+        state.setResponseState(MessageState.INIT);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
+
+        this.protocolHandler.closed(this.conn);
+
+        Mockito.verify(this.exchangeHandler).failed(Mockito.any(ConnectionClosedException.class));
     }
 
     @Test
