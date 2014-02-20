@@ -660,6 +660,20 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     /**
+     * Returns snapshot of all knows routes
+     *
+     * @since 4.4
+     */
+    public Set<T> getRoutes() {
+        this.lock.lock();
+        try {
+            return new HashSet<T>(routeToPool.keySet());
+        } finally {
+            this.lock.unlock();
+        }
+    }
+
+    /**
      * Enumerates all available connections.
      *
      * @since 4.3

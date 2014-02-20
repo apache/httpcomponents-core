@@ -27,6 +27,7 @@
 package org.apache.http.pool;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -96,6 +97,7 @@ public class TestConnPool {
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(10, totals.getMax());
+        Assert.assertEquals(Collections.emptySet(), pool.getRoutes());
         final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
@@ -526,6 +528,7 @@ public class TestConnPool {
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(1, totals.getLeased());
+        Assert.assertEquals(Collections.singleton("somehost"), pool.getRoutes());
         final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(1, stats.getLeased());

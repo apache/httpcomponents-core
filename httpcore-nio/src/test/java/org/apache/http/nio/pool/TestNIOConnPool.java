@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -125,6 +126,7 @@ public class TestNIOConnPool {
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
         Assert.assertEquals(10, totals.getMax());
+        Assert.assertEquals(Collections.emptySet(), pool.getRoutes());
         final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
@@ -789,6 +791,7 @@ public class TestNIOConnPool {
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(1, totals.getPending());
+        Assert.assertEquals(Collections.singleton("somehost"), pool.getRoutes());
         final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
         Assert.assertEquals(0, stats.getLeased());
