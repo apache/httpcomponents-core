@@ -27,7 +27,9 @@ Changes for release 4.4-alpha1
 * (Regression) Fixed synchronization issue in blocking and non-blocking connection pool 
   implementations caused by HTTPCORE-362
   Contributed by Oleg Kalnichevski <olegk at apache.org>
-
+  
+* Update JUnit to version 4.11 from 4.9  
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 4.3.1
