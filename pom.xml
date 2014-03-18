@@ -71,6 +71,8 @@
   </modules>
 
   <properties>
+    <maven.compiler.source>1.5</maven.compiler.source>
+    <maven.compiler.target>1.5</maven.compiler.target>  
     <!-- Override parent 7 setting for deprecation (only - other settings stand)-->
     <maven.compiler.showDeprecation>false</maven.compiler.showDeprecation>
     <junit.version>4.9</junit.version>
