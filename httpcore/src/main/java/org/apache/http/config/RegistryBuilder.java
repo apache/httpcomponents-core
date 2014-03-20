@@ -56,7 +56,7 @@ public final class RegistryBuilder<I> {
     public RegistryBuilder<I> register(final String id, final I item) {
         Args.notEmpty(id, "ID");
         Args.notNull(item, "Item");
-        items.put(id.toLowerCase(Locale.US), item);
+        items.put(id.toLowerCase(Locale.ROOT), item);
         return this;
     }
 

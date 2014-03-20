@@ -53,7 +53,7 @@ public final class Registry<I> implements Lookup<I> {
         if (key == null) {
             return null;
         }
-        return map.get(key.toLowerCase(Locale.US));
+        return map.get(key.toLowerCase(Locale.ROOT));
     }
 
     @Override
