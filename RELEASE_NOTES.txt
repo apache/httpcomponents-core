@@ -1,6 +1,10 @@
 Changes since Release 4.3.2
 -------------------
 
+* [HTTPCORE-376] AbstractNIOConnPool#requestCancelled() should not process pending requests
+  wnen being shut down.
+  Contributed by Dmitry Potapov <potapov.d at gmail.com>
+
 * [HTTPASYNC-69]: async request handler is closed by HttpAsyncRequestExecutor#closed 
   if the underlying connection is found to be in an inconsistent state.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
