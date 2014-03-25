@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
@@ -245,6 +246,7 @@ public class TestNIOConnPool {
                 Mockito.any(SocketAddress.class),
                 Mockito.any(), Mockito.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
+        Mockito.when(ioreactor.getStatus()).thenReturn(IOReactorStatus.ACTIVE);
         final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 10);
         final Future<LocalPoolEntry> future = pool.lease("somehost", null);
 

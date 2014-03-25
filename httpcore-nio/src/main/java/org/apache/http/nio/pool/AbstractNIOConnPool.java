@@ -47,6 +47,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
+import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
@@ -510,7 +511,9 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             final RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.cancelled(request);
-            processNextPendingRequest();
+            if (this.ioreactor.getStatus().compareTo(IOReactorStatus.ACTIVE) <= 0) {
+                processNextPendingRequest();
+            }
         } finally {
             this.lock.unlock();
         }
