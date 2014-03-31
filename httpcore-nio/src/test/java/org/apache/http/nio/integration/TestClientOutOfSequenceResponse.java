@@ -32,7 +32,6 @@ import java.net.Socket;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.http.Consts;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -89,7 +88,7 @@ public class TestClientOutOfSequenceResponse {
             socket.getOutputStream().write((
                     "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: 0\r\n" +
-                    "Connection: keep-alive\r\n\r\n").getBytes(Consts.UTF_8));
+                    "Connection: keep-alive\r\n\r\n").getBytes("UTF-8"));
             socket.getOutputStream().flush();
         }
 
