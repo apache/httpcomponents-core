@@ -36,24 +36,19 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncExchange;
-import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
-import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
@@ -61,6 +56,7 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
 import org.apache.http.nio.testserver.LoggingServerConnectionFactory;
+import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -68,6 +64,7 @@ import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -79,15 +76,62 @@ import org.junit.Test;
 public class TestPipelining extends HttpCoreNIOTestBase {
 
     protected HttpProcessor serverHttpProc;
+    protected HttpAsyncService serviceHandler;
 
     @Before
     public void setUp() throws Exception {
         initServer();
-        this.serverHttpProc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseServer("TEST-SERVER/1.1"),
-                new ResponseContent(),
-                new ResponseConnControl()
-        });
+        this.serverHttpProc = new ImmutableHttpProcessor(
+                new ResponseServer("TEST-SERVER/1.1"), new ResponseContent(), new ResponseConnControl());
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                final String content = "thank you very much";
+                final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
+                response.setEntity(entity);
+            }
+
+        }));
+        registry.register("/goodbye", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                final String content = "and goodbye";
+                final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
+                response.setEntity(entity);
+                response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+            }
+
+        }));
+        registry.register("/echo", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                final HttpEntity responseEntity;
+                if (request instanceof HttpEntityEnclosingRequest) {
+                    final HttpEntity requestEntity = ((HttpEntityEnclosingRequest) request).getEntity();
+                    final ContentType contentType = ContentType.getOrDefault(requestEntity);
+                    responseEntity = new NByteArrayEntity(
+                            EntityUtils.toByteArray(requestEntity), contentType);
+                } else {
+                    responseEntity = new NStringEntity("Say what?", ContentType.DEFAULT_TEXT);
+                }
+                response.setEntity(responseEntity);
+            }
+
+        }));
+        this.serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
     }
 
     @After
@@ -106,23 +150,8 @@ public class TestPipelining extends HttpCoreNIOTestBase {
     }
 
     @Test
-    public void testBasicPipelining() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                final String content = "thank you very much";
-                final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
-                response.setEntity(entity);
-            }
-
-        }));
-        final HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
-        this.server.start(serviceHandler);
+    public void testGetRequestPipelining() throws Exception {
+        this.server.start(this.serviceHandler);
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -134,6 +163,12 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         try {
             final OutputStream outstream = socket.getOutputStream();
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            writer.write("GET / HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("\r\n");
+            writer.write("GET / HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("\r\n");
             writer.write("GET / HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
@@ -152,28 +187,32 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
             reader.close();
             writer.close();
-//            String expected =
-//                    "HTTP/1.1 200 OK\r\n" +
-//                    "Server: TEST-SERVER/1.1\r\n" +
-//                    "Content-Length: 19\r\n" +
-//                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
-//                    "\r\n" +
-//                    "thank you very much" +
-//                    "HTTP/1.1 200 OK\r\n" +
-//                    "Server: TEST-SERVER/1.1\r\n" +
-//                    "Content-Length: 19\r\n" +
-//                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
-//                    "Connection: close\r\n" +
-//                    "\r\n" +
-//                    "thank you very much";
             final String expected =
-                    "HTTP/1.1 400 Bad Request\r\n" +
-                    "Connection: Close\r\n" +
+                    "HTTP/1.1 200 OK\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +
-                    "Content-Length: 70\r\n" +
+                    "Content-Length: 19\r\n" +
                     "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
                     "\r\n" +
-                    "Out of sequence request message detected (pipelining is not supported)";
+                    "thank you very much" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 19\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "thank you very much" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 19\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "thank you very much" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 19\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "Connection: close\r\n" +
+                    "\r\n" +
+                    "thank you very much";
             Assert.assertEquals(expected, buf.toString());
 
         } finally {
@@ -183,52 +222,8 @@ public class TestPipelining extends HttpCoreNIOTestBase {
     }
 
     @Test
-    public void testPipeliningWithCancellable() throws Exception {
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        final Cancellable cancellable = new Cancellable() {
-
-            @Override
-            public boolean cancel() {
-                latch.countDown();
-                return true;
-            }
-        };
-
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("/long", new HttpAsyncRequestHandler<HttpRequest>() {
-
-            @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(final HttpRequest request,
-                    final HttpContext context) {
-                return new BasicAsyncRequestConsumer();
-            }
-
-            @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpAsyncExchange httpexchange,
-                    final HttpContext context) throws HttpException, IOException {
-                httpexchange.setCallback(cancellable);
-                // do not submit a response;
-            }
-
-        });
-        registry.register("/short", new BasicAsyncRequestHandler(new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                final String content = "thank you very much";
-                final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
-                response.setEntity(entity);
-            }
-
-        }));
-        final HttpAsyncService serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
-        this.server.start(serviceHandler);
+    public void testPostRequestPipelining() throws Exception {
+        this.server.start(this.serviceHandler);
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
@@ -240,12 +235,27 @@ public class TestPipelining extends HttpCoreNIOTestBase {
         try {
             final OutputStream outstream = socket.getOutputStream();
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
-            writer.write("GET /long HTTP/1.1\r\n");
+            writer.write("POST /echo HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("Content-Length: 16\r\n");
+            writer.write("Content-Type: text/plain; charset=ISO-8859-1\r\n");
+            writer.write("\r\n");
+            writer.write("blah blah blah\r\n");
+            writer.write("POST /echo HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("Transfer-Encoding: chunked\r\n");
+            writer.write("Content-Type: text/plain; charset=ISO-8859-1\r\n");
+            writer.write("\r\n");
+            writer.write("10\r\n");
+            writer.write("yada yada yada\r\n");
+            writer.write("\r\n");
+            writer.write("0\r\n");
+            writer.write("\r\n");
+            writer.write("GET / HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
-            writer.write("GET /short HTTP/1.1\r\n");
+            writer.write("GET /goodbye HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
-            writer.write("Connection: close\r\n");
             writer.write("\r\n");
             writer.flush();
             final InputStream instream = socket.getInputStream();
@@ -258,22 +268,111 @@ public class TestPipelining extends HttpCoreNIOTestBase {
             }
             reader.close();
             writer.close();
-
             final String expected =
-                    "HTTP/1.1 400 Bad Request\r\n" +
-                    "Connection: Close\r\n" +
+                    "HTTP/1.1 200 OK\r\n" +
                     "Server: TEST-SERVER/1.1\r\n" +
-                    "Content-Length: 70\r\n" +
+                    "Content-Length: 16\r\n" +
                     "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
                     "\r\n" +
-                    "Out of sequence request message detected (pipelining is not supported)";
+                    "blah blah blah\r\n" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 16\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "yada yada yada\r\n" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 19\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "thank you very much" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Connection: Close\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 11\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "and goodbye";
             Assert.assertEquals(expected, buf.toString());
 
         } finally {
             socket.close();
         }
 
-        Assert.assertTrue(latch.await(5, TimeUnit.SECONDS));
+    }
+
+    @Test
+    public void testPostRequestPipeliningExpectContinue() throws Exception {
+        this.server.start(this.serviceHandler);
+
+        final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
+        endpoint.waitFor();
+
+        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
+
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        final Socket socket = new Socket("localhost", address.getPort());
+        try {
+            final OutputStream outstream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            writer.write("POST /echo HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("Expect: 100-Continue\r\n");
+            writer.write("Content-Length: 16\r\n");
+            writer.write("Content-Type: text/plain; charset=ISO-8859-1\r\n");
+            writer.write("\r\n");
+            writer.write("blah blah blah\r\n");
+            writer.write("POST /echo HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("Expect: 100-Continue\r\n");
+            writer.write("Content-Length: 16\r\n");
+            writer.write("Content-Type: text/plain; charset=ISO-8859-1\r\n");
+            writer.write("\r\n");
+            writer.write("yada yada yada\r\n");
+            writer.write("POST /echo HTTP/1.1\r\n");
+            writer.write("Host: localhost\r\n");
+            writer.write("Expect: 100-Continue\r\n");
+            writer.write("Content-Length: 16\r\n");
+            writer.write("Content-Type: text/plain; charset=ISO-8859-1\r\n");
+            writer.write("Connection: close\r\n");
+            writer.write("\r\n");
+            writer.write("booo booo booo\r\n");
+            writer.flush();
+            final InputStream instream = socket.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
+            final StringBuilder buf = new StringBuilder();
+            final char[] tmp = new char[1024];
+            int l;
+            while ((l = reader.read(tmp)) != -1) {
+                buf.append(tmp, 0, l);
+            }
+            reader.close();
+            writer.close();
+            final String expected = "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 16\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "blah blah blah\r\n" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 16\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "\r\n" +
+                    "yada yada yada\r\n" +
+                    "HTTP/1.1 200 OK\r\n" +
+                    "Server: TEST-SERVER/1.1\r\n" +
+                    "Content-Length: 16\r\n" +
+                    "Content-Type: text/plain; charset=ISO-8859-1\r\n" +
+                    "Connection: close\r\n" +
+                    "\r\n" +
+                    "booo booo booo\r\n";
+            Assert.assertEquals(expected, buf.toString());
+
+        } finally {
+            socket.close();
+        }
     }
 
 }

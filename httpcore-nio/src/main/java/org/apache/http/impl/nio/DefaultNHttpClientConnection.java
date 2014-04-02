@@ -252,6 +252,7 @@ public class DefaultNHttpClientConnection
                         this.response.setEntity(entity);
                         this.connMetrics.incrementResponseCount();
                     }
+                    this.hasBufferedInput = this.inbuf.hasData();
                     onResponseReceived(this.response);
                     handler.responseReceived(this);
                     if (this.contentDecoder == null) {

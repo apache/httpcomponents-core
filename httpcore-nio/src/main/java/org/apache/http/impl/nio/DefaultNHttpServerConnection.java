@@ -270,6 +270,7 @@ public class DefaultNHttpServerConnection
                         ((HttpEntityEnclosingRequest)this.request).setEntity(entity);
                     }
                     this.connMetrics.incrementRequestCount();
+                    this.hasBufferedInput = this.inbuf.hasData();
                     onRequestReceived(this.request);
                     handler.requestReceived(this);
                     if (this.contentDecoder == null) {
@@ -325,9 +326,6 @@ public class DefaultNHttpServerConnection
                     this.session.close();
                     this.status = CLOSED;
                     resetOutput();
-                }
-                if (this.contentEncoder == null && this.status != CLOSED) {
-                    this.session.clearEvent(EventMask.WRITE);
                 }
             }
         } catch (final Exception ex) {
