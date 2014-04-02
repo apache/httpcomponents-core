@@ -79,9 +79,9 @@ public final class HttpHost implements Cloneable, Serializable {
     public HttpHost(final String hostname, final int port, final String scheme) {
         super();
         this.hostname   = Args.notBlank(hostname, "Host name");
-        this.lcHostname = hostname.toLowerCase(Locale.ENGLISH);
+        this.lcHostname = hostname.toLowerCase(Locale.ROOT);
         if (scheme != null) {
-            this.schemeName = scheme.toLowerCase(Locale.ENGLISH);
+            this.schemeName = scheme.toLowerCase(Locale.ROOT);
         } else {
             this.schemeName = DEFAULT_SCHEME_NAME;
         }
@@ -126,9 +126,9 @@ public final class HttpHost implements Cloneable, Serializable {
         super();
         this.address = Args.notNull(address, "Inet address");
         this.hostname = address.getHostAddress();
-        this.lcHostname = this.hostname.toLowerCase(Locale.ENGLISH);
+        this.lcHostname = this.hostname.toLowerCase(Locale.ROOT);
         if (scheme != null) {
-            this.schemeName = scheme.toLowerCase(Locale.ENGLISH);
+            this.schemeName = scheme.toLowerCase(Locale.ROOT);
         } else {
             this.schemeName = DEFAULT_SCHEME_NAME;
         }

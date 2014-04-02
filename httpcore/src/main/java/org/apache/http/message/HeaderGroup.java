@@ -158,7 +158,7 @@ public class HeaderGroup implements Cloneable, Serializable {
                 valueBuffer.append(hdrs[i].getValue());
             }
 
-            return new BasicHeader(name.toLowerCase(Locale.ENGLISH), valueBuffer.toString());
+            return new BasicHeader(name.toLowerCase(Locale.ROOT), valueBuffer.toString());
         }
     }
 
