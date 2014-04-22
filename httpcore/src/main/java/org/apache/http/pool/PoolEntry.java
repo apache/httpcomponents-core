@@ -55,7 +55,7 @@ public abstract class PoolEntry<T, C> {
     private final T route;
     private final C conn;
     private final long created;
-    private final long validUnit;
+    private final long validityDeadline;
 
     @GuardedBy("this")
     private long updated;
@@ -86,11 +86,11 @@ public abstract class PoolEntry<T, C> {
         this.conn = conn;
         this.created = System.currentTimeMillis();
         if (timeToLive > 0) {
-            this.validUnit = this.created + tunit.toMillis(timeToLive);
+            this.validityDeadline = this.created + tunit.toMillis(timeToLive);
         } else {
-            this.validUnit = Long.MAX_VALUE;
+            this.validityDeadline = Long.MAX_VALUE;
         }
-        this.expiry = this.validUnit;
+        this.expiry = this.validityDeadline;
     }
 
     /**
@@ -120,8 +120,19 @@ public abstract class PoolEntry<T, C> {
         return this.created;
     }
 
+    /**
+     * @since 4.4
+     */
+    public long getValidityDeadline() {
+        return this.validityDeadline;
+    }
+
+    /**
+     * @deprecated use {@link #getValidityDeadline()}
+     */
+    @Deprecated
     public long getValidUnit() {
-        return this.validUnit;
+        return this.validityDeadline;
     }
 
     public Object getState() {
@@ -149,7 +160,7 @@ public abstract class PoolEntry<T, C> {
         } else {
             newExpiry = Long.MAX_VALUE;
         }
-        this.expiry = Math.min(newExpiry, this.validUnit);
+        this.expiry = Math.min(newExpiry, this.validityDeadline);
     }
 
     public synchronized boolean isExpired(final long now) {

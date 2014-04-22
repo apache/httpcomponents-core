@@ -69,8 +69,8 @@ public class TestPoolEntry {
         final long now = System.currentTimeMillis();
         Assert.assertEquals("route1", entry1.getRoute());
         Assert.assertTrue(now >= entry1.getCreated());
-        Assert.assertEquals(entry1.getValidUnit(), entry1.getExpiry());
-        Assert.assertEquals(entry1.getCreated() + 10L, entry1.getValidUnit());
+        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
+        Assert.assertEquals(entry1.getCreated() + 10L, entry1.getValidityDeadline());
     }
 
     @Test
@@ -95,8 +95,8 @@ public class TestPoolEntry {
     @Test
     public void testValidInfinitely() throws Exception {
         final MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(Long.MAX_VALUE, entry1.getValidUnit());
-        Assert.assertEquals(entry1.getValidUnit(), entry1.getExpiry());
+        Assert.assertEquals(Long.MAX_VALUE, entry1.getValidityDeadline());
+        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
     }
 
     @Test
