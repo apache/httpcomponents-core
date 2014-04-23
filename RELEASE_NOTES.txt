@@ -1,6 +1,9 @@
 Changes for release 4.4-alpha1
 -------------------
 
+* [HTTPCORE-377] Allow zero SO_LINGER (immediate abortive close).
+  Contributed by Dmitry Potapov <potapov.d at gmail.com>
+
 * [HTTPCORE-376] AbstractNIOConnPool#requestCancelled() should not process pending requests
   wnen being shut down.
   Contributed by Dmitry Potapov <potapov.d at gmail.com>

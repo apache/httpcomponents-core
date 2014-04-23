@@ -509,7 +509,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         final int linger = this.config.getSoLinger();
         if (linger >= 0) {
-            socket.setSoLinger(linger > 0, linger);
+            socket.setSoLinger(true, linger);
         }
     }
 

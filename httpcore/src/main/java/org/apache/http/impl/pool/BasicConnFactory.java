@@ -169,7 +169,7 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
         final int linger = this.sconfig.getSoLinger();
         if (linger >= 0) {
-            socket.setSoLinger(linger > 0, linger);
+            socket.setSoLinger(true, linger);
         }
         socket.setKeepAlive(this.sconfig.isSoKeepAlive());
         return this.connFactory.createConnection(socket);
