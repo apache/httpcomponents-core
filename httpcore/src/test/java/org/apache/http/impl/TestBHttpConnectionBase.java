@@ -165,7 +165,7 @@ public class TestBHttpConnectionBase {
         Mockito.verify(socket, Mockito.times(1)).close();
 
         conn.shutdown();
-        Mockito.verify(socket, Mockito.times(2)).close();
+        Mockito.verify(socket, Mockito.times(1)).close();
     }
 
     @Test

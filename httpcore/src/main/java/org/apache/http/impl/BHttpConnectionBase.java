@@ -37,6 +37,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
@@ -82,9 +83,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     private final HttpConnectionMetricsImpl connMetrics;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-
-    private volatile boolean open;
-    private volatile Socket socket;
+    private final AtomicReference<Socket> socketHolder;
 
     /**
      * Creates new instance of BHttpConnectionBase.
@@ -124,15 +123,17 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             LaxContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
             StrictContentLengthStrategy.INSTANCE;
+        this.socketHolder = new AtomicReference<Socket>();
     }
 
     protected void ensureOpen() throws IOException {
-        Asserts.check(this.open, "Connection is not open");
+        final Socket socket = this.socketHolder.get();
+        Asserts.check(socket != null, "Connection is not open");
         if (!this.inbuffer.isBound()) {
-            this.inbuffer.bind(getSocketInputStream(this.socket));
+            this.inbuffer.bind(getSocketInputStream(socket));
         }
         if (!this.outbuffer.isBound()) {
-            this.outbuffer.bind(getSocketOutputStream(this.socket));
+            this.outbuffer.bind(getSocketOutputStream(socket));
         }
     }
 
@@ -156,8 +157,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
      */
     protected void bind(final Socket socket) throws IOException {
         Args.notNull(socket, "Socket");
-        this.socket = socket;
-        this.open = true;
+        this.socketHolder.set(socket);
         this.inbuffer.bind(null);
         this.outbuffer.bind(null);
     }
@@ -176,11 +176,11 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     @Override
     public boolean isOpen() {
-        return this.open;
+        return this.socketHolder.get() != null;
     }
 
     protected Socket getSocket() {
-        return this.socket;
+        return this.socketHolder.get();
     }
 
     protected OutputStream createOutputStream(
@@ -244,45 +244,34 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     @Override
     public InetAddress getLocalAddress() {
-        if (this.socket != null) {
-            return this.socket.getLocalAddress();
-        } else {
-            return null;
-        }
+        final Socket socket = this.socketHolder.get();
+        return socket != null ? socket.getLocalAddress() : null;
     }
 
     @Override
     public int getLocalPort() {
-        if (this.socket != null) {
-            return this.socket.getLocalPort();
-        } else {
-            return -1;
-        }
+        final Socket socket = this.socketHolder.get();
+        return socket != null ? socket.getLocalPort() : -1;
     }
 
     @Override
     public InetAddress getRemoteAddress() {
-        if (this.socket != null) {
-            return this.socket.getInetAddress();
-        } else {
-            return null;
-        }
+        final Socket socket = this.socketHolder.get();
+        return socket != null ? socket.getInetAddress() : null;
     }
 
     @Override
     public int getRemotePort() {
-        if (this.socket != null) {
-            return this.socket.getPort();
-        } else {
-            return -1;
-        }
+        final Socket socket = this.socketHolder.get();
+        return socket != null ? socket.getPort() : -1;
     }
 
     @Override
     public void setSocketTimeout(final int timeout) {
-        if (this.socket != null) {
+        final Socket socket = this.socketHolder.get();
+        if (socket != null) {
             try {
-                this.socket.setSoTimeout(timeout);
+                socket.setSoTimeout(timeout);
             } catch (final SocketException ignore) {
                 // It is not quite clear from the Sun's documentation if there are any
                 // other legitimate cases for a socket exception to be thrown when setting
@@ -293,9 +282,10 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     @Override
     public int getSocketTimeout() {
-        if (this.socket != null) {
+        final Socket socket = this.socketHolder.get();
+        if (socket != null) {
             try {
-                return this.socket.getSoTimeout();
+                return socket.getSoTimeout();
             } catch (final SocketException ignore) {
                 return -1;
             }
@@ -306,47 +296,45 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     @Override
     public void shutdown() throws IOException {
-        this.open = false;
-        final Socket tmpsocket = this.socket;
-        if (tmpsocket != null) {
-            tmpsocket.close();
+        final Socket socket = this.socketHolder.getAndSet(null);
+        if (socket != null) {
+            socket.close();
         }
     }
 
     @Override
     public void close() throws IOException {
-        if (!this.open) {
-            return;
-        }
-        this.open = false;
-        final Socket sock = this.socket;
-        try {
-            this.inbuffer.clear();
-            this.outbuffer.flush();
+        final Socket socket = this.socketHolder.getAndSet(null);
+        if (socket != null) {
             try {
+                this.inbuffer.clear();
+                this.outbuffer.flush();
                 try {
-                    sock.shutdownOutput();
-                } catch (final IOException ignore) {
+                    try {
+                        socket.shutdownOutput();
+                    } catch (final IOException ignore) {
+                    }
+                    try {
+                        socket.shutdownInput();
+                    } catch (final IOException ignore) {
+                    }
+                } catch (final UnsupportedOperationException ignore) {
+                    // if one isn't supported, the other one isn't either
                 }
-                try {
-                    sock.shutdownInput();
-                } catch (final IOException ignore) {
-                }
-            } catch (final UnsupportedOperationException ignore) {
-                // if one isn't supported, the other one isn't either
+            } finally {
+                socket.close();
             }
-        } finally {
-            sock.close();
         }
     }
 
     private int fillInputBuffer(final int timeout) throws IOException {
-        final int oldtimeout = this.socket.getSoTimeout();
+        final Socket socket = this.socketHolder.get();
+        final int oldtimeout = socket.getSoTimeout();
         try {
-            this.socket.setSoTimeout(timeout);
+            socket.setSoTimeout(timeout);
             return this.inbuffer.fillBuffer();
         } finally {
-            this.socket.setSoTimeout(oldtimeout);
+            socket.setSoTimeout(oldtimeout);
         }
     }
 
@@ -388,10 +376,11 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     @Override
     public String toString() {
-        if (this.socket != null) {
+        final Socket socket = this.socketHolder.get();
+        if (socket != null) {
             final StringBuilder buffer = new StringBuilder();
-            final SocketAddress remoteAddress = this.socket.getRemoteSocketAddress();
-            final SocketAddress localAddress = this.socket.getLocalSocketAddress();
+            final SocketAddress remoteAddress = socket.getRemoteSocketAddress();
+            final SocketAddress localAddress = socket.getLocalSocketAddress();
             if (remoteAddress != null && localAddress != null) {
                 NetUtils.formatAddress(buffer, localAddress);
                 buffer.append("<->");
