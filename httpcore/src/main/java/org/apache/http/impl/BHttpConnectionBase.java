@@ -298,6 +298,8 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     public void shutdown() throws IOException {
         final Socket socket = this.socketHolder.getAndSet(null);
         if (socket != null) {
+            // force abortive close (RST)
+            socket.setSoLinger(true, 0);
             socket.close();
         }
     }
