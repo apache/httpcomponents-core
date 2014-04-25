@@ -167,6 +167,12 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         socket.setSoTimeout(this.sconfig.getSoTimeout());
         socket.connect(new InetSocketAddress(hostname, port), this.connectTimeout);
         socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
+        if (this.sconfig.getSndBufSize() > 0) {
+            socket.setSendBufferSize(this.sconfig.getSndBufSize());
+        }
+        if (this.sconfig.getRcvBufSize() > 0) {
+            socket.setReceiveBufferSize(this.sconfig.getRcvBufSize());
+        }
         final int linger = this.sconfig.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(true, linger);

@@ -45,19 +45,25 @@ public class SocketConfig implements Cloneable {
     private final int soLinger;
     private final boolean soKeepAlive;
     private final boolean tcpNoDelay;
+    private final int sndBufSize;
+    private final int rcvBufSize;
 
     SocketConfig(
             final int soTimeout,
             final boolean soReuseAddress,
             final int soLinger,
             final boolean soKeepAlive,
-            final boolean tcpNoDelay) {
+            final boolean tcpNoDelay,
+            final int sndBufSize,
+            final int rcvBufSize) {
         super();
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
         this.soLinger = soLinger;
         this.soKeepAlive = soKeepAlive;
         this.tcpNoDelay = tcpNoDelay;
+        this.sndBufSize = sndBufSize;
+        this.rcvBufSize = rcvBufSize;
     }
 
     /**
@@ -104,7 +110,7 @@ public class SocketConfig implements Cloneable {
      * @see java.net.SocketOptions#SO_KEEPALIVE
      */
     public boolean isSoKeepAlive() {
-        return this.soKeepAlive;
+        return soKeepAlive;
     }
 
     /**
@@ -117,6 +123,34 @@ public class SocketConfig implements Cloneable {
      */
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
+    }
+
+    /**
+     * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @see java.net.SocketOptions#SO_SNDBUF
+     *
+     * @since 4.4
+     */
+    public int getSndBufSize() {
+        return sndBufSize;
+    }
+
+    /**
+     * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
+     * for newly created sockets.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @see java.net.SocketOptions#SO_RCVBUF
+     *
+     * @since 4.4
+     */
+    public int getRcvBufSize() {
+        return rcvBufSize;
     }
 
     @Override
@@ -132,6 +166,8 @@ public class SocketConfig implements Cloneable {
                 .append(", soLinger=").append(this.soLinger)
                 .append(", soKeepAlive=").append(this.soKeepAlive)
                 .append(", tcpNoDelay=").append(this.tcpNoDelay)
+                .append(", sndBufSize=").append(this.sndBufSize)
+                .append(", rcvBufSize=").append(this.rcvBufSize)
                 .append("]");
         return builder.toString();
     }
@@ -147,7 +183,9 @@ public class SocketConfig implements Cloneable {
             .setSoReuseAddress(config.isSoReuseAddress())
             .setSoLinger(config.getSoLinger())
             .setSoKeepAlive(config.isSoKeepAlive())
-            .setTcpNoDelay(config.isTcpNoDelay());
+            .setTcpNoDelay(config.isTcpNoDelay())
+            .setSndBufSize(config.getSndBufSize())
+            .setRcvBufSize(config.getRcvBufSize());
     }
 
     public static class Builder {
@@ -157,6 +195,8 @@ public class SocketConfig implements Cloneable {
         private int soLinger;
         private boolean soKeepAlive;
         private boolean tcpNoDelay;
+        private int sndBufSize;
+        private int rcvBufSize;
 
         Builder() {
             this.soLinger = -1;
@@ -188,8 +228,25 @@ public class SocketConfig implements Cloneable {
             return this;
         }
 
+        /**
+         * @since 4.4
+         */
+        public Builder setSndBufSize(final int sndBufSize) {
+            this.sndBufSize = sndBufSize;
+            return this;
+        }
+
+        /**
+         * @since 4.4
+         */
+        public Builder setRcvBufSize(final int rcvBufSize) {
+            this.rcvBufSize = rcvBufSize;
+            return this;
+        }
+
         public SocketConfig build() {
-            return new SocketConfig(soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay);
+            return new SocketConfig(soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
+                    sndBufSize, rcvBufSize);
         }
 
     }
