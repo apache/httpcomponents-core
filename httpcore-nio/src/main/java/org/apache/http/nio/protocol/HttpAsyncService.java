@@ -237,7 +237,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 || state.getResponseState().compareTo(MessageState.INIT) > 0) {
             // There is not much that we can do if a response
             // has already been submitted
-            closeConnection(conn);
+            shutdownConnection(conn);
         } else {
             final HttpContext context = state.getContext();
             final HttpAsyncResponseProducer responseProducer = handleException(

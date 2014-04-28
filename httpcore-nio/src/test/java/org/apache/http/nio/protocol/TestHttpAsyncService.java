@@ -230,7 +230,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.READY, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
-        Mockito.verify(this.conn).close();
+        Mockito.verify(this.conn).shutdown();
         Mockito.verify(this.requestConsumer).failed(httpex);
         Mockito.verify(this.requestConsumer).close();
         Mockito.verify(this.responseProducer).failed(httpex);
