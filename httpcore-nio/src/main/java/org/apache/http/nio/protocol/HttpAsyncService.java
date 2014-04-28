@@ -247,7 +247,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 || state.getResponseState().compareTo(MessageState.INIT) > 0) {
             // There is not much that we can do if a response
             // has already been submitted or pipelining is being used.
-            closeConnection(conn);
+            shutdownConnection(conn);
         } else {
             try {
                 final Incoming incoming = state.getIncoming();
