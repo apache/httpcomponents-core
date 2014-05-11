@@ -24,31 +24,16 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.http.nio.protocol;
 
-package org.apache.http.nio.integration;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.util.Random;
-
-final class RndTestPatternGenerator {
-
-    private static final Random RND = new Random();
-    private static final String TEST_CHARS = "0123456789ABCDEF";
-
-    public static String generateText() {
-        final StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < 5; i++) {
-            final char rndchar = TEST_CHARS.charAt(RND.nextInt(TEST_CHARS.length() - 1));
-            buffer.append(rndchar);
-        }
-        return buffer.toString();
-    }
-
-    public static int generateCount(final int max) {
-        return RND.nextInt(max - 1) + 1;
-    }
-
-    public static boolean generateBoolean() {
-        return RND.nextBoolean();
-    }
-
+@Documented
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Pipelined {
 }

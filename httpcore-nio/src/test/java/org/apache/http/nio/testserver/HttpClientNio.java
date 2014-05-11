@@ -29,6 +29,8 @@ package org.apache.http.nio.testserver;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +39,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
@@ -62,8 +63,8 @@ import org.apache.http.nio.reactor.IOReactorExceptionHandler;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionRequest;
-import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
@@ -138,49 +139,18 @@ public class HttpClientNio {
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        final HttpHost target = requestProducer.getTarget();
-        final BasicFuture<T> future = new BasicFuture<T>(callback);
-        this.connpool.lease(target, null, this.timeout, TimeUnit.MILLISECONDS,
-            new FutureCallback<BasicNIOPoolEntry>() {
+        return executor.execute(requestProducer, responseConsumer, this.connpool,
+                context != null ? context : HttpCoreContext.create(), callback);
+    }
 
-                @Override
-                public void completed(final BasicNIOPoolEntry result) {
-                    executor.execute(
-                            requestProducer, responseConsumer,
-                            result, connpool,
-                            context != null ? context : new BasicHttpContext(),
-                            new FutureCallback<T>() {
-
-                                @Override
-                                public void completed(final T result) {
-                                    future.completed(result);
-                                }
-
-                                @Override
-                                public void failed(final Exception ex) {
-                                    future.failed(ex);
-                                }
-
-                                @Override
-                                public void cancelled() {
-                                    future.cancel();
-                                }
-
-                            });
-                }
-
-                @Override
-                public void failed(final Exception ex) {
-                    future.failed(ex);
-                }
-
-                @Override
-                public void cancelled() {
-                    future.cancel();
-                }
-
-            });
-        return future;
+    public <T> Future<List<T>> executePipelined(
+            final HttpHost target,
+            final List<HttpAsyncRequestProducer> requestProducers,
+            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+            final HttpContext context,
+            final FutureCallback<List<T>> callback) {
+        return executor.executePipelined(target, requestProducers, responseConsumers, this.connpool,
+                context != null ? context : HttpCoreContext.create(), callback);
     }
 
     public Future<HttpResponse> execute(
@@ -191,8 +161,25 @@ public class HttpClientNio {
         return execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
-                context != null ? context : new BasicHttpContext(),
+                context != null ? context : HttpCoreContext.create(),
                 callback);
+    }
+
+    public Future<List<HttpResponse>> executePipelined(
+            final HttpHost target,
+            final List<HttpRequest> requests,
+            final HttpContext context,
+            final FutureCallback<List<HttpResponse>> callback) {
+        final List<HttpAsyncRequestProducer> requestProducers =
+                new ArrayList<HttpAsyncRequestProducer>(requests.size());
+        final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers =
+                new ArrayList<HttpAsyncResponseConsumer<HttpResponse>>(requests.size());
+        for (HttpRequest request: requests) {
+            requestProducers.add(new BasicAsyncRequestProducer(target, request));
+            responseConsumers.add(new BasicAsyncResponseConsumer());
+        }
+        return executor.executePipelined(target, requestProducers, responseConsumers, this.connpool,
+                context != null ? context : HttpCoreContext.create(), callback);
     }
 
     public Future<HttpResponse> execute(
@@ -202,10 +189,23 @@ public class HttpClientNio {
         return execute(target, request, context, null);
     }
 
+    public Future<List<HttpResponse>> executePipelined(
+            final HttpHost target,
+            final List<HttpRequest> requests,
+            final HttpContext context) {
+        return executePipelined(target, requests, context, null);
+    }
+
     public Future<HttpResponse> execute(
             final HttpHost target,
             final HttpRequest request) {
         return execute(target, request, null, null);
+    }
+
+    public Future<List<HttpResponse>> executePipelined(
+            final HttpHost target,
+            final HttpRequest... requests) {
+        return executePipelined(target, Arrays.asList(requests), null, null);
     }
 
     public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {

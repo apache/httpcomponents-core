@@ -27,7 +27,12 @@
 
 package org.apache.http.nio.protocol;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionClosedException;
@@ -46,26 +51,32 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
- * Basic implementation of {@link HttpAsyncClientExchangeHandler} that executes
+ * Basic implementation of {@link org.apache.http.nio.protocol.HttpAsyncClientExchangeHandler} that executes
  * a single HTTP request / response exchange.
  *
  * @param <T> the result type of request execution.
- * @since 4.3
+ * @since 4.4
  */
-public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchangeHandler {
+@Pipelined()
+public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchangeHandler {
 
-    private final HttpAsyncRequestProducer requestProducer;
-    private final HttpAsyncResponseConsumer<T> responseConsumer;
-    private final BasicFuture<T> future;
+    private final Queue<HttpAsyncRequestProducer> requestProducerQueue;
+    private final Queue<HttpAsyncResponseConsumer<T>> responseConsumerQueue;
+    private final Queue<HttpRequest> requestQueue;
+    private final Queue<T> resultQueue;
+    private final BasicFuture<List<T>> future;
     private final HttpContext localContext;
     private final NHttpClientConnection conn;
     private final HttpProcessor httppocessor;
     private final ConnectionReuseStrategy connReuseStrategy;
 
-    private volatile boolean requestSent;
+    private volatile HttpAsyncRequestProducer requestProducer;
+    private volatile HttpAsyncResponseConsumer<T> responseConsumer;
     private volatile boolean keepAlive;
+    private volatile boolean done;
 
     /**
      * Creates new instance of BasicAsyncRequestExecutionHandler.
@@ -78,23 +89,30 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param httppocessor the HTTP protocol processor.
      * @param connReuseStrategy the connection re-use strategy.
      */
-    public BasicAsyncClientExchangeHandler(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
-            final FutureCallback<T> callback,
+    public PipeliningClientExchangeHandler(
+            final List<HttpAsyncRequestProducer> requestProducers,
+            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+            final FutureCallback<List<T>> callback,
             final HttpContext localContext,
             final NHttpClientConnection conn,
             final HttpProcessor httppocessor,
             final ConnectionReuseStrategy connReuseStrategy) {
         super();
-        this.requestProducer = Args.notNull(requestProducer, "Request producer");
-        this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
-        this.future = new BasicFuture<T>(callback);
+        Args.notEmpty(requestProducers, "Request producer list");
+        Args.notEmpty(responseConsumers, "Response consumer list");
+        Args.check(requestProducers.size() == responseConsumers.size(),
+                "Number of request producers does not match that of response consumers");
+        this.requestProducerQueue = new ConcurrentLinkedQueue<HttpAsyncRequestProducer>(requestProducers);
+        this.responseConsumerQueue = new ConcurrentLinkedQueue<HttpAsyncResponseConsumer<T>>(responseConsumers);
+        this.requestQueue = new ConcurrentLinkedQueue<HttpRequest>();
+        this.resultQueue = new ConcurrentLinkedQueue<T>();
+        this.future = new BasicFuture<List<T>>(callback);
         this.localContext = Args.notNull(localContext, "HTTP context");
         this.conn = Args.notNull(conn, "HTTP connection");
         this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
+        this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
     }
 
     /**
@@ -106,28 +124,41 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param conn the actual connection.
      * @param httppocessor the HTTP protocol processor.
      */
-    public BasicAsyncClientExchangeHandler(
-            final HttpAsyncRequestProducer requestProducer,
-            final HttpAsyncResponseConsumer<T> responseConsumer,
+    public PipeliningClientExchangeHandler(
+            final List<HttpAsyncRequestProducer> requestProducers,
+            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
             final HttpContext localContext,
             final NHttpClientConnection conn,
             final HttpProcessor httppocessor) {
-        this(requestProducer, responseConsumer, null, localContext, conn, httppocessor, null);
+        this(requestProducers, responseConsumers, null, localContext, conn, httppocessor, null);
     }
 
-    public Future<T> getFuture() {
+    public Future<List<T>> getFuture() {
         return this.future;
     }
 
+    private static void closeQuietly(final Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (final IOException ex) {
+            }
+        }
+    }
+
     private void releaseResources() {
-        try {
-            this.responseConsumer.close();
-        } catch (final IOException ex) {
+        closeQuietly(this.requestProducer);
+        this.requestProducer = null;
+        closeQuietly(this.responseConsumer);
+        this.responseConsumer = null;
+        while (!this.requestProducerQueue.isEmpty()) {
+            closeQuietly(this.requestProducerQueue.remove());
         }
-        try {
-            this.requestProducer.close();
-        } catch (final IOException ex) {
+        while (!this.responseConsumerQueue.isEmpty()) {
+            closeQuietly(this.responseConsumerQueue.remove());
         }
+        this.requestQueue.clear();
+        this.resultQueue.clear();
     }
 
     @Override
@@ -140,32 +171,45 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public HttpRequest generateRequest() throws IOException, HttpException {
-        if (isDone()) {
+        Asserts.check(this.requestProducer == null, "Inconsistent state: request producer is not null");
+        this.requestProducer = this.requestProducerQueue.poll();
+        if (this.requestProducer == null) {
             return null;
         }
         final HttpRequest request = this.requestProducer.generateRequest();
-        this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-        this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
         this.httppocessor.process(request, this.localContext);
+        this.requestQueue.add(request);
         return request;
     }
 
     @Override
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+        Asserts.check(this.requestProducer != null, "Inconsistent state: request producer is null");
         this.requestProducer.produceContent(encoder, ioctrl);
     }
 
     @Override
     public void requestCompleted() {
+        Asserts.check(this.requestProducer != null, "Inconsistent state: request producer is null");
         this.requestProducer.requestCompleted(this.localContext);
-        this.requestSent = true;
+        this.requestProducer = null;
     }
 
     @Override
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
+        Asserts.check(this.responseConsumer == null, "Inconsistent state: response consumer is not null");
+
+        this.responseConsumer = this.responseConsumerQueue.poll();
+        Asserts.check(this.responseConsumer != null, "Inconsistent state: response consumer queue is empty");
+
+        final HttpRequest request = this.requestQueue.poll();
+        Asserts.check(request != null, "Inconsistent state: request queue is empty");
+
+        this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         this.httppocessor.process(response, this.localContext);
+
         this.responseConsumer.responseReceived(response);
         this.keepAlive = this.connReuseStrategy.keepAlive(response, this.localContext);
     }
@@ -173,11 +217,13 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     @Override
     public void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+        Asserts.check(this.responseConsumer != null, "Inconsistent state: response consumer is null");
         this.responseConsumer.consumeContent(decoder, ioctrl);
     }
 
     @Override
     public void responseCompleted() throws IOException {
+        Asserts.check(this.responseConsumer != null, "Inconsistent state: response consumer is null");
         try {
             if (!this.keepAlive) {
                 this.conn.close();
@@ -185,12 +231,21 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
             this.responseConsumer.responseCompleted(this.localContext);
             final T result = this.responseConsumer.getResult();
             final Exception ex = this.responseConsumer.getException();
+            this.responseConsumer = null;
             if (result != null) {
-                this.future.completed(result);
+                this.resultQueue.add(result);
             } else {
                 this.future.failed(ex);
+                this.conn.shutdown();
             }
-            releaseResources();
+            if (!conn.isOpen()) {
+                this.done = true;
+                releaseResources();
+            }
+            if (!this.future.isDone() && this.responseConsumerQueue.isEmpty()) {
+                this.future.completed(new ArrayList<T>(this.resultQueue));
+                this.resultQueue.clear();
+            }
         } catch (final RuntimeException ex) {
             failed(ex);
             throw ex;
@@ -204,11 +259,14 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public void failed(final Exception ex) {
+        this.done = true;
         try {
-            if (!this.requestSent) {
+            if (this.requestProducer != null) {
                 this.requestProducer.failed(ex);
             }
-            this.responseConsumer.failed(ex);
+            if (this.responseConsumer != null) {
+                this.responseConsumer.failed(ex);
+            }
         } finally {
             try {
                 this.future.failed(ex);
@@ -220,6 +278,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public boolean cancel() {
+        this.done = true;
         try {
             final boolean cancelled = this.responseConsumer.cancel();
             this.future.cancel();
@@ -233,7 +292,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public boolean isDone() {
-        return this.responseConsumer.isDone();
+        return this.done;
     }
 
 }

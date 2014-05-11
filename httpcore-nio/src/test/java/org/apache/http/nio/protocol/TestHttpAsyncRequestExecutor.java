@@ -238,6 +238,7 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testRequestContentOutput() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
+        state.setRequestState(MessageState.BODY_STREAM);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
         Mockito.when(this.encoder.isCompleted()).thenReturn(Boolean.FALSE);
@@ -251,6 +252,7 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testRequestContentOutputCompleted() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
+        state.setRequestState(MessageState.BODY_STREAM);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
         Mockito.when(this.encoder.isCompleted()).thenReturn(Boolean.TRUE);
@@ -308,7 +310,7 @@ public class TestHttpAsyncRequestExecutor {
         this.protocolHandler.responseReceived(this.conn);
 
         Assert.assertNull(state.getResponse());
-        Assert.assertEquals(MessageState.ACK, state.getRequestState());
+        Assert.assertEquals(MessageState.BODY_STREAM, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
         Mockito.verify(this.conn).setSocketTimeout(1000);
         Mockito.verify(this.conn).requestOutput();
@@ -463,6 +465,7 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseContentInput() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
+        state.setResponseState(MessageState.BODY_STREAM);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
         Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.FALSE);
@@ -478,6 +481,7 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
+        state.setResponseState(MessageState.BODY_STREAM);
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
         Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.TRUE);
@@ -497,6 +501,7 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseContentOutputCompletedHandlerNotDone() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
+        state.setResponseState(MessageState.BODY_STREAM);
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
@@ -521,6 +526,7 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
+        state.setResponseState(MessageState.BODY_STREAM);
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
         Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.FALSE);
@@ -543,6 +549,7 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         state.setRequest(request);
+        state.setResponseState(MessageState.BODY_STREAM);
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         state.setResponse(response);
         state.invalidate();

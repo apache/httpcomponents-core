@@ -27,28 +27,26 @@
 
 package org.apache.http.nio.integration;
 
-import java.util.Random;
+import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.testserver.LoggingSSLClientConnectionFactory;
+import org.apache.http.nio.testserver.LoggingSSLServerConnectionFactory;
+import org.apache.http.nio.testserver.SSLTestContexts;
 
-final class RndTestPatternGenerator {
+/**
+ * HttpCore NIO integration tests for pipelined request processing using SSL.
+ */
+public class TestHttpsAsyncHandlersPipelining extends TestHttpAsyncHandlersPipelining {
 
-    private static final Random RND = new Random();
-    private static final String TEST_CHARS = "0123456789ABCDEF";
-
-    public static String generateText() {
-        final StringBuilder buffer = new StringBuilder();
-        for (int i = 0; i < 5; i++) {
-            final char rndchar = TEST_CHARS.charAt(RND.nextInt(TEST_CHARS.length() - 1));
-            buffer.append(rndchar);
-        }
-        return buffer.toString();
+    @Override
+    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
+        return new LoggingSSLServerConnectionFactory(SSLTestContexts.createServerSSLContext());
     }
 
-    public static int generateCount(final int max) {
-        return RND.nextInt(max - 1) + 1;
-    }
-
-    public static boolean generateBoolean() {
-        return RND.nextBoolean();
+    @Override
+    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
+        return new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext());
     }
 
 }

@@ -60,24 +60,25 @@ final class SimpleRequestHandler implements HttpRequestHandler {
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
 
-        String content = null;
+        final String s = request.getRequestLine().getUri();
+        final int idx = s.indexOf('x');
+        if (idx == -1) {
+            throw new HttpException("Unexpected request-URI format");
+        }
+        final String pattern = s.substring(0, idx);
+        final int count = Integer.parseInt(s.substring(idx + 1, s.length()));
+        response.addHeader("Pattern", pattern);
+
+        final String content;
         if (request instanceof HttpEntityEnclosingRequest) {
             final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
             if (entity != null) {
                 content = EntityUtils.toString(entity);
             } else {
                 response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-                content = "Request entity not avaialble";
+                content = "Request entity not available";
             }
         } else {
-            final String s = request.getRequestLine().getUri();
-            final int idx = s.indexOf('x');
-            if (idx == -1) {
-                throw new HttpException("Unexpected request-URI format");
-            }
-            final String pattern = s.substring(0, idx);
-            final int count = Integer.parseInt(s.substring(idx + 1, s.length()));
-
             final StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < count; i++) {
                 buffer.append(pattern);

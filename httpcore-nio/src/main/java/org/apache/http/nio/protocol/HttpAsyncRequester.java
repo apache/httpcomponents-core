@@ -26,7 +26,9 @@
  */
 package org.apache.http.nio.protocol;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionClosedException;
@@ -100,8 +102,8 @@ public class HttpAsyncRequester {
      * Initiates asynchronous HTTP request execution.
      *
      * @param <T> the result type of request execution.
-     * @param requestProducer request producer callback.
-     * @param responseConsumer response consumer callaback.
+     * @param requestProducer request producer.
+     * @param responseConsumer response consumer.
      * @param conn underlying HTTP connection.
      * @param context HTTP context
      * @param callback future callback.
@@ -143,8 +145,8 @@ public class HttpAsyncRequester {
      * Initiates asynchronous HTTP request execution.
      *
      * @param <T> the result type of request execution.
-     * @param requestProducer request producer callback.
-     * @param responseConsumer response consumer callaback.
+     * @param requestProducer request producer.
+     * @param responseConsumer response consumer.
      * @param conn underlying HTTP connection.
      * @param context HTTP context
      * @return future representing pending completion of the operation.
@@ -161,8 +163,8 @@ public class HttpAsyncRequester {
      * Initiates asynchronous HTTP request execution.
      *
      * @param <T> the result type of request execution.
-     * @param requestProducer request producer callback.
-     * @param responseConsumer response consumer callaback.
+     * @param requestProducer request producer.
+     * @param responseConsumer response consumer.
      * @param conn underlying HTTP connection.
      * @return future representing pending completion of the operation.
      */
@@ -178,8 +180,8 @@ public class HttpAsyncRequester {
      *
      * @param <T> the result type of request execution.
      * @param <E> the connection pool entry type.
-     * @param requestProducer request producer callback.
-     * @param responseConsumer response consumer callaback.
+     * @param requestProducer request producer.
+     * @param responseConsumer response consumer.
      * @param connPool pool of persistent reusable connections.
      * @param context HTTP context
      * @param callback future callback.
@@ -203,13 +205,46 @@ public class HttpAsyncRequester {
     }
 
     /**
+     * Initiates asynchronous pipelined HTTP request execution.
+     *
+     * @param <T> the result type of request execution.
+     * @param <E> the connection pool entry type.
+     * @param target target host.
+     * @param requestProducers list of request producers.
+     * @param responseConsumers list of response consumers.
+     * @param connPool pool of persistent reusable connections.
+     * @param context HTTP context
+     * @param callback future callback.
+     * @return future representing pending completion of the operation.
+     *
+     * @since 4.4
+     */
+    public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<List<T>> executePipelined(
+            final HttpHost target,
+            final List<HttpAsyncRequestProducer> requestProducers,
+            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+            final ConnPool<HttpHost, E> connPool,
+            final HttpContext context,
+            final FutureCallback<List<T>> callback) {
+        Args.notNull(target, "HTTP target");
+        Args.notEmpty(requestProducers, "Request producer list");
+        Args.notEmpty(responseConsumers, "Response consumer list");
+        Args.notNull(connPool, "HTTP connection pool");
+        Args.notNull(context, "HTTP context");
+        final BasicFuture<List<T>> future = new BasicFuture<List<T>>(callback);
+        connPool.lease(target, null, new ConnPipelinedRequestCallback<T, E>(
+                future, requestProducers, responseConsumers, connPool, context));
+        return future;
+    }
+
+    /**
      * Initiates asynchronous HTTP request execution. This method automatically releases
      * the given pool entry once request execution is completed (successfully or unsuccessfully).
      *
      * @param <T> the result type of request execution.
      * @param <E> the connection pool entry type.
-     * @param requestProducer request producer callback.
-     * @param responseConsumer response consumer callaback.
+     * @param requestProducer request producer.
+     * @param responseConsumer response consumer.
      * @param poolEntry leased pool entry. It will be automatically released
      *   back to the pool when execution is completed.
      * @param connPool pool of persistent reusable connections.
@@ -243,12 +278,52 @@ public class HttpAsyncRequester {
     }
 
     /**
+     * Initiates asynchronous pipelined HTTP request execution. This method automatically releases
+     * the given pool entry once request execution is completed (successfully or unsuccessfully).
+     *
+     * @param <T> the result type of request execution.
+     * @param <E> the connection pool entry type.
+     * @param requestProducers list of request producers.
+     * @param responseConsumer list of response consumers.
+     * @param poolEntry leased pool entry. It will be automatically released
+     *   back to the pool when execution is completed.
+     * @param connPool pool of persistent reusable connections.
+     * @param context HTTP context
+     * @param callback future callback.
+     * @return future representing pending completion of the operation.
+     *
+     * @since 4.4
+     */
+    public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<List<T>> executePipelined(
+            final List<HttpAsyncRequestProducer> requestProducers,
+            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+            final E poolEntry,
+            final ConnPool<HttpHost, E> connPool,
+            final HttpContext context,
+            final FutureCallback<List<T>> callback) {
+        Args.notEmpty(requestProducers, "Request producer list");
+        Args.notEmpty(responseConsumers, "Response consumer list");
+        Args.notNull(connPool, "HTTP connection pool");
+        Args.notNull(poolEntry, "Pool entry");
+        Args.notNull(context, "HTTP context");
+        final BasicFuture<List<T>> future = new BasicFuture<List<T>>(callback);
+        final NHttpClientConnection conn = poolEntry.getConnection();
+        final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<T>(
+                requestProducers, responseConsumers,
+                new RequestExecutionCallback<List<T>, E>(future, poolEntry, connPool),
+                context, conn,
+                this.httpprocessor, this.connReuseStrategy);
+        initExection(handler, conn);
+        return future;
+    }
+
+    /**
      * Initiates asynchronous HTTP request execution.
      *
      * @param <T> the result type of request execution.
      * @param <E> the connection pool entry type.
-     * @param requestProducer request producer callback.
-     * @param responseConsumer response consumer callaback.
+     * @param requestProducer request producer.
+     * @param responseConsumer response consumer.
      * @param connPool pool of persistent reusable connections.
      * @param context HTTP context
      * @return future representing pending completion of the operation.
@@ -266,8 +341,8 @@ public class HttpAsyncRequester {
      *
      * @param <T> the result type of request execution.
      * @param <E> the connection pool entry type.
-     * @param requestProducer request producer callback.
-     * @param responseConsumer response consumer callaback.
+     * @param requestProducer request producer.
+     * @param responseConsumer response consumer.
      * @param connPool pool of persistent reusable connections.
      * @return future representing pending completion of the operation.
      */
@@ -341,15 +416,84 @@ public class HttpAsyncRequester {
         }
 
         public void releaseResources() {
-            try {
-                this.requestProducer.close();
-            } catch (final IOException ioex) {
-                log(ioex);
+            close(requestProducer);
+            close(responseConsumer);
+        }
+
+    }
+
+    class ConnPipelinedRequestCallback<T, E extends PoolEntry<HttpHost, NHttpClientConnection>> implements FutureCallback<E> {
+
+        private final BasicFuture<List<T>> requestFuture;
+        private final List<HttpAsyncRequestProducer> requestProducers;
+        private final List<HttpAsyncResponseConsumer<T>> responseConsumers;
+        private final ConnPool<HttpHost, E> connPool;
+        private final HttpContext context;
+
+        ConnPipelinedRequestCallback(
+                final BasicFuture<List<T>> requestFuture,
+                final List<HttpAsyncRequestProducer> requestProducers,
+                final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+                final ConnPool<HttpHost, E> connPool,
+                final HttpContext context) {
+            super();
+            this.requestFuture = requestFuture;
+            this.requestProducers = requestProducers;
+            this.responseConsumers = responseConsumers;
+            this.connPool = connPool;
+            this.context = context;
+        }
+
+        @Override
+        public void completed(final E result) {
+            if (this.requestFuture.isDone()) {
+                this.connPool.release(result, true);
+                return;
             }
+            final NHttpClientConnection conn = result.getConnection();
+            final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<T>(
+                    this.requestProducers, this.responseConsumers,
+                    new RequestExecutionCallback<List<T>, E>(this.requestFuture, result, this.connPool),
+                    this.context, conn, httpprocessor, connReuseStrategy);
+            initExection(handler, conn);
+        }
+
+        @Override
+        public void failed(final Exception ex) {
             try {
-                this.responseConsumer.close();
-            } catch (final IOException ioex) {
-                log(ioex);
+                try {
+                    for (HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
+                        responseConsumer.failed(ex);
+                    }
+                } finally {
+                    releaseResources();
+                }
+            } finally {
+                this.requestFuture.failed(ex);
+            }
+        }
+
+        @Override
+        public void cancelled() {
+            try {
+                try {
+                    for (HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
+                        responseConsumer.cancel();
+                    }
+                } finally {
+                    releaseResources();
+                }
+            } finally {
+                this.requestFuture.cancel(true);
+            }
+        }
+
+        public void releaseResources() {
+            for (HttpAsyncRequestProducer requestProducer: this.requestProducers) {
+                close(requestProducer);
+            }
+            for (HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
+                close(responseConsumer);
             }
         }
 
@@ -409,6 +553,14 @@ public class HttpAsyncRequester {
      * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
+    }
+
+    private void close(final Closeable closeable) {
+        try {
+            closeable.close();
+        } catch (IOException ex) {
+            log(ex);
+        }
     }
 
 }

@@ -31,12 +31,15 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
@@ -136,40 +139,55 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     @Override
     public void requestReady(
             final NHttpClientConnection conn) throws IOException, HttpException {
-        final State state = ensureNotNull(getState(conn));
+        final State state = getState(conn);
+        Asserts.notNull(state, "Connection state");
+        Asserts.check(state.getRequestState() == MessageState.READY ||
+                        state.getRequestState() == MessageState.COMPLETED,
+                "Unexpected request state %s", state.getRequestState());
+
         if (state.getRequestState() != MessageState.READY) {
             return;
         }
-        HttpAsyncClientExchangeHandler handler = getHandler(conn);
-        if (handler != null && handler.isDone()) {
-            closeHandler(handler);
-            state.reset();
-            handler = null;
-        }
-        if (handler == null) {
+        final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+        if (handler == null || handler.isDone()) {
             return;
         }
+        final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
 
         final HttpRequest request = handler.generateRequest();
         if (request == null) {
             return;
         }
+        final ProtocolVersion version = request.getRequestLine().getProtocolVersion();
+        if (pipelined && version.lessEquals(HttpVersion.HTTP_1_0)) {
+            throw new ProtocolException(version + " cannot be used with request pipelining");
+        }
         state.setRequest(request);
 
-        conn.submitRequest(request);
-
         if (request instanceof HttpEntityEnclosingRequest) {
-            if (((HttpEntityEnclosingRequest) request).expectContinue()) {
+            final boolean expectContinue = ((HttpEntityEnclosingRequest) request).expectContinue();
+            if (expectContinue && pipelined) {
+                throw new ProtocolException("Expect-continue handshake cannot be used with request pipelining");
+            }
+            conn.submitRequest(request);
+            if (expectContinue) {
                 final int timeout = conn.getSocketTimeout();
                 state.setTimeout(timeout);
                 conn.setSocketTimeout(this.waitForContinue);
                 state.setRequestState(MessageState.ACK_EXPECTED);
             } else {
-                state.setRequestState(MessageState.BODY_STREAM);
+                final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+                if (entity != null) {
+                    state.setRequestState(MessageState.BODY_STREAM);
+                } else {
+                    handler.requestCompleted();
+                    state.setRequestState(pipelined ? MessageState.READY : MessageState.COMPLETED);
+                }
             }
         } else {
+            conn.submitRequest(request);
             handler.requestCompleted();
-            state.setRequestState(MessageState.COMPLETED);
+            state.setRequestState(pipelined ? MessageState.READY : MessageState.COMPLETED);
         }
     }
 
@@ -177,29 +195,40 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void outputReady(
             final NHttpClientConnection conn,
             final ContentEncoder encoder) throws IOException, HttpException {
-        final State state = ensureNotNull(getState(conn));
-        final HttpAsyncClientExchangeHandler handler = ensureNotNull(getHandler(conn));
+        final State state = getState(conn);
+        Asserts.notNull(state, "Connection state");
+        Asserts.check(state.getRequestState() == MessageState.BODY_STREAM ||
+                        state.getRequestState() == MessageState.ACK_EXPECTED,
+                "Unexpected request state %s", state.getRequestState());
+
+        final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+        Asserts.notNull(handler, "Client exchange handler");
         if (state.getRequestState() == MessageState.ACK_EXPECTED) {
             conn.suspendOutput();
             return;
         }
         handler.produceContent(encoder, conn);
-        state.setRequestState(MessageState.BODY_STREAM);
         if (encoder.isCompleted()) {
             handler.requestCompleted();
-            state.setRequestState(MessageState.COMPLETED);
+            final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
+            state.setRequestState(pipelined ? MessageState.READY : MessageState.COMPLETED);
         }
     }
 
     @Override
     public void responseReceived(
             final NHttpClientConnection conn) throws HttpException, IOException {
-        final State state = ensureNotNull(getState(conn));
+        final State state = getState(conn);
+        Asserts.notNull(state, "Connection state");
+        Asserts.check(state.getResponseState() == MessageState.READY,
+                "Unexpected request state %s", state.getResponseState());
+
         final HttpRequest request = state.getRequest();
         if (request == null) {
             throw new HttpException("Out of sequence response");
         }
-        final HttpAsyncClientExchangeHandler handler = ensureNotNull(getHandler(conn));
+        final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+        Asserts.notNull(handler, "Client exchange handler");
         final HttpResponse response = conn.getHttpResponse();
 
         final int statusCode = response.getStatusLine().getStatusCode();
@@ -213,7 +242,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 final int timeout = state.getTimeout();
                 conn.setSocketTimeout(timeout);
                 conn.requestOutput();
-                state.setRequestState(MessageState.ACK);
+                state.setRequestState(MessageState.BODY_STREAM);
             }
             return;
         }
@@ -245,10 +274,14 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public void inputReady(
             final NHttpClientConnection conn,
             final ContentDecoder decoder) throws IOException, HttpException {
-        final State state = ensureNotNull(getState(conn));
-        final HttpAsyncClientExchangeHandler handler = ensureNotNull(getHandler(conn));
+        final State state = getState(conn);
+        Asserts.notNull(state, "Connection state");
+        Asserts.check(state.getResponseState() == MessageState.BODY_STREAM,
+                "Unexpected request state %s", state.getResponseState());
+
+        final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+        Asserts.notNull(handler, "Client exchange handler");
         handler.consumeContent(decoder, conn);
-        state.setResponseState(MessageState.BODY_STREAM);
         if (decoder.isCompleted()) {
             processResponse(conn, state, handler);
         }
@@ -290,6 +323,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 conn.setSocketTimeout(timeout);
                 conn.requestOutput();
                 state.setRequestState(MessageState.BODY_STREAM);
+                state.setTimeout(0);
                 return;
             } else {
                 state.invalidate();
@@ -326,18 +360,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         return (State) conn.getContext().getAttribute(HTTP_EXCHANGE_STATE);
     }
 
-    private State ensureNotNull(final State state) {
-        Asserts.notNull(state, "HTTP exchange state");
-        return state;
-    }
-
     private HttpAsyncClientExchangeHandler getHandler(final NHttpConnection conn) {
         return (HttpAsyncClientExchangeHandler) conn.getContext().getAttribute(HTTP_HANDLER);
-    }
-
-    private HttpAsyncClientExchangeHandler ensureNotNull(final HttpAsyncClientExchangeHandler handler) {
-        Asserts.notNull(handler, "HTTP exchange handler");
-        return handler;
     }
 
     private void shutdownConnection(final NHttpConnection conn) {
@@ -366,7 +390,14 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             conn.close();
         }
         handler.responseCompleted();
-        state.reset();
+
+        final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
+        if (!pipelined) {
+            state.setRequestState(MessageState.READY);
+            state.setRequest(null);
+        }
+        state.setResponseState(MessageState.READY);
+        state.setResponse(null);
         if (!handler.isDone() && conn.isOpen()) {
             conn.requestOutput();
         }
@@ -445,14 +476,6 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
         public void setTimeout(final int timeout) {
             this.timeout = timeout;
-        }
-
-        public void reset() {
-            this.responseState = MessageState.READY;
-            this.requestState = MessageState.READY;
-            this.response = null;
-            this.request = null;
-            this.timeout = 0;
         }
 
         public boolean isValid() {

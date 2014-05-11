@@ -73,7 +73,7 @@ import org.junit.Test;
 /**
  * Tests for handling pipelined requests.
  */
-public class TestPipelining extends HttpCoreNIOTestBase {
+public class TestServerSidePipelining extends HttpCoreNIOTestBase {
 
     protected HttpProcessor serverHttpProc;
     protected HttpAsyncService serviceHandler;
