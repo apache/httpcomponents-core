@@ -383,11 +383,11 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     conn.suspendOutput();
                     return;
                 }
+                state.setResponseState(MessageState.INIT);
                 final Object result = pipelineEntry.getResult();
                 final HttpRequest request = pipelineEntry.getRequest();
                 final HttpContext context = pipelineEntry.getContext();
                 if (result != null) {
-                    state.setResponseState(MessageState.INIT);
                     final HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
                             HttpStatus.SC_OK, context);
                     final HttpAsyncExchangeImpl httpExchange = new HttpAsyncExchangeImpl(
@@ -404,16 +404,22 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     state.setOutgoing(new Outgoing(request, error, responseProducer, context));
                 }
             }
-            final Outgoing outgoing = state.getOutgoing();
-            if (outgoing == null) {
-                return;
-            }
-            final HttpResponse response = outgoing.getResponse();
-            final int status = response.getStatusLine().getStatusCode();
-            if (status >= 200) {
-                commitFinalResponse(conn, state);
-            } else {
-                throw new HttpException("Invalid response: " + response.getStatusLine());
+            if (state.getResponseState() == MessageState.INIT) {
+                final Outgoing outgoing;
+                synchronized (state) {
+                    outgoing = state.getOutgoing();
+                    if (outgoing == null) {
+                        conn.suspendOutput();
+                        return;
+                    }
+                }
+                final HttpResponse response = outgoing.getResponse();
+                final int status = response.getStatusLine().getStatusCode();
+                if (status >= 200) {
+                    commitFinalResponse(conn, state);
+                } else {
+                    throw new HttpException("Invalid response: " + response.getStatusLine());
+                }
             }
         }
     }
@@ -604,7 +610,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
         final Queue<PipelineEntry> pipeline = state.getPipeline();
         pipeline.add(pipelineEntry);
-        conn.requestOutput();
+        if (state.getResponseState() == MessageState.READY) {
+            conn.requestOutput();
+        }
     }
 
     private void commitFinalResponse(
@@ -912,35 +920,34 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         @Override
         public void setCallback(final Cancellable cancellable) {
-            synchronized (this) {
-                Asserts.check(!this.completed, "Response already submitted");
-                if (this.state.isTerminated() && cancellable != null) {
-                    cancellable.cancel();
-                } else {
-                    this.state.setCancellable(cancellable);
-                    this.conn.requestInput();
-                }
+            Asserts.check(!this.completed, "Response already submitted");
+            if (this.state.isTerminated() && cancellable != null) {
+                cancellable.cancel();
+            } else {
+                this.state.setCancellable(cancellable);
             }
         }
 
         @Override
         public void submitResponse(final HttpAsyncResponseProducer responseProducer) {
             Args.notNull(responseProducer, "Response producer");
-            synchronized (this) {
-                Asserts.check(!this.completed, "Response already submitted");
-                this.completed = true;
-                if (!this.state.isTerminated()) {
-                    final HttpResponse response = responseProducer.generateResponse();
-                    final Outgoing outgoing = new Outgoing(
-                            this.request, response, responseProducer, this.context);
+            Asserts.check(!this.completed, "Response already submitted");
+            this.completed = true;
+            if (!this.state.isTerminated()) {
+                final HttpResponse response = responseProducer.generateResponse();
+                final Outgoing outgoing = new Outgoing(
+                        this.request, response, responseProducer, this.context);
+
+                synchronized (this.state) {
                     this.state.setOutgoing(outgoing);
                     this.state.setCancellable(null);
                     this.conn.requestOutput();
-                } else {
-                    try {
-                        responseProducer.close();
-                    } catch (final IOException ex) {
-                    }
+                }
+
+            } else {
+                try {
+                    responseProducer.close();
+                } catch (final IOException ex) {
                 }
             }
         }
