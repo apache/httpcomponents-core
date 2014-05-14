@@ -157,7 +157,16 @@ public class BaseIOReactor extends AbstractIOReactor {
     protected void readable(final SelectionKey key) {
         final IOSession session = getSession(key);
         try {
-            this.eventDispatch.inputReady(session);
+            // Try to gently feed more data to the event dispatcher
+            // if the session input buffer has not been fully exhausted
+            // (the choice of 5 iterations is purely arbitrary)
+            for (int i = 0; i < 5; i++) {
+                this.eventDispatch.inputReady(session);
+                if (!session.hasBufferedInput()
+                        || (session.getEventMask() & SelectionKey.OP_READ) == 0) {
+                    break;
+                }
+            }
             if (session.hasBufferedInput()) {
                 this.bufferingSessions.add(session);
             }
