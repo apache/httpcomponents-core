@@ -164,13 +164,13 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
             }
         }
         socket.setSoTimeout(this.sconfig.getSoTimeout());
-        socket.connect(new InetSocketAddress(hostname, port), this.connectTimeout);
         socket.setTcpNoDelay(this.sconfig.isTcpNoDelay());
         final int linger = this.sconfig.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(linger > 0, linger);
         }
         socket.setKeepAlive(this.sconfig.isSoKeepAlive());
+        socket.connect(new InetSocketAddress(hostname, port), this.connectTimeout);
         return this.connFactory.createConnection(socket);
     }
 
