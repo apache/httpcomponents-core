@@ -29,50 +29,39 @@ package org.apache.http.examples;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.security.KeyStore;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.HttpConnectionFactory;
+import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.DefaultBHttpServerConnection;
-import org.apache.http.impl.DefaultBHttpServerConnectionFactory;
-import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.impl.bootstrap.Server;
+import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpProcessorBuilder;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpService;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
-import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 import org.apache.http.util.EntityUtils;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLServerSocketFactory;
-
 /**
- * Basic, yet fully functional and spec compliant, HTTP/1.1 file server.
+ * Embedded HTTP/1.1 file server.
  */
 public class ElementalHttpServer {
 
@@ -88,21 +77,7 @@ public class ElementalHttpServer {
             port = Integer.parseInt(args[1]);
         }
 
-        // Set up the HTTP protocol processor
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
-                .add(new ResponseDate())
-                .add(new ResponseServer("Test/1.1"))
-                .add(new ResponseContent())
-                .add(new ResponseConnControl()).build();
-
-        // Set up request handlers
-        UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
-        reqistry.register("*", new HttpFileHandler(docRoot));
-
-        // Set up the HTTP service
-        HttpService httpService = new HttpService(httpproc, reqistry);
-
-        SSLServerSocketFactory sf = null;
+        SSLContext sslcontext = null;
         if (port == 8443) {
             // Initialize SSL context
             ClassLoader cl = ElementalHttpServer.class.getClassLoader();
@@ -117,14 +92,48 @@ public class ElementalHttpServer {
                     KeyManagerFactory.getDefaultAlgorithm());
             kmfactory.init(keystore, "secret".toCharArray());
             KeyManager[] keymanagers = kmfactory.getKeyManagers();
-            SSLContext sslcontext = SSLContext.getInstance("TLS");
+            sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(keymanagers, null, null);
-            sf = sslcontext.getServerSocketFactory();
         }
 
-        Thread t = new RequestListenerThread(port, httpService, sf);
-        t.setDaemon(false);
-        t.start();
+        SocketConfig socketConfig = SocketConfig.custom()
+                .setSoTimeout(15000)
+                .setTcpNoDelay(true)
+                .build();
+
+        final Server server = ServerBootstrap.bootstrap()
+                .setListenerPort(port)
+                .setServerInfo("Test/1.1")
+                .setSocketConfig(socketConfig)
+                .setSslContext(sslcontext)
+                .setExceptionLogger(new StdErrorExceptionLogger())
+                .registerHandler("*", new HttpFileHandler(docRoot))
+                .create();
+
+        server.start();
+        server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                server.shutdown(5, TimeUnit.SECONDS);
+            }
+        });
+    }
+
+    static class StdErrorExceptionLogger implements ExceptionLogger {
+
+        @Override
+        public void log(final Exception ex) {
+            if (ex instanceof SocketTimeoutException) {
+                System.err.println("Connection timed out");
+            } else if (ex instanceof ConnectionClosedException) {
+                System.err.println(ex.getMessage());
+            } else {
+                ex.printStackTrace();
+            }
+        }
+
     }
 
     static class HttpFileHandler implements HttpRequestHandler  {
@@ -179,82 +188,6 @@ public class ElementalHttpServer {
                 FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);
                 System.out.println("Serving file " + file.getPath());
-            }
-        }
-
-    }
-
-    static class RequestListenerThread extends Thread {
-
-        private final HttpConnectionFactory<DefaultBHttpServerConnection> connFactory;
-        private final ServerSocket serversocket;
-        private final HttpService httpService;
-
-        public RequestListenerThread(
-                final int port,
-                final HttpService httpService,
-                final SSLServerSocketFactory sf) throws IOException {
-            this.connFactory = DefaultBHttpServerConnectionFactory.INSTANCE;
-            this.serversocket = sf != null ? sf.createServerSocket(port) : new ServerSocket(port);
-            this.httpService = httpService;
-        }
-
-        @Override
-        public void run() {
-            System.out.println("Listening on port " + this.serversocket.getLocalPort());
-            while (!Thread.interrupted()) {
-                try {
-                    // Set up HTTP connection
-                    Socket socket = this.serversocket.accept();
-                    System.out.println("Incoming connection from " + socket.getInetAddress());
-                    HttpServerConnection conn = this.connFactory.createConnection(socket);
-
-                    // Start worker thread
-                    Thread t = new WorkerThread(this.httpService, conn);
-                    t.setDaemon(true);
-                    t.start();
-                } catch (InterruptedIOException ex) {
-                    break;
-                } catch (IOException e) {
-                    System.err.println("I/O error initialising connection thread: "
-                            + e.getMessage());
-                    break;
-                }
-            }
-        }
-    }
-
-    static class WorkerThread extends Thread {
-
-        private final HttpService httpservice;
-        private final HttpServerConnection conn;
-
-        public WorkerThread(
-                final HttpService httpservice,
-                final HttpServerConnection conn) {
-            super();
-            this.httpservice = httpservice;
-            this.conn = conn;
-        }
-
-        @Override
-        public void run() {
-            System.out.println("New connection thread");
-            HttpContext context = new BasicHttpContext(null);
-            try {
-                while (!Thread.interrupted() && this.conn.isOpen()) {
-                    this.httpservice.handleRequest(this.conn, context);
-                }
-            } catch (ConnectionClosedException ex) {
-                System.err.println("Client closed connection");
-            } catch (IOException ex) {
-                System.err.println("I/O error: " + ex.getMessage());
-            } catch (HttpException ex) {
-                System.err.println("Unrecoverable HTTP protocol violation: " + ex.getMessage());
-            } finally {
-                try {
-                    this.conn.shutdown();
-                } catch (IOException ignore) {}
             }
         }
 

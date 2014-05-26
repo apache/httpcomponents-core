@@ -47,6 +47,7 @@ public class SocketConfig implements Cloneable {
     private final boolean tcpNoDelay;
     private final int sndBufSize;
     private final int rcvBufSize;
+    private int backlogSize;
 
     SocketConfig(
             final int soTimeout,
@@ -55,7 +56,8 @@ public class SocketConfig implements Cloneable {
             final boolean soKeepAlive,
             final boolean tcpNoDelay,
             final int sndBufSize,
-            final int rcvBufSize) {
+            final int rcvBufSize,
+            final int backlogSize) {
         super();
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
@@ -64,6 +66,7 @@ public class SocketConfig implements Cloneable {
         this.tcpNoDelay = tcpNoDelay;
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
+        this.backlogSize = backlogSize;
     }
 
     /**
@@ -153,6 +156,18 @@ public class SocketConfig implements Cloneable {
         return rcvBufSize;
     }
 
+    /**
+     * Determines the maximum queue length for incoming connection indications
+     * (a request to connect) also known as server socket backlog.
+     * <p/>
+     * Default: <code>0</code> (system default)
+     *
+     * @since 4.4
+     */
+    public int getBacklogSize() {
+        return backlogSize;
+    }
+
     @Override
     protected SocketConfig clone() throws CloneNotSupportedException {
         return (SocketConfig) super.clone();
@@ -168,6 +183,7 @@ public class SocketConfig implements Cloneable {
                 .append(", tcpNoDelay=").append(this.tcpNoDelay)
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
+                .append(", backlogSize=").append(this.backlogSize)
                 .append("]");
         return builder.toString();
     }
@@ -185,7 +201,8 @@ public class SocketConfig implements Cloneable {
             .setSoKeepAlive(config.isSoKeepAlive())
             .setTcpNoDelay(config.isTcpNoDelay())
             .setSndBufSize(config.getSndBufSize())
-            .setRcvBufSize(config.getRcvBufSize());
+            .setRcvBufSize(config.getRcvBufSize())
+            .setBacklogSize(config.getBacklogSize());
     }
 
     public static class Builder {
@@ -197,6 +214,7 @@ public class SocketConfig implements Cloneable {
         private boolean tcpNoDelay;
         private int sndBufSize;
         private int rcvBufSize;
+        private int backlogSize;
 
         Builder() {
             this.soLinger = -1;
@@ -244,9 +262,17 @@ public class SocketConfig implements Cloneable {
             return this;
         }
 
+        /**
+         * @since 4.4
+         */
+        public Builder setBacklogSize(final int backlogSize) {
+            this.backlogSize = backlogSize;
+            return this;
+        }
+
         public SocketConfig build() {
             return new SocketConfig(soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
-                    sndBufSize, rcvBufSize);
+                    sndBufSize, rcvBufSize, backlogSize);
         }
 
     }
