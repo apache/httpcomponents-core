@@ -28,59 +28,35 @@
 package org.apache.http.testserver;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpException;
-import org.apache.http.HttpResponseFactory;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.HttpServerConnection;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.ExceptionLogger;
+import org.apache.http.HttpConnectionFactory;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.impl.bootstrap.Server;
+import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpExpectationVerifier;
-import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpService;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
 import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 import org.apache.http.util.Asserts;
 
 public class HttpServer {
 
-    private final HttpProcessor httpproc;
-    private final ConnectionReuseStrategy connStrategy;
-    private final HttpResponseFactory responseFactory;
     private final UriHttpRequestHandlerMapper reqistry;
-    private final ServerSocket serversocket;
-
     private volatile HttpExpectationVerifier expectationVerifier;
-    private volatile Thread listener;
-    private volatile boolean shutdown;
     private volatile int timeout;
+
+    private volatile Server server;
 
     public HttpServer() throws IOException {
         super();
-        this.httpproc = new ImmutableHttpProcessor(
-                new HttpResponseInterceptor[] {
-                        new ResponseDate(),
-                        new ResponseServer("TEST-SERVER/1.1"),
-                        new ResponseContent(),
-                        new ResponseConnControl()
-                });
-        this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-        this.responseFactory = DefaultHttpResponseFactory.INSTANCE;
         this.reqistry = new UriHttpRequestHandlerMapper();
-        this.serversocket = new ServerSocket(0);
     }
 
     public int getTimeout() {
@@ -101,101 +77,71 @@ public class HttpServer {
         this.expectationVerifier = expectationVerifier;
     }
 
-    private HttpServerConnection acceptConnection() throws IOException {
-        final Socket socket = this.serversocket.accept();
-        final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(8 * 1024);
-        conn.bind(socket);
-        conn.setSocketTimeout(this.timeout);
-        return conn;
-    }
-
     public int getPort() {
-        return this.serversocket.getLocalPort();
+        final Server local = this.server;
+        if (local != null) {
+            return this.server.getLocalPort();
+        } else {
+            throw new IllegalStateException("Server not running");
+        }
     }
 
     public InetAddress getInetAddress() {
-        return this.serversocket.getInetAddress();
+        final Server local = this.server;
+        if (local != null) {
+            return local.getInetAddress();
+        } else {
+            throw new IllegalStateException("Server not running");
+        }
     }
 
-    public void start() {
-        Asserts.check(this.listener == null, "Listener already running");
-        this.listener = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                while (!shutdown && !Thread.interrupted()) {
-                    try {
-                        // Set up HTTP connection
-                        final HttpServerConnection conn = acceptConnection();
-                        // Set up the HTTP service
-                        final HttpService httpService = new HttpService(
-                                httpproc,
-                                connStrategy,
-                                responseFactory,
-                                reqistry,
-                                expectationVerifier);
-                        // Start worker thread
-                        final Thread t = new WorkerThread(httpService, conn);
-                        t.setDaemon(true);
-                        t.start();
-                    } catch (final InterruptedIOException ex) {
-                        break;
-                    } catch (final IOException e) {
-                        break;
-                    }
-                }
-            }
-
-        });
-        this.listener.start();
+    public void start() throws IOException {
+        Asserts.check(this.server == null, "Server already running");
+        this.server = ServerBootstrap.bootstrap()
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(this.timeout)
+                        .build())
+                .setServerInfo("TEST-SERVER/1.1")
+                .setConnectionFactory(new LoggingConnFactory())
+                .setExceptionLogger(new SimpleExceptionLogger())
+                .setExpectationVerifier(this.expectationVerifier)
+                .setHandlerMapper(this.reqistry)
+                .create();
+        this.server.start();
     }
 
     public void shutdown() {
-        if (this.shutdown) {
-            return;
+        final Server local = this.server;
+        this.server = null;
+        if (local != null) {
+            local.shutdown(5, TimeUnit.SECONDS);
         }
-        this.shutdown = true;
-        try {
-            this.serversocket.close();
-        } catch (final IOException ignore) {}
-        this.listener.interrupt();
-        try {
-            this.listener.join(1000);
-        } catch (final InterruptedException ignore) {}
     }
 
-    static class WorkerThread extends Thread {
-
-        private final HttpService httpservice;
-        private final HttpServerConnection conn;
-
-        public WorkerThread(
-                final HttpService httpservice,
-                final HttpServerConnection conn) {
-            super();
-            this.httpservice = httpservice;
-            this.conn = conn;
-        }
+    static class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
 
         @Override
-        public void run() {
-            final HttpContext context = new BasicHttpContext(null);
-            try {
-                while (!Thread.interrupted() && this.conn.isOpen()) {
-                    this.httpservice.handleRequest(this.conn, context);
-                }
-            } catch (final ConnectionClosedException ex) {
-            } catch (final IOException ex) {
-                System.err.println("I/O error: " + ex.getMessage());
-            } catch (final HttpException ex) {
-                System.err.println("Unrecoverable HTTP protocol violation: " + ex.getMessage());
-            } finally {
-                try {
-                    this.conn.shutdown();
-                } catch (final IOException ignore) {}
+        public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
+            final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(8 * 1024);
+            conn.bind(socket);
+            return conn;
+        }
+    }
+
+    static class SimpleExceptionLogger implements ExceptionLogger {
+
+        private final Log log = LogFactory.getLog(HttpServer.class);
+
+        @Override
+        public void log(final Exception ex) {
+            if (ex instanceof ConnectionClosedException) {
+                this.log.debug(ex.getMessage());
+            } else if (ex instanceof SocketException) {
+                this.log.debug(ex.getMessage());
+            } else {
+                this.log.error(ex.getMessage(), ex);
             }
         }
-
     }
 
 }

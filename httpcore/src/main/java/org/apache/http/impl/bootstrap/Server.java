@@ -62,6 +62,7 @@ public class Server {
     private final ExecutorService workerExecutorService;
     private final AtomicReference<Status> status;
 
+    private volatile ServerSocket serverSocket;
     private volatile RequestListener requestListener;
 
     Server(
@@ -87,17 +88,35 @@ public class Server {
         this.status = new AtomicReference<Status>(Status.READY);
     }
 
+    public InetAddress getInetAddress() {
+        final ServerSocket localSocket = this.serverSocket;
+        if (localSocket != null) {
+            return localSocket.getInetAddress();
+        } else {
+            return null;
+        }
+    }
+
+    public int getLocalPort() {
+        final ServerSocket localSocket = this.serverSocket;
+        if (localSocket != null) {
+            return localSocket.getLocalPort();
+        } else {
+            return -1;
+        }
+    }
+
     public void start() throws IOException {
         if (this.status.compareAndSet(Status.READY, Status.ACTIVE)) {
-            final ServerSocket serverSocket = this.serverSocketFactory.createServerSocket(
+            this.serverSocket = this.serverSocketFactory.createServerSocket(
                     this.port, this.socketConfig.getBacklogSize(), this.ifAddress);
-            serverSocket.setReuseAddress(this.socketConfig.isSoReuseAddress());
+            this.serverSocket.setReuseAddress(this.socketConfig.isSoReuseAddress());
             if (this.socketConfig.getRcvBufSize() > 0) {
-                serverSocket.setReceiveBufferSize(this.socketConfig.getRcvBufSize());
+                this.serverSocket.setReceiveBufferSize(this.socketConfig.getRcvBufSize());
             }
             this.requestListener = new RequestListener(
                     this.socketConfig,
-                    serverSocket,
+                    this.serverSocket,
                     this.httpService,
                     this.connectionFactory,
                     this.exceptionLogger,

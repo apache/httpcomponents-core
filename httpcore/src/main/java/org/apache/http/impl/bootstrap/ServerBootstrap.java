@@ -376,7 +376,7 @@ public class ServerBootstrap {
         }
 
         return new Server(
-                this.listenerPort > 0 ? this.listenerPort : 8080,
+                this.listenerPort > 0 ? this.listenerPort : 0,
                 this.localAddress,
                 this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,
                 serverSocketFactory,
