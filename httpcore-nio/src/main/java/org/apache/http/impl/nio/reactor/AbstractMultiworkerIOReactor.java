@@ -117,6 +117,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private final Thread[] threads;
     private final Object statusLock;
 
+    //TODO: make final
     protected IOReactorExceptionHandler exceptionHandler;
     protected List<ExceptionEvent> auditLog;
 
@@ -151,6 +152,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         } else {
             this.threadFactory = new DefaultThreadFactory();
         }
+        this.auditLog = new ArrayList<ExceptionEvent>();
         this.workerCount = this.config.getIoThreadCount();
         this.dispatchers = new BaseIOReactor[workerCount];
         this.workers = new Worker[workerCount];
@@ -217,11 +219,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *
      * @return audit log.
      */
-    public synchronized List<ExceptionEvent> getAuditLog() {
-        if (this.auditLog != null) {
+    public List<ExceptionEvent> getAuditLog() {
+        synchronized (this.auditLog) {
             return new ArrayList<ExceptionEvent>(this.auditLog);
-        } else {
-            return null;
         }
     }
 
@@ -237,10 +237,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         if (ex == null) {
             return;
         }
-        if (this.auditLog == null) {
-            this.auditLog = new ArrayList<ExceptionEvent>();
+        synchronized (this.auditLog) {
+            this.auditLog.add(new ExceptionEvent(ex, timestamp != null ? timestamp : new Date()));
         }
-        this.auditLog.add(new ExceptionEvent(ex, timestamp != null ? timestamp : new Date()));
     }
 
     /**
