@@ -150,7 +150,7 @@ public class ElementalHttpServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
+            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ROOT);
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }

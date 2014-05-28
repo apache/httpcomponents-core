@@ -26,6 +26,6 @@
  */
 
 /**
- * Embedded server bootstrap.
+ * Embedded server and server bootstrap.
  */
 package org.apache.http.impl.bootstrap;
