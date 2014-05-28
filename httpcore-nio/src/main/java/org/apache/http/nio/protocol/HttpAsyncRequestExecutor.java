@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -83,6 +84,25 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public static final String HTTP_HANDLER = "http.nio.exchange-handler";
 
     private final int waitForContinue;
+    private final ExceptionLogger exceptionLogger;
+
+    /**
+     * Creates new instance of <tt>HttpAsyncRequestExecutor</tt>.
+     * @param waitForContinue wait for continue time period.
+     * @param exceptionLogger Exception logger. If <code>null</code>
+     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     *   logger will be only used to log I/O exception thrown while closing
+     *   {@link java.io.Closeable} objects (such as {@link org.apache.http.HttpConnection}).
+     *
+     * @since 4.4
+     */
+    public HttpAsyncRequestExecutor(
+            final int waitForContinue,
+            final ExceptionLogger exceptionLogger) {
+        super();
+        this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
+        this.exceptionLogger = exceptionLogger != null ? exceptionLogger : ExceptionLogger.NO_OP;
+    }
 
     /**
      * Creates new instance of HttpAsyncRequestExecutor.
@@ -90,12 +110,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
      * @since 4.3
      */
     public HttpAsyncRequestExecutor(final int waitForContinue) {
-        super();
-        this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
+        this(waitForContinue, null);
     }
 
     public HttpAsyncRequestExecutor() {
-        this(DEFAULT_WAIT_FOR_CONTINUE);
+        this(DEFAULT_WAIT_FOR_CONTINUE, null);
     }
 
     @Override
@@ -354,6 +373,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
      * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
+        this.exceptionLogger.log(ex);
     }
 
     private State getState(final NHttpConnection conn) {

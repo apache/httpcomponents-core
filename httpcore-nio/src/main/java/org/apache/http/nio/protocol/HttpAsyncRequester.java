@@ -33,6 +33,7 @@ import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.BasicFuture;
@@ -62,6 +63,7 @@ public class HttpAsyncRequester {
 
     private final HttpProcessor httpprocessor;
     private final ConnectionReuseStrategy connReuseStrategy;
+    private final ExceptionLogger exceptionLogger;
 
     /**
      * @deprecated (4.3) use {@link HttpAsyncRequester#HttpAsyncRequester(HttpProcessor,
@@ -76,6 +78,29 @@ public class HttpAsyncRequester {
     }
 
     /**
+     * Creates new instance of <tt>HttpAsyncRequester<tt/>.
+     * @param httpProcessor HTTP protocol processor.
+     * @param connStrategy Connection re-use strategy. If <code>null</code>
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     * @param exceptionLogger Exception logger. If <code>null</code>
+     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     *   logger will be only used to log I/O exception thrown while closing
+     *   {@link java.io.Closeable} objects (such as {@link org.apache.http.HttpConnection}).
+     *
+     * @since 4.4
+     */
+    public HttpAsyncRequester(
+            final HttpProcessor httpprocessor,
+            final ConnectionReuseStrategy connReuseStrategy,
+            final ExceptionLogger exceptionLogger) {
+        super();
+        this.httpprocessor = Args.notNull(httpprocessor, "HTTP processor");
+        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
+                DefaultConnectionReuseStrategy.INSTANCE;
+        this.exceptionLogger = exceptionLogger != null ? exceptionLogger : ExceptionLogger.NO_OP;
+    }
+
+    /**
      * Creates new instance of HttpAsyncRequester.
      *
      * @since 4.3
@@ -83,10 +108,7 @@ public class HttpAsyncRequester {
     public HttpAsyncRequester(
             final HttpProcessor httpprocessor,
             final ConnectionReuseStrategy connReuseStrategy) {
-        super();
-        this.httpprocessor = Args.notNull(httpprocessor, "HTTP processor");
-        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
-            DefaultConnectionReuseStrategy.INSTANCE;
+        this(httpprocessor, connReuseStrategy, (ExceptionLogger) null);
     }
 
     /**
@@ -553,6 +575,7 @@ public class HttpAsyncRequester {
      * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
+        this.exceptionLogger.log(ex);
     }
 
     private void close(final Closeable closeable) {

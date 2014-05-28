@@ -33,6 +33,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -106,6 +107,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     private final HttpResponseFactory responseFactory;
     private final HttpAsyncRequestHandlerMapper handlerMapper;
     private final HttpAsyncExpectationVerifier expectationVerifier;
+    private final ExceptionLogger exceptionLogger;
 
     /**
      * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
@@ -180,14 +182,42 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final HttpResponseFactory responseFactory,
             final HttpAsyncRequestHandlerMapper handlerMapper,
             final HttpAsyncExpectationVerifier expectationVerifier) {
+        this(httpProcessor, connStrategy, responseFactory, handlerMapper, expectationVerifier, null);
+    }
+
+    /**
+     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     *
+     * @param httpProcessor HTTP protocol processor.
+     * @param connStrategy Connection re-use strategy. If <code>null</code>
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     * @param responseFactory HTTP response factory. If <code>null</code>
+     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
+     * @param handlerMapper Request handler mapper.
+     * @param expectationVerifier Request expectation verifier. May be <code>null</code>.
+     * @param exceptionLogger Exception logger. If <code>null</code>
+     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     *   logger will be only used to log I/O exception thrown while closing
+     *   {@link java.io.Closeable} objects (such as {@link org.apache.http.HttpConnection}).
+     *
+     * @since 4.4
+     */
+    public HttpAsyncService(
+            final HttpProcessor httpProcessor,
+            final ConnectionReuseStrategy connStrategy,
+            final HttpResponseFactory responseFactory,
+            final HttpAsyncRequestHandlerMapper handlerMapper,
+            final HttpAsyncExpectationVerifier expectationVerifier,
+            final ExceptionLogger exceptionLogger) {
         super();
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.connStrategy = connStrategy != null ? connStrategy :
-            DefaultConnectionReuseStrategy.INSTANCE;
+                DefaultConnectionReuseStrategy.INSTANCE;
         this.responseFactory = responseFactory != null ? responseFactory :
-            DefaultHttpResponseFactory.INSTANCE;
+                DefaultHttpResponseFactory.INSTANCE;
         this.handlerMapper = handlerMapper;
         this.expectationVerifier = expectationVerifier;
+        this.exceptionLogger = exceptionLogger != null ? exceptionLogger : ExceptionLogger.NO_OP;
     }
 
     /**
@@ -202,6 +232,25 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final HttpProcessor httpProcessor,
             final HttpAsyncRequestHandlerMapper handlerMapper) {
         this(httpProcessor, null, null, handlerMapper, null);
+    }
+
+    /**
+     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     *
+     * @param httpProcessor HTTP protocol processor.
+     * @param handlerMapper Request handler mapper.
+     * @param exceptionLogger Exception logger. If <code>null</code>
+     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     *   logger will be only used to log I/O exception thrown while closing
+     *   {@link java.io.Closeable} objects (such as {@link org.apache.http.HttpConnection}).
+     *
+     * @since 4.4
+     */
+    public HttpAsyncService(
+            final HttpProcessor httpProcessor,
+            final HttpAsyncRequestHandlerMapper handlerMapper,
+            final ExceptionLogger exceptionLogger) {
+        this(httpProcessor, null, null, handlerMapper, null, exceptionLogger);
     }
 
     @Override
@@ -486,6 +535,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
+        this.exceptionLogger.log(ex);
     }
 
     private void closeConnection(final NHttpConnection conn) {
