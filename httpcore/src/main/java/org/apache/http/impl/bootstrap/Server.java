@@ -41,6 +41,7 @@ import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpConnectionFactory;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.config.SocketConfig;
+import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.protocol.HttpService;
 
 /**
@@ -55,7 +56,7 @@ public class Server {
     private final SocketConfig socketConfig;
     private final ServerSocketFactory serverSocketFactory;
     private final HttpService httpService;
-    private final HttpConnectionFactory<? extends HttpServerConnection> connectionFactory;
+    private final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private final ExceptionLogger exceptionLogger;
     private final ExecutorService listenerExecutorService;
     private final ThreadGroup workerThreads;
@@ -71,7 +72,7 @@ public class Server {
             final SocketConfig socketConfig,
             final ServerSocketFactory serverSocketFactory,
             final HttpService httpService,
-            final HttpConnectionFactory<? extends HttpServerConnection> connectionFactory,
+            final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory,
             final ExceptionLogger exceptionLogger) {
         this.port = port;
         this.ifAddress = ifAddress;

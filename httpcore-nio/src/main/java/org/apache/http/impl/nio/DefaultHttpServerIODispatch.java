@@ -54,11 +54,11 @@ public class DefaultHttpServerIODispatch
                     extends AbstractIODispatch<DefaultNHttpServerConnection> {
 
     private final NHttpServerEventHandler handler;
-    private final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
+    private final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connFactory;
 
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
-            final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory) {
+            final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connFactory) {
         super();
         this.handler = Args.notNull(handler, "HTTP client handler");
         this.connFactory = Args.notNull(connFactory, "HTTP server connection factory");

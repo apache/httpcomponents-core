@@ -24,39 +24,40 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.impl.bootstrap;
+package org.apache.http.impl.nio.bootstrap;
 
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.ExceptionLogger;
-import org.apache.http.HttpConnectionFactory;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.config.ConnectionConfig;
-import org.apache.http.config.SocketConfig;
-import org.apache.http.impl.DefaultBHttpServerConnection;
-import org.apache.http.impl.DefaultBHttpServerConnectionFactory;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.protocol.HttpExpectationVerifier;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
+import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
+import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
+import org.apache.http.nio.protocol.HttpAsyncService;
+import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
+import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpProcessorBuilder;
-import org.apache.http.protocol.HttpRequestHandler;
-import org.apache.http.protocol.HttpRequestHandlerMapper;
-import org.apache.http.protocol.HttpService;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
-import org.apache.http.protocol.UriHttpRequestHandlerMapper;
 
 /**
  * @since 4.4
@@ -65,7 +66,7 @@ public class ServerBootstrap {
 
     private int listenerPort;
     private InetAddress localAddress;
-    private SocketConfig socketConfig;
+    private IOReactorConfig ioReactorConfig;
     private ConnectionConfig connectionConfig;
     private LinkedList<HttpRequestInterceptor> requestFirst;
     private LinkedList<HttpRequestInterceptor> requestLast;
@@ -75,11 +76,12 @@ public class ServerBootstrap {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private HttpResponseFactory responseFactory;
-    private HttpRequestHandlerMapper handlerMapper;
-    private Map<String, HttpRequestHandler> handlerMap;
-    private HttpExpectationVerifier expectationVerifier;
+    private HttpAsyncRequestHandlerMapper handlerMapper;
+    private Map<String, HttpAsyncRequestHandler<?>> handlerMap;
+    private HttpAsyncExpectationVerifier expectationVerifier;
     private SSLContext sslContext;
-    private HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
+    private SSLSetupHandler sslSetupHandler;
+    private NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory;
     private ExceptionLogger exceptionLogger;
 
     private ServerBootstrap() {
@@ -106,10 +108,10 @@ public class ServerBootstrap {
     }
 
     /**
-     * Sets socket configuration.
+     * Sets I/O reactor configuration.
      */
-    public final ServerBootstrap setSocketConfig(final SocketConfig socketConfig) {
-        this.socketConfig = socketConfig;
+    public final ServerBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
+        this.ioReactorConfig = ioReactorConfig;
         return this;
     }
 
@@ -117,7 +119,7 @@ public class ServerBootstrap {
      * Sets connection configuration.
      * <p/>
      * Please note this value can be overridden by the {@link #setConnectionFactory(
-     * org.apache.http.HttpConnectionFactory)} method.
+     *   org.apache.http.nio.NHttpConnectionFactory)} method.
      */
     public final ServerBootstrap setConnectionConfig(final ConnectionConfig connectionConfig) {
         this.connectionConfig = connectionConfig;
@@ -125,7 +127,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpProcessor} instance.
+     * Assigns {@link org.apache.http.protocol.HttpProcessor} instance.
      */
     public final ServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -212,7 +214,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link ConnectionReuseStrategy} instance.
+     * Assigns {@link org.apache.http.ConnectionReuseStrategy} instance.
      */
     public final ServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
@@ -220,7 +222,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpResponseFactory} instance.
+     * Assigns {@link org.apache.http.HttpResponseFactory} instance.
      */
     public final ServerBootstrap setResponseFactory(final HttpResponseFactory responseFactory) {
         this.responseFactory = responseFactory;
@@ -228,56 +230,70 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpRequestHandlerMapper} instance.
+     * Assigns {@link org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper} instance.
      */
-    public final ServerBootstrap setHandlerMapper(final HttpRequestHandlerMapper handlerMapper) {
+    public final ServerBootstrap setHandlerMapper(final HttpAsyncRequestHandlerMapper handlerMapper) {
         this.handlerMapper = handlerMapper;
         return this;
     }
 
     /**
-     * Registers the given {@link HttpRequestHandler} as a handler for URIs
-     * matching the given pattern.
+     * Registers the given {@link org.apache.http.nio.protocol.HttpAsyncRequestHandler}
+     * as a handler for URIs matching the given pattern.
      * <p/>
      * Please note this value can be overridden by the {@link #setHandlerMapper(
-     *   org.apache.http.protocol.HttpRequestHandlerMapper)} method.
+     *   org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper)} )} method.
      *
      * @param pattern the pattern to register the handler for.
      * @param handler the handler.
      */
-    public final ServerBootstrap registerHandler(final String pattern, final HttpRequestHandler handler) {
+    public final ServerBootstrap registerHandler(final String pattern, final HttpAsyncRequestHandler<?> handler) {
         if (pattern == null || handler == null) {
             return this;
         }
         if (handlerMap == null) {
-            handlerMap = new HashMap<String, HttpRequestHandler>();
+            handlerMap = new HashMap<String, HttpAsyncRequestHandler<?>>();
         }
         handlerMap.put(pattern, handler);
         return this;
     }
 
     /**
-     * Assigns {@link HttpExpectationVerifier} instance.
+     * Assigns {@link org.apache.http.nio.protocol.HttpAsyncExpectationVerifier} instance.
      */
-    public final ServerBootstrap setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
+    public final ServerBootstrap setExpectationVerifier(final HttpAsyncExpectationVerifier expectationVerifier) {
         this.expectationVerifier = expectationVerifier;
         return this;
     }
 
     /**
-     * Assigns {@link HttpConnectionFactory} instance.
+     * Assigns {@link org.apache.http.nio.NHttpConnectionFactory} instance.
      */
     public final ServerBootstrap setConnectionFactory(
-            final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory) {
+            final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory) {
         this.connectionFactory = connectionFactory;
         return this;
     }
 
     /**
      * Assigns {@link javax.net.ssl.SSLContext} instance.
+     * <p/>
+     * Please note this value can be overridden by the {@link #setConnectionFactory(
+     *   org.apache.http.nio.NHttpConnectionFactory)} method.
      */
     public final ServerBootstrap setSslContext(final SSLContext sslContext) {
         this.sslContext = sslContext;
+        return this;
+    }
+
+    /**
+     * Assigns {@link org.apache.http.nio.reactor.ssl.SSLSetupHandler} instance.
+     * <p/>
+     * Please note this value can be overridden by the {@link #setConnectionFactory(
+     *   org.apache.http.nio.NHttpConnectionFactory)} method.
+     */
+    public ServerBootstrap setSslSetupHandler(final SSLSetupHandler sslSetupHandler) {
+        this.sslSetupHandler = sslSetupHandler;
         return this;
     }
 
@@ -308,7 +324,7 @@ public class ServerBootstrap {
 
             String serverInfoCopy = this.serverInfo;
             if (serverInfoCopy == null) {
-                serverInfoCopy = "Apache-HttpCore/1.1";
+                serverInfoCopy = "Apache-HttpCore-NIO/1.1";
             }
 
             b.addAll(
@@ -329,11 +345,11 @@ public class ServerBootstrap {
             httpProcessorCopy = b.build();
         }
 
-        HttpRequestHandlerMapper handlerMapperCopy = this.handlerMapper;
+        HttpAsyncRequestHandlerMapper handlerMapperCopy = this.handlerMapper;
         if (handlerMapperCopy == null) {
-            final UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
+            final UriHttpAsyncRequestHandlerMapper reqistry = new UriHttpAsyncRequestHandlerMapper();
             if (handlerMap != null) {
-                for (Map.Entry<String, HttpRequestHandler> entry: handlerMap.entrySet()) {
+                for (Map.Entry<String, HttpAsyncRequestHandler<?>> entry: handlerMap.entrySet()) {
                     reqistry.register(entry.getKey(), entry.getValue());
                 }
             }
@@ -350,23 +366,13 @@ public class ServerBootstrap {
             responseFactoryCopy = DefaultHttpResponseFactory.INSTANCE;
         }
 
-        final HttpService httpService = new HttpService(
-                httpProcessorCopy, connStrategyCopy, responseFactoryCopy, handlerMapperCopy,
-                this.expectationVerifier);
-
-        final ServerSocketFactory serverSocketFactory;
-        if (this.sslContext != null) {
-            serverSocketFactory = this.sslContext.getServerSocketFactory();
-        } else {
-            serverSocketFactory = ServerSocketFactory.getDefault();
-        }
-
-        HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactoryCopy = this.connectionFactory;
+        NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactoryCopy = this.connectionFactory;
         if (connectionFactoryCopy == null) {
-            if (this.connectionConfig != null) {
-                connectionFactoryCopy = new DefaultBHttpServerConnectionFactory(this.connectionConfig);
+            if (this.sslContext != null) {
+                connectionFactoryCopy = new SSLNHttpServerConnectionFactory(
+                        this.sslContext, this.sslSetupHandler, this.connectionConfig);
             } else {
-                connectionFactoryCopy = DefaultBHttpServerConnectionFactory.INSTANCE;
+                connectionFactoryCopy = new DefaultNHttpServerConnectionFactory(this.connectionConfig);
             }
         }
 
@@ -375,14 +381,13 @@ public class ServerBootstrap {
             exceptionLoggerCopy = ExceptionLogger.NO_OP;
         }
 
-        return new Server(
-                this.listenerPort > 0 ? this.listenerPort : 0,
-                this.localAddress,
-                this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,
-                serverSocketFactory,
-                httpService,
-                connectionFactoryCopy,
-                exceptionLoggerCopy);
+        final HttpAsyncService httpService = new HttpAsyncService(
+                httpProcessorCopy, connStrategyCopy, responseFactoryCopy, handlerMapperCopy,
+                this.expectationVerifier, exceptionLoggerCopy);
+
+        return new Server(this.listenerPort, this.localAddress, this.ioReactorConfig,
+                httpService, connectionFactoryCopy, exceptionLoggerCopy);
+
     }
 
 }
