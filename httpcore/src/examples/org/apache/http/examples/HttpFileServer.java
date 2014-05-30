@@ -55,7 +55,7 @@ import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.bootstrap.Server;
+import org.apache.http.impl.bootstrap.HttpServer;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
@@ -65,7 +65,7 @@ import org.apache.http.util.EntityUtils;
 /**
  * Embedded HTTP/1.1 file server based on a classic (blocking) I/O model.
  */
-public class ElementalHttpServer {
+public class HttpFileServer {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
@@ -82,7 +82,7 @@ public class ElementalHttpServer {
         SSLContext sslcontext = null;
         if (port == 8443) {
             // Initialize SSL context
-            ClassLoader cl = ElementalHttpServer.class.getClassLoader();
+            ClassLoader cl = HttpFileServer.class.getClassLoader();
             URL url = cl.getResource("my.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
@@ -103,7 +103,7 @@ public class ElementalHttpServer {
                 .setTcpNoDelay(true)
                 .build();
 
-        final Server server = ServerBootstrap.bootstrap()
+        final HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(port)
                 .setServerInfo("Test/1.1")
                 .setSocketConfig(socketConfig)

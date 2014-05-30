@@ -47,7 +47,7 @@ import org.apache.http.protocol.HttpService;
 /**
  * @since 4.4
  */
-public class Server {
+public class HttpServer {
 
     enum Status { READY, ACTIVE, STOPPING }
 
@@ -66,7 +66,7 @@ public class Server {
     private volatile ServerSocket serverSocket;
     private volatile RequestListener requestListener;
 
-    Server(
+    HttpServer(
             final int port,
             final InetAddress ifAddress,
             final SocketConfig socketConfig,

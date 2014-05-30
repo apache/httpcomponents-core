@@ -289,7 +289,7 @@ public class ServerBootstrap {
         return this;
     }
 
-    public Server create() {
+    public HttpServer create() {
 
         HttpProcessor httpProcessorCopy = this.httpProcessor;
         if (httpProcessorCopy == null) {
@@ -375,7 +375,7 @@ public class ServerBootstrap {
             exceptionLoggerCopy = ExceptionLogger.NO_OP;
         }
 
-        return new Server(
+        return new HttpServer(
                 this.listenerPort > 0 ? this.listenerPort : 0,
                 this.localAddress,
                 this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,

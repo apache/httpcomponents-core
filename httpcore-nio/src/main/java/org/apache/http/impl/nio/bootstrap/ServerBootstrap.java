@@ -305,7 +305,7 @@ public class ServerBootstrap {
         return this;
     }
 
-    public Server create() {
+    public HttpServer create() {
 
         HttpProcessor httpProcessorCopy = this.httpProcessor;
         if (httpProcessorCopy == null) {
@@ -385,7 +385,7 @@ public class ServerBootstrap {
                 httpProcessorCopy, connStrategyCopy, responseFactoryCopy, handlerMapperCopy,
                 this.expectationVerifier, exceptionLoggerCopy);
 
-        return new Server(this.listenerPort, this.localAddress, this.ioReactorConfig,
+        return new HttpServer(this.listenerPort, this.localAddress, this.ioReactorConfig,
                 httpService, connectionFactoryCopy, exceptionLoggerCopy);
 
     }

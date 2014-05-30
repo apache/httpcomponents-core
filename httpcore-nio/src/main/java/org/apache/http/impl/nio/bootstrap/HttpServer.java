@@ -49,7 +49,7 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 /**
  * @since 4.4
  */
-public class Server {
+public class HttpServer {
 
     enum Status { READY, ACTIVE, STOPPING }
 
@@ -66,7 +66,7 @@ public class Server {
 
     private volatile ListenerEndpoint endpoint;
 
-    Server(
+    HttpServer(
             final int port,
             final InetAddress ifAddress,
             final IOReactorConfig ioReactorConfig,

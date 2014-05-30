@@ -46,7 +46,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.nio.bootstrap.Server;
+import org.apache.http.impl.nio.bootstrap.HttpServer;
 import org.apache.http.impl.nio.bootstrap.ServerBootstrap;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.entity.NFileEntity;
@@ -63,7 +63,7 @@ import org.apache.http.protocol.HttpCoreContext;
  * Embedded HTTP/1.1 file server based on a non-blocking I/O model and capable of direct channel
  * (zero copy) data transfer.
  */
-public class NHttpServer {
+public class NHttpFileServer {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
@@ -80,7 +80,7 @@ public class NHttpServer {
         SSLContext sslcontext = null;
         if (port == 8443) {
             // Initialize SSL context
-            ClassLoader cl = NHttpServer.class.getClassLoader();
+            ClassLoader cl = NHttpFileServer.class.getClassLoader();
             URL url = cl.getResource("my.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
@@ -101,7 +101,7 @@ public class NHttpServer {
                 .setTcpNoDelay(true)
                 .build();
 
-        final Server server = ServerBootstrap.bootstrap()
+        final HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(port)
                 .setServerInfo("Test/1.1")
                 .setIOReactorConfig(config)
