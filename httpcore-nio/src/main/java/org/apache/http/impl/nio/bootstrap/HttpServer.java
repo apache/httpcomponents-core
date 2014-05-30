@@ -105,27 +105,13 @@ public class HttpServer {
         this.status = new AtomicReference<Status>(Status.READY);
     }
 
-    public InetAddress getInetAddress() {
-        final ListenerEndpoint local = this.endpoint;
-        if (local != null) {
-            return ((InetSocketAddress) local.getAddress()).getAddress();
-        } else {
-            return null;
-        }
-    }
-
-    public int getLocalPort() {
-        final ListenerEndpoint local = this.endpoint;
-        if (local != null) {
-            return ((InetSocketAddress) local.getAddress()).getPort();
-        } else {
-            return -1;
-        }
+    public ListenerEndpoint getEndpoint() {
+        return this.endpoint;
     }
 
     public void start() throws IOException {
         if (this.status.compareAndSet(Status.READY, Status.ACTIVE)) {
-            this.ioReactor.listen(new InetSocketAddress(this.ifAddress, this.port > 0 ? this.port : 0));
+            this.endpoint = this.ioReactor.listen(new InetSocketAddress(this.ifAddress, this.port > 0 ? this.port : 0));
             final IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(
                     this.httpService, this.connectionFactory);
             this.listenerExecutorService.execute(new Runnable() {
