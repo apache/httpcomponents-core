@@ -79,10 +79,10 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     private volatile boolean done;
 
     /**
-     * Creates new instance of BasicAsyncRequestExecutionHandler.
+     * Creates new instance of <tt>PipeliningClientExchangeHandler<tt/>.
      *
-     * @param requestProducer the request producer.
-     * @param responseConsumer the response consumer.
+     * @param requestProducers the request producers.
+     * @param responseConsumers the response consumers.
      * @param callback the future callback invoked when the operation is completed.
      * @param localContext the local execution context.
      * @param conn the actual connection.
@@ -90,8 +90,8 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param connReuseStrategy the connection re-use strategy.
      */
     public PipeliningClientExchangeHandler(
-            final List<HttpAsyncRequestProducer> requestProducers,
-            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+            final List<? extends HttpAsyncRequestProducer> requestProducers,
+            final List<? extends HttpAsyncResponseConsumer<T>> responseConsumers,
             final FutureCallback<List<T>> callback,
             final HttpContext localContext,
             final NHttpClientConnection conn,
@@ -116,17 +116,17 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     /**
-     * Creates new instance of BasicAsyncRequestExecutionHandler.
+     * Creates new instance of <tt>PipeliningClientExchangeHandler<tt/>.
      *
-     * @param requestProducer the request producer.
-     * @param responseConsumer the response consumer.
+     * @param requestProducers the request producers.
+     * @param responseConsumers the response consumers.
      * @param localContext the local execution context.
      * @param conn the actual connection.
      * @param httppocessor the HTTP protocol processor.
      */
     public PipeliningClientExchangeHandler(
-            final List<HttpAsyncRequestProducer> requestProducers,
-            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+            final List<? extends HttpAsyncRequestProducer> requestProducers,
+            final List<? extends HttpAsyncResponseConsumer<T>> responseConsumers,
             final HttpContext localContext,
             final NHttpClientConnection conn,
             final HttpProcessor httppocessor) {

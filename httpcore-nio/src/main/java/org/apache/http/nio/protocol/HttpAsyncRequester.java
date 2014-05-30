@@ -243,8 +243,8 @@ public class HttpAsyncRequester {
      */
     public <T, E extends PoolEntry<HttpHost, NHttpClientConnection>> Future<List<T>> executePipelined(
             final HttpHost target,
-            final List<HttpAsyncRequestProducer> requestProducers,
-            final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+            final List<? extends HttpAsyncRequestProducer> requestProducers,
+            final List<? extends HttpAsyncResponseConsumer<T>> responseConsumers,
             final ConnPool<HttpHost, E> connPool,
             final HttpContext context,
             final FutureCallback<List<T>> callback) {
@@ -447,15 +447,15 @@ public class HttpAsyncRequester {
     class ConnPipelinedRequestCallback<T, E extends PoolEntry<HttpHost, NHttpClientConnection>> implements FutureCallback<E> {
 
         private final BasicFuture<List<T>> requestFuture;
-        private final List<HttpAsyncRequestProducer> requestProducers;
-        private final List<HttpAsyncResponseConsumer<T>> responseConsumers;
+        private final List<? extends HttpAsyncRequestProducer> requestProducers;
+        private final List<? extends HttpAsyncResponseConsumer<T>> responseConsumers;
         private final ConnPool<HttpHost, E> connPool;
         private final HttpContext context;
 
         ConnPipelinedRequestCallback(
                 final BasicFuture<List<T>> requestFuture,
-                final List<HttpAsyncRequestProducer> requestProducers,
-                final List<HttpAsyncResponseConsumer<T>> responseConsumers,
+                final List<? extends HttpAsyncRequestProducer> requestProducers,
+                final List<? extends HttpAsyncResponseConsumer<T>> responseConsumers,
                 final ConnPool<HttpHost, E> connPool,
                 final HttpContext context) {
             super();
