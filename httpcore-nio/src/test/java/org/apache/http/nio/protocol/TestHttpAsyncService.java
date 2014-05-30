@@ -1050,7 +1050,7 @@ public class TestHttpAsyncService {
 
         this.protocolHandler.responseReady(this.conn);
 
-        Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());
+        Assert.assertEquals(MessageState.READY, state.getRequestState());
         Assert.assertEquals(MessageState.BODY_STREAM, state.getResponseState());
 
         Mockito.verify(this.conn).resetInput();

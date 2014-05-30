@@ -419,7 +419,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 }
             } else if (status >= 400) {
                 conn.resetInput();
-                state.setRequestState(MessageState.COMPLETED);
+                state.setRequestState(MessageState.READY);
                 commitFinalResponse(conn, state);
             } else {
                 throw new HttpException("Invalid response: " + response.getStatusLine());
