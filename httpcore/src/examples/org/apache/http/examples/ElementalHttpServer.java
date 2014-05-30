@@ -43,6 +43,7 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ExceptionLogger;
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
@@ -57,11 +58,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.bootstrap.Server;
 import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.util.EntityUtils;
 
 /**
- * Embedded HTTP/1.1 file server.
+ * Embedded HTTP/1.1 file server based on a classic (blocking) I/O model.
  */
 public class ElementalHttpServer {
 
@@ -183,11 +185,12 @@ public class ElementalHttpServer {
                 System.out.println("Cannot read file " + file.getPath());
 
             } else {
-
+                HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                HttpConnection conn = coreContext.getConnection(HttpConnection.class);
                 response.setStatusCode(HttpStatus.SC_OK);
                 FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);
-                System.out.println("Serving file " + file.getPath());
+                System.out.println(conn + ": serving file " + file.getPath());
             }
         }
 

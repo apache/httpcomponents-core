@@ -28,33 +28,27 @@ package org.apache.http.examples.nio;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.security.KeyStore;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.ExceptionLogger;
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.MethodNotSupportedException;
-import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnectionFactory;
-import org.apache.http.impl.nio.SSLNHttpServerConnectionFactory;
-import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
+import org.apache.http.impl.nio.bootstrap.Server;
+import org.apache.http.impl.nio.bootstrap.ServerBootstrap;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import org.apache.http.nio.NHttpConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.entity.NFileEntity;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
@@ -62,21 +56,11 @@ import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncService;
-import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
-import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.HttpProcessorBuilder;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
 
 /**
- * HTTP/1.1 file server based on the non-blocking I/O model and capable of direct channel
+ * Embedded HTTP/1.1 file server based on a non-blocking I/O model and capable of direct channel
  * (zero copy) data transfer.
  */
 public class NHttpServer {
@@ -93,34 +77,7 @@ public class NHttpServer {
             port = Integer.parseInt(args[1]);
         }
 
-        // Create HTTP protocol processing chain
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
-                .add(new ResponseDate())
-                .add(new ResponseServer("Test/1.1"))
-                .add(new ResponseContent())
-                .add(new ResponseConnControl()).build();
-        // Create request handler registry
-        UriHttpAsyncRequestHandlerMapper reqistry = new UriHttpAsyncRequestHandlerMapper();
-        // Register the default handler for all URIs
-        reqistry.register("*", new HttpFileHandler(docRoot));
-        // Create server-side HTTP protocol handler
-        HttpAsyncService protocolHandler = new HttpAsyncService(httpproc, reqistry) {
-
-            @Override
-            public void connected(final NHttpServerConnection conn) {
-                System.out.println(conn + ": connection open");
-                super.connected(conn);
-            }
-
-            @Override
-            public void closed(final NHttpServerConnection conn) {
-                System.out.println(conn + ": connection closed");
-                super.closed(conn);
-            }
-
-        };
-        // Create HTTP connection factory
-        NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
+        SSLContext sslcontext = null;
         if (port == 8443) {
             // Initialize SSL context
             ClassLoader cl = NHttpServer.class.getClassLoader();
@@ -135,35 +92,34 @@ public class NHttpServer {
                     KeyManagerFactory.getDefaultAlgorithm());
             kmfactory.init(keystore, "secret".toCharArray());
             KeyManager[] keymanagers = kmfactory.getKeyManagers();
-            SSLContext sslcontext = SSLContext.getInstance("TLS");
+            sslcontext = SSLContext.getInstance("TLS");
             sslcontext.init(keymanagers, null, null);
-            connFactory = new SSLNHttpServerConnectionFactory(sslcontext,
-                    null, ConnectionConfig.DEFAULT);
-        } else {
-            connFactory = new DefaultNHttpServerConnectionFactory(
-                    ConnectionConfig.DEFAULT);
         }
-        // Create server-side I/O event dispatch
-        IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(protocolHandler, connFactory);
-        // Set I/O reactor defaults
+
         IOReactorConfig config = IOReactorConfig.custom()
-            .setIoThreadCount(1)
-            .setSoTimeout(3000)
-            .setConnectTimeout(3000)
-            .build();
-        // Create server-side I/O reactor
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor(config);
-        try {
-            // Listen of the given port
-            ioReactor.listen(new InetSocketAddress(port));
-            // Ready to go!
-            ioReactor.execute(ioEventDispatch);
-        } catch (InterruptedIOException ex) {
-            System.err.println("Interrupted");
-        } catch (IOException e) {
-            System.err.println("I/O error: " + e.getMessage());
-        }
-        System.out.println("Shutdown");
+                .setSoTimeout(15000)
+                .setTcpNoDelay(true)
+                .build();
+
+        final Server server = ServerBootstrap.bootstrap()
+                .setListenerPort(port)
+                .setServerInfo("Test/1.1")
+                .setIOReactorConfig(config)
+                .setSslContext(sslcontext)
+                .setExceptionLogger(ExceptionLogger.STD_ERR)
+                .registerHandler("*", new HttpFileHandler(docRoot))
+                .create();
+
+        server.start();
+        server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                server.shutdown(5, TimeUnit.SECONDS);
+            }
+        });
+
     }
 
     static class HttpFileHandler implements HttpAsyncRequestHandler<HttpRequest> {
@@ -196,8 +152,6 @@ public class NHttpServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-
             String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
@@ -225,7 +179,9 @@ public class NHttpServer {
                 System.out.println("Cannot read file " + file.getPath());
 
             } else {
-                NHttpConnection conn = coreContext.getConnection(NHttpConnection.class);
+
+                HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                HttpConnection conn = coreContext.getConnection(HttpConnection.class);
                 response.setStatusCode(HttpStatus.SC_OK);
                 NFileEntity body = new NFileEntity(file, ContentType.create("text/html"));
                 response.setEntity(body);
