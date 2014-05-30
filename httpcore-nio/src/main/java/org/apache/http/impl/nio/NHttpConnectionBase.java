@@ -589,28 +589,17 @@ public class NHttpConnectionBase
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
         final SocketAddress remoteAddress = this.session.getRemoteAddress();
         final SocketAddress localAddress = this.session.getLocalAddress();
         if (remoteAddress != null && localAddress != null) {
+            final StringBuilder buffer = new StringBuilder();
             NetUtils.formatAddress(buffer, localAddress);
             buffer.append("<->");
             NetUtils.formatAddress(buffer, remoteAddress);
+            return buffer.toString();
+        } else {
+            return "[Not bound]";
         }
-        buffer.append("[");
-        switch (this.status) {
-        case ACTIVE:
-            buffer.append("ACTIVE");
-            break;
-        case CLOSING:
-            buffer.append("CLOSING");
-            break;
-        case CLOSED:
-            buffer.append("CLOSED");
-            break;
-        }
-        buffer.append("]");
-        return buffer.toString();
     }
 
     @Override

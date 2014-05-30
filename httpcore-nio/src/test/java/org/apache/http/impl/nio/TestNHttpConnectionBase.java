@@ -31,8 +31,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
-import junit.framework.Assert;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
@@ -48,6 +46,7 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HTTP;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -74,7 +73,7 @@ public class TestNHttpConnectionBase {
 
     @Test
     public void testBasics() throws Exception {
-        Assert.assertEquals("[ACTIVE]", conn.toString());
+        Assert.assertEquals("[Not bound]", conn.toString());
 
         Mockito.verify(session).setBufferStatus(conn);
     }
@@ -93,7 +92,7 @@ public class TestNHttpConnectionBase {
 
         Mockito.verify(session, Mockito.times(2)).setBufferStatus(conn);
 
-        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80[ACTIVE]", conn.toString());
+        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80", conn.toString());
         Assert.assertTrue(conn.isOpen());
         Assert.assertEquals(8888, conn.getLocalPort());
         Assert.assertEquals(80, conn.getRemotePort());
@@ -114,7 +113,7 @@ public class TestNHttpConnectionBase {
         conn.close();
 
         Assert.assertEquals(NHttpConnection.CLOSED, conn.getStatus());
-        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80[CLOSED]", conn.toString());
+        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80", conn.toString());
 
         Mockito.verify(session).close();
     }
@@ -135,7 +134,7 @@ public class TestNHttpConnectionBase {
         Assert.assertEquals(NHttpConnection.CLOSING, conn.getStatus());
         conn.close();
         Assert.assertEquals(NHttpConnection.CLOSING, conn.getStatus());
-        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80[CLOSING]", conn.toString());
+        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80", conn.toString());
 
         Mockito.verify(session).setEvent(SelectionKey.OP_WRITE);
         Mockito.verify(session, Mockito.never()).close();
@@ -155,7 +154,7 @@ public class TestNHttpConnectionBase {
         conn.shutdown();
 
         Assert.assertEquals(NHttpConnection.CLOSED, conn.getStatus());
-        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80[CLOSED]", conn.toString());
+        Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80", conn.toString());
 
         Mockito.verify(session).shutdown();
     }
