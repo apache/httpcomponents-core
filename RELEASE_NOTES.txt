@@ -1,6 +1,10 @@
 Changes since Release 4.3.2
 -------------------
 
+* [HTTPASYNC-77] system resources are not correctly deallocated if I/O reactor is shut down
+  while still inactive (not started)
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-376] AbstractNIOConnPool#requestCancelled() should not process pending requests
   wnen being shut down.
   Contributed by Dmitry Potapov <potapov.d at gmail.com>
