@@ -548,11 +548,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0) {
                 return;
             }
-            if (this.status.compareTo(IOReactorStatus.INACTIVE) == 0) {
-                this.status = IOReactorStatus.SHUT_DOWN;
-                cancelRequests();
-                return;
-            }
             this.status = IOReactorStatus.SHUTDOWN_REQUEST;
         }
         this.selector.wakeup();

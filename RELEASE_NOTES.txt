@@ -1,6 +1,10 @@
 Changes for release 4.4-alpha1
 -------------------
 
+* [HTTPASYNC-77] system resources are not correctly deallocated if I/O reactor is shut down
+  while still inactive (not started)
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * [HTTPCORE-377] Allow zero SO_LINGER (immediate abortive close).
   Contributed by Dmitry Potapov <potapov.d at gmail.com>
 
