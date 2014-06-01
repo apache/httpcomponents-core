@@ -29,6 +29,8 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -42,12 +44,9 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.OoopsieRuntimeException;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
@@ -59,19 +58,32 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.nio.testserver.HttpServerNio;
-import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
-import org.apache.http.nio.testserver.LoggingServerConnectionFactory;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * Tests for basic I/O functionality.
  */
+@RunWith(Parameterized.class)
 public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                {ProtocolScheme.http},
+                {ProtocolScheme.https},
+        });
+    }
+
+    public TestDefaultIOReactors(final ProtocolScheme scheme) {
+        super(scheme);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -83,16 +95,6 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
     public void tearDown() throws Exception {
         shutDownClient();
         shutDownServer();
-    }
-
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
-        return new LoggingServerConnectionFactory();
-    }
-
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
-        return new LoggingClientConnectionFactory();
     }
 
     @Test
@@ -146,7 +148,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        final HttpHost target = new HttpHost("localhost", address.getPort());
+        final HttpHost target = new HttpHost("localhost", address.getPort(), getScheme().name());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
@@ -210,7 +212,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        final HttpHost target = new HttpHost("localhost", address.getPort());
+        final HttpHost target = new HttpHost("localhost", address.getPort(), getScheme().name());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
@@ -290,7 +292,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        final HttpHost target = new HttpHost("localhost", address.getPort());
+        final HttpHost target = new HttpHost("localhost", address.getPort(), getScheme().name());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
@@ -370,7 +372,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        final HttpHost target = new HttpHost("localhost", address.getPort());
+        final HttpHost target = new HttpHost("localhost", address.getPort(), getScheme().name());
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 

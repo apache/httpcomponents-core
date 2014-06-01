@@ -29,6 +29,8 @@ package org.apache.http.nio.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -42,12 +44,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
@@ -61,8 +60,6 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
-import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
-import org.apache.http.nio.testserver.LoggingServerConnectionFactory;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
@@ -75,11 +72,26 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * HttpCore NIO integration tests for pipelined request processing.
  */
+@RunWith(Parameterized.class)
 public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                {ProtocolScheme.http},
+                {ProtocolScheme.https},
+        });
+    }
+
+    public TestHttpAsyncHandlersPipelining(final ProtocolScheme scheme) {
+        super(scheme);
+    }
 
     public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
             new RequestContent(),
@@ -99,17 +111,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         shutDownServer();
     }
 
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
-        return new LoggingServerConnectionFactory();
-    }
-
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
-        return new LoggingClientConnectionFactory();
-    }
-
-    private InetSocketAddress start(
+    private HttpHost start(
             final HttpProcessor clientProtocolProcessor,
             final HttpProcessor serverProtocolProcessor,
             final HttpAsyncRequestHandlerMapper requestHandlerResolver,
@@ -121,10 +123,11 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        return (InetSocketAddress) endpoint.getAddress();
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        return new HttpHost("localhost", address.getPort(), getScheme().name());
     }
 
-    private InetSocketAddress start(
+    private HttpHost start(
             final HttpAsyncRequestHandlerMapper requestHandlerResolver,
             final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
         return start(DEFAULT_HTTP_PROC, null, requestHandlerResolver, expectationVerifier);
@@ -146,7 +149,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
     public void testHttpGets() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -154,7 +157,6 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
@@ -183,15 +185,13 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
     public void testHttpHeads() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
         for (int i = 0; i < 10; i++) {
@@ -218,7 +218,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
     public void testHttpPosts() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -226,7 +226,6 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
@@ -306,7 +305,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new DelayedRequestHandler());
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -316,7 +315,6 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final String pattern3 = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern1 = createExpectedString(pattern1, count);
         final String expectedPattern2 = createExpectedString(pattern2, count);
         final String expectedPattern3 = createExpectedString(pattern3, count);

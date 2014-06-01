@@ -40,10 +40,10 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
+import org.apache.http.nio.testserver.ClientConnectionFactory;
 import org.apache.http.nio.testserver.HttpClientNio;
 import org.apache.http.nio.testserver.HttpServerNio;
-import org.apache.http.nio.testserver.LoggingSSLClientConnectionFactory;
-import org.apache.http.nio.testserver.LoggingSSLServerConnectionFactory;
+import org.apache.http.nio.testserver.ServerConnectionFactory;
 import org.apache.http.nio.testserver.SSLTestContexts;
 import org.apache.http.nio.testserver.SimpleIOReactorExceptionHandler;
 import org.apache.http.protocol.HttpContext;
@@ -117,13 +117,13 @@ public class TestCustomSSL {
         };
 
         this.server = new HttpServerNio(
-                new LoggingSSLServerConnectionFactory(
+                new ServerConnectionFactory(
                         SSLTestContexts.createServerSSLContext(), sslSetupHandler));
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.server.setTimeout(5000);
         this.client = new HttpClientNio(
                 new BasicNIOConnFactory(
-                        new LoggingSSLClientConnectionFactory(
+                        new ClientConnectionFactory(
                                 SSLTestContexts.createClientSSLContext()), null));
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.client.setTimeout(5000);

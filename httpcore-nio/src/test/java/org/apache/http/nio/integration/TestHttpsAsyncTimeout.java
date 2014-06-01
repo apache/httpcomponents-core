@@ -37,21 +37,11 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
-import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
-import org.apache.http.nio.testserver.LoggingSSLClientConnectionFactory;
-import org.apache.http.nio.testserver.LoggingServerConnectionFactory;
-import org.apache.http.nio.testserver.SSLTestContexts;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.junit.After;
@@ -72,25 +62,6 @@ public class TestHttpsAsyncTimeout extends HttpCoreNIOTestBase {
     public void tearDown() throws Exception {
         serverSocket.close();
         shutDownClient();
-    }
-
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory()
-        throws Exception {
-        return new LoggingServerConnectionFactory();
-    }
-
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory()
-        throws Exception {
-        return new LoggingClientConnectionFactory();
-    }
-
-    @Override
-    protected NIOConnFactory<HttpHost, NHttpClientConnection> createPoolConnectionFactory()
-        throws Exception {
-        return new BasicNIOConnFactory(createClientConnectionFactory(),
-            new LoggingSSLClientConnectionFactory(SSLTestContexts.createClientSSLContext()));
     }
 
     private InetSocketAddress start() throws Exception {

@@ -29,6 +29,8 @@ package org.apache.http.nio.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -42,12 +44,9 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ContentType;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
@@ -61,8 +60,6 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
-import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
-import org.apache.http.nio.testserver.LoggingServerConnectionFactory;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -78,11 +75,26 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /**
  * HttpCore NIO integration tests for async handlers.
  */
+@RunWith(Parameterized.class)
 public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                { ProtocolScheme.http },
+                { ProtocolScheme.https },
+        });
+    }
+
+    public TestHttpAsyncHandlers(final ProtocolScheme scheme) {
+        super(scheme);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -96,17 +108,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         shutDownServer();
     }
 
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
-        return new LoggingServerConnectionFactory();
-    }
-
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
-        return new LoggingClientConnectionFactory();
-    }
-
-    private InetSocketAddress start(
+    private HttpHost start(
             final HttpProcessor clientProtocolProcessor,
             final HttpProcessor serverProtocolProcessor,
             final HttpAsyncRequestHandlerMapper requestHandlerResolver,
@@ -118,10 +120,11 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
-        return (InetSocketAddress) endpoint.getAddress();
+        final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
+        return new HttpHost("localhost", address.getPort(), getScheme().name());
     }
 
-    private InetSocketAddress start(
+    private HttpHost start(
             final HttpAsyncRequestHandlerMapper requestHandlerResolver,
             final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
         return start(null, null, requestHandlerResolver, expectationVerifier);
@@ -143,7 +146,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpGets() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -151,7 +154,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
@@ -173,15 +175,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpHeads() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
@@ -202,7 +202,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsWithContentLength() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -210,7 +210,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
@@ -235,7 +234,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsChunked() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -243,7 +242,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
@@ -269,7 +267,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsHTTP10() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -277,7 +275,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
@@ -302,15 +299,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsNoEntity() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
@@ -334,21 +329,19 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
-        final HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+        final HttpProcessor clientHttpProc = new ImmutableHttpProcessor(
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue(true)});
+                new RequestExpectContinue(true));
 
-        final InetSocketAddress address = start(clientHttpProc, null, registry, null);
+        final HttpHost target = start(clientHttpProc, null, registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri(pattern, count));
@@ -366,7 +359,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
-        final HttpProcessor clientHttpProc = new ImmutableHttpProcessor(new HttpRequestInterceptor[] {
+        final HttpProcessor clientHttpProc = new ImmutableHttpProcessor(
                 new HttpRequestInterceptor() {
 
                     @Override
@@ -380,17 +373,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue(true)});
+                new RequestExpectContinue(true));
 
-        final InetSocketAddress address = start(clientHttpProc, null, registry, null);
+        final HttpHost target = start(clientHttpProc, null, registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri(pattern, count));
@@ -407,7 +398,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostsWithExpectContinue() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -415,7 +406,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final HttpHost target = new HttpHost("localhost", address.getPort());
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
@@ -466,7 +456,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, expectationVerifier);
+        final HttpHost target = start(registry, expectationVerifier);
 
         final BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
@@ -479,8 +469,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
         final HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (final HttpRequest request : requests) {
@@ -551,15 +539,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new DelayedRequestHandler());
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
@@ -612,7 +598,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final InetSocketAddress address = start(registry, expectationVerifier);
+        final HttpHost target = start(registry, expectationVerifier);
 
         final BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
@@ -625,8 +611,6 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
         final HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (final HttpRequest request : requests) {
@@ -676,15 +660,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         registry.register("*", new FailingRequestHandler());
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 1; i++) {
@@ -704,15 +686,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     @Test
     public void testNoServiceHandler() throws Exception {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
@@ -743,12 +723,10 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         }));
-        final InetSocketAddress address = start(registry, null);
+        final HttpHost target = start(registry, null);
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
-
-        final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {

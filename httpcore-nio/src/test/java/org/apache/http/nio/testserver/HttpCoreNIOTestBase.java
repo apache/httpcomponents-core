@@ -27,33 +27,45 @@
 
 package org.apache.http.nio.testserver;
 
-import org.apache.http.HttpHost;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
-import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
-import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.pool.NIOConnFactory;
 import org.junit.After;
 
 /**
- * Base class for all HttpCore NIO tests
+ * Base class for all HttpCore NIO integration tests
  *
  */
 public abstract class HttpCoreNIOTestBase {
 
+    public enum ProtocolScheme { http, https }
+
+    private final ProtocolScheme scheme;
+
     protected HttpServerNio server;
     protected HttpClientNio client;
 
-    protected abstract NHttpConnectionFactory<DefaultNHttpServerConnection>
-        createServerConnectionFactory() throws Exception;
+    public HttpCoreNIOTestBase(final ProtocolScheme scheme) {
+        this.scheme = scheme;
+    }
 
-    protected abstract NHttpConnectionFactory<DefaultNHttpClientConnection>
-        createClientConnectionFactory() throws Exception;
+    public HttpCoreNIOTestBase() {
+        this(ProtocolScheme.http);
+    }
 
-    protected NIOConnFactory<HttpHost, NHttpClientConnection> createPoolConnectionFactory()
-        throws Exception {
-        return new BasicNIOConnFactory(createClientConnectionFactory(), null);
+    public ProtocolScheme getScheme() {
+        return this.scheme;
+    }
+
+    protected ServerConnectionFactory createServerConnectionFactory() throws Exception {
+        return new ServerConnectionFactory(
+                this.scheme.equals(ProtocolScheme.https) ? SSLTestContexts.createServerSSLContext() : null);
+    }
+
+    protected BasicNIOConnFactory createClientConnectionFactory() throws Exception {
+        return new BasicNIOConnFactory(
+                new ClientConnectionFactory(),
+                this.scheme.equals(ProtocolScheme.https) ? new ClientConnectionFactory(
+                        SSLTestContexts.createClientSSLContext()) : null);
+
     }
 
     public void initServer() throws Exception {
@@ -63,7 +75,7 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     public void initClient() throws Exception {
-        this.client = new HttpClientNio(createPoolConnectionFactory());
+        this.client = new HttpClientNio(createClientConnectionFactory());
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.client.setTimeout(5000);
     }

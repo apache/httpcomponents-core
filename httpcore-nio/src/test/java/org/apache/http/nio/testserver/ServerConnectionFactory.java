@@ -28,35 +28,43 @@ package org.apache.http.nio.testserver;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
+import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.http.nio.reactor.ssl.SSLMode;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 
-public class LoggingSSLClientConnectionFactory implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
+public class ServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 
     private final SSLContext sslcontext;
     private final SSLSetupHandler setupHandler;
 
-    public LoggingSSLClientConnectionFactory(
+    public ServerConnectionFactory(
             final SSLContext sslcontext, final SSLSetupHandler setupHandler) {
         super();
         this.sslcontext = sslcontext;
         this.setupHandler = setupHandler;
     }
 
-    public LoggingSSLClientConnectionFactory(final SSLContext sslcontext) {
+    public ServerConnectionFactory(final SSLContext sslcontext) {
         this(sslcontext, null);
     }
 
+    public ServerConnectionFactory() {
+        this(null, null);
+    }
+
     @Override
-    public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
-        final SSLIOSession ssliosession = new SSLIOSession(
-                iosession, SSLMode.CLIENT, this.sslcontext, this.setupHandler);
-        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-        return new LoggingNHttpClientConnection(ssliosession);
+    public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
+        if (this.sslcontext != null) {
+            final SSLIOSession ssliosession = new SSLIOSession(
+                    iosession, SSLMode.SERVER, this.sslcontext, this.setupHandler);
+            iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
+            return new LoggingNHttpServerConnection(ssliosession);
+        } else {
+            return new LoggingNHttpServerConnection(iosession);
+        }
     }
 
 }

@@ -45,14 +45,12 @@ import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.codecs.AbstractContentEncoder;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.entity.ContentInputStream;
 import org.apache.http.nio.protocol.AbstractAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
@@ -63,8 +61,8 @@ import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
-import org.apache.http.nio.testserver.LoggingClientConnectionFactory;
 import org.apache.http.nio.testserver.LoggingNHttpServerConnection;
+import org.apache.http.nio.testserver.ServerConnectionFactory;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.nio.util.SimpleInputBuffer;
 import org.apache.http.protocol.HttpContext;
@@ -93,13 +91,8 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
     }
 
     @Override
-    protected NHttpConnectionFactory<DefaultNHttpServerConnection> createServerConnectionFactory() throws Exception {
+    protected ServerConnectionFactory createServerConnectionFactory() throws Exception {
         return new CustomServerConnectionFactory();
-    }
-
-    @Override
-    protected NHttpConnectionFactory<DefaultNHttpClientConnection> createClientConnectionFactory() throws Exception {
-        return new LoggingClientConnectionFactory();
     }
 
     private static final byte[] GARBAGE = new byte[] {'1', '2', '3', '4', '5' };
@@ -147,7 +140,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     }
 
-    static class CustomServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
+    static class CustomServerConnectionFactory extends ServerConnectionFactory {
 
         public CustomServerConnectionFactory() {
             super();
