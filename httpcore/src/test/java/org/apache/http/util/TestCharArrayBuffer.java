@@ -399,4 +399,28 @@ public class TestCharArrayBuffer {
         Assert.assertEquals('c', data[2]);
     }
 
+    @Test
+    public void testSubSequenceIndexOfOutBound() {
+        final CharArrayBuffer buffer = new CharArrayBuffer(16);
+        buffer.append("stuff");
+        try {
+            buffer.subSequence(-2, 10);
+            Assert.fail("IndexOutOfBoundsException should have been thrown");
+        } catch (final IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.subSequence(12, 10);
+            Assert.fail("IndexOutOfBoundsException should have been thrown");
+        } catch (final IndexOutOfBoundsException ex) {
+            // expected
+        }
+        try {
+            buffer.subSequence(2, 1);
+            Assert.fail("IndexOutOfBoundsException should have been thrown");
+        } catch (final IndexOutOfBoundsException ex) {
+            // expected
+        }
+    }
+
 }

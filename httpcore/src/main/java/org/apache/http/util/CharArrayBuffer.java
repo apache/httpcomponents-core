@@ -28,6 +28,7 @@
 package org.apache.http.util;
 
 import java.io.Serializable;
+import java.nio.CharBuffer;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.protocol.HTTP;
@@ -38,7 +39,7 @@ import org.apache.http.protocol.HTTP;
  * @since 4.0
  */
 @NotThreadSafe
-public final class CharArrayBuffer implements Serializable {
+public final class CharArrayBuffer implements CharSequence, Serializable {
 
     private static final long serialVersionUID = -6208952725094867135L;
 
@@ -416,6 +417,15 @@ public final class CharArrayBuffer implements Serializable {
      *             <code>endIndex</code>.
      */
     public String substring(final int beginIndex, final int endIndex) {
+        if (beginIndex < 0) {
+            throw new IndexOutOfBoundsException("Negative beginIndex: " + beginIndex);
+        }
+        if (endIndex > this.len) {
+            throw new IndexOutOfBoundsException("endIndex: " + endIndex + " > length: " + this.len);
+        }
+        if (beginIndex > endIndex) {
+            throw new IndexOutOfBoundsException("beginIndex: " + beginIndex + " > endIndex: " + endIndex);
+        }
         return new String(this.buffer, beginIndex, endIndex - beginIndex);
     }
 
@@ -426,8 +436,8 @@ public final class CharArrayBuffer implements Serializable {
      * non-whitespace character with the index lesser than
      * <code>endIndex</code>.
      *
-     * @param      from   the beginning index, inclusive.
-     * @param      to     the ending index, exclusive.
+     * @param      beginIndex   the beginning index, inclusive.
+     * @param      endIndex     the ending index, exclusive.
      * @return     the specified substring.
      * @exception  IndexOutOfBoundsException  if the
      *             <code>beginIndex</code> is negative, or
@@ -435,25 +445,43 @@ public final class CharArrayBuffer implements Serializable {
      *             buffer, or <code>beginIndex</code> is larger than
      *             <code>endIndex</code>.
      */
-    public String substringTrimmed(final int from, final int to) {
-        int beginIndex = from;
-        int endIndex = to;
+    public String substringTrimmed(final int beginIndex, final int endIndex) {
         if (beginIndex < 0) {
-            throw new IndexOutOfBoundsException("Negative beginIndex: "+beginIndex);
+            throw new IndexOutOfBoundsException("Negative beginIndex: " + beginIndex);
         }
         if (endIndex > this.len) {
-            throw new IndexOutOfBoundsException("endIndex: "+endIndex+" > length: "+this.len);
+            throw new IndexOutOfBoundsException("endIndex: " + endIndex + " > length: " + this.len);
         }
         if (beginIndex > endIndex) {
-            throw new IndexOutOfBoundsException("beginIndex: "+beginIndex+" > endIndex: "+endIndex);
+            throw new IndexOutOfBoundsException("beginIndex: " + beginIndex + " > endIndex: " + endIndex);
         }
-        while (beginIndex < endIndex && HTTP.isWhitespace(this.buffer[beginIndex])) {
-            beginIndex++;
+        int beginIndex0 = beginIndex;
+        int endIndex0 = endIndex;
+        while (beginIndex0 < endIndex && HTTP.isWhitespace(this.buffer[beginIndex0])) {
+            beginIndex0++;
         }
-        while (endIndex > beginIndex && HTTP.isWhitespace(this.buffer[endIndex - 1])) {
-            endIndex--;
+        while (endIndex0 > beginIndex0 && HTTP.isWhitespace(this.buffer[endIndex0 - 1])) {
+            endIndex0--;
         }
-        return new String(this.buffer, beginIndex, endIndex - beginIndex);
+        return new String(this.buffer, beginIndex0, endIndex0 - beginIndex0);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @since 4.4
+     */
+    @Override
+    public CharSequence subSequence(final int beginIndex, final int endIndex) {
+        if (beginIndex < 0) {
+            throw new IndexOutOfBoundsException("Negative beginIndex: " + beginIndex);
+        }
+        if (endIndex > this.len) {
+            throw new IndexOutOfBoundsException("endIndex: " + endIndex + " > length: " + this.len);
+        }
+        if (beginIndex > endIndex) {
+            throw new IndexOutOfBoundsException("beginIndex: " + beginIndex + " > endIndex: " + endIndex);
+        }
+        return CharBuffer.wrap(this.buffer, beginIndex, endIndex);
     }
 
     @Override
