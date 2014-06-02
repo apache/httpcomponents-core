@@ -76,6 +76,16 @@ public class Args {
         return argument;
     }
 
+    public static <T extends CharSequence> T containsNoBlanks(final T argument, final String name) {
+        if (argument == null) {
+            throw new IllegalArgumentException(name + " may not be null");
+        }
+        if (TextUtils.containsBlanks(argument)) {
+            throw new IllegalArgumentException(name + " may not contain blanks");
+        }
+        return argument;
+    }
+
     public static <E, T extends Collection<E>> T notEmpty(final T argument, final String name) {
         if (argument == null) {
             throw new IllegalArgumentException(name + " may not be null");

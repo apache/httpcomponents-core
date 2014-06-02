@@ -173,4 +173,31 @@ public class TestHttpHost {
         Assert.assertEquals(orig, clone);
     }
 
+    @Test
+    public void testCreateFromString() throws Exception {
+        Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("https://somehost:8080"));
+        Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("HttpS://SomeHost:8080"));
+        Assert.assertEquals(new HttpHost("somehost", 1234, null), HttpHost.create("somehost:1234"));
+        Assert.assertEquals(new HttpHost("somehost", -1, null), HttpHost.create("somehost"));
+    }
+
+    @Test
+    public void testCreateFromStringInvalid() throws Exception {
+        try {
+            HttpHost.create(null);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            HttpHost.create(" host ");
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+        try {
+            HttpHost.create("host :8080");
+            Assert.fail("IllegalArgumentException expected");
+        } catch (IllegalArgumentException expected) {
+        }
+    }
+
 }

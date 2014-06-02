@@ -66,8 +66,7 @@ public final class HttpHost implements Cloneable, Serializable {
     protected final InetAddress address;
 
     /**
-     * Creates a new {@link HttpHost HttpHost}, specifying all values.
-     * Constructor for HttpHost.
+     * Creates <tt>HttpHost<tt/> instance with the given scheme, hostname and port.
      *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
@@ -78,7 +77,7 @@ public final class HttpHost implements Cloneable, Serializable {
      */
     public HttpHost(final String hostname, final int port, final String scheme) {
         super();
-        this.hostname   = Args.notBlank(hostname, "Host name");
+        this.hostname   = Args.containsNoBlanks(hostname, "Host name");
         this.lcHostname = hostname.toLowerCase(Locale.ROOT);
         if (scheme != null) {
             this.schemeName = scheme.toLowerCase(Locale.ROOT);
@@ -90,7 +89,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates a new {@link HttpHost HttpHost}, with default scheme.
+     * Creates <tt>HttpHost<tt/> instance with the default scheme and the given hostname and port.
      *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
@@ -101,7 +100,34 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates a new {@link HttpHost HttpHost}, with default scheme and port.
+     * Creates <tt>HttpHost<tt/> instance from string. Text may not contain any blanks.
+     *
+     * @since 4.4
+     */
+    public static HttpHost create(final String s) {
+        Args.containsNoBlanks(s, "HTTP Host");
+        String text = s;
+        String scheme = null;
+        final int schemeIdx = text.indexOf("://");
+        if (schemeIdx > 0) {
+            scheme = text.substring(0, schemeIdx);
+            text = text.substring(schemeIdx + 3);
+        }
+        int port = -1;
+        final int portIdx = text.lastIndexOf(":");
+        if (portIdx > 0) {
+            try {
+                port = Integer.parseInt(text.substring(portIdx + 1));
+            } catch (NumberFormatException ex) {
+                throw new IllegalArgumentException("Invalid HTTP host: " + text);
+            }
+            text = text.substring(0, portIdx);
+        }
+        return new HttpHost(text, port, scheme);
+    }
+
+    /**
+     * Creates <tt>HttpHost<tt/> instance with the default scheme and port and the given hostname.
      *
      * @param hostname  the hostname (IP or DNS name)
      */
@@ -110,8 +136,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates a new {@link HttpHost HttpHost}, specifying all values.
-     * Constructor for HttpHost.
+     * Creates <tt>HttpHost<tt/> instance with the given scheme, inet address and port.
      *
      * @param address   the inet address.
      * @param port      the port number.
@@ -136,7 +161,8 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates a new {@link HttpHost HttpHost}, with default scheme.
+     * Creates <tt>HttpHost<tt/> instance with the default scheme and the given inet address
+     * and port.
      *
      * @param address   the inet address.
      * @param port      the port number.
@@ -149,7 +175,8 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates a new {@link HttpHost HttpHost}, with default scheme and port.
+     * Creates <tt>HttpHost<tt/> instance with the default scheme and port and the given inet
+     * address.
      *
      * @param address   the inet address.
      *

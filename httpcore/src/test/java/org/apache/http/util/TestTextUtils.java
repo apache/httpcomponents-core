@@ -27,43 +27,38 @@
 
 package org.apache.http.util;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 /**
- * @since 4.3
+ * Unit tests for {@link org.apache.http.util.TextUtils}.
+ *
  */
-public final class TextUtils {
+public class TestTextUtils {
 
-    public static boolean isEmpty(final CharSequence s) {
-        if (s == null) {
-            return true;
-        }
-        return s.length() == 0;
+    @Test
+    public void testTextEmpty() {
+        Assert.assertTrue(TextUtils.isEmpty(null));
+        Assert.assertTrue(TextUtils.isEmpty(""));
+        Assert.assertFalse(TextUtils.isEmpty("\t"));
     }
 
-    public static boolean isBlank(final CharSequence s) {
-        if (s == null) {
-            return true;
-        }
-        for (int i = 0; i < s.length(); i++) {
-            if (!Character.isWhitespace(s.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
+    @Test
+    public void testTextBlank() {
+        Assert.assertTrue(TextUtils.isBlank(null));
+        Assert.assertTrue(TextUtils.isBlank(""));
+        Assert.assertTrue(TextUtils.isBlank("   "));
+        Assert.assertTrue(TextUtils.isBlank("\t"));
     }
 
-    /**
-     * @since 4.4
-     */
-    public static boolean containsBlanks(final CharSequence s) {
-        if (s == null) {
-            return false;
-        }
-        for (int i = 0; i < s.length(); i++) {
-            if (Character.isWhitespace(s.charAt(i))) {
-                return true;
-            }
-        }
-        return false;
+    @Test
+    public void testTextContainsBlanks() {
+        Assert.assertFalse(TextUtils.containsBlanks(null));
+        Assert.assertFalse(TextUtils.containsBlanks(""));
+        Assert.assertTrue(TextUtils.containsBlanks("   "));
+        Assert.assertTrue(TextUtils.containsBlanks("\t"));
+        Assert.assertTrue(TextUtils.containsBlanks(" a"));
+        Assert.assertFalse(TextUtils.containsBlanks("a"));
     }
 
 }
