@@ -83,8 +83,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             final int maxTotal) {
         super();
         this.connFactory = Args.notNull(connFactory, "Connection factory");
-        this.defaultMaxPerRoute = Args.notNegative(defaultMaxPerRoute, "Max per route value");
-        this.maxTotal = Args.notNegative(maxTotal, "Max total value");
+        this.defaultMaxPerRoute = Args.positive(defaultMaxPerRoute, "Max per route value");
+        this.maxTotal = Args.positive(maxTotal, "Max total value");
         this.lock = new ReentrantLock();
         this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
         this.leased = new HashSet<E>();
@@ -355,7 +355,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     @Override
     public void setMaxTotal(final int max) {
-        Args.notNegative(max, "Max value");
+        Args.positive(max, "Max value");
         this.lock.lock();
         try {
             this.maxTotal = max;
@@ -376,7 +376,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     @Override
     public void setDefaultMaxPerRoute(final int max) {
-        Args.notNegative(max, "Max per route value");
+        Args.positive(max, "Max per route value");
         this.lock.lock();
         try {
             this.defaultMaxPerRoute = max;
@@ -398,7 +398,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     @Override
     public void setMaxPerRoute(final T route, final int max) {
         Args.notNull(route, "Route");
-        Args.notNegative(max, "Max per route value");
+        Args.positive(max, "Max per route value");
         this.lock.lock();
         try {
             this.maxPerRoute.put(route, Integer.valueOf(max));
