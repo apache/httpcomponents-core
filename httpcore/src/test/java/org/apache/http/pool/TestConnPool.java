@@ -85,6 +85,10 @@ public class TestConnPool {
             return new LocalPoolEntry(route, conn);
         }
 
+        @Override
+        protected boolean validate(final LocalPoolEntry entry) {
+            return !entry.getConnection().isStale();
+        }
     }
 
     @Test
@@ -790,6 +794,67 @@ public class TestConnPool {
         }
         // Ignored if shut down
         pool.release(new LocalPoolEntry("somehost", Mockito.mock(HttpConnection.class)), true);
+    }
+
+    @Test
+    public void testValidateConnectionNotStale() throws Exception {
+        final HttpConnection conn = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn.isOpen()).thenReturn(true);
+        Mockito.when(conn.isStale()).thenReturn(false);
+
+        final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
+        Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn);
+
+        final LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
+        pool.setValidateAfterInactivity(5);
+
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final LocalPoolEntry entry1 = future1.get(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(entry1);
+
+        pool.release(entry1, true);
+
+        Thread.sleep(10);
+
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final LocalPoolEntry entry2 = future2.get(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(entry2);
+        Assert.assertSame(entry1, entry2);
+
+        Mockito.verify(conn, Mockito.times(1)).isStale();
+    }
+
+    @Test
+    public void testValidateConnectionStale() throws Exception {
+        final HttpConnection conn = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn.isOpen()).thenReturn(true);
+        Mockito.when(conn.isStale()).thenReturn(false);
+
+        final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
+        Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn);
+
+        final LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
+        pool.setValidateAfterInactivity(5);
+
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
+        final LocalPoolEntry entry1 = future1.get(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(entry1);
+
+        pool.release(entry1, true);
+
+        Thread.sleep(10);
+
+        Mockito.verify(connFactory, Mockito.times(1)).create("somehost");
+        Mockito.when(conn.isStale()).thenReturn(true);
+
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
+        final LocalPoolEntry entry2 = future2.get(1, TimeUnit.SECONDS);
+        Assert.assertNotNull(entry2);
+        Assert.assertNotSame(entry1, entry2);
+
+        Mockito.verify(conn, Mockito.times(1)).isStale();
+        Mockito.verify(conn, Mockito.times(1)).close();
+        Mockito.verify(connFactory, Mockito.times(2)).create("somehost");
     }
 
 }

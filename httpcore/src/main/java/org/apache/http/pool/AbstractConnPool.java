@@ -75,6 +75,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     private volatile boolean isShutDown;
     private volatile int defaultMaxPerRoute;
     private volatile int maxTotal;
+    private volatile int validateAfterInactivity;
 
     public AbstractConnPool(
             final ConnFactory<T, C> connFactory,
@@ -107,6 +108,13 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      * @since 4.3
      */
     protected void onRelease(final E entry) {
+    }
+
+    /**
+     * @since 4.4
+     */
+    protected boolean validate(final E entry) {
+        return true;
     }
 
     public boolean isShutdown() {
@@ -225,6 +233,13 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     entry = pool.getFree(state);
                     if (entry == null) {
                         break;
+                    }
+                    if (this.validateAfterInactivity > 0) {
+                        if (entry.getUpdated() + this.validateAfterInactivity <= System.currentTimeMillis()) {
+                            if (!validate(entry)) {
+                                entry.close();
+                            }
+                        }
                     }
                     if (entry.isClosed() || entry.isExpired(System.currentTimeMillis())) {
                         entry.close();
@@ -541,6 +556,20 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
         });
+    }
+
+    /**
+     * @since 4.4
+     */
+    public int getValidateAfterInactivity() {
+        return this.validateAfterInactivity;
+    }
+
+    /**
+     * @since 4.4
+     */
+    public void setValidateAfterInactivity(final int ms) {
+        this.validateAfterInactivity = ms;
     }
 
     @Override

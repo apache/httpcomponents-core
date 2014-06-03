@@ -86,4 +86,9 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
         return new BasicPoolEntry(Long.toString(COUNTER.getAndIncrement()), host, conn);
     }
 
+    @Override
+    protected boolean validate(final BasicPoolEntry entry) {
+        return !entry.getConnection().isStale();
+    }
+
 }
