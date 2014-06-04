@@ -234,15 +234,16 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     if (entry == null) {
                         break;
                     }
-                    if (this.validateAfterInactivity > 0) {
+                    if (entry.isExpired(System.currentTimeMillis())) {
+                        entry.close();
+                    } else if (this.validateAfterInactivity > 0) {
                         if (entry.getUpdated() + this.validateAfterInactivity <= System.currentTimeMillis()) {
                             if (!validate(entry)) {
                                 entry.close();
                             }
                         }
                     }
-                    if (entry.isClosed() || entry.isExpired(System.currentTimeMillis())) {
-                        entry.close();
+                    if (entry.isClosed()) {
                         this.available.remove(entry);
                         pool.free(entry, false);
                     } else {
