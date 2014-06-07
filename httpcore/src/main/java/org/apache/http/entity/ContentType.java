@@ -104,11 +104,11 @@ public final class ContentType implements Serializable {
 
     ContentType(
             final String mimeType,
-            final NameValuePair[] params) throws UnsupportedCharsetException {
+            final Charset charset,
+            final NameValuePair[] params) {
         this.mimeType = mimeType;
+        this.charset = charset;
         this.params = params;
-        final String s = getParameter("charset");
-        this.charset = !TextUtils.isBlank(s) ? Charset.forName(s) : null;
     }
 
     public String getMimeType() {
@@ -204,10 +204,27 @@ public final class ContentType implements Serializable {
         return create(mimeType, !TextUtils.isBlank(charset) ? Charset.forName(charset) : null);
     }
 
-    private static ContentType create(final HeaderElement helem) {
+    private static ContentType create(final HeaderElement helem, final boolean strict) {
         final String mimeType = helem.getName();
         final NameValuePair[] params = helem.getParameters();
-        return new ContentType(mimeType, params != null && params.length > 0 ? params : null);
+
+        Charset charset = null;
+        for (final NameValuePair param: params) {
+            if (param.getName().equalsIgnoreCase("charset")) {
+                final String s = param.getValue();
+                if (!TextUtils.isBlank(s)) {
+                    try {
+                        charset =  Charset.forName(s);
+                    } catch (UnsupportedCharsetException ex) {
+                        if (strict) {
+                            throw ex;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        return new ContentType(mimeType, charset, params != null && params.length > 0 ? params : null);
     }
 
     /**
@@ -228,7 +245,7 @@ public final class ContentType implements Serializable {
         final ParserCursor cursor = new ParserCursor(0, s.length());
         final HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(buf, cursor);
         if (elements.length > 0) {
-            return create(elements[0]);
+            return create(elements[0], true);
         } else {
             throw new ParseException("Invalid content type: " + s);
         }
@@ -255,7 +272,35 @@ public final class ContentType implements Serializable {
         if (header != null) {
             final HeaderElement[] elements = header.getElements();
             if (elements.length > 0) {
-                return create(elements[0]);
+                return create(elements[0], true);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Extracts <code>Content-Type</code> value from {@link HttpEntity}. Returns <code>null</code>
+     * if not specified or incorrect (could not be parsed)..
+     *
+     * @param entity HTTP entity
+     * @return content type
+     *
+     * @since 4.4
+     *
+     */
+    public static ContentType getLenient(final HttpEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        final Header header = entity.getContentType();
+        if (header != null) {
+            try {
+                final HeaderElement[] elements = header.getElements();
+                if (elements.length > 0) {
+                    return create(elements[0], false);
+                }
+            } catch (ParseException ex) {
+                return null;
             }
         }
         return null;
@@ -273,6 +318,21 @@ public final class ContentType implements Serializable {
      * this instance of the Java virtual machine
      */
     public static ContentType getOrDefault(
+            final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
+        final ContentType contentType = get(entity);
+        return contentType != null ? contentType : DEFAULT_TEXT;
+    }
+
+    /**
+     * Extracts <code>Content-Type</code> value from {@link HttpEntity} or returns the default value
+     * {@link #DEFAULT_TEXT} if not explicitly specified or incorrect (could not be parsed).
+     *
+     * @param entity HTTP entity
+     * @return content type
+     *
+     * @since 4.4
+     */
+    public static ContentType getLenientOrDefault(
             final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
         final ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;

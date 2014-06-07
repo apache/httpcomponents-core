@@ -28,6 +28,7 @@
 package org.apache.http.entity;
 
 import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.http.Header;
 import org.apache.http.ParseException;
@@ -183,6 +184,35 @@ public class TestContentType {
         Assert.assertNotNull(contentType);
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertNull(contentType.getCharset());
+    }
+
+    @Test(expected = UnsupportedCharsetException.class)
+    public void testExtractInvalidCharset() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = stuff"));
+        ContentType.get(httpentity);
+    }
+
+    @Test
+    public void testExtracLenienttNullInput() throws Exception {
+        Assert.assertNull(ContentType.getLenient(null));
+    }
+
+    @Test
+    public void testExtractLenientNullContentType() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContentType((Header) null);
+        Assert.assertNull(ContentType.getLenient(httpentity));
+    }
+
+    @Test
+    public void testLenientExtractInvalidCharset() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = stuff"));
+        final ContentType contentType = ContentType.getLenient(httpentity);
+        Assert.assertNotNull(contentType);
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertEquals(null, contentType.getCharset());
     }
 
 }
