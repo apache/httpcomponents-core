@@ -1,4 +1,20 @@
-Changes for release 4.4-alpha1
+Release 4.4-ALPHA1
+-------------------
+
+This is the first release from the 4.4.x release branch. The most notable features included in 
+the 4.4 series are:
+
+* Support for pipelined request processing on the server side
+
+* Support for pipelined request execution on the client side
+
+* Simplified bootstrapping for classing (blocking) and non-blocking (NIO) embedded server 
+  implementations   
+
+This release also includes all fixes from the stable 4.2.x release branch.
+
+
+Changelog
 -------------------
 
 * [HTTPASYNC-77] system resources are not correctly deallocated if I/O reactor is shut down
@@ -16,9 +32,6 @@ Changes for release 4.4-alpha1
   if the underlying connection is found to be in an inconsistent state.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-373] Out of sequence HTTP response causes NPE in HttpAsyncRequestExecutor.
-  Contributed by Oleg Kalnichevski <olegk at apache.org>
-
 * [HTTPCORE-372] Blocking and non-blocking chunk decoders to throw an I/O exception if data stream
   is terminated without a closing chunk.
   Contributed by Dmitry Potapov <potapov.d at gmail.com>
@@ -29,18 +42,35 @@ Changes for release 4.4-alpha1
 * [HTTPCORE-358] Added I/O reactor listener backlog parameter.
   Contributed by Dmitry Potapov <potapov.d at gmail.com>
 
-* [HTTPCORE-370] Race condition if connection request succeeds and times out at the same time.
+* [HTTPCORE-357] Avoid DNS lookups in SSLIOSession.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-357] Avoid DNS lookups in SSLIOSession.
+* Update JUnit to version 4.11 from 4.9  
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+
+
+Release 4.3.2
+-------------------
+
+This maintenance release fixes a number of bugs and regressions found since 4.3.1, mostly in the 
+NIO transport components. All users of HttpCore 4.3 are advised to upgrade.
+
+Changelog
+-------------------
+
+* [HTTPCORE-371] Support for SSL re-negotiation with NIO.
+  Contributed by Asankha Perera <asankha at apache.org>
+
+* [HTTPCORE-373] Out of sequence HTTP response causes NPE in HttpAsyncRequestExecutor.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-370] Race condition if connection request succeeds and times out at the same time.  
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * (Regression) Fixed synchronization issue in blocking and non-blocking connection pool 
   implementations caused by HTTPCORE-362
   Contributed by Oleg Kalnichevski <olegk at apache.org>
-  
-* Update JUnit to version 4.11 from 4.9  
-  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 4.3.1
@@ -240,7 +270,7 @@ Changelog
 
 
 
-Release 4.1-ALPHA1
+Release 4.3-ALPHA1
 -------------------
 
 This is the first release from the 4.3.x release branch. The main focus of the 4.3 release
