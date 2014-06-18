@@ -1,15 +1,14 @@
 Release 4.4-ALPHA1
 -------------------
 
-This is the first release from the 4.4.x release branch. The most notable features included in 
-the 4.4 series are:
+This is the first release from the 4.4.x development branch. The most notable features included in 
+this release are:
 
 * Support for pipelined request processing on the server side
 
 * Support for pipelined request execution on the client side
 
-* Simplified bootstrapping for classing (blocking) and non-blocking (NIO) embedded server 
-  implementations   
+* Simplified bootstrapping of blocking and non-blocking (NIO) HTTP server implementations   
 
 This release also includes all fixes from the stable 4.2.x release branch.
 
