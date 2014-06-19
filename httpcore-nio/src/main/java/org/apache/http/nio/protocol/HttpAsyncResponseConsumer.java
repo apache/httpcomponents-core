@@ -37,7 +37,7 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <tt>HttpAsyncResponseConsumer</tt> is a callback interface whose methods
+ * {@code HttpAsyncResponseConsumer} is a callback interface whose methods
  * get invoked to process an HTTP response message and to stream message
  * content from a non-blocking HTTP connection on the client side.
  *

@@ -28,7 +28,7 @@
 package org.apache.http.nio.protocol;
 
 /**
- * <tt>HttpAsyncRequestHandlerResolver</tt> can be used to map an instance
+ * {@code HttpAsyncRequestHandlerResolver} can be used to map an instance
  * of {@link HttpAsyncRequestHandler} matching a particular request URI.
  * Usually the mapped request handler will be used to process the request
  * with the specified request URI.

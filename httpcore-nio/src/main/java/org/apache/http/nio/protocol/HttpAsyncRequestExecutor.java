@@ -52,9 +52,9 @@ import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
 /**
- * <tt>HttpAsyncRequestExecutor</tt> is a fully asynchronous HTTP client side
+ * {@code HttpAsyncRequestExecutor} is a fully asynchronous HTTP client side
  * protocol handler based on the NIO (non-blocking) I/O model.
- * <tt>HttpAsyncRequestExecutor</tt> translates individual events fired through
+ * {@code HttpAsyncRequestExecutor} translates individual events fired through
  * the {@link NHttpClientEventHandler} interface into logically related HTTP
  * message exchanges.
  * <p/> The caller is expected to pass an instance of
@@ -65,11 +65,11 @@ import org.apache.http.util.Asserts;
  * returns <code>true</code>. The {@link HttpAsyncRequester} utility class can
  * be used to facilitate initiation of asynchronous HTTP request execution.
  * <p/>
- * Individual <tt>HttpAsyncClientExchangeHandler</tt> are expected to make use of
+ * Individual {@code HttpAsyncClientExchangeHandler} are expected to make use of
  * a {@link org.apache.http.protocol.HttpProcessor} to generate mandatory protocol
  * headers for all outgoing messages and apply common, cross-cutting message
  * transformations to all incoming and outgoing messages.
- * <tt>HttpAsyncClientExchangeHandler</tt>s can delegate implementation of
+ * {@code HttpAsyncClientExchangeHandler}s can delegate implementation of
  * application specific content generation and processing to
  * a {@link HttpAsyncRequestProducer} and a {@link HttpAsyncResponseConsumer}.
  *
@@ -87,7 +87,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     private final ExceptionLogger exceptionLogger;
 
     /**
-     * Creates new instance of <tt>HttpAsyncRequestExecutor</tt>.
+     * Creates new instance of {@code HttpAsyncRequestExecutor}.
      * @param waitForContinue wait for continue time period.
      * @param exceptionLogger Exception logger. If <code>null</code>
      *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception

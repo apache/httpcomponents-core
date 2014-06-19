@@ -37,7 +37,7 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <tt>HttpAsyncRequestProducer</tt> is a callback interface whose methods
+ * {@code HttpAsyncRequestProducer} is a callback interface whose methods
  * get invoked to generate an HTTP request message and to stream message
  * content to a non-blocking HTTP connection.
  * <p/>

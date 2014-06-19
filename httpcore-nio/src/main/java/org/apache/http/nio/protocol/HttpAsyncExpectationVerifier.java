@@ -33,7 +33,7 @@ import org.apache.http.HttpException;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <tt>HttpAsyncExpectationVerifier</tt> defines a strategy to verify whether
+ * {@code HttpAsyncExpectationVerifier} defines a strategy to verify whether
  * or not an incoming HTTP request meets the target server's expectations.
  *<p/>
  * A server that does not understand or is unable to comply with any of

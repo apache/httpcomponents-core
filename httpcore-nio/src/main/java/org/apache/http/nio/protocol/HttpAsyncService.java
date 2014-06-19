@@ -66,13 +66,13 @@ import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
 /**
- * <tt>HttpAsyncService</tt> is a fully asynchronous HTTP server side protocol
+ * {@code HttpAsyncService} is a fully asynchronous HTTP server side protocol
  * handler based on the non-blocking (NIO) I/O model.
- * <tt>HttpAsyncServerProtocolHandler</tt> translates individual events fired
+ * {@code HttpAsyncServerProtocolHandler} translates individual events fired
  * through the {@link NHttpServerEventHandler} interface into logically related
  * HTTP message exchanges.
  * <p/>
- * Upon receiving an incoming request <tt>HttpAsyncService</tt> verifies
+ * Upon receiving an incoming request {@code HttpAsyncService} verifies
  * the message for compliance with the server expectations using
  * {@link HttpAsyncExpectationVerifier}, if provided, and then
  * {@link HttpAsyncRequestHandlerMapper} is used to map the request
@@ -81,7 +81,7 @@ import org.apache.http.util.Asserts;
  * {@link HttpAsyncRequestHandler} instance to process the incoming request
  * and to generate an outgoing response.
  * <p/>
- * <tt>HttpAsyncService</tt> relies on {@link HttpProcessor} to generate
+ * {@code HttpAsyncService} relies on {@link HttpProcessor} to generate
  * mandatory protocol headers for all outgoing messages and apply common,
  * cross-cutting message transformations to all incoming and outgoing messages,
  * whereas individual {@link HttpAsyncRequestHandler}s are expected
@@ -110,7 +110,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     private final ExceptionLogger exceptionLogger;
 
     /**
-     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor (required).
      * @param connStrategy Connection re-use strategy (required).
@@ -139,7 +139,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     /**
-     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor (required).
      * @param connStrategy Connection re-use strategy (required).
@@ -164,7 +164,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     /**
-     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor.
      * @param connStrategy Connection re-use strategy. If <code>null</code>
@@ -186,7 +186,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     /**
-     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor.
      * @param connStrategy Connection re-use strategy. If <code>null</code>
@@ -221,7 +221,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     /**
-     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor.
      * @param handlerMapper Request handler mapper.
@@ -235,7 +235,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     /**
-     * Creates new instance of <tt>HttpAsyncServerProtocolHandler</tt>.
+     * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor.
      * @param handlerMapper Request handler mapper.

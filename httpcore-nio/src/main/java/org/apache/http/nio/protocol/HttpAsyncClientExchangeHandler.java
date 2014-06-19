@@ -39,15 +39,15 @@ import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 
 /**
- * <tt>HttpAsyncClientExchangeHandler</tt> represents a callback interface whose
+ * {@code HttpAsyncClientExchangeHandler} represents a callback interface whose
  * methods get invoked when executing one or multiple HTTP message exchanges
  * on the client side.
  * <p/>
- * Individual <tt>HttpAsyncClientExchangeHandler</tt> are expected to make use of
+ * Individual {@code HttpAsyncClientExchangeHandler} are expected to make use of
  * a {@link org.apache.http.protocol.HttpProcessor} to generate mandatory protocol
  * headers for all outgoing messages and apply common, cross-cutting message
  * transformations to all incoming and outgoing messages.
- * <tt>HttpAsyncClientExchangeHandler</tt>s can delegate implementation
+ * {@code HttpAsyncClientExchangeHandler}s can delegate implementation
  * of application specific content generation and processing to
  * a {@link HttpAsyncRequestProducer} and a {@link HttpAsyncResponseConsumer}.
  *

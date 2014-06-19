@@ -77,7 +77,7 @@ public interface NHttpConnection extends HttpConnection, IOControl {
 
     /**
      * Returns the current HTTP response if one is being received / transmitted.
-     * Otherwise returns <tt>null</tt>.
+     * Otherwise returns {@code null}.
      *
      * @return HTTP response, if available, <code>null</code> otherwise.
      */

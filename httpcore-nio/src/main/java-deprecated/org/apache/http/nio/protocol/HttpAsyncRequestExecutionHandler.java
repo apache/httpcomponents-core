@@ -32,7 +32,7 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 
 /**
- * <tt>HttpAsyncRequestExecutionHandler</tt> represents a callback interface
+ * {@code HttpAsyncRequestExecutionHandler} represents a callback interface
  * that combines functionality of {@link HttpAsyncRequestProducer} and
  * {@link HttpAsyncResponseConsumer} and is capable of handling logically
  * related series of HTTP request / response exchanges.

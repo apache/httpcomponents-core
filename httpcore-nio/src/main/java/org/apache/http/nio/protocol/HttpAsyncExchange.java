@@ -32,7 +32,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.Cancellable;
 
 /**
- * <tt>HttpAsyncExchange</tt> represents a server-side HTTP message exchange
+ * {@code HttpAsyncExchange} represents a server-side HTTP message exchange
  * where an HTTP response can be deferred without blocking the I/O event thread
  * and triggered asynchronously at a later point of later time.
  *

@@ -34,7 +34,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.protocol.HttpContext;
 
 /**
- * <tt>HttpAsyncRequestHandler</tt> represents a routine for asynchronous
+ * {@code HttpAsyncRequestHandler} represents a routine for asynchronous
  * processing of a specific group of non-blocking HTTP requests. Protocol
  * handlers are designed to take care of protocol specific aspects, whereas
  * individual request handlers are expected to take care of application

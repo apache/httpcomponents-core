@@ -49,7 +49,7 @@ import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.util.Args;
 
 /**
- * <tt>HttpAsyncRequester</tt> is a utility class that can be used
+ * {@code HttpAsyncRequester} is a utility class that can be used
  * in conjunction with {@link HttpAsyncRequestExecutor} to initiate execution
  * of asynchronous HTTP requests.
  *

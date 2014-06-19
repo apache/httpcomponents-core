@@ -66,7 +66,7 @@ public interface SessionInputBuffer {
      * {@link ReadableByteChannel}.
      *
      * @param src the source channel
-     * @return The number of bytes read, possibly zero, or <tt>-1</tt> if the
+     * @return The number of bytes read, possibly zero, or {@code -1} if the
      *   channel has reached end-of-stream.
      * @throws IOException in case of an I/O error.
      */

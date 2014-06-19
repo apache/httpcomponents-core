@@ -30,7 +30,7 @@ package org.apache.http.nio.protocol;
 import org.apache.http.HttpRequest;
 
 /**
- * <tt>HttpAsyncRequestHandlerMapper</tt> can be used to resolve an instance
+ * {@code HttpAsyncRequestHandlerMapper} can be used to resolve an instance
  * of {@link HttpAsyncRequestHandler} matching a particular {@link HttpRequest}.
  * Usually the resolved request handler will be used to process the request.
  *

@@ -52,11 +52,11 @@ import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
 /**
- * <tt>SSLIOSession</tt> is a decorator class intended to transparently extend
+ * {@code SSLIOSession} is a decorator class intended to transparently extend
  * an {@link IOSession} with transport layer security capabilities based on
  * the SSL/TLS protocol.
  * <p/>
- * The resultant instance of <tt>SSLIOSession</tt> must be added to the original
+ * The resultant instance of {@code SSLIOSession} must be added to the original
  * I/O session as an attribute with the {@link #SESSION_KEY} key.
  * <pre>
  *  SSLContext sslcontext = SSLContext.getInstance("SSL");
@@ -97,7 +97,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private volatile boolean initialized;
 
     /**
-     * Creates new instance of <tt>SSLIOSession</tt> class. The instances created uses a
+     * Creates new instance of {@code SSLIOSession} class. The instances created uses a
      * {@link PermanentSSLBufferManagementStrategy} to manage its buffers.
      *
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
@@ -118,7 +118,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     /**
-     * Creates new instance of <tt>SSLIOSession</tt> class.
+     * Creates new instance of {@code SSLIOSession} class.
      *
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
      * @param sslMode SSL mode (client or server)
@@ -165,7 +165,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     /**
-     * Creates new instance of <tt>SSLIOSession</tt> class.
+     * Creates new instance of {@code SSLIOSession} class.
      *
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
      * @param sslMode SSL mode (client or server)
