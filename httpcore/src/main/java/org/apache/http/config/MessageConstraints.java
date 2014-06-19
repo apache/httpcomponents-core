@@ -31,10 +31,11 @@ import org.apache.http.util.Args;
 
 /**
  * HTTP Message constraints: line length and header count.
- * <p/>
+ * <p>
  * Please note that line length is defined in bytes and not characters.
  * This is only relevant however when using non-standard HTTP charsets
  * for protocol elements such as UTF-8.
+ * </p>
  *
  * @since 4.3
  */
