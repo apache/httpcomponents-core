@@ -66,7 +66,7 @@ public final class HttpHost implements Cloneable, Serializable {
     protected final InetAddress address;
 
     /**
-     * Creates <tt>HttpHost<tt/> instance with the given scheme, hostname and port.
+     * Creates {@code HttpHost} instance with the given scheme, hostname and port.
      *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
@@ -89,7 +89,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates <tt>HttpHost<tt/> instance with the default scheme and the given hostname and port.
+     * Creates {@code HttpHost} instance with the default scheme and the given hostname and port.
      *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
@@ -127,7 +127,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates <tt>HttpHost<tt/> instance with the default scheme and port and the given hostname.
+     * Creates {@code HttpHost} instance with the default scheme and port and the given hostname.
      *
      * @param hostname  the hostname (IP or DNS name)
      */
@@ -136,7 +136,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates <tt>HttpHost<tt/> instance with the given scheme, inet address and port.
+     * Creates {@code HttpHost} instance with the given scheme, inet address and port.
      *
      * @param address   the inet address.
      * @param port      the port number.
@@ -161,7 +161,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates <tt>HttpHost<tt/> instance with the default scheme and the given inet address
+     * Creates {@code HttpHost} instance with the default scheme and the given inet address
      * and port.
      *
      * @param address   the inet address.
@@ -175,7 +175,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates <tt>HttpHost<tt/> instance with the default scheme and port and the given inet
+     * Creates {@code HttpHost} instance with the default scheme and port and the given inet
      * address.
      *
      * @param address   the inet address.

@@ -79,7 +79,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     private volatile boolean done;
 
     /**
-     * Creates new instance of <tt>PipeliningClientExchangeHandler<tt/>.
+     * Creates new instance of {@code PipeliningClientExchangeHandler}.
      *
      * @param requestProducers the request producers.
      * @param responseConsumers the response consumers.
@@ -116,7 +116,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     /**
-     * Creates new instance of <tt>PipeliningClientExchangeHandler<tt/>.
+     * Creates new instance of {@code PipeliningClientExchangeHandler}.
      *
      * @param requestProducers the request producers.
      * @param responseConsumers the response consumers.

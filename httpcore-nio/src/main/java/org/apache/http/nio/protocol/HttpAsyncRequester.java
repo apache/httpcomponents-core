@@ -78,7 +78,7 @@ public class HttpAsyncRequester {
     }
 
     /**
-     * Creates new instance of <tt>HttpAsyncRequester<tt/>.
+     * Creates new instance of {@code HttpAsyncRequester}.
      * @param httpProcessor HTTP protocol processor.
      * @param connStrategy Connection re-use strategy. If <code>null</code>
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
