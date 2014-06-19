@@ -75,7 +75,7 @@ public interface HeaderValueParser {
      *
      * @return  an array holding all elements of the header value
      *
-     * @throws ParseException        in case of a parse error
+     * @throws ParseException        in case of a parsing error
      */
     HeaderElement[] parseElements(
             CharArrayBuffer buffer,
