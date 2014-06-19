@@ -100,7 +100,7 @@ public final class HttpHost implements Cloneable, Serializable {
     }
 
     /**
-     * Creates <tt>HttpHost<tt/> instance from string. Text may not contain any blanks.
+     * Creates {@code HttpHost} instance from string. Text may not contain any blanks.
      *
      * @since 4.4
      */
