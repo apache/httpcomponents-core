@@ -80,6 +80,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @param parser    the parser to use, or <code>null</code> for default
      *
      * @return  array holding the header elements, never <code>null</code>
+     * @throws ParseException in case of a parsing error
      */
     public static
         HeaderElement[] parseElements(final String value,
