@@ -49,8 +49,8 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
      * Constructor with name, value and parameters.
      *
      * @param name header element name
-     * @param value header element value. May be <tt>null</tt>
-     * @param parameters header element parameters. May be <tt>null</tt>.
+     * @param value header element value. May be {@code null}
+     * @param parameters header element parameters. May be {@code null}.
      *   Parameters are copied by reference, not by value
      */
     public BasicHeaderElement(
@@ -71,7 +71,7 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
      * Constructor with name and value.
      *
      * @param name header element name
-     * @param value header element value. May be <tt>null</tt>
+     * @param value header element value. May be {@code null}
      */
     public BasicHeaderElement(final String name, final String value) {
        this(name, value, null);

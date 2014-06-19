@@ -66,7 +66,7 @@ public abstract class PoolEntry<T, C> {
     private volatile Object state;
 
     /**
-     * Creates new <tt>PoolEntry</tt> instance.
+     * Creates new {@code PoolEntry} instance.
      *
      * @param id unique identifier of the pool entry. May be <code>null</code>.
      * @param route route to the opposite endpoint.
@@ -94,7 +94,7 @@ public abstract class PoolEntry<T, C> {
     }
 
     /**
-     * Creates new <tt>PoolEntry</tt> instance without an expiry deadline.
+     * Creates new {@code PoolEntry} instance without an expiry deadline.
      *
      * @param id unique identifier of the pool entry. May be <code>null</code>.
      * @param route route to the opposite endpoint.

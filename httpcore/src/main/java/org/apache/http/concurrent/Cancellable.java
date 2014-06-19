@@ -27,7 +27,7 @@
 package org.apache.http.concurrent;
 
 /**
- * A <tt>Cancellable</tt> represents a process or an operation that can be
+ * A {@code Cancellable} represents a process or an operation that can be
  * canceled.
  *
  * @since 4.2

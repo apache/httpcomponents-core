@@ -55,7 +55,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
     private final int implicitLen;
 
     /**
-     * Creates <tt>StrictContentLengthStrategy</tt> instance with the given length used per default
+     * Creates {@code StrictContentLengthStrategy} instance with the given length used per default
      * when content length is not explicitly specified in the message.
      *
      * @param implicitLen implicit content length.
@@ -68,7 +68,7 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
     }
 
     /**
-     * Creates <tt>StrictContentLengthStrategy</tt> instance. {@link ContentLengthStrategy#IDENTITY}
+     * Creates {@code StrictContentLengthStrategy} instance. {@link ContentLengthStrategy#IDENTITY}
      * is used per default when content length is not explicitly specified in the message.
      */
     public StrictContentLengthStrategy() {

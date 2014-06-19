@@ -176,8 +176,8 @@ public interface HttpParams {
      *
      * @param name parameter name
      *
-     * @return <tt>true</tt> if the parameter is set to value <tt>true</tt>,
-     *         <tt>false</tt> if it is not set or set to <code>false</code>
+     * @return {@code true</tt> if the parameter is set to value <tt>true},
+     *         {@code false} if it is not set or set to <code>false</code>
      */
     boolean isParameterTrue(String name);
 
@@ -186,9 +186,9 @@ public interface HttpParams {
      *
      * @param name parameter name
      *
-     * @return <tt>true</tt> if the parameter is either not set or
-     *         set to value <tt>false</tt>,
-     *         <tt>false</tt> if it is set to <code>true</code>
+     * @return {@code true} if the parameter is either not set or
+     *         set to value {@code false},
+     *         {@code false} if it is set to <code>true</code>
      */
     boolean isParameterFalse(String name);
 

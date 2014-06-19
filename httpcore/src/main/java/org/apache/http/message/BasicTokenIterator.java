@@ -275,7 +275,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @throws ParseException
      *         if a new token is found before a token separator.
      *         RFC 2616, section 2.1 explicitly requires a comma between
-     *         tokens for <tt>#</tt>.
+     *         tokens for {@code #}.
      */
     protected int findTokenSeparator(final int pos) {
         int from = Args.notNegative(pos, "Search position");
@@ -328,7 +328,7 @@ public class BasicTokenIterator implements TokenIterator {
     /**
      * Checks whether a character is a token separator.
      * RFC 2616, section 2.1 defines comma as the separator for
-     * <tt>#token</tt> sequences. The end of a header value will
+     * {@code #token} sequences. The end of a header value will
      * also separate tokens, but that is not a character check.
      *
      * @param ch        the character to check

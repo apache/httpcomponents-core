@@ -42,14 +42,14 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 
 /**
- * <tt>HttpRequestExecutor</tt> is a client side HTTP protocol handler based
+ * {@code HttpRequestExecutor} is a client side HTTP protocol handler based
  * on the blocking (classic) I/O model.
  * <p/>
- * <tt>HttpRequestExecutor</tt> relies on {@link HttpProcessor} to generate
+ * {@code HttpRequestExecutor} relies on {@link HttpProcessor} to generate
  * mandatory protocol headers for all outgoing messages and apply common,
  * cross-cutting message transformations to all incoming and outgoing messages.
  * Application specific processing can be implemented outside
- * <tt>HttpRequestExecutor</tt> once the request has been executed and
+ * {@code HttpRequestExecutor} once the request has been executed and
  * a response has been received.
  *
  * @since 4.0

@@ -201,7 +201,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns <tt>Server</tt> response header value.
+     * Assigns {@code Server} response header value.
      * <p/>
      * Please note this value can be overridden by the {@link #setHttpProcessor(
      * org.apache.http.protocol.HttpProcessor)} method.

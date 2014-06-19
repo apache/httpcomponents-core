@@ -39,7 +39,7 @@ public class ProtocolException extends HttpException {
     private static final long serialVersionUID = -2143571074341228994L;
 
     /**
-     * Creates a new ProtocolException with a <tt>null</tt> detail message.
+     * Creates a new ProtocolException with a {@code null} detail message.
      */
     public ProtocolException() {
         super();
@@ -58,8 +58,8 @@ public class ProtocolException extends HttpException {
      * Creates a new ProtocolException with the specified detail message and cause.
      *
      * @param message the exception detail message
-     * @param cause the <tt>Throwable</tt> that caused this exception, or <tt>null</tt>
-     * if the cause is unavailable, unknown, or not a <tt>Throwable</tt>
+     * @param cause the {@code Throwable</tt> that caused this exception, or <tt>null}
+     * if the cause is unavailable, unknown, or not a {@code Throwable}
      */
     public ProtocolException(final String message, final Throwable cause) {
         super(message, cause);
