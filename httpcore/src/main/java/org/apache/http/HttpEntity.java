@@ -78,9 +78,10 @@ public interface HttpEntity {
      * chunked encoding should be used when the entity is sent.
      * For entities that are received, it can also indicate whether
      * the entity was received with chunked encoding.
-     * <br/>
+     * <p>
      * The behavior of wrapping entities is implementation dependent,
      * but should respect the primary purpose.
+     * </p>
      *
      * @return  <code>true</code> if chunked encoding is preferred for this
      *          entity, or <code>false</code> if it is not
