@@ -47,15 +47,17 @@ public interface ConnectionReuseStrategy {
      * close the connection to correctly comply with the HTTP protocol.
      * If it returns <code>true</code>, the caller SHOULD attempt to
      * keep the connection open for reuse with another request.
-     * <br/>
+     * <p>
      * One can use the HTTP context to retrieve additional objects that
      * may be relevant for the keep-alive strategy: the actual HTTP
      * connection, the original HTTP request, target host if known,
      * number of times the connection has been reused already and so on.
-     * <br/>
+     * </p>
+     * <p>
      * If the connection is already closed, <code>false</code> is returned.
      * The stale connection check MUST NOT be triggered by a
      * connection reuse strategy.
+     * </p>
      *
      * @param response
      *          The last response received over that connection.

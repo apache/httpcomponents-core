@@ -27,7 +27,7 @@
 
 /**
  * Core HTTP component APIs and primitives.
- * <p/>
+ * <p>
  * These deal with the fundamental things required for using the
  * HTTP protocol, such as representing a
  * {@link org.apache.http.HttpMessage message} including it's
@@ -38,5 +38,6 @@
  * before sending or after receiving, there are interceptors for
  * {@link org.apache.http.HttpRequestInterceptor requests} and
  * {@link org.apache.http.HttpResponseInterceptor responses}.
+ * </p>
  */
 package org.apache.http;
