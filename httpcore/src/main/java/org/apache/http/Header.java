@@ -67,7 +67,7 @@ public interface Header {
      * Parses the value.
      *
      * @return an array of {@link HeaderElement} entries, may be empty, but is never {@code null}
-     * @throws ParseException
+     * @throws ParseException in case of a parsing error
      */
     HeaderElement[] getElements() throws ParseException;
 
