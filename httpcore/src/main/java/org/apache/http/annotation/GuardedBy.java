@@ -37,7 +37,9 @@ import java.lang.annotation.Target;
  * when holding a particular lock, which may be a built-in (synchronization) lock,
  * or may be an explicit java.util.concurrent.Lock.
  *
+ * <p>
  * The argument determines which lock guards the annotated field or method:
+ * </p>
  * <ul>
  * <li>
  * <code>this</code> : The intrinsic lock of the object in whose class the field is defined.
@@ -63,10 +65,12 @@ import java.lang.annotation.Target;
  * <li>
  * <code>class-name.class</code> : The Class object for the specified class should be used as the lock object.
  * </li>
+ * </ul>
  * <p>
  * Based on code developed by Brian Goetz and Tim Peierls and concepts
  * published in 'Java Concurrency in Practice' by Brian Goetz, Tim Peierls,
  * Joshua Bloch, Joseph Bowbeer, David Holmes and Doug Lea.
+ * </p>
  */
 @Documented
 @Target({ElementType.FIELD, ElementType.METHOD})
