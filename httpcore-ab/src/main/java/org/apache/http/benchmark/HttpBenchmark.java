@@ -26,22 +26,17 @@
  */
 package org.apache.http.benchmark;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.File;
 import java.net.URL;
-import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.SocketFactory;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -58,6 +53,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 
 /**
  * Main program of the HTTP benchmark.
@@ -186,61 +183,30 @@ public class HttpBenchmark {
 
         SocketFactory socketFactory = null;
         if ("https".equals(host.getSchemeName())) {
-            TrustManager[] trustManagers = null;
+            final SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
+            sslContextBuilder.useProtocol("SSL");
             if (config.isDisableSSLVerification()) {
-                // Create a trust manager that does not validate certificate chains
-                trustManagers = new TrustManager[] {
-                    new X509TrustManager() {
+                sslContextBuilder.loadTrustMaterial(null, new TrustStrategy() {
 
-                        @Override
-                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                            return null;
-                        }
-
-                        @Override
-                        public void checkClientTrusted(
-                            final java.security.cert.X509Certificate[] certs, final String authType) {
-                        }
-
-                        @Override
-                        public void checkServerTrusted(
-                            final java.security.cert.X509Certificate[] certs, final String authType) {
-                        }
+                    @Override
+                    public boolean isTrusted(
+                            final X509Certificate[] chain, final String authType) throws CertificateException {
+                        return true;
                     }
-                };
+
+                });
             } else if (config.getTrustStorePath() != null) {
-                final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                final FileInputStream instream = new FileInputStream(config.getTrustStorePath());
-                try {
-                    trustStore.load(instream, config.getTrustStorePath() != null ?
-                            config.getTrustStorePath().toCharArray() : null);
-                } finally {
-                    try { instream.close(); } catch (final IOException ignore) {}
-                }
-                final TrustManagerFactory tmfactory = TrustManagerFactory.getInstance(
-                        TrustManagerFactory.getDefaultAlgorithm());
-                tmfactory.init(trustStore);
-                trustManagers = tmfactory.getTrustManagers();
+                sslContextBuilder.loadTrustMaterial(
+                        new File(config.getTrustStorePath()),
+                        config.getTrustStorePassword() != null ? config.getTrustStorePassword().toCharArray() : null);
             }
-            KeyManager[] keyManagers = null;
             if (config.getIdentityStorePath() != null) {
-                final KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
-                final FileInputStream instream = new FileInputStream(config.getIdentityStorePath());
-                try {
-                    identityStore.load(instream, config.getIdentityStorePassword() != null ?
-                            config.getIdentityStorePassword().toCharArray() : null);
-                } finally {
-                    try { instream.close(); } catch (final IOException ignore) {}
-                }
-                final KeyManagerFactory kmf = KeyManagerFactory.getInstance(
-                    KeyManagerFactory.getDefaultAlgorithm());
-                kmf.init(identityStore, config.getIdentityStorePassword() != null ?
-                        config.getIdentityStorePassword().toCharArray() : null);
-                keyManagers = kmf.getKeyManagers();
+                sslContextBuilder.loadKeyMaterial(
+                        new File(config.getIdentityStorePath()),
+                        config.getIdentityStorePassword() != null ? config.getIdentityStorePassword().toCharArray() : null);
             }
-            final SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(keyManagers, trustManagers, null);
-            socketFactory = sc.getSocketFactory();
+            final SSLContext sslContext = sslContextBuilder.build();
+            socketFactory = sslContext.getSocketFactory();
         }
 
         final BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];

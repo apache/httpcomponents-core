@@ -48,6 +48,7 @@ import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.Args;
 
 /**
@@ -87,7 +88,7 @@ public class SSLNHttpServerConnectionFactory
         Args.notNull(requestFactory, "HTTP request factory");
         Args.notNull(allocator, "Byte buffer allocator");
         Args.notNull(params, "HTTP parameters");
-        this.sslcontext = sslcontext;
+        this.sslcontext = sslcontext != null ? sslcontext : SSLContexts.createSystemDefault();
         this.sslHandler = sslHandler;
         this.incomingContentStrategy = null;
         this.outgoingContentStrategy = null;
@@ -133,7 +134,7 @@ public class SSLNHttpServerConnectionFactory
             final ByteBufferAllocator allocator,
             final ConnectionConfig cconfig) {
         super();
-        this.sslcontext = sslcontext;
+        this.sslcontext = sslcontext != null ? sslcontext : SSLContexts.createSystemDefault();
         this.sslHandler = sslHandler;
         this.incomingContentStrategy = incomingContentStrategy;
         this.outgoingContentStrategy = outgoingContentStrategy;
@@ -214,8 +215,7 @@ public class SSLNHttpServerConnectionFactory
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler) {
         final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.SERVER,
-                (sslcontext != null ? sslcontext : SSLContextUtils.getDefault()),
-                sslHandler);
+                sslcontext, sslHandler);
         return ssliosession;
     }
 
