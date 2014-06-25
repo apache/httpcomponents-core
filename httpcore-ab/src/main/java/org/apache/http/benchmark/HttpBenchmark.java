@@ -51,6 +51,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
@@ -112,15 +113,16 @@ public class HttpBenchmark {
             se.setChunked(config.isUseChunking());
             entity = se;
         }
+        final HttpVersion ver = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
         final HttpRequest request;
         if ("POST".equals(config.getMethod())) {
             final BasicHttpEntityEnclosingRequest httppost =
-                    new BasicHttpEntityEnclosingRequest("POST", url.getPath());
+                    new BasicHttpEntityEnclosingRequest("POST", url.getPath(), ver);
             httppost.setEntity(entity);
             request = httppost;
         } else if ("PUT".equals(config.getMethod())) {
             final BasicHttpEntityEnclosingRequest httpput =
-                    new BasicHttpEntityEnclosingRequest("PUT", url.getPath());
+                    new BasicHttpEntityEnclosingRequest("PUT", url.getPath(), ver);
             httpput.setEntity(entity);
             request = httpput;
         } else {
@@ -130,7 +132,7 @@ public class HttpBenchmark {
             } else if (path.trim().length() == 0) {
                 path = "/";
             }
-            request = new BasicHttpRequest(config.getMethod(), path);
+            request = new BasicHttpRequest(config.getMethod(), path, ver);
         }
 
         if (!config.isKeepAlive()) {
