@@ -80,6 +80,7 @@ public class ServerBootstrap {
     private HttpExpectationVerifier expectationVerifier;
     private ServerSocketFactory serverSocketFactory;
     private SSLContext sslContext;
+    private SSLServerSetupHandler sslSetupHandler;
     private HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private ExceptionLogger exceptionLogger;
 
@@ -275,6 +276,14 @@ public class ServerBootstrap {
     }
 
     /**
+     * Assigns {@link org.apache.http.impl.bootstrap.SSLServerSetupHandler} instance.
+     */
+    public final ServerBootstrap setSslSetupHandler(final SSLServerSetupHandler sslSetupHandler) {
+        this.sslSetupHandler = sslSetupHandler;
+        return this;
+    }
+
+    /**
      * Assigns {@link javax.net.ServerSocketFactory} instance.
      */
     public final ServerBootstrap setServerSocketFactory(final ServerSocketFactory serverSocketFactory) {
@@ -396,6 +405,7 @@ public class ServerBootstrap {
                 serverSocketFactoryCopy,
                 httpService,
                 connectionFactoryCopy,
+                this.sslSetupHandler,
                 exceptionLoggerCopy);
     }
 

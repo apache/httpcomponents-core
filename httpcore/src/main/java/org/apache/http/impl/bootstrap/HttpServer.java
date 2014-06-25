@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocket;
 
 import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpConnectionFactory;
@@ -57,6 +58,7 @@ public class HttpServer {
     private final ServerSocketFactory serverSocketFactory;
     private final HttpService httpService;
     private final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
+    private final SSLServerSetupHandler sslSetupHandler;
     private final ExceptionLogger exceptionLogger;
     private final ExecutorService listenerExecutorService;
     private final ThreadGroup workerThreads;
@@ -73,6 +75,7 @@ public class HttpServer {
             final ServerSocketFactory serverSocketFactory,
             final HttpService httpService,
             final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory,
+            final SSLServerSetupHandler sslSetupHandler,
             final ExceptionLogger exceptionLogger) {
         this.port = port;
         this.ifAddress = ifAddress;
@@ -80,6 +83,7 @@ public class HttpServer {
         this.serverSocketFactory = serverSocketFactory;
         this.httpService = httpService;
         this.connectionFactory = connectionFactory;
+        this.sslSetupHandler = sslSetupHandler;
         this.exceptionLogger = exceptionLogger;
         this.listenerExecutorService = Executors.newSingleThreadExecutor(
                 new ThreadFactoryImpl("HTTP-listener-" + this.port));
@@ -114,6 +118,9 @@ public class HttpServer {
             this.serverSocket.setReuseAddress(this.socketConfig.isSoReuseAddress());
             if (this.socketConfig.getRcvBufSize() > 0) {
                 this.serverSocket.setReceiveBufferSize(this.socketConfig.getRcvBufSize());
+            }
+            if (this.sslSetupHandler != null && this.serverSocket instanceof SSLServerSocket) {
+                this.sslSetupHandler.initialize((SSLServerSocket) this.serverSocket);
             }
             this.requestListener = new RequestListener(
                     this.socketConfig,

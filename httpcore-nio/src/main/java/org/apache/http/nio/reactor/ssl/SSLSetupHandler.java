@@ -49,6 +49,7 @@ public interface SSLSetupHandler {
      * @param sslengine the SSL engine.
      * @throws SSLException if case of SSL protocol error.
      */
+    //FIXME: fix type
     void initalize(SSLEngine sslengine) throws SSLException;
 
     /**
