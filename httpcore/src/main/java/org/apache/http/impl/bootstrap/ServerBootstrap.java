@@ -78,6 +78,7 @@ public class ServerBootstrap {
     private HttpRequestHandlerMapper handlerMapper;
     private Map<String, HttpRequestHandler> handlerMap;
     private HttpExpectationVerifier expectationVerifier;
+    private ServerSocketFactory serverSocketFactory;
     private SSLContext sslContext;
     private HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private ExceptionLogger exceptionLogger;
@@ -274,7 +275,18 @@ public class ServerBootstrap {
     }
 
     /**
+     * Assigns {@link javax.net.ServerSocketFactory} instance.
+     */
+    public final ServerBootstrap setServerSocketFactory(final ServerSocketFactory serverSocketFactory) {
+        this.serverSocketFactory = serverSocketFactory;
+        return this;
+    }
+
+    /**
      * Assigns {@link javax.net.ssl.SSLContext} instance.
+     * <p/>
+     * Please note this value can be overridden by the {@link #setServerSocketFactory(
+     *   javax.net.ServerSocketFactory)} method.
      */
     public final ServerBootstrap setSslContext(final SSLContext sslContext) {
         this.sslContext = sslContext;
@@ -354,11 +366,13 @@ public class ServerBootstrap {
                 httpProcessorCopy, connStrategyCopy, responseFactoryCopy, handlerMapperCopy,
                 this.expectationVerifier);
 
-        final ServerSocketFactory serverSocketFactory;
-        if (this.sslContext != null) {
-            serverSocketFactory = this.sslContext.getServerSocketFactory();
-        } else {
-            serverSocketFactory = ServerSocketFactory.getDefault();
+        ServerSocketFactory serverSocketFactoryCopy = this.serverSocketFactory;
+        if (serverSocketFactoryCopy == null) {
+            if (this.sslContext != null) {
+                serverSocketFactoryCopy = this.sslContext.getServerSocketFactory();
+            } else {
+                serverSocketFactoryCopy = ServerSocketFactory.getDefault();
+            }
         }
 
         HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactoryCopy = this.connectionFactory;
@@ -379,7 +393,7 @@ public class ServerBootstrap {
                 this.listenerPort > 0 ? this.listenerPort : 0,
                 this.localAddress,
                 this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,
-                serverSocketFactory,
+                serverSocketFactoryCopy,
                 httpService,
                 connectionFactoryCopy,
                 exceptionLoggerCopy);
