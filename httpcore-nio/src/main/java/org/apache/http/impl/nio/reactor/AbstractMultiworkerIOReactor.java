@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.params.NIOReactorPNames;
@@ -596,10 +597,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     static class DefaultThreadFactory implements ThreadFactory {
 
-        private static volatile int COUNT = 0;
+        private final static AtomicLong COUNT = new AtomicLong(1);
 
         public Thread newThread(final Runnable r) {
-            return new Thread(r, "I/O dispatcher " + (++COUNT));
+            return new Thread(r, "I/O dispatcher " + COUNT.getAndIncrement());
         }
 
     }
