@@ -95,4 +95,9 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
         }
     }
 
+    @Override
+    public String toString() {
+        return this.entity.toString();
+    }
+
 }

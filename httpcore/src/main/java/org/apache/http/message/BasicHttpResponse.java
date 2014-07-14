@@ -203,7 +203,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
 
     @Override
     public void setLocale(final Locale locale) {
-        this.locale =  Args.notNull(locale, "Locale");
+        this.locale = Args.notNull(locale, "Locale");
         this.statusline = null;
     }
 
@@ -223,7 +223,15 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
 
     @Override
     public String toString() {
-        return getStatusLine() + " " + this.headergroup;
+        final StringBuilder sb = new StringBuilder();
+        sb.append(getStatusLine());
+        sb.append(' ');
+        sb.append(this.headergroup);
+        if (this.entity != null) {
+            sb.append(' ');
+            sb.append(this.entity);
+        }
+        return sb.toString();
     }
 
 }

@@ -192,4 +192,30 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     public void consumeContent() throws IOException {
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        if (contentType != null) {
+            sb.append("Content-Type: ");
+            sb.append(contentType.getValue());
+            sb.append(',');
+        }
+        if (contentEncoding != null) {
+            sb.append("Content-Encoding: ");
+            sb.append(contentEncoding.getValue());
+            sb.append(',');
+        }
+        final long len = getContentLength();
+        if (len >= 0) {
+            sb.append("Content-Length: ");
+            sb.append(len);
+            sb.append(',');
+        }
+        sb.append("Chunked: ");
+        sb.append(chunked);
+        sb.append(']');
+        return sb.toString();
+    }
+
 }
