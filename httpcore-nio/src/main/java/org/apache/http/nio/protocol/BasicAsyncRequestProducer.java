@@ -150,4 +150,17 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         }
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(this.target);
+        sb.append(' ');
+        sb.append(this.request);
+        if (this.producer != null) {
+            sb.append(' ');
+            sb.append(this.producer);
+        }
+        return sb.toString();
+    }
+
 }

@@ -128,4 +128,9 @@ public class TestBasicAsyncRequestProducer {
         verify(contentProducer, times(1)).close();
     }
 
+    @Test
+    public void testToString() {
+        Assert.assertEquals(target + " " + request + " " + contentProducer, producer.toString());
+    }
+
 }

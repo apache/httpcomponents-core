@@ -125,4 +125,14 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         }
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder buf = new StringBuilder();
+        buf.append(this.response);
+        if (this.producer != null) {
+            buf.append(" ").append(this.producer);
+        }
+        return buf.toString();
+    }
+
 }
