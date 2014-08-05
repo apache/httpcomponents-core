@@ -28,13 +28,13 @@
 package org.apache.http.message;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -64,13 +64,13 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     private final static char PARAM_DELIMITER                = ';';
     private final static char ELEM_DELIMITER                 = ',';
-    private final static char[] ALL_DELIMITERS               = new char[] {
-                                                                PARAM_DELIMITER,
-                                                                ELEM_DELIMITER
-                                                                };
+    private static final BitSet TOKEN_DELIMS = TokenParser.INIT_BITSET('=', PARAM_DELIMITER, ELEM_DELIMITER);
+    private static final BitSet VALUE_DELIMS = TokenParser.INIT_BITSET(PARAM_DELIMITER, ELEM_DELIMITER);
+
+    private final TokenParser tokenParser;
 
     public BasicHeaderValueParser() {
-        super();
+        this.tokenParser = TokenParser.INSTANCE;
     }
 
     /**
@@ -193,22 +193,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                                            final ParserCursor cursor) {
         Args.notNull(buffer, "Char array buffer");
         Args.notNull(cursor, "Parser cursor");
-        int pos = cursor.getPos();
-        final int indexTo = cursor.getUpperBound();
-
-        while (pos < indexTo) {
-            final char ch = buffer.charAt(pos);
-            if (HTTP.isWhitespace(ch)) {
-                pos++;
-            } else {
-                break;
-            }
-        }
-        cursor.updatePos(pos);
-        if (cursor.atEnd()) {
-            return new NameValuePair[] {};
-        }
-
+        tokenParser.skipWhiteSpace(buffer, cursor);
         final List<NameValuePair> params = new ArrayList<NameValuePair>();
         while (!cursor.atEnd()) {
             final NameValuePair param = parseNameValuePair(buffer, cursor);
@@ -218,7 +203,6 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                 break;
             }
         }
-
         return params.toArray(new NameValuePair[params.size()]);
     }
 
@@ -247,103 +231,56 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     @Override
     public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
                                             final ParserCursor cursor) {
-        return parseNameValuePair(buffer, cursor, ALL_DELIMITERS);
-    }
+        Args.notNull(buffer, "Char array buffer");
+        Args.notNull(cursor, "Parser cursor");
 
-    private static boolean isOneOf(final char ch, final char[] chs) {
-        if (chs != null) {
-            for (final char ch2 : chs) {
-                if (ch == ch2) {
-                    return true;
-                }
-            }
+        final String name = tokenParser.parseToken(buffer, cursor, TOKEN_DELIMS);
+        if (cursor.atEnd()) {
+            return new BasicNameValuePair(name, null);
         }
-        return false;
+        final int delim = buffer.charAt(cursor.getPos());
+        cursor.updatePos(cursor.getPos() + 1);
+        if (delim != '=') {
+            return createNameValuePair(name, null);
+        }
+        final String value = tokenParser.parseValue(buffer, cursor, VALUE_DELIMS);
+        if (!cursor.atEnd()) {
+            cursor.updatePos(cursor.getPos() + 1);
+        }
+        return createNameValuePair(name, value);
     }
 
+    /**
+     * @deprecated (4.4) use {@link org.apache.http.message.TokenParser}
+     */
+    @Deprecated
     public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
                                             final ParserCursor cursor,
                                             final char[] delimiters) {
         Args.notNull(buffer, "Char array buffer");
         Args.notNull(cursor, "Parser cursor");
 
-        boolean terminated = false;
-
-        int pos = cursor.getPos();
-        final int indexFrom = cursor.getPos();
-        final int indexTo = cursor.getUpperBound();
-
-        // Find name
-        final String name;
-        while (pos < indexTo) {
-            final char ch = buffer.charAt(pos);
-            if (ch == '=') {
-                break;
+        final BitSet delimSet = new BitSet();
+        if (delimiters != null) {
+            for (char delimiter: delimiters) {
+                delimSet.set(delimiter);
             }
-            if (isOneOf(ch, delimiters)) {
-                terminated = true;
-                break;
-            }
-            pos++;
         }
-
-        if (pos == indexTo) {
-            terminated = true;
-            name = buffer.substringTrimmed(indexFrom, indexTo);
-        } else {
-            name = buffer.substringTrimmed(indexFrom, pos);
-            pos++;
+        delimSet.set('=');
+        final String name = tokenParser.parseToken(buffer, cursor, delimSet);
+        if (cursor.atEnd()) {
+            return new BasicNameValuePair(name, null);
         }
-
-        if (terminated) {
-            cursor.updatePos(pos);
+        final int delim = buffer.charAt(cursor.getPos());
+        cursor.updatePos(cursor.getPos() + 1);
+        if (delim != '=') {
             return createNameValuePair(name, null);
         }
-
-        // Find value
-        final String value;
-        int i1 = pos;
-
-        boolean qouted = false;
-        boolean escaped = false;
-        while (pos < indexTo) {
-            final char ch = buffer.charAt(pos);
-            if (ch == '"' && !escaped) {
-                qouted = !qouted;
-            }
-            if (!qouted && !escaped && isOneOf(ch, delimiters)) {
-                terminated = true;
-                break;
-            }
-            if (escaped) {
-                escaped = false;
-            } else {
-                escaped = qouted && ch == '\\';
-            }
-            pos++;
+        delimSet.clear('=');
+        final String value = tokenParser.parseValue(buffer, cursor, delimSet);
+        if (!cursor.atEnd()) {
+            cursor.updatePos(cursor.getPos() + 1);
         }
-
-        int i2 = pos;
-        // Trim leading white spaces
-        while (i1 < i2 && (HTTP.isWhitespace(buffer.charAt(i1)))) {
-            i1++;
-        }
-        // Trim trailing white spaces
-        while ((i2 > i1) && (HTTP.isWhitespace(buffer.charAt(i2 - 1)))) {
-            i2--;
-        }
-        // Strip away quotes if necessary
-        if (((i2 - i1) >= 2)
-            && (buffer.charAt(i1) == '"')
-            && (buffer.charAt(i2 - 1) == '"')) {
-            i1++;
-            i2--;
-        }
-        value = buffer.substring(i1, i2);
-        if (terminated) {
-            pos++;
-        }
-        cursor.updatePos(pos);
         return createNameValuePair(name, value);
     }
 
