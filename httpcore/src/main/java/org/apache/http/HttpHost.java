@@ -30,7 +30,6 @@ package org.apache.http;
 import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.Locale;
-
 import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 import org.apache.http.util.LangUtils;
@@ -123,9 +122,26 @@ public final class HttpHost implements Cloneable, Serializable {
      * @since 4.3
      */
     public HttpHost(final InetAddress address, final int port, final String scheme) {
+        this(Args.notNull(address,"Inet address"), address.getHostName(), port, scheme);
+    }
+    /**
+     * Creates a new {@link HttpHost HttpHost}, specifying all values.
+     * Constructor for HttpHost.
+     *
+     * @param address   the inet address.
+     * @param hostname   the hostname (IP or DNS name)
+     * @param port      the port number.
+     *                  <code>-1</code> indicates the scheme default port.
+     * @param scheme    the name of the scheme.
+     *                  <code>null</code> indicates the
+     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *
+     * @since 4.4
+     */
+    public HttpHost(final InetAddress address, final String hostname, final int port, final String scheme) {
         super();
         this.address = Args.notNull(address, "Inet address");
-        this.hostname = address.getHostAddress();
+        this.hostname = Args.notNull(hostname, "Hostname");
         this.lcHostname = this.hostname.toLowerCase(Locale.ENGLISH);
         if (scheme != null) {
             this.schemeName = scheme.toLowerCase(Locale.ENGLISH);
@@ -262,9 +278,12 @@ public final class HttpHost implements Cloneable, Serializable {
         }
         if (obj instanceof HttpHost) {
             final HttpHost that = (HttpHost) obj;
+            final String thisAddressValue = this.address==null ? this.lcHostname : this.address.getHostAddress().toLowerCase(Locale.ENGLISH);
+            final String thatAddressValue = that.address==null ? that.lcHostname : that.address.getHostAddress().toLowerCase(Locale.ENGLISH);
             return this.lcHostname.equals(that.lcHostname)
                 && this.port == that.port
-                && this.schemeName.equals(that.schemeName);
+                && this.schemeName.equals(that.schemeName)
+                && thisAddressValue.equals(thatAddressValue);
         } else {
             return false;
         }
@@ -279,6 +298,10 @@ public final class HttpHost implements Cloneable, Serializable {
         hash = LangUtils.hashCode(hash, this.lcHostname);
         hash = LangUtils.hashCode(hash, this.port);
         hash = LangUtils.hashCode(hash, this.schemeName);
+        final String lcAddress = address==null ? null : address.getHostAddress().toLowerCase(Locale.ENGLISH);
+        if (lcAddress!=null && !lcAddress.equals(lcHostname)) {
+            hash = LangUtils.hashCode(hash, lcAddress);
+        }
         return hash;
     }
 
