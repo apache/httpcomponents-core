@@ -101,7 +101,7 @@ public class TestHttpHost {
         Assert.assertTrue(host2.hashCode() == host4.hashCode());
         Assert.assertTrue(host2.hashCode() == host5.hashCode());
         Assert.assertTrue(host5.hashCode() != host6.hashCode());
-        Assert.assertTrue(host7.hashCode() == host8.hashCode());
+        Assert.assertTrue(host7.hashCode() != host8.hashCode());
         Assert.assertTrue(host8.hashCode() != host9.hashCode());
         Assert.assertTrue(host9.hashCode() == host10.hashCode());
         Assert.assertTrue(host10.hashCode() != host11.hashCode());
@@ -132,7 +132,7 @@ public class TestHttpHost {
         Assert.assertTrue(host2.equals(host4));
         Assert.assertTrue(host2.equals(host5));
         Assert.assertFalse(host5.equals(host6));
-        Assert.assertTrue(host7.equals(host8));
+        Assert.assertFalse(host7.equals(host8));
         Assert.assertTrue(!host7.equals(host9));
         Assert.assertFalse(host1.equals(null));
         Assert.assertFalse(host1.equals("http://somehost"));

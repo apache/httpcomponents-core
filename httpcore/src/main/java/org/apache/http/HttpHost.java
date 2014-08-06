@@ -278,12 +278,10 @@ public final class HttpHost implements Cloneable, Serializable {
         }
         if (obj instanceof HttpHost) {
             final HttpHost that = (HttpHost) obj;
-            final String thisAddressValue = this.address==null ? this.lcHostname : this.address.getHostAddress().toLowerCase(Locale.ENGLISH);
-            final String thatAddressValue = that.address==null ? that.lcHostname : that.address.getHostAddress().toLowerCase(Locale.ENGLISH);
             return this.lcHostname.equals(that.lcHostname)
                 && this.port == that.port
                 && this.schemeName.equals(that.schemeName)
-                && thisAddressValue.equals(thatAddressValue);
+                && (this.address==null ? that.address== null : this.address.equals(that.address));
         } else {
             return false;
         }
@@ -298,9 +296,8 @@ public final class HttpHost implements Cloneable, Serializable {
         hash = LangUtils.hashCode(hash, this.lcHostname);
         hash = LangUtils.hashCode(hash, this.port);
         hash = LangUtils.hashCode(hash, this.schemeName);
-        final String lcAddress = address==null ? null : address.getHostAddress().toLowerCase(Locale.ENGLISH);
-        if (lcAddress!=null && !lcAddress.equals(lcHostname)) {
-            hash = LangUtils.hashCode(hash, lcAddress);
+        if (address!=null) {
+            hash = LangUtils.hashCode(hash, address);
         }
         return hash;
     }
