@@ -66,10 +66,10 @@ public class TokenParser {
     public static final TokenParser INSTANCE = new TokenParser();
 
     /**
-     * Extracts from the sequence of bytes a token terminated with any of the given delimiters
+     * Extracts from the sequence of chars a token terminated with any of the given delimiters
      * discarding semantically insignificant whitespace characters.
      *
-     * @param buf buffer with the sequence of bytes to be parsed
+     * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
      * @param delimiters set of delimiting characters. Can be <code>null</code> if the token
      *  is not delimited by any character.
@@ -96,11 +96,11 @@ public class TokenParser {
     }
 
     /**
-     * Extracts from the sequence of bytes a value which can be enclosed in quote marks and
+     * Extracts from the sequence of chars a value which can be enclosed in quote marks and
      * terminated with any of the given delimiters discarding semantically insignificant
      * whitespace characters.
      *
-     * @param buf buffer with the sequence of bytes to be parsed
+     * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
      * @param delimiters set of delimiting characters. Can be <code>null</code> if the value
      *  is not delimited by any character.
@@ -136,7 +136,7 @@ public class TokenParser {
      * Skips semantically insignificant whitespace characters and moves the cursor to the closest
      * non-whitespace character.
      *
-     * @param buf buffer with the sequence of bytes to be parsed
+     * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
      */
     public void skipWhiteSpace(final CharArrayBuffer buf, final ParserCursor cursor) {
@@ -158,7 +158,7 @@ public class TokenParser {
      * Transfers content into the destination buffer until a whitespace character or any of
      * the given delimiters is encountered.
      *
-     * @param buf buffer with the sequence of bytes to be parsed
+     * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
      * @param delimiters set of delimiting characters. Can be <code>null</code> if the value
      *  is delimited by a whitespace only.
@@ -185,7 +185,7 @@ public class TokenParser {
      * Transfers content into the destination buffer until a whitespace character,  a quote,
      * or any of the given delimiters is encountered.
      *
-     * @param buf buffer with the sequence of bytes to be parsed
+     * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
      * @param delimiters set of delimiting characters. Can be <code>null</code> if the value
      *  is delimited by a whitespace or a quote only.
@@ -212,7 +212,7 @@ public class TokenParser {
     /**
      * Transfers content enclosed with quote marks into the destination buffer.
      *
-     * @param buf buffer with the sequence of bytes to be parsed
+     * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
      * @param dst destination buffer
      */
