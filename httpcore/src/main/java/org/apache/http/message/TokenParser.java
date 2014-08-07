@@ -36,11 +36,13 @@ import org.apache.http.util.CharArrayBuffer;
  * to produce near zero intermediate garbage and make no intermediate copies of input data.
  * <p>
  * This class is immutable and thread safe.
+ *
+ * @since 4.4
  */
 public class TokenParser {
 
     public static BitSet INIT_BITSET(final int ... b) {
-        final BitSet bitset = new BitSet(b.length);
+        final BitSet bitset = new BitSet();
         for (final int aB : b) {
             bitset.set(aB);
         }
@@ -48,16 +50,22 @@ public class TokenParser {
     }
 
     /** US-ASCII CR, carriage return (13) */
-    public static final int CR = '\r';
+    public static final char CR = '\r';
 
     /** US-ASCII LF, line feed (10) */
-    public static final int LF = '\n';
+    public static final char LF = '\n';
 
     /** US-ASCII SP, space (32) */
-    public static final int SP = ' ';
+    public static final char SP = ' ';
 
     /** US-ASCII HT, horizontal-tab (9) */
-    public static final int HT = '\t';
+    public static final char HT = '\t';
+
+    /** Double quote */
+    public static final char DQUOTE = '\"';
+
+    /** Backward slash / escape character */
+    public static final char ESCAPE = '\\';
 
     public static boolean isWhitespace(final char ch) {
         return ch == SP || ch == HT || ch == CR || ch == LF;
@@ -85,7 +93,7 @@ public class TokenParser {
                 skipWhiteSpace(buf, cursor);
                 whitespace = true;
             } else {
-                if (dst.length() > 0 && whitespace) {
+                if (whitespace && dst.length() > 0) {
                     dst.append(' ');
                 }
                 copyContent(buf, cursor, delimiters, dst);
@@ -115,14 +123,14 @@ public class TokenParser {
             } else if (isWhitespace(current)) {
                 skipWhiteSpace(buf, cursor);
                 whitespace = true;
-            } else if (current == '\"') {
-                if (dst.length() > 0 && whitespace) {
+            } else if (current == DQUOTE) {
+                if (whitespace && dst.length() > 0) {
                     dst.append(' ');
                 }
                 copyQuotedContent(buf, cursor, dst);
                 whitespace = false;
             } else {
-                if (dst.length() > 0 && whitespace) {
+                if (whitespace && dst.length() > 0) {
                     dst.append(' ');
                 }
                 copyUnquotedContent(buf, cursor, delimiters, dst);
@@ -199,7 +207,7 @@ public class TokenParser {
         for (int i = indexFrom; i < indexTo; i++) {
             final char current = buf.charAt(i);
             if ((delimiters != null && delimiters.get(current))
-                    || isWhitespace(current) || current == '\"') {
+                    || isWhitespace(current) || current == DQUOTE) {
                 break;
             } else {
                 pos++;
@@ -225,7 +233,7 @@ public class TokenParser {
         int indexFrom = cursor.getPos();
         final int indexTo = cursor.getUpperBound();
         char current = buf.charAt(pos);
-        if (current != '\"') {
+        if (current != DQUOTE) {
             return;
         }
         pos++;
@@ -234,19 +242,19 @@ public class TokenParser {
         for (int i = indexFrom; i < indexTo; i++, pos++) {
             current = buf.charAt(i);
             if (escaped) {
-                if (current != '\"' && current != '\\') {
-                    dst.append('\\');
+                if (current != DQUOTE && current != ESCAPE) {
+                    dst.append(ESCAPE);
                 }
                 dst.append(current);
                 escaped = false;
             } else {
-                if (current == '\"') {
+                if (current == DQUOTE) {
                     pos++;
                     break;
                 }
-                if (current == '\\') {
+                if (current == ESCAPE) {
                     escaped = true;
-                } else if (current != '\r' && current != '\n') {
+                } else if (current != CR && current != LF) {
                     dst.append(current);
                 }
             }
