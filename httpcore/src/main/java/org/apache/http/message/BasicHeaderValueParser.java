@@ -64,6 +64,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     private final static char PARAM_DELIMITER                = ';';
     private final static char ELEM_DELIMITER                 = ',';
+
+    // IMPORTANT!
+    // These private static variables must be treated as immutable and never exposed outside this class
     private static final BitSet TOKEN_DELIMS = TokenParser.INIT_BITSET('=', PARAM_DELIMITER, ELEM_DELIMITER);
     private static final BitSet VALUE_DELIMS = TokenParser.INIT_BITSET(PARAM_DELIMITER, ELEM_DELIMITER);
 

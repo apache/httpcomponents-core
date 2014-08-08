@@ -29,6 +29,7 @@ package org.apache.http.message;
 
 import java.util.BitSet;
 
+import org.apache.http.annotation.Immutable;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -39,6 +40,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.4
  */
+@Immutable
 public class TokenParser {
 
     public static BitSet INIT_BITSET(final int ... b) {
