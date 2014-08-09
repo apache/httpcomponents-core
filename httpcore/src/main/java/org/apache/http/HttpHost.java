@@ -148,9 +148,26 @@ public final class HttpHost implements Cloneable, Serializable {
      * @since 4.3
      */
     public HttpHost(final InetAddress address, final int port, final String scheme) {
+        this(Args.notNull(address,"Inet address"), address.getHostName(), port, scheme);
+    }
+    /**
+     * Creates a new {@link HttpHost HttpHost}, specifying all values.
+     * Constructor for HttpHost.
+     *
+     * @param address   the inet address.
+     * @param hostname   the hostname (IP or DNS name)
+     * @param port      the port number.
+     *                  <code>-1</code> indicates the scheme default port.
+     * @param scheme    the name of the scheme.
+     *                  <code>null</code> indicates the
+     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *
+     * @since 4.4
+     */
+    public HttpHost(final InetAddress address, final String hostname, final int port, final String scheme) {
         super();
         this.address = Args.notNull(address, "Inet address");
-        this.hostname = address.getHostAddress();
+        this.hostname = Args.notNull(hostname, "Hostname");
         this.lcHostname = this.hostname.toLowerCase(Locale.ROOT);
         if (scheme != null) {
             this.schemeName = scheme.toLowerCase(Locale.ROOT);
@@ -291,7 +308,8 @@ public final class HttpHost implements Cloneable, Serializable {
             final HttpHost that = (HttpHost) obj;
             return this.lcHostname.equals(that.lcHostname)
                 && this.port == that.port
-                && this.schemeName.equals(that.schemeName);
+                && this.schemeName.equals(that.schemeName)
+                && (this.address==null ? that.address== null : this.address.equals(that.address));
         } else {
             return false;
         }
@@ -306,6 +324,9 @@ public final class HttpHost implements Cloneable, Serializable {
         hash = LangUtils.hashCode(hash, this.lcHostname);
         hash = LangUtils.hashCode(hash, this.port);
         hash = LangUtils.hashCode(hash, this.schemeName);
+        if (address!=null) {
+            hash = LangUtils.hashCode(hash, address);
+        }
         return hash;
     }
 
