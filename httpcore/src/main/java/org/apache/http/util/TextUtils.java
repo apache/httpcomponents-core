@@ -32,6 +32,9 @@ package org.apache.http.util;
  */
 public final class TextUtils {
 
+    /**
+     * Returns true if the parameter is null or of zero length
+     */
     public static boolean isEmpty(final CharSequence s) {
         if (s == null) {
             return true;
@@ -39,6 +42,9 @@ public final class TextUtils {
         return s.length() == 0;
     }
 
+    /**
+     * Returns true if the parameter is null or contains only whitespace
+     */
     public static boolean isBlank(final CharSequence s) {
         if (s == null) {
             return true;
