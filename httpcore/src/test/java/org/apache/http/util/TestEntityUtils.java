@@ -204,6 +204,16 @@ public class TestEntityUtils {
         final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
         Assert.assertEquals(content, s);
     }
+    @Test
+    public void testContentWithInvalidContentTypeToString() throws Exception {
+        final String content = constructString(RUSSIAN_HELLO);
+        final byte[] bytes = content.getBytes("UTF-8");
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(bytes));
+        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset=nosuchcharset"));
+        final String s = EntityUtils.toString(httpentity, "UTF-8");
+        Assert.assertEquals(content, s);
+    }
 
     /**
      * Helper class that returns <code>null</code> as the content.

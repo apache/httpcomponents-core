@@ -229,7 +229,9 @@ public final class EntityUtils {
                     charset = contentType.getCharset();
                 }
             } catch (final UnsupportedCharsetException ex) {
-                throw new UnsupportedEncodingException(ex.getMessage());
+                if (defaultCharset == null) {
+                    throw new UnsupportedEncodingException(ex.getMessage());
+                }
             }
             if (charset == null) {
                 charset = defaultCharset;
