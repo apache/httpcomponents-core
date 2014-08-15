@@ -199,7 +199,7 @@ public final class EntityUtils {
      * If defaultCharset is null, the default "ISO-8859-1" is used.
      *
      * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity, 
+     * @param defaultCharset character set to be applied if none found in the entity,
      * or if the entity provided charset is invalid or not available.
      * @return the entity content as a String. May be null if
      *   {@link HttpEntity#getContent()} is null.
