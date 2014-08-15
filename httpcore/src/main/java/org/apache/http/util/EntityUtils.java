@@ -199,14 +199,15 @@ public final class EntityUtils {
      * If defaultCharset is null, the default "ISO-8859-1" is used.
      *
      * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity
+     * @param defaultCharset character set to be applied if none found in the entity, 
+     * or if the entity provided charset is invalid or not available.
      * @return the entity content as a String. May be null if
      *   {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
-     * this instance of the Java virtual machine
+     * @throws UnsupportedCharsetException Thrown when the named entity's charset is not available in
+     * this instance of the Java virtual machine and no defaultCharset is provided.
      */
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
