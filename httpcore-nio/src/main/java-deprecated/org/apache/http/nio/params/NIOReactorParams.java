@@ -48,7 +48,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
 
     /**
      * Obtains the value of {@link NIOReactorPNames#CONTENT_BUFFER_SIZE} parameter.
-     * If not set, defaults to <code>4096</code>.
+     * If not set, defaults to {@code 4096}.
      *
      * @param params HTTP parameters.
      * @return content buffer size.
@@ -71,7 +71,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
 
     /**
      * Obtains the value of {@link NIOReactorPNames#SELECT_INTERVAL} parameter.
-     * If not set, defaults to <code>1000</code>.
+     * If not set, defaults to {@code 1000}.
      *
      * @param params HTTP parameters.
      * @return I/O select interval in milliseconds.
@@ -94,7 +94,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
 
     /**
      * Obtains the value of {@link NIOReactorPNames#GRACE_PERIOD} parameter.
-     * If not set, defaults to <code>500</code>.
+     * If not set, defaults to {@code 500}.
      *
      * @param params HTTP parameters.
      * @return shutdown grace period in milliseconds.
@@ -117,7 +117,7 @@ public final class NIOReactorParams implements NIOReactorPNames {
 
     /**
      * Obtains the value of {@link NIOReactorPNames#INTEREST_OPS_QUEUEING} parameter.
-     * If not set, defaults to <code>false</code>.
+     * If not set, defaults to {@code false}.
      *
      * @param params HTTP parameters.
      * @return interest ops queuing flag.

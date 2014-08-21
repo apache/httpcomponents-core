@@ -80,7 +80,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
     /**
      * Tells that this entity is not repeatable.
      *
-     * @return <code>false</code>
+     * @return {@code false}
      */
     @Override
     public boolean isRepeatable() {

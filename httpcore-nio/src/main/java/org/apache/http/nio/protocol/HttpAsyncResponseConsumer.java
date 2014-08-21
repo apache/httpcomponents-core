@@ -94,7 +94,7 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
 
     /**
      * Returns an exception in case of an abnormal termination. This method
-     * returns <code>null</code> if the response processing is still ongoing
+     * returns {@code null} if the response processing is still ongoing
      * or if it completed successfully.
      *
      * @see #isDone()
@@ -103,7 +103,7 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
 
     /**
      * Returns a result of the response processing, when available. This method
-     * returns <code>null</code> if the response processing is still ongoing.
+     * returns {@code null} if the response processing is still ongoing.
      *
      * @see #isDone()
      */

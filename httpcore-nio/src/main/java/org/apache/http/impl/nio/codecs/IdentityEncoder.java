@@ -63,7 +63,7 @@ public class IdentityEncoder extends AbstractContentEncoder
      * @param metrics transport metrics.
      * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
      *   that should be written out directly to the channel bypassing the session buffer.
-     *   Value <code>0</code> disables fragment buffering.
+     *   Value {@code 0} disables fragment buffering.
      */
     public IdentityEncoder(
             final WritableByteChannel channel,

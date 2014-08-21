@@ -37,7 +37,7 @@ import org.apache.http.protocol.HttpContext;
  * HTTP execution context, which can be used to maintain a processing state,
  * as well as the actual {@link HttpRequest} and {@link HttpResponse} that are
  * being transmitted over this connection. Both the request and
- * the response objects can be <code>null</code> if there is no incoming or
+ * the response objects can be {@code null} if there is no incoming or
  * outgoing message currently being transferred.
  * <p>
  * Please note non-blocking HTTP connections are stateful and not thread safe.
@@ -69,9 +69,9 @@ public interface NHttpConnection extends HttpConnection, IOControl {
 
     /**
      * Returns the current HTTP request if one is being received / transmitted.
-     * Otherwise returns <code>null</code>.
+     * Otherwise returns {@code null}.
      *
-     * @return HTTP request, if available, <code>null</code> otherwise.
+     * @return HTTP request, if available, {@code null} otherwise.
      */
     HttpRequest getHttpRequest();
 
@@ -79,7 +79,7 @@ public interface NHttpConnection extends HttpConnection, IOControl {
      * Returns the current HTTP response if one is being received / transmitted.
      * Otherwise returns {@code null}.
      *
-     * @return HTTP response, if available, <code>null</code> otherwise.
+     * @return HTTP response, if available, {@code null} otherwise.
      */
     HttpResponse getHttpResponse();
 

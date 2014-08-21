@@ -37,7 +37,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.util.Args;
 
 /**
- * RequestDate interceptor is responsible for adding <code>Date</code> header
+ * RequestDate interceptor is responsible for adding {@code Date} header
  * to the outgoing requests This interceptor is optional for client side
  * protocol processors.
  *

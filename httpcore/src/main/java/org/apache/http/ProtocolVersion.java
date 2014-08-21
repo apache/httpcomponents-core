@@ -106,7 +106,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      * This can be used by derived classes to instantiate themselves instead
      * of the base class, and to define constants for commonly used versions.
      * <p>
-     * The default implementation in this class returns <code>this</code>
+     * The default implementation in this class returns {@code this}
      * if the version matches, and creates a new {@link ProtocolVersion}
      * otherwise.
      * </p>
@@ -149,8 +149,8 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *
      * @param obj       the object to compare with
      *
-     * @return  <code>true</code> if the argument is the same protocol version,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if the argument is the same protocol version,
+     *          {@code false} otherwise
      */
     @Override
     public final boolean equals(final Object obj) {
@@ -175,8 +175,8 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *
      * @param that      the protocol version to consider
      *
-     * @return  <code>true</code> if {@link #compareToVersion compareToVersion}
-     *          can be called with the argument, <code>false</code> otherwise
+     * @return  {@code true} if {@link #compareToVersion compareToVersion}
+     *          can be called with the argument, {@code false} otherwise
      */
     public boolean isComparable(final ProtocolVersion that) {
         return (that != null) && this.protocol.equals(that.protocol);
@@ -197,7 +197,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *
      * @throws IllegalArgumentException
      *         if the argument has a different protocol name than this object,
-     *         or if the argument is <code>null</code>
+     *         or if the argument is {@code null}
      */
     public int compareToVersion(final ProtocolVersion that) {
         Args.notNull(that, "Protocol version");
@@ -216,10 +216,10 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *
      * @param version   the version against which to check this version
      *
-     * @return  <code>true</code> if this protocol version is
+     * @return  {@code true} if this protocol version is
      *          {@link #isComparable comparable} to the argument
      *          and {@link #compareToVersion compares} as greater or equal,
-     *          <code>false</code> otherwise
+     *          {@code false} otherwise
      */
     public final boolean greaterEquals(final ProtocolVersion version) {
         return isComparable(version) && (compareToVersion(version) >= 0);
@@ -231,10 +231,10 @@ public class ProtocolVersion implements Serializable, Cloneable {
      *
      * @param version   the version against which to check this version
      *
-     * @return  <code>true</code> if this protocol version is
+     * @return  {@code true} if this protocol version is
      *          {@link #isComparable comparable} to the argument
      *          and {@link #compareToVersion compares} as less or equal,
-     *          <code>false</code> otherwise
+     *          {@code false} otherwise
      */
     public final boolean lessEquals(final ProtocolVersion version) {
         return isComparable(version) && (compareToVersion(version) <= 0);

@@ -43,7 +43,7 @@ import org.apache.http.util.Args;
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
  * gets called.  Instead, it will read until the end of the stream (until
- * <code>-1</code> is returned).
+ * {@code -1} is returned).
  *
  * @since 4.0
  */

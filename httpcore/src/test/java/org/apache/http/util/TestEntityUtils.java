@@ -216,7 +216,7 @@ public class TestEntityUtils {
     }
 
     /**
-     * Helper class that returns <code>null</code> as the content.
+     * Helper class that returns {@code null} as the content.
      */
     public static class NullHttpEntity extends BasicHttpEntity {
 
@@ -225,7 +225,7 @@ public class TestEntityUtils {
          * Obtains no content.
          * This method disables the state checks in the base class.
          *
-         * @return <code>null</code>
+         * @return {@code null}
          */
         @Override
         public InputStream getContent() {

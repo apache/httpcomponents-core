@@ -49,8 +49,8 @@ public interface SessionInputBuffer {
     /**
      * Determines if the buffer contains data.
      *
-     * @return <code>true</code> if there is data in the buffer,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if there is data in the buffer,
+     *   {@code false} otherwise.
      */
     boolean hasData();
 
@@ -85,7 +85,7 @@ public interface SessionInputBuffer {
      * Reads a sequence of bytes from this buffer into the destination buffer,
      * up to the given maximum limit. The exact number of bytes transferred
      * depends on availability of data in this buffer and capacity of the
-     * destination buffer, but cannot be more than <code>maxLen</code> value.
+     * destination buffer, but cannot be more than {@code maxLen} value.
      *
      * @param dst the destination buffer.
      * @param maxLen the maximum number of bytes to be read.
@@ -107,7 +107,7 @@ public interface SessionInputBuffer {
      * Reads a sequence of bytes from this buffer into the destination channel,
      * up to the given maximum limit. The exact number of bytes transferred
      * depends on availability of data in this buffer, but cannot be more than
-     * <code>maxLen</code> value.
+     * {@code maxLen} value.
      *
      * @param dst the destination channel.
      * @param maxLen the maximum number of bytes to be read.
@@ -131,11 +131,11 @@ public interface SessionInputBuffer {
      * Attempts to transfer a complete line of characters up to a line delimiter
      * from this buffer to the destination buffer. If a complete line is
      * available in the buffer, the sequence of chars is transferred to the
-     * destination buffer the method returns <code>true</code>. The line
+     * destination buffer the method returns {@code true}. The line
      * delimiter itself is discarded. If a complete line is not available in
-     * the buffer, this method returns <code>false</code> without transferring
-     * anything to the destination buffer. If <code>endOfStream</code> parameter
-     * is set to <code>true</code> this method assumes the end of stream has
+     * the buffer, this method returns {@code false} without transferring
+     * anything to the destination buffer. If {@code endOfStream} parameter
+     * is set to {@code true} this method assumes the end of stream has
      * been reached and the content currently stored in the buffer should be
      * treated as a complete line.
      * <p>
@@ -144,8 +144,8 @@ public interface SessionInputBuffer {
      *
      * @param dst the destination buffer.
      * @param endOfStream end of stream flag
-     * @return <code>true</code> if a sequence of chars representing a complete
-     *  line has been transferred to the destination buffer, <code>false</code>
+     * @return {@code true} if a sequence of chars representing a complete
+     *  line has been transferred to the destination buffer, {@code false}
      *  otherwise.
      *
      * @throws CharacterCodingException in case a character encoding or decoding
@@ -160,8 +160,8 @@ public interface SessionInputBuffer {
      * available in the buffer, the sequence of chars is transferred to a newly
      * created string. The line delimiter itself is discarded. If a complete
      * line is not available in the buffer, this method returns
-     * <code>null</code>. If <code>endOfStream</code> parameter
-     * is set to <code>true</code> this method assumes the end of stream has
+     * {@code null}. If {@code endOfStream} parameter
+     * is set to {@code true} this method assumes the end of stream has
      * been reached and the content currently stored in the buffer should be
      * treated as a complete line.
      * <p>
@@ -170,7 +170,7 @@ public interface SessionInputBuffer {
      *
      * @param endOfStream end of stream flag
      * @return a string representing a complete line, if available.
-     * <code>null</code> otherwise.
+     * {@code null} otherwise.
      *
      * @throws CharacterCodingException in case a character encoding or decoding
      *   error occurs.

@@ -43,8 +43,8 @@ public interface IOReactorExceptionHandler {
      * the I/O reactor.
      *
      * @param ex potentially recoverable I/O exception
-     * @return <code>true</code> if it is safe to ignore the exception
-     * and continue execution of the I/O reactor; <code>false</code> if the
+     * @return {@code true} if it is safe to ignore the exception
+     * and continue execution of the I/O reactor; {@code false} if the
      * I/O reactor must throw {@link IOReactorException} and terminate
      */
     boolean handle(IOException ex);
@@ -55,8 +55,8 @@ public interface IOReactorExceptionHandler {
      * the I/O reactor.
      *
      * @param ex potentially recoverable runtime exception
-     * @return <code>true</code> if it is safe to ignore the exception
-     * and continue execution of the I/O reactor; <code>false</code> if the
+     * @return {@code true} if it is safe to ignore the exception
+     * and continue execution of the I/O reactor; {@code false} if the
      * I/O reactor must throw {@link RuntimeException} and terminate
      */
     boolean handle(RuntimeException ex);

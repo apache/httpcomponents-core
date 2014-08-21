@@ -42,7 +42,7 @@ public interface HttpRequestHandlerMapper {
      * Looks up a handler matching the given request.
      *
      * @param request the request to map to a handler
-     * @return HTTP request handler or <code>null</code> if no match
+     * @return HTTP request handler or {@code null} if no match
      * is found.
      */
     HttpRequestHandler lookup(HttpRequest request);

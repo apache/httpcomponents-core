@@ -80,9 +80,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * Parses elements with the given parser.
      *
      * @param value     the header value to parse
-     * @param parser    the parser to use, or <code>null</code> for default
+     * @param parser    the parser to use, or {@code null} for default
      *
-     * @return  array holding the header elements, never <code>null</code>
+     * @return  array holding the header elements, never {@code null}
      * @throws ParseException in case of a parsing error
      */
     public static
@@ -119,7 +119,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * Parses an element with the given parser.
      *
      * @param value     the header element to parse
-     * @param parser    the parser to use, or <code>null</code> for default
+     * @param parser    the parser to use, or {@code null} for default
      *
      * @return  the parsed header element
      */
@@ -172,9 +172,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * Parses parameters with the given parser.
      *
      * @param value     the parameter list to parse
-     * @param parser    the parser to use, or <code>null</code> for default
+     * @param parser    the parser to use, or {@code null} for default
      *
-     * @return  array holding the parameters, never <code>null</code>
+     * @return  array holding the parameters, never {@code null}
      */
     public static
         NameValuePair[] parseParameters(final String value,
@@ -213,7 +213,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * Parses a name-value-pair with the given parser.
      *
      * @param value     the NVP to parse
-     * @param parser    the parser to use, or <code>null</code> for default
+     * @param parser    the parser to use, or {@code null} for default
      *
      * @return  the parsed name-value pair
      */
@@ -292,7 +292,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * Called from {@link #parseNameValuePair}.
      *
      * @param name      the name
-     * @param value     the value, or <code>null</code>
+     * @param value     the value, or {@code null}
      *
      * @return  a name-value pair representing the arguments
      */

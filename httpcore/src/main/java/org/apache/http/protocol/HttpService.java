@@ -167,9 +167,9 @@ public class HttpService {
      * Create a new HTTP service.
      *
      * @param processor the processor to use on requests and responses
-     * @param connStrategy the connection reuse strategy. If <code>null</code>
+     * @param connStrategy the connection reuse strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
-     * @param responseFactory  the response factory. If <code>null</code>
+     * @param responseFactory  the response factory. If {@code null}
      *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
      * @param handlerMapper  the handler mapper. May be null.
      * @param expectationVerifier the expectation verifier. May be null.
@@ -196,9 +196,9 @@ public class HttpService {
      * Create a new HTTP service.
      *
      * @param processor the processor to use on requests and responses
-     * @param connStrategy the connection reuse strategy. If <code>null</code>
+     * @param connStrategy the connection reuse strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
-     * @param responseFactory  the response factory. If <code>null</code>
+     * @param responseFactory  the response factory. If {@code null}
      *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
      * @param handlerMapper  the handler mapper. May be null.
      *

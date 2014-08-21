@@ -73,13 +73,13 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      *
      * @param buffersize input buffer size
      * @param lineBuffersize buffer size for line operations. Has effect only if
-     *   <code>chardecoder</code> is not <code>null</code>.
+     *   {@code chardecoder} is not {@code null}.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for byte to char conversion.
-     * @param constraints Message constraints. If <code>null</code>
+     *   If {@code null} simple type cast will be used for byte to char conversion.
+     * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param allocator memory allocator.
-     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     *   If {@code null} {@link HeapByteBufferAllocator#INSTANCE} will be used.
      *
      * @since 4.4
      */
@@ -100,11 +100,11 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      *
      * @param buffersize input buffer size
      * @param lineBuffersize buffer size for line operations. Has effect only if
-     *   <code>chardecoder</code> is not <code>null</code>.
+     *   {@code chardecoder} is not {@code null}.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param allocator memory allocator.
-     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     *   If {@code null} {@link HeapByteBufferAllocator#INSTANCE} will be used.
      *
      * @since 4.3
      */

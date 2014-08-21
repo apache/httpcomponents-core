@@ -44,7 +44,7 @@ public interface HttpClientConnection extends HttpConnection {
      *
      * @param timeout the maximum time in milliseconds to wait for data
      * @return true if data is available; false if there was no data available
-     *         even after waiting for <code>timeout</code> milliseconds.
+     *         even after waiting for {@code timeout} milliseconds.
      * @throws IOException if an error happens on the connection
      */
     boolean isResponseAvailable(int timeout)

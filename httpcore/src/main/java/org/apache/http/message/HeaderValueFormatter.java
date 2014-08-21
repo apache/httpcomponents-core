@@ -52,13 +52,13 @@ public interface HeaderValueFormatter {
      * Formats an array of header elements.
      *
      * @param buffer    the buffer to append to, or
-     *                  <code>null</code> to create a new buffer
+     *                  {@code null} to create a new buffer
      * @param elems     the header elements to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
+     * @param quote     {@code true} to always format with quoted values,
+     *                  {@code false} to use quotes only when necessary
      *
      * @return  a buffer with the formatted header elements.
-     *          If the <code>buffer</code> argument was not <code>null</code>,
+     *          If the {@code buffer} argument was not {@code null},
      *          that buffer will be used and returned.
      */
     CharArrayBuffer formatElements(CharArrayBuffer buffer,
@@ -69,13 +69,13 @@ public interface HeaderValueFormatter {
      * Formats one header element.
      *
      * @param buffer    the buffer to append to, or
-     *                  <code>null</code> to create a new buffer
+     *                  {@code null} to create a new buffer
      * @param elem      the header element to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
+     * @param quote     {@code true} to always format with quoted values,
+     *                  {@code false} to use quotes only when necessary
      *
      * @return  a buffer with the formatted header element.
-     *          If the <code>buffer</code> argument was not <code>null</code>,
+     *          If the {@code buffer} argument was not {@code null},
      *          that buffer will be used and returned.
      */
     CharArrayBuffer formatHeaderElement(CharArrayBuffer buffer,
@@ -88,13 +88,13 @@ public interface HeaderValueFormatter {
      * This method will <i>not</i> generate a leading semicolon.
      *
      * @param buffer    the buffer to append to, or
-     *                  <code>null</code> to create a new buffer
+     *                  {@code null} to create a new buffer
      * @param nvps      the parameters (name-value pairs) to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
+     * @param quote     {@code true} to always format with quoted values,
+     *                  {@code false} to use quotes only when necessary
      *
      * @return  a buffer with the formatted parameters.
-     *          If the <code>buffer</code> argument was not <code>null</code>,
+     *          If the {@code buffer} argument was not {@code null},
      *          that buffer will be used and returned.
      */
     CharArrayBuffer formatParameters(CharArrayBuffer buffer,
@@ -105,13 +105,13 @@ public interface HeaderValueFormatter {
      * Formats one name-value pair, where the value is optional.
      *
      * @param buffer    the buffer to append to, or
-     *                  <code>null</code> to create a new buffer
+     *                  {@code null} to create a new buffer
      * @param nvp       the name-value pair to format
-     * @param quote     <code>true</code> to always format with a quoted value,
-     *                  <code>false</code> to use quotes only when necessary
+     * @param quote     {@code true} to always format with a quoted value,
+     *                  {@code false} to use quotes only when necessary
      *
      * @return  a buffer with the formatted name-value pair.
-     *          If the <code>buffer</code> argument was not <code>null</code>,
+     *          If the {@code buffer} argument was not {@code null},
      *          that buffer will be used and returned.
      */
     CharArrayBuffer formatNameValuePair(CharArrayBuffer buffer,

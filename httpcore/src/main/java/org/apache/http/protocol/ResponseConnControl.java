@@ -42,9 +42,9 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 
 /**
- * ResponseConnControl is responsible for adding <code>Connection</code> header
+ * ResponseConnControl is responsible for adding {@code Connection} header
  * to the outgoing responses, which is essential for managing persistence of
- * <code>HTTP/1.0</code> connections. This interceptor is recommended for
+ * {@code HTTP/1.0} connections. This interceptor is recommended for
  * server side protocol processors.
  *
  * @since 4.0

@@ -52,11 +52,11 @@ public interface NHttpClientConnection extends NHttpConnection {
     void submitRequest(HttpRequest request) throws IOException, HttpException;
 
     /**
-     * Returns <code>true</code> if an HTTP request has been submitted to the
+     * Returns {@code true} if an HTTP request has been submitted to the
      * target server.
      *
-     * @return <code>true</code> if an HTTP request has been submitted,
-     * <code>false</code> otherwise.
+     * @return {@code true} if an HTTP request has been submitted,
+     * {@code false} otherwise.
      */
     boolean isRequestSubmitted();
 

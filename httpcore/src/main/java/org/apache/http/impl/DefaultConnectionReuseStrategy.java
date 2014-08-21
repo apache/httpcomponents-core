@@ -47,15 +47,15 @@ import org.apache.http.util.Args;
  * The default implementation first checks some basics, for example
  * whether the connection is still open or whether the end of the
  * request entity can be determined without closing the connection.
- * If these checks pass, the tokens in the <code>Connection</code> header will
- * be examined. In the absence of a <code>Connection</code> header, the
- * non-standard but commonly used <code>Proxy-Connection</code> header takes
- * it's role. A token <code>close</code> indicates that the connection cannot
- * be reused. If there is no such token, a token <code>keep-alive</code>
+ * If these checks pass, the tokens in the {@code Connection} header will
+ * be examined. In the absence of a {@code Connection} header, the
+ * non-standard but commonly used {@code Proxy-Connection} header takes
+ * it's role. A token {@code close} indicates that the connection cannot
+ * be reused. If there is no such token, a token {@code keep-alive}
  * indicates that the connection should be re-used. If neither token is found,
- * or if there are no <code>Connection</code> headers, the default policy for
- * the HTTP version is applied. Since <code>HTTP/1.1</code>, connections are
- * re-used by default. Up until <code>HTTP/1.0</code>, connections are not
+ * or if there are no {@code Connection} headers, the default policy for
+ * the HTTP version is applied. Since {@code HTTP/1.1}, connections are
+ * re-used by default. Up until {@code HTTP/1.0}, connections are not
  * re-used by default.
  *
  * @since 4.0

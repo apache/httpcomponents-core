@@ -68,7 +68,7 @@ public abstract class PoolEntry<T, C> {
     /**
      * Creates new {@code PoolEntry} instance.
      *
-     * @param id unique identifier of the pool entry. May be <code>null</code>.
+     * @param id unique identifier of the pool entry. May be {@code null}.
      * @param route route to the opposite endpoint.
      * @param conn the connection.
      * @param timeToLive maximum time to live. May be zero if the connection
@@ -96,7 +96,7 @@ public abstract class PoolEntry<T, C> {
     /**
      * Creates new {@code PoolEntry} instance without an expiry deadline.
      *
-     * @param id unique identifier of the pool entry. May be <code>null</code>.
+     * @param id unique identifier of the pool entry. May be {@code null}.
      * @param route route to the opposite endpoint.
      * @param conn the connection.
      */
@@ -174,7 +174,7 @@ public abstract class PoolEntry<T, C> {
     public abstract void close();
 
     /**
-     * Returns <code>true</code> if the pool entry has been invalidated.
+     * Returns {@code true} if the pool entry has been invalidated.
      */
     public abstract boolean isClosed();
 

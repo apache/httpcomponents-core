@@ -87,7 +87,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
     /**
      * Tells that this entity does not have to be chunked.
      *
-     * @return  <code>false</code>
+     * @return  {@code false}
      */
     @Override
     public boolean isChunked() {
@@ -97,7 +97,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
     /**
      * Tells that this entity is repeatable.
      *
-     * @return  <code>true</code>
+     * @return  {@code true}
      */
     @Override
     public boolean isRepeatable() {

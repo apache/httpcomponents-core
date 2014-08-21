@@ -64,7 +64,7 @@ public class BasicTokenIterator implements TokenIterator {
 
     /**
      * The token to be returned by the next call to {@link #nextToken()}.
-     * <code>null</code> if the iteration is over.
+     * {@code null} if the iteration is over.
      */
     protected String currentToken;
 
@@ -154,7 +154,7 @@ public class BasicTokenIterator implements TokenIterator {
      * The return value indicates the position after the token
      * in {@link #currentHeader}. If necessary, the next header
      * will be obtained from {@link #headerIt}.
-     * If not found, {@link #currentToken} is set to <code>null</code>.
+     * If not found, {@link #currentToken} is set to {@code null}.
      *
      * @param pos       the position in the current header at which to
      *                  start the search, -1 to search in the first header
@@ -311,7 +311,7 @@ public class BasicTokenIterator implements TokenIterator {
      * @param from      the position of the first character of the token
      *
      * @return  the position after the last character of the token.
-     *          The behavior is undefined if <code>from</code> does not
+     *          The behavior is undefined if {@code from} does not
      *          point to a token character in the current header value.
      */
     protected int findTokenEnd(final int from) {
@@ -334,8 +334,8 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @param ch        the character to check
      *
-     * @return  <code>true</code> if the character is a token separator,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if the character is a token separator,
+     *          {@code false} otherwise
      */
     protected boolean isTokenSeparator(final char ch) {
         return (ch == ',');
@@ -350,8 +350,8 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @param ch        the character to check
      *
-     * @return  <code>true</code> if the character is whitespace,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if the character is whitespace,
+     *          {@code false} otherwise
      */
     protected boolean isWhitespace(final char ch) {
 
@@ -370,8 +370,8 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @param ch        the character to check
      *
-     * @return  <code>true</code> if the character is a valid token start,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if the character is a valid token start,
+     *          {@code false} otherwise
      */
     protected boolean isTokenChar(final char ch) {
 
@@ -408,7 +408,7 @@ public class BasicTokenIterator implements TokenIterator {
      *
      * @param ch        the character to check
      *
-     * @return  <code>true</code> if the character is an HTTP separator
+     * @return  {@code true} if the character is an HTTP separator
      */
     protected boolean isHttpSeparator(final char ch) {
         return (HTTP_SEPARATORS.indexOf(ch) >= 0);

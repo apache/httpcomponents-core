@@ -204,7 +204,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      * @param state arbitrary object that represents a particular state
      *  (usually a security principal or a unique token identifying
      *  the user whose credentials have been used while establishing the connection).
-     *  May be <code>null</code>.
+     *  May be {@code null}.
      * @return future for a leased pool entry.
      */
     public Future<E> lease(final T route, final Object state) {

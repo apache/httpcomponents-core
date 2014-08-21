@@ -46,7 +46,7 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpRespons
      * Creates an instance of DefaultHttpResponseWriter.
      *
      * @param buffer the session output buffer.
-     * @param formatter the line formatter If <code>null</code>
+     * @param formatter the line formatter If {@code null}
      *  {@link org.apache.http.message.BasicLineFormatter#INSTANCE}
      *   will be used.
      */

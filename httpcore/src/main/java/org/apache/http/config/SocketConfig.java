@@ -72,7 +72,7 @@ public class SocketConfig implements Cloneable {
     /**
      * Determines the default socket timeout value for non-blocking I/O operations.
      * <p>
-     * Default: <code>0</code> (no timeout)
+     * Default: {@code 0} (no timeout)
      * </p>
      *
      * @return the default socket timeout value for non-blocking I/O operations.
@@ -86,7 +86,7 @@ public class SocketConfig implements Cloneable {
      * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
      * for newly created sockets.
      * <p>
-     * Default: <code>false</code>
+     * Default: {@code false}
      * </p>
      *
      * @return the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter.
@@ -100,7 +100,7 @@ public class SocketConfig implements Cloneable {
      * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
      * for newly created sockets.
      * <p>
-     * Default: <code>-1</code>
+     * Default: {@code -1}
      * </p>
      *
      * @return the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter.
@@ -114,7 +114,7 @@ public class SocketConfig implements Cloneable {
      * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
      * for newly created sockets.
      * <p>
-     * Default: <code>-1</code>
+     * Default: {@code -1}
      * </p>
      *
      * @return the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter.
@@ -128,7 +128,7 @@ public class SocketConfig implements Cloneable {
      * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
      * for newly created sockets.
      * <p>
-     * Default: <code>false</code>
+     * Default: {@code false}
      * </p>
      *
      * @return the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter.
@@ -142,7 +142,7 @@ public class SocketConfig implements Cloneable {
      * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
      * for newly created sockets.
      * <p>
-     * Default: <code>0</code> (system default)
+     * Default: {@code 0} (system default)
      * </p>
      *
      * @return the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter.
@@ -157,7 +157,7 @@ public class SocketConfig implements Cloneable {
      * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
      * for newly created sockets.
      * <p>
-     * Default: <code>0</code> (system default)
+     * Default: {@code 0} (system default)
      * </p>
      *
      * @return the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter.
@@ -172,7 +172,7 @@ public class SocketConfig implements Cloneable {
      * Determines the maximum queue length for incoming connection indications
      * (a request to connect) also known as server socket backlog.
      * <p>
-     * Default: <code>0</code> (system default)
+     * Default: {@code 0} (system default)
      * </p>
      * @return the maximum queue length for incoming connection indications
      * @since 4.4

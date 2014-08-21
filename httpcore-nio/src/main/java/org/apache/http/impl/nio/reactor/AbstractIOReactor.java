@@ -204,7 +204,7 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
 
     /**
-     * Returns <code>true</code> if interest Ops queueing is enabled, <code>false</code> otherwise.
+     * Returns {@code true} if interest Ops queueing is enabled, {@code false} otherwise.
      *
      * @since 4.1
      */

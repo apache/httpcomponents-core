@@ -44,7 +44,7 @@ public interface ReasonPhraseCatalog {
      * @param status    the status code, in the range 100-599
      * @param loc       the preferred locale for the reason phrase
      *
-     * @return  the reason phrase, or <code>null</code> if unknown
+     * @return  the reason phrase, or {@code null} if unknown
      */
     String getReason(int status, Locale loc);
 

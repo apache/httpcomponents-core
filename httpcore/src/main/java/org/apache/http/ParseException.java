@@ -52,7 +52,7 @@ public class ParseException extends RuntimeException {
     /**
      * Creates a {@link ParseException} with a detail message.
      *
-     * @param message the exception detail message, or <code>null</code>
+     * @param message the exception detail message, or {@code null}
      */
     public ParseException(final String message) {
         super(message);

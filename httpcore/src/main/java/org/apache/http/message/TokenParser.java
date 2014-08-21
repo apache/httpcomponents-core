@@ -81,7 +81,7 @@ public class TokenParser {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be <code>null</code> if the token
+     * @param delimiters set of delimiting characters. Can be {@code null} if the token
      *  is not delimited by any character.
      */
     public String parseToken(final CharArrayBuffer buf, final ParserCursor cursor, final BitSet delimiters) {
@@ -112,7 +112,7 @@ public class TokenParser {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be <code>null</code> if the value
+     * @param delimiters set of delimiting characters. Can be {@code null} if the value
      *  is not delimited by any character.
      */
     public String parseValue(final CharArrayBuffer buf, final ParserCursor cursor, final BitSet delimiters) {
@@ -170,7 +170,7 @@ public class TokenParser {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be <code>null</code> if the value
+     * @param delimiters set of delimiting characters. Can be {@code null} if the value
      *  is delimited by a whitespace only.
      * @param dst destination buffer
      */
@@ -197,7 +197,7 @@ public class TokenParser {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be <code>null</code> if the value
+     * @param delimiters set of delimiting characters. Can be {@code null} if the value
      *  is delimited by a whitespace or a quote only.
      * @param dst destination buffer
      */

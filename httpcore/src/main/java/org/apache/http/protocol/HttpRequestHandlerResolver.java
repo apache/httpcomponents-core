@@ -43,7 +43,7 @@ public interface HttpRequestHandlerResolver {
      * Looks up a handler matching the given request URI.
      *
      * @param requestURI the request URI
-     * @return HTTP request handler or <code>null</code> if no match
+     * @return HTTP request handler or {@code null} if no match
      * is found.
      */
     HttpRequestHandler lookup(String requestURI);

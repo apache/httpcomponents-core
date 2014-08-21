@@ -189,17 +189,17 @@ public class NHttpConnectionBase
      * @param buffersize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
-     *   If <code>null</code> {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
+     *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
      *   will be used.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for char to byte conversion.
-     * @param constraints Message constraints. If <code>null</code>
+     *   If {@code null} simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
-     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
-     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
      *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
      *
      * @since 4.4
@@ -244,15 +244,15 @@ public class NHttpConnectionBase
      * @param buffersize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
-     *   If <code>null</code> {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
+     *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
      *   will be used.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for char to byte conversion.
-     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     *   If {@code null} simple type cast will be used for char to byte conversion.
+     * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
-     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
      *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
      *
      * @since 4.3

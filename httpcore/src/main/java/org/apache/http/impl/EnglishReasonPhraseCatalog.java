@@ -70,7 +70,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
      * @param status    the status code, in the range 100-599
      * @param loc       ignored
      *
-     * @return  the reason phrase, or <code>null</code>
+     * @return  the reason phrase, or {@code null}
      */
     @Override
     public String getReason(final int status, final Locale loc) {

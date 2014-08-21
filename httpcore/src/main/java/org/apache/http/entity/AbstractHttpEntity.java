@@ -59,7 +59,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     /**
      * Protected default constructor.
      * The contentType, contentEncoding and chunked attributes of the created object are set to
-     * <code>null</code>, <code>null</code> and <code>false</code>, respectively.
+     * {@code null}, {@code null} and {@code false}, respectively.
      */
     protected AbstractHttpEntity() {
         super();
@@ -71,7 +71,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * The default implementation returns the value of the
      * {@link #contentType contentType} attribute.
      *
-     * @return  the Content-Type header, or <code>null</code>
+     * @return  the Content-Type header, or {@code null}
      */
     @Override
     public Header getContentType() {
@@ -84,7 +84,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * The default implementation returns the value of the
      * {@link #contentEncoding contentEncoding} attribute.
      *
-     * @return  the Content-Encoding header, or <code>null</code>
+     * @return  the Content-Encoding header, or {@code null}
      */
     @Override
     public Header getContentEncoding() {
@@ -110,7 +110,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * {@link #contentType contentType} attribute.
      *
      * @param contentType       the new Content-Encoding header, or
-     *                          <code>null</code> to unset
+     *                          {@code null} to unset
      */
     public void setContentType(final Header contentType) {
         this.contentType = contentType;
@@ -122,7 +122,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * {@link #setContentType(Header) setContentType(Header)}.
      *
      * @param ctString     the new Content-Type header, or
-     *                     <code>null</code> to unset
+     *                     {@code null} to unset
      */
     public void setContentType(final String ctString) {
         Header h = null;
@@ -139,7 +139,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * {@link #contentEncoding contentEncoding} attribute.
      *
      * @param contentEncoding   the new Content-Encoding header, or
-     *                          <code>null</code> to unset
+     *                          {@code null} to unset
      */
     public void setContentEncoding(final Header contentEncoding) {
         this.contentEncoding = contentEncoding;
@@ -151,7 +151,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * {@link #setContentEncoding(Header) setContentEncoding(Header)}.
      *
      * @param ceString     the new Content-Encoding header, or
-     *                     <code>null</code> to unset
+     *                     {@code null} to unset
      */
     public void setContentEncoding(final String ceString) {
         Header h = null;

@@ -34,7 +34,7 @@ import java.nio.channels.WritableByteChannel;
 /**
  * A {@link WritableByteChannel} that delegates to a {@link ContentEncoder}.
  * Attempts to close this channel are ignored, and {@link #isOpen} always
- * returns <code>true</code>.
+ * returns {@code true}.
  *
  * @since 4.0
  */

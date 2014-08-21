@@ -42,7 +42,7 @@ import org.apache.http.util.Args;
 
 /**
  * RequestExpectContinue is responsible for enabling the 'expect-continue'
- * handshake by adding <code>Expect</code> header. This interceptor is
+ * handshake by adding {@code Expect} header. This interceptor is
  * recommended for client side protocol processors.
  *
  * @since 4.0

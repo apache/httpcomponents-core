@@ -78,8 +78,8 @@ public interface HttpAsyncExchange {
     /**
      * Determines whether or not the message exchange has been completed.
      *
-     * @return <code>true</code> if the message exchange has been completed,
-     * <code>false</code> otherwise.
+     * @return {@code true} if the message exchange has been completed,
+     * {@code false} otherwise.
      */
     boolean isCompleted();
 

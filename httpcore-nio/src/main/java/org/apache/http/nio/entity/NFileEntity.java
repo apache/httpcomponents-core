@@ -65,8 +65,8 @@ public class NFileEntity extends AbstractHttpEntity
 
     /**
      * Creates new instance of NFileEntity from the given source {@link File}
-     * with the given content type. If <code>useFileChannels</code> is set to
-     * <code>true</code>, the entity will try to use {@link FileContentEncoder}
+     * with the given content type. If {@code useFileChannels} is set to
+     * {@code true}, the entity will try to use {@link FileContentEncoder}
      * interface to stream file content directly from the file channel.
      *
      * @param file the source file.

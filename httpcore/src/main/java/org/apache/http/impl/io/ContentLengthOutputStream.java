@@ -37,7 +37,7 @@ import org.apache.http.util.Args;
 /**
  * Output stream that cuts off after a defined number of bytes. This class
  * is used to send content of HTTP messages where the end of the content entity
- * is determined by the value of the <code>Content-Length header</code>.
+ * is determined by the value of the {@code Content-Length header}.
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
  * long.
  * <p>

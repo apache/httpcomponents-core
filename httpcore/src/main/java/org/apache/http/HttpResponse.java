@@ -51,7 +51,7 @@ public interface HttpResponse extends HttpMessage {
      * {@link #setStatusLine setStatusLine} methods,
      * or it can be initialized in a constructor.
      *
-     * @return  the status line, or <code>null</code> if not yet set
+     * @return  the status line, or {@code null} if not yet set
      */
     StatusLine getStatusLine();
 
@@ -77,7 +77,7 @@ public interface HttpResponse extends HttpMessage {
      *
      * @param ver       the HTTP version
      * @param code      the status code
-     * @param reason    the reason phrase, or <code>null</code> to omit
+     * @param reason    the reason phrase, or {@code null} to omit
      */
     void setStatusLine(ProtocolVersion ver, int code, String reason);
 
@@ -100,7 +100,7 @@ public interface HttpResponse extends HttpMessage {
      * Updates the status line of this response with a new reason phrase.
      *
      * @param reason    the new reason phrase as a single-line string, or
-     *                  <code>null</code> to unset the reason phrase
+     *                  {@code null} to unset the reason phrase
      *
      * @throws IllegalStateException
      *          if the status line has not be set
@@ -116,7 +116,7 @@ public interface HttpResponse extends HttpMessage {
      * The entity is provided by calling {@link #setEntity setEntity}.
      *
      * @return  the response entity, or
-     *          <code>null</code> if there is none
+     *          {@code null} if there is none
      */
     HttpEntity getEntity();
 
@@ -124,11 +124,11 @@ public interface HttpResponse extends HttpMessage {
      * Associates a response entity with this response.
      * <p/>
      * Please note that if an entity has already been set for this response and it depends on
-     * an input stream ({@link HttpEntity#isStreaming()} returns <code>true</code>),
+     * an input stream ({@link HttpEntity#isStreaming()} returns {@code true}),
      * it must be fully consumed in order to ensure release of resources.
      *
      * @param entity    the entity to associate with this response, or
-     *                  <code>null</code> to unset
+     *                  {@code null} to unset
      *
      * @see HttpEntity#isStreaming()
      * @see org.apache.http.util.EntityUtils#updateEntity(HttpResponse, HttpEntity)
@@ -141,7 +141,7 @@ public interface HttpResponse extends HttpMessage {
      * for the {@link #setStatusCode status code}.
      * It can be changed using {@link #setLocale setLocale}.
      *
-     * @return  the locale of this response, never <code>null</code>
+     * @return  the locale of this response, never {@code null}
      */
     Locale getLocale();
 

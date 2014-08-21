@@ -72,7 +72,7 @@ public interface HttpRequestInterceptorList {
      *                  0 for first
      *
      * @return  the interceptor at the given index, or
-     *          <code>null</code> if the index is out of range
+     *          {@code null} if the index is out of range
      */
     HttpRequestInterceptor getRequestInterceptor(int index);
 

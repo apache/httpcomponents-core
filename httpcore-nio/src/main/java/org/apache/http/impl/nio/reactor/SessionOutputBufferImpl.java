@@ -72,11 +72,11 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      *
      * @param buffersize input buffer size
      * @param lineBuffersize buffer size for line operations. Has effect only if
-     *   <code>charencoder</code> is not <code>null</code>.
+     *   {@code charencoder} is not {@code null}.
      * @param charencoder charencoder to be used for encoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param allocator memory allocator.
-     *   If <code>null</code> {@link HeapByteBufferAllocator#INSTANCE} will be used.
+     *   If {@code null} {@link HeapByteBufferAllocator#INSTANCE} will be used.
      *
      * @since 4.3
      */

@@ -46,7 +46,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#SO_TIMEOUT} parameter.
-     * If not set, defaults to <code>0</code>.
+     * If not set, defaults to {@code 0}.
      *
      * @param params HTTP parameters.
      * @return SO_TIMEOUT.
@@ -70,7 +70,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#SO_REUSEADDR} parameter.
-     * If not set, defaults to <code>false</code>.
+     * If not set, defaults to {@code false}.
      *
      * @param params HTTP parameters.
      * @return SO_REUSEADDR.
@@ -97,7 +97,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#TCP_NODELAY} parameter.
-     * If not set, defaults to <code>true</code>.
+     * If not set, defaults to {@code true}.
      *
      * @param params HTTP parameters.
      * @return Nagle's algorithm flag
@@ -120,7 +120,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#SOCKET_BUFFER_SIZE}
-     * parameter. If not set, defaults to <code>-1</code>.
+     * parameter. If not set, defaults to {@code -1}.
      *
      * @param params HTTP parameters.
      * @return socket buffer size
@@ -144,7 +144,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#SO_LINGER} parameter.
-     * If not set, defaults to <code>-1</code>.
+     * If not set, defaults to {@code -1}.
      *
      * @param params HTTP parameters.
      * @return SO_LINGER.
@@ -167,7 +167,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#CONNECTION_TIMEOUT}
-     * parameter. If not set, defaults to <code>0</code>.
+     * parameter. If not set, defaults to {@code 0}.
      *
      * @param params HTTP parameters.
      * @return connect timeout.
@@ -191,7 +191,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#STALE_CONNECTION_CHECK}
-     * parameter. If not set, defaults to <code>true</code>.
+     * parameter. If not set, defaults to {@code true}.
      *
      * @param params HTTP parameters.
      * @return stale connection check flag.
@@ -215,7 +215,7 @@ public final class HttpConnectionParams implements CoreConnectionPNames {
 
     /**
      * Obtains value of the {@link CoreConnectionPNames#SO_KEEPALIVE} parameter.
-     * If not set, defaults to <code>false</code>.
+     * If not set, defaults to {@code false}.
      *
      * @param params HTTP parameters.
      * @return SO_KEEPALIVE.

@@ -104,7 +104,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * @param sslMode SSL mode (client or server)
      * @param host original host (applicable in client mode only)
      * @param sslContext SSL context to use for this I/O session.
-     * @param handler optional SSL setup handler. May be <code>null</code>.
+     * @param handler optional SSL setup handler. May be {@code null}.
      *
      * @since 4.4
      */
@@ -124,7 +124,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * @param sslMode SSL mode (client or server)
      * @param host original host (applicable in client mode only)
      * @param sslContext SSL context to use for this I/O session.
-     * @param handler optional SSL setup handler. May be <code>null</code>.
+     * @param handler optional SSL setup handler. May be {@code null}.
      * @param bufferManagementStrategy buffer management strategy
      */
     public SSLIOSession(
@@ -170,7 +170,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
      * @param sslMode SSL mode (client or server)
      * @param sslContext SSL context to use for this I/O session.
-     * @param handler optional SSL setup handler. May be <code>null</code>.
+     * @param handler optional SSL setup handler. May be {@code null}.
      */
     public SSLIOSession(
             final IOSession session,
@@ -185,8 +185,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     /**
-     * Returns <code>true</code> is the session has been fully initialized,
-     * <code>false</code> otherwise.
+     * Returns {@code true} is the session has been fully initialized,
+     * {@code false} otherwise.
      */
     public boolean isInitialized() {
         return this.initialized;

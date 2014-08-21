@@ -56,8 +56,8 @@ public interface HttpParams {
      * @param name the parent name.
      *
      * @return  an object that represents the value of the parameter,
-     *          <code>null</code> if the parameter is not set or if it
-     *          is explicitly set to <code>null</code>
+     *          {@code null} if the parameter is not set or if it
+     *          is explicitly set to {@code null}
      *
      * @see #setParameter(String, Object)
      */
@@ -172,23 +172,23 @@ public interface HttpParams {
     HttpParams setBooleanParameter(String name, boolean value);
 
     /**
-     * Checks if a boolean parameter is set to <code>true</code>.
+     * Checks if a boolean parameter is set to {@code true}.
      *
      * @param name parameter name
      *
      * @return {@code true</tt> if the parameter is set to value <tt>true},
-     *         {@code false} if it is not set or set to <code>false</code>
+     *         {@code false} if it is not set or set to {@code false}
      */
     boolean isParameterTrue(String name);
 
     /**
-     * Checks if a boolean parameter is not set or <code>false</code>.
+     * Checks if a boolean parameter is not set or {@code false}.
      *
      * @param name parameter name
      *
      * @return {@code true} if the parameter is either not set or
      *         set to value {@code false},
-     *         {@code false} if it is set to <code>true</code>
+     *         {@code false} if it is set to {@code true}
      */
     boolean isParameterFalse(String name);
 

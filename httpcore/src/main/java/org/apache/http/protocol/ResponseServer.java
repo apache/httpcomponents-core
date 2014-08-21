@@ -36,7 +36,7 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 
 /**
- * ResponseServer is responsible for adding <code>Server</code> header. This
+ * ResponseServer is responsible for adding {@code Server} header. This
  * interceptor is recommended for server side protocol processors.
  *
  * @since 4.0

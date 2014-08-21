@@ -138,14 +138,14 @@ public interface IOSession {
     /**
      * Determines if the session has been terminated.
      *
-     * @return <code>true</code> if the session has been terminated,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if the session has been terminated,
+     *   {@code false} otherwise.
      */
     boolean isClosed();
 
     /**
      * Returns value of the socket timeout in milliseconds. The value of
-     * <code>0</code> signifies the session cannot time out.
+     * {@code 0} signifies the session cannot time out.
      *
      * @return socket timeout.
      */
@@ -153,7 +153,7 @@ public interface IOSession {
 
     /**
      * Sets value of the socket timeout in milliseconds. The value of
-     * <code>0</code> signifies the session cannot time out.
+     * {@code 0} signifies the session cannot time out.
      *
      * @param timeout socket timeout.
      */
@@ -180,8 +180,8 @@ public interface IOSession {
     /**
      * Determines if the input buffer associated with the session contains data.
      *
-     * @return <code>true</code> if the session input buffer contains data,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if the session input buffer contains data,
+     *   {@code false} otherwise.
      */
     boolean hasBufferedInput();
 
@@ -189,8 +189,8 @@ public interface IOSession {
      * Determines if the output buffer associated with the session contains
      * data.
      *
-     * @return <code>true</code> if the session output buffer contains data,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if the session output buffer contains data,
+     *   {@code false} otherwise.
      */
     boolean hasBufferedOutput();
 
@@ -209,7 +209,7 @@ public interface IOSession {
 
     /**
      * Returns the value of the attribute with the given name. The value can be
-     * <code>null</code> if not set.
+     * {@code null} if not set.
      * <p>
      * The value of the session attachment object can be obtained using
      * {@link #ATTACHMENT_KEY} name.

@@ -62,10 +62,10 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      *
      * @param statusline        the status line
      * @param catalog           the reason phrase catalog, or
-     *                          <code>null</code> to disable automatic
+     *                          {@code null} to disable automatic
      *                          reason phrase lookup
      * @param locale            the locale for looking up reason phrases, or
-     *                          <code>null</code> for the system locale
+     *                          {@code null} for the system locale
      */
     public BasicHttpResponse(final StatusLine statusline,
                              final ReasonPhraseCatalog catalog,
@@ -104,7 +104,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      * @param ver       the protocol version of the response
      * @param code      the status code of the response
      * @param reason    the reason phrase to the status code, or
-     *                  <code>null</code>
+     *                  {@code null}
      */
     public BasicHttpResponse(final ProtocolVersion ver,
                              final int code,
@@ -214,7 +214,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
      *
      * @param code      the status code for which to look up the reason
      *
-     * @return  the reason phrase, or <code>null</code> if there is none
+     * @return  the reason phrase, or {@code null} if there is none
      */
     protected String getReason(final int code) {
         return this.reasonCatalog != null ? this.reasonCatalog.getReason(code,

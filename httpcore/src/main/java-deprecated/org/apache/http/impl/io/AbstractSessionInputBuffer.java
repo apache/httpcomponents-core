@@ -236,7 +236,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
      * session buffer into the given line buffer. The number of chars actually
      * read is returned as an integer. The line delimiter itself is discarded.
      * If no char is available because the end of the stream has been reached,
-     * the value <code>-1</code> is returned. This method blocks until input
+     * the value {@code -1} is returned. This method blocks until input
      * data is available, end of file is detected, or an exception is thrown.
      * <p>
      * This method treats a lone LF as a valid line delimiters in addition
@@ -290,7 +290,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
      * Reads a complete line of characters up to a line delimiter from this
      * session buffer. The line delimiter itself is discarded. If no char is
      * available because the end of the stream has been reached,
-     * <code>null</code> is returned. This method blocks until input data is
+     * {@code null} is returned. This method blocks until input data is
      * available, end of file is detected, or an exception is thrown.
      * <p>
      * This method treats a lone LF as a valid line delimiters in addition

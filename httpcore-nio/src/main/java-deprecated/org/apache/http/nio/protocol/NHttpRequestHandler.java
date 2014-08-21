@@ -55,7 +55,7 @@ public interface NHttpRequestHandler {
     /**
      * Triggered when a request is received with an entity. This method should
      * return a {@link ConsumingNHttpEntity} that will be used to consume the
-     * entity. <code>null</code> is a valid response value, and will indicate
+     * entity. {@code null} is a valid response value, and will indicate
      * that the entity should be silently ignored.
      * <p>
      * After the entity is fully consumed,

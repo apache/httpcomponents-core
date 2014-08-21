@@ -49,7 +49,7 @@ public class ChannelEntry {
      * Creates new ChannelEntry.
      *
      * @param channel the channel
-     * @param sessionRequest original session request. Can be <code>null</code>
+     * @param sessionRequest original session request. Can be {@code null}
      *   if the channel represents an incoming server-side connection.
      */
     public ChannelEntry(final SocketChannel channel, final SessionRequestImpl sessionRequest) {
@@ -71,10 +71,10 @@ public class ChannelEntry {
     /**
      * Returns the original session request, if available. If the channel
      * entry represents an incoming server-side connection, returns
-     * <code>null</code>.
+     * {@code null}.
      *
      * @return the original session request, if client-side channel,
-     *  <code>null</code> otherwise.
+     *  {@code null} otherwise.
      */
     public SessionRequestImpl getSessionRequest() {
         return this.sessionRequest;
@@ -84,7 +84,7 @@ public class ChannelEntry {
      * Returns the original session request attachment, if available.
      *
      * @return the original session request attachment, if available,
-     *  <code>null</code> otherwise.
+     *  {@code null} otherwise.
      */
     public Object getAttachment() {
         if (this.sessionRequest != null) {

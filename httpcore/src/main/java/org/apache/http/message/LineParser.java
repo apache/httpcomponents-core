@@ -78,9 +78,9 @@ public interface LineParser {
      *                  whitespace before or after the protocol version is
      *                  implementation dependent.
      *
-     * @return  <code>true</code> if there is a protocol version at the
+     * @return  {@code true} if there is a protocol version at the
      *          argument index (possibly ignoring whitespace),
-     *          <code>false</code> otherwise
+     *          {@code false} otherwise
      */
     boolean hasProtocolVersion(
             CharArrayBuffer buffer,

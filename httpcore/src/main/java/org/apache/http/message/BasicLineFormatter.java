@@ -71,7 +71,7 @@ public class BasicLineFormatter implements LineFormatter {
     /**
      * Obtains a buffer for formatting.
      *
-     * @param charBuffer a buffer already available, or <code>null</code>
+     * @param charBuffer a buffer already available, or {@code null}
      *
      * @return  the cleared argument buffer if there is one, or
      *          a new empty buffer that can be used for formatting
@@ -92,7 +92,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @param version           the protocol version to format
      * @param formatter         the formatter to use, or
-     *                          <code>null</code> for the
+     *                          {@code null} for the
      *                          {@link #INSTANCE default}
      *
      * @return  the formatted protocol version
@@ -133,7 +133,7 @@ public class BasicLineFormatter implements LineFormatter {
      * Guesses the length of a formatted protocol version.
      * Needed to guess the length of a formatted request or status line.
      *
-     * @param version   the protocol version to format, or <code>null</code>
+     * @param version   the protocol version to format, or {@code null}
      *
      * @return  the estimated length of the formatted protocol version,
      *          in characters
@@ -148,7 +148,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @param reqline           the request line to format
      * @param formatter         the formatter to use, or
-     *                          <code>null</code> for the
+     *                          {@code null} for the
      *                          {@link #INSTANCE default}
      *
      * @return  the formatted request line
@@ -177,8 +177,8 @@ public class BasicLineFormatter implements LineFormatter {
      * Called from {@link #formatRequestLine}.
      *
      * @param buffer    the empty buffer into which to format,
-     *                  never <code>null</code>
-     * @param reqline   the request line to format, never <code>null</code>
+     *                  never {@code null}
+     * @param reqline   the request line to format, never {@code null}
      */
     protected void doFormatRequestLine(final CharArrayBuffer buffer,
                                        final RequestLine reqline) {
@@ -204,7 +204,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @param statline          the status line to format
      * @param formatter         the formatter to use, or
-     *                          <code>null</code> for the
+     *                          {@code null} for the
      *                          {@link #INSTANCE default}
      *
      * @return  the formatted status line
@@ -233,8 +233,8 @@ public class BasicLineFormatter implements LineFormatter {
      * Called from {@link #formatStatusLine}.
      *
      * @param buffer    the empty buffer into which to format,
-     *                  never <code>null</code>
-     * @param statline  the status line to format, never <code>null</code>
+     *                  never {@code null}
+     * @param statline  the status line to format, never {@code null}
      */
     protected void doFormatStatusLine(final CharArrayBuffer buffer,
                                       final StatusLine statline) {
@@ -262,7 +262,7 @@ public class BasicLineFormatter implements LineFormatter {
      *
      * @param header            the header to format
      * @param formatter         the formatter to use, or
-     *                          <code>null</code> for the
+     *                          {@code null} for the
      *                          {@link #INSTANCE default}
      *
      * @return  the formatted header
@@ -298,8 +298,8 @@ public class BasicLineFormatter implements LineFormatter {
      * Called from {@link #formatHeader}.
      *
      * @param buffer    the empty buffer into which to format,
-     *                  never <code>null</code>
-     * @param header    the header to format, never <code>null</code>
+     *                  never {@code null}
+     * @param header    the header to format, never {@code null}
      */
     protected void doFormatHeader(final CharArrayBuffer buffer,
                                   final Header header) {

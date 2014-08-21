@@ -47,9 +47,9 @@ public interface ListenerEndpoint {
 
     /**
      * Returns an instance of {@link IOException} thrown during initialization
-     * of this endpoint or <code>null</code>, if initialization was successful.
+     * of this endpoint or {@code null}, if initialization was successful.
      *
-     * @return I/O exception object or <code>null</code>.
+     * @return I/O exception object or {@code null}.
      */
     IOException getException();
 
@@ -65,8 +65,8 @@ public interface ListenerEndpoint {
      * Determines if this endpoint has been closed and is no longer listens
      * for incoming connections.
      *
-     * @return <code>true</code> if the endpoint has been closed,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if the endpoint has been closed,
+     *   {@code false} otherwise.
      */
     boolean isClosed();
 

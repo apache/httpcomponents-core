@@ -39,9 +39,9 @@ import org.apache.http.util.Args;
  * <br>
  * Patterns may have three formats:
  * <ul>
- *   <li><code>*</code></li>
- *   <li><code>*&lt;uri&gt;</code></li>
- *   <li><code>&lt;uri&gt;*</code></li>
+ *   <li>{@code *}</li>
+ *   <li>{@code *&lt;uri&gt;}</li>
+ *   <li>{@code &lt;uri&gt;*}</li>
  * </ul>
  * <br>
  * This class can be used to resolve an object matching a particular request
@@ -115,7 +115,7 @@ public class UriPatternMatcher<T> {
      * Looks up an object matching the given request path.
      *
      * @param path the request path
-     * @return object or <code>null</code> if no match is found.
+     * @return object or {@code null} if no match is found.
      */
     public synchronized T lookup(final String path) {
         Args.notNull(path, "Request path");
@@ -144,8 +144,8 @@ public class UriPatternMatcher<T> {
      *
      * @param pattern the pattern
      * @param path the request path
-     * @return <code>true</code> if the request URI matches the pattern,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if the request URI matches the pattern,
+     *   {@code false} otherwise.
      */
     protected boolean matchUriRequestPattern(final String pattern, final String path) {
         if (pattern.equals("*")) {

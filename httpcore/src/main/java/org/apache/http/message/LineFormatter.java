@@ -48,7 +48,7 @@ import org.apache.http.util.CharArrayBuffer;
  * a buffer can be passed as argument to all formatting methods.
  * The implementation may or may not actually use that buffer for formatting.
  * If it is used, the buffer will first be cleared by the
- * <code>formatXXX</code> methods.
+ * {@code formatXXX} methods.
  * The argument buffer can always be re-used after the call. The buffer
  * returned as the result, if it is different from the argument buffer,
  * MUST NOT be modified.
@@ -61,18 +61,18 @@ public interface LineFormatter {
     /**
      * Formats a protocol version.
      * This method does <i>not</i> follow the general contract for
-     * <code>buffer</code> arguments.
+     * {@code buffer} arguments.
      * It does <i>not</i> clear the argument buffer, but appends instead.
      * The returned buffer can always be modified by the caller.
      * Because of these differing conventions, it is not named
-     * <code>formatProtocolVersion</code>.
+     * {@code formatProtocolVersion}.
      *
-     * @param buffer    a buffer to which to append, or <code>null</code>
+     * @param buffer    a buffer to which to append, or {@code null}
      * @param version   the protocol version to format
      *
      * @return  a buffer with the formatted protocol version appended.
      *          The caller is allowed to modify the result buffer.
-     *          If the <code>buffer</code> argument is not <code>null</code>,
+     *          If the {@code buffer} argument is not {@code null},
      *          the returned buffer is the argument buffer.
      */
     CharArrayBuffer appendProtocolVersion(CharArrayBuffer buffer,
@@ -82,7 +82,7 @@ public interface LineFormatter {
      * Formats a request line.
      *
      * @param buffer    a buffer available for formatting, or
-     *                  <code>null</code>.
+     *                  {@code null}.
      *                  The buffer will be cleared before use.
      * @param reqline   the request line to format
      *
@@ -95,7 +95,7 @@ public interface LineFormatter {
      * Formats a status line.
      *
      * @param buffer    a buffer available for formatting, or
-     *                  <code>null</code>.
+     *                  {@code null}.
      *                  The buffer will be cleared before use.
      * @param statline  the status line to format
      *
@@ -117,11 +117,11 @@ public interface LineFormatter {
      * </p>
      *
      * @param buffer    a buffer available for formatting, or
-     *                  <code>null</code>.
+     *                  {@code null}.
      *                  The buffer will be cleared before use.
      * @param header    the header to format
      *
-     * @return  a buffer holding the formatted header, never <code>null</code>.
+     * @return  a buffer holding the formatted header, never {@code null}.
      *          The returned buffer may be different from the argument buffer.
      *
      * @throws org.apache.http.ParseException        in case of a parse error

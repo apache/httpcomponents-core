@@ -94,7 +94,7 @@ public interface HttpAsyncRequestConsumer<T> extends Closeable {
 
     /**
      * Returns an exception in case of an abnormal termination. This method
-     * returns <code>null</code> if the request execution is still ongoing
+     * returns {@code null} if the request execution is still ongoing
      * or if it completed successfully.
      *
      * @see #isDone()
@@ -103,7 +103,7 @@ public interface HttpAsyncRequestConsumer<T> extends Closeable {
 
     /**
      * Returns a result of the request execution, when available. This method
-     * returns <code>null</code> if the request execution is still ongoing.
+     * returns {@code null} if the request execution is still ongoing.
      *
      * @see #isDone()
      */

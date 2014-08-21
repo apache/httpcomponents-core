@@ -100,9 +100,9 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
      * The implementation in this class always returns the default locale.
      *
      * @param context   the context from which to determine the locale, or
-     *                  <code>null</code> to use the default locale
+     *                  {@code null} to use the default locale
      *
-     * @return  the locale for the response, never <code>null</code>
+     * @return  the locale for the response, never {@code null}
      */
     protected Locale determineLocale(final HttpContext context) {
         return Locale.getDefault();

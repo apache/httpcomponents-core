@@ -42,7 +42,7 @@ public interface HeaderValueParser {
 
     /**
      * Parses a header value into elements.
-     * Parse errors are indicated as <code>RuntimeException</code>.
+     * Parse errors are indicated as {@code RuntimeException}.
      * <p>
      * Some HTTP headers (such as the set-cookie header) have values that
      * can be decomposed into multiple elements. In order to be processed
@@ -101,7 +101,7 @@ public interface HeaderValueParser {
     /**
      * Parses a list of name-value pairs.
      * These lists are used to specify parameters to a header element.
-     * Parse errors are indicated as <code>ParseException</code>.
+     * Parse errors are indicated as {@code ParseException}.
      *
      * @param buffer    buffer holding the name-value list to parse
      * @param cursor    the parser cursor containing the current position and
@@ -123,7 +123,7 @@ public interface HeaderValueParser {
      * @param cursor    the parser cursor containing the current position and
      *                  the bounds within the buffer for the parsing operation
      *
-     * @return  the name-value pair, where the value is <code>null</code>
+     * @return  the name-value pair, where the value is {@code null}
      *          if no value is specified
      */
     NameValuePair parseNameValuePair(

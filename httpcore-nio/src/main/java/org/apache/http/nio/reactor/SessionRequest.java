@@ -75,18 +75,18 @@ public interface SessionRequest {
 
     /**
      * Returns {@link IOSession} instance created as a result of this request
-     * or <code>null</code> if the request is still pending.
+     * or {@code null} if the request is still pending.
      *
-     * @return I/O session or <code>null</code> if the request is still pending.
+     * @return I/O session or {@code null} if the request is still pending.
      */
     IOSession getSession();
 
     /**
      * Returns {@link IOException} instance if the request could not be
-     * successfully executed due to an I/O error or <code>null</code> if no
+     * successfully executed due to an I/O error or {@code null} if no
      * error occurred to this point.
      *
-     * @return I/O exception or <code>null</code> if no error occurred to
+     * @return I/O exception or {@code null} if no error occurred to
      * this point.
      */
     IOException getException();

@@ -36,9 +36,9 @@ import org.apache.http.util.Args;
  * <br>
  * Patterns may have three formats:
  * <ul>
- *   <li><code>*</code></li>
- *   <li><code>*&lt;uri&gt;</code></li>
- *   <li><code>&lt;uri&gt;*</code></li>
+ *   <li>{@code *}</li>
+ *   <li>{@code *&lt;uri&gt;}</li>
+ *   <li>{@code &lt;uri&gt;*}</li>
  * </ul>
  * <br>
  * This class can be used to map an instance of
@@ -105,7 +105,7 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
      * Looks up a handler matching the given request URI.
      *
      * @param request the request
-     * @return handler or <code>null</code> if no match is found.
+     * @return handler or {@code null} if no match is found.
      */
     @Override
     public HttpRequestHandler lookup(final HttpRequest request) {

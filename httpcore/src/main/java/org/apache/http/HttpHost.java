@@ -70,9 +70,9 @@ public final class HttpHost implements Cloneable, Serializable {
      *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
-     *                  <code>-1</code> indicates the scheme default port.
+     *                  {@code -1} indicates the scheme default port.
      * @param scheme    the name of the scheme.
-     *                  <code>null</code> indicates the
+     *                  {@code null} indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
      */
     public HttpHost(final String hostname, final int port, final String scheme) {
@@ -93,7 +93,7 @@ public final class HttpHost implements Cloneable, Serializable {
      *
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
-     *                  <code>-1</code> indicates the scheme default port.
+     *                  {@code -1} indicates the scheme default port.
      */
     public HttpHost(final String hostname, final int port) {
         this(hostname, port, null);
@@ -140,9 +140,9 @@ public final class HttpHost implements Cloneable, Serializable {
      *
      * @param address   the inet address.
      * @param port      the port number.
-     *                  <code>-1</code> indicates the scheme default port.
+     *                  {@code -1} indicates the scheme default port.
      * @param scheme    the name of the scheme.
-     *                  <code>null</code> indicates the
+     *                  {@code null} indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
      *
      * @since 4.3
@@ -157,9 +157,9 @@ public final class HttpHost implements Cloneable, Serializable {
      * @param address   the inet address.
      * @param hostname   the hostname (IP or DNS name)
      * @param port      the port number.
-     *                  <code>-1</code> indicates the scheme default port.
+     *                  {@code -1} indicates the scheme default port.
      * @param scheme    the name of the scheme.
-     *                  <code>null</code> indicates the
+     *                  {@code null} indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
      *
      * @since 4.4
@@ -183,7 +183,7 @@ public final class HttpHost implements Cloneable, Serializable {
      *
      * @param address   the inet address.
      * @param port      the port number.
-     *                  <code>-1</code> indicates the scheme default port.
+     *                  {@code -1} indicates the scheme default port.
      *
      * @since 4.3
      */
@@ -230,7 +230,7 @@ public final class HttpHost implements Cloneable, Serializable {
     /**
      * Returns the port.
      *
-     * @return the host port, or <code>-1</code> if not set
+     * @return the host port, or {@code -1} if not set
      */
     public int getPort() {
         return this.port;
@@ -247,7 +247,7 @@ public final class HttpHost implements Cloneable, Serializable {
 
     /**
      * Returns the inet address if explicitly set by a constructor,
-     *   <code>null</code> otherwise.
+     *   {@code null} otherwise.
      * @return the inet address
      *
      * @since 4.3
@@ -277,7 +277,7 @@ public final class HttpHost implements Cloneable, Serializable {
     /**
      * Obtains the host string, without scheme prefix.
      *
-     * @return  the host string, for example <code>localhost:8080</code>
+     * @return  the host string, for example {@code localhost:8080}
      */
     public String toHostString() {
         if (this.port != -1) {

@@ -83,7 +83,7 @@ public class BasicLineParser implements LineParser {
      * Creates a new line parser for the given HTTP-like protocol.
      *
      * @param proto     a version of the protocol to parse, or
-     *                  <code>null</code> for HTTP. The actual version
+     *                  {@code null} for HTTP. The actual version
      *                  is not relevant, only the protocol name.
      */
     public BasicLineParser(final ProtocolVersion proto) {

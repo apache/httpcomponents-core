@@ -57,23 +57,23 @@ public interface ContentInputBuffer {
     void reset();
 
     /**
-     * Reads up to <code>len</code> bytes of data from this buffer into
+     * Reads up to {@code len} bytes of data from this buffer into
      * an array of bytes. The exact number of bytes read depends how many bytes
      * are stored in the buffer.
      *
-     * <p> If <code>off</code> is negative, or <code>len</code> is negative, or
-     * <code>off+len</code> is greater than the length of the array
-     * <code>b</code>, this method can throw a runtime exception. The exact type
+     * <p> If {@code off} is negative, or {@code len} is negative, or
+     * {@code off+len} is greater than the length of the array
+     * {@code b}, this method can throw a runtime exception. The exact type
      * of runtime exception thrown by this method depends on implementation.
-     * This method returns <code>-1</code> if the end of content stream has been
+     * This method returns {@code -1} if the end of content stream has been
      * reached.
      *
      * @param      b     the buffer into which the data is read.
-     * @param      off   the start offset in array <code>b</code>
+     * @param      off   the start offset in array {@code b}
      *                   at which the data is written.
      * @param      len   the maximum number of bytes to read.
      * @return     the total number of bytes read into the buffer, or
-     *             <code>-1</code> if there is no more data because the end of
+     *             {@code -1} if there is no more data because the end of
      *             the stream has been reached.
      * @exception  IOException  if an I/O error occurs.
      */
@@ -83,7 +83,7 @@ public interface ContentInputBuffer {
      * Reads one byte from this buffer. If the buffer is empty this method can
      * throw a runtime exception. The exact type of runtime exception thrown
      * by this method depends on implementation. This method returns
-     * <code>-1</code> if the end of content stream has been reached.
+     * {@code -1} if the end of content stream has been reached.
      *
      * @return one byte
      */

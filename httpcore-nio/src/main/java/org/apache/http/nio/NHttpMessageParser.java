@@ -60,9 +60,9 @@ public interface NHttpMessageParser<T extends HttpMessage> {
     /**
      * Attempts to parse a complete message head from the content of the
      * internal buffer. If the message in the input buffer is incomplete
-     * this method will return <code>null</code>.
+     * this method will return {@code null}.
      *
-     * @return HTTP message head, if available, <code>null</code> otherwise.
+     * @return HTTP message head, if available, {@code null} otherwise.
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case the HTTP message is malformed or
      *  violates the HTTP protocol.

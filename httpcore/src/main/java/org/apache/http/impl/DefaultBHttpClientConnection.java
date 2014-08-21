@@ -70,18 +70,18 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
      * @param buffersize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for char to byte conversion.
-     * @param constraints Message constraints. If <code>null</code>
+     *   If {@code null} simple type cast will be used for char to byte conversion.
+     * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
-     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
-     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
      *   {@link org.apache.http.impl.entity.StrictContentLengthStrategy#INSTANCE} will be used.
-     * @param requestWriterFactory request writer factory. If <code>null</code>
+     * @param requestWriterFactory request writer factory. If {@code null}
      *   {@link DefaultHttpRequestWriterFactory#INSTANCE} will be used.
-     * @param responseParserFactory response parser factory. If <code>null</code>
+     * @param responseParserFactory response parser factory. If {@code null}
      *   {@link DefaultHttpResponseParserFactory#INSTANCE} will be used.
      */
     public DefaultBHttpClientConnection(

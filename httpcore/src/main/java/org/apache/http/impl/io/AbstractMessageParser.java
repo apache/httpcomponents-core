@@ -98,9 +98,9 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * Creates new instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
-     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE}
+     * @param lineParser the line parser. If {@code null} {@link BasicLineParser#INSTANCE}
      *   will be used.
-     * @param constraints the message constraints. If <code>null</code>
+     * @param constraints the message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
      * @since 4.3
@@ -130,7 +130,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      *  including the continuation lines. Setting this parameter to a negative
      *  value or zero will disable the check.
      * @return array of HTTP headers
-     * @param parser line parser to use. Can be <code>null</code>, in which case
+     * @param parser line parser to use. Can be {@code null}, in which case
      *  the default implementation of this interface will be used.
      *
      * @throws IOException in case of an I/O error

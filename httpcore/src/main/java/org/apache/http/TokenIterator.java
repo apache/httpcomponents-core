@@ -42,8 +42,8 @@ public interface TokenIterator extends Iterator<Object> {
     /**
      * Indicates whether there is another token in this iteration.
      *
-     * @return  <code>true</code> if there is another token,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if there is another token,
+     *          {@code false} otherwise
      */
     @Override
     boolean hasNext();

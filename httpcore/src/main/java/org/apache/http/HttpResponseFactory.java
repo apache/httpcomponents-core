@@ -43,7 +43,7 @@ public interface HttpResponseFactory {
      * @param status    the status code
      * @param context   the context from which to determine the locale
      *                  for looking up a reason phrase to the status code, or
-     *                  <code>null</code> to use the default locale
+     *                  {@code null} to use the default locale
      *
      * @return  the new response with an initialized status line
      */
@@ -57,7 +57,7 @@ public interface HttpResponseFactory {
      * @param context    the context from which to determine the locale
      *                   for looking up a reason phrase if the status code
      *                   is updated, or
-     *                   <code>null</code> to use the default locale
+     *                   {@code null} to use the default locale
      *
      * @return  the new response with the argument status line
      */

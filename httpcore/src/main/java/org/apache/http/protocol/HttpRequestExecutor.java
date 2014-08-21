@@ -182,7 +182,7 @@ public class HttpRequestExecutor {
      *
      * @return  a terminal response received as part of an expect-continue
      *          handshake, or
-     *          <code>null</code> if the expect-continue handshake is not used
+     *          {@code null} if the expect-continue handshake is not used
      *
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case of HTTP protocol violation or a processing

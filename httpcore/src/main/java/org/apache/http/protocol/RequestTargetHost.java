@@ -43,7 +43,7 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 
 /**
- * RequestTargetHost is responsible for adding <code>Host</code> header. This
+ * RequestTargetHost is responsible for adding {@code Host} header. This
  * interceptor is required for client side protocol processors.
  *
  * @since 4.0

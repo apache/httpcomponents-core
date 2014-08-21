@@ -167,12 +167,12 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor.
-     * @param connStrategy Connection re-use strategy. If <code>null</code>
+     * @param connStrategy Connection re-use strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
-     * @param responseFactory HTTP response factory. If <code>null</code>
+     * @param responseFactory HTTP response factory. If {@code null}
      *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
      * @param handlerMapper Request handler mapper.
-     * @param expectationVerifier Request expectation verifier. May be <code>null</code>.
+     * @param expectationVerifier Request expectation verifier. May be {@code null}.
      *
      * @since 4.3
      */
@@ -189,13 +189,13 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
      *
      * @param httpProcessor HTTP protocol processor.
-     * @param connStrategy Connection re-use strategy. If <code>null</code>
+     * @param connStrategy Connection re-use strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
-     * @param responseFactory HTTP response factory. If <code>null</code>
+     * @param responseFactory HTTP response factory. If {@code null}
      *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
      * @param handlerMapper Request handler mapper.
-     * @param expectationVerifier Request expectation verifier. May be <code>null</code>.
-     * @param exceptionLogger Exception logger. If <code>null</code>
+     * @param expectationVerifier Request expectation verifier. May be {@code null}.
+     * @param exceptionLogger Exception logger. If {@code null}
      *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
      *   {@link java.io.Closeable} objects (such as {@link org.apache.http.HttpConnection}).
@@ -239,7 +239,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      *
      * @param httpProcessor HTTP protocol processor.
      * @param handlerMapper Request handler mapper.
-     * @param exceptionLogger Exception logger. If <code>null</code>
+     * @param exceptionLogger Exception logger. If {@code null}
      *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
      *   {@link java.io.Closeable} objects (such as {@link org.apache.http.HttpConnection}).

@@ -64,7 +64,7 @@ public interface HttpConnectionMetrics {
      *@param metricName the name of the metric to query.
      *
      *@return the object representing the metric requested,
-     *        <code>null</code> if the metric cannot not found.
+     *        {@code null} if the metric cannot not found.
      */
     Object getMetric(String metricName);
 

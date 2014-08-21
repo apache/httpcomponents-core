@@ -45,11 +45,11 @@ public final class ExceptionUtils {
     /**
      * Returns a <code>Method<code> allowing access to
      * {@link Throwable#initCause(Throwable) initCause} method of {@link Throwable},
-     * or <code>null</code> if the method
+     * or {@code null} if the method
      * does not exist.
      *
-     * @return A <code>Method<code> for <code>Throwable.initCause</code>, or
-     * <code>null</code> if unavailable.
+     * @return A {@code Method<code> for <code>Throwable.initCause}, or
+     * {@code null} if unavailable.
      */
     static private Method getInitCauseMethod() {
         try {

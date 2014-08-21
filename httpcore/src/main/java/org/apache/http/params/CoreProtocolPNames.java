@@ -63,7 +63,7 @@ public interface CoreProtocolPNames {
     public static final String HTTP_CONTENT_CHARSET = "http.protocol.content-charset";
 
     /**
-     * Defines the content of the <code>User-Agent</code> header.
+     * Defines the content of the {@code User-Agent} header.
      * <p>
      * This parameter expects a value of type {@link String}.
      * </p>
@@ -71,7 +71,7 @@ public interface CoreProtocolPNames {
     public static final String USER_AGENT = "http.useragent";
 
     /**
-     * Defines the content of the <code>Server</code> header.
+     * Defines the content of the {@code Server} header.
      * <p>
      * This parameter expects a value of type {@link String}.
      * </p>
@@ -79,7 +79,7 @@ public interface CoreProtocolPNames {
     public static final String ORIGIN_SERVER = "http.origin-server";
 
     /**
-     * Defines whether responses with an invalid <code>Transfer-Encoding</code>
+     * Defines whether responses with an invalid {@code Transfer-Encoding}
      * header should be rejected.
      * <p>
      * This parameter expects a value of type {@link Boolean}.

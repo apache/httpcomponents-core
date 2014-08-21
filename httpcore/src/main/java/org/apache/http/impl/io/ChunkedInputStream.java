@@ -93,7 +93,7 @@ public class ChunkedInputStream extends InputStream {
      * Wraps session input stream and reads chunk coded input.
      *
      * @param in The session input buffer
-     * @param constraints Message constraints. If <code>null</code>
+     * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
      * @since 4.4

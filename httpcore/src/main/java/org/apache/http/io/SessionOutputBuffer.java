@@ -43,12 +43,12 @@ import org.apache.http.util.CharArrayBuffer;
 public interface SessionOutputBuffer {
 
     /**
-     * Writes <code>len</code> bytes from the specified byte array
-     * starting at offset <code>off</code> to this session buffer.
+     * Writes {@code len} bytes from the specified byte array
+     * starting at offset {@code off} to this session buffer.
      * <p>
-     * If <code>off</code> is negative, or <code>len</code> is negative, or
-     * <code>off+len</code> is greater than the length of the array
-     * <code>b</code>, then an {@code IndexOutOfBoundsException} is thrown.
+     * If {@code off} is negative, or {@code len} is negative, or
+     * {@code off+len} is greater than the length of the array
+     * {@code b}, then an {@code IndexOutOfBoundsException} is thrown.
      *
      * @param      b     the data.
      * @param      off   the start offset in the data.
@@ -58,7 +58,7 @@ public interface SessionOutputBuffer {
     void write(byte[] b, int off, int len) throws IOException;
 
     /**
-     * Writes <code>b.length</code> bytes from the specified byte array
+     * Writes {@code b.length} bytes from the specified byte array
      * to this session buffer.
      *
      * @param      b   the data.
@@ -69,7 +69,7 @@ public interface SessionOutputBuffer {
     /**
      * Writes the specified byte to this session buffer.
      *
-     * @param      b   the <code>byte</code>.
+     * @param      b   the {@code byte}.
      * @exception  IOException  if an I/O error occurs.
      */
     void write(int b) throws IOException;
@@ -100,7 +100,7 @@ public interface SessionOutputBuffer {
 
     /**
      * Flushes this session buffer and forces any buffered output bytes
-     * to be written out. The general contract of <code>flush</code> is
+     * to be written out. The general contract of {@code flush} is
      * that calling it is an indication that, if any bytes previously
      * written have been buffered by the implementation of the output
      * stream, such bytes should immediately be written to their

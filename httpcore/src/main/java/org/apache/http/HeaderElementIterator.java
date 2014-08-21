@@ -40,8 +40,8 @@ public interface HeaderElementIterator extends Iterator<Object> {
      * Indicates whether there is another header element in this
      * iteration.
      *
-     * @return  <code>true</code> if there is another header element,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if there is another header element,
+     *          {@code false} otherwise
      */
     @Override
     boolean hasNext();

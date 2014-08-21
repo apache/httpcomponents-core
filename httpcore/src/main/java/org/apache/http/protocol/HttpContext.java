@@ -52,7 +52,7 @@ public interface HttpContext {
      * Obtains attribute with the given name.
      *
      * @param id the attribute name.
-     * @return attribute value, or <code>null</code> if not set.
+     * @return attribute value, or {@code null} if not set.
      */
     Object getAttribute(String id);
 
@@ -68,7 +68,7 @@ public interface HttpContext {
      * Removes attribute with the given name from the context.
      *
      * @param id the attribute name.
-     * @return attribute value, or <code>null</code> if not set.
+     * @return attribute value, or {@code null} if not set.
      */
     Object removeAttribute(String id);
 

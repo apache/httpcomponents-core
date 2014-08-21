@@ -56,11 +56,11 @@ public interface ContentEncoder {
     void complete() throws IOException;
 
     /**
-     * Returns <code>true</code> if the entity has been transferred in its
+     * Returns {@code true} if the entity has been transferred in its
      * entirety.
      *
-     * @return <code>true</code> if all the content has been produced,
-     * <code>false</code> otherwise.
+     * @return {@code true} if all the content has been produced,
+     * {@code false} otherwise.
      */
     boolean isCompleted();
 

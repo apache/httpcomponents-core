@@ -91,14 +91,14 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
      * @param buffersize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for char to byte conversion.
-     * @param messageConstraints Message constraints. If <code>null</code>
+     *   If {@code null} simple type cast will be used for char to byte conversion.
+     * @param messageConstraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
-     * @param incomingContentStrategy incoming content length strategy. If <code>null</code>
+     * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
-     * @param outgoingContentStrategy outgoing content length strategy. If <code>null</code>
+     * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
      *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
      */
     protected BHttpConnectionBase(
@@ -150,7 +150,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
      * used by the connection to send and receive data.
      * <p/>
      * After this method's execution the connection status will be reported
-     * as open and the {@link #isOpen()} will return <code>true</code>.
+     * as open and the {@link #isOpen()} will return {@code true}.
      *
      * @param socket the socket.
      * @throws IOException in case of an I/O error.

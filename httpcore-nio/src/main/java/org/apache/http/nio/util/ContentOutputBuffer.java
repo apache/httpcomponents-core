@@ -62,12 +62,12 @@ public interface ContentOutputBuffer {
     void flush() throws IOException;
 
     /**
-     * Writes <code>len</code> bytes from the specified byte array
-     * starting at offset <code>off</code> to this buffer.
+     * Writes {@code len} bytes from the specified byte array
+     * starting at offset {@code off} to this buffer.
      * <p>
-     * If <code>off</code> is negative, or <code>len</code> is negative, or
-     * <code>off+len</code> is greater than the length of the array
-     * <code>b</code>, this method can throw a runtime exception. The exact type
+     * If {@code off} is negative, or {@code len} is negative, or
+     * {@code off+len} is greater than the length of the array
+     * {@code b}, this method can throw a runtime exception. The exact type
      * of runtime exception thrown by this method depends on implementation.
      *
      * @param      b     the data.
@@ -80,7 +80,7 @@ public interface ContentOutputBuffer {
     /**
      * Writes the specified byte to this buffer.
      *
-     * @param      b   the <code>byte</code>.
+     * @param      b   the {@code byte}.
      * @exception  IOException  if an I/O error occurs.
      */
     void write(int b) throws IOException;

@@ -56,9 +56,9 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
      *
      * @param socket the socket to read data from.
      * @param buffersize the size of the internal buffer. If this number is less
-     *   than <code>0</code> it is set to the value of
+     *   than {@code 0} it is set to the value of
      *   {@link Socket#getReceiveBufferSize()}. If resultant number is less
-     *   than <code>1024</code> it is set to <code>1024</code>.
+     *   than {@code 1024} it is set to {@code 1024}.
      * @param params HTTP parameters.
      */
     public SocketInputBuffer(

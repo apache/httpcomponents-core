@@ -131,7 +131,7 @@ public class SocketHttpClientConnection
      * parser and formatter.
      * <p>
      * After this method's execution the connection status will be reported
-     * as open and the {@link #isOpen()} will return <code>true</code>.
+     * as open and the {@link #isOpen()} will return {@code true}.
      *
      * @param socket the socket.
      * @param params HTTP parameters.

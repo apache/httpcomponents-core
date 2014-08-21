@@ -42,7 +42,7 @@ public interface HttpAsyncRequestHandlerMapper {
      * Looks up a handler matching the given request.
      *
      * @param request the request
-     * @return HTTP request handler or <code>null</code> if no match
+     * @return HTTP request handler or {@code null} if no match
      * is found.
      */
     HttpAsyncRequestHandler<?> lookup(HttpRequest request);

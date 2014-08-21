@@ -70,7 +70,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
      *
      * @param config I/O reactor configuration.
      * @param threadFactory the factory to create threads.
-     *   Can be <code>null</code>.
+     *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
      * @since 4.2
@@ -87,7 +87,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
      * Creates an instance of DefaultConnectingIOReactor with the given configuration.
      *
      * @param config I/O reactor configuration.
-     *   Can be <code>null</code>.
+     *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
      * @since 4.2

@@ -64,8 +64,8 @@ public interface HttpConnection extends Closeable {
      * method may block for a small amount of time before returning a result.
      * It is therefore an <i>expensive</i> operation.
      *
-     * @return  <code>true</code> if attempts to use this connection are
-     *          likely to succeed, or <code>false</code> if they are likely
+     * @return  {@code true} if attempts to use this connection are
+     *          likely to succeed, or {@code false} if they are likely
      *          to fail and this connection should be closed
      */
     boolean isStale();
@@ -81,7 +81,7 @@ public interface HttpConnection extends Closeable {
      * Returns the socket timeout value.
      *
      * @return positive value in milliseconds if a timeout is set,
-     * <code>0</code> if timeout is disabled or <code>-1</code> if
+     * {@code 0} if timeout is disabled or {@code -1} if
      * timeout is undefined.
      */
     int getSocketTimeout();

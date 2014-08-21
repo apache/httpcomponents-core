@@ -40,7 +40,7 @@ import org.apache.http.util.Args;
 /**
  * The strict implementation of the content length strategy. This class
  * will throw {@link ProtocolException} if it encounters an unsupported
- * transfer encoding or a malformed <code>Content-Length</code> header
+ * transfer encoding or a malformed {@code Content-Length} header
  * value.
  * <p>
  * This class recognizes "chunked" and "identitiy" transfer-coding only.

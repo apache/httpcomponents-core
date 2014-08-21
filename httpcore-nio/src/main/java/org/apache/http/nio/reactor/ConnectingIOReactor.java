@@ -63,10 +63,10 @@ public interface ConnectingIOReactor extends IOReactor {
      * timeout.
      *
      * @param remoteAddress the socket address of the remote host.
-     * @param localAddress the local socket address. Can be <code>null</code>,
+     * @param localAddress the local socket address. Can be {@code null},
      *    in which can the default local address and a random port will be used.
-     * @param attachment the attachment object. Can be <code>null</code>.
-     * @param callback interface. Can be <code>null</code>.
+     * @param attachment the attachment object. Can be {@code null}.
+     * @param callback interface. Can be {@code null}.
      * @return session request object.
      */
     SessionRequest connect(

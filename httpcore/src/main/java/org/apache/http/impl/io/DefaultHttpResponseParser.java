@@ -86,11 +86,11 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      * Creates new instance of DefaultHttpResponseParser.
      *
      * @param buffer the session input buffer.
-     * @param lineParser the line parser. If <code>null</code>
+     * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.http.message.BasicLineParser#INSTANCE} will be used
-     * @param responseFactory the response factory. If <code>null</code>
+     * @param responseFactory the response factory. If {@code null}
      *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
-     * @param constraints the message constraints. If <code>null</code>
+     * @param constraints the message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
      * @since 4.3

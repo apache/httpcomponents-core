@@ -61,7 +61,7 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
      * to enclose a content entity. The {@link #produceContent(ContentEncoder,
      * IOControl)} method will not be invoked if
      * {@link org.apache.http.HttpEntityEnclosingRequest#getEntity()} returns
-     * <code>null</code>.
+     * {@code null}.
      *
      * @return HTTP request message.
      * @throws HttpException in case of HTTP protocol violation

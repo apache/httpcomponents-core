@@ -51,9 +51,9 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
      *
      * @param socket the socket to write data to.
      * @param buffersize the size of the internal buffer. If this number is less
-     *   than <code>0</code> it is set to the value of
+     *   than {@code 0} it is set to the value of
      *   {@link Socket#getSendBufferSize()}. If resultant number is less
-     *   than <code>1024</code> it is set to <code>1024</code>.
+     *   than {@code 1024} it is set to {@code 1024}.
      * @param params HTTP parameters.
      */
     public SocketOutputBuffer(

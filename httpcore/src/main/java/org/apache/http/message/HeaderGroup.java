@@ -140,7 +140,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * <p>Header name comparison is case insensitive.
      *
      * @param name the name of the header(s) to get
-     * @return a header with a condensed value or <code>null</code> if no
+     * @return a header with a condensed value or {@code null} if no
      * headers by the given name are present
      */
     public Header getCondensedHeader(final String name) {
@@ -193,7 +193,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * <p>Header name comparison is case insensitive.
      *
      * @param name the name of the header to get
-     * @return the first header or <code>null</code>
+     * @return the first header or {@code null}
      */
     public Header getFirstHeader(final String name) {
         // HTTPCORE-361 : we don't use the for-each syntax, i.e.
@@ -214,7 +214,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * <p>Header name comparison is case insensitive.
      *
      * @param name the name of the header to get
-     * @return the last header or <code>null</code>
+     * @return the last header or {@code null}
      */
     public Header getLastHeader(final String name) {
         // start at the end of the list and work backwards
@@ -243,8 +243,8 @@ public class HeaderGroup implements Cloneable, Serializable {
      * <p>Header name comparison is case insensitive.
      *
      * @param name the header name to test for
-     * @return <code>true</code> if at least one header with the name is
-     * contained, <code>false</code> otherwise
+     * @return {@code true} if at least one header with the name is
+     * contained, {@code false} otherwise
      */
     public boolean containsHeader(final String name) {
         // HTTPCORE-361 : we don't use the for-each syntax, i.e.
@@ -275,7 +275,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      * Returns an iterator over the headers with a given name in this group.
      *
      * @param name      the name of the headers over which to iterate, or
-     *                  <code>null</code> for all headers
+     *                  {@code null} for all headers
      *
      * @return iterator over some headers in this group.
      *

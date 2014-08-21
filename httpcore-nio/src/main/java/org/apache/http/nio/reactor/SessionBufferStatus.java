@@ -37,16 +37,16 @@ public interface SessionBufferStatus {
     /**
      * Determines if the session input buffer contains data.
      *
-     * @return <code>true</code> if the session input buffer contains data,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if the session input buffer contains data,
+     *   {@code false} otherwise.
      */
     boolean hasBufferedInput();
 
     /**
      * Determines if the session output buffer contains data.
      *
-     * @return <code>true</code> if the session output buffer contains data,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if the session output buffer contains data,
+     *   {@code false} otherwise.
      */
     boolean hasBufferedOutput();
 

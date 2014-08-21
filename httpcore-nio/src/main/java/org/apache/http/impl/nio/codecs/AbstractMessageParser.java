@@ -105,9 +105,9 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      * Creates an instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
-     * @param lineParser the line parser. If <code>null</code> {@link BasicLineParser#INSTANCE}
+     * @param lineParser the line parser. If {@code null} {@link BasicLineParser#INSTANCE}
      *   will be used.
-     * @param constraints Message constraints. If <code>null</code>
+     * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
      * @since 4.3

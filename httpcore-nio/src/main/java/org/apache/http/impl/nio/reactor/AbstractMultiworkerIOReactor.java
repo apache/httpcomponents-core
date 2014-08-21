@@ -129,7 +129,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *
      * @param config I/O reactor configuration.
      * @param threadFactory the factory to create threads.
-     *   Can be <code>null</code>.
+     *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
      * @since 4.2
@@ -195,7 +195,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *
      * @param workerCount number of worker I/O reactors.
      * @param threadFactory the factory to create threads.
-     *   Can be <code>null</code>.
+     *   Can be {@code null}.
      * @param params HTTP parameters.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
@@ -232,7 +232,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *
      * @param ex the exception thrown by the I/O reactor.
      * @param timestamp the time stamp of the exception. Can be
-     * <code>null</code> in which case the current date / time will be used.
+     * {@code null} in which case the current date / time will be used.
      */
     protected synchronized void addExceptionEvent(final Throwable ex, final Date timestamp) {
         if (ex == null) {
@@ -516,7 +516,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     /**
      * Blocks for the given period of time in milliseconds awaiting
      * the completion of the reactor shutdown. If the value of
-     * <code>timeout</code> is set to <code>0</code> this method blocks
+     * {@code timeout} is set to {@code 0} this method blocks
      * indefinitely.
      *
      * @param timeout the maximum wait time.

@@ -62,7 +62,7 @@ import org.apache.http.util.Asserts;
  * of HTTP message exchanges through the connection context using
  * {@link #HTTP_HANDLER} attribute. HTTP exchange sequence is considered
  * complete when the {@link HttpAsyncClientExchangeHandler#isDone()} method
- * returns <code>true</code>. The {@link HttpAsyncRequester} utility class can
+ * returns {@code true}. The {@link HttpAsyncRequester} utility class can
  * be used to facilitate initiation of asynchronous HTTP request execution.
  * <p/>
  * Individual {@code HttpAsyncClientExchangeHandler} are expected to make use of
@@ -89,7 +89,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     /**
      * Creates new instance of {@code HttpAsyncRequestExecutor}.
      * @param waitForContinue wait for continue time period.
-     * @param exceptionLogger Exception logger. If <code>null</code>
+     * @param exceptionLogger Exception logger. If {@code null}
      *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
      *   {@link java.io.Closeable} objects (such as {@link org.apache.http.HttpConnection}).

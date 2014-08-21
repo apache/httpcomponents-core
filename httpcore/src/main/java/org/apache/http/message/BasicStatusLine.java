@@ -62,7 +62,7 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
      * @param version           the protocol version of the response
      * @param statusCode        the status code of the response
      * @param reasonPhrase      the reason phrase to the status code, or
-     *                          <code>null</code>
+     *                          {@code null}
      */
     public BasicStatusLine(final ProtocolVersion version, final int statusCode,
                            final String reasonPhrase) {

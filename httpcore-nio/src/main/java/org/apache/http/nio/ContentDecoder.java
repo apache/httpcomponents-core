@@ -50,11 +50,11 @@ public interface ContentDecoder {
     int read(ByteBuffer dst) throws IOException;
 
     /**
-     * Returns <code>true</code> if the entity has been received in its
+     * Returns {@code true} if the entity has been received in its
      * entirety.
      *
-     * @return <code>true</code> if all the content has been consumed,
-     * <code>false</code> otherwise.
+     * @return {@code true} if all the content has been consumed,
+     * {@code false} otherwise.
      */
     boolean isCompleted();
 

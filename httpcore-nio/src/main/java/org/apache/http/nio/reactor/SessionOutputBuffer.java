@@ -49,8 +49,8 @@ public interface SessionOutputBuffer {
     /**
      * Determines if the buffer contains data.
      *
-     * @return <code>true</code> if there is data in the buffer,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if there is data in the buffer,
+     *   {@code false} otherwise.
      */
     boolean hasData();
 

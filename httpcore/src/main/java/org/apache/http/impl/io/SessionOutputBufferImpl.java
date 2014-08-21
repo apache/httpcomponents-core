@@ -74,9 +74,9 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      * @param buffersize buffer size. Must be a positive number.
      * @param fragementSizeHint fragment size hint defining a minimal size of a fragment
      *   that should be written out directly to the socket bypassing the session buffer.
-     *   Value <code>0</code> disables fragment buffering.
+     *   Value {@code 0} disables fragment buffering.
      * @param charencoder charencoder to be used for encoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for char to byte conversion.
+     *   If {@code null} simple type cast will be used for char to byte conversion.
      */
     public SessionOutputBufferImpl(
             final HttpTransportMetricsImpl metrics,

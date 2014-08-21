@@ -51,7 +51,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
 
     /**
      * Obtains value of the {@link CoreProtocolPNames#HTTP_ELEMENT_CHARSET} parameter.
-     * If not set, defaults to <code>US-ASCII</code>.
+     * If not set, defaults to {@code US-ASCII}.
      *
      * @param params HTTP parameters.
      * @return HTTP element charset.
@@ -79,7 +79,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
 
     /**
      * Obtains value of the {@link CoreProtocolPNames#HTTP_CONTENT_CHARSET} parameter.
-     * If not set, defaults to <code>ISO-8859-1</code>.
+     * If not set, defaults to {@code ISO-8859-1}.
      *
      * @param params HTTP parameters.
      * @return HTTP content charset.
@@ -135,7 +135,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
 
     /**
      * Obtains value of the {@link CoreProtocolPNames#USER_AGENT} parameter.
-     * If not set, returns <code>null</code>.
+     * If not set, returns {@code null}.
      *
      * @param params HTTP parameters.
      * @return User agent string.
@@ -158,7 +158,7 @@ public final class HttpProtocolParams implements CoreProtocolPNames {
 
     /**
      * Obtains value of the {@link CoreProtocolPNames#USE_EXPECT_CONTINUE} parameter.
-     * If not set, returns <code>false</code>.
+     * If not set, returns {@code false}.
      *
      * @param params HTTP parameters.
      * @return User agent string.

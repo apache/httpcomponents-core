@@ -82,10 +82,10 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      *   The optimal value of this parameter can be platform specific and defines a trade-off
      *   between performance of memory copy operations and that of native method invocation.
      *   If negative default chunk limited will be used.
-     * @param constraints Message constraints. If <code>null</code>
+     * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
-     *   If <code>null</code> simple type cast will be used for byte to char conversion.
+     *   If {@code null} simple type cast will be used for byte to char conversion.
      */
     public SessionInputBufferImpl(
             final HttpTransportMetricsImpl metrics,
@@ -230,7 +230,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      * session buffer into the given line buffer. The number of chars actually
      * read is returned as an integer. The line delimiter itself is discarded.
      * If no char is available because the end of the stream has been reached,
-     * the value <code>-1</code> is returned. This method blocks until input
+     * the value {@code -1} is returned. This method blocks until input
      * data is available, end of file is detected, or an exception is thrown.
      * <p>
      * This method treats a lone LF as a valid line delimiters in addition
@@ -298,7 +298,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      * Reads a complete line of characters up to a line delimiter from this
      * session buffer. The line delimiter itself is discarded. If no char is
      * available because the end of the stream has been reached,
-     * <code>null</code> is returned. This method blocks until input data is
+     * {@code null} is returned. This method blocks until input data is
      * available, end of file is detected, or an exception is thrown.
      * <p>
      * This method treats a lone LF as a valid line delimiters in addition

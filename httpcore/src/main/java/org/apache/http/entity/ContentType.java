@@ -137,7 +137,7 @@ public final class ContentType implements Serializable {
 
     /**
      * Generates textual representation of this content type which can be used as the value
-     * of a <code>Content-Type</code> header.
+     * of a {@code Content-Type} header.
      */
     @Override
     public String toString() {
@@ -166,7 +166,7 @@ public final class ContentType implements Serializable {
     /**
      * Creates a new instance of {@link ContentType}.
      *
-     * @param mimeType MIME type. It may not be <code>null</code> or empty. It may not contain
+     * @param mimeType MIME type. It may not be {@code null} or empty. It may not contain
      *        characters <">, <;>, <,> reserved by the HTTP specification.
      * @param charset charset.
      * @return content type
@@ -180,7 +180,7 @@ public final class ContentType implements Serializable {
     /**
      * Creates a new instance of {@link ContentType} without a charset.
      *
-     * @param mimeType MIME type. It may not be <code>null</code> or empty. It may not contain
+     * @param mimeType MIME type. It may not be {@code null} or empty. It may not contain
      *        characters <">, <;>, <,> reserved by the HTTP specification.
      * @return content type
      */
@@ -191,7 +191,7 @@ public final class ContentType implements Serializable {
     /**
      * Creates a new instance of {@link ContentType}.
      *
-     * @param mimeType MIME type. It may not be <code>null</code> or empty. It may not contain
+     * @param mimeType MIME type. It may not be {@code null} or empty. It may not contain
      *        characters <">, <;>, <,> reserved by the HTTP specification.
      * @param charset charset. It may not contain characters <">, <;>, <,> reserved by the HTTP
      *        specification. This parameter is optional.
@@ -228,12 +228,12 @@ public final class ContentType implements Serializable {
     }
 
     /**
-     * Parses textual representation of <code>Content-Type</code> value.
+     * Parses textual representation of {@code Content-Type} value.
      *
      * @param s text
      * @return content type
      * @throws ParseException if the given text does not represent a valid
-     * <code>Content-Type</code> value.
+     * {@code Content-Type} value.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
@@ -252,14 +252,14 @@ public final class ContentType implements Serializable {
     }
 
     /**
-     * Extracts <code>Content-Type</code> value from {@link HttpEntity} exactly as
-     * specified by the <code>Content-Type</code> header of the entity. Returns <code>null</code>
+     * Extracts {@code Content-Type} value from {@link HttpEntity} exactly as
+     * specified by the {@code Content-Type} header of the entity. Returns {@code null}
      * if not specified.
      *
      * @param entity HTTP entity
      * @return content type
      * @throws ParseException if the given text does not represent a valid
-     * <code>Content-Type</code> value.
+     * {@code Content-Type} value.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
@@ -279,7 +279,7 @@ public final class ContentType implements Serializable {
     }
 
     /**
-     * Extracts <code>Content-Type</code> value from {@link HttpEntity}. Returns <code>null</code>
+     * Extracts {@code Content-Type} value from {@link HttpEntity}. Returns {@code null}
      * if not specified or incorrect (could not be parsed)..
      *
      * @param entity HTTP entity
@@ -307,13 +307,13 @@ public final class ContentType implements Serializable {
     }
 
     /**
-     * Extracts <code>Content-Type</code> value from {@link HttpEntity} or returns the default value
+     * Extracts {@code Content-Type} value from {@link HttpEntity} or returns the default value
      * {@link #DEFAULT_TEXT} if not explicitly specified.
      *
      * @param entity HTTP entity
      * @return content type
      * @throws ParseException if the given text does not represent a valid
-     * <code>Content-Type</code> value.
+     * {@code Content-Type} value.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
@@ -324,7 +324,7 @@ public final class ContentType implements Serializable {
     }
 
     /**
-     * Extracts <code>Content-Type</code> value from {@link HttpEntity} or returns the default value
+     * Extracts {@code Content-Type} value from {@link HttpEntity} or returns the default value
      * {@link #DEFAULT_TEXT} if not explicitly specified or incorrect (could not be parsed).
      *
      * @param entity HTTP entity

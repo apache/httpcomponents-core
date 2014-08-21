@@ -109,7 +109,7 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
     /**
      * Tells that this entity is not streaming.
      *
-     * @return <code>false</code>
+     * @return {@code false}
      */
     @Override
     public boolean isStreaming() {

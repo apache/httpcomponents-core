@@ -78,9 +78,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * Formats an array of header elements.
      *
      * @param elems     the header elements to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
-     * @param formatter         the formatter to use, or <code>null</code>
+     * @param quote     {@code true} to always format with quoted values,
+     *                  {@code false} to use quotes only when necessary
+     * @param formatter         the formatter to use, or {@code null}
      *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted header elements
@@ -122,7 +122,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of formatted header elements.
      *
-     * @param elems     the header elements to format, or <code>null</code>
+     * @param elems     the header elements to format, or {@code null}
      *
      * @return  a length estimate, in number of characters
      */
@@ -145,9 +145,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * Formats a header element.
      *
      * @param elem      the header element to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
-     * @param formatter         the formatter to use, or <code>null</code>
+     * @param quote     {@code true} to always format with quoted values,
+     *                  {@code false} to use quotes only when necessary
+     * @param formatter         the formatter to use, or {@code null}
      *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted header element
@@ -197,7 +197,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of a formatted header element.
      *
-     * @param elem      the header element to format, or <code>null</code>
+     * @param elem      the header element to format, or {@code null}
      *
      * @return  a length estimate, in number of characters
      */
@@ -231,9 +231,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * Formats a set of parameters.
      *
      * @param nvps      the parameters to format
-     * @param quote     <code>true</code> to always format with quoted values,
-     *                  <code>false</code> to use quotes only when necessary
-     * @param formatter         the formatter to use, or <code>null</code>
+     * @param quote     {@code true} to always format with quoted values,
+     *                  {@code false} to use quotes only when necessary
+     * @param formatter         the formatter to use, or {@code null}
      *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted parameters
@@ -275,7 +275,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of formatted parameters.
      *
-     * @param nvps      the parameters to format, or <code>null</code>
+     * @param nvps      the parameters to format, or {@code null}
      *
      * @return  a length estimate, in number of characters
      */
@@ -297,9 +297,9 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * Formats a name-value pair.
      *
      * @param nvp       the name-value pair to format
-     * @param quote     <code>true</code> to always format with a quoted value,
-     *                  <code>false</code> to use quotes only when necessary
-     * @param formatter         the formatter to use, or <code>null</code>
+     * @param quote     {@code true} to always format with a quoted value,
+     *                  {@code false} to use quotes only when necessary
+     * @param formatter         the formatter to use, or {@code null}
      *                          for the {@link #INSTANCE default}
      *
      * @return  the formatted name-value pair
@@ -341,7 +341,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     /**
      * Estimates the length of a formatted name-value pair.
      *
-     * @param nvp       the name-value pair to format, or <code>null</code>
+     * @param nvp       the name-value pair to format, or {@code null}
      *
      * @return  a length estimate, in number of characters
      */
@@ -365,10 +365,10 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * This does not include a leading = character.
      * Called from {@link #formatNameValuePair formatNameValuePair}.
      *
-     * @param buffer    the buffer to append to, never <code>null</code>
-     * @param value     the value to append, never <code>null</code>
-     * @param quote     <code>true</code> to always format with quotes,
-     *                  <code>false</code> to use quotes only when necessary
+     * @param buffer    the buffer to append to, never {@code null}
+     * @param value     the value to append, never {@code null}
+     * @param quote     {@code true} to always format with quotes,
+     *                  {@code false} to use quotes only when necessary
      */
     protected void doFormatValue(final CharArrayBuffer buffer,
                                  final String value,
@@ -402,8 +402,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @param ch        the character to check
      *
-     * @return  <code>true</code> if the character is a separator,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if the character is a separator,
+     *          {@code false} otherwise
      */
     protected boolean isSeparator(final char ch) {
         return SEPARATORS.indexOf(ch) >= 0;
@@ -415,8 +415,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      *
      * @param ch        the character to check
      *
-     * @return  <code>true</code> if the character is unsafe,
-     *          <code>false</code> otherwise
+     * @return  {@code true} if the character is unsafe,
+     *          {@code false} otherwise
      */
     protected boolean isUnsafe(final char ch) {
         return UNSAFE_CHARS.indexOf(ch) >= 0;

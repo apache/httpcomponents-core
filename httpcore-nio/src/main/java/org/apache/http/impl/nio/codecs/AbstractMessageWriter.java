@@ -81,7 +81,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
      * Creates an instance of AbstractMessageWriter.
      *
      * @param buffer the session output buffer.
-     * @param formatter the line formatter If <code>null</code> {@link BasicLineFormatter#INSTANCE}
+     * @param formatter the line formatter If {@code null} {@link BasicLineFormatter#INSTANCE}
      *   will be used.
      *
      * @since 4.3

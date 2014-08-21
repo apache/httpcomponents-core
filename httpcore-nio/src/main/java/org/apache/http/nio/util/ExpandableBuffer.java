@@ -145,8 +145,8 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
     /**
      * Determines if the buffer contains data.
      *
-     * @return <code>true</code> if there is data in the buffer,
-     *   <code>false</code> otherwise.
+     * @return {@code true} if there is data in the buffer,
+     *   {@code false} otherwise.
      */
     public boolean hasData() {
         setOutputMode();

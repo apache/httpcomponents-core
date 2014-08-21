@@ -41,7 +41,7 @@ import org.apache.http.util.Args;
 /**
  * Content encoder that cuts off after a defined number of bytes. This class
  * is used to send content of HTTP messages where the end of the content entity
- * is determined by the value of the <code>Content-Length header</code>.
+ * is determined by the value of the {@code Content-Length header}.
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
  * long.
  * <p>
@@ -69,7 +69,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder
      * @param contentLength content length.
      * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
      *   that should be written out directly to the channel bypassing the session buffer.
-     *   Value <code>0</code> disables fragment buffering.
+     *   Value {@code 0} disables fragment buffering.
      */
     public LengthDelimitedEncoder(
             final WritableByteChannel channel,
