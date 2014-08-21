@@ -1438,7 +1438,7 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
                         <title><methodname>getException</methodname>:</title>
                         <para>
                         Returns an exception in case of an abnormal termination. This method
-                        returns {@code null} if the request execution is still ongoing or if
+                        returns <code>null</code> if the request execution is still ongoing or if
                         it completed successfully.
                         </para>
                         </formalpara>
@@ -1448,7 +1448,7 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
                         <title><methodname>getResult</methodname>:</title>
                         <para>
                         Returns a result of the request execution, when available. This method
-                        returns {@code null} if the request execution is still ongoing.
+                        returns <code>null</code> if the request execution is still ongoing.
                         </para>
                         </formalpara>
                     </listitem>
@@ -1529,7 +1529,7 @@ HttpAsyncRequestHandler<HttpRequest> rh = new HttpAsyncRequestHandler<HttpReques
                         <para>
                         This event is invoked only for if the outgoing response message has
                         a content entity enclosed in it, that is <methodname>
-                        HttpResponse#getEntity()</methodname> returns {@code null}.
+                        HttpResponse#getEntity()</methodname> returns <code>null</code>.
                         </para>
                         </formalpara>
                     </listitem>
@@ -1623,7 +1623,7 @@ handlerReqistry.register("*", myRequestHandler3);
             to be used for the next series of HTTP message exchanges through the connection
             context using <methodname>HttpAsyncRequestExecutor#HTTP_HANDLER</methodname> attribute.
             HTTP exchange sequence is considered complete when the <methodname>
-            HttpAsyncRequestExecutionHandler#isDone()</methodname> method returns {@code true}.
+            HttpAsyncRequestExecutionHandler#isDone()</methodname> method returns <code>true</code>.
             </para>
             <programlisting><![CDATA[
 HttpAsyncRequestExecutor ph = new HttpAsyncRequestExecutor();
@@ -1841,7 +1841,7 @@ HttpResponse response = future.get();
                         <title><methodname>getException</methodname>:</title>
                         <para>
                         Returns an exception in case of an abnormal termination. This method
-                        returns {@code null} if the response processing is still ongoing or
+                        returns <code>null</code> if the response processing is still ongoing or
                         if it completed successfully.
                         </para>
                         </formalpara>
@@ -1851,7 +1851,7 @@ HttpResponse response = future.get();
                         <title><methodname>getResult</methodname>:</title>
                         <para>
                         Returns a result of the response processing, when available. This method
-                        returns {@code null} if the response processing is still ongoing.
+                        returns <code>null</code> if the response processing is still ongoing.
                         </para>
                         </formalpara>
                     </listitem>
