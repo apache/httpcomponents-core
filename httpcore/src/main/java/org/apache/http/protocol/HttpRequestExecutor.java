@@ -78,9 +78,10 @@ public class HttpRequestExecutor {
     /**
      * Decide whether a response comes with an entity.
      * The implementation in this class is based on RFC 2616.
-     * <br/>
+     * <p>
      * Derived executors can override this method to handle
      * methods and response codes not specified in RFC 2616.
+     * </p>
      *
      * @param request   the request, to obtain the executed method
      * @param response  the response, to obtain the status code

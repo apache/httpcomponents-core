@@ -112,8 +112,9 @@ public interface LineFormatter {
      * In order to generate well-formed HTTP, the lines in the result
      * must be separated by the HTTP line break sequence CR-LF.
      * There is <i>no</i> trailing CR-LF in the result.
-     * <br/>
+     * <p>
      * See the class comment for details about the buffer argument.
+     * </p>
      *
      * @param buffer    a buffer available for formatting, or
      *                  <code>null</code>.

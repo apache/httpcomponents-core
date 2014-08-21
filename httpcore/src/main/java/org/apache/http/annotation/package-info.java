@@ -27,8 +27,9 @@
 
 /**
  * Thread-safety annotations based on JCIP-ANNOTATIONS
- * <br/>
+ * <p>
  * Copyright (c) 2005 Brian Goetz and Tim Peierls.
  * See http://www.jcip.net
+ * </p>
  */
 package org.apache.http.annotation;

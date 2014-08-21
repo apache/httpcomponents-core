@@ -105,10 +105,11 @@ public class ProtocolVersion implements Serializable, Cloneable {
      * Obtains a specific version of this protocol.
      * This can be used by derived classes to instantiate themselves instead
      * of the base class, and to define constants for commonly used versions.
-     * <br/>
+     * <p>
      * The default implementation in this class returns <code>this</code>
      * if the version matches, and creates a new {@link ProtocolVersion}
      * otherwise.
+     * </p>
      *
      * @param major     the major version
      * @param minor     the minor version

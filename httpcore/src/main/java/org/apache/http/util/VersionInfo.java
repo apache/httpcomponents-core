@@ -38,11 +38,12 @@ import java.util.Properties;
  * Provides access to version information for HTTP components.
  * Static methods are used to extract version information from property
  * files that are automatically packaged with HTTP component release JARs.
- * <br/>
+ * <p>
  * All available version information is provided in strings, where
  * the string format is informal and subject to change without notice.
  * Version information is provided for debugging output and interpretation
  * by humans, not for automated processing in applications.
+ * </p>
  *
  * @since 4.0
  */

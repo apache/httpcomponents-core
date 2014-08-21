@@ -195,7 +195,7 @@ public class BasicTokenIterator implements TokenIterator {
      * Called from {@link #findNext findNext} after the token is identified.
      * The default implementation simply calls
      * {@link java.lang.String#substring String.substring}.
-     * <br/>
+     * <p>
      * If header values are significantly longer than tokens, and some
      * tokens are permanently referenced by the application, there can
      * be problems with garbage collection. A substring will hold a
@@ -203,6 +203,7 @@ public class BasicTokenIterator implements TokenIterator {
      * therefore occupies more memory than might be expected.
      * To avoid this, override this method and create a new string
      * instead of a substring.
+     * </p>
      *
      * @param value     the full header value from which to create a token
      * @param start     the index of the first token character
