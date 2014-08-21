@@ -34,7 +34,7 @@
   <name>Apache HttpCore NIO</name>
   <inceptionYear>2005</inceptionYear>
   <description>
-   HttpComponents Core (non-blocking I/O)
+   Apache HttpComponents Core (non-blocking I/O)
   </description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>

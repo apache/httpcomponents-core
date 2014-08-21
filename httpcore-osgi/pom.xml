@@ -34,7 +34,7 @@
   <name>Apache HttpCore OSGi bundle</name>
   <inceptionYear>2005</inceptionYear>
   <description>
-   HttpComponents Core (OSGi bundle)
+   Apache HttpComponents Core (OSGi bundle)
   </description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>bundle</packaging>

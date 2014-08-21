@@ -33,7 +33,7 @@
   <artifactId>httpcore-ab</artifactId>
   <name>Apache HttpCore Benchmarking Tool</name>
   <description>
-   AB clone based on HttpCore
+   Apache AB clone based on HttpCore
   </description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
