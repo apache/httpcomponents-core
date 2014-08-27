@@ -29,7 +29,7 @@ package org.apache.http.nio.pool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
+import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -296,7 +296,7 @@ public class TestNIOConnPool {
             future.get();
             Assert.fail("ExecutionException should have been thrown");
         } catch (final ExecutionException ex) {
-            Assert.assertTrue(ex.getCause() instanceof SocketTimeoutException);
+            Assert.assertTrue(ex.getCause() instanceof ConnectException);
         }
 
         totals = pool.getTotalStats();
