@@ -79,8 +79,8 @@ public class HttpAsyncRequester {
 
     /**
      * Creates new instance of {@code HttpAsyncRequester}.
-     * @param httpProcessor HTTP protocol processor.
-     * @param connStrategy Connection re-use strategy. If {@code null}
+     * @param httpprocessor HTTP protocol processor.
+     * @param connReuseStrategy Connection re-use strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
      * @param exceptionLogger Exception logger. If {@code null}
      *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
@@ -306,7 +306,7 @@ public class HttpAsyncRequester {
      * @param <T> the result type of request execution.
      * @param <E> the connection pool entry type.
      * @param requestProducers list of request producers.
-     * @param responseConsumer list of response consumers.
+     * @param responseConsumers list of response consumers.
      * @param poolEntry leased pool entry. It will be automatically released
      *   back to the pool when execution is completed.
      * @param connPool pool of persistent reusable connections.
