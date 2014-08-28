@@ -35,8 +35,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
-import junit.framework.Assert;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -51,6 +49,7 @@ import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.message.BasicHttpResponse;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

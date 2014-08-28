@@ -51,7 +51,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 public class TestDefaultBHttpClientConnection {
 
