@@ -115,7 +115,7 @@ public final class EntityUtils {
      * @return byte array containing the entity content. May be null if
      *   {@link HttpEntity#getContent()} is null.
      * @throws IOException if an error occurs reading the input stream
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
@@ -204,7 +204,7 @@ public final class EntityUtils {
      * @return the entity content as a String. May be null if
      *   {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws UnsupportedCharsetException Thrown when the named entity's charset is not available in
      * this instance of the Java virtual machine and no defaultCharset is provided.
@@ -263,7 +263,7 @@ public final class EntityUtils {
      * @return the entity content as a String. May be null if
      *   {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
@@ -281,7 +281,7 @@ public final class EntityUtils {
      * @param entity the entity to convert to a string; must not be null
      * @return String containing the content.
      * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length > Integer.MAX_VALUE
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine

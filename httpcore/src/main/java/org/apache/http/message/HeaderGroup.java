@@ -170,7 +170,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      *
      * @param name the name of the header(s) to get
      *
-     * @return an array of length >= 0
+     * @return an array of length &ge; 0
      */
     public Header[] getHeaders(final String name) {
         final List<Header> headersFound = new ArrayList<Header>();
@@ -231,7 +231,7 @@ public class HeaderGroup implements Cloneable, Serializable {
     /**
      * Gets all of the headers contained within this group.
      *
-     * @return an array of length >= 0
+     * @return an array of length &ge; 0
      */
     public Header[] getAllHeaders() {
         return headers.toArray(new Header[headers.size()]);
