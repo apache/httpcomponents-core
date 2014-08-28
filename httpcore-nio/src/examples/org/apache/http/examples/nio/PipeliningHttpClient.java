@@ -57,7 +57,7 @@ import org.apache.http.protocol.RequestUserAgent;
 
 /**
  * Minimal pipelining HTTP/1.1 client.
- * <p/>
+ * <p>
  * Please note that this example represents a minimal HTTP client implementation.
  * It does not support HTTPS as is.
  * You either need to provide BasicNIOConnPool with a connection factory

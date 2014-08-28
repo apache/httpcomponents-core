@@ -35,7 +35,7 @@ import org.apache.http.protocol.HttpContext;
 /**
  * {@code HttpAsyncExpectationVerifier} defines a strategy to verify whether
  * or not an incoming HTTP request meets the target server's expectations.
- *<p/>
+ *<p>
  * A server that does not understand or is unable to comply with any of
  * the expectation values in the Expect field of a request MUST respond
  * with appropriate error status. The server MUST respond with a 417

@@ -84,7 +84,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
      * Invoked to process a chunk of content from the {@link ContentDecoder}.
      * The {@link IOControl} interface can be used to suspend input events
      * if the consumer is temporarily unable to consume more content.
-     * <p/>
+     * <p>
      * The consumer can use the {@link ContentDecoder#isCompleted()} method
      * to find out whether or not the message content has been fully consumed.
      *

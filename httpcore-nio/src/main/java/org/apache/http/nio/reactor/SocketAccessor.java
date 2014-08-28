@@ -31,7 +31,7 @@ import java.net.Socket;
 
 /**
  * Provides access to the underlying Socket.
- * <p/>
+ * <p>
  * Remark: this interface will be removed in the next major release.
  */
 public interface SocketAccessor {

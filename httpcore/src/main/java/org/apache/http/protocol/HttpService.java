@@ -54,17 +54,17 @@ import org.apache.http.util.EntityUtils;
 /**
  * {@code HttpService} is a server side HTTP protocol handler based on
  * the classic (blocking) I/O model.
- * <p/>
+ * <p>
  * {@code HttpService} relies on {@link HttpProcessor} to generate mandatory
  * protocol headers for all outgoing messages and apply common, cross-cutting
  * message transformations to all incoming and outgoing messages, whereas
  * individual {@link HttpRequestHandler}s are expected to implement
  * application specific content generation and processing.
- * <p/>
+ * <p>
  * {@code HttpService} uses {@link HttpRequestHandlerMapper} to map
  * matching request handler for a particular request URI of an incoming HTTP
  * request.
- * <p/>
+ * <p>
  * {@code HttpService} can use optional {@link HttpExpectationVerifier}
  * to ensure that incoming requests meet server's expectations.
  *

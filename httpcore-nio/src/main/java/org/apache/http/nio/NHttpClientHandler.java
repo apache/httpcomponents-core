@@ -64,7 +64,7 @@ public interface NHttpClientHandler {
      * Triggered when an HTTP response is received. The connection
      * passed as a parameter to this method is guaranteed to return
      * a valid HTTP response object.
-     * <p/>
+     * <p>
      * If the response received encloses a response entity this method will
      * be followed by a series of
      * {@link #inputReady(NHttpClientConnection, ContentDecoder)} calls
@@ -80,7 +80,7 @@ public interface NHttpClientHandler {
      * Triggered when the underlying channel is ready for reading a
      * new portion of the response entity through the corresponding
      * content decoder.
-     * <p/>
+     * <p>
      * If the content consumer is unable to process the incoming content,
      * input event notifications can be temporarily suspended using
      * {@link IOControl} interface.

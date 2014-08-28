@@ -121,7 +121,7 @@ public abstract class AbstractHttpParams implements HttpParams, HttpParamsNames 
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Dummy implementation - must be overridden by subclasses.
      *
      * @since 4.2

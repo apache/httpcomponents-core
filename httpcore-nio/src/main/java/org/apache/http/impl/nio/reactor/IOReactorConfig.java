@@ -108,7 +108,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines time interval in milliseconds at which the I/O reactor wakes up to check for
      * timed out sessions and session requests.
-     * <p/>
+     * <p>
      * Default: {@code 1000} milliseconds.
      */
     public long getSelectInterval() {
@@ -127,7 +127,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines grace period in milliseconds the I/O reactors are expected to block waiting
      * for individual worker threads to terminate cleanly.
-     * <p/>
+     * <p>
      * Default: {@code 500} milliseconds.
      */
     public long getShutdownGracePeriod() {
@@ -147,7 +147,7 @@ public final class IOReactorConfig implements Cloneable {
      * Determines whether or not I/O interest operations are to be queued and executed
      * asynchronously by the I/O reactor thread or to be applied to the underlying
      * {@link java.nio.channels.SelectionKey} immediately.
-     * <p/>
+     * <p>
      * Default: {@code false}
      *
      * @see java.nio.channels.SelectionKey
@@ -168,7 +168,7 @@ public final class IOReactorConfig implements Cloneable {
 
     /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
-     * <p/>
+     * <p>
      * Default: {@code 2}
      */
     public int getIoThreadCount() {
@@ -186,7 +186,7 @@ public final class IOReactorConfig implements Cloneable {
 
     /**
      * Determines the default socket timeout value for non-blocking I/O operations.
-     * <p/>
+     * <p>
      * Default: {@code 0} (no timeout)
      *
      * @see java.net.SocketOptions#SO_TIMEOUT
@@ -206,7 +206,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
      * for newly created sockets.
-     * <p/>
+     * <p>
      * Default: {@code false}
      *
      * @see java.net.SocketOptions#SO_REUSEADDR
@@ -226,7 +226,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
      * for newly created sockets.
-     * <p/>
+     * <p>
      * Default: {@code -1}
      *
      * @see java.net.SocketOptions#SO_LINGER
@@ -246,7 +246,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
      * for newly created sockets.
-     * <p/>
+     * <p>
      * Default: {@code -1}
      *
      * @see java.net.SocketOptions#SO_KEEPALIVE
@@ -266,7 +266,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
      * for newly created sockets.
-     * <p/>
+     * <p>
      * Default: {@code false}
      *
      * @see java.net.SocketOptions#TCP_NODELAY
@@ -285,7 +285,7 @@ public final class IOReactorConfig implements Cloneable {
 
     /**
      * Determines the default connect timeout value for non-blocking connection requests.
-     * <p/>
+     * <p>
      * Default: {@code 0} (no timeout)
      */
     public int getConnectTimeout() {
@@ -303,7 +303,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
      * for newly created sockets.
-     * <p/>
+     * <p>
      * Default: {@code 0} (system default)
      *
      * @see java.net.SocketOptions#SO_SNDBUF
@@ -323,7 +323,7 @@ public final class IOReactorConfig implements Cloneable {
     /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
      * for newly created sockets.
-     * <p/>
+     * <p>
      * Default: {@code 0} (system default)
      *
      * @see java.net.SocketOptions#SO_RCVBUF
@@ -342,7 +342,7 @@ public final class IOReactorConfig implements Cloneable {
 
     /**
      * Determines the default backlog size value for server sockets binds.
-     * <p/>
+     * <p>
      * Default: {@code 0} (system default)
      *
      * @since 4.4

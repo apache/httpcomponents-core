@@ -52,7 +52,7 @@ public interface NHttpServiceHandler {
      * Triggered when a new HTTP request is received. The connection
      * passed as a parameter to this method is guaranteed to return
      * a valid HTTP request object.
-     * <p/>
+     * <p>
      * If the request received encloses a request entity this method will
      * be followed a series of
      * {@link #inputReady(NHttpServerConnection, ContentDecoder)} calls
@@ -68,7 +68,7 @@ public interface NHttpServiceHandler {
      * Triggered when the underlying channel is ready for reading a
      * new portion of the request entity through the corresponding
      * content decoder.
-     * <p/>
+     * <p>
      * If the content consumer is unable to process the incoming content,
      * input event notifications can be temporarily suspended using
      * {@link IOControl} interface.
@@ -98,7 +98,7 @@ public interface NHttpServiceHandler {
      * Triggered when the underlying channel is ready for writing a
      * next portion of the response entity through the corresponding
      * content encoder.
-     * <p/>
+     * <p>
      * If the content producer is unable to generate the outgoing content,
      * output event notifications can be temporarily suspended using
      * {@link IOControl} interface.

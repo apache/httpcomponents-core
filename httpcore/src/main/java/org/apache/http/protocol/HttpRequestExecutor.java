@@ -44,7 +44,7 @@ import org.apache.http.util.Args;
 /**
  * {@code HttpRequestExecutor} is a client side HTTP protocol handler based
  * on the blocking (classic) I/O model.
- * <p/>
+ * <p>
  * {@code HttpRequestExecutor} relies on {@link HttpProcessor} to generate
  * mandatory protocol headers for all outgoing messages and apply common,
  * cross-cutting message transformations to all incoming and outgoing messages.

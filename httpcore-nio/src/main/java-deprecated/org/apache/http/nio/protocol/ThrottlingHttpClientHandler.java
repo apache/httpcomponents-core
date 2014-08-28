@@ -75,7 +75,7 @@ import org.apache.http.util.Args;
  * delegate the task of processing requests and generating response content to
  * an {@link Executor}, which is expected to perform those tasks using
  * dedicated worker threads in order to avoid blocking the I/O thread.
- * <p/>
+ * <p>
  * Usually throttling protocol handlers need only a modest number of worker
  * threads, much fewer than the number of concurrent connections. If the length
  * of the message is smaller or about the size of the shared content buffer

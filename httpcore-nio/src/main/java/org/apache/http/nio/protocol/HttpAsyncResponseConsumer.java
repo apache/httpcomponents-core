@@ -62,10 +62,10 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
      * Invoked to process a chunk of content from the {@link ContentDecoder}.
      * The {@link IOControl} interface can be used to suspend input event
      * notifications if the consumer is temporarily unable to process content.
-     * <p/>
+     * <p>
      * The consumer can use the {@link ContentDecoder#isCompleted()} method
      * to find out whether or not the message content has been fully consumed.
-     * <p/>
+     * <p>
      * Please note that the {@link ContentDecoder} object is not thread-safe and
      * should only be used within the context of this method call.
      * The {@link IOControl} object can be shared and used on other thread

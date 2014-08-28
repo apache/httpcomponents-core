@@ -72,7 +72,7 @@ import org.apache.http.util.EncodingUtils;
  * are stored in memory, while content of message bodies is streamed directly
  * from the entity to the underlying channel (and vice versa)
  * {@link ConsumingNHttpEntity} and {@link ProducingNHttpEntity} interfaces.
- * <p/>
+ * <p>
  * When using this class, it is important to ensure that entities supplied for
  * writing implement {@link ProducingNHttpEntity}. Doing so will allow the
  * entity to be written out asynchronously. If entities supplied for writing do
@@ -81,13 +81,13 @@ import org.apache.http.util.EncodingUtils;
  * in the I/O thread, which could cause I/O to block temporarily. For best
  * results, ensure that all entities set on {@link HttpResponse}s from
  * {@link NHttpRequestHandler}s implement {@link ProducingNHttpEntity}.
- * <p/>
+ * <p>
  * If incoming requests enclose a content entity, {@link NHttpRequestHandler}s
  * are expected to return a {@link ConsumingNHttpEntity} for reading the
  * content. After the entity is finished reading the data,
  * {@link NHttpRequestHandler#handle(HttpRequest, HttpResponse, NHttpResponseTrigger, HttpContext)}
  * is called to generate a response.
- * <p/>
+ * <p>
  * Individual {@link NHttpRequestHandler}s do not have to submit a response
  * immediately. They can defer transmission of the HTTP response back to the
  * client without blocking the I/O thread and to delegate the processing the

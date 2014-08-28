@@ -64,7 +64,7 @@ public interface NHttpClientEventHandler {
      * Triggered when an HTTP response is received. The connection
      * passed as a parameter to this method is guaranteed to return
      * a valid HTTP response object.
-     * <p/>
+     * <p>
      * If the response received encloses a response entity this method will
      * be followed by a series of
      * {@link #inputReady(NHttpClientConnection, ContentDecoder)} calls
@@ -81,11 +81,11 @@ public interface NHttpClientEventHandler {
      * Triggered when the underlying channel is ready for reading a
      * new portion of the response entity through the corresponding
      * content decoder.
-     * <p/>
+     * <p>
      * If the content consumer is unable to process incoming content,
      * input event notifications can be temporarily suspended using
      * {@link IOControl} interface (super interface of {@link NHttpClientConnection}).
-     * <p/>
+     * <p>
      * Please note that the {@link NHttpClientConnection} and {@link ContentDecoder}
      * objects are not thread-safe and should only be used within the context of
      * this method call. The {@link IOControl} object can be shared and used on other
@@ -107,11 +107,11 @@ public interface NHttpClientEventHandler {
     /**
      * Triggered when the underlying channel is ready for writing a next portion
      * of the request entity through the corresponding content encoder.
-     * <p/>
+     * <p>
      * If the content producer is unable to generate outgoing content,
      * output event notifications can be temporarily suspended using
      * {@link IOControl} interface (super interface of {@link NHttpClientConnection}).
-     * <p/>
+     * <p>
      * Please note that the {@link NHttpClientConnection} and {@link ContentEncoder}
      * objects are not thread-safe and should only be used within the context of
      * this method call. The {@link IOControl} object can be shared and used on other

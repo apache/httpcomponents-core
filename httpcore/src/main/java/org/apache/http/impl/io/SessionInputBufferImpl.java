@@ -50,7 +50,7 @@ import org.apache.http.util.CharArrayBuffer;
  * Abstract base class for session input buffers that stream data from
  * an arbitrary {@link InputStream}. This class buffers input data in
  * an internal byte array for optimal input performance.
- * <p/>
+ * <p>
  * {@link #readLine(CharArrayBuffer)} and {@link #readLine()} methods of this
  * class treat a lone LF as valid line delimiters in addition to CR-LF required
  * by the HTTP specification.

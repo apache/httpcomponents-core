@@ -34,7 +34,7 @@ import org.apache.http.HttpResponse;
 
 /**
  * Callback interface to submit HTTP responses asynchronously.
- * <p/>
+ * <p>
  * The {@link NHttpRequestHandler#handle(org.apache.http.HttpRequest, HttpResponse, NHttpResponseTrigger, org.apache.http.protocol.HttpContext)}
  * method does not have to submit a response immediately. It can defer
  * transmission of the HTTP response back to the client without blocking the

@@ -302,7 +302,7 @@ public class VersionInfo {
 
     /**
      * Sets the user agent to {@code "<name>/<release> (Java 1.5 minimum; Java/<java.version>)"}.
-     * <p/>
+     * <p>
      * For example:
      * <pre>"Apache-HttpClient/4.3 (Java 1.5 minimum; Java/1.6.0_35)"</pre>
      *

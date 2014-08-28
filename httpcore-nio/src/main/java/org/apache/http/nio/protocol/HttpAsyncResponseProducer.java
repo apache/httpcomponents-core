@@ -55,11 +55,11 @@ public interface HttpAsyncResponseProducer extends Closeable {
      * Invoked to write out a chunk of content to the {@link ContentEncoder}.
      * The {@link IOControl} interface can be used to suspend output event
      * notifications if the producer is temporarily unable to produce more content.
-     * <p/>
+     * <p>
      * When all content is finished, the producer <b>MUST</b> call
      * {@link ContentEncoder#complete()}. Failure to do so may cause the entity
      * to be incorrectly delimited.
-     * <p/>
+     * <p>
      * Please note that the {@link ContentEncoder} object is not thread-safe and
      * should only be used within the context of this method call.
      * The {@link IOControl} object can be shared and used on other thread

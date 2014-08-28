@@ -42,7 +42,7 @@ import org.apache.http.nio.IOControl;
  * {@code HttpAsyncClientExchangeHandler} represents a callback interface whose
  * methods get invoked when executing one or multiple HTTP message exchanges
  * on the client side.
- * <p/>
+ * <p>
  * Individual {@code HttpAsyncClientExchangeHandler} are expected to make use of
  * a {@link org.apache.http.protocol.HttpProcessor} to generate mandatory protocol
  * headers for all outgoing messages and apply common, cross-cutting message
@@ -73,11 +73,11 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
      * Invoked to write out a chunk of content to the {@link ContentEncoder}.
      * The {@link IOControl} interface can be used to suspend output event
      * notifications if the producer is temporarily unable to produce more content.
-     * <p/>
+     * <p>
      * When all content is finished, the producer <b>MUST</b> call
      * {@link ContentEncoder#complete()}. Failure to do so may cause the entity
      * to be incorrectly delimited.
-     * <p/>
+     * <p>
      * Please note that the {@link ContentEncoder} object is not thread-safe and
      * should only be used within the context of this method call.
      * The {@link IOControl} object can be shared and used on other thread
@@ -110,10 +110,10 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
      * Invoked to process a chunk of content from the {@link ContentDecoder}.
      * The {@link IOControl} interface can be used to suspend input event
      * notifications if the consumer is temporarily unable to process content.
-     * <p/>
+     * <p>
      * The consumer can use the {@link ContentDecoder#isCompleted()} method
      * to find out whether or not the message content has been fully consumed.
-     * <p/>
+     * <p>
      * Please note that the {@link ContentDecoder} object is not thread-safe and
      * should only be used within the context of this method call.
      * The {@link IOControl} object can be shared and used on other thread

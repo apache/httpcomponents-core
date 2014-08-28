@@ -55,7 +55,7 @@ import org.apache.http.util.Asserts;
  * {@code SSLIOSession} is a decorator class intended to transparently extend
  * an {@link IOSession} with transport layer security capabilities based on
  * the SSL/TLS protocol.
- * <p/>
+ * <p>
  * The resultant instance of {@code SSLIOSession} must be added to the original
  * I/O session as an attribute with the {@link #SESSION_KEY} key.
  * <pre>

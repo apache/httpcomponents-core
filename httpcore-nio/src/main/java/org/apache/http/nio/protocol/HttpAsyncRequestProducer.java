@@ -40,7 +40,7 @@ import org.apache.http.protocol.HttpContext;
  * {@code HttpAsyncRequestProducer} is a callback interface whose methods
  * get invoked to generate an HTTP request message and to stream message
  * content to a non-blocking HTTP connection.
- * <p/>
+ * <p>
  * Repeatable request producers capable of generating the same request
  * message more than once can be reset to their initial state by calling
  * the {@link #resetRequest()} method, at which point request producers are
@@ -74,11 +74,11 @@ public interface HttpAsyncRequestProducer extends Closeable {
      * Invoked to write out a chunk of content to the {@link ContentEncoder}.
      * The {@link IOControl} interface can be used to suspend output event
      * notifications if the producer is temporarily unable to produce more content.
-     * <p/>
+     * <p>
      * When all content is finished, the producer <b>MUST</b> call
      * {@link ContentEncoder#complete()}. Failure to do so may cause the entity
      * to be incorrectly delimited.
-     * <p/>
+     * <p>
      * Please note that the {@link ContentEncoder} object is not thread-safe and
      * should only be used within the context of this method call.
      * The {@link IOControl} object can be shared and used on other thread

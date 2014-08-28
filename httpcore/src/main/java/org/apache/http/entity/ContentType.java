@@ -48,7 +48,7 @@ import org.apache.http.util.TextUtils;
 
 /**
  * Content type information consisting of a MIME type and an optional charset.
- * <p/>
+ * <p>
  * This class makes no attempts to verify validity of the MIME type.
  * The input parameters of the {@link #create(String, String)} method, however, may not
  * contain characters <">, <;>, <,> reserved by the HTTP specification.

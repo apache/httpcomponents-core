@@ -122,7 +122,7 @@ public interface HttpResponse extends HttpMessage {
 
     /**
      * Associates a response entity with this response.
-     * <p/>
+     * <p>
      * Please note that if an entity has already been set for this response and it depends on
      * an input stream ({@link HttpEntity#isStreaming()} returns {@code true}),
      * it must be fully consumed in order to ensure release of resources.

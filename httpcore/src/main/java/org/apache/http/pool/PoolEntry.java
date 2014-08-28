@@ -34,11 +34,11 @@ import org.apache.http.util.Args;
 
 /**
  * Pool entry containing a pool connection object along with its route.
- * <p/>
+ * <p>
  * The connection contained by the pool entry may have an expiration time which
  * can be either set upon construction time or updated with
  * the {@link #updateExpiry(long, TimeUnit)}.
- * <p/>
+ * <p>
  * Pool entry may also have an object associated with it that represents
  * a connection state (usually a security principal or a unique token identifying
  * the user whose credentials have been used while establishing the connection).

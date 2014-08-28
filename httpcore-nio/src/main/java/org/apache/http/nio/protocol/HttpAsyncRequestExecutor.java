@@ -57,14 +57,14 @@ import org.apache.http.util.Asserts;
  * {@code HttpAsyncRequestExecutor} translates individual events fired through
  * the {@link NHttpClientEventHandler} interface into logically related HTTP
  * message exchanges.
- * <p/> The caller is expected to pass an instance of
+ * <p> The caller is expected to pass an instance of
  * {@link HttpAsyncClientExchangeHandler} to be used for the next series
  * of HTTP message exchanges through the connection context using
  * {@link #HTTP_HANDLER} attribute. HTTP exchange sequence is considered
  * complete when the {@link HttpAsyncClientExchangeHandler#isDone()} method
  * returns {@code true}. The {@link HttpAsyncRequester} utility class can
  * be used to facilitate initiation of asynchronous HTTP request execution.
- * <p/>
+ * <p>
  * Individual {@code HttpAsyncClientExchangeHandler} are expected to make use of
  * a {@link org.apache.http.protocol.HttpProcessor} to generate mandatory protocol
  * headers for all outgoing messages and apply common, cross-cutting message

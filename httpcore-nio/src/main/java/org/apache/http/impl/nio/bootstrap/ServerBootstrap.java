@@ -117,7 +117,7 @@ public class ServerBootstrap {
 
     /**
      * Sets connection configuration.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setConnectionFactory(
      *   org.apache.http.nio.NHttpConnectionFactory)} method.
      */
@@ -136,7 +136,7 @@ public class ServerBootstrap {
 
     /**
      * Adds this protocol interceptor to the head of the protocol processing list.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setHttpProcessor(
      * org.apache.http.protocol.HttpProcessor)} method.
      */
@@ -153,7 +153,7 @@ public class ServerBootstrap {
 
     /**
      * Adds this protocol interceptor to the tail of the protocol processing list.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setHttpProcessor(
      * org.apache.http.protocol.HttpProcessor)} method.
      */
@@ -170,7 +170,7 @@ public class ServerBootstrap {
 
     /**
      * Adds this protocol interceptor to the head of the protocol processing list.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setHttpProcessor(
      * org.apache.http.protocol.HttpProcessor)} method.
      */
@@ -187,7 +187,7 @@ public class ServerBootstrap {
 
     /**
      * Adds this protocol interceptor to the tail of the protocol processing list.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setHttpProcessor(
      * org.apache.http.protocol.HttpProcessor)} method.
      */
@@ -204,7 +204,7 @@ public class ServerBootstrap {
 
     /**
      * Assigns {@code Server} response header value.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setHttpProcessor(
      * org.apache.http.protocol.HttpProcessor)} method.
      */
@@ -240,7 +240,7 @@ public class ServerBootstrap {
     /**
      * Registers the given {@link org.apache.http.nio.protocol.HttpAsyncRequestHandler}
      * as a handler for URIs matching the given pattern.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setHandlerMapper(
      *   org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper)} )} method.
      *
@@ -277,7 +277,7 @@ public class ServerBootstrap {
 
     /**
      * Assigns {@link javax.net.ssl.SSLContext} instance.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setConnectionFactory(
      *   org.apache.http.nio.NHttpConnectionFactory)} method.
      */
@@ -288,7 +288,7 @@ public class ServerBootstrap {
 
     /**
      * Assigns {@link org.apache.http.nio.reactor.ssl.SSLSetupHandler} instance.
-     * <p/>
+     * <p>
      * Please note this value can be overridden by the {@link #setConnectionFactory(
      *   org.apache.http.nio.NHttpConnectionFactory)} method.
      */

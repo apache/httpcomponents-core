@@ -42,7 +42,7 @@ import org.apache.http.util.Args;
  * The lax implementation of the content length strategy. This class will ignore
  * unrecognized transfer encodings and malformed {@code Content-Length}
  * header values.
- * <p/>
+ * <p>
  * This class recognizes "chunked" and "identitiy" transfer-coding only.
  *
  * @since 4.0

@@ -47,7 +47,7 @@ import org.apache.http.util.Asserts;
 
 /**
  * Abstract synchronous (blocking) pool of connections.
- * <p/>
+ * <p>
  * Please note that this class does not maintain its own pool of execution {@link Thread}s.
  * Therefore, one <b>must</b> call {@link Future#get()} or {@link Future#get(long, TimeUnit)}
  * method on the {@link Future} object returned by the
@@ -166,7 +166,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     /**
      * {@inheritDoc}
-     * <p/>
+     * <p>
      * Please note that this class does not maintain its own pool of execution
      * {@link Thread}s. Therefore, one <b>must</b> call {@link Future#get()}
      * or {@link Future#get(long, TimeUnit)} method on the {@link Future}
@@ -194,7 +194,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     /**
      * Attempts to lease a connection for the given route and with the given
      * state from the pool.
-     * <p/>
+     * <p>
      * Please note that this class does not maintain its own pool of execution
      * {@link Thread}s. Therefore, one <b>must</b> call {@link Future#get()}
      * or {@link Future#get(long, TimeUnit)} method on the {@link Future}
@@ -451,6 +451,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     /**
      * Returns snapshot of all knows routes
+     * @return the set of routes
      *
      * @since 4.4
      */
@@ -560,6 +561,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     /**
+     * @return the number of milliseconds
      * @since 4.4
      */
     public int getValidateAfterInactivity() {
@@ -567,6 +569,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     }
 
     /**
+     * @param ms the number of milliseconds
      * @since 4.4
      */
     public void setValidateAfterInactivity(final int ms) {

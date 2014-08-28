@@ -148,7 +148,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     /**
      * Binds this connection to the given {@link Socket}. This socket will be
      * used by the connection to send and receive data.
-     * <p/>
+     * <p>
      * After this method's execution the connection status will be reported
      * as open and the {@link #isOpen()} will return {@code true}.
      *
