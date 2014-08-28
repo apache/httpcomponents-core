@@ -176,7 +176,7 @@ public interface HttpParams {
      *
      * @param name parameter name
      *
-     * @return {@code true</tt> if the parameter is set to value <tt>true},
+     * @return {@code true} if the parameter is set to value {@code true},
      *         {@code false} if it is not set or set to {@code false}
      */
     boolean isParameterTrue(String name);

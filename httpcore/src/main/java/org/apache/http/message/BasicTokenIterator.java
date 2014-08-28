@@ -37,7 +37,7 @@ import org.apache.http.util.Args;
 
 /**
  * Basic implementation of a {@link TokenIterator}.
- * This implementation parses <tt>#token<tt> sequences as
+ * This implementation parses {@code #token} sequences as
  * defined by RFC 2616, section 2.
  * It extends that definition somewhat beyond US-ASCII.
  *

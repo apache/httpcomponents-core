@@ -184,7 +184,7 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
      * Changes to the underlying HttpParams are not reflected
      * in the set - it is a snapshot.
      *
-     * @return the names, as a Set<String>
+     * @return the names, as a Set&lt;String&gt;
      * @since 4.2
      */
     @Override

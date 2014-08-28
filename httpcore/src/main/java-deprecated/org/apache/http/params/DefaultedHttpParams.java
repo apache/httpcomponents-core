@@ -113,7 +113,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * Changes to the underlying HttpParams intances are not reflected
      * in the set - it is a snapshot.
      *
-     * @return the combined set of names, as a Set<String>
+     * @return the combined set of names, as a Set&lt;String&gt;
      * @since 4.2
      * @throws UnsupportedOperationException if either the local or default HttpParams instances do not implement HttpParamsNames
      */
@@ -130,7 +130,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * Changes to the underlying HttpParams are not reflected
      * in the set - it is a snapshot.
      *
-     * @return the names, as a Set<String>
+     * @return the names, as a Set&lt;String&gt;
      * @since 4.2
      * @throws UnsupportedOperationException if the default HttpParams instance does not implement HttpParamsNames
      */
@@ -144,7 +144,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * Changes to the underlying HttpParams are not reflected
      * in the set - it is a snapshot.
      *
-     * @return the names, as a Set<String>
+     * @return the names, as a Set&lt;String&gt;
      * @since 4.2
      * @throws UnsupportedOperationException if the local HttpParams instance does not implement HttpParamsNames
      */

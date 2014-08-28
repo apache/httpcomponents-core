@@ -64,8 +64,9 @@ public interface HttpStatus {
     /** {@code 206 Partial Content} (HTTP/1.1 - RFC 2616) */
     public static final int SC_PARTIAL_CONTENT = 206;
     /**
-     * {@code 207 Multi-Status} (WebDAV - RFC 2518) or <tt>207 Partial Update
-     * OK</tt> (HTTP/1.1 - draft-ietf-http-v11-spec-rev-01?)
+     * {@code 207 Multi-Status} (WebDAV - RFC 2518)
+     * or
+     * {@code 207 Partial Update OK} (HTTP/1.1 - draft-ietf-http-v11-spec-rev-01?)
      */
     public static final int SC_MULTI_STATUS = 207;
 
@@ -75,7 +76,7 @@ public interface HttpStatus {
     public static final int SC_MULTIPLE_CHOICES = 300;
     /** {@code 301 Moved Permanently} (HTTP/1.0 - RFC 1945) */
     public static final int SC_MOVED_PERMANENTLY = 301;
-    /** {@code 302 Moved Temporarily</tt> (Sometimes <tt>Found}) (HTTP/1.0 - RFC 1945) */
+    /** {@code 302 Moved Temporarily} (Sometimes {@code Found}) (HTTP/1.0 - RFC 1945) */
     public static final int SC_MOVED_TEMPORARILY = 302;
     /** {@code 303 See Other} (HTTP/1.1 - RFC 2616) */
     public static final int SC_SEE_OTHER = 303;
