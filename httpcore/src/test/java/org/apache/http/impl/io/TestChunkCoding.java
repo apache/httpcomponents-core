@@ -206,6 +206,7 @@ public class TestChunkCoding {
         final byte[] tmp = new byte[5];
         Assert.assertEquals(5, in.read(tmp));
         in.read();
+        in.close();
     }
 
     // Truncated stream (missing closing CRLF)
@@ -217,6 +218,7 @@ public class TestChunkCoding {
         final byte[] tmp = new byte[5];
         Assert.assertEquals(5, in.read(tmp));
         in.read();
+        in.close();
     }
 
     // Missing \r\n at the end of the first chunk
@@ -231,6 +233,7 @@ public class TestChunkCoding {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
+        in.close();
     }
 
     // Missing LF
@@ -240,6 +243,7 @@ public class TestChunkCoding {
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
         in.read();
+        in.close();
     }
 
     // Invalid chunk size
@@ -249,6 +253,7 @@ public class TestChunkCoding {
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
         in.read();
+        in.close();
     }
 
     // Negative chunk size
@@ -258,6 +263,7 @@ public class TestChunkCoding {
         final InputStream in = new ChunkedInputStream(
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
         in.read();
+        in.close();
     }
 
     // Truncated chunk
@@ -269,6 +275,7 @@ public class TestChunkCoding {
         final byte[] buffer = new byte[300];
         Assert.assertEquals(2, in.read(buffer));
         in.read(buffer);
+        in.close();
     }
 
     // Invalid footer
@@ -279,6 +286,7 @@ public class TestChunkCoding {
                 new SessionInputBufferMock(s, Consts.ISO_8859_1));
         in.read();
         in.read();
+        in.close();
     }
 
     @Test
@@ -306,6 +314,7 @@ public class TestChunkCoding {
             out.write(buffer, 0, len);
         }
         Assert.assertEquals(0, out.size());
+        in.close();
     }
 
     @Test
@@ -315,6 +324,7 @@ public class TestChunkCoding {
                 new SessionInputBufferMock(input, MessageConstraints.DEFAULT, Consts.ISO_8859_1));
         final byte[] buffer = new byte[300];
         Assert.assertEquals(5, in1.read(buffer));
+        in1.close();
 
         final InputStream in2 = new ChunkedInputStream(
                 new SessionInputBufferMock(input, MessageConstraints.lineLen(10), Consts.ISO_8859_1));
@@ -322,6 +332,8 @@ public class TestChunkCoding {
             in2.read(buffer);
             Assert.fail("MessageConstraintException expected");
         } catch (MessageConstraintException ex) {
+        } finally {
+            in2.close();
         }
     }
 
