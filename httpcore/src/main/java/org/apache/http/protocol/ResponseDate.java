@@ -37,7 +37,7 @@ import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.util.Args;
 
 /**
- * ResponseDate is responsible for adding <code>Date</code> header to the
+ * ResponseDate is responsible for adding {@code Date} header to the
  * outgoing responses. This interceptor is recommended for server side protocol
  * processors.
  *

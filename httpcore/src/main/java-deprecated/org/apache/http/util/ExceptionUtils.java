@@ -43,12 +43,12 @@ public final class ExceptionUtils {
     static private final Method INIT_CAUSE_METHOD = getInitCauseMethod();
 
     /**
-     * Returns a <code>Method<code> allowing access to
+     * Returns a {@code Method} allowing access to
      * {@link Throwable#initCause(Throwable) initCause} method of {@link Throwable},
      * or {@code null} if the method
      * does not exist.
      *
-     * @return A {@code Method<code> for <code>Throwable.initCause}, or
+     * @return A {@code Method} for {@code Throwable.initCause}, or
      * {@code null} if unavailable.
      */
     static private Method getInitCauseMethod() {

@@ -68,8 +68,8 @@ public interface SessionRequest {
      * Determines whether the request has been completed (either successfully
      * or unsuccessfully).
      *
-     * @return <code>true</code> if the request has been completed,
-     *  <code>false</code> if still pending.
+     * @return {@code true} if the request has been completed,
+     *  {@code false} if still pending.
      */
     boolean isCompleted();
 
