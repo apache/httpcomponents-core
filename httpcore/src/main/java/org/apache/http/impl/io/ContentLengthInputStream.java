@@ -203,7 +203,7 @@ public class ContentLengthInputStream extends InputStream {
     /**
      * Skips and discards a number of bytes from the input stream.
      * @param n The number of bytes to skip.
-     * @return The actual number of bytes skipped. <= 0 if no bytes
+     * @return The actual number of bytes skipped. &le; 0 if no bytes
      * are skipped.
      * @throws IOException If an error occurs while skipping bytes.
      * @see InputStream#skip(long)

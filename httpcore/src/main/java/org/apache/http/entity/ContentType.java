@@ -51,7 +51,7 @@ import org.apache.http.util.TextUtils;
  * <p>
  * This class makes no attempts to verify validity of the MIME type.
  * The input parameters of the {@link #create(String, String)} method, however, may not
- * contain characters <">, <;>, <,> reserved by the HTTP specification.
+ * contain characters {@code <">, <;>, <,>} reserved by the HTTP specification.
  *
  * @since 4.2
  */
@@ -167,7 +167,7 @@ public final class ContentType implements Serializable {
      * Creates a new instance of {@link ContentType}.
      *
      * @param mimeType MIME type. It may not be {@code null} or empty. It may not contain
-     *        characters <">, <;>, <,> reserved by the HTTP specification.
+     *        characters {@code <">, <;>, <,>} reserved by the HTTP specification.
      * @param charset charset.
      * @return content type
      */
@@ -181,7 +181,7 @@ public final class ContentType implements Serializable {
      * Creates a new instance of {@link ContentType} without a charset.
      *
      * @param mimeType MIME type. It may not be {@code null} or empty. It may not contain
-     *        characters <">, <;>, <,> reserved by the HTTP specification.
+     *        characters {@code <">, <;>, <,>} reserved by the HTTP specification.
      * @return content type
      */
     public static ContentType create(final String mimeType) {
@@ -192,8 +192,8 @@ public final class ContentType implements Serializable {
      * Creates a new instance of {@link ContentType}.
      *
      * @param mimeType MIME type. It may not be {@code null} or empty. It may not contain
-     *        characters <">, <;>, <,> reserved by the HTTP specification.
-     * @param charset charset. It may not contain characters <">, <;>, <,> reserved by the HTTP
+     *        characters {@code <">, <;>, <,>} reserved by the HTTP specification.
+     * @param charset charset. It may not contain characters {@code <">, <;>, <,>} reserved by the HTTP
      *        specification. This parameter is optional.
      * @return content type
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in

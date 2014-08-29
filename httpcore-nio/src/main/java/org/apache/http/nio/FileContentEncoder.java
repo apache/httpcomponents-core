@@ -48,7 +48,7 @@ public interface FileContentEncoder extends ContentEncoder {
      * @param  count
      *         The maximum number of bytes to be transferred; must be
      *         non-negative
-     *@throws IOException, if some I/O error occurs.
+     * @throws IOException if some I/O error occurs.
      * @return  The number of bytes, possibly zero,
      *          that were actually transferred
      */

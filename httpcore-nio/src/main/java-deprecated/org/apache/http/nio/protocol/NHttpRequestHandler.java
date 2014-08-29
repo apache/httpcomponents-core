@@ -60,7 +60,7 @@ public interface NHttpRequestHandler {
      * <p>
      * After the entity is fully consumed,
      * {@link #handle(HttpRequest, HttpResponse, NHttpResponseTrigger, HttpContext)}
-     * is called to notify a full request & entity are ready to be processed.
+     * is called to notify a full request &amp; entity are ready to be processed.
      *
      * @param request the entity enclosing request.
      * @param context the execution context.

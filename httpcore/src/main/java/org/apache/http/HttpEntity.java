@@ -147,7 +147,6 @@ public interface HttpEntity {
     /**
      * Writes the entity content out to the output stream.
      * <p>
-     * <p>
      * IMPORTANT: Please note all entity implementations must ensure that
      * all allocated resources are properly deallocated when this method
      * returns.

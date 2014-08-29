@@ -68,7 +68,7 @@ public interface IOControl {
     /**
      * Shuts down the underlying channel.
      *
-     * @throws IOException
+     * @throws IOException in an error occurs
      */
     void shutdown() throws IOException;
 

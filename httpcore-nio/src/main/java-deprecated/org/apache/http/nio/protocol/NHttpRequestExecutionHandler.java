@@ -70,7 +70,7 @@ public interface NHttpRequestExecutionHandler {
     /**
      * Triggered when the underlying connection is ready to send a new
      * HTTP request to the target host. This method may return
-     * <code>null</null> if the client is not yet ready to send a
+     * <code>null</code> if the client is not yet ready to send a
      * request. In this case the connection will remain open and
      * can be activated at a later point.
      * <p>
@@ -78,7 +78,7 @@ public interface NHttpRequestExecutionHandler {
      * instance of {@link org.apache.http.nio.entity.ProducingNHttpEntity}.
      *
      * @param context the actual HTTP context
-     * @return an HTTP request to be sent or <code>null</null> if no
+     * @return an HTTP request to be sent or <code>null</code> if no
      *   request needs to be sent
      */
     HttpRequest submitRequest(HttpContext context);
@@ -91,7 +91,7 @@ public interface NHttpRequestExecutionHandler {
      * <p>
      * After the entity is fully consumed,
      * {@link NHttpRequestExecutionHandler#handleResponse(HttpResponse, HttpContext)}
-     * is called to notify a full response & entity are ready to be processed.
+     * is called to notify a full response &amp; entity are ready to be processed.
      *
      * @param response
      *            The response containing the existing entity.

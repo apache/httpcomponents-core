@@ -68,7 +68,6 @@ public final class LangUtils {
 
     /**
      * Check if two object arrays are equal.
-     * <p>
      * <ul>
      * <li>If both parameters are null, return {@code true}</li>
      * <li>If one parameter is null, return {@code false}</li>

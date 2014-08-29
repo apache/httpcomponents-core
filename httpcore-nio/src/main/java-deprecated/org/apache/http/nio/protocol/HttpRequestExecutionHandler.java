@@ -65,12 +65,12 @@ public interface HttpRequestExecutionHandler {
     /**
      * Triggered when the underlying connection is ready to send a new
      * HTTP request to the target host. This method may return
-     * <code>null</null> if the client is not yet ready to send a
+     * <code>null</code> if the client is not yet ready to send a
      * request. In this case the connection will remain open and
      * can be activated at a later point.
      *
      * @param context the actual HTTP context
-     * @return an HTTP request to be sent or <code>null</null> if no
+     * @return an HTTP request to be sent or <code>null</code> if no
      *   request needs to be sent
      */
     HttpRequest submitRequest(HttpContext context);
@@ -80,6 +80,7 @@ public interface HttpRequestExecutionHandler {
      *
      * @param response the HTTP response to be processed
      * @param context the actual HTTP context
+     * @throws IOException if a problem is encountered
      */
     void handleResponse(HttpResponse response, HttpContext context)
         throws IOException;

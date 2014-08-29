@@ -48,7 +48,7 @@ import org.apache.http.util.CharArrayBuffer;
  * Abstract base class for session output buffers that stream data to
  * an arbitrary {@link OutputStream}. This class buffers small chunks of
  * output data in an internal byte array for optimal output performance.
- * </p>
+ * <p>
  * {@link #writeLine(CharArrayBuffer)} and {@link #writeLine(String)} methods
  * of this class use CR-LF as a line delimiter.
  *
