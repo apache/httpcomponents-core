@@ -228,7 +228,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         final SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, callback);
         sessionRequest.setConnectTimeout(this.config.getConnectTimeout());
-
+        callback.initiated(sessionRequest) ;
         this.requestQueue.add(sessionRequest);
         this.selector.wakeup();
 
