@@ -333,7 +333,10 @@ public class TestChunkCoding {
             Assert.fail("MessageConstraintException expected");
         } catch (MessageConstraintException ex) {
         } finally {
-            in2.close();
+            try {
+                in2.close();
+            } catch (MessageConstraintException ex) {
+            }
         }
     }
 
