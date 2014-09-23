@@ -26,7 +26,7 @@
  */
 package org.apache.http.nio.pool;
 
-import java.net.SocketTimeoutException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -167,7 +167,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     public void timeout(final SessionRequest request) {
         final BasicFuture<E> future = removeRequest(request);
-        future.failed(new SocketTimeoutException());
+        future.failed(new ConnectException());
     }
 
     public void shutdown() {
