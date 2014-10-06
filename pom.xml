@@ -310,15 +310,6 @@
             <goals>
               <goal>check</goal>
             </goals>
-            <configuration>
-              <excludes>
-                <exclude>NOTICE.*</exclude>
-                <exclude>LICENSE.*</exclude>
-                <exclude>README.*</exclude>
-                <exclude>**/.*</exclude>
-                <exclude>.*/**/*</exclude>
-              </excludes>
-            </configuration>
           </execution>
         </executions>
       </plugin>
