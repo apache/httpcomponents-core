@@ -232,8 +232,11 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     public boolean cancel() {
         if (this.closed.compareAndSet(false, true)) {
             try {
-                this.future.cancel();
-                return this.responseConsumer.cancel();
+                try {
+                    return this.responseConsumer.cancel();
+                } finally {
+                    this.future.cancel();
+                }
             } finally {
                 releaseResources();
             }

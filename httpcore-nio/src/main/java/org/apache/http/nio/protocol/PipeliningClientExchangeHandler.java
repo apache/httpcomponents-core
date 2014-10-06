@@ -294,9 +294,12 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     public boolean cancel() {
         if (this.closed.compareAndSet(false, true)) {
             try {
-                this.future.cancel();
-                final HttpAsyncResponseConsumer<T> responseConsumer = this.responseConsumerRef.get();
-                return responseConsumer != null && responseConsumer.cancel();
+                try {
+                    final HttpAsyncResponseConsumer<T> responseConsumer = this.responseConsumerRef.get();
+                    return responseConsumer != null && responseConsumer.cancel();
+                } finally {
+                    this.future.cancel();
+                }
             } finally {
                 releaseResources();
             }
