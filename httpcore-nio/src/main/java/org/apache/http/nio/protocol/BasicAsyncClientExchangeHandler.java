@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
@@ -63,9 +64,9 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     private final NHttpClientConnection conn;
     private final HttpProcessor httppocessor;
     private final ConnectionReuseStrategy connReuseStrategy;
-
-    private volatile boolean requestSent;
-    private volatile boolean keepAlive;
+    private final AtomicBoolean requestSent;
+    private final AtomicBoolean keepAlive;
+    private final AtomicBoolean closed;
 
     /**
      * Creates new instance of BasicAsyncRequestExecutionHandler.
@@ -95,6 +96,9 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
+        this.requestSent = new AtomicBoolean(false);
+        this.keepAlive = new AtomicBoolean(false);
+        this.closed = new AtomicBoolean(false);
     }
 
     /**
@@ -132,9 +136,11 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public void close() throws IOException {
-        releaseResources();
-        if (!this.future.isDone()) {
-            this.future.cancel();
+        if (this.closed.compareAndSet(false, true)) {
+            releaseResources();
+            if (!this.future.isDone()) {
+                this.future.cancel();
+            }
         }
     }
 
@@ -159,7 +165,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     @Override
     public void requestCompleted() {
         this.requestProducer.requestCompleted(this.localContext);
-        this.requestSent = true;
+        this.requestSent.set(true);
     }
 
     @Override
@@ -167,7 +173,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         this.httppocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
-        this.keepAlive = this.connReuseStrategy.keepAlive(response, this.localContext);
+        this.keepAlive.set(this.connReuseStrategy.keepAlive(response, this.localContext));
     }
 
     @Override
@@ -179,7 +185,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     @Override
     public void responseCompleted() throws IOException {
         try {
-            if (!this.keepAlive) {
+            if (!this.keepAlive.get()) {
                 this.conn.close();
             }
             this.responseConsumer.responseCompleted(this.localContext);
@@ -190,7 +196,9 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
             } else {
                 this.future.failed(ex);
             }
-            releaseResources();
+            if (this.closed.compareAndSet(false, true)) {
+                releaseResources();
+            }
         } catch (final RuntimeException ex) {
             failed(ex);
             throw ex;
@@ -204,31 +212,33 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public void failed(final Exception ex) {
-        try {
-            if (!this.requestSent) {
-                this.requestProducer.failed(ex);
-            }
-            this.responseConsumer.failed(ex);
-        } finally {
+        if (this.closed.compareAndSet(false, true)) {
             try {
-                this.future.failed(ex);
+                if (!this.requestSent.get()) {
+                    this.requestProducer.failed(ex);
+                }
+                this.responseConsumer.failed(ex);
             } finally {
-                releaseResources();
+                try {
+                    this.future.failed(ex);
+                } finally {
+                    releaseResources();
+                }
             }
         }
     }
 
     @Override
     public boolean cancel() {
-        try {
-            final boolean cancelled = this.responseConsumer.cancel();
-            this.future.cancel();
-            releaseResources();
-            return cancelled;
-        } catch (final RuntimeException ex) {
-            failed(ex);
-            throw ex;
+        if (this.closed.compareAndSet(false, true)) {
+            try {
+                this.future.cancel();
+                return this.responseConsumer.cancel();
+            } finally {
+                releaseResources();
+            }
         }
+        return false;
     }
 
     @Override
