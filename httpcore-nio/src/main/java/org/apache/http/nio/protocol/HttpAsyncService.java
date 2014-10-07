@@ -443,7 +443,21 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                             request, response, state, conn, context);
                     final HttpAsyncRequestHandler<Object> handler = pipelineEntry.getHandler();
                     conn.suspendOutput();
-                    handler.handle(result, httpExchange, context);
+                    try {
+                        handler.handle(result, httpExchange, context);
+                    } catch (RuntimeException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        pipeline.add(new PipelineEntry(
+                            request,
+                            null,
+                            e,
+                            handler,
+                            context));
+                        state.setResponseState(MessageState.READY);
+                        responseReady(conn);
+                        return;
+                    }
                 } else {
                     final Exception exception = pipelineEntry.getException();
                     final HttpAsyncResponseProducer responseProducer = handleException(
