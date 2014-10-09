@@ -285,7 +285,6 @@ public class NHttpConnectionBase
      */
     protected void bind(final IOSession session) {
         Args.notNull(session, "I/O session");
-        this.session.setBufferStatus(null);
         setSession(session);
     }
 
