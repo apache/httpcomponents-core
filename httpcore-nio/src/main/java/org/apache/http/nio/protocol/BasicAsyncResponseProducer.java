@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
@@ -50,7 +49,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@ThreadSafe
 public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
     private final HttpResponse response;
@@ -100,12 +98,12 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
     }
 
     @Override
-    public synchronized HttpResponse generateResponse() {
+    public HttpResponse generateResponse() {
         return this.response;
     }
 
     @Override
-    public synchronized void produceContent(
+    public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.producer != null) {
             this.producer.produceContent(encoder, ioctrl);
@@ -124,7 +122,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
     }
 
     @Override
-    public synchronized void close() throws IOException {
+    public void close() throws IOException {
         if (this.producer != null) {
             this.producer.close();
         }
