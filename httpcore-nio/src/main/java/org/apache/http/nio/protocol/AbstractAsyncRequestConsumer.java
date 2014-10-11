@@ -27,6 +27,7 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -40,20 +41,22 @@ import org.apache.http.protocol.HttpContext;
 
 /**
  * Abstract {@link HttpAsyncRequestConsumer} implementation that relieves its
- * subclasses form having to synchronize access to internal instance variables
- * and provides a number of protected methods that they need to implement.
+ * subclasses from having to manage internal state and provides a number of protected
+ * event methods that they need to implement.
  *
  * @since 4.2
  */
 @ThreadSafe
 public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncRequestConsumer<T> {
 
-    private volatile boolean completed;
+    private final AtomicBoolean completed;
+
     private volatile T result;
     private volatile Exception ex;
 
     public AbstractAsyncRequestConsumer() {
         super();
+        this.completed = new AtomicBoolean(false);
     }
 
     /**
@@ -122,7 +125,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     /**
      * Use {@link #onRequestReceived(HttpRequest)} instead.
      */
-    public final synchronized void requestReceived(
+    public final void requestReceived(
             final HttpRequest request) throws HttpException, IOException {
         onRequestReceived(request);
         if (request instanceof HttpEntityEnclosingRequest) {
@@ -137,7 +140,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     /**
      * Use {@link #onContentReceived(ContentDecoder, IOControl)} instead.
      */
-    public final synchronized void consumeContent(
+    public final void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         onContentReceived(decoder, ioctrl);
     }
@@ -145,36 +148,30 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     /**
      * Use {@link #buildResult(HttpContext)} instead.
      */
-    public final synchronized void requestCompleted(final HttpContext context) {
-        if (this.completed) {
-            return;
+    public final void requestCompleted(final HttpContext context) {
+        if (this.completed.compareAndSet(false, true)) {
+            try {
+                this.result = buildResult(context);
+            } catch (final Exception ex) {
+                this.ex = ex;
+            } finally {
+                releaseResources();
+            }
         }
-        this.completed = true;
-        try {
-            this.result = buildResult(context);
-        } catch (final Exception ex) {
+    }
+
+    public final void failed(final Exception ex) {
+        if (this.completed.compareAndSet(false, true)) {
             this.ex = ex;
-        } finally {
             releaseResources();
         }
     }
 
-    public final synchronized void failed(final Exception ex) {
-        if (this.completed) {
-            return;
+    public final void close() throws IOException {
+        if (this.completed.compareAndSet(false, true)) {
+            releaseResources();
+            onClose();
         }
-        this.completed = true;
-        this.ex = ex;
-        releaseResources();
-    }
-
-    public final synchronized void close() throws IOException {
-        if (this.completed) {
-            return;
-        }
-        this.completed = true;
-        releaseResources();
-        onClose();
     }
 
     public Exception getException() {
@@ -186,7 +183,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     }
 
     public boolean isDone() {
-        return this.completed;
+        return this.completed.get();
     }
 
 }

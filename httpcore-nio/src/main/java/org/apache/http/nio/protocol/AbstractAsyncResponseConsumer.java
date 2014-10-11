@@ -27,11 +27,11 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -39,20 +39,21 @@ import org.apache.http.protocol.HttpContext;
 
 /**
  * Abstract {@link HttpAsyncResponseConsumer} implementation that relieves its
- * subclasses form having to synchronize access to internal instance variables
- * and provides a number of protected methods that they need to implement.
+ * subclasses from having to manage internal state and provides a number of protected
+ * event methods that they need to implement.
  *
  * @since 4.2
  */
-@ThreadSafe
 public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncResponseConsumer<T> {
 
-    private volatile boolean completed;
+    private final AtomicBoolean completed;
+
     private volatile T result;
     private volatile Exception ex;
 
     public AbstractAsyncResponseConsumer() {
         super();
+        this.completed = new AtomicBoolean(false);
     }
 
     /**
@@ -120,7 +121,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     /**
      * Use {@link #onResponseReceived(HttpResponse)} instead.
      */
-    public final synchronized void responseReceived(
+    public final void responseReceived(
             final HttpResponse response) throws IOException, HttpException {
         onResponseReceived(response);
         final HttpEntity entity = response.getEntity();
@@ -133,7 +134,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     /**
      * Use {@link #onContentReceived(ContentDecoder, IOControl)} instead.
      */
-    public final synchronized void consumeContent(
+    public final void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         onContentReceived(decoder, ioctrl);
     }
@@ -141,45 +142,38 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     /**
      * Use {@link #buildResult(HttpContext)} instead.
      */
-    public final synchronized void responseCompleted(final HttpContext context) {
-        if (this.completed) {
-            return;
+    public final void responseCompleted(final HttpContext context) {
+        if (this.completed.compareAndSet(false, true)) {
+            try {
+                this.result = buildResult(context);
+            } catch (final Exception ex) {
+                this.ex = ex;
+            } finally {
+                releaseResources();
+            }
         }
-        this.completed = true;
-        try {
-            this.result = buildResult(context);
-        } catch (final Exception ex) {
+    }
+
+    public final boolean cancel() {
+        if (this.completed.compareAndSet(false, true)) {
+            releaseResources();
+            return true;
+        }
+        return false;
+    }
+
+    public final void failed(final Exception ex) {
+        if (this.completed.compareAndSet(false, true)) {
             this.ex = ex;
-        } finally {
             releaseResources();
         }
     }
 
-    public final synchronized boolean cancel() {
-        if (this.completed) {
-            return false;
+    public final void close() throws IOException {
+        if (this.completed.compareAndSet(false, true)) {
+            releaseResources();
+            onClose();
         }
-        this.completed = true;
-        releaseResources();
-        return true;
-    }
-
-    public final synchronized void failed(final Exception ex) {
-        if (this.completed) {
-            return;
-        }
-        this.completed = true;
-        this.ex = ex;
-        releaseResources();
-    }
-
-    public final synchronized void close() throws IOException {
-        if (this.completed) {
-            return;
-        }
-        this.completed = true;
-        releaseResources();
-        onClose();
     }
 
     public Exception getException() {
@@ -191,7 +185,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     }
 
     public boolean isDone() {
-        return this.completed;
+        return this.completed.get();
     }
 
 }
