@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
@@ -43,14 +42,13 @@ import org.apache.http.util.Args;
  * Basic implementation of {@link HttpAsyncResponseProducer}. The producer
  * can make use of the {@link HttpAsyncContentProducer} interface to
  * efficiently stream out message content to the underlying non-blocking HTTP
- * connection, if it is implemented by the {@link HttpEntity} inclosed in
+ * connection, if it is implemented by the {@link HttpEntity} enclosed in
  * the response.
  *
  * @see HttpAsyncContentProducer
  *
  * @since 4.2
  */
-@ThreadSafe
 public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
     private final HttpResponse response;
@@ -99,11 +97,11 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
         }
     }
 
-    public synchronized HttpResponse generateResponse() {
+    public HttpResponse generateResponse() {
         return this.response;
     }
 
-    public synchronized void produceContent(
+    public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.producer != null) {
             this.producer.produceContent(encoder, ioctrl);
@@ -119,7 +117,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
     public void failed(final Exception ex) {
     }
 
-    public synchronized void close() throws IOException {
+    public void close() throws IOException {
         if (this.producer != null) {
             this.producer.close();
         }

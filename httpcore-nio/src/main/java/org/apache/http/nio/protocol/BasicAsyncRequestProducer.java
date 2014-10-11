@@ -32,7 +32,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
@@ -50,7 +49,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@ThreadSafe
 public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
 
     private final HttpHost target;
@@ -110,7 +108,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         }
     }
 
-    public synchronized HttpRequest generateRequest() {
+    public HttpRequest generateRequest() {
         return this.request;
     }
 
@@ -118,7 +116,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         return this.target;
     }
 
-    public synchronized void produceContent(
+    public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         if (this.producer != null) {
             this.producer.produceContent(encoder, ioctrl);
@@ -134,17 +132,17 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
     public void failed(final Exception ex) {
     }
 
-    public synchronized boolean isRepeatable() {
+    public boolean isRepeatable() {
         return this.producer == null || this.producer.isRepeatable();
     }
 
-    public synchronized void resetRequest() throws IOException {
+    public void resetRequest() throws IOException {
         if (this.producer != null) {
             this.producer.close();
         }
     }
 
-    public synchronized void close() throws IOException {
+    public void close() throws IOException {
         if (this.producer != null) {
             this.producer.close();
         }
