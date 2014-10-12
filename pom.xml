@@ -312,6 +312,12 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <excludes>
+            <exclude>src/docbkx/resources/**</exclude>
+            <exclude>src/test/resources/*.truststore</exclude>
+          </excludes>
+        </configuration>
       </plugin>
     </plugins>
   </build>
