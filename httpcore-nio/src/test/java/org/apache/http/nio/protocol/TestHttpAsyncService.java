@@ -559,7 +559,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpAsyncExchange httpexchanage = new HttpAsyncService.HttpAsyncExchangeImpl(
+        final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn, exchangeContext);
@@ -589,7 +589,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpAsyncExchange httpexchanage = new HttpAsyncService.HttpAsyncExchangeImpl(
+        final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn, exchangeContext);
@@ -687,7 +687,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpAsyncExchange httpexchanage = new HttpAsyncService.HttpAsyncExchangeImpl(
+        final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue"),
                 state, this.conn, exchangeContext);
@@ -1191,7 +1191,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpAsyncExchange httpexchanage = new HttpAsyncService.HttpAsyncExchangeImpl(
+        final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn, exchangeContext);
@@ -1221,7 +1221,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpAsyncExchange httpexchanage = new HttpAsyncService.HttpAsyncExchangeImpl(
+        final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
                 new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
                 state, this.conn, exchangeContext);

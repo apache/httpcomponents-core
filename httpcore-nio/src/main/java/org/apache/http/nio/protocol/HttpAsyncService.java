@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.ExceptionLogger;
@@ -640,6 +641,17 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
     }
 
+    protected void handleAlreadySubmittedResponse(
+            final Cancellable cancellable, final HttpContext context) {
+        throw new IllegalStateException("Response already submitted");
+    }
+
+    protected void handleAlreadySubmittedResponse(
+            final HttpAsyncResponseProducer responseProducer,
+            final HttpContext context) {
+        throw new IllegalStateException("Response already submitted");
+    }
+
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
         if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
             return false;
@@ -948,15 +960,14 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     }
 
-    static class HttpAsyncExchangeImpl implements HttpAsyncExchange {
+    class HttpAsyncExchangeImpl implements HttpAsyncExchange {
 
+        private final AtomicBoolean completed = new AtomicBoolean();
         private final HttpRequest request;
         private final HttpResponse response;
         private final State state;
         private final NHttpServerConnection conn;
         private final HttpContext context;
-
-        private volatile boolean completed;
 
         public HttpAsyncExchangeImpl(
                 final HttpRequest request,
@@ -984,8 +995,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         @Override
         public void setCallback(final Cancellable cancellable) {
-            Asserts.check(!this.completed, "Response already submitted");
-            if (this.state.isTerminated() && cancellable != null) {
+            if (this.completed.get()) {
+                handleAlreadySubmittedResponse(cancellable, context);
+            } else if (this.state.isTerminated() && cancellable != null) {
                 cancellable.cancel();
             } else {
                 this.state.setCancellable(cancellable);
@@ -995,9 +1007,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         @Override
         public void submitResponse(final HttpAsyncResponseProducer responseProducer) {
             Args.notNull(responseProducer, "Response producer");
-            Asserts.check(!this.completed, "Response already submitted");
-            this.completed = true;
-            if (!this.state.isTerminated()) {
+            if (this.completed.getAndSet(true)) {
+                handleAlreadySubmittedResponse(responseProducer, context);
+            } else if (!this.state.isTerminated()) {
                 final HttpResponse response = responseProducer.generateResponse();
                 final Outgoing outgoing = new Outgoing(
                         this.request, response, responseProducer, this.context);
@@ -1023,7 +1035,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         @Override
         public boolean isCompleted() {
-            return this.completed;
+            return this.completed.get();
         }
 
         @Override
