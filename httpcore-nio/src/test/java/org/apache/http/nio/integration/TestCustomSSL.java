@@ -27,6 +27,17 @@
 
 package org.apache.http.nio.integration;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.InetSocketAddress;
+import java.net.URL;
+import java.util.concurrent.Future;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -44,22 +55,14 @@ import org.apache.http.nio.testserver.ClientConnectionFactory;
 import org.apache.http.nio.testserver.HttpClientNio;
 import org.apache.http.nio.testserver.HttpServerNio;
 import org.apache.http.nio.testserver.ServerConnectionFactory;
-import org.apache.http.nio.testserver.SSLTestContexts;
 import org.apache.http.nio.testserver.SimpleIOReactorExceptionHandler;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.InetSocketAddress;
-import java.util.concurrent.Future;
 
 public class TestCustomSSL {
 
@@ -116,15 +119,22 @@ public class TestCustomSSL {
 
         };
 
-        this.server = new HttpServerNio(
-                new ServerConnectionFactory(
-                        SSLTestContexts.createServerSSLContext(), sslSetupHandler));
+        final URL keyStoreURL = getClass().getResource("/test.keystore");
+        final String storePassword = "nopassword";
+        final SSLContext serverSSLContext = SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                .build();
+        this.server = new HttpServerNio(new ServerConnectionFactory(serverSSLContext, sslSetupHandler));
         this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.server.setTimeout(5000);
+
+        final SSLContext clientSSLContext = SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .build();
+
         this.client = new HttpClientNio(
-                new BasicNIOConnFactory(
-                        new ClientConnectionFactory(
-                                SSLTestContexts.createClientSSLContext()), null));
+                new BasicNIOConnFactory(new ClientConnectionFactory(clientSSLContext), null));
         this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.client.setTimeout(5000);
 

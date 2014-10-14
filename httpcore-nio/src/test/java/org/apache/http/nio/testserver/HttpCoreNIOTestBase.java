@@ -27,7 +27,12 @@
 
 package org.apache.http.nio.testserver;
 
+import java.net.URL;
+
+import javax.net.ssl.SSLContext;
+
 import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.junit.After;
 
 /**
@@ -55,16 +60,32 @@ public abstract class HttpCoreNIOTestBase {
         return this.scheme;
     }
 
+    protected SSLContext createServerSSLContext() throws Exception {
+        final URL keyStoreURL = getClass().getResource("/test.keystore");
+        final String storePassword = "nopassword";
+        return SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                .build();
+    }
+
+    protected SSLContext createClientSSLContext() throws Exception {
+        final URL keyStoreURL = getClass().getResource("/test.keystore");
+        final String storePassword = "nopassword";
+        return SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .build();
+    }
+
     protected ServerConnectionFactory createServerConnectionFactory() throws Exception {
         return new ServerConnectionFactory(
-                this.scheme.equals(ProtocolScheme.https) ? SSLTestContexts.createServerSSLContext() : null);
+                this.scheme.equals(ProtocolScheme.https) ? createServerSSLContext() : null);
     }
 
     protected BasicNIOConnFactory createClientConnectionFactory() throws Exception {
         return new BasicNIOConnFactory(
                 new ClientConnectionFactory(),
-                this.scheme.equals(ProtocolScheme.https) ? new ClientConnectionFactory(
-                        SSLTestContexts.createClientSSLContext()) : null);
+                this.scheme.equals(ProtocolScheme.https) ? new ClientConnectionFactory(createClientSSLContext()) : null);
 
     }
 
