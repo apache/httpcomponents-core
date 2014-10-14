@@ -35,7 +35,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.http.annotation.Immutable;
 
 /**
- * {@link SSLContext} factory methods.
+ * {@link javax.net.ssl.SSLContext} factory methods.
  *
  * @since 4.4
  */
@@ -84,7 +84,7 @@ public class SSLContexts {
      * @return default system SSL context
      */
     public static SSLContextBuilder custom() {
-        return new SSLContextBuilder();
+        return SSLContextBuilder.create();
     }
 
 }

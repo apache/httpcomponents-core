@@ -30,7 +30,9 @@ package org.apache.http.ssl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
+import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -57,7 +59,7 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.http.annotation.NotThreadSafe;
 
 /**
- * Builder for {@link SSLContext} instances.
+ * Builder for {@link javax.net.ssl.SSLContext} instances.
  *
  * @since 4.4
  */
@@ -71,6 +73,10 @@ public class SSLContextBuilder {
     private Set<KeyManager> keymanagers;
     private Set<TrustManager> trustmanagers;
     private SecureRandom secureRandom;
+
+    public static SSLContextBuilder create() {
+        return new SSLContextBuilder();
+    }
 
     public SSLContextBuilder() {
         super();
@@ -123,17 +129,17 @@ public class SSLContextBuilder {
     }
 
     public SSLContextBuilder loadTrustMaterial(
-            final KeyStore truststore) throws NoSuchAlgorithmException, KeyStoreException {
-        return loadTrustMaterial(truststore, null);
+            final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException {
+        return loadTrustMaterial(null, trustStrategy);
     }
 
     public SSLContextBuilder loadTrustMaterial(
             final File file,
-            final char[] password) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
+            final char[] storePassword) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
         final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
         final FileInputStream instream = new FileInputStream(file);
         try {
-            trustStore.load(instream, password);
+            trustStore.load(instream, storePassword);
         } finally {
             instream.close();
         }
@@ -145,21 +151,49 @@ public class SSLContextBuilder {
         return loadTrustMaterial(file, null);
     }
 
+    public SSLContextBuilder loadTrustMaterial(
+            final URL url,
+            final char[] storePassword) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
+        final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        final InputStream instream = url.openStream();
+        try {
+            trustStore.load(instream, storePassword);
+        } finally {
+            instream.close();
+        }
+        return loadTrustMaterial(trustStore, null);
+    }
+
     public SSLContextBuilder loadKeyMaterial(
             final KeyStore keystore,
-            final char[] keyPassword)
-                throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
+            final char[] keyPassword) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
         loadKeyMaterial(keystore, keyPassword, null);
         return this;
     }
 
     public SSLContextBuilder loadKeyMaterial(
             final File file,
+            final char[] storePassword,
             final char[] keyPassword) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, CertificateException, IOException {
         final KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
         final FileInputStream instream = new FileInputStream(file);
         try {
-            identityStore.load(instream, keyPassword);
+            identityStore.load(instream, storePassword);
+        } finally {
+            instream.close();
+        }
+        loadKeyMaterial(identityStore, keyPassword, null);
+        return this;
+    }
+
+    public SSLContextBuilder loadKeyMaterial(
+            final URL url,
+            final char[] storePassword,
+            final char[] keyPassword) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, CertificateException, IOException {
+        final KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        final InputStream instream = url.openStream();
+        try {
+            identityStore.load(instream, storePassword);
         } finally {
             instream.close();
         }

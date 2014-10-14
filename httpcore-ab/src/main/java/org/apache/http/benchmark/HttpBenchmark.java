@@ -203,6 +203,7 @@ public class HttpBenchmark {
             if (config.getIdentityStorePath() != null) {
                 sslContextBuilder.loadKeyMaterial(
                         new File(config.getIdentityStorePath()),
+                        config.getIdentityStorePassword() != null ? config.getIdentityStorePassword().toCharArray() : null,
                         config.getIdentityStorePassword() != null ? config.getIdentityStorePassword().toCharArray() : null);
             }
             final SSLContext sslContext = sslContextBuilder.build();
