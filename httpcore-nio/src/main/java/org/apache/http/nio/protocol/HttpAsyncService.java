@@ -641,11 +641,28 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
     }
 
+    /**
+     * This method can be used to handle callback set up happened after
+     * response submission.
+     *
+     * @param cancellable Request cancellation callback.
+     * @param context Request context.
+     *
+     * @since 4.4
+     */
     protected void handleAlreadySubmittedResponse(
             final Cancellable cancellable, final HttpContext context) {
         throw new IllegalStateException("Response already submitted");
     }
 
+    /**
+     * This method can be used to handle double response submission.
+     *
+     * @param responseProducer Response producer for second response.
+     * @param context Request context.
+     *
+     * @since 4.4
+     */
     protected void handleAlreadySubmittedResponse(
             final HttpAsyncResponseProducer responseProducer,
             final HttpContext context) {
