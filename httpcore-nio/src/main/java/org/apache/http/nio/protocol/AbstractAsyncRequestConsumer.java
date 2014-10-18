@@ -33,7 +33,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -46,7 +45,6 @@ import org.apache.http.protocol.HttpContext;
  *
  * @since 4.2
  */
-@ThreadSafe
 public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncRequestConsumer<T> {
 
     private final AtomicBoolean completed;

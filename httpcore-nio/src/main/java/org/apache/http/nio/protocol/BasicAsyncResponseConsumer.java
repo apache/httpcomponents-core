@@ -31,7 +31,6 @@ import java.io.IOException;
 import org.apache.http.ContentTooLongException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -48,7 +47,6 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.2
  */
-@ThreadSafe
 public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<HttpResponse> {
 
     private volatile HttpResponse response;
