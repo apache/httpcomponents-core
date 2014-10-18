@@ -92,17 +92,6 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildUseSSL() throws Exception {
-        final SSLContext sslContext = SSLContextBuilder.create()
-                .useSSL()
-                .build();
-        Assert.assertNotNull(sslContext);
-        Assert.assertEquals("SSL", sslContext.getProtocol());
-        final SSLSocketFactory socketFactory = sslContext.getSocketFactory();
-        Assert.assertNotNull(socketFactory);
-    }
-
-    @Test
     public void testKeyWithAlternatePassword() throws Exception {
         final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";

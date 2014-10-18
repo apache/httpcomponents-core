@@ -68,7 +68,6 @@ import org.apache.http.util.Args;
 public class SSLContextBuilder {
 
     static final String TLS   = "TLS";
-    static final String SSL   = "SSL";
 
     private String protocol;
     private Set<KeyManager> keymanagers;
@@ -83,16 +82,6 @@ public class SSLContextBuilder {
         super();
         this.keymanagers = new HashSet<KeyManager>();
         this.trustmanagers = new HashSet<TrustManager>();
-    }
-
-    public SSLContextBuilder useTLS() {
-        this.protocol = TLS;
-        return this;
-    }
-
-    public SSLContextBuilder useSSL() {
-        this.protocol = SSL;
-        return this;
     }
 
     public SSLContextBuilder useProtocol(final String protocol) {
