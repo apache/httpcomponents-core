@@ -1,9 +1,23 @@
-Changes since Release 4.3.2
+Release 4.3.3
 -------------------
+
+This maintenance release fixes several bugs found since 4.3.2, mostly in the NIO transport 
+components. All users of HttpCore 4.3 are advised to upgrade.
+
+Changelog
+-------------------
+
+* Make a connection exception throw a ConnectException instead of a SocketTimeoutException 
+  to allow a FutureCallback handler to correctly distinguish between the two events.
+  Contributed by Asankha Perera <asankha@apache.org>
 
 * [HTTPASYNC-77] system resources are not correctly deallocated if I/O reactor is shut down
   while still inactive (not started)
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-379] shut down non-blocking server side connection in case of an i/o or runtime error 
+  to avoid an infinite loop in the i/o reactor trying to flush buffered output 
+  Contributed by Dmitry Potapov <potapov.d at gmail.com>
 
 * [HTTPCORE-376] AbstractNIOConnPool#requestCancelled() should not process pending requests
   wnen being shut down.
