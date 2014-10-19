@@ -528,9 +528,7 @@ public class TestSSLContextBuilder {
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
         final Set<String> supportedServerProtocols = new LinkedHashSet<String>(Arrays.asList(serverSocket.getSupportedProtocols()));
         Assert.assertTrue(supportedServerProtocols.contains("TLSv1"));
-        Assert.assertTrue(supportedServerProtocols.contains("TLSv1.1"));
-        Assert.assertTrue(supportedServerProtocols.contains("TLSv1.2"));
-        serverSocket.setEnabledProtocols(new String[] {"TLSv1", "TLSv1.1", "TLSv1.2"});
+        serverSocket.setEnabledProtocols(new String[] {"TLSv1"});
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
@@ -599,9 +597,7 @@ public class TestSSLContextBuilder {
         try {
             final Set<String> supportedClientProtocols = new LinkedHashSet<String>(Arrays.asList(clientSocket.getSupportedProtocols()));
             Assert.assertTrue(supportedClientProtocols.contains("TLSv1"));
-            Assert.assertTrue(supportedClientProtocols.contains("TLSv1.1"));
-            Assert.assertTrue(supportedClientProtocols.contains("TLSv1.2"));
-            clientSocket.setEnabledProtocols(new String[] {"TLSv1", "TLSv1.1", "TLSv1.2"});
+            clientSocket.setEnabledProtocols(new String[] {"TLSv1"});
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
         } finally {
