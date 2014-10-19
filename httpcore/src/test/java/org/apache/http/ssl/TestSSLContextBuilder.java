@@ -38,7 +38,10 @@ import java.security.Principal;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -505,6 +508,105 @@ public class TestSSLContextBuilder {
         Assert.assertNotNull(clientPrincipal);
         Assert.assertEquals("CN=Test Client 2,OU=HttpComponents Project,O=Apache Software Foundation," +
                 "L=Unknown,ST=Unknown,C=Unknown", clientPrincipal.getName());
+    }
+
+
+    @Test(expected = SSLHandshakeException.class)
+    public void testSSLHanskshakeProtocolMismatch1() throws Exception {
+        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final String storePassword = "nopassword";
+        final String keyPassword = "nopassword";
+        final SSLContext serverSslContext = SSLContextBuilder.create()
+                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                .build();
+        Assert.assertNotNull(serverSslContext);
+        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final SSLContext clientSslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(resource2, storePassword.toCharArray())
+                .build();
+        Assert.assertNotNull(clientSslContext);
+        final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
+        final Set<String> supportedServerProtocols = new LinkedHashSet<String>(Arrays.asList(serverSocket.getSupportedProtocols()));
+        Assert.assertTrue(supportedServerProtocols.contains("TLSv1"));
+        Assert.assertTrue(supportedServerProtocols.contains("TLSv1.1"));
+        Assert.assertTrue(supportedServerProtocols.contains("TLSv1.2"));
+        serverSocket.setEnabledProtocols(new String[] {"TLSv1", "TLSv1.1", "TLSv1.2"});
+        serverSocket.bind(new InetSocketAddress(0));
+
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.executorService.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                final SSLSocket socket = (SSLSocket) serverSocket.accept();
+                try {
+                    socket.getSession();
+                } finally {
+                    socket.close();
+                }
+                return Boolean.FALSE;
+            }
+        });
+
+        final int localPort = serverSocket.getLocalPort();
+        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
+        try {
+            final Set<String> supportedClientProtocols = new LinkedHashSet<String>(Arrays.asList(clientSocket.getSupportedProtocols()));
+            Assert.assertTrue(supportedClientProtocols.contains("SSLv3"));
+            clientSocket.setEnabledProtocols(new String[] {"SSLv3"} );
+            clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
+            clientSocket.startHandshake();
+        } finally {
+            clientSocket.close();
+        }
+    }
+
+    @Test(expected = SSLHandshakeException.class)
+    public void testSSLHanskshakeProtocolMismatch2() throws Exception {
+        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final String storePassword = "nopassword";
+        final String keyPassword = "nopassword";
+        final SSLContext serverSslContext = SSLContextBuilder.create()
+                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                .build();
+        Assert.assertNotNull(serverSslContext);
+        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final SSLContext clientSslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(resource2, storePassword.toCharArray())
+                .build();
+        Assert.assertNotNull(clientSslContext);
+        final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
+        final Set<String> supportedServerProtocols = new LinkedHashSet<String>(Arrays.asList(serverSocket.getSupportedProtocols()));
+        Assert.assertTrue(supportedServerProtocols.contains("SSLv3"));
+        serverSocket.setEnabledProtocols(new String[] {"SSLv3"});
+        serverSocket.bind(new InetSocketAddress(0));
+
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.executorService.submit(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                final SSLSocket socket = (SSLSocket) serverSocket.accept();
+                try {
+                    socket.getSession();
+                } finally {
+                    socket.close();
+                }
+                return Boolean.FALSE;
+            }
+        });
+
+        final int localPort = serverSocket.getLocalPort();
+        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
+        try {
+            final Set<String> supportedClientProtocols = new LinkedHashSet<String>(Arrays.asList(clientSocket.getSupportedProtocols()));
+            Assert.assertTrue(supportedClientProtocols.contains("TLSv1"));
+            Assert.assertTrue(supportedClientProtocols.contains("TLSv1.1"));
+            Assert.assertTrue(supportedClientProtocols.contains("TLSv1.2"));
+            clientSocket.setEnabledProtocols(new String[] {"TLSv1", "TLSv1.1", "TLSv1.2"});
+            clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
+            clientSocket.startHandshake();
+        } finally {
+            clientSocket.close();
+        }
     }
 
 }
