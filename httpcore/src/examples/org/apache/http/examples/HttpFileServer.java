@@ -33,12 +33,9 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.security.KeyStore;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.ConnectionClosedException;
@@ -60,6 +57,7 @@ import org.apache.http.impl.bootstrap.ServerBootstrap;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpRequestHandler;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -82,20 +80,14 @@ public class HttpFileServer {
         SSLContext sslcontext = null;
         if (port == 8443) {
             // Initialize SSL context
-            ClassLoader cl = HttpFileServer.class.getClassLoader();
-            URL url = cl.getResource("my.keystore");
+            URL url = HttpFileServer.class.getResource("/my.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
                 System.exit(1);
             }
-            KeyStore keystore  = KeyStore.getInstance("jks");
-            keystore.load(url.openStream(), "secret".toCharArray());
-            KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(
-                    KeyManagerFactory.getDefaultAlgorithm());
-            kmfactory.init(keystore, "secret".toCharArray());
-            KeyManager[] keymanagers = kmfactory.getKeyManagers();
-            sslcontext = SSLContext.getInstance("TLS");
-            sslcontext.init(keymanagers, null, null);
+            sslcontext = SSLContexts.custom()
+                    .loadKeyMaterial(url, "secret".toCharArray(), "secret".toCharArray())
+                    .build();
         }
 
         SocketConfig socketConfig = SocketConfig.custom()

@@ -30,12 +30,9 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.security.KeyStore;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.ExceptionLogger;
@@ -58,6 +55,7 @@ import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
+import org.apache.http.ssl.SSLContexts;
 
 /**
  * Embedded HTTP/1.1 file server based on a non-blocking I/O model and capable of direct channel
@@ -80,20 +78,14 @@ public class NHttpFileServer {
         SSLContext sslcontext = null;
         if (port == 8443) {
             // Initialize SSL context
-            ClassLoader cl = NHttpFileServer.class.getClassLoader();
-            URL url = cl.getResource("my.keystore");
+            URL url = NHttpFileServer.class.getResource("/my.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
                 System.exit(1);
             }
-            KeyStore keystore  = KeyStore.getInstance("jks");
-            keystore.load(url.openStream(), "secret".toCharArray());
-            KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(
-                    KeyManagerFactory.getDefaultAlgorithm());
-            kmfactory.init(keystore, "secret".toCharArray());
-            KeyManager[] keymanagers = kmfactory.getKeyManagers();
-            sslcontext = SSLContext.getInstance("TLS");
-            sslcontext.init(keymanagers, null, null);
+            sslcontext = SSLContexts.custom()
+                    .loadKeyMaterial(url, "secret".toCharArray(), "secret".toCharArray())
+                    .build();
         }
 
         IOReactorConfig config = IOReactorConfig.custom()
