@@ -66,7 +66,8 @@
 
     <xi:include href="preface.xml"/>
     <xi:include href="fundamentals.xml"/>
-    <xi:include href="nio-ext.xml"/>
+    <xi:include href="blocking-io.xml"/>
+    <xi:include href="nio.xml"/>
     <xi:include href="advanced.xml"/>
 
 </book>

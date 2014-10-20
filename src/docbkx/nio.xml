@@ -24,6 +24,12 @@
 -->
 <chapter id="nio">
     <title>Asynchronous I/O based on NIO</title>
+    <para>
+    Asynchronous I/O model may be more appropriate for those scenarios where raw data throughput
+    is less important than the ability to handle thousands of simultaneous connections in
+    a scalable, resource efficient manner. Asynchronous I/O is arguably more complex and usually
+    requires a special care when dealing with large message payloads.
+    </para>
     <section>
         <title>Differences from other I/O frameworks</title>
         <para>
@@ -2017,8 +2023,7 @@ NHttpClientConnection conn = connfactory.createConnection(iosession);
                     </listitem>
                 </itemizedlist>
                 <programlisting><![CDATA[
-SSLContext sslcontext = SSLContext.getInstance("Default");
-sslcontext.init(null, null, null);
+SSLContext sslcontext = SSLContexts.createDefault();
 // Plain I/O session
 IOSession iosession = <...>
 
@@ -2026,6 +2031,11 @@ SSLIOSession sslsession = new SSLIOSession(
         iosession, SSLMode.CLIENT, sslcontext, new SSLSetupHandler() {
 
     public void initalize(final SSLEngine sslengine) throws SSLException {
+        // Enforce TLS and disable SSL
+        sslengine.setEnabledProtocols(new String[] {
+                "TLSv1",
+                "TLSv1.1",
+                "TLSv1.2" });
         // Enforce strong ciphers
         sslengine.setEnabledCipherSuites(new String[] {
                 "TLS_RSA_WITH_AES_256_CBC_SHA",
@@ -2051,19 +2061,18 @@ SSLIOSession sslsession = new SSLIOSession(
             SSLNHttpServerConnectionFactory</classname> classes.
             </para>
             <programlisting><![CDATA[
-SSLContext sslcontext = SSLContext.getInstance("Default");
-sslcontext.init(null, null, null);
+SSLContext sslcontext = SSLContexts.createDefault();
 // Plain I/O session
 IOSession iosession = <...>
 
 SSLSetupHandler mysslhandler = new SSLSetupHandler() {
 
     public void initalize(final SSLEngine sslengine) throws SSLException {
-        // Enforce strong ciphers
-        sslengine.setEnabledCipherSuites(new String[] {
-                "TLS_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",
-                "TLS_DHE_DSS_WITH_AES_256_CBC_SHA" });
+        // Enforce TLS and disable SSL
+        sslengine.setEnabledProtocols(new String[] {
+                "TLSv1",
+                "TLSv1.1",
+                "TLSv1.2" });
     }
 
     public void verify(
