@@ -33,7 +33,7 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
   <name>Apache HttpComponents Core</name>
-  <version>4.4-beta2-SNAPSHOT</version>
+  <version>5.0-alpha1-SNAPSHOT</version>
   <description>Apache Core components to build HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
@@ -78,7 +78,6 @@
     <junit.version>4.11</junit.version>
     <mockito.version>1.8.5</mockito.version>
     <commons-logging.version>1.2</commons-logging.version>
-    <api.comparison.version>4.3</api.comparison.version>
     <hc.stylecheck.version>1</hc.stylecheck.version>
   </properties>
 
@@ -293,14 +292,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>clirr-maven-plugin</artifactId>
-        <version>${hc.clirr.version}</version>
-        <configuration>
-          <comparisonVersion>${api.comparison.version}</comparisonVersion>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
         <version>0.11</version>
@@ -340,15 +331,6 @@
             </reports>
           </reportSet>
         </reportSets>
-      </plugin>
-
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>clirr-maven-plugin</artifactId>
-        <version>${hc.clirr.version}</version>
-        <configuration>
-          <comparisonVersion>${api.comparison.version}</comparisonVersion>
-        </configuration>
       </plugin>
 
     </plugins>
