@@ -1950,6 +1950,39 @@ Future<HttpResponse> future = requester.execute(
         connpool);
 ]]></programlisting>
     </section>
+  <section>
+    <title>Pipelined request execution</title>
+    <para>
+    In addition to the normal request / response execution mode <classname>HttpAsyncRequester
+    </classname> is also capable of executing requests in the so called pipelined mode whereby
+    several requests are immediately written out to the underlying connection. Please note that
+    entity enclosing requests can be executed in the pipelined mode but the 'expect: continue'
+    handshake should be disabled (request messages should contains no 'Expect: 100-continue'
+    header).
+    </para>
+    <programlisting><![CDATA[
+HttpProcessor httpproc = <...>
+HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
+HttpHost target = new HttpHost("www.apache.org");
+List<BasicAsyncRequestProducer> requestProducers = Arrays.asList(
+        new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/index.html")),
+        new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/foundation/index.html")),
+        new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/foundation/how-it-works.html"))
+);
+List<BasicAsyncResponseConsumer> responseConsumers = Arrays.asList(
+        new BasicAsyncResponseConsumer(),
+        new BasicAsyncResponseConsumer(),
+        new BasicAsyncResponseConsumer()
+);
+HttpCoreContext context = HttpCoreContext.create();
+Future<List<HttpResponse>> future = requester.executePipelined(
+        target, requestProducers, responseConsumers, pool, context, null);
+]]></programlisting>
+    <para>
+    Please note that older web servers and especially older HTTP proxies may be unable to handle
+    pipelined requests correctly. Use the pipelined execution mode with caution.
+    </para>
+  </section>
 
     <section>
         <title>Non-blocking TLS/SSL</title>
@@ -2128,4 +2161,35 @@ NHttpClientConnection conn = connfactory.createConnection(iosession);
             </itemizedlist>
         </section>
     </section>
+  <section>
+    <title>Embedded non-blocking HTTP server</title>
+    <para>
+    As of version 4.4 HttpCore ships with an embedded non-blocking HTTP server based on
+    non-blocking I/O components described above.
+    </para>
+    <programlisting><![CDATA[
+HttpAsyncRequestHandler<?> requestHandler = <...>
+HttpProcessor httpProcessor = <...>
+SocketConfig socketConfig = SocketConfig.custom()
+        .setSoTimeout(15000)
+        .setTcpNoDelay(true)
+        .build();
+final HttpServer server = ServerBootstrap.bootstrap()
+        .setListenerPort(8080)
+        .setHttpProcessor(httpProcessor)
+        .setSocketConfig(socketConfig)
+        .setExceptionLogger(new StdErrorExceptionLogger())
+        .registerHandler("*", requestHandler)
+        .create();
+server.start();
+server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+
+Runtime.getRuntime().addShutdownHook(new Thread() {
+    @Override
+    public void run() {
+        server.shutdown(5, TimeUnit.SECONDS);
+    }
+});
+]]></programlisting>
+  </section>
 </chapter>

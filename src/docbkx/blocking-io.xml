@@ -484,4 +484,35 @@ DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1204);
 conn.bind(socket);
 ]]></programlisting>
     </section>
+  <section>
+    <title>Embedded HTTP server</title>
+    <para>
+    As of version 4.4 HttpCore ships with an embedded HTTP server based on blocking I/O components
+    described above.
+    </para>
+    <programlisting><![CDATA[
+HttpRequestHandler requestHandler = <...>
+HttpProcessor httpProcessor = <...>
+SocketConfig socketConfig = SocketConfig.custom()
+        .setSoTimeout(15000)
+        .setTcpNoDelay(true)
+        .build();
+final HttpServer server = ServerBootstrap.bootstrap()
+        .setListenerPort(8080)
+        .setHttpProcessor(httpProcessor)
+        .setSocketConfig(socketConfig)
+        .setExceptionLogger(new StdErrorExceptionLogger())
+        .registerHandler("*", requestHandler)
+        .create();
+server.start();
+server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+
+Runtime.getRuntime().addShutdownHook(new Thread() {
+    @Override
+    public void run() {
+        server.shutdown(5, TimeUnit.SECONDS);
+    }
+});
+]]></programlisting>
+  </section>
 </chapter>
