@@ -169,31 +169,4 @@ public interface HttpEntity {
      */
     boolean isStreaming(); // don't expect an exception here
 
-    /**
-     * This method is deprecated since version 4.1. Please use standard
-     * java convention to ensure resource deallocation by calling
-     * {@link InputStream#close()} on the input stream returned by
-     * {@link #getContent()}
-     * <p>
-     * This method is called to indicate that the content of this entity
-     * is no longer required. All entity implementations are expected to
-     * release all allocated resources as a result of this method
-     * invocation. Content streaming entities are also expected to
-     * dispose of the remaining content, if any. Wrapping entities should
-     * delegate this call to the wrapped entity.
-     * <p>
-     * This method is of particular importance for entities being
-     * received from a {@link HttpConnection connection}. The entity
-     * needs to be consumed completely in order to re-use the connection
-     * with keep-alive.
-     *
-     * @throws IOException if an I/O error occurs.
-     *
-     * @deprecated (4.1) Use {@link org.apache.http.util.EntityUtils#consume(HttpEntity)}
-     *
-     * @see #getContent() and #writeTo(OutputStream)
-     */
-    @Deprecated
-    void consumeContent() throws IOException;
-
 }

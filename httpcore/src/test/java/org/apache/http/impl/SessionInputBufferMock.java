@@ -28,7 +28,6 @@
 package org.apache.http.impl;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
@@ -115,11 +114,6 @@ public class SessionInputBufferMock extends SessionInputBufferImpl {
             final String s,
             final Charset charset) {
         this(s.getBytes(charset), MessageConstraints.DEFAULT, charset);
-    }
-
-    @Override
-    public boolean isDataAvailable(final int timeout) throws IOException {
-        return true;
     }
 
 }

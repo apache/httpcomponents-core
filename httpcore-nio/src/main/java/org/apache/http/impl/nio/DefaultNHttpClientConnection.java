@@ -37,28 +37,20 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriter;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriterFactory;
-import org.apache.http.impl.nio.codecs.DefaultHttpResponseParser;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
+import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpClientEventHandler;
-import org.apache.http.nio.NHttpClientHandler;
-import org.apache.http.nio.NHttpClientIOTarget;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.NHttpMessageWriterFactory;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
-import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.params.HttpParamConfig;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
@@ -67,41 +59,12 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class DefaultNHttpClientConnection
-    extends NHttpConnectionBase implements NHttpClientIOTarget {
+    extends NHttpConnectionBase implements NHttpClientConnection {
 
     protected final NHttpMessageParser<HttpResponse> responseParser;
     protected final NHttpMessageWriter<HttpRequest> requestWriter;
-
-    /**
-     * Creates a new instance of this class given the underlying I/O session.
-     *
-     * @param session the underlying I/O session.
-     * @param responseFactory HTTP response factory.
-     * @param allocator byte buffer allocator.
-     * @param params HTTP parameters.
-     *
-     * @deprecated (4.3) use {@link DefaultNHttpClientConnection#DefaultNHttpClientConnection(
-     *   IOSession, int, int, ByteBufferAllocator, CharsetDecoder, CharsetEncoder,
-     *   MessageConstraints, ContentLengthStrategy, ContentLengthStrategy,
-     *   NHttpMessageWriterFactory, NHttpMessageParserFactory)}
-     */
-    @Deprecated
-    public DefaultNHttpClientConnection(
-            final IOSession session,
-            final HttpResponseFactory responseFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        super(session, allocator, params);
-        Args.notNull(responseFactory, "Response factory");
-        this.responseParser = createResponseParser(this.inbuf, responseFactory, params);
-        this.requestWriter = createRequestWriter(this.outbuf, params);
-        this.hasBufferedInput = false;
-        this.hasBufferedOutput = false;
-        this.session.setBufferStatus(this);
-    }
 
     /**
      * Creates new instance DefaultNHttpClientConnection given the underlying I/O session.
@@ -163,46 +126,6 @@ public class DefaultNHttpClientConnection
      */
     public DefaultNHttpClientConnection(final IOSession session, final int buffersize) {
         this(session, buffersize, buffersize, null, null, null, null, null, null, null, null);
-    }
-
-    /**
-     * Creates an instance of {@link NHttpMessageParser} to be used
-     * by this connection for parsing incoming {@link HttpResponse} messages.
-     * <p>
-     * This method can be overridden in a super class in order to provide
-     * a different implementation of the {@link NHttpMessageParser} interface.
-     *
-     * @return HTTP response parser.
-     *
-     * @deprecated (4.3) use constructor.
-     */
-    @Deprecated
-    protected NHttpMessageParser<HttpResponse> createResponseParser(
-            final SessionInputBuffer buffer,
-            final HttpResponseFactory responseFactory,
-            final HttpParams params) {
-        // override in derived class to specify a line parser
-        final MessageConstraints constraints = HttpParamConfig.getMessageConstraints(params);
-        return new DefaultHttpResponseParser(buffer, null, responseFactory, constraints);
-    }
-
-    /**
-     * Creates an instance of {@link NHttpMessageWriter} to be used
-     * by this connection for writing out outgoing {@link HttpRequest} messages.
-     * <p>
-     * This method can be overridden by a super class in order to provide
-     * a different implementation of the {@link NHttpMessageWriter} interface.
-     *
-     * @return HTTP response parser.
-     *
-     * @deprecated (4.3) use constructor.
-     */
-    @Deprecated
-    protected NHttpMessageWriter<HttpRequest> createRequestWriter(
-            final SessionOutputBuffer buffer,
-            final HttpParams params) {
-        // override in derived class to specify a line formatter
-        return new DefaultHttpRequestWriter(buffer, null);
     }
 
     /**
@@ -342,16 +265,6 @@ public class DefaultNHttpClientConnection
     @Override
     public boolean isRequestSubmitted() {
         return this.request != null;
-    }
-
-    @Override
-    public void consumeInput(final NHttpClientHandler handler) {
-        consumeInput(new NHttpClientEventHandlerAdaptor(handler));
-    }
-
-    @Override
-    public void produceOutput(final NHttpClientHandler handler) {
-        produceOutput(new NHttpClientEventHandlerAdaptor(handler));
     }
 
 }

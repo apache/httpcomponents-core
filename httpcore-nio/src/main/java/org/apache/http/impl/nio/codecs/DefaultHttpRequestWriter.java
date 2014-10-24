@@ -33,7 +33,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -42,20 +41,8 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.1
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
-
-    /**
-     * @deprecated (4.3) use
-     *   {@link DefaultHttpRequestWriter#DefaultHttpRequestWriter(SessionOutputBuffer, LineFormatter)}
-     */
-    @Deprecated
-    public DefaultHttpRequestWriter(final SessionOutputBuffer buffer,
-                             final LineFormatter formatter,
-                             final HttpParams params) {
-        super(buffer, formatter, params);
-    }
 
     /**
      * Creates an instance of DefaultHttpRequestWriter.

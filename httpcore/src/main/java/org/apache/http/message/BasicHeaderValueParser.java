@@ -48,18 +48,6 @@ import org.apache.http.util.CharArrayBuffer;
 @Immutable
 public class BasicHeaderValueParser implements HeaderValueParser {
 
-    /**
-     * A default instance of this class, for use as default or fallback.
-     * Note that {@link BasicHeaderValueParser} is not a singleton, there
-     * can be many instances of the class itself and of derived classes.
-     * The instance here provides non-customized, default behavior.
-     *
-     * @deprecated (4.3) use {@link #INSTANCE}
-     */
-    @Deprecated
-    public final static
-        BasicHeaderValueParser DEFAULT = new BasicHeaderValueParser();
-
     public final static BasicHeaderValueParser INSTANCE = new BasicHeaderValueParser();
 
     private final static char PARAM_DELIMITER                = ';';
@@ -247,40 +235,6 @@ public class BasicHeaderValueParser implements HeaderValueParser {
             return createNameValuePair(name, null);
         }
         final String value = tokenParser.parseValue(buffer, cursor, VALUE_DELIMS);
-        if (!cursor.atEnd()) {
-            cursor.updatePos(cursor.getPos() + 1);
-        }
-        return createNameValuePair(name, value);
-    }
-
-    /**
-     * @deprecated (4.4) use {@link org.apache.http.message.TokenParser}
-     */
-    @Deprecated
-    public NameValuePair parseNameValuePair(final CharArrayBuffer buffer,
-                                            final ParserCursor cursor,
-                                            final char[] delimiters) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(cursor, "Parser cursor");
-
-        final BitSet delimSet = new BitSet();
-        if (delimiters != null) {
-            for (char delimiter: delimiters) {
-                delimSet.set(delimiter);
-            }
-        }
-        delimSet.set('=');
-        final String name = tokenParser.parseToken(buffer, cursor, delimSet);
-        if (cursor.atEnd()) {
-            return new BasicNameValuePair(name, null);
-        }
-        final int delim = buffer.charAt(cursor.getPos());
-        cursor.updatePos(cursor.getPos() + 1);
-        if (delim != '=') {
-            return createNameValuePair(name, null);
-        }
-        delimSet.clear('=');
-        final String value = tokenParser.parseValue(buffer, cursor, delimSet);
         if (!cursor.atEnd()) {
             cursor.updatePos(cursor.getPos() + 1);
         }

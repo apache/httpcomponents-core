@@ -63,7 +63,7 @@ public class ElementalPoolingHttpGet {
             .add(new RequestTargetHost())
             .add(new RequestConnControl())
             .add(new RequestUserAgent("Test/1.1"))
-            .add(new RequestExpectContinue(true)).build();
+            .add(new RequestExpectContinue()).build();
 
         final HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 

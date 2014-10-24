@@ -48,8 +48,8 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpProcessorBuilder;
 import org.apache.http.protocol.HttpRequestExecutor;
-import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
@@ -85,12 +85,16 @@ class BenchmarkWorker implements Runnable {
         this.request = request;
         this.targetHost = targetHost;
         this.config = config;
-        this.httpProcessor = new ImmutableHttpProcessor(
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent("HttpCore-AB/1.1"),
-                new RequestExpectContinue(this.config.isUseExpectContinue()));
+        final HttpProcessorBuilder builder = HttpProcessorBuilder.create()
+                .addAll(
+                        new RequestContent(),
+                        new RequestTargetHost(),
+                        new RequestConnControl(),
+                        new RequestUserAgent("HttpCore-AB/1.1"));
+        if (this.config.isUseExpectContinue()) {
+            builder.add(new RequestExpectContinue());
+        }
+        this.httpProcessor = builder.build();
         this.httpexecutor = new HttpRequestExecutor();
 
         this.connstrategy = DefaultConnectionReuseStrategy.INSTANCE;

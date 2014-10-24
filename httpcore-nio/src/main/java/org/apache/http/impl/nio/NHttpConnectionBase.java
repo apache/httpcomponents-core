@@ -34,13 +34,10 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
@@ -65,7 +62,6 @@ import org.apache.http.impl.nio.codecs.LengthDelimitedDecoder;
 import org.apache.http.impl.nio.codecs.LengthDelimitedEncoder;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
-import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpConnection;
@@ -76,13 +72,9 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.reactor.SocketAccessor;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
-import org.apache.http.util.CharsetUtils;
 import org.apache.http.util.NetUtils;
 
 /**
@@ -91,7 +83,6 @@ import org.apache.http.util.NetUtils;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class NHttpConnectionBase
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus, SocketAccessor {
@@ -119,68 +110,6 @@ public class NHttpConnectionBase
     protected volatile HttpResponse response;
 
     protected volatile int status;
-
-    /**
-     * Creates a new instance of this class given the underlying I/O session.
-     *
-     * @param session the underlying I/O session.
-     * @param allocator byte buffer allocator.
-     * @param params HTTP parameters.
-     *
-     * @deprecated (4.3) use
-     *   {@link NHttpConnectionBase#NHttpConnectionBase(IOSession, int, int, ByteBufferAllocator,
-     *   CharsetDecoder, CharsetEncoder, ContentLengthStrategy, ContentLengthStrategy)}
-     */
-    @Deprecated
-    public NHttpConnectionBase(
-            final IOSession session,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        super();
-        Args.notNull(session, "I/O session");
-        Args.notNull(params, "HTTP params");
-
-        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
-        if (buffersize <= 0) {
-            buffersize = 4096;
-        }
-        int linebuffersize = buffersize;
-        if (linebuffersize > 512) {
-            linebuffersize = 512;
-        }
-
-        CharsetDecoder decoder = null;
-        CharsetEncoder encoder = null;
-        Charset charset = CharsetUtils.lookup(
-                (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET));
-        if (charset != null) {
-            charset = Consts.ASCII;
-            decoder = charset.newDecoder();
-            encoder = charset.newEncoder();
-            final CodingErrorAction malformedCharAction = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-            final CodingErrorAction unmappableCharAction = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-            decoder.onMalformedInput(malformedCharAction).onUnmappableCharacter(unmappableCharAction);
-            encoder.onMalformedInput(malformedCharAction).onUnmappableCharacter(unmappableCharAction);
-        }
-        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, decoder, allocator);
-        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, encoder, allocator);
-        this.fragmentSizeHint = buffersize;
-        this.constraints = MessageConstraints.DEFAULT;
-
-        this.incomingContentStrategy = createIncomingContentStrategy();
-        this.outgoingContentStrategy = createOutgoingContentStrategy();
-
-        this.inTransportMetrics = createTransportMetrics();
-        this.outTransportMetrics = createTransportMetrics();
-        this.connMetrics = createConnectionMetrics(
-                this.inTransportMetrics,
-                this.outTransportMetrics);
-
-        setSession(session);
-        this.status = ACTIVE;
-    }
 
     /**
      * Creates new instance NHttpConnectionBase given the underlying I/O session.
@@ -286,48 +215,6 @@ public class NHttpConnectionBase
     protected void bind(final IOSession session) {
         Args.notNull(session, "I/O session");
         setSession(session);
-    }
-
-    /**
-     * @since 4.2
-     *
-     * @deprecated (4.3) use constructor.
-     */
-    @Deprecated
-    protected ContentLengthStrategy createIncomingContentStrategy() {
-        return new LaxContentLengthStrategy();
-    }
-
-    /**
-     * @since 4.2
-     *
-     * @deprecated (4.3) use constructor.
-     */
-    @Deprecated
-    protected ContentLengthStrategy createOutgoingContentStrategy() {
-        return new StrictContentLengthStrategy();
-    }
-
-    /**
-     * @since 4.1
-     *
-     * @deprecated (4.3) no longer used.
-     */
-    @Deprecated
-    protected HttpTransportMetricsImpl createTransportMetrics() {
-        return new HttpTransportMetricsImpl();
-    }
-
-    /**
-     * @since 4.1
-     *
-     * @deprecated (4.3) use decorator to add additional metrics.
-     */
-    @Deprecated
-    protected HttpConnectionMetricsImpl createConnectionMetrics(
-            final HttpTransportMetrics inTransportMetric,
-            final HttpTransportMetrics outTransportMetric) {
-        return new HttpConnectionMetricsImpl(inTransportMetric, outTransportMetric);
     }
 
     @Override

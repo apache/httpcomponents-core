@@ -41,7 +41,8 @@ import org.apache.http.nio.IOControl;
  * a worker thread.
  * <p>
  * The I/O dispatch thread is expect to transfer data from {@link ContentDecoder} to the buffer
- *   by calling {@link #consumeContent(ContentDecoder)}.
+ *   by calling {@link #consumeContent(org.apache.http.nio.ContentDecoder,
+ *   org.apache.http.nio.IOControl)}.
  * <p>
  * The worker thread is expected to read the data from the buffer by calling
  *   {@link #read()} or {@link #read(byte[], int, int)} methods.
@@ -60,17 +61,6 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     private volatile IOControl ioctrl;
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
-
-    /**
-     * @deprecated (4.3) use {@link SharedInputBuffer#SharedInputBuffer(int, ByteBufferAllocator)}
-     */
-    @Deprecated
-    public SharedInputBuffer(final int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
-        this.ioctrl = ioctrl;
-        this.lock = new ReentrantLock();
-        this.condition = this.lock.newCondition();
-    }
 
     /**
      * @since 4.3
@@ -100,15 +90,6 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
         } finally {
             this.lock.unlock();
         }
-    }
-
-    /**
-     * @deprecated (4.3) use {@link #consumeContent(ContentDecoder, IOControl)}
-     */
-    @Override
-    @Deprecated
-    public int consumeContent(final ContentDecoder decoder) throws IOException {
-        return consumeContent(decoder, null);
     }
 
     /**

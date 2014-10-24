@@ -34,7 +34,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
 /**
@@ -43,7 +42,8 @@ import org.apache.http.util.Asserts;
  * a worker thread.
  * <p>
  * The I/O dispatch thread is expected to transfer data from the buffer to
- *   {@link ContentEncoder} by calling {@link #produceContent(ContentEncoder)}.
+ *   {@link ContentEncoder} by calling {@link #produceContent(org.apache.http.nio.ContentEncoder,
+ *    org.apache.http.nio.IOControl)}.
  * <p>
  * The worker thread is expected to write data to the buffer by calling
  * {@link #write(int)}, {@link #write(byte[], int, int)} or {@link #writeCompleted()}
@@ -62,18 +62,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     private volatile IOControl ioctrl;
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
-
-    /**
-     * @deprecated (4.3) use {@link SharedOutputBuffer#SharedOutputBuffer(int, ByteBufferAllocator)}
-     */
-    @Deprecated
-    public SharedOutputBuffer(final int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
-        Args.notNull(ioctrl, "I/O content control");
-        this.ioctrl = ioctrl;
-        this.lock = new ReentrantLock();
-        this.condition = this.lock.newCondition();
-    }
 
     /**
      * @since 4.3
@@ -143,15 +131,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         } finally {
             this.lock.unlock();
         }
-    }
-
-    /**
-     * @deprecated (4.3) use {@link #produceContent(ContentEncoder, IOControl)}
-     */
-    @Override
-    @Deprecated
-    public int produceContent(final ContentEncoder encoder) throws IOException {
-        return produceContent(encoder, null);
     }
 
     /**
@@ -258,10 +237,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         } finally {
             this.lock.unlock();
         }
-    }
-
-    @Override
-    public void flush() throws IOException {
     }
 
     private void flushContent() throws IOException {

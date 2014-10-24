@@ -52,10 +52,8 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NFileEntity extends AbstractHttpEntity
-                         implements HttpAsyncContentProducer, ProducingNHttpEntity {
+public class NFileEntity extends AbstractHttpEntity implements HttpAsyncContentProducer {
 
     private final File file;
     private RandomAccessFile accessfile;
@@ -106,25 +104,6 @@ public class NFileEntity extends AbstractHttpEntity
     }
 
     /**
-     * @deprecated (4.2) use {@link #NFileEntity(File, ContentType, boolean)}
-     */
-    @Deprecated
-    public NFileEntity(final File file, final String contentType, final boolean useFileChannels) {
-        Args.notNull(file, "File");
-        this.file = file;
-        this.useFileChannels = useFileChannels;
-        setContentType(contentType);
-    }
-
-    /**
-     * @deprecated (4.2) use {@link #NFileEntity(File, ContentType)}
-     */
-    @Deprecated
-    public NFileEntity(final File file, final String contentType) {
-        this(file, contentType, true);
-    }
-
-    /**
      * {@inheritDoc}
      *
      * @since 4.2
@@ -136,16 +115,6 @@ public class NFileEntity extends AbstractHttpEntity
         }
         accessfile = null;
         fileChannel = null;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated (4.2) use {@link #close()}
-     */
-    @Deprecated
-    public void finish() throws IOException {
-        close();
     }
 
     @Override

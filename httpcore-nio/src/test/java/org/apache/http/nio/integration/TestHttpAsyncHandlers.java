@@ -333,7 +333,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue(true));
+                new RequestExpectContinue());
 
         final HttpHost target = start(clientHttpProc, null, registry, null);
 
@@ -373,7 +373,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue(true));
+                new RequestExpectContinue());
 
         final HttpHost target = start(clientHttpProc, null, registry, null);
 

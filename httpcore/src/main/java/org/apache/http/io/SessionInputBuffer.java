@@ -127,21 +127,6 @@ public interface SessionInputBuffer {
      */
     String readLine() throws IOException;
 
-    /** Blocks until some data becomes available in the session buffer or the
-     * given timeout period in milliseconds elapses. If the timeout value is
-     * {@code 0} this method blocks indefinitely.
-     *
-     * @param timeout in milliseconds.
-     * @return {@code true} if some data is available in the session
-     *   buffer or {@code false} otherwise.
-     * @exception  IOException  if an I/O error occurs.
-     *
-     * @deprecated (4.3) do not use. This function should be provided at the
-     *   connection level
-     */
-    @Deprecated
-    boolean isDataAvailable(int timeout) throws IOException;
-
     /**
      * Returns {@link HttpTransportMetrics} for this session buffer.
      *

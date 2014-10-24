@@ -38,8 +38,6 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -48,33 +46,10 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.1
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
 
     private final HttpRequestFactory requestFactory;
-
-    /**
-     * Creates an instance of this class.
-     *
-     * @param buffer the session input buffer.
-     * @param parser the line parser.
-     * @param params HTTP parameters.
-     *
-     * @deprecated (4.3) use
-     *   {@link DefaultHttpRequestParser#DefaultHttpRequestParser(
-     *   SessionInputBuffer, LineParser, HttpRequestFactory, MessageConstraints)}
-     */
-    @Deprecated
-    public DefaultHttpRequestParser(
-            final SessionInputBuffer buffer,
-            final LineParser parser,
-            final HttpRequestFactory requestFactory,
-            final HttpParams params) {
-        super(buffer, parser, params);
-        Args.notNull(requestFactory, "Request factory");
-        this.requestFactory = requestFactory;
-    }
 
     /**
      * Creates an instance of DefaultHttpRequestParser.

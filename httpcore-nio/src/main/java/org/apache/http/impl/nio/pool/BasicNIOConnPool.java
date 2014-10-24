@@ -41,9 +41,6 @@ import org.apache.http.nio.pool.AbstractNIOConnPool;
 import org.apache.http.nio.pool.NIOConnFactory;
 import org.apache.http.nio.pool.SocketAddressResolver;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.Args;
 
 /**
  * A very basic {@link org.apache.http.pool.ConnPool} implementation that
@@ -55,7 +52,6 @@ import org.apache.http.util.Args;
  * @see HttpHost
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @ThreadSafe
 public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
 
@@ -84,29 +80,6 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             return new InetSocketAddress(hostname, port);
         }
 
-    }
-
-    /**
-     * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor, NIOConnFactory, int)}
-     */
-    @Deprecated
-    public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor,
-            final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
-            final HttpParams params) {
-        super(ioreactor, connFactory, 2, 20);
-        Args.notNull(params, "HTTP parameters");
-        this.connectTimeout = params.getIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 0);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link BasicNIOConnPool#BasicNIOConnPool(ConnectingIOReactor,
-     *   ConnectionConfig)}
-     */
-    @Deprecated
-    public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor, final HttpParams params) {
-        this(ioreactor, new BasicNIOConnFactory(params), params);
     }
 
     /**
@@ -144,24 +117,6 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
      */
     public BasicNIOConnPool(final ConnectingIOReactor ioreactor) {
         this(ioreactor, new BasicNIOConnFactory(ConnectionConfig.DEFAULT), 0);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link SocketAddressResolver}
-     */
-    @Deprecated
-    @Override
-    protected SocketAddress resolveRemoteAddress(final HttpHost host) {
-        return new InetSocketAddress(host.getHostName(), host.getPort());
-    }
-
-    /**
-     * @deprecated (4.3) use {@link SocketAddressResolver}
-     */
-    @Deprecated
-    @Override
-    protected SocketAddress resolveLocalAddress(final HttpHost host) {
-        return null;
     }
 
     @Override

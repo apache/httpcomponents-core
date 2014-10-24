@@ -27,8 +27,6 @@
 
 package org.apache.http;
 
-import org.apache.http.params.HttpParams;
-
 /**
  * HTTP messages consist of requests from client to server and responses
  * from server to client.
@@ -53,7 +51,6 @@ import org.apache.http.params.HttpParams;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 public interface HttpMessage {
 
     /**
@@ -186,25 +183,5 @@ public interface HttpMessage {
      *         in the sequence they are sent over a connection.
      */
     HeaderIterator headerIterator(String name);
-
-    /**
-     * Returns the parameters effective for this message as set by
-     * {@link #setParams(HttpParams)}.
-     *
-     * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
-     *  and 'org.apache.http.client.config'
-     */
-    @Deprecated
-    HttpParams getParams();
-
-    /**
-     * Provides parameters to be used for the processing of this message.
-     * @param params the parameters
-     *
-     * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
-     *  and 'org.apache.http.client.config'
-     */
-    @Deprecated
-    void setParams(HttpParams params);
 
 }

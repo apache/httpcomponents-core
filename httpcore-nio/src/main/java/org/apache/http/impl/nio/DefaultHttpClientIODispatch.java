@@ -38,7 +38,6 @@ import org.apache.http.nio.NHttpClientEventHandler;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
@@ -48,7 +47,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @Immutable // provided injected dependencies are immutable
 public class DefaultHttpClientIODispatch
                     extends AbstractIODispatch<DefaultNHttpClientConnection> {
@@ -69,42 +67,6 @@ public class DefaultHttpClientIODispatch
         super();
         this.handler = Args.notNull(handler, "HTTP client handler");
         this.connFactory = Args.notNull(connFactory, "HTTP client connection factory");
-    }
-
-    /**
-     * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
-     *  NHttpClientEventHandler, ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
-            final HttpParams params) {
-        this(handler, new DefaultNHttpClientConnectionFactory(params));
-    }
-
-    /**
-     * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
-     *  NHttpClientEventHandler, SSLContext, SSLSetupHandler, ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpParams params) {
-        this(handler, new SSLNHttpClientConnectionFactory(sslcontext, sslHandler, params));
-    }
-
-    /**
-     * @deprecated (4.3) use {@link DefaultHttpClientIODispatch#DefaultHttpClientIODispatch(
-     *   NHttpClientEventHandler, SSLContext, ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
-            final SSLContext sslcontext,
-            final HttpParams params) {
-        this(handler, sslcontext, null, params);
     }
 
     /**

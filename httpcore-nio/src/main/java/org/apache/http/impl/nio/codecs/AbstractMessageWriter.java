@@ -38,7 +38,6 @@ import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -48,34 +47,12 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements NHttpMessageWriter<T> {
 
     protected final SessionOutputBuffer sessionBuffer;
     protected final CharArrayBuffer lineBuf;
     protected final LineFormatter lineFormatter;
-
-    /**
-     * Creates an instance of this class.
-     *
-     * @param buffer the session output buffer.
-     * @param formatter the line formatter.
-     * @param params HTTP parameters.
-     *
-     * @deprecated (4.3) use
-     *   {@link AbstractMessageWriter#AbstractMessageWriter(SessionOutputBuffer, LineFormatter)}
-     */
-    @Deprecated
-    public AbstractMessageWriter(final SessionOutputBuffer buffer,
-                                 final LineFormatter formatter,
-                                 final HttpParams params) {
-        super();
-        Args.notNull(buffer, "Session input buffer");
-        this.sessionBuffer = buffer;
-        this.lineBuf = new CharArrayBuffer(64);
-        this.lineFormatter = (formatter != null) ? formatter : BasicLineFormatter.INSTANCE;
-    }
 
     /**
      * Creates an instance of AbstractMessageWriter.

@@ -29,14 +29,11 @@ package org.apache.http.impl.nio;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.ConnSupport;
-import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.NHttpMessageWriterFactory;
@@ -45,11 +42,7 @@ import org.apache.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.http.nio.reactor.ssl.SSLMode;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpParamConfig;
-import org.apache.http.params.HttpParams;
 import org.apache.http.ssl.SSLContexts;
-import org.apache.http.util.Args;
 
 /**
  * Default factory for SSL encrypted, non-blocking
@@ -57,7 +50,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @Immutable
 public class SSLNHttpServerConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
@@ -70,56 +62,6 @@ public class SSLNHttpServerConnectionFactory
     private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
     private final ByteBufferAllocator allocator;
     private final ConnectionConfig cconfig;
-
-    /**
-     * @deprecated (4.3) use {@link
-     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(SSLContext,
-     *      SSLSetupHandler, NHttpMessageParserFactory, NHttpMessageWriterFactory,
-     *      ByteBufferAllocator, ConnectionConfig)}
-     */
-    @Deprecated
-    public SSLNHttpServerConnectionFactory(
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        super();
-        Args.notNull(requestFactory, "HTTP request factory");
-        Args.notNull(allocator, "Byte buffer allocator");
-        Args.notNull(params, "HTTP parameters");
-        this.sslcontext = sslcontext != null ? sslcontext : SSLContexts.createSystemDefault();
-        this.sslHandler = sslHandler;
-        this.incomingContentStrategy = null;
-        this.outgoingContentStrategy = null;
-        this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
-        this.responseWriterFactory = null;
-        this.allocator = allocator;
-        this.cconfig = HttpParamConfig.getConnectionConfig(params);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link
-     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(SSLContext,
-     *     SSLSetupHandler, ConnectionConfig)}
-     */
-    @Deprecated
-    public SSLNHttpServerConnectionFactory(
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpParams params) {
-        this(sslcontext, sslHandler, DefaultHttpRequestFactory.INSTANCE,
-                HeapByteBufferAllocator.INSTANCE, params);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link
-     *   SSLNHttpServerConnectionFactory#SSLNHttpServerConnectionFactory(ConnectionConfig)}
-     */
-    @Deprecated
-    public SSLNHttpServerConnectionFactory(final HttpParams params) {
-        this(null, null, params);
-    }
 
     /**
      * @since 4.3
@@ -193,18 +135,6 @@ public class SSLNHttpServerConnectionFactory
      */
     public SSLNHttpServerConnectionFactory() {
         this(null, null, null, null, null, null, null, null);
-    }
-
-    /**
-     * @deprecated (4.3) no longer used.
-     */
-    @Deprecated
-    protected DefaultNHttpServerConnection createConnection(
-            final IOSession session,
-            final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        return new DefaultNHttpServerConnection(session, requestFactory, allocator, params);
     }
 
     /**

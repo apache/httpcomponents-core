@@ -50,23 +50,11 @@ import org.apache.http.util.Args;
  * @since 4.0
  *
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NStringEntity extends AbstractHttpEntity
-                           implements HttpAsyncContentProducer, ProducingNHttpEntity {
+public class NStringEntity extends AbstractHttpEntity implements HttpAsyncContentProducer {
 
     private final byte[] b;
     private final ByteBuffer buf;
-    /**
-     * @deprecated (4.2)
-     */
-    @Deprecated
-    protected final byte[] content;
-    /**
-     * @deprecated (4.2)
-     */
-    @Deprecated
-    protected final ByteBuffer buffer;
 
     /**
      * Creates a NStringEntity with the specified content and content type.
@@ -87,8 +75,6 @@ public class NStringEntity extends AbstractHttpEntity
         }
         this.b = s.getBytes(charset);
         this.buf = ByteBuffer.wrap(this.b);
-        this.content = b;
-        this.buffer = this.buf;
         if (contentType != null) {
             setContentType(contentType.toString());
         }
@@ -158,16 +144,6 @@ public class NStringEntity extends AbstractHttpEntity
     @Override
     public void close() {
         this.buf.rewind();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated (4.2) use {@link #close()}
-     */
-    @Deprecated
-    public void finish() {
-        close();
     }
 
     @Override

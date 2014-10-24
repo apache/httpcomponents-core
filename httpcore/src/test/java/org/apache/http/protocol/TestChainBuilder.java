@@ -43,7 +43,7 @@ public class TestChainBuilder {
         final HttpRequestInterceptor i2 = new RequestTargetHost();
         final HttpRequestInterceptor i3 = new RequestConnControl();
         final HttpRequestInterceptor i4 = new RequestUserAgent();
-        final HttpRequestInterceptor i5 = new RequestExpectContinue(true);
+        final HttpRequestInterceptor i5 = new RequestExpectContinue();
         cb.addFirst(i1);
         cb.addAllFirst(i2, i3);
         cb.addFirst(null);

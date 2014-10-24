@@ -59,17 +59,6 @@ import org.apache.http.util.CharArrayBuffer;
 @Immutable
 public class BasicLineParser implements LineParser {
 
-    /**
-     * A default instance of this class, for use as default or fallback.
-     * Note that {@link BasicLineParser} is not a singleton, there can
-     * be many instances of the class itself and of derived classes.
-     * The instance here provides non-customized, default behavior.
-     *
-     * @deprecated (4.3) use {@link #INSTANCE}
-     */
-    @Deprecated
-    public final static BasicLineParser DEFAULT = new BasicLineParser();
-
     public final static BasicLineParser INSTANCE = new BasicLineParser();
 
     /**

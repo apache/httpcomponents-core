@@ -90,50 +90,6 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     private volatile int maxTotal;
 
     /**
-     * @deprecated use {@link AbstractNIOConnPool#AbstractNIOConnPool(ConnectingIOReactor,
-     *   NIOConnFactory, SocketAddressResolver, int, int)}
-     */
-    @Deprecated
-    public AbstractNIOConnPool(
-            final ConnectingIOReactor ioreactor,
-            final NIOConnFactory<T, C> connFactory,
-            final int defaultMaxPerRoute,
-            final int maxTotal) {
-        super();
-        Args.notNull(ioreactor, "I/O reactor");
-        Args.notNull(connFactory, "Connection factory");
-        Args.positive(defaultMaxPerRoute, "Max per route value");
-        Args.positive(maxTotal, "Max total value");
-        this.ioreactor = ioreactor;
-        this.connFactory = connFactory;
-        this.addressResolver = new SocketAddressResolver<T>() {
-
-            @Override
-            public SocketAddress resolveLocalAddress(final T route) throws IOException {
-                return AbstractNIOConnPool.this.resolveLocalAddress(route);
-            }
-
-            @Override
-            public SocketAddress resolveRemoteAddress(final T route) throws IOException {
-                return AbstractNIOConnPool.this.resolveRemoteAddress(route);
-            }
-
-        };
-        this.sessionRequestCallback = new InternalSessionRequestCallback();
-        this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
-        this.leasingRequests = new LinkedList<LeaseRequest<T, C, E>>();
-        this.pending = new HashSet<SessionRequest>();
-        this.leased = new HashSet<E>();
-        this.available = new LinkedList<E>();
-        this.maxPerRoute = new HashMap<T, Integer>();
-        this.completedRequests = new ConcurrentLinkedQueue<LeaseRequest<T, C, E>>();
-        this.lock = new ReentrantLock();
-        this.isShutDown = new AtomicBoolean(false);
-        this.defaultMaxPerRoute = defaultMaxPerRoute;
-        this.maxTotal = maxTotal;
-    }
-
-    /**
      * @since 4.3
      */
     public AbstractNIOConnPool(
@@ -163,22 +119,6 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         this.isShutDown = new AtomicBoolean(false);
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link SocketAddressResolver}
-     */
-    @Deprecated
-    protected SocketAddress resolveRemoteAddress(final T route) {
-        return null;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link SocketAddressResolver}
-     */
-    @Deprecated
-    protected SocketAddress resolveLocalAddress(final T route) {
-        return null;
     }
 
     protected abstract E createEntry(T route, C conn);
@@ -718,21 +658,6 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         } finally {
             this.lock.unlock();
         }
-    }
-
-    /**
-     * Use {@link #enumLeased(org.apache.http.pool.PoolEntryCallback)}
-     *  or {@link #enumAvailable(org.apache.http.pool.PoolEntryCallback)} instead.
-     *
-     * @deprecated (4.3.2)
-     */
-    @Deprecated
-    protected void enumEntries(final Iterator<E> it, final PoolEntryCallback<T, C> callback) {
-        while (it.hasNext()) {
-            final E entry = it.next();
-            callback.process(entry);
-        }
-        processPendingRequests();
     }
 
     private void purgePoolMap() {

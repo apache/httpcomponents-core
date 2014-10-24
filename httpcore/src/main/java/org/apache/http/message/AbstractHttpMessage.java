@@ -31,8 +31,6 @@ import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
@@ -40,27 +38,13 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public abstract class AbstractHttpMessage implements HttpMessage {
 
     protected HeaderGroup headergroup;
 
-    @Deprecated
-    protected HttpParams params;
-
-    /**
-     * @deprecated (4.3) use {@link AbstractHttpMessage#AbstractHttpMessage()}
-     */
-    @Deprecated
-    protected AbstractHttpMessage(final HttpParams params) {
-        super();
-        this.headergroup = new HeaderGroup();
-        this.params = params;
-    }
-
     protected AbstractHttpMessage() {
-        this(null);
+        this.headergroup = new HeaderGroup();
     }
 
     // non-javadoc, see interface HttpMessage
@@ -157,24 +141,4 @@ public abstract class AbstractHttpMessage implements HttpMessage {
         return this.headergroup.iterator(name);
     }
 
-    /**
-     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
-     */
-    @Override
-    @Deprecated
-    public HttpParams getParams() {
-        if (this.params == null) {
-            this.params = new BasicHttpParams();
-        }
-        return this.params;
-    }
-
-    /**
-     * @deprecated (4.3) use constructor parameters of configuration API provided by HttpClient
-     */
-    @Override
-    @Deprecated
-    public void setParams(final HttpParams params) {
-        this.params = Args.notNull(params, "HTTP parameters");
-    }
 }

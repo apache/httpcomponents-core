@@ -27,23 +27,16 @@
 package org.apache.http.impl.nio;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.ConnSupport;
-import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.NHttpMessageWriterFactory;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpParamConfig;
-import org.apache.http.params.HttpParams;
-import org.apache.http.util.Args;
 
 /**
  * Default factory for plain (non-encrypted), non-blocking
@@ -51,7 +44,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @Immutable
 public class DefaultNHttpServerConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
@@ -62,50 +54,6 @@ public class DefaultNHttpServerConnectionFactory
     private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
     private final ByteBufferAllocator allocator;
     private final ConnectionConfig cconfig;
-
-    /**
-     * @deprecated (4.3) use {@link
-     *   DefaultNHttpServerConnectionFactory#DefaultNHttpServerConnectionFactory(
-     *      ByteBufferAllocator, NHttpMessageParserFactory, NHttpMessageWriterFactory,
-     *      ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultNHttpServerConnectionFactory(
-            final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        super();
-        Args.notNull(requestFactory, "HTTP request factory");
-        Args.notNull(allocator, "Byte buffer allocator");
-        Args.notNull(params, "HTTP parameters");
-        this.incomingContentStrategy = null;
-        this.outgoingContentStrategy = null;
-        this.requestParserFactory = new DefaultHttpRequestParserFactory(null, requestFactory);
-        this.responseWriterFactory = null;
-        this.allocator = allocator;
-        this.cconfig = HttpParamConfig.getConnectionConfig(params);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link
-     *   DefaultNHttpServerConnectionFactory#DefaultNHttpServerConnectionFactory(ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultNHttpServerConnectionFactory(final HttpParams params) {
-        this(DefaultHttpRequestFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
-    }
-
-    /**
-     * @deprecated (4.3) no longer used.
-     */
-    @Deprecated
-    protected DefaultNHttpServerConnection createConnection(
-            final IOSession session,
-            final HttpRequestFactory requestFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        return new DefaultNHttpServerConnection(session, requestFactory, allocator, params);
-    }
 
     /**
      * @since 4.3

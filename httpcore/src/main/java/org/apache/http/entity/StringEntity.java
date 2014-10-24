@@ -76,32 +76,6 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
     }
 
     /**
-     * Creates a StringEntity with the specified content, MIME type and charset
-     *
-     * @param string content to be used. Not {@code null}.
-     * @param mimeType MIME type to be used. May be {@code null}, in which case the default
-     *   is {@link HTTP#PLAIN_TEXT_TYPE} i.e. "text/plain"
-     * @param charset character set to be used. May be {@code null}, in which case the default
-     *   is {@link HTTP#DEF_CONTENT_CHARSET} i.e. "ISO-8859-1"
-     * @throws  UnsupportedEncodingException If the named charset is not supported.
-     *
-     * @since 4.1
-     * @throws IllegalArgumentException if the string parameter is null
-     *
-     * @deprecated (4.1.3) use {@link #StringEntity(String, ContentType)}
-     */
-    @Deprecated
-    public StringEntity(
-            final String string, final String mimeType, final String charset) throws UnsupportedEncodingException {
-        super();
-        Args.notNull(string, "Source string");
-        final String mt = mimeType != null ? mimeType : HTTP.PLAIN_TEXT_TYPE;
-        final String cs = charset != null ? charset :HTTP.DEFAULT_CONTENT_CHARSET;
-        this.content = string.getBytes(cs);
-        setContentType(mt + HTTP.CHARSET_PARAM + cs);
-    }
-
-    /**
      * Creates a StringEntity with the specified content and charset. The MIME type defaults
      * to "text/plain".
      *

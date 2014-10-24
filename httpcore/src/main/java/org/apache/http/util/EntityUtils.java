@@ -35,10 +35,8 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.protocol.HTTP;
@@ -140,57 +138,6 @@ public final class EntityUtils {
         } finally {
             instream.close();
         }
-    }
-
-    /**
-     * Obtains character set of the entity, if known.
-     *
-     * @param entity must not be null
-     * @return the character set, or null if not found
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null
-     *
-     * @deprecated (4.1.3) use {@link ContentType#getOrDefault(HttpEntity)}
-     */
-    @Deprecated
-    public static String getContentCharSet(final HttpEntity entity) throws ParseException {
-        Args.notNull(entity, "Entity");
-        String charset = null;
-        if (entity.getContentType() != null) {
-            final HeaderElement values[] = entity.getContentType().getElements();
-            if (values.length > 0) {
-                final NameValuePair param = values[0].getParameterByName("charset");
-                if (param != null) {
-                    charset = param.getValue();
-                }
-            }
-        }
-        return charset;
-    }
-
-    /**
-     * Obtains MIME type of the entity, if known.
-     *
-     * @param entity must not be null
-     * @return the character set, or null if not found
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null
-     *
-     * @since 4.1
-     *
-     * @deprecated (4.1.3) use {@link ContentType#getOrDefault(HttpEntity)}
-     */
-    @Deprecated
-    public static String getContentMimeType(final HttpEntity entity) throws ParseException {
-        Args.notNull(entity, "Entity");
-        String mimeType = null;
-        if (entity.getContentType() != null) {
-            final HeaderElement values[] = entity.getContentType().getElements();
-            if (values.length > 0) {
-                mimeType = values[0].getName();
-            }
-        }
-        return mimeType;
     }
 
     /**

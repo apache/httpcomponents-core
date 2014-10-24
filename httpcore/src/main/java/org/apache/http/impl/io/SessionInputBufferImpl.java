@@ -400,11 +400,6 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
     }
 
     @Override
-    public boolean isDataAvailable(final int timeout) throws IOException {
-        return hasBufferedData();
-    }
-
-    @Override
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }

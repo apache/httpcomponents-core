@@ -47,16 +47,6 @@ public class FileEntity extends AbstractHttpEntity implements Cloneable {
     protected final File file;
 
     /**
-     * @deprecated (4.1.3) {@link #FileEntity(File, ContentType)}
-     */
-    @Deprecated
-    public FileEntity(final File file, final String contentType) {
-        super();
-        this.file = Args.notNull(file, "File");
-        setContentType(contentType);
-    }
-
-    /**
      * @since 4.2
      */
     public FileEntity(final File file, final ContentType contentType) {

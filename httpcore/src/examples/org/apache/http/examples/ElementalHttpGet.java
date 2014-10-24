@@ -57,7 +57,7 @@ public class ElementalHttpGet {
             .add(new RequestTargetHost())
             .add(new RequestConnControl())
             .add(new RequestUserAgent("Test/1.1"))
-            .add(new RequestExpectContinue(true)).build();
+            .add(new RequestExpectContinue()).build();
 
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 

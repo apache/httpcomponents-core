@@ -46,25 +46,12 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
-public class NByteArrayEntity extends AbstractHttpEntity
-                              implements HttpAsyncContentProducer, ProducingNHttpEntity {
+public class NByteArrayEntity extends AbstractHttpEntity implements HttpAsyncContentProducer {
 
     private final byte[] b;
     private final int off, len;
     private final ByteBuffer buf;
-    /**
-     * @deprecated (4.2)
-     */
-    @Deprecated
-    protected final byte[] content;
-    /**
-     * @deprecated (4.2)
-     */
-    @Deprecated
-    protected final ByteBuffer buffer;
-
     /**
      * @since 4.2
      */
@@ -75,8 +62,6 @@ public class NByteArrayEntity extends AbstractHttpEntity
         this.off = 0;
         this.len = b.length;
         this.buf = ByteBuffer.wrap(b);
-        this.content = b;
-        this.buffer = this.buf;
         if (contentType != null) {
             setContentType(contentType.toString());
         }
@@ -96,8 +81,6 @@ public class NByteArrayEntity extends AbstractHttpEntity
         this.off = off;
         this.len = len;
         this.buf = ByteBuffer.wrap(b, off, len);
-        this.content = b;
-        this.buffer = this.buf;
         if (contentType != null) {
             setContentType(contentType.toString());
         }
@@ -119,16 +102,6 @@ public class NByteArrayEntity extends AbstractHttpEntity
     @Override
     public void close() {
         this.buf.rewind();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @deprecated (4.2) use {@link #close()}
-     */
-    @Deprecated
-    public void finish() {
-        close();
     }
 
     @Override

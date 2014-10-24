@@ -43,18 +43,6 @@ import org.apache.http.util.CharArrayBuffer;
 @Immutable
 public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
-    /**
-     * A default instance of this class, for use as default or fallback.
-     * Note that {@link BasicHeaderValueFormatter} is not a singleton, there
-     * can be many instances of the class itself and of derived classes.
-     * The instance here provides non-customized, default behavior.
-     *
-     * @deprecated (4.3) use {@link #INSTANCE}
-     */
-    @Deprecated
-    public final static
-        BasicHeaderValueFormatter DEFAULT = new BasicHeaderValueFormatter();
-
     public final static BasicHeaderValueFormatter INSTANCE = new BasicHeaderValueFormatter();
 
     /**

@@ -40,7 +40,6 @@ import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.nio.NHttpClientConnection;
-import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnPool;
 import org.apache.http.pool.PoolEntry;
 import org.apache.http.protocol.BasicHttpContext;
@@ -57,25 +56,12 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @Immutable
 public class HttpAsyncRequester {
 
     private final HttpProcessor httpprocessor;
     private final ConnectionReuseStrategy connReuseStrategy;
     private final ExceptionLogger exceptionLogger;
-
-    /**
-     * @deprecated (4.3) use {@link HttpAsyncRequester#HttpAsyncRequester(HttpProcessor,
-     *   ConnectionReuseStrategy)}
-     */
-    @Deprecated
-    public HttpAsyncRequester(
-            final HttpProcessor httpprocessor,
-            final ConnectionReuseStrategy reuseStrategy,
-            final HttpParams params) {
-        this(httpprocessor, reuseStrategy);
-    }
 
     /**
      * Creates new instance of {@code HttpAsyncRequester}.

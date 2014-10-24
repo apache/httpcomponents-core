@@ -37,7 +37,6 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.Args;
 
 /**
@@ -48,25 +47,10 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @Immutable
-@SuppressWarnings("deprecation")
 public class RequestExpectContinue implements HttpRequestInterceptor {
 
-    private final boolean activeByDefault;
-
-    /**
-     * @deprecated (4.3) use {@link org.apache.http.protocol.RequestExpectContinue#RequestExpectContinue(boolean)}
-     */
-    @Deprecated
     public RequestExpectContinue() {
-        this(false);
-    }
-
-    /**
-     * @since 4.3
-     */
-    public RequestExpectContinue(final boolean activeByDefault) {
         super();
-        this.activeByDefault = activeByDefault;
     }
 
     @Override
@@ -81,11 +65,7 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
                 // Do not send the expect header if request body is known to be empty
                 if (entity != null
                         && entity.getContentLength() != 0 && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    final boolean active = request.getParams().getBooleanParameter(
-                            CoreProtocolPNames.USE_EXPECT_CONTINUE, this.activeByDefault);
-                    if (active) {
-                        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
-                    }
+                    request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
                 }
             }
         }

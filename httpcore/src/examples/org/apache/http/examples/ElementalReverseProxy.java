@@ -174,7 +174,7 @@ public class ElementalReverseProxy {
                             new RequestTargetHost(),
                             new RequestConnControl(),
                             new RequestUserAgent("Test/1.1"),
-                            new RequestExpectContinue(true)
+                            new RequestExpectContinue()
              });
 
             // Set up HTTP protocol processor for outgoing connections

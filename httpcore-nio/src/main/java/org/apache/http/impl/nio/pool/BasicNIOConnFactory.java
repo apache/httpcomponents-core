@@ -33,10 +33,8 @@ import javax.net.ssl.SSLContext;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.ConnectionConfig;
-import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
 import org.apache.http.nio.NHttpClientConnection;
@@ -48,8 +46,6 @@ import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.nio.util.ByteBufferAllocator;
-import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
@@ -58,7 +54,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @Immutable
 public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClientConnection> {
 
@@ -77,45 +72,6 @@ public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClient
     public BasicNIOConnFactory(
             final NHttpConnectionFactory<? extends NHttpClientConnection> plainFactory) {
         this(plainFactory, null);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
-     *   SSLSetupHandler, NHttpMessageParserFactory, NHttpMessageWriterFactory,
-     *   ByteBufferAllocator, ConnectionConfig)}
-     */
-    @Deprecated
-    public BasicNIOConnFactory(
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpResponseFactory responseFactory,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        this(new DefaultNHttpClientConnectionFactory(
-                responseFactory, allocator, params),
-                new SSLNHttpClientConnectionFactory(
-                        sslcontext, sslHandler, responseFactory, allocator, params));
-    }
-
-    /**
-     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(SSLContext,
-     *   SSLSetupHandler, ConnectionConfig)}
-     */
-    @Deprecated
-    public BasicNIOConnFactory(
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpParams params) {
-        this(sslcontext, sslHandler,
-                DefaultHttpResponseFactory.INSTANCE, HeapByteBufferAllocator.INSTANCE, params);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link BasicNIOConnFactory#BasicNIOConnFactory(ConnectionConfig)}
-     */
-    @Deprecated
-    public BasicNIOConnFactory(final HttpParams params) {
-        this(null, null, params);
     }
 
     /**

@@ -36,19 +36,15 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
-import org.apache.http.util.CharsetUtils;
 
 /**
  * Default implementation of {@link SessionOutputBuffer} based on
@@ -56,7 +52,6 @@ import org.apache.http.util.CharsetUtils;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
@@ -91,46 +86,6 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     }
 
     /**
-     * @deprecated (4.3) use
-     *   {@link SessionOutputBufferImpl#SessionOutputBufferImpl(int, int, CharsetEncoder,
-     *     ByteBufferAllocator)}
-     */
-    @Deprecated
-    public SessionOutputBufferImpl(
-            final int buffersize,
-            final int lineBuffersize,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        super(buffersize, allocator);
-        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        final String charsetName = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
-        final Charset charset = CharsetUtils.lookup(charsetName);
-        if (charset != null) {
-            this.charencoder = charset.newEncoder();
-            final CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-            this.charencoder.onMalformedInput(a1 != null ? a1 : CodingErrorAction.REPORT);
-            final CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-            this.charencoder.onUnmappableCharacter(a2 != null? a2 : CodingErrorAction.REPORT);
-        } else {
-            this.charencoder = null;
-        }
-    }
-
-    /**
-     * @deprecated (4.3) use
-     *   {@link SessionOutputBufferImpl#SessionOutputBufferImpl(int, int, Charset)}
-     */
-    @Deprecated
-    public SessionOutputBufferImpl(
-            final int buffersize,
-            final int linebuffersize,
-            final HttpParams params) {
-        this(buffersize, linebuffersize, HeapByteBufferAllocator.INSTANCE, params);
-    }
-
-    /**
      * @since 4.3
      */
     public SessionOutputBufferImpl(final int buffersize) {
@@ -155,10 +110,6 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             final int buffersize,
             final int linebuffersize) {
         this(buffersize, linebuffersize, null, HeapByteBufferAllocator.INSTANCE);
-    }
-
-    public void reset(final HttpParams params) {
-        clear();
     }
 
     @Override

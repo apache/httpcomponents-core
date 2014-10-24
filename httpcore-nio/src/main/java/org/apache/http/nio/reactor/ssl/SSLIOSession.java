@@ -193,20 +193,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     /**
-     * Initializes the session in the given {@link SSLMode}. This method
-     * invokes the {@link SSLSetupHandler#initalize(SSLEngine)} callback
-     * if an instance of {@link SSLSetupHandler} was specified at
-     * the construction time.
-     *
-     * @deprecated (4.3) SSL mode must be set at construction time.
-     */
-    @Deprecated
-    public synchronized void initialize(final SSLMode sslMode) throws SSLException {
-        this.sslMode = sslMode;
-        initialize();
-    }
-
-    /**
      * Initializes the session. This method invokes the {@link
      * SSLSetupHandler#initalize(SSLEngine)} callback if an instance of
      * {@link SSLSetupHandler} was specified at the construction time.

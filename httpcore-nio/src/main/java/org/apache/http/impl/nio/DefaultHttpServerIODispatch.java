@@ -38,7 +38,6 @@ import org.apache.http.nio.NHttpConnectionFactory;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
 /**
@@ -48,7 +47,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @Immutable // provided injected dependencies are immutable
 public class DefaultHttpServerIODispatch
                     extends AbstractIODispatch<DefaultNHttpServerConnection> {
@@ -62,42 +60,6 @@ public class DefaultHttpServerIODispatch
         super();
         this.handler = Args.notNull(handler, "HTTP client handler");
         this.connFactory = Args.notNull(connFactory, "HTTP server connection factory");
-    }
-
-    /**
-     * @deprecated (4.3) use {@link DefaultHttpServerIODispatch#DefaultHttpServerIODispatch(
-     *   NHttpServerEventHandler, ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultHttpServerIODispatch(
-            final NHttpServerEventHandler handler,
-            final HttpParams params) {
-        this(handler, new DefaultNHttpServerConnectionFactory(params));
-    }
-
-    /**
-     * @deprecated (4.3) use {@link DefaultHttpServerIODispatch#DefaultHttpServerIODispatch(
-     *   NHttpServerEventHandler, SSLContext, SSLSetupHandler, ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultHttpServerIODispatch(
-            final NHttpServerEventHandler handler,
-            final SSLContext sslcontext,
-            final SSLSetupHandler sslHandler,
-            final HttpParams params) {
-        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, sslHandler, params));
-    }
-
-    /**
-     * @deprecated (4.3) use {@link DefaultHttpServerIODispatch#DefaultHttpServerIODispatch(
-     *   NHttpServerEventHandler, SSLContext, ConnectionConfig)}
-     */
-    @Deprecated
-    public DefaultHttpServerIODispatch(
-            final NHttpServerEventHandler handler,
-            final SSLContext sslcontext,
-            final HttpParams params) {
-        this(handler, sslcontext, null, params);
     }
 
     /**

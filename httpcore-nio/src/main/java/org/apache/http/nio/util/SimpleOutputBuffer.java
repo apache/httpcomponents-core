@@ -55,7 +55,6 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
         this(buffersize, HeapByteBufferAllocator.INSTANCE);
     }
 
-    @Override
     public int produceContent(final ContentEncoder encoder) throws IOException {
         setOutputMode();
         final int bytesWritten = encoder.write(this.buffer);
@@ -102,10 +101,6 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
     public void reset() {
         super.clear();
         this.endOfStream = false;
-    }
-
-    @Override
-    public void flush() {
     }
 
     @Override

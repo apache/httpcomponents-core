@@ -88,34 +88,6 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
         }
     }
 
-    /**
-     * @deprecated (4.3) do not use.
-     */
-    @Deprecated
-    public ImmutableHttpProcessor(
-            final HttpRequestInterceptorList requestInterceptors,
-            final HttpResponseInterceptorList responseInterceptors) {
-        super();
-        if (requestInterceptors != null) {
-            final int count = requestInterceptors.getRequestInterceptorCount();
-            this.requestInterceptors = new HttpRequestInterceptor[count];
-            for (int i = 0; i < count; i++) {
-                this.requestInterceptors[i] = requestInterceptors.getRequestInterceptor(i);
-            }
-        } else {
-            this.requestInterceptors = new HttpRequestInterceptor[0];
-        }
-        if (responseInterceptors != null) {
-            final int count = responseInterceptors.getResponseInterceptorCount();
-            this.responseInterceptors = new HttpResponseInterceptor[count];
-            for (int i = 0; i < count; i++) {
-                this.responseInterceptors[i] = responseInterceptors.getResponseInterceptor(i);
-            }
-        } else {
-            this.responseInterceptors = new HttpResponseInterceptor[0];
-        }
-    }
-
     public ImmutableHttpProcessor(final HttpRequestInterceptor... requestInterceptors) {
         this(requestInterceptors, null);
     }

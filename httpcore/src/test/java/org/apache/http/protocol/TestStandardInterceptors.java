@@ -298,7 +298,7 @@ public class TestStandardInterceptors {
         final String s = "whatever";
         final StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        final RequestExpectContinue interceptor = new RequestExpectContinue(true);
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
         Assert.assertNotNull(header);
@@ -313,7 +313,7 @@ public class TestStandardInterceptors {
         final String s = "whatever";
         final StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        final RequestExpectContinue interceptor = new RequestExpectContinue(true);
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
         Assert.assertNull(header);
@@ -326,7 +326,7 @@ public class TestStandardInterceptors {
         final String s = "";
         final StringEntity entity = new StringEntity(s, "US-ASCII");
         request.setEntity(entity);
-        final RequestExpectContinue interceptor = new RequestExpectContinue(true);
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HTTP.EXPECT_DIRECTIVE);
         Assert.assertNull(header);
@@ -334,7 +334,7 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestExpectContinueInvalidInput() throws Exception {
-        final RequestExpectContinue interceptor = new RequestExpectContinue(true);
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         try {
             interceptor.process(null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -347,7 +347,7 @@ public class TestStandardInterceptors {
     public void testRequestExpectContinueIgnoreNonenclosingRequests() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
-        final RequestExpectContinue interceptor = new RequestExpectContinue(true);
+        final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
         Assert.assertEquals(0, request.getAllHeaders().length);
     }

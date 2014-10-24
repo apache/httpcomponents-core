@@ -33,7 +33,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
-import org.apache.http.params.HttpParams;
 import org.apache.http.pool.AbstractConnPool;
 import org.apache.http.pool.ConnFactory;
 
@@ -47,7 +46,6 @@ import org.apache.http.pool.ConnFactory;
  * @see HttpHost
  * @since 4.2
  */
-@SuppressWarnings("deprecation")
 @ThreadSafe
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
@@ -55,14 +53,6 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
 
     public BasicConnPool(final ConnFactory<HttpHost, HttpClientConnection> connFactory) {
         super(connFactory, 2, 20);
-    }
-
-    /**
-     * @deprecated (4.3) use {@link BasicConnPool#BasicConnPool(SocketConfig, ConnectionConfig)}
-     */
-    @Deprecated
-    public BasicConnPool(final HttpParams params) {
-        super(new BasicConnFactory(params), 2, 20);
     }
 
     /**

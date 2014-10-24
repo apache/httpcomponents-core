@@ -29,27 +29,12 @@ package org.apache.http.nio.util;
 
 import java.io.IOException;
 
-import org.apache.http.nio.ContentDecoder;
-
 /**
  * Generic content input buffer.
  *
  * @since 4.0
  */
 public interface ContentInputBuffer {
-
-    /**
-     * Reads content from the given {@link ContentDecoder} and stores it in
-     * this buffer.
-     *
-     * @param decoder the content decoder.
-     * @return number of bytes read.
-     * @throws IOException in case of an I/O error.
-     *
-     * @deprecated (4.3) use implementation specific methods.
-     */
-    @Deprecated
-    int consumeContent(ContentDecoder decoder) throws IOException;
 
     /**
      * Resets the buffer by clearing its state and stored content.

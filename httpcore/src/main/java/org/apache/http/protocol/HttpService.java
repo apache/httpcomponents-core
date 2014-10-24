@@ -46,7 +46,6 @@ import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
@@ -70,98 +69,14 @@ import org.apache.http.util.EntityUtils;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
-@Immutable // provided injected dependencies are immutable and deprecated methods are not used
+@Immutable
 public class HttpService {
 
-    /**
-     * TODO: make all variables final in the next major version
-     */
-    private volatile HttpParams params = null;
-    private volatile HttpProcessor processor = null;
-    private volatile HttpRequestHandlerMapper handlerMapper = null;
-    private volatile ConnectionReuseStrategy connStrategy = null;
-    private volatile HttpResponseFactory responseFactory = null;
-    private volatile HttpExpectationVerifier expectationVerifier = null;
-
-    /**
-     * Create a new HTTP service.
-     *
-     * @param processor            the processor to use on requests and responses
-     * @param connStrategy         the connection reuse strategy
-     * @param responseFactory      the response factory
-     * @param handlerResolver      the handler resolver. May be null.
-     * @param expectationVerifier  the expectation verifier. May be null.
-     * @param params               the HTTP parameters
-     *
-     * @since 4.1
-     * @deprecated (4.3) use {@link HttpService#HttpService(HttpProcessor, ConnectionReuseStrategy,
-     *   HttpResponseFactory, HttpRequestHandlerMapper, HttpExpectationVerifier)}
-     */
-    @Deprecated
-    public HttpService(
-            final HttpProcessor processor,
-            final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory,
-            final HttpRequestHandlerResolver handlerResolver,
-            final HttpExpectationVerifier expectationVerifier,
-            final HttpParams params) {
-        this(processor,
-             connStrategy,
-             responseFactory,
-             new HttpRequestHandlerResolverAdapter(handlerResolver),
-             expectationVerifier);
-        this.params = params;
-    }
-
-    /**
-     * Create a new HTTP service.
-     *
-     * @param processor            the processor to use on requests and responses
-     * @param connStrategy         the connection reuse strategy
-     * @param responseFactory      the response factory
-     * @param handlerResolver      the handler resolver. May be null.
-     * @param params               the HTTP parameters
-     *
-     * @since 4.1
-     * @deprecated (4.3) use {@link HttpService#HttpService(HttpProcessor, ConnectionReuseStrategy,
-     *   HttpResponseFactory, HttpRequestHandlerMapper)}
-     */
-    @Deprecated
-    public HttpService(
-            final HttpProcessor processor,
-            final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory,
-            final HttpRequestHandlerResolver handlerResolver,
-            final HttpParams params) {
-        this(processor,
-             connStrategy,
-             responseFactory,
-             new HttpRequestHandlerResolverAdapter(handlerResolver),
-             null);
-        this.params = params;
-    }
-
-    /**
-     * Create a new HTTP service.
-     *
-     * @param proc             the processor to use on requests and responses
-     * @param connStrategy     the connection reuse strategy
-     * @param responseFactory  the response factory
-     *
-     * @deprecated (4.1) use {@link HttpService#HttpService(HttpProcessor,
-     *  ConnectionReuseStrategy, HttpResponseFactory, HttpRequestHandlerResolver, HttpParams)}
-     */
-    @Deprecated
-    public HttpService(
-            final HttpProcessor proc,
-            final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory) {
-        super();
-        setHttpProcessor(proc);
-        setConnReuseStrategy(connStrategy);
-        setResponseFactory(responseFactory);
-    }
+    private final HttpProcessor processor;
+    private final HttpRequestHandlerMapper handlerMapper;
+    private final ConnectionReuseStrategy connStrategy;
+    private final HttpResponseFactory responseFactory;
+    private final HttpExpectationVerifier expectationVerifier;
 
     /**
      * Create a new HTTP service.
@@ -223,65 +138,6 @@ public class HttpService {
     public HttpService(
             final HttpProcessor processor, final HttpRequestHandlerMapper handlerMapper) {
         this(processor, null, null, handlerMapper, null);
-    }
-
-    /**
-     * @deprecated (4.1) set {@link HttpProcessor} using constructor
-     */
-    @Deprecated
-    public void setHttpProcessor(final HttpProcessor processor) {
-        Args.notNull(processor, "HTTP processor");
-        this.processor = processor;
-    }
-
-    /**
-     * @deprecated (4.1) set {@link ConnectionReuseStrategy} using constructor
-     */
-    @Deprecated
-    public void setConnReuseStrategy(final ConnectionReuseStrategy connStrategy) {
-        Args.notNull(connStrategy, "Connection reuse strategy");
-        this.connStrategy = connStrategy;
-    }
-
-    /**
-     * @deprecated (4.1) set {@link HttpResponseFactory} using constructor
-     */
-    @Deprecated
-    public void setResponseFactory(final HttpResponseFactory responseFactory) {
-        Args.notNull(responseFactory, "Response factory");
-        this.responseFactory = responseFactory;
-    }
-
-    /**
-     * @deprecated (4.1) set {@link HttpResponseFactory} using constructor
-     */
-    @Deprecated
-    public void setParams(final HttpParams params) {
-        this.params = params;
-    }
-
-    /**
-     * @deprecated (4.1) set {@link HttpRequestHandlerResolver} using constructor
-     */
-    @Deprecated
-    public void setHandlerResolver(final HttpRequestHandlerResolver handlerResolver) {
-        this.handlerMapper = new HttpRequestHandlerResolverAdapter(handlerResolver);
-    }
-
-    /**
-     * @deprecated (4.1) set {@link HttpExpectationVerifier} using constructor
-     */
-    @Deprecated
-    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
-        this.expectationVerifier = expectationVerifier;
-    }
-
-    /**
-     * @deprecated (4.3) no longer used.
-     */
-    @Deprecated
-    public HttpParams getParams() {
-        return this.params;
     }
 
     /**
@@ -424,25 +280,6 @@ public class HttpService {
         } else {
             response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
         }
-    }
-
-    /**
-     * Adaptor class to transition from HttpRequestHandlerResolver to HttpRequestHandlerMapper.
-     */
-    @Deprecated
-    private static class HttpRequestHandlerResolverAdapter implements HttpRequestHandlerMapper {
-
-        private final HttpRequestHandlerResolver resolver;
-
-        public HttpRequestHandlerResolverAdapter(final HttpRequestHandlerResolver resolver) {
-            this.resolver = resolver;
-        }
-
-        @Override
-        public HttpRequestHandler lookup(final HttpRequest request) {
-            return resolver.lookup(request.getRequestLine().getUri());
-        }
-
     }
 
 }

@@ -43,8 +43,6 @@ import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.BasicLineParser;
 import org.apache.http.message.LineParser;
-import org.apache.http.params.HttpParamConfig;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -54,7 +52,6 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public abstract class AbstractMessageParser<T extends HttpMessage> implements HttpMessageParser<T> {
 
@@ -68,31 +65,6 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
 
     private int state;
     private T message;
-
-    /**
-     * Creates an instance of AbstractMessageParser.
-     *
-     * @param buffer the session input buffer.
-     * @param parser the line parser.
-     * @param params HTTP parameters.
-     *
-     * @deprecated (4.3) use {@link AbstractMessageParser#AbstractMessageParser(SessionInputBuffer,
-     *   LineParser, MessageConstraints)}
-     */
-    @Deprecated
-    public AbstractMessageParser(
-            final SessionInputBuffer buffer,
-            final LineParser parser,
-            final HttpParams params) {
-        super();
-        Args.notNull(buffer, "Session input buffer");
-        Args.notNull(params, "HTTP parameters");
-        this.sessionBuffer = buffer;
-        this.messageConstraints = HttpParamConfig.getMessageConstraints(params);
-        this.lineParser = (parser != null) ? parser : BasicLineParser.INSTANCE;
-        this.headerLines = new ArrayList<CharArrayBuffer>();
-        this.state = HEAD_LINE;
-    }
 
     /**
      * Creates new instance of AbstractMessageParser.

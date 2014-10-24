@@ -43,22 +43,15 @@ import org.apache.http.util.Args;
 @NotThreadSafe
 public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
 
-    /**
-     * @deprecated (4.2)
-     */
-    @Deprecated
-    protected final byte[] content;
     private final byte[] b;
     private final int off, len;
 
     /**
      * @since 4.2
      */
-    @SuppressWarnings("deprecation")
     public ByteArrayEntity(final byte[] b, final ContentType contentType) {
         super();
         Args.notNull(b, "Source byte array");
-        this.content = b;
         this.b = b;
         this.off = 0;
         this.len = this.b.length;
@@ -70,7 +63,6 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     /**
      * @since 4.2
      */
-    @SuppressWarnings("deprecation")
     public ByteArrayEntity(final byte[] b, final int off, final int len, final ContentType contentType) {
         super();
         Args.notNull(b, "Source byte array");
@@ -78,7 +70,6 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
                 ((off + len) < 0) || ((off + len) > b.length)) {
             throw new IndexOutOfBoundsException("off: " + off + " len: " + len + " b.length: " + b.length);
         }
-        this.content = b;
         this.b = b;
         this.off = off;
         this.len = len;

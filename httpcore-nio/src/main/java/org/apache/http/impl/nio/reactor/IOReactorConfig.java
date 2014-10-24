@@ -42,38 +42,19 @@ public final class IOReactorConfig implements Cloneable {
 
     public static final IOReactorConfig DEFAULT = new Builder().build();
 
-    // TODO: make final
-    private long selectInterval;
-    private long shutdownGracePeriod;
-    private boolean interestOpQueued;
-    private int ioThreadCount;
-    private int soTimeout;
-    private boolean soReuseAddress;
-    private int soLinger;
-    private boolean soKeepAlive;
-    private boolean tcpNoDelay;
-    private int connectTimeout;
-    private int sndBufSize;
-    private int rcvBufSize;
-    private int backlogSize;
-
-    @Deprecated
-    public IOReactorConfig() {
-        super();
-        this.selectInterval = 1000;
-        this.shutdownGracePeriod = 500;
-        this.interestOpQueued = false;
-        this.ioThreadCount = AVAIL_PROCS;
-        this.soTimeout = 0;
-        this.soReuseAddress = false;
-        this.soLinger = -1;
-        this.soKeepAlive = false;
-        this.tcpNoDelay = true;
-        this.connectTimeout = 0;
-        this.sndBufSize = 0;
-        this.rcvBufSize = 0;
-        this.backlogSize = 0;
-    }
+    private final long selectInterval;
+    private final long shutdownGracePeriod;
+    private final boolean interestOpQueued;
+    private final int ioThreadCount;
+    private final int soTimeout;
+    private final boolean soReuseAddress;
+    private final int soLinger;
+    private final boolean soKeepAlive;
+    private final boolean tcpNoDelay;
+    private final int connectTimeout;
+    private final int sndBufSize;
+    private final int rcvBufSize;
+    private final int backlogSize;
 
     IOReactorConfig(
             final long selectInterval,
@@ -116,15 +97,6 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * @deprecated (4.3) use {@link Builder#setSelectInterval(long)}
-     */
-    @Deprecated
-    public void setSelectInterval(final long selectInterval) {
-        Args.positive(selectInterval, "Select internal");
-        this.selectInterval = selectInterval;
-    }
-
-    /**
      * Determines grace period in milliseconds the I/O reactors are expected to block waiting
      * for individual worker threads to terminate cleanly.
      * <p>
@@ -132,15 +104,6 @@ public final class IOReactorConfig implements Cloneable {
      */
     public long getShutdownGracePeriod() {
         return this.shutdownGracePeriod;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link Builder#setShutdownGracePeriod(long)}
-     */
-    @Deprecated
-    public void setShutdownGracePeriod(final long gracePeriod) {
-        Args.positive(gracePeriod, "Shutdown grace period");
-        this.shutdownGracePeriod = gracePeriod;
     }
 
     /**
@@ -159,29 +122,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * @deprecated (4.3) use {@link Builder#setInterestOpQueued(boolean)}
-     */
-    @Deprecated
-    public void setInterestOpQueued(final boolean interestOpQueued) {
-        this.interestOpQueued = interestOpQueued;
-    }
-
-    /**
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
      * <p>
      * Default: {@code 2}
      */
     public int getIoThreadCount() {
         return this.ioThreadCount;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link Builder#setIoThreadCount(int)}
-     */
-    @Deprecated
-    public void setIoThreadCount(final int ioThreadCount) {
-        Args.positive(ioThreadCount, "I/O thread count");
-        this.ioThreadCount = ioThreadCount;
     }
 
     /**
@@ -193,14 +139,6 @@ public final class IOReactorConfig implements Cloneable {
      */
     public int getSoTimeout() {
         return soTimeout;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link Builder#setSoTimeout(int)}
-     */
-    @Deprecated
-    public void setSoTimeout(final int soTimeout) {
-        this.soTimeout = soTimeout;
     }
 
     /**
@@ -216,14 +154,6 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * @deprecated (4.3) use {@link Builder#setSoReuseAddress(boolean)}
-     */
-    @Deprecated
-    public void setSoReuseAddress(final boolean soReuseAddress) {
-        this.soReuseAddress = soReuseAddress;
-    }
-
-    /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
      * for newly created sockets.
      * <p>
@@ -233,14 +163,6 @@ public final class IOReactorConfig implements Cloneable {
      */
     public int getSoLinger() {
         return soLinger;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link Builder#setSoLinger(int)}
-     */
-    @Deprecated
-    public void setSoLinger(final int soLinger) {
-        this.soLinger = soLinger;
     }
 
     /**
@@ -256,14 +178,6 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * @deprecated (4.3) use {@link Builder#setSoKeepAlive(boolean)}
-     */
-    @Deprecated
-    public void setSoKeepalive(final boolean soKeepAlive) {
-        this.soKeepAlive = soKeepAlive;
-    }
-
-    /**
      * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
      * for newly created sockets.
      * <p>
@@ -276,28 +190,12 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * @deprecated (4.3) use {@link Builder#setTcpNoDelay(boolean)}
-     */
-    @Deprecated
-    public void setTcpNoDelay(final boolean tcpNoDelay) {
-        this.tcpNoDelay = tcpNoDelay;
-    }
-
-    /**
      * Determines the default connect timeout value for non-blocking connection requests.
      * <p>
      * Default: {@code 0} (no timeout)
      */
     public int getConnectTimeout() {
         return connectTimeout;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link Builder#setConnectTimeout(int)}
-     */
-    @Deprecated
-    public void setConnectTimeout(final int connectTimeout) {
-        this.connectTimeout = connectTimeout;
     }
 
     /**
@@ -313,14 +211,6 @@ public final class IOReactorConfig implements Cloneable {
     }
 
     /**
-     * @deprecated (4.3) use {@link Builder#setSndBufSize(int)}
-     */
-    @Deprecated
-    public void setSndBufSize(final int sndBufSize) {
-        this.sndBufSize = sndBufSize;
-    }
-
-    /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
      * for newly created sockets.
      * <p>
@@ -330,14 +220,6 @@ public final class IOReactorConfig implements Cloneable {
      */
     public int getRcvBufSize() {
         return rcvBufSize;
-    }
-
-    /**
-     * @deprecated (4.3) use {@link Builder#setRcvBufSize(int)}
-     */
-    @Deprecated
-    public void setRcvBufSize(final int rcvBufSize) {
-        this.rcvBufSize = rcvBufSize;
     }
 
     /**

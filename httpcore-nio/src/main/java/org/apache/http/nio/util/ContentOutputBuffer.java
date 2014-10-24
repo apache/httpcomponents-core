@@ -29,8 +29,6 @@ package org.apache.http.nio.util;
 
 import java.io.IOException;
 
-import org.apache.http.nio.ContentEncoder;
-
 /**
  * Generic content output buffer.
  *
@@ -39,27 +37,9 @@ import org.apache.http.nio.ContentEncoder;
 public interface ContentOutputBuffer {
 
     /**
-     * Writes content from this buffer to the given {@link ContentEncoder}.
-     *
-     * @param encoder content encoder.
-     * @return number of bytes written.
-     * @throws IOException in case of an I/O error.
-     *
-     * @deprecated (4.3) use implementation specific methods.
-     */
-    @Deprecated
-    int produceContent(ContentEncoder encoder) throws IOException;
-
-    /**
      * Resets the buffer by clearing its state and stored content.
      */
     void reset();
-
-    /**
-     * @deprecated (4.2) No longer used.
-     */
-    @Deprecated
-    void flush() throws IOException;
 
     /**
      * Writes {@code len} bytes from the specified byte array

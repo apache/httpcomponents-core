@@ -73,7 +73,6 @@ import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
-@SuppressWarnings("deprecation")
 public class HttpClientNio {
 
     public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
@@ -82,7 +81,7 @@ public class HttpClientNio {
                     new RequestTargetHost(),
                     new RequestConnControl(),
                     new RequestUserAgent("TEST-CLIENT/1.1"),
-                    new RequestExpectContinue(true)});
+                    new RequestExpectContinue()});
 
     private final DefaultConnectingIOReactor ioReactor;
     private final BasicNIOConnPool connpool;

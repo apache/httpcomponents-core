@@ -127,14 +127,6 @@ public abstract class PoolEntry<T, C> {
         return this.validityDeadline;
     }
 
-    /**
-     * @deprecated use {@link #getValidityDeadline()}
-     */
-    @Deprecated
-    public long getValidUnit() {
-        return this.validityDeadline;
-    }
-
     public Object getState() {
         return this.state;
     }

@@ -36,7 +36,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.MessageConstraintException;
 import org.apache.http.annotation.NotThreadSafe;
@@ -45,12 +44,9 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
-import org.apache.http.util.CharsetUtils;
 
 /**
  * Default implementation of {@link SessionInputBuffer} based on
@@ -58,7 +54,6 @@ import org.apache.http.util.CharsetUtils;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @NotThreadSafe
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
@@ -114,47 +109,6 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             final CharsetDecoder chardecoder,
             final ByteBufferAllocator allocator) {
         this(buffersize, lineBuffersize, null, chardecoder, allocator);
-    }
-
-    /**
-     * @deprecated (4.3) use
-     *   {@link SessionInputBufferImpl#SessionInputBufferImpl(int, int, CharsetDecoder,
-     *     ByteBufferAllocator)}
-     */
-    @Deprecated
-    public SessionInputBufferImpl(
-            final int buffersize,
-            final int lineBuffersize,
-            final ByteBufferAllocator allocator,
-            final HttpParams params) {
-        super(buffersize, allocator);
-        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        final String charsetName = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
-        final Charset charset = CharsetUtils.lookup(charsetName);
-        if (charset != null) {
-            this.chardecoder = charset.newDecoder();
-            final CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-            this.chardecoder.onMalformedInput(a1 != null ? a1 : CodingErrorAction.REPORT);
-            final CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
-                    CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-            this.chardecoder.onUnmappableCharacter(a2 != null? a2 : CodingErrorAction.REPORT);
-        } else {
-            this.chardecoder = null;
-        }
-        this.constraints = MessageConstraints.DEFAULT;
-    }
-
-    /**
-     * @deprecated (4.3) use
-     *   {@link SessionInputBufferImpl#SessionInputBufferImpl(int, int, Charset)}
-     */
-    @Deprecated
-    public SessionInputBufferImpl(
-            final int buffersize,
-            final int linebuffersize,
-            final HttpParams params) {
-        this(buffersize, linebuffersize, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     /**

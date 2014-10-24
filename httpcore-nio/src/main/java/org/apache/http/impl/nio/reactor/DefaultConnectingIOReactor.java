@@ -46,7 +46,6 @@ import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.SessionRequest;
 import org.apache.http.nio.reactor.SessionRequestCallback;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.Asserts;
 
 /**
@@ -56,7 +55,6 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.0
  */
-@SuppressWarnings("deprecation")
 @ThreadSafe // public methods only
 public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         implements ConnectingIOReactor {
@@ -105,27 +103,6 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
      */
     public DefaultConnectingIOReactor() throws IOReactorException {
         this(null, null);
-    }
-
-    /**
-     * @deprecated (4.2) use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig, ThreadFactory)}
-     */
-    @Deprecated
-    public DefaultConnectingIOReactor(
-            final int workerCount,
-            final ThreadFactory threadFactory,
-            final HttpParams params) throws IOReactorException {
-        this(convert(workerCount, params), threadFactory);
-    }
-
-    /**
-     * @deprecated (4.2) use {@link DefaultConnectingIOReactor#DefaultConnectingIOReactor(IOReactorConfig)}
-     */
-    @Deprecated
-    public DefaultConnectingIOReactor(
-            final int workerCount,
-            final HttpParams params) throws IOReactorException {
-        this(convert(workerCount, params), null);
     }
 
     @Override

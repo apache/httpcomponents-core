@@ -75,7 +75,7 @@ public class HttpClient {
                         new RequestTargetHost(),
                         new RequestConnControl(),
                         new RequestUserAgent("TEST-CLIENT/1.1"),
-                        new RequestExpectContinue(true)
+                        new RequestExpectContinue()
                 }));
     }
 

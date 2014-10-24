@@ -84,34 +84,6 @@ public class UriPatternMatcher<T> {
     }
 
     /**
-     * @deprecated (4.1) do not use
-     */
-    @Deprecated
-    public synchronized void setHandlers(final Map<String, T> map) {
-        Args.notNull(map, "Map of handlers");
-        this.map.clear();
-        this.map.putAll(map);
-    }
-
-    /**
-     * @deprecated (4.1) do not use
-     */
-    @Deprecated
-    public synchronized void setObjects(final Map<String, T> map) {
-        Args.notNull(map, "Map of handlers");
-        this.map.clear();
-        this.map.putAll(map);
-    }
-
-    /**
-     * @deprecated (4.1) do not use
-     */
-    @Deprecated
-    public synchronized Map<String, T> getObjects() {
-        return this.map;
-    }
-
-    /**
      * Looks up an object matching the given request path.
      *
      * @param path the request path

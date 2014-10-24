@@ -60,7 +60,6 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         super.clear();
     }
 
-    @Override
     public int consumeContent(final ContentDecoder decoder) throws IOException {
         setInputMode();
         int totalRead = 0;
