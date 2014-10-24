@@ -28,9 +28,9 @@
 package org.apache.http.impl.io;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
@@ -85,8 +85,8 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
     public void write(final T message) throws IOException, HttpException {
         Args.notNull(message, "HTTP message");
         writeHeadLine(message);
-        for (final HeaderIterator it = message.headerIterator(); it.hasNext(); ) {
-            final Header header = it.nextHeader();
+        for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {
+            final Header header = it.next();
             this.sessionBuffer.writeLine
                 (lineFormatter.formatHeader(this.lineBuf, header));
         }

@@ -26,16 +26,16 @@
  */
 package org.apache.http.message;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
 import org.junit.Assert;
 import org.junit.Test;
 
 
 /**
- * Tests for {@link BasicHeaderIterator}.
+ * Tests for {@link java.util.Iterator} of {@link org.apache.http.Header}s.
  *
  */
 public class TestBasicHeaderIterator {
@@ -50,27 +50,27 @@ public class TestBasicHeaderIterator {
         };
 
         // without filter
-        HeaderIterator hit = new BasicHeaderIterator(headers, null);
+        Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("0", headers[0], hit.nextHeader());
+        Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("1", headers[1], hit.nextHeader());
+        Assert.assertEquals("1", headers[1], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("2", headers[2], hit.nextHeader());
+        Assert.assertEquals("2", headers[2], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("3", headers[3], hit.nextHeader());
+        Assert.assertEquals("3", headers[3], hit.next());
         Assert.assertFalse(hit.hasNext());
 
         // with filter
         hit = new BasicHeaderIterator(headers, "name");
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("0", headers[0], hit.nextHeader());
+        Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("1", headers[1], hit.nextHeader());
+        Assert.assertEquals("1", headers[1], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("2", headers[2], hit.nextHeader());
+        Assert.assertEquals("2", headers[2], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("3", headers[3], hit.nextHeader());
+        Assert.assertEquals("3", headers[3], hit.next());
         Assert.assertFalse(hit.hasNext());
     }
 
@@ -85,29 +85,29 @@ public class TestBasicHeaderIterator {
         };
 
         // without filter
-        HeaderIterator hit = new BasicHeaderIterator(headers, null);
+        Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("0", headers[0], hit.nextHeader());
+        Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("1", headers[1], hit.nextHeader());
+        Assert.assertEquals("1", headers[1], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("2", headers[2], hit.nextHeader());
+        Assert.assertEquals("2", headers[2], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("3", headers[3], hit.nextHeader());
+        Assert.assertEquals("3", headers[3], hit.next());
         Assert.assertFalse(hit.hasNext());
 
         // with filter, first & last
         hit = new BasicHeaderIterator(headers, "match");
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("0", headers[0], hit.nextHeader());
+        Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("3", headers[3], hit.nextHeader());
+        Assert.assertEquals("3", headers[3], hit.next());
         Assert.assertFalse(hit.hasNext());
 
         // with filter, one match
         hit = new BasicHeaderIterator(headers, "single");
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("2", headers[2], hit.nextHeader());
+        Assert.assertEquals("2", headers[2], hit.next());
         Assert.assertFalse(hit.hasNext());
 
         // with filter, no match
@@ -137,79 +137,79 @@ public class TestBasicHeaderIterator {
         };
 
         // without filter
-        HeaderIterator hit = new BasicHeaderIterator(headers, null);
+        Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("0", headers[0], hit.nextHeader());
+        Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("1", headers[1], hit.nextHeader());
+        Assert.assertEquals("1", headers[1], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("2", headers[2], hit.nextHeader());
+        Assert.assertEquals("2", headers[2], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("3", headers[3], hit.nextHeader());
+        Assert.assertEquals("3", headers[3], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("4", headers[4], hit.nextHeader());
+        Assert.assertEquals("4", headers[4], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("5", headers[5], hit.nextHeader());
+        Assert.assertEquals("5", headers[5], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("6", headers[6], hit.nextHeader());
+        Assert.assertEquals("6", headers[6], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("7", headers[7], hit.nextHeader());
+        Assert.assertEquals("7", headers[7], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("8", headers[8], hit.nextHeader());
+        Assert.assertEquals("8", headers[8], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("9", headers[9], hit.nextHeader());
+        Assert.assertEquals("9", headers[9], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("a", headers[10], hit.nextHeader());
+        Assert.assertEquals("a", headers[10], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("b", headers[11], hit.nextHeader());
+        Assert.assertEquals("b", headers[11], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("c", headers[12], hit.nextHeader());
+        Assert.assertEquals("c", headers[12], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("d", headers[13], hit.nextHeader());
+        Assert.assertEquals("d", headers[13], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("e", headers[14], hit.nextHeader());
+        Assert.assertEquals("e", headers[14], hit.next());
         Assert.assertFalse(hit.hasNext());
 
         // yellow 0, 5, 9, 11, 13
         hit = new BasicHeaderIterator(headers, "Yellow");
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("0", headers[0], hit.nextHeader());
+        Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("5", headers[5], hit.nextHeader());
+        Assert.assertEquals("5", headers[5], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("9", headers[9], hit.nextHeader());
+        Assert.assertEquals("9", headers[9], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("b", headers[11], hit.nextHeader());
+        Assert.assertEquals("b", headers[11], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("d", headers[13], hit.nextHeader());
+        Assert.assertEquals("d", headers[13], hit.next());
         Assert.assertFalse(hit.hasNext());
 
         // maroon 1, 6, 7, 8, 10
         hit = new BasicHeaderIterator(headers, "marOOn");
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("1", headers[1], hit.nextHeader());
+        Assert.assertEquals("1", headers[1], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("6", headers[6], hit.nextHeader());
+        Assert.assertEquals("6", headers[6], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("7", headers[7], hit.nextHeader());
+        Assert.assertEquals("7", headers[7], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("8", headers[8], hit.nextHeader());
+        Assert.assertEquals("8", headers[8], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("a", headers[10], hit.nextHeader());
+        Assert.assertEquals("a", headers[10], hit.next());
         Assert.assertFalse(hit.hasNext());
 
         // orange 2, 3, 4, 12, 14
         hit = new BasicHeaderIterator(headers, "OranGe");
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("2", headers[2], hit.nextHeader());
+        Assert.assertEquals("2", headers[2], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("3", headers[3], hit.nextHeader());
+        Assert.assertEquals("3", headers[3], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("4", headers[4], hit.nextHeader());
+        Assert.assertEquals("4", headers[4], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("b", headers[12], hit.nextHeader());
+        Assert.assertEquals("b", headers[12], hit.next());
         Assert.assertTrue(hit.hasNext());
-        Assert.assertEquals("e", headers[14], hit.nextHeader());
+        Assert.assertEquals("e", headers[14], hit.next());
         Assert.assertFalse(hit.hasNext());
     }
 
@@ -217,7 +217,7 @@ public class TestBasicHeaderIterator {
     @Test
     public void testInvalid() {
 
-        HeaderIterator hit = null;
+        Iterator<Header> hit = null;
         try {
             hit = new BasicHeaderIterator(null, "whatever");
             Assert.fail("null headers not detected");
@@ -231,7 +231,7 @@ public class TestBasicHeaderIterator {
 
         // but this is
         try {
-            hit.nextHeader();
+            hit.next();
             Assert.fail("next beyond end not detected");
         } catch (final NoSuchElementException nsx) {
             // expected
@@ -251,7 +251,7 @@ public class TestBasicHeaderIterator {
         };
 
         // without filter, using plain next()
-        HeaderIterator hit = new BasicHeaderIterator(headers, null);
+        Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         Assert.assertTrue(hit.hasNext());
         Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
@@ -270,7 +270,5 @@ public class TestBasicHeaderIterator {
         } catch (final UnsupportedOperationException uox) {
             // expected
         }
-
-        Assert.assertTrue("no next", ((BasicHeaderIterator)hit).findNext(-3) < 0);
     }
 }

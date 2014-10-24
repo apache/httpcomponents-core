@@ -27,6 +27,8 @@
 
 package org.apache.http;
 
+import java.util.Iterator;
+
 /**
  * HTTP messages consist of requests from client to server and responses
  * from server to client.
@@ -171,7 +173,7 @@ public interface HttpMessage {
      * @return Iterator that returns Header objects in the sequence they are
      *         sent over a connection.
      */
-    HeaderIterator headerIterator();
+    Iterator<Header> headerIterator();
 
     /**
      * Returns an iterator of the headers with a given name.
@@ -182,6 +184,6 @@ public interface HttpMessage {
      * @return Iterator that returns Header objects with the argument name
      *         in the sequence they are sent over a connection.
      */
-    HeaderIterator headerIterator(String name);
+    Iterator<Header> headerIterator(String name);
 
 }

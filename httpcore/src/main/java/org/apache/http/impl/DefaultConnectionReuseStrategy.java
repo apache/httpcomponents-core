@@ -27,15 +27,14 @@
 
 package org.apache.http.impl;
 
+import java.util.Iterator;
+
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
-import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.TokenIterator;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicTokenIterator;
 import org.apache.http.protocol.HTTP;
@@ -67,6 +66,11 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
     public DefaultConnectionReuseStrategy() {
         super();
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
     // see interface ConnectionReuseStrategy
@@ -107,7 +111,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // Check for the "Connection" header. If that is absent, check for
         // the "Proxy-Connection" header. The latter is an unspecified and
         // broken but unfortunately common extension of HTTP.
-        HeaderIterator hit = response.headerIterator(HTTP.CONN_DIRECTIVE);
+        Iterator<Header> hit = response.headerIterator(HTTP.CONN_DIRECTIVE);
         if (!hit.hasNext()) {
             hit = response.headerIterator("Proxy-Connection");
         }
@@ -136,47 +140,25 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // If there is no "close" but a "keep-alive", we take the hint.
 
         if (hit.hasNext()) {
-            try {
-                final TokenIterator ti = createTokenIterator(hit);
-                boolean keepalive = false;
-                while (ti.hasNext()) {
-                    final String token = ti.nextToken();
-                    if (HTTP.CONN_CLOSE.equalsIgnoreCase(token)) {
-                        return false;
-                    } else if (HTTP.CONN_KEEP_ALIVE.equalsIgnoreCase(token)) {
-                        // continue the loop, there may be a "close" afterwards
-                        keepalive = true;
-                    }
+            final Iterator<String> ti = new BasicTokenIterator(hit);
+            boolean keepalive = false;
+            while (ti.hasNext()) {
+                final String token = ti.next();
+                if (HTTP.CONN_CLOSE.equalsIgnoreCase(token)) {
+                    return false;
+                } else if (HTTP.CONN_KEEP_ALIVE.equalsIgnoreCase(token)) {
+                    // continue the loop, there may be a "close" afterwards
+                    keepalive = true;
                 }
-                if (keepalive)
-                 {
-                    return true;
+            }
+            if (keepalive) {
                 // neither "close" nor "keep-alive", use default policy
-                }
-
-            } catch (final ParseException px) {
-                // invalid connection header means no persistent connection
-                // we don't have logging in HttpCore, so the exception is lost
-                return false;
+                return true;
             }
         }
 
         // default since HTTP/1.1 is persistent, before it was non-persistent
         return !ver.lessEquals(HttpVersion.HTTP_1_0);
-    }
-
-
-    /**
-     * Creates a token iterator from a header iterator.
-     * This method can be overridden to replace the implementation of
-     * the token iterator.
-     *
-     * @param hit       the header iterator
-     *
-     * @return  the token iterator
-     */
-    protected TokenIterator createTokenIterator(final HeaderIterator hit) {
-        return new BasicTokenIterator(hit);
     }
 
     private boolean canResponseHaveBody(final HttpResponse response) {

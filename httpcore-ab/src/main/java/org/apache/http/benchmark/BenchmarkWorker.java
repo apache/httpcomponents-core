@@ -31,12 +31,12 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.util.Iterator;
 
 import javax.net.SocketFactory;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -254,8 +254,8 @@ class BenchmarkWorker implements Runnable {
     }
 
     private static void resetHeader(final HttpRequest request) {
-        for (final HeaderIterator it = request.headerIterator(); it.hasNext();) {
-            final Header header = it.nextHeader();
+        for (final Iterator<Header> it = request.headerIterator(); it.hasNext();) {
+            final Header header = it.next();
             if (!(header instanceof DefaultHeader)) {
                 it.remove();
             }

@@ -30,11 +30,11 @@ package org.apache.http.message;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -267,7 +267,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      *
      * @since 4.0
      */
-    public HeaderIterator iterator() {
+    public Iterator<Header> iterator() {
         return new BasicListHeaderIterator(this.headers, null);
     }
 
@@ -281,7 +281,7 @@ public class HeaderGroup implements Cloneable, Serializable {
      *
      * @since 4.0
      */
-    public HeaderIterator iterator(final String name) {
+    public Iterator<Header> iterator(final String name) {
         return new BasicListHeaderIterator(this.headers, name);
     }
 

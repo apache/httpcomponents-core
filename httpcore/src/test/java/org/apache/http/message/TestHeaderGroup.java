@@ -31,9 +31,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Iterator;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderIterator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -140,7 +140,7 @@ public class TestHeaderGroup {
     @Test
     public void testIterator() {
         final HeaderGroup headergroup = new HeaderGroup();
-        final HeaderIterator i = headergroup.iterator();
+        final Iterator<Header> i = headergroup.iterator();
         Assert.assertNotNull(i);
         Assert.assertFalse(i.hasNext());
     }
@@ -152,7 +152,7 @@ public class TestHeaderGroup {
         final Header header2 = new BasicHeader("name", "value2");
         final Header header3 = new BasicHeader("name", "value3");
         headergroup.setHeaders(new Header[] { header1, header2, header3 });
-        final HeaderIterator i = headergroup.iterator();
+        final Iterator<Header> i = headergroup.iterator();
         Assert.assertNotNull(i);
         Assert.assertTrue(i.hasNext());
         i.next();
