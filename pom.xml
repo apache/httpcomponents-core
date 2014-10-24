@@ -74,7 +74,7 @@
     <!-- Override parent 7 setting for deprecation (only - other settings stand)-->
     <maven.compiler.source>1.6</maven.compiler.source>
     <maven.compiler.target>1.6</maven.compiler.target>
-    <maven.compiler.showDeprecation>false</maven.compiler.showDeprecation>
+    <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <junit.version>4.11</junit.version>
     <mockito.version>1.8.5</mockito.version>
     <commons-logging.version>1.2</commons-logging.version>
