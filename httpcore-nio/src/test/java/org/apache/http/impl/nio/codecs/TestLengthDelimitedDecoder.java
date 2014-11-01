@@ -40,7 +40,6 @@ import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
 import org.apache.http.nio.reactor.SessionInputBuffer;
-import org.apache.http.util.EncodingUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -330,7 +329,7 @@ public class TestLengthDelimitedDecoder {
         final int i = inbuf.fill(channel);
         Assert.assertEquals(7, i);
 
-        final byte[] beginning =  EncodingUtils.getAsciiBytes("beginning; ");
+        final byte[] beginning =  "beginning; ".getBytes(Consts.ASCII);
 
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");

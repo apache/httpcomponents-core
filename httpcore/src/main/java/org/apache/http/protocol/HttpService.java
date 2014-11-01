@@ -43,11 +43,11 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.util.Args;
-import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 
 /**
@@ -244,9 +244,7 @@ public class HttpService {
         if (message == null) {
             message = ex.toString();
         }
-        final byte[] msg = EncodingUtils.getAsciiBytes(message);
-        final ByteArrayEntity entity = new ByteArrayEntity(msg);
-        entity.setContentType("text/plain; charset=US-ASCII");
+        final StringEntity entity = new StringEntity(message, ContentType.TEXT_PLAIN);
         response.setEntity(entity);
     }
 

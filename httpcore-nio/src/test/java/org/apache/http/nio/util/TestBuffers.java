@@ -41,7 +41,6 @@ import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.util.EncodingUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -65,7 +64,7 @@ public class TestBuffers {
         final byte[] b1 = new byte[5];
 
         int len = buffer.read(b1);
-        Assert.assertEquals("stuff", EncodingUtils.getAsciiString(b1, 0, len));
+        Assert.assertEquals("stuff", new String(b1, 0, len, Consts.ASCII));
 
         final int c = buffer.read();
         Assert.assertEquals(';', c);
@@ -73,7 +72,7 @@ public class TestBuffers {
         final byte[] b2 = new byte[1024];
 
         len = buffer.read(b2);
-        Assert.assertEquals("more stuff", EncodingUtils.getAsciiString(b2, 0, len));
+        Assert.assertEquals("more stuff", new String(b2, 0, len, Consts.ASCII));
 
         Assert.assertEquals(-1, buffer.read());
         Assert.assertEquals(-1, buffer.read(b2));
@@ -95,16 +94,16 @@ public class TestBuffers {
 
         final SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
 
-        buffer.write(EncodingUtils.getAsciiBytes("stuff"));
+        buffer.write("stuff".getBytes(Consts.ASCII));
         buffer.write(';');
         buffer.produceContent(encoder);
 
-        buffer.write(EncodingUtils.getAsciiBytes("more "));
-        buffer.write(EncodingUtils.getAsciiBytes("stuff"));
+        buffer.write("more ".getBytes(Consts.ASCII));
+        buffer.write("stuff".getBytes(Consts.ASCII));
         buffer.produceContent(encoder);
 
         final byte[] content = outstream.toByteArray();
-        Assert.assertEquals("stuff;more stuff", EncodingUtils.getAsciiString(content));
+        Assert.assertEquals("stuff;more stuff", new String(content, Consts.ASCII));
     }
 
     @Test

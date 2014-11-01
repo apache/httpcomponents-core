@@ -66,7 +66,6 @@ import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.testserver.HttpClient;
 import org.apache.http.testserver.HttpServer;
-import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -552,9 +551,8 @@ public class TestSyncHttp {
                     }
                     if (secretNumber < 2) {
                         response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
-                        final ByteArrayEntity outgoing = new ByteArrayEntity(
-                                EncodingUtils.getAsciiBytes("Wrong secret number"));
-                        response.setEntity(outgoing);
+                        response.setEntity(
+                                new StringEntity("Wrong secret number", ContentType.TEXT_PLAIN));
                     }
                 }
             }
@@ -574,9 +572,7 @@ public class TestSyncHttp {
 
                 final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
-                final ByteArrayEntity outgoing = new ByteArrayEntity(
-                        EncodingUtils.getAsciiBytes("No content " + r));
-                post.setEntity(outgoing);
+                post.setEntity(new StringEntity("No content " + r, ContentType.TEXT_PLAIN));
 
                 final HttpResponse response = this.client.execute(post, host, conn);
 

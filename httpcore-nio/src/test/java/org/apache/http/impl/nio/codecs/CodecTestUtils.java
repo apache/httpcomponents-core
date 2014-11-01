@@ -32,12 +32,12 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 
-import org.apache.http.util.EncodingUtils;
+import org.apache.http.Consts;
 
 class CodecTestUtils {
 
     public static ByteBuffer wrap(final String s) {
-        return ByteBuffer.wrap(EncodingUtils.getAsciiBytes(s));
+        return ByteBuffer.wrap(s.getBytes(Consts.ASCII));
     }
 
     public static String convert(final ByteBuffer src) {
