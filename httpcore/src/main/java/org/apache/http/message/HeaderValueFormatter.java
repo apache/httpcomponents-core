@@ -33,16 +33,7 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Interface for formatting elements of a header value.
- * This is the complement to {@link HeaderValueParser}.
  * Instances of this interface are expected to be stateless and thread-safe.
- *
- * <p>
- * All formatting methods accept an optional buffer argument.
- * If a buffer is passed in, the formatted element will be appended
- * and the modified buffer is returned. If no buffer is passed in,
- * a new buffer will be created and filled with the formatted element.
- * In both cases, the caller is allowed to modify the returned buffer.
- * </p>
  *
  * @since 4.0
  */
@@ -51,72 +42,44 @@ public interface HeaderValueFormatter {
     /**
      * Formats an array of header elements.
      *
-     * @param buffer    the buffer to append to, or
-     *                  {@code null} to create a new buffer
+     * @param buffer    buffer to write formatted content to.
      * @param elems     the header elements to format
      * @param quote     {@code true} to always format with quoted values,
      *                  {@code false} to use quotes only when necessary
-     *
-     * @return  a buffer with the formatted header elements.
-     *          If the {@code buffer} argument was not {@code null},
-     *          that buffer will be used and returned.
      */
-    CharArrayBuffer formatElements(CharArrayBuffer buffer,
-                                   HeaderElement[] elems,
-                                   boolean quote);
+    void formatElements(CharArrayBuffer buffer, HeaderElement[] elems, boolean quote);
 
     /**
      * Formats one header element.
      *
-     * @param buffer    the buffer to append to, or
-     *                  {@code null} to create a new buffer
+     * @param buffer    buffer to write formatted content to.
      * @param elem      the header element to format
      * @param quote     {@code true} to always format with quoted values,
      *                  {@code false} to use quotes only when necessary
-     *
-     * @return  a buffer with the formatted header element.
-     *          If the {@code buffer} argument was not {@code null},
-     *          that buffer will be used and returned.
      */
-    CharArrayBuffer formatHeaderElement(CharArrayBuffer buffer,
-                                        HeaderElement elem,
-                                        boolean quote);
+    void formatHeaderElement(CharArrayBuffer buffer, HeaderElement elem, boolean quote);
 
     /**
      * Formats the parameters of a header element.
      * That's a list of name-value pairs, to be separated by semicolons.
      * This method will <i>not</i> generate a leading semicolon.
      *
-     * @param buffer    the buffer to append to, or
-     *                  {@code null} to create a new buffer
+     * @param buffer    buffer to write formatted content to.
      * @param nvps      the parameters (name-value pairs) to format
      * @param quote     {@code true} to always format with quoted values,
      *                  {@code false} to use quotes only when necessary
-     *
-     * @return  a buffer with the formatted parameters.
-     *          If the {@code buffer} argument was not {@code null},
-     *          that buffer will be used and returned.
      */
-    CharArrayBuffer formatParameters(CharArrayBuffer buffer,
-                                     NameValuePair[] nvps,
-                                     boolean quote);
+    void formatParameters(CharArrayBuffer buffer, NameValuePair[] nvps, boolean quote);
 
     /**
      * Formats one name-value pair, where the value is optional.
      *
-     * @param buffer    the buffer to append to, or
-     *                  {@code null} to create a new buffer
+     * @param buffer    buffer to write formatted content to.
      * @param nvp       the name-value pair to format
      * @param quote     {@code true} to always format with a quoted value,
      *                  {@code false} to use quotes only when necessary
-     *
-     * @return  a buffer with the formatted name-value pair.
-     *          If the {@code buffer} argument was not {@code null},
-     *          that buffer will be used and returned.
      */
-    CharArrayBuffer formatNameValuePair(CharArrayBuffer buffer,
-                                        NameValuePair nvp,
-                                        boolean quote);
+    void formatNameValuePair(CharArrayBuffer buffer, NameValuePair nvp, boolean quote);
 
 }
 

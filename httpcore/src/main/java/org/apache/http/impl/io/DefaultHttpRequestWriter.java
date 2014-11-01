@@ -62,7 +62,7 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
 
     @Override
     protected void writeHeadLine(final HttpRequest message) throws IOException {
-        lineFormatter.formatRequestLine(this.lineBuf, message.getRequestLine());
+        this.lineFormatter.formatRequestLine(this.lineBuf, message.getRequestLine());
         this.sessionBuffer.writeLine(this.lineBuf);
     }
 

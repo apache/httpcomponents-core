@@ -35,7 +35,7 @@ import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageParserFactory;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BasicLineParser;
+import org.apache.http.message.LazyLineParser;
 import org.apache.http.message.LineParser;
 
 /**
@@ -54,7 +54,7 @@ public class DefaultHttpRequestParserFactory implements HttpMessageParserFactory
     public DefaultHttpRequestParserFactory(final LineParser lineParser,
             final HttpRequestFactory requestFactory) {
         super();
-        this.lineParser = lineParser != null ? lineParser : BasicLineParser.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.requestFactory = requestFactory != null ? requestFactory
                 : DefaultHttpRequestFactory.INSTANCE;
     }

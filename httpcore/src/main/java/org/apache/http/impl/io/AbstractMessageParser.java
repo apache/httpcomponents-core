@@ -41,7 +41,7 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BasicLineParser;
+import org.apache.http.message.LazyLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
@@ -70,8 +70,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * Creates new instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
-     * @param lineParser the line parser. If {@code null} {@link BasicLineParser#INSTANCE}
-     *   will be used.
+     * @param lineParser the line parser. If {@code null}
+     *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param constraints the message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
@@ -83,7 +83,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             final MessageConstraints constraints) {
         super();
         this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
-        this.lineParser = lineParser != null ? lineParser : BasicLineParser.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.messageConstraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
@@ -102,8 +102,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      *  including the continuation lines. Setting this parameter to a negative
      *  value or zero will disable the check.
      * @return array of HTTP headers
-     * @param parser line parser to use. Can be {@code null}, in which case
-     *  the default implementation of this interface will be used.
+     * @param lineParser the line parser. If {@code null}
+     *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used
      *
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
@@ -112,11 +112,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             final SessionInputBuffer inbuffer,
             final int maxHeaderCount,
             final int maxLineLen,
-            final LineParser parser) throws HttpException, IOException {
+            final LineParser lineParser) throws HttpException, IOException {
         final List<CharArrayBuffer> headerLines = new ArrayList<CharArrayBuffer>();
         return parseHeaders(inbuffer, maxHeaderCount, maxLineLen,
-                parser != null ? parser : BasicLineParser.INSTANCE,
-                headerLines);
+                lineParser != null ? lineParser : LazyLineParser.INSTANCE, headerLines);
     }
 
     /**

@@ -62,7 +62,6 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
      */
     private final int valuePos;
 
-
     /**
      * Creates a new header from a buffer.
      * The name of the header will be parsed immediately,
@@ -72,26 +71,22 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
      *
      * @throws ParseException   in case of a parse error
      */
-    public BufferedHeader(final CharArrayBuffer buffer)
-        throws ParseException {
+    public BufferedHeader(final CharArrayBuffer buffer) throws ParseException {
 
         super();
         Args.notNull(buffer, "Char array buffer");
         final int colon = buffer.indexOf(':');
         if (colon == -1) {
-            throw new ParseException
-                ("Invalid header: " + buffer.toString());
+            throw new ParseException("Invalid header: " + buffer.toString());
         }
         final String s = buffer.substringTrimmed(0, colon);
         if (s.length() == 0) {
-            throw new ParseException
-                ("Invalid header: " + buffer.toString());
+            throw new ParseException("Invalid header: " + buffer.toString());
         }
         this.buffer = buffer;
         this.name = s;
         this.valuePos = colon + 1;
     }
-
 
     @Override
     public String getName() {

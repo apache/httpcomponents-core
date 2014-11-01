@@ -30,6 +30,7 @@ package org.apache.http.impl.nio.codecs;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.http.FormattedHeader;
 import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
@@ -87,10 +88,16 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
     public void write(final T message) throws IOException, HttpException {
         Args.notNull(message, "HTTP message");
         writeHeadLine(message);
-        for (final Iterator<?> it = message.headerIterator(); it.hasNext(); ) {
-            final Header header = (Header) it.next();
-            this.sessionBuffer.writeLine
-                (lineFormatter.formatHeader(this.lineBuf, header));
+        for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {
+            final Header header = it.next();
+            if (header instanceof FormattedHeader) {
+                final CharArrayBuffer buffer = ((FormattedHeader) header).getBuffer();
+                this.sessionBuffer.writeLine(buffer);
+            } else {
+                this.lineBuf.clear();
+                lineFormatter.formatHeader(this.lineBuf, header);
+                this.sessionBuffer.writeLine(this.lineBuf);
+            }
         }
         this.lineBuf.clear();
         this.sessionBuffer.writeLine(this.lineBuf);

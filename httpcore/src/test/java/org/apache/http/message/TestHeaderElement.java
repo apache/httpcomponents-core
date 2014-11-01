@@ -29,6 +29,7 @@ package org.apache.http.message;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
+import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -73,7 +74,10 @@ public class TestHeaderElement {
     @Test
     public void testParamByName() throws Exception {
         final String s = "name = value; param1 = value1; param2 = value2";
-        final HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null);
+        final CharArrayBuffer buf = new CharArrayBuffer(64);
+        buf.append(s);
+        final ParserCursor cursor = new ParserCursor(0, buf.length());
+        final HeaderElement element = BasicHeaderValueParser.INSTANCE.parseHeaderElement(buf, cursor);
         Assert.assertEquals("value1", element.getParameterByName("param1").getValue());
         Assert.assertEquals("value2", element.getParameterByName("param2").getValue());
         Assert.assertNull(element.getParameterByName("param3"));
@@ -142,12 +146,12 @@ public class TestHeaderElement {
 
     @Test
     public void testToString() {
-        String s = "name=value; param1=value1; param2=value2";
-        HeaderElement element = BasicHeaderValueParser.parseHeaderElement(s, null);
-        Assert.assertEquals(s, element.toString());
-        s = "name; param1=value1; param2=value2";
-        element = BasicHeaderValueParser.parseHeaderElement(s, null);
-        Assert.assertEquals(s, element.toString());
+        final BasicHeaderElement element = new BasicHeaderElement("name", "value",
+                new NameValuePair[] {
+                        new BasicNameValuePair("param1", "value1"),
+                        new BasicNameValuePair("param2", "value2")
+                } );
+        Assert.assertEquals("name=value; param1=value1; param2=value2", element.toString());
     }
 
     @Test

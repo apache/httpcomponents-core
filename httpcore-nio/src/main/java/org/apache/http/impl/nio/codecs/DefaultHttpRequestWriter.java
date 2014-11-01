@@ -33,7 +33,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Default {@link org.apache.http.nio.NHttpMessageWriter} implementation
@@ -68,9 +67,9 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
 
     @Override
     protected void writeHeadLine(final HttpRequest message) throws IOException {
-        final CharArrayBuffer buffer = lineFormatter.formatRequestLine(
-                this.lineBuf, message.getRequestLine());
-        this.sessionBuffer.writeLine(buffer);
+        this.lineBuf.clear();
+        this.lineFormatter.formatRequestLine(this.lineBuf, message.getRequestLine());
+        this.sessionBuffer.writeLine(this.lineBuf);
     }
 
 }

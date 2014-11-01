@@ -91,8 +91,12 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
 
     @Override
     public String toString() {
-        // no need for non-default formatting in toString()
-        return BasicLineFormatter.INSTANCE.formatStatusLine(null, this).toString();
+        final StringBuilder buf = new StringBuilder();
+        buf.append(this.protoVersion).append(" ").append(this.statusCode).append(" ");
+        if (this.reasonPhrase != null) {
+            buf.append(this.reasonPhrase);
+        }
+        return buf.toString();
     }
 
     @Override

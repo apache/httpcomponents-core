@@ -34,6 +34,7 @@ import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Basic implementation of {@link Header}.
@@ -72,15 +73,22 @@ public class BasicHeader implements Header, Cloneable, Serializable {
 
     @Override
     public String toString() {
-        // no need for non-default formatting in toString()
-        return BasicLineFormatter.INSTANCE.formatHeader(null, this).toString();
+        final StringBuilder buf = new StringBuilder();
+        buf.append(this.name).append(": ");
+        if (this.value != null) {
+            buf.append(this.value);
+        }
+        return buf.toString();
     }
 
     @Override
     public HeaderElement[] getElements() throws ParseException {
         if (this.value != null) {
             // result intentionally not cached, it's probably not used again
-            return BasicHeaderValueParser.parseElements(this.value, null);
+            final CharArrayBuffer buffer = new CharArrayBuffer(this.value.length());
+            buffer.append(value);
+            final ParserCursor cursor = new ParserCursor(0, this.value.length());
+            return BasicHeaderValueParser.INSTANCE.parseElements(buffer, cursor);
         } else {
             return new HeaderElement[] {};
         }

@@ -36,7 +36,6 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.LineParser;
-import org.apache.http.message.ParserCursor;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -56,7 +55,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      *
      * @param buffer the session input buffer.
      * @param parser the line parser. If {@code null}
-     *   {@link org.apache.http.message.BasicLineParser#INSTANCE} will be used.
+     *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param responseFactory the response factory. If {@code null}
      *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
      * @param constraints Message constraints. If {@code null}
@@ -91,8 +90,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     @Override
     protected HttpResponse createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {
-        final ParserCursor cursor = new ParserCursor(0, buffer.length());
-        final StatusLine statusline = lineParser.parseStatusLine(buffer, cursor);
+        final StatusLine statusline = lineParser.parseStatusLine(buffer);
         return this.responseFactory.newHttpResponse(statusline, null);
     }
 

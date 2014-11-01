@@ -40,7 +40,6 @@ import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
-import org.apache.http.message.ParserCursor;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -60,7 +59,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      *
      * @param buffer the session input buffer.
      * @param lineParser the line parser. If {@code null}
-     *   {@link org.apache.http.message.BasicLineParser#INSTANCE} will be used.
+     *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param requestFactory the response factory. If {@code null}
      *   {@link DefaultHttpRequestFactory#INSTANCE} will be used.
      * @param constraints the message constraints. If {@code null}
@@ -105,8 +104,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
         if (i == -1) {
             throw new ConnectionClosedException("Client closed connection");
         }
-        final ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());
-        final RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf, cursor);
+        final RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf);
         return this.requestFactory.newHttpRequest(requestline);
     }
 

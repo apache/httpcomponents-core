@@ -36,7 +36,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolException;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.message.BufferedHeader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,12 +49,6 @@ public class TestMessageParser {
         try {
             // the first argument must not be null
             AbstractMessageParser.parseHeaders(null, -1, -1, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            new BufferedHeader(null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -83,17 +76,10 @@ public class TestMessageParser {
         Assert.assertEquals("stuff", headers[1].getValue());
         Assert.assertEquals("header3", headers[2].getName());
         Assert.assertEquals("stuff and more stuff and even more stuff", headers[2].getValue());
-
-        final Header h = headers[0];
-
-        Assert.assertTrue(h instanceof BufferedHeader);
-        Assert.assertNotNull(((BufferedHeader)h).getBuffer());
-        Assert.assertEquals("header1: stuff", ((BufferedHeader)h).toString());
-        Assert.assertEquals(8, ((BufferedHeader)h).getValuePos());
     }
 
     @Test
-    public void testBufferedHeader() throws Exception {
+    public void testParsingHeader() throws Exception {
         final String s =
             "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" +
             "\r\n";

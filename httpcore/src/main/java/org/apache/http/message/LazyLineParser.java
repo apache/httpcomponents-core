@@ -28,44 +28,29 @@
 package org.apache.http.message;
 
 import org.apache.http.Header;
-import org.apache.http.RequestLine;
-import org.apache.http.StatusLine;
+import org.apache.http.ParseException;
+import org.apache.http.annotation.Immutable;
+import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
- * Interface for formatting elements of the HEAD section of an HTTP message.
- * There are individual methods for formatting a request line, a
- * status line, or a header line. The formatting methods are expected to produce
- * one line of formatted content that does <i>not</i> include a line delimiter
- * (such as CR-LF). Instances of this interface are expected to be stateless and
- * thread-safe.
+ * Extension of {@link org.apache.http.message.BasicLineParser} that defers parsing of
+ * header values. Header value is parsed only if accessed with
+ * {@link org.apache.http.Header#getValue()} or {@link org.apache.http.Header#getElements()}
+ * methods.
  *
- * @since 4.0
+ * @since 5.0
  */
-public interface LineFormatter {
+@Immutable
+public class LazyLineParser extends BasicLineParser {
 
-    /**
-     * Formats a request line.
-     *
-     * @param buffer    buffer to write formatted content to.
-     * @param reqline   the request line to format
-     */
-    void formatRequestLine(CharArrayBuffer buffer, RequestLine reqline);
+    public final static LazyLineParser INSTANCE = new LazyLineParser();
 
-    /**
-     * Formats a status line.
-     *
-     * @param buffer    buffer to write formatted content to.
-     * @param statline  the status line to format
-     */
-    void formatStatusLine(CharArrayBuffer buffer, StatusLine statline);
+    @Override
+    public Header parseHeader(final CharArrayBuffer buffer) throws ParseException {
+        Args.notNull(buffer, "Char array buffer");
 
-    /**
-     * Formats a header.
-     *
-     * @param buffer    buffer to write formatted content to.
-     * @param header    the header to format
-     */
-    void formatHeader(CharArrayBuffer buffer, Header header);
+        return new BufferedHeader(buffer);
+    }
 
 }

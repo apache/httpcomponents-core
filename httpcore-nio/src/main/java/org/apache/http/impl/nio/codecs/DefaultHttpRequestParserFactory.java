@@ -32,7 +32,7 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.message.BasicLineParser;
+import org.apache.http.message.LazyLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageParserFactory;
@@ -54,7 +54,7 @@ public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactor
     public DefaultHttpRequestParserFactory(final LineParser lineParser,
             final HttpRequestFactory requestFactory) {
         super();
-        this.lineParser = lineParser != null ? lineParser : BasicLineParser.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.requestFactory = requestFactory != null ? requestFactory
                 : DefaultHttpRequestFactory.INSTANCE;
     }

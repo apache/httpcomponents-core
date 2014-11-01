@@ -39,7 +39,7 @@ import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
-import org.apache.http.message.BasicLineParser;
+import org.apache.http.message.LazyLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.reactor.SessionInputBuffer;
@@ -75,8 +75,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      * Creates an instance of AbstractMessageParser.
      *
      * @param buffer the session input buffer.
-     * @param lineParser the line parser. If {@code null} {@link BasicLineParser#INSTANCE}
-     *   will be used.
+     * @param lineParser the line parser. If {@code null}
+     *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
@@ -88,7 +88,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
             final MessageConstraints constraints) {
         super();
         this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
-        this.lineParser = lineParser != null ? lineParser : BasicLineParser.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerBufs = new ArrayList<CharArrayBuffer>();
         this.state = READ_HEAD_LINE;
