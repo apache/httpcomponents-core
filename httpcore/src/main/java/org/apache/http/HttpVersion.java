@@ -38,9 +38,6 @@ import org.apache.http.annotation.Immutable;
  * The version of an HTTP message is indicated by an HTTP-Version field
  * in the first line of the message.
  * </p>
- * <pre>
- *     HTTP-Version   = "HTTP" "/" 1*DIGIT "." 1*DIGIT
- * </pre>
  *
  * @since 4.0
  */

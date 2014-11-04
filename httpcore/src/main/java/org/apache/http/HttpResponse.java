@@ -32,14 +32,6 @@ import java.util.Locale;
 /**
  * After receiving and interpreting a request message, a server responds
  * with an HTTP response message.
- * <pre>
- *     Response      = Status-Line
- *                     *(( general-header
- *                      | response-header
- *                      | entity-header ) CRLF)
- *                     CRLF
- *                     [ message-body ]
- * </pre>
  *
  * @since 4.0
  */
