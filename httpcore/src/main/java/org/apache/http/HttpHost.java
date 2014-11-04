@@ -43,7 +43,7 @@ import org.apache.http.util.LangUtils;
  * @since 4.0
  */
 @Immutable
-public final class HttpHost implements Cloneable, Serializable {
+public final class HttpHost implements Serializable {
 
     private static final long serialVersionUID = -7529410654042457626L;
 
@@ -328,11 +328,6 @@ public final class HttpHost implements Cloneable, Serializable {
             hash = LangUtils.hashCode(hash, address);
         }
         return hash;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
 }

@@ -43,7 +43,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 @NotThreadSafe
-public class BufferedHeader implements FormattedHeader, Cloneable, Serializable {
+public class BufferedHeader implements FormattedHeader, Serializable {
 
     private static final long serialVersionUID = -2768352615787625448L;
 
@@ -118,13 +118,6 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
     @Override
     public String toString() {
         return this.buffer.toString();
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        // buffer is considered immutable
-        // no need to make a copy of it
-        return super.clone();
     }
 
 }

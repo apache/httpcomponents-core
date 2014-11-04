@@ -82,16 +82,6 @@ public class TestBufferedHeader {
     }
 
     @Test
-    public void testCloning() throws Exception {
-        final CharArrayBuffer buf = new CharArrayBuffer(32);
-        buf.append("name: value");
-        final BufferedHeader orig = new BufferedHeader(buf);
-        final BufferedHeader clone = (BufferedHeader) orig.clone();
-        Assert.assertEquals(orig.getName(), clone.getName());
-        Assert.assertEquals(orig.getValue(), clone.getValue());
-    }
-
-    @Test
     public void testSerialization() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");

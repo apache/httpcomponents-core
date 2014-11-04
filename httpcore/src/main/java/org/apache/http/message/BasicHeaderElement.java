@@ -39,7 +39,7 @@ import org.apache.http.util.LangUtils;
  * @since 4.0
  */
 @NotThreadSafe
-public class BasicHeaderElement implements HeaderElement, Cloneable {
+public class BasicHeaderElement implements HeaderElement {
 
     private final String name;
     private final String value;
@@ -155,13 +155,6 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
             buffer.append(parameter);
         }
         return buffer.toString();
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        // parameters array is considered immutable
-        // no need to make a copy of it
-        return super.clone();
     }
 
 }

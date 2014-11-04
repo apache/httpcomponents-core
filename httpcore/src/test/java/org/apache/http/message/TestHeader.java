@@ -95,14 +95,6 @@ public class TestHeader {
     }
 
     @Test
-    public void testCloning() throws Exception {
-        final BasicHeader orig = new BasicHeader("name1", "value1");
-        final BasicHeader clone = (BasicHeader) orig.clone();
-        Assert.assertEquals(orig.getName(), clone.getName());
-        Assert.assertEquals(orig.getValue(), clone.getValue());
-    }
-
-    @Test
     public void testSerialization() throws Exception {
         final BasicHeader orig = new BasicHeader("name1", "value1");
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();

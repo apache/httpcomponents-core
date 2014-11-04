@@ -36,7 +36,7 @@ import org.apache.http.util.Args;
  * @since 4.2
  */
 @NotThreadSafe
-public final class IOReactorConfig implements Cloneable {
+public final class IOReactorConfig {
 
     private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();
 
@@ -231,11 +231,6 @@ public final class IOReactorConfig implements Cloneable {
      */
     public int getBacklogSize() {
         return backlogSize;
-    }
-
-    @Override
-    protected IOReactorConfig clone() throws CloneNotSupportedException {
-        return (IOReactorConfig) super.clone();
     }
 
     public static Builder custom() {

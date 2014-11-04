@@ -67,15 +67,6 @@ public class TestRequestLine {
     }
 
     @Test
-    public void testCloning() throws Exception {
-        final BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
-        final BasicRequestLine clone = (BasicRequestLine) orig.clone();
-        Assert.assertEquals(orig.getMethod(), clone.getMethod());
-        Assert.assertEquals(orig.getUri(), clone.getUri());
-        Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
-    }
-
-    @Test
     public void testSerialization() throws Exception {
         final BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();

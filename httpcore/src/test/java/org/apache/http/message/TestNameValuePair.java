@@ -84,11 +84,4 @@ public class TestNameValuePair {
         Assert.assertEquals("name1", param2.toString());
     }
 
-    @Test
-    public void testCloning() throws Exception {
-        final BasicNameValuePair orig = new BasicNameValuePair("name1", "value1");
-        final BasicNameValuePair clone = (BasicNameValuePair) orig.clone();
-        Assert.assertEquals(orig, clone);
-    }
-
 }

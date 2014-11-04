@@ -106,13 +106,6 @@ public class TestHttpVersion {
    }
 
     @Test
-    public void testCloning() throws Exception {
-        final HttpVersion orig = HttpVersion.HTTP_1_1;
-        final HttpVersion clone = (HttpVersion) orig.clone();
-        Assert.assertEquals(orig, clone);
-    }
-
-    @Test
     public void testSerialization() throws Exception {
         final HttpVersion orig = HttpVersion.HTTP_1_1;
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();

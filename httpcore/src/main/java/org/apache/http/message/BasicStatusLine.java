@@ -40,7 +40,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @Immutable
-public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
+public class BasicStatusLine implements StatusLine, Serializable {
 
     private static final long serialVersionUID = -2443303766890459269L;
 
@@ -97,11 +97,6 @@ public class BasicStatusLine implements StatusLine, Cloneable, Serializable {
             buf.append(this.reasonPhrase);
         }
         return buf.toString();
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
 }

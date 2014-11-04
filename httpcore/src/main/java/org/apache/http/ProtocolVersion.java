@@ -45,7 +45,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @Immutable
-public class ProtocolVersion implements Serializable, Cloneable {
+public class ProtocolVersion implements Serializable {
 
     private static final long serialVersionUID = 8950662842175091068L;
 
@@ -255,11 +255,6 @@ public class ProtocolVersion implements Serializable, Cloneable {
         buffer.append('.');
         buffer.append(Integer.toString(this.minor));
         return buffer.toString();
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
 }

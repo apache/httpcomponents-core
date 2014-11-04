@@ -154,15 +154,4 @@ public class TestHeaderElement {
         Assert.assertEquals("name=value; param1=value1; param2=value2", element.toString());
     }
 
-    @Test
-    public void testCloning() throws Exception {
-        final BasicHeaderElement orig = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param1", "value1"),
-                    new BasicNameValuePair("param2", "value2")
-                } );
-        final BasicHeaderElement clone = (BasicHeaderElement) orig.clone();
-        Assert.assertEquals(orig, clone);
-    }
-
 }

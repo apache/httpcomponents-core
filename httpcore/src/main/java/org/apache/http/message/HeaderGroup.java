@@ -47,7 +47,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 @NotThreadSafe
-public class HeaderGroup implements Cloneable, Serializable {
+public class HeaderGroup implements Serializable {
 
     private static final long serialVersionUID = 2608834160639271617L;
 
@@ -296,11 +296,6 @@ public class HeaderGroup implements Cloneable, Serializable {
         final HeaderGroup clone = new HeaderGroup();
         clone.headers.addAll(this.headers);
         return clone;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
     @Override

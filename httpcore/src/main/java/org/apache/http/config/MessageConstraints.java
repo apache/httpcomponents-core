@@ -39,7 +39,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.3
  */
-public class MessageConstraints implements Cloneable {
+public class MessageConstraints {
 
     public static final MessageConstraints DEFAULT = new Builder().build();
 
@@ -58,11 +58,6 @@ public class MessageConstraints implements Cloneable {
 
     public int getMaxHeaderCount() {
         return maxHeaderCount;
-    }
-
-    @Override
-    protected MessageConstraints clone() throws CloneNotSupportedException {
-        return (MessageConstraints) super.clone();
     }
 
     @Override

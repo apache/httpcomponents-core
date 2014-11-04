@@ -40,7 +40,7 @@ import org.apache.http.util.LangUtils;
  * @since 4.0
  */
 @Immutable
-public class BasicNameValuePair implements NameValuePair, Cloneable, Serializable {
+public class BasicNameValuePair implements NameValuePair, Serializable {
 
     private static final long serialVersionUID = -6437800749411518984L;
 
@@ -103,11 +103,6 @@ public class BasicNameValuePair implements NameValuePair, Cloneable, Serializabl
         hash = LangUtils.hashCode(hash, this.name);
         hash = LangUtils.hashCode(hash, this.value);
         return hash;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
 }

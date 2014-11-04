@@ -36,7 +36,7 @@ import org.apache.http.util.Args;
  * @since 4.3
  */
 @Immutable
-public class SocketConfig implements Cloneable {
+public class SocketConfig {
 
     public static final SocketConfig DEFAULT = new Builder().build();
 
@@ -179,11 +179,6 @@ public class SocketConfig implements Cloneable {
      */
     public int getBacklogSize() {
         return backlogSize;
-    }
-
-    @Override
-    protected SocketConfig clone() throws CloneNotSupportedException {
-        return (SocketConfig) super.clone();
     }
 
     @Override

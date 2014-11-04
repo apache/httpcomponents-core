@@ -168,26 +168,6 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testCloning() throws Exception {
-        final HeaderGroup orig = new HeaderGroup();
-        final Header header1 = new BasicHeader("name", "value1");
-        final Header header2 = new BasicHeader("name", "value2");
-        final Header header3 = new BasicHeader("name", "value3");
-        orig.setHeaders(new Header[] { header1, header2, header3 });
-        final HeaderGroup clone = (HeaderGroup) orig.clone();
-        final Header[] headers1 = orig.getAllHeaders();
-        final Header[] headers2 = clone.getAllHeaders();
-        Assert.assertNotNull(headers1);
-        Assert.assertNotNull(headers2);
-        Assert.assertEquals(3, headers2.length);
-        Assert.assertEquals(headers1.length, headers2.length);
-        for (int i = 0; i < headers1.length; i++) {
-            Assert.assertEquals(headers1[i].getName(), headers2[i].getName());
-            Assert.assertEquals(headers1[i].getValue(), headers2[i].getValue());
-        }
-    }
-
-    @Test
     public void testSerialization() throws Exception {
         final HeaderGroup orig = new HeaderGroup();
         final Header header1 = new BasicHeader("name", "value1");

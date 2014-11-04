@@ -41,7 +41,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
+public class ByteArrayEntity extends AbstractHttpEntity {
 
     private final byte[] b;
     private final int off, len;
@@ -117,11 +117,6 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     @Override
     public boolean isStreaming() {
         return false;
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
 } // class ByteArrayEntity

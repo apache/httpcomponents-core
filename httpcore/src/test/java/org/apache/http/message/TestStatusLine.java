@@ -73,15 +73,6 @@ public class TestStatusLine {
     }
 
     @Test
-    public void testCloning() throws Exception {
-        final BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        final BasicStatusLine clone = (BasicStatusLine) orig.clone();
-        Assert.assertEquals(orig.getReasonPhrase(), clone.getReasonPhrase());
-        Assert.assertEquals(orig.getStatusCode(), clone.getStatusCode());
-        Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());
-    }
-
-    @Test
     public void testSerialization() throws Exception {
         final BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();

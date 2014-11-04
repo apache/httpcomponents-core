@@ -40,7 +40,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @Immutable
-public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
+public class BasicRequestLine implements RequestLine, Serializable {
 
     private static final long serialVersionUID = 2810581718468737193L;
 
@@ -77,11 +77,6 @@ public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
         final StringBuilder buf = new StringBuilder();
         buf.append(this.method).append(" ").append(this.uri).append(" ").append(this.protoversion);
         return buf.toString();
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
 }

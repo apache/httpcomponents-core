@@ -177,13 +177,6 @@ public class TestHttpHost {
     }
 
     @Test
-    public void testCloning() throws Exception {
-        final HttpHost orig = new HttpHost("somehost", 8080, "https");
-        final HttpHost clone = (HttpHost) orig.clone();
-        Assert.assertEquals(orig, clone);
-    }
-
-    @Test
     public void testSerialization() throws Exception {
         final HttpHost orig = new HttpHost("somehost", 8080, "https");
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();

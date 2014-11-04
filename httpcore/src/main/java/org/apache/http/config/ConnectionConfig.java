@@ -40,7 +40,7 @@ import org.apache.http.util.Args;
  * @since 4.3
  */
 @Immutable
-public class ConnectionConfig implements Cloneable {
+public class ConnectionConfig {
 
     public static final ConnectionConfig DEFAULT = new Builder().build();
 
@@ -89,11 +89,6 @@ public class ConnectionConfig implements Cloneable {
 
     public MessageConstraints getMessageConstraints() {
         return messageConstraints;
-    }
-
-    @Override
-    protected ConnectionConfig clone() throws CloneNotSupportedException {
-        return (ConnectionConfig) super.clone();
     }
 
     @Override

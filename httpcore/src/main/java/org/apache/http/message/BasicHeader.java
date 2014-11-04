@@ -42,7 +42,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 @Immutable
-public class BasicHeader implements Header, Cloneable, Serializable {
+public class BasicHeader implements Header, Serializable {
 
     private static final long serialVersionUID = -5427236326487562174L;
 
@@ -92,11 +92,6 @@ public class BasicHeader implements Header, Cloneable, Serializable {
         } else {
             return new HeaderElement[] {};
         }
-    }
-
-    @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
     }
 
 }
