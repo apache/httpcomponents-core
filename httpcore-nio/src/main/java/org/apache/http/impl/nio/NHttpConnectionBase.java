@@ -413,6 +413,11 @@ public class NHttpConnectionBase
     }
 
     @Override
+    public boolean isDataAvailable() {
+        return this.session.hasBufferedInput();
+    }
+
+    @Override
     public InetAddress getLocalAddress() {
         final SocketAddress address = this.session.getLocalAddress();
         if (address instanceof InetSocketAddress) {

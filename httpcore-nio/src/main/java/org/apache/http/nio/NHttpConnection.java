@@ -89,4 +89,13 @@ public interface NHttpConnection extends HttpConnection, IOControl {
      */
     HttpContext getContext();
 
+    /**
+     * Returns true if the connection has input available.
+     * @return {@code true} if there is data in the connection input buffer, {@code false}
+     *   otherwise.
+     *
+     * @since 5.0
+     */
+    boolean isDataAvailable();
+
 }

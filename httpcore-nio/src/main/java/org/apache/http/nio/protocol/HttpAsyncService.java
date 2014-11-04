@@ -57,7 +57,6 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
@@ -291,7 +290,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             if (((HttpEntityEnclosingRequest) request).expectContinue()
                         && state.getResponseState() == MessageState.READY
                         && state.getPipeline().isEmpty()
-                        && !(conn instanceof SessionBufferStatus && ((SessionBufferStatus) conn).hasBufferedInput())) {
+                        && !conn.isDataAvailable()) {
 
                 state.setRequestState(MessageState.ACK_EXPECTED);
                 final HttpResponse ack = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
