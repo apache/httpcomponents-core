@@ -51,8 +51,8 @@ import org.apache.http.util.CharArrayBuffer;
  * an arbitrary {@link InputStream}. This class buffers input data in
  * an internal byte array for optimal input performance.
  * <p>
- * {@link #readLine(CharArrayBuffer)} and {@link #readLine()} methods of this
- * class treat a lone LF as valid line delimiters in addition to CR-LF required
+ * {@link #readLine(CharArrayBuffer)} method of this class treat a lone
+ * LF as valid line delimiters in addition to CR-LF required
  * by the HTTP specification.
  *
  * @since 4.3
@@ -386,17 +386,6 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         }
         this.cbuf.compact();
         return len;
-    }
-
-    @Override
-    public String readLine() throws IOException {
-        final CharArrayBuffer charbuffer = new CharArrayBuffer(64);
-        final int l = readLine(charbuffer);
-        if (l != -1) {
-            return charbuffer.toString();
-        } else {
-            return null;
-        }
     }
 
     @Override

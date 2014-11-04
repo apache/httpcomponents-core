@@ -75,18 +75,6 @@ public interface SessionOutputBuffer {
     void write(int b) throws IOException;
 
     /**
-     * Writes characters from the specified string followed by a line delimiter
-     * to this session buffer.
-     * <p>
-     * The choice of a char encoding and line delimiter sequence is up to the
-     * specific implementations of this interface.
-     *
-     * @param      s   the line.
-     * @exception  IOException  if an I/O error occurs.
-     */
-    void writeLine(String s) throws IOException;
-
-    /**
      * Writes characters from the specified char array followed by a line
      * delimiter to this session buffer.
      * <p>

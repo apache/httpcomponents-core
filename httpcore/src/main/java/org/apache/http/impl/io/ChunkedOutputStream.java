@@ -32,6 +32,7 @@ import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Implements chunked transfer coding. The content is sent in small chunks.
@@ -60,6 +61,8 @@ public class ChunkedOutputStream extends OutputStream {
     /** True if the stream is closed. */
     private boolean closed = false;
 
+    private final CharArrayBuffer linebuffer;
+
     /**
      * Wraps a session output buffer and chunk-encodes the output.
      *
@@ -70,6 +73,7 @@ public class ChunkedOutputStream extends OutputStream {
         super();
         this.cache = new byte[bufferSize];
         this.out = out;
+        this.linebuffer = new CharArrayBuffer(32);
     }
 
     /**
@@ -77,9 +81,12 @@ public class ChunkedOutputStream extends OutputStream {
      */
     protected void flushCache() throws IOException {
         if (this.cachePosition > 0) {
-            this.out.writeLine(Integer.toHexString(this.cachePosition));
+            this.linebuffer.clear();
+            this.linebuffer.append(Integer.toHexString(this.cachePosition));
+            this.out.writeLine(this.linebuffer);
             this.out.write(this.cache, 0, this.cachePosition);
-            this.out.writeLine("");
+            this.linebuffer.clear();
+            this.out.writeLine(this.linebuffer);
             this.cachePosition = 0;
         }
     }
@@ -89,17 +96,23 @@ public class ChunkedOutputStream extends OutputStream {
      * as one large chunk
      */
     protected void flushCacheWithAppend(final byte bufferToAppend[], final int off, final int len) throws IOException {
-        this.out.writeLine(Integer.toHexString(this.cachePosition + len));
+        this.linebuffer.clear();
+        this.linebuffer.append(Integer.toHexString(this.cachePosition + len));
+        this.out.writeLine(this.linebuffer);
         this.out.write(this.cache, 0, this.cachePosition);
         this.out.write(bufferToAppend, off, len);
-        this.out.writeLine("");
+        this.linebuffer.clear();
+        this.out.writeLine(this.linebuffer);
         this.cachePosition = 0;
     }
 
     protected void writeClosingChunk() throws IOException {
         // Write the final chunk.
-        this.out.writeLine("0");
-        this.out.writeLine("");
+        this.linebuffer.clear();
+        this.linebuffer.append('0');
+        this.out.writeLine(this.linebuffer);
+        this.linebuffer.clear();
+        this.out.writeLine(this.linebuffer);
     }
 
     // ----------------------------------------------------------- Public Methods

@@ -250,13 +250,15 @@ public class TestSessionInOutBuffers {
         teststrs[3] = "";
         teststrs[4] = "And goodbye";
 
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
         for (final String teststr : teststrs) {
-            outbuf.writeLine(teststr);
+            chbuffer.clear();
+            chbuffer.append(teststr);
+            outbuf.writeLine(chbuffer);
         }
         //this write operation should have no effect
-        outbuf.writeLine((String)null);
-        outbuf.writeLine((CharArrayBuffer)null);
+        outbuf.writeLine(null);
 
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         final WritableByteChannel outChannel = newChannel(outstream);
@@ -268,10 +270,14 @@ public class TestSessionInOutBuffers {
         inbuf.fill(channel);
 
         for (final String teststr : teststrs) {
-            Assert.assertEquals(teststr, inbuf.readLine(true));
+            chbuffer.clear();
+            inbuf.readLine(chbuffer, true);
+            Assert.assertEquals(teststr, chbuffer.toString());
         }
-        Assert.assertNull(inbuf.readLine(true));
-        Assert.assertNull(inbuf.readLine(true));
+        chbuffer.clear();
+        Assert.assertFalse(inbuf.readLine(chbuffer, true));
+        chbuffer.clear();
+        Assert.assertFalse(inbuf.readLine(chbuffer, true));
     }
 
     @Test
@@ -317,16 +323,37 @@ public class TestSessionInOutBuffers {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
         inbuf.fill(channel);
 
-        Assert.assertEquals("a", inbuf.readLine(true));
-        Assert.assertEquals("", inbuf.readLine(true));
-        Assert.assertEquals("\r", inbuf.readLine(true));
-        Assert.assertEquals("", inbuf.readLine(true));
-        Assert.assertEquals(s1, inbuf.readLine(true));
-        Assert.assertEquals(s2, inbuf.readLine(true));
-        Assert.assertEquals(s3, inbuf.readLine(true));
-        Assert.assertEquals("a", inbuf.readLine(true));
-        Assert.assertNull(inbuf.readLine(true));
-        Assert.assertNull(inbuf.readLine(true));
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals("a", chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals("", chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals("\r", chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals("", chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals(s1, chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals(s2, chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals(s3, chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals("a", chbuffer.toString());
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertFalse(inbuf.readLine(chbuffer, true));
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assert.assertFalse(inbuf.readLine(chbuffer, true));
     }
 
     @Test
@@ -478,10 +505,17 @@ public class TestSessionInOutBuffers {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16,
                 Consts.UTF_8.newEncoder(), this.allocator);
 
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         for (int i = 0; i < 10; i++) {
-            outbuf.writeLine(s1);
-            outbuf.writeLine(s2);
-            outbuf.writeLine(s3);
+            chbuffer.clear();
+            chbuffer.append(s1);
+            outbuf.writeLine(chbuffer);
+            chbuffer.clear();
+            chbuffer.append(s2);
+            outbuf.writeLine(chbuffer);
+            chbuffer.clear();
+            chbuffer.append(s3);
+            outbuf.writeLine(chbuffer);
         }
 
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
@@ -498,9 +532,15 @@ public class TestSessionInOutBuffers {
         }
 
         for (int i = 0; i < 10; i++) {
-            Assert.assertEquals(s1, inbuf.readLine(true));
-            Assert.assertEquals(s2, inbuf.readLine(true));
-            Assert.assertEquals(s3, inbuf.readLine(true));
+            chbuffer.clear();
+            inbuf.readLine(chbuffer, true);
+            Assert.assertEquals(s1, chbuffer.toString());
+            chbuffer.clear();
+            inbuf.readLine(chbuffer, true);
+            Assert.assertEquals(s2, chbuffer.toString());
+            chbuffer.clear();
+            inbuf.readLine(chbuffer, true);
+            Assert.assertEquals(s3, chbuffer.toString());
         }
     }
 
@@ -508,7 +548,9 @@ public class TestSessionInOutBuffers {
     public void testInputMatchesBufferLength() throws Exception {
         final String s1 = "abcde";
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5, null, this.allocator);
-        outbuf.writeLine(s1);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append(s1);
+        outbuf.writeLine(chbuffer);
     }
 
     @Test(expected=CharacterCodingException.class)
@@ -523,7 +565,8 @@ public class TestSessionInOutBuffers {
         final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
-        inbuf.readLine(true);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        inbuf.readLine(chbuffer, true);
     }
 
     @Test
@@ -538,8 +581,9 @@ public class TestSessionInOutBuffers {
         final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
-        final String result = inbuf.readLine(true);
-        Assert.assertEquals("Grezi_zm", result);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals("Grezi_zm", chbuffer.toString());
     }
 
     @Test
@@ -554,8 +598,9 @@ public class TestSessionInOutBuffers {
         final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
-        final String result = inbuf.readLine(true);
-        Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", result);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        inbuf.readLine(chbuffer, true);
+        Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", chbuffer.toString());
     }
 
     @Test(expected=CharacterCodingException.class)
@@ -565,7 +610,9 @@ public class TestSessionInOutBuffers {
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
-        outbuf.writeLine(s);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append(s);
+        outbuf.writeLine(chbuffer);
     }
 
     @Test
@@ -577,7 +624,9 @@ public class TestSessionInOutBuffers {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final WritableByteChannel channel = newChannel(baos);
-        outbuf.writeLine(s);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append(s);
+        outbuf.writeLine(chbuffer);
         outbuf.flush(channel);
 
         final String result = new String(baos.toByteArray(), "US-ASCII");
@@ -593,7 +642,9 @@ public class TestSessionInOutBuffers {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final WritableByteChannel channel = newChannel(baos);
-        outbuf.writeLine(s);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append(s);
+        outbuf.writeLine(chbuffer);
         outbuf.flush(channel);
 
         final String result = new String(baos.toByteArray(), "US-ASCII");

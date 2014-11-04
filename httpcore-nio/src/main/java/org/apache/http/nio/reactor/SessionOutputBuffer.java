@@ -102,18 +102,4 @@ public interface SessionOutputBuffer {
     void writeLine(CharArrayBuffer src)
         throws CharacterCodingException;
 
-    /**
-     * Copies content of the given string into this buffer as one line of text
-     * including a line delimiter.
-     * The capacity of the destination will be expanded in order to accommodate
-     * the entire string.
-     * <p>
-     * The choice of a char encoding and line delimiter sequence is up to the
-     * specific implementations of this interface.
-     *
-     * @param s the string.
-     */
-    void writeLine(String s)
-        throws IOException;
-
 }

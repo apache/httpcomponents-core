@@ -46,6 +46,7 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -128,7 +129,9 @@ public class TestNHttpConnectionBase {
         Mockito.when(session.getRemoteAddress()).thenReturn(remote);
         Mockito.when(session.isClosed()).thenReturn(Boolean.FALSE);
 
-        conn.outbuf.writeLine("stuff");
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append("stuff");
+        conn.outbuf.writeLine(chbuffer);
         conn.close();
 
         Assert.assertEquals(NHttpConnection.CLOSING, conn.getStatus());
@@ -150,7 +153,9 @@ public class TestNHttpConnectionBase {
         Mockito.when(session.getRemoteAddress()).thenReturn(remote);
         Mockito.when(session.isClosed()).thenReturn(Boolean.FALSE);
 
-        conn.outbuf.writeLine("stuff");
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append("stuff");
+        conn.outbuf.writeLine(chbuffer);
         conn.shutdown();
 
         Assert.assertEquals(NHttpConnection.CLOSED, conn.getStatus());

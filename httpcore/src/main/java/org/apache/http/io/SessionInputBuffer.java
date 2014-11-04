@@ -113,21 +113,6 @@ public interface SessionInputBuffer {
     int readLine(CharArrayBuffer buffer) throws IOException;
 
     /**
-     * Reads a complete line of characters up to a line delimiter from this
-     * session buffer. The line delimiter itself is discarded. If no char is
-     * available because the end of the stream has been reached,
-     * {@code null} is returned. This method blocks until input data is
-     * available, end of file is detected, or an exception is thrown.
-     * <p>
-     * The choice of a char encoding and line delimiter sequence is up to the
-     * specific implementations of this interface.
-     *
-     * @return HTTP line as a string
-     * @exception  IOException  if an I/O error occurs.
-     */
-    String readLine() throws IOException;
-
-    /**
      * Returns {@link HttpTransportMetrics} for this session buffer.
      *
      * @return transport metrics.

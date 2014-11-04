@@ -38,6 +38,7 @@ import org.apache.http.WritableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
+import org.apache.http.util.CharArrayBuffer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -302,7 +303,9 @@ public class TestLengthDelimitedEncoder {
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
 
-        outbuf.writeLine("header");
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append("header");
+        outbuf.writeLine(chbuffer);
 
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
@@ -335,7 +338,9 @@ public class TestLengthDelimitedEncoder {
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
 
-        outbuf.writeLine("header");
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append("header");
+        outbuf.writeLine(chbuffer);
 
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
@@ -365,7 +370,9 @@ public class TestLengthDelimitedEncoder {
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        outbuf.writeLine("header");
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append("header");
+        outbuf.writeLine(chbuffer);
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 0);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -388,7 +395,9 @@ public class TestLengthDelimitedEncoder {
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        outbuf.writeLine("header");
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append("header");
+        outbuf.writeLine(chbuffer);
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 32);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -459,7 +468,9 @@ public class TestLengthDelimitedEncoder {
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
-        outbuf.writeLine("header");
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        chbuffer.append("header");
+        outbuf.writeLine(chbuffer);
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 2);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));

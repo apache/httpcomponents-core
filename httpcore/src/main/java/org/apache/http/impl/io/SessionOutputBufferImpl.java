@@ -49,8 +49,8 @@ import org.apache.http.util.CharArrayBuffer;
  * an arbitrary {@link OutputStream}. This class buffers small chunks of
  * output data in an internal byte array for optimal output performance.
  * <p>
- * {@link #writeLine(CharArrayBuffer)} and {@link #writeLine(String)} methods
- * of this class use CR-LF as a line delimiter.
+ * {@link #writeLine(CharArrayBuffer)} method of this class uses CR-LF
+ * as a line delimiter.
  *
  * @since 4.3
  */
@@ -192,33 +192,6 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
             flushBuffer();
             this.outstream.write(b);
         }
-    }
-
-    /**
-     * Writes characters from the specified string followed by a line delimiter
-     * to this session buffer.
-     * <p>
-     * This method uses CR-LF as a line delimiter.
-     *
-     * @param      s   the line.
-     * @exception  IOException  if an I/O error occurs.
-     */
-    @Override
-    public void writeLine(final String s) throws IOException {
-        if (s == null) {
-            return;
-        }
-        if (s.length() > 0) {
-            if (this.encoder == null) {
-                for (int i = 0; i < s.length(); i++) {
-                    write(s.charAt(i));
-                }
-            } else {
-                final CharBuffer cbuf = CharBuffer.wrap(s);
-                writeEncoded(cbuf);
-            }
-        }
-        write(CRLF);
     }
 
     /**

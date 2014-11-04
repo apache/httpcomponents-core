@@ -230,18 +230,4 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         writeCRLF();
     }
 
-    @Override
-    public void writeLine(final String s) throws IOException {
-        if (s == null) {
-            return;
-        }
-        if (s.length() > 0) {
-            final CharArrayBuffer tmp = new CharArrayBuffer(s.length());
-            tmp.append(s);
-            writeLine(tmp);
-        } else {
-            write(CRLF);
-        }
-    }
-
 }

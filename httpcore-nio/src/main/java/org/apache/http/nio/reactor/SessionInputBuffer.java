@@ -154,28 +154,4 @@ public interface SessionInputBuffer {
     boolean readLine(CharArrayBuffer dst, boolean endOfStream)
         throws CharacterCodingException;
 
-    /**
-     * Attempts to transfer a complete line of characters up to a line delimiter
-     * from this buffer to a newly created string. If a complete line is
-     * available in the buffer, the sequence of chars is transferred to a newly
-     * created string. The line delimiter itself is discarded. If a complete
-     * line is not available in the buffer, this method returns
-     * {@code null}. If {@code endOfStream} parameter
-     * is set to {@code true} this method assumes the end of stream has
-     * been reached and the content currently stored in the buffer should be
-     * treated as a complete line.
-     * <p>
-     * The choice of a char encoding and line delimiter sequence is up to the
-     * specific implementations of this interface.
-     *
-     * @param endOfStream end of stream flag
-     * @return a string representing a complete line, if available.
-     * {@code null} otherwise.
-     *
-     * @throws CharacterCodingException in case a character encoding or decoding
-     *   error occurs.
-     */
-    String readLine(boolean endOfStream)
-        throws CharacterCodingException;
-
 }
