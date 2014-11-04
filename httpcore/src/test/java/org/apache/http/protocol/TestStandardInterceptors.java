@@ -28,10 +28,11 @@
 package org.apache.http.protocol;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import org.apache.http.Header;
+import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -371,9 +372,8 @@ public class TestStandardInterceptors {
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         final InetAddress address = Mockito.mock(InetAddress.class);
         Mockito.when(address.getHostName()).thenReturn("somehost");
-        final HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
-        Mockito.when(conn.getRemoteAddress()).thenReturn(address);
-        Mockito.when(conn.getRemotePort()).thenReturn(1234);
+        final HttpConnection conn = Mockito.mock(HttpConnection.class);
+        Mockito.when(conn.getRemoteAddress()).thenReturn(new InetSocketAddress(address, 1234));
         context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, null);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         final RequestTargetHost interceptor = new RequestTargetHost();
@@ -387,9 +387,8 @@ public class TestStandardInterceptors {
     public void testRequestTargetHostFallbackFailure() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        final HttpInetConnection conn = Mockito.mock(HttpInetConnection.class);
+        final HttpConnection conn = Mockito.mock(HttpConnection.class);
         Mockito.when(conn.getRemoteAddress()).thenReturn(null);
-        Mockito.when(conn.getRemotePort()).thenReturn(1234);
         context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, null);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         final RequestTargetHost interceptor = new RequestTargetHost();

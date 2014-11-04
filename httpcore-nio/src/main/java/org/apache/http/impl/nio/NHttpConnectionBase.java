@@ -28,8 +28,6 @@
 package org.apache.http.impl.nio;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ReadableByteChannel;
@@ -42,7 +40,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -84,8 +81,7 @@ import org.apache.http.util.NetUtils;
  * @since 4.0
  */
 @NotThreadSafe
-public class NHttpConnectionBase
-        implements NHttpConnection, HttpInetConnection, SessionBufferStatus, SocketAccessor {
+public class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, SocketAccessor {
 
     protected final ContentLengthStrategy incomingContentStrategy;
     protected final ContentLengthStrategy outgoingContentStrategy;
@@ -418,43 +414,13 @@ public class NHttpConnectionBase
     }
 
     @Override
-    public InetAddress getLocalAddress() {
-        final SocketAddress address = this.session.getLocalAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getAddress();
-        } else {
-            return null;
-        }
+    public SocketAddress getRemoteAddress() {
+        return this.session.getRemoteAddress();
     }
 
     @Override
-    public int getLocalPort() {
-        final SocketAddress address = this.session.getLocalAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getPort();
-        } else {
-            return -1;
-        }
-    }
-
-    @Override
-    public InetAddress getRemoteAddress() {
-        final SocketAddress address = this.session.getRemoteAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getAddress();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    public int getRemotePort() {
-        final SocketAddress address = this.session.getRemoteAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getPort();
-        } else {
-            return -1;
-        }
+    public SocketAddress getLocalAddress() {
+        return this.session.getLocalAddress();
     }
 
     @Override

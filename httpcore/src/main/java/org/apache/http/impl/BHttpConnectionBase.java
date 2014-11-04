@@ -30,7 +30,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
@@ -44,7 +43,6 @@ import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
@@ -75,7 +73,7 @@ import org.apache.http.util.NetUtils;
  * @since 4.0
  */
 @NotThreadSafe
-public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
+public class BHttpConnectionBase implements HttpConnection {
 
     private final SessionInputBufferImpl inbuffer;
     private final SessionOutputBufferImpl outbuffer;
@@ -243,27 +241,15 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     }
 
     @Override
-    public InetAddress getLocalAddress() {
+    public SocketAddress getRemoteAddress() {
         final Socket socket = this.socketHolder.get();
-        return socket != null ? socket.getLocalAddress() : null;
+        return socket != null ? socket.getRemoteSocketAddress() : null;
     }
 
     @Override
-    public int getLocalPort() {
+    public SocketAddress getLocalAddress() {
         final Socket socket = this.socketHolder.get();
-        return socket != null ? socket.getLocalPort() : -1;
-    }
-
-    @Override
-    public InetAddress getRemoteAddress() {
-        final Socket socket = this.socketHolder.get();
-        return socket != null ? socket.getInetAddress() : null;
-    }
-
-    @Override
-    public int getRemotePort() {
-        final Socket socket = this.socketHolder.get();
-        return socket != null ? socket.getPort() : -1;
+        return socket != null ? socket.getLocalSocketAddress() : null;
     }
 
     @Override

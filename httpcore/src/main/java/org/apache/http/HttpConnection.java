@@ -29,6 +29,7 @@ package org.apache.http;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.SocketAddress;
 
 /**
  * A generic HTTP connection, useful on client and server side.
@@ -101,5 +102,15 @@ public interface HttpConnection extends Closeable {
      * @return HttpConnectionMetrics
      */
     HttpConnectionMetrics getMetrics();
+
+    /**
+     * @since 5.0
+     */
+    SocketAddress getRemoteAddress();
+
+    /**
+     * @since 5.0
+     */
+    SocketAddress getLocalAddress();
 
 }

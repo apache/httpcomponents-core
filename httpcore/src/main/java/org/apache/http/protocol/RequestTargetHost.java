@@ -28,12 +28,11 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
@@ -71,14 +70,13 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         if (!request.containsHeader(HTTP.TARGET_HOST)) {
             HttpHost targethost = corecontext.getTargetHost();
             if (targethost == null) {
+                // Populate the context with a default HTTP host based on the
+                // inet address of the target host
                 final HttpConnection conn = corecontext.getConnection();
-                if (conn instanceof HttpInetConnection) {
-                    // Populate the context with a default HTTP host based on the
-                    // inet address of the target host
-                    final InetAddress address = ((HttpInetConnection) conn).getRemoteAddress();
-                    final int port = ((HttpInetConnection) conn).getRemotePort();
-                    if (address != null) {
-                        targethost = new HttpHost(address.getHostName(), port);
+                if (conn != null) {
+                    final InetSocketAddress remoteAddress = (InetSocketAddress) conn.getRemoteAddress();
+                    if (remoteAddress != null) {
+                        targethost = new HttpHost(remoteAddress.getHostName(), remoteAddress.getPort());
                     }
                 }
                 if (targethost == null) {

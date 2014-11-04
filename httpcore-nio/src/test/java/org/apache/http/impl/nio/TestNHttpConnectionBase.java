@@ -95,10 +95,10 @@ public class TestNHttpConnectionBase {
 
         Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80", conn.toString());
         Assert.assertTrue(conn.isOpen());
-        Assert.assertEquals(8888, conn.getLocalPort());
-        Assert.assertEquals(80, conn.getRemotePort());
-        Assert.assertEquals(InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), conn.getLocalAddress());
-        Assert.assertEquals(InetAddress.getByAddress(new byte[] {10, 0, 0, 2}), conn.getRemoteAddress());
+        Assert.assertEquals(new InetSocketAddress(
+                InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), 8888), conn.getLocalAddress());
+        Assert.assertEquals(new InetSocketAddress(
+                InetAddress.getByAddress(new byte[] {10, 0, 0, 2}), 80), conn.getRemoteAddress());
     }
 
     @Test
