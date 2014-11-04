@@ -215,7 +215,7 @@ public class HttpRequestExecutor {
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
                 // 100-continue response forever. On timeout, send the entity.
-                if (conn.isResponseAvailable(this.waitForContinue)) {
+                if (conn.isDataAvailable(this.waitForContinue)) {
                     response = conn.receiveResponseHeader();
                     if (canResponseHaveBody(request, response)) {
                         conn.receiveResponseEntity(response);

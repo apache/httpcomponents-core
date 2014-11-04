@@ -170,10 +170,4 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         outstream.close();
     }
 
-    @Override
-    public void flush() throws IOException {
-        ensureOpen();
-        doFlush();
-    }
-
 }

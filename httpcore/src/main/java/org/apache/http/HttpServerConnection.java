@@ -35,7 +35,7 @@ import java.io.IOException;
  *
  * @since 4.0
  */
-public interface HttpServerConnection extends HttpConnection {
+public interface HttpServerConnection extends BHttpConnection {
 
     /**
      * Receives the request line and all headers available from this connection.
@@ -77,12 +77,5 @@ public interface HttpServerConnection extends HttpConnection {
      */
     void sendResponseEntity(HttpResponse response)
         throws HttpException, IOException;
-
-    /**
-     * Sends all pending buffered data over this connection.
-     * @throws IOException in case of an I/O error
-     */
-    void flush()
-        throws IOException;
 
 }

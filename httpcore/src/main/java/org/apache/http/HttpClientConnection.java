@@ -35,20 +35,7 @@ import java.io.IOException;
  *
  * @since 4.0
  */
-public interface HttpClientConnection extends HttpConnection {
-
-    /**
-     * Checks if response data is available from the connection. May wait for
-     * the specified time until some data becomes available. Note that some
-     * implementations may completely ignore the timeout parameter.
-     *
-     * @param timeout the maximum time in milliseconds to wait for data
-     * @return true if data is available; false if there was no data available
-     *         even after waiting for {@code timeout} milliseconds.
-     * @throws IOException if an error happens on the connection
-     */
-    boolean isResponseAvailable(int timeout)
-        throws IOException;
+public interface HttpClientConnection extends BHttpConnection {
 
     /**
      * Sends the request line and all headers over the connection.

@@ -30,7 +30,6 @@ package org.apache.http.impl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
@@ -126,16 +125,6 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     @Override
-    public boolean isResponseAvailable(final int timeout) throws IOException {
-        ensureOpen();
-        try {
-            return awaitInput(timeout);
-        } catch (final SocketTimeoutException ex) {
-            return false;
-        }
-    }
-
-    @Override
     public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -177,12 +166,6 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         ensureOpen();
         final HttpEntity entity = prepareInput(response);
         response.setEntity(entity);
-    }
-
-    @Override
-    public void flush() throws IOException {
-        ensureOpen();
-        doFlush();
     }
 
 }

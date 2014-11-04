@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.http.HttpConnection;
+import org.apache.http.BHttpConnection;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -42,14 +42,14 @@ public class TestConnPool {
 
     private static final int GRACE_PERIOD = 10000;
 
-    static interface LocalConnFactory extends ConnFactory<String, HttpConnection> {
+    static interface LocalConnFactory extends ConnFactory<String, BHttpConnection> {
     }
 
-    static class LocalPoolEntry extends PoolEntry<String, HttpConnection> {
+    static class LocalPoolEntry extends PoolEntry<String, BHttpConnection> {
 
         private boolean closed;
 
-        public LocalPoolEntry(final String route, final HttpConnection conn) {
+        public LocalPoolEntry(final String route, final BHttpConnection conn) {
             super(null, route, conn);
         }
 
@@ -72,16 +72,16 @@ public class TestConnPool {
 
     }
 
-    static class LocalConnPool extends AbstractConnPool<String, HttpConnection, LocalPoolEntry> {
+    static class LocalConnPool extends AbstractConnPool<String, BHttpConnection, LocalPoolEntry> {
 
         public LocalConnPool(
-                final ConnFactory<String, HttpConnection> connFactory,
+                final ConnFactory<String, BHttpConnection> connFactory,
                 final int defaultMaxPerRoute, final int maxTotal) {
             super(connFactory, defaultMaxPerRoute, maxTotal);
         }
 
         @Override
-        protected LocalPoolEntry createEntry(final String route, final HttpConnection conn) {
+        protected LocalPoolEntry createEntry(final String route, final BHttpConnection conn) {
             return new LocalPoolEntry(route, conn);
         }
 
@@ -126,9 +126,9 @@ public class TestConnPool {
 
     @Test
     public void testLeaseRelease() throws Exception {
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn2 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn2.isOpen()).thenReturn(true);
 
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
@@ -179,7 +179,7 @@ public class TestConnPool {
     public void testReleaseUnknownEntry() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
         final LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
-        pool.release(new LocalPoolEntry("somehost", Mockito.mock(HttpConnection.class)), true);
+        pool.release(new LocalPoolEntry("somehost", Mockito.mock(BHttpConnection.class)), true);
     }
 
     static class GetPoolEntryThread extends Thread {
@@ -230,11 +230,11 @@ public class TestConnPool {
     public void testMaxLimits() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn2 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn2.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn2);
 
@@ -331,17 +331,17 @@ public class TestConnPool {
     public void testConnectionRedistributionOnTotalMaxLimit() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn2 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn2.isOpen()).thenReturn(true);
-        final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn3 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn3.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2, conn3);
 
-        final HttpConnection conn4 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn4 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn4.isOpen()).thenReturn(true);
-        final HttpConnection conn5 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn5 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn5.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn4, conn5);
 
@@ -440,11 +440,11 @@ public class TestConnPool {
     public void testStatefulConnectionRedistributionOnPerRouteMaxLimit() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn2 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn2.isOpen()).thenReturn(true);
-        final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn3 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn3.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2, conn3);
 
@@ -506,7 +506,7 @@ public class TestConnPool {
     public void testCreateNewIfExpired() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
@@ -542,9 +542,9 @@ public class TestConnPool {
     public void testCloseExpired() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(Boolean.FALSE);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn2 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn2.isOpen()).thenReturn(Boolean.TRUE);
 
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2);
@@ -583,7 +583,7 @@ public class TestConnPool {
     public void testLeaseTimeout() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
@@ -630,7 +630,7 @@ public class TestConnPool {
     public void testLeaseCancel() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
 
@@ -666,9 +666,9 @@ public class TestConnPool {
     public void testCloseIdle() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn2 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn2.isOpen()).thenReturn(true);
 
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1, conn2);
@@ -758,10 +758,10 @@ public class TestConnPool {
     public void testShutdown() throws Exception {
         final LocalConnFactory connFactory = Mockito.mock(LocalConnFactory.class);
 
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn1 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn1.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn1);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn2 = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn2.isOpen()).thenReturn(true);
         Mockito.when(connFactory.create(Mockito.eq("otherhost"))).thenReturn(conn2);
 
@@ -793,12 +793,12 @@ public class TestConnPool {
         } catch (final IllegalStateException expected) {
         }
         // Ignored if shut down
-        pool.release(new LocalPoolEntry("somehost", Mockito.mock(HttpConnection.class)), true);
+        pool.release(new LocalPoolEntry("somehost", Mockito.mock(BHttpConnection.class)), true);
     }
 
     @Test
     public void testValidateConnectionNotStale() throws Exception {
-        final HttpConnection conn = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn.isOpen()).thenReturn(true);
         Mockito.when(conn.isStale()).thenReturn(false);
 
@@ -826,7 +826,7 @@ public class TestConnPool {
 
     @Test
     public void testValidateConnectionStale() throws Exception {
-        final HttpConnection conn = Mockito.mock(HttpConnection.class);
+        final BHttpConnection conn = Mockito.mock(BHttpConnection.class);
         Mockito.when(conn.isOpen()).thenReturn(true);
         Mockito.when(conn.isStale()).thenReturn(false);
 

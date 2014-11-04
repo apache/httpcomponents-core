@@ -38,8 +38,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.http.BHttpConnection;
 import org.apache.http.Header;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -67,13 +67,13 @@ import org.apache.http.util.Asserts;
 import org.apache.http.util.NetUtils;
 
 /**
- * This class serves as a base for all {@link HttpConnection} implementations and provides
- * functionality common to both client and server HTTP connections.
+ * This class serves as a base for all {@link org.apache.http.BHttpConnection} implementations
+ * and provides functionality common to both client and server HTTP connections.
  *
  * @since 4.0
  */
 @NotThreadSafe
-public class BHttpConnectionBase implements HttpConnection {
+public class BHttpConnectionBase implements BHttpConnection {
 
     private final SessionInputBufferImpl inbuffer;
     private final SessionOutputBufferImpl outbuffer;
@@ -335,6 +335,16 @@ public class BHttpConnectionBase implements HttpConnection {
     }
 
     @Override
+    public boolean isDataAvailable(final int timeout) throws IOException {
+        ensureOpen();
+        try {
+            return awaitInput(timeout);
+        } catch (final SocketTimeoutException ex) {
+            return false;
+        }
+    }
+
+    @Override
     public boolean isStale() {
         if (!isOpen()) {
             return true;
@@ -347,6 +357,12 @@ public class BHttpConnectionBase implements HttpConnection {
         } catch (final IOException ex) {
             return true;
         }
+    }
+
+    @Override
+    public void flush() throws IOException {
+        ensureOpen();
+        doFlush();
     }
 
     protected void incrementRequestCount() {

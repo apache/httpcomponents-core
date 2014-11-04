@@ -404,11 +404,6 @@ public class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus
     }
 
     @Override
-    public boolean isStale() {
-        return this.session.isClosed();
-    }
-
-    @Override
     public boolean isDataAvailable() {
         return this.session.hasBufferedInput();
     }

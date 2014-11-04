@@ -55,23 +55,6 @@ public interface HttpConnection extends Closeable {
     boolean isOpen();
 
     /**
-     * Checks whether this connection has gone down.
-     * Network connections may get closed during some time of inactivity
-     * for several reasons. The next time a read is attempted on such a
-     * connection it will throw an IOException.
-     * This method tries to alleviate this inconvenience by trying to
-     * find out if a connection is still usable. Implementations may do
-     * that by attempting a read with a very small timeout. Thus this
-     * method may block for a small amount of time before returning a result.
-     * It is therefore an <i>expensive</i> operation.
-     *
-     * @return  {@code true} if attempts to use this connection are
-     *          likely to succeed, or {@code false} if they are likely
-     *          to fail and this connection should be closed
-     */
-    boolean isStale();
-
-    /**
      * Sets the socket timeout value.
      *
      * @param timeout timeout value in milliseconds
