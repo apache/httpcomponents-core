@@ -33,7 +33,6 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * {@link java.util.Iterator} of {@link org.apache.http.HeaderElement}s.
@@ -60,7 +59,7 @@ public class BasicHeaderElementIterator extends AbstractHeaderElementIterator<He
     }
 
     @Override
-    HeaderElement parseHeaderElement(final CharArrayBuffer buf, final ParserCursor cursor) {
+    HeaderElement parseHeaderElement(final CharSequence buf, final ParserCursor cursor) {
         final HeaderElement e = this.parser.parseHeaderElement(buf, cursor);
         if (!(e.getName().length() == 0 && e.getValue() == null)) {
             return e;

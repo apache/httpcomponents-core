@@ -31,10 +31,8 @@ import java.io.Serializable;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
-import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Basic implementation of {@link Header}.
@@ -82,13 +80,10 @@ public class BasicHeader implements Header, Serializable {
     }
 
     @Override
-    public HeaderElement[] getElements() throws ParseException {
+    public HeaderElement[] getElements() {
         if (this.value != null) {
-            // result intentionally not cached, it's probably not used again
-            final CharArrayBuffer buffer = new CharArrayBuffer(this.value.length());
-            buffer.append(value);
             final ParserCursor cursor = new ParserCursor(0, this.value.length());
-            return BasicHeaderValueParser.INSTANCE.parseElements(buffer, cursor);
+            return BasicHeaderValueParser.INSTANCE.parseElements(this.value, cursor);
         } else {
             return new HeaderElement[] {};
         }

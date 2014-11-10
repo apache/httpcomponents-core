@@ -206,6 +206,9 @@ public final class ContentType implements Serializable {
 
     private static ContentType create(final HeaderElement helem, final boolean strict) {
         final String mimeType = helem.getName();
+        if (TextUtils.isBlank(mimeType)) {
+            return null;
+        }
         final NameValuePair[] params = helem.getParameters();
 
         Charset charset = null;
@@ -237,17 +240,16 @@ public final class ContentType implements Serializable {
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
-    public static ContentType parse(
-            final String s) throws ParseException, UnsupportedCharsetException {
-        Args.notNull(s, "Content type");
-        final CharArrayBuffer buf = new CharArrayBuffer(s.length());
-        buf.append(s);
+    public static ContentType parse(final CharSequence s) throws UnsupportedCharsetException {
+        if (TextUtils.isBlank(s)) {
+            return null;
+        }
         final ParserCursor cursor = new ParserCursor(0, s.length());
-        final HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(buf, cursor);
+        final HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(s, cursor);
         if (elements.length > 0) {
             return create(elements[0], true);
         } else {
-            throw new ParseException("Invalid content type: " + s);
+            return null;
         }
     }
 

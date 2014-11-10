@@ -32,7 +32,6 @@ import java.util.Iterator;
 
 import org.apache.http.Header;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.TextUtils;
 
 /**
@@ -58,7 +57,7 @@ public class BasicTokenIterator extends AbstractHeaderElementIterator<String> {
     }
 
     @Override
-    String parseHeaderElement(final CharArrayBuffer buf, final ParserCursor cursor) {
+    String parseHeaderElement(final CharSequence buf, final ParserCursor cursor) {
         final String token = this.parser.parseToken(buf, cursor, COMMA);
         if (!cursor.atEnd()) {
             final int pos = cursor.getPos();

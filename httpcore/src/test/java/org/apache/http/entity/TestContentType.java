@@ -31,7 +31,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.http.Header;
-import org.apache.http.ParseException;
 import org.apache.http.message.BasicHeader;
 import org.junit.Assert;
 import org.junit.Test;
@@ -139,19 +138,12 @@ public class TestContentType {
     }
 
     @Test
-    public void testParseInvalidInput() throws Exception {
-        try {
-            ContentType.parse(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            ContentType.parse(";");
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException ex) {
-            // expected
-        }
+    public void testParseEmptyValue() throws Exception {
+        Assert.assertEquals(null, ContentType.parse(null));
+        Assert.assertEquals(null, ContentType.parse(""));
+        Assert.assertEquals(null, ContentType.parse("   "));
+        Assert.assertEquals(null, ContentType.parse(";"));
+        Assert.assertEquals(null, ContentType.parse("="));
     }
 
     @Test

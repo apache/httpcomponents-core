@@ -34,7 +34,6 @@ import org.apache.http.FormattedHeader;
 import org.apache.http.Header;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * {@link java.util.Iterator} of {@link org.apache.http.HeaderElement}s.
@@ -47,7 +46,7 @@ abstract class AbstractHeaderElementIterator<T> implements Iterator<T> {
     private final Iterator<Header> headerIt;
 
     private T currentElement = null;
-    private CharArrayBuffer buffer = null;
+    private CharSequence buffer = null;
     private ParserCursor cursor = null;
 
     /**
@@ -70,16 +69,15 @@ abstract class AbstractHeaderElementIterator<T> implements Iterator<T> {
             } else {
                 final String value = h.getValue();
                 if (value != null) {
-                    this.buffer = new CharArrayBuffer(value.length());
-                    this.buffer.append(value);
-                    this.cursor = new ParserCursor(0, this.buffer.length());
+                    this.buffer = value;
+                    this.cursor = new ParserCursor(0, value.length());
                     break;
                 }
             }
         }
     }
 
-    abstract T parseHeaderElement(CharArrayBuffer buf, ParserCursor cursor);
+    abstract T parseHeaderElement(CharSequence buf, ParserCursor cursor);
 
     private void parseNextElement() {
         // loop while there are headers left to parse

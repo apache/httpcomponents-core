@@ -30,7 +30,6 @@ package org.apache.http.message;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Interface for parsing header values into elements.
@@ -53,7 +52,7 @@ public interface HeaderValueParser {
      * @throws ParseException        in case of a parsing error
      */
     HeaderElement[] parseElements(
-            CharArrayBuffer buffer,
+            CharSequence buffer,
             ParserCursor cursor) throws ParseException;
 
     /**
@@ -70,7 +69,7 @@ public interface HeaderValueParser {
      * @throws ParseException        in case of a parse error
      */
     HeaderElement parseHeaderElement(
-            CharArrayBuffer buffer,
+            CharSequence buffer,
             ParserCursor cursor) throws ParseException;
 
     /**
@@ -87,7 +86,7 @@ public interface HeaderValueParser {
      * @throws ParseException        in case of a parse error
      */
     NameValuePair[] parseParameters(
-            CharArrayBuffer buffer,
+            CharSequence buffer,
             ParserCursor cursor) throws ParseException;
 
 
@@ -102,7 +101,7 @@ public interface HeaderValueParser {
      *          if no value is specified
      */
     NameValuePair parseNameValuePair(
-            CharArrayBuffer buffer,
+            CharSequence buffer,
             ParserCursor cursor) throws ParseException;
 
 }

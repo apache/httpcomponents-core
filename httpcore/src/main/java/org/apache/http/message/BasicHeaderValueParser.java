@@ -35,7 +35,6 @@ import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
-import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Default {@link org.apache.http.message.HeaderValueParser} implementation.
@@ -62,8 +61,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     }
 
     @Override
-    public HeaderElement[] parseElements(final CharArrayBuffer buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char array buffer");
+    public HeaderElement[] parseElements(final CharSequence buffer, final ParserCursor cursor) {
+        Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         final List<HeaderElement> elements = new ArrayList<HeaderElement>();
         while (!cursor.atEnd()) {
@@ -76,8 +75,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     }
 
     @Override
-    public HeaderElement parseHeaderElement(final CharArrayBuffer buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char array buffer");
+    public HeaderElement parseHeaderElement(final CharSequence buffer, final ParserCursor cursor) {
+        Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         final NameValuePair nvp = parseNameValuePair(buffer, cursor);
         NameValuePair[] params = null;
@@ -91,8 +90,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     }
 
     @Override
-    public NameValuePair[] parseParameters(final CharArrayBuffer buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char array buffer");
+    public NameValuePair[] parseParameters(final CharSequence buffer, final ParserCursor cursor) {
+        Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         tokenParser.skipWhiteSpace(buffer, cursor);
         final List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -108,8 +107,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     }
 
     @Override
-    public NameValuePair parseNameValuePair(final CharArrayBuffer buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char array buffer");
+    public NameValuePair parseNameValuePair(final CharSequence buffer, final ParserCursor cursor) {
+        Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
 
         final String name = tokenParser.parseToken(buffer, cursor, TOKEN_DELIMS);
