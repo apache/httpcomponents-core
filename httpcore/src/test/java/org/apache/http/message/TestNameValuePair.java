@@ -55,28 +55,6 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testHashCode() {
-        final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
-        final NameValuePair param2 = new BasicNameValuePair("name2", "value2");
-        final NameValuePair param3 = new BasicNameValuePair("name1", "value1");
-        Assert.assertTrue(param1.hashCode() != param2.hashCode());
-        Assert.assertTrue(param1.hashCode() == param3.hashCode());
-    }
-
-    @Test
-    public void testEquals() {
-        final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
-        final NameValuePair param2 = new BasicNameValuePair("name2", "value2");
-        final NameValuePair param3 = new BasicNameValuePair("name1", "value1");
-        Assert.assertFalse(param1.equals(param2));
-        Assert.assertFalse(param1.equals(null));
-        Assert.assertFalse(param1.equals("name1 = value1"));
-        Assert.assertTrue(param1.equals(param1));
-        Assert.assertTrue(param2.equals(param2));
-        Assert.assertTrue(param1.equals(param3));
-    }
-
-    @Test
     public void testToString() {
         final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         Assert.assertEquals("name1=value1", param1.toString());

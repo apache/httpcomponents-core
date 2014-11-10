@@ -31,7 +31,6 @@ import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
-import org.apache.http.util.LangUtils;
 
 /**
  * Basic implementation of {@link HeaderElement}
@@ -114,32 +113,6 @@ public class BasicHeaderElement implements HeaderElement {
             }
         }
         return found;
-    }
-
-    @Override
-    public boolean equals(final Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (object instanceof HeaderElement) {
-            final BasicHeaderElement that = (BasicHeaderElement) object;
-            return this.name.equals(that.name)
-                && LangUtils.equals(this.value, that.value)
-                && LangUtils.equals(this.parameters, that.parameters);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.name);
-        hash = LangUtils.hashCode(hash, this.value);
-        for (final NameValuePair parameter : this.parameters) {
-            hash = LangUtils.hashCode(hash, parameter);
-        }
-        return hash;
     }
 
     @Override

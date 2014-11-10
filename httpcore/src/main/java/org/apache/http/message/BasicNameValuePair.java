@@ -32,7 +32,6 @@ import java.io.Serializable;
 import org.apache.http.NameValuePair;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
-import org.apache.http.util.LangUtils;
 
 /**
  * Basic implementation of {@link NameValuePair}.
@@ -82,27 +81,6 @@ public class BasicNameValuePair implements NameValuePair, Serializable {
         buffer.append("=");
         buffer.append(this.value);
         return buffer.toString();
-    }
-
-    @Override
-    public boolean equals(final Object object) {
-        if (this == object) {
-            return true;
-        }
-        if (object instanceof NameValuePair) {
-            final BasicNameValuePair that = (BasicNameValuePair) object;
-            return this.name.equals(that.name)
-                  && LangUtils.equals(this.value, that.value);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.name);
-        hash = LangUtils.hashCode(hash, this.value);
-        return hash;
     }
 
 }

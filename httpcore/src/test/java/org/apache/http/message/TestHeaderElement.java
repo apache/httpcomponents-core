@@ -90,61 +90,6 @@ public class TestHeaderElement {
     }
 
     @Test
-    public void testHashCode() {
-        final HeaderElement element1 = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param1", "value1"),
-                    new BasicNameValuePair("param2", "value2")
-                } );
-        final HeaderElement element2 = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param2", "value2"),
-                    new BasicNameValuePair("param1", "value1")
-                } );
-        final HeaderElement element3 = new BasicHeaderElement("name", "value");
-        final HeaderElement element4 = new BasicHeaderElement("name", "value");
-        final HeaderElement element5 = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param1", "value1"),
-                    new BasicNameValuePair("param2", "value2")
-                } );
-        Assert.assertTrue(element1.hashCode() != element2.hashCode());
-        Assert.assertTrue(element1.hashCode() != element3.hashCode());
-        Assert.assertTrue(element2.hashCode() != element3.hashCode());
-        Assert.assertTrue(element3.hashCode() == element4.hashCode());
-        Assert.assertTrue(element1.hashCode() == element5.hashCode());
-    }
-
-    @Test
-    public void testEquals() {
-        final HeaderElement element1 = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param1", "value1"),
-                    new BasicNameValuePair("param2", "value2")
-                } );
-        final HeaderElement element2 = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param2", "value2"),
-                    new BasicNameValuePair("param1", "value1")
-                } );
-        final HeaderElement element3 = new BasicHeaderElement("name", "value");
-        final HeaderElement element4 = new BasicHeaderElement("name", "value");
-        final HeaderElement element5 = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param1", "value1"),
-                    new BasicNameValuePair("param2", "value2")
-                } );
-        Assert.assertTrue(element1.equals(element1));
-        Assert.assertTrue(!element1.equals(element2));
-        Assert.assertTrue(!element1.equals(element3));
-        Assert.assertTrue(!element2.equals(element3));
-        Assert.assertTrue(element3.equals(element4));
-        Assert.assertTrue(element1.equals(element5));
-        Assert.assertFalse(element1.equals(null));
-        Assert.assertFalse(element1.equals("name = value; param1 = value1; param2 = value2"));
-    }
-
-    @Test
     public void testToString() {
         final BasicHeaderElement element = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
