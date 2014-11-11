@@ -37,7 +37,6 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHeaderValueFormatter;
 import org.apache.http.message.BasicHeaderValueParser;
@@ -235,7 +234,6 @@ public final class ContentType implements Serializable {
      *
      * @param s text
      * @return content type
-     * @throws ParseException if the given text does not represent a valid
      * {@code Content-Type} value.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
@@ -260,13 +258,11 @@ public final class ContentType implements Serializable {
      *
      * @param entity HTTP entity
      * @return content type
-     * @throws ParseException if the given text does not represent a valid
      * {@code Content-Type} value.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
-    public static ContentType get(
-            final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
+    public static ContentType get(final HttpEntity entity) throws UnsupportedCharsetException {
         if (entity == null) {
             return null;
         }
@@ -296,13 +292,9 @@ public final class ContentType implements Serializable {
         }
         final Header header = entity.getContentType();
         if (header != null) {
-            try {
-                final HeaderElement[] elements = header.getElements();
-                if (elements.length > 0) {
-                    return create(elements[0], false);
-                }
-            } catch (ParseException ex) {
-                return null;
+            final HeaderElement[] elements = header.getElements();
+            if (elements.length > 0) {
+                return create(elements[0], false);
             }
         }
         return null;
@@ -314,13 +306,11 @@ public final class ContentType implements Serializable {
      *
      * @param entity HTTP entity
      * @return content type
-     * @throws ParseException if the given text does not represent a valid
      * {@code Content-Type} value.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
-    public static ContentType getOrDefault(
-            final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
+    public static ContentType getOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
         final ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;
     }
@@ -334,8 +324,7 @@ public final class ContentType implements Serializable {
      *
      * @since 4.4
      */
-    public static ContentType getLenientOrDefault(
-            final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
+    public static ContentType getLenientOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
         final ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;
     }
@@ -348,19 +337,6 @@ public final class ContentType implements Serializable {
      * @since 4.3
      */
     public ContentType withCharset(final Charset charset) {
-        return create(this.getMimeType(), charset);
-    }
-
-    /**
-     * Creates a new instance with this MIME type and the given Charset name.
-     *
-     * @param charset name
-     * @return a new instance with this MIME type and the given Charset name.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
-     * this instance of the Java virtual machine
-     * @since 4.3
-     */
-    public ContentType withCharset(final String charset) {
         return create(this.getMimeType(), charset);
     }
 

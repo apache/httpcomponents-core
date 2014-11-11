@@ -30,6 +30,7 @@ package org.apache.http.entity;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.message.BasicHeader;
 import org.junit.Assert;
@@ -67,7 +68,7 @@ public class TestContentType {
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("US-ASCII", contentType.getCharset().name());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
-        contentType = contentType.withCharset("UTF-8");
+        contentType = contentType.withCharset(Consts.UTF_8);
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("UTF-8", contentType.getCharset().name());
         Assert.assertEquals("text/plain; charset=UTF-8", contentType.toString());
