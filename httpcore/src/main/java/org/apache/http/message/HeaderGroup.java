@@ -94,13 +94,15 @@ public class HeaderGroup implements Serializable {
     }
 
     /**
-     * Replaces the first occurence of the header with the same name. If no header with
+     * Replaces the first occurrence of the header with the same name. If no header with
      * the same name is found the given header is added to the end of the list.
      *
      * @param header the new header that should replace the first header with the same
      * name if present in the list.
+     *
+     * @since 5.0
      */
-    public void updateHeader(final Header header) {
+    public void setHeader(final Header header) {
         if (header == null) {
             return;
         }
@@ -265,9 +267,9 @@ public class HeaderGroup implements Serializable {
      *
      * @return iterator over this group of headers.
      *
-     * @since 4.0
+     * @since 5.0
      */
-    public Iterator<Header> iterator() {
+    public Iterator<Header> headerIterator() {
         return new BasicListHeaderIterator(this.headers, null);
     }
 
@@ -279,23 +281,29 @@ public class HeaderGroup implements Serializable {
      *
      * @return iterator over some headers in this group.
      *
-     * @since 4.0
+     * @since 5.0
      */
-    public Iterator<Header> iterator(final String name) {
+    public Iterator<Header> headerIterator(final String name) {
         return new BasicListHeaderIterator(this.headers, name);
     }
 
     /**
-     * Returns a copy of this object
+     * Removes all headers with a given name in this group.
      *
-     * @return copy of this object
+     * @param name      the name of the headers to be removed.
      *
-     * @since 4.0
+     * @since 5.0
      */
-    public HeaderGroup copy() {
-        final HeaderGroup clone = new HeaderGroup();
-        clone.headers.addAll(this.headers);
-        return clone;
+    public void removeHeaders(final String name) {
+        if (name == null) {
+            return;
+        }
+        for (final Iterator<Header> i = headerIterator(); i.hasNext(); ) {
+            final Header header = i.next();
+            if (header.getName().equalsIgnoreCase(name)) {
+                i.remove();
+            }
+        }
     }
 
     @Override

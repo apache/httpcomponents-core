@@ -224,13 +224,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(getStatusLine());
-        sb.append(' ');
-        sb.append(this.headergroup);
-        if (this.entity != null) {
-            sb.append(' ');
-            sb.append(this.entity);
-        }
+        sb.append(this.code).append(" ").append(this.code).append(this.reasonPhrase).append(" ").append(super.toString());
         return sb.toString();
     }
 

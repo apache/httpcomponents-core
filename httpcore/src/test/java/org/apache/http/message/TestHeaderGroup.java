@@ -80,9 +80,9 @@ public class TestHeaderGroup {
         headergroup.addHeader(header1);
         headergroup.addHeader(header2);
         headergroup.addHeader(header3);
-        headergroup.updateHeader(new BasicHeader("name2", "newvalue"));
-        headergroup.updateHeader(new BasicHeader("name4", "value4"));
-        headergroup.updateHeader(null);
+        headergroup.setHeader(new BasicHeader("name2", "newvalue"));
+        headergroup.setHeader(new BasicHeader("name4", "value4"));
+        headergroup.setHeader(null);
         Assert.assertEquals(4, headergroup.getAllHeaders().length);
         Assert.assertEquals("newvalue", headergroup.getFirstHeader("name2").getValue());
     }
@@ -140,7 +140,7 @@ public class TestHeaderGroup {
     @Test
     public void testIterator() {
         final HeaderGroup headergroup = new HeaderGroup();
-        final Iterator<Header> i = headergroup.iterator();
+        final Iterator<Header> i = headergroup.headerIterator();
         Assert.assertNotNull(i);
         Assert.assertFalse(i.hasNext());
     }
@@ -152,7 +152,7 @@ public class TestHeaderGroup {
         final Header header2 = new BasicHeader("name", "value2");
         final Header header3 = new BasicHeader("name", "value3");
         headergroup.setHeaders(new Header[] { header1, header2, header3 });
-        final Iterator<Header> i = headergroup.iterator();
+        final Iterator<Header> i = headergroup.headerIterator();
         Assert.assertNotNull(i);
         Assert.assertTrue(i.hasNext());
         i.next();

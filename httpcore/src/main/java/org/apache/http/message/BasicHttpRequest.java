@@ -110,7 +110,9 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
 
     @Override
     public String toString() {
-        return this.method + ' ' + this.uri + ' ' + this.headergroup;
+        final StringBuilder sb = new StringBuilder();
+        sb.append(this.method).append(" ").append(this.uri).append(" ").append(super.toString());
+        return sb.toString();
     }
 
 }
