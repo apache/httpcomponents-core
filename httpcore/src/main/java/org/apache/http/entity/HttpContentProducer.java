@@ -35,9 +35,9 @@ import java.io.OutputStream;
  *<p>Content producers are expected to be able to produce their
  * content multiple times</p>
  *
- * @since 4.0
+ * @since 5.0
  */
-public interface ContentProducer {
+public interface HttpContentProducer {
 
     void writeTo(OutputStream outstream) throws IOException;
 

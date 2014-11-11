@@ -31,9 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.protocol.HTTP;
@@ -48,7 +46,7 @@ import org.apache.http.util.Args;
 @NotThreadSafe
 public class StringEntity extends AbstractHttpEntity {
 
-    protected final byte[] content;
+    private final byte[] content;
 
     /**
      * Creates a StringEntity with the specified content and content type.
@@ -58,11 +56,10 @@ public class StringEntity extends AbstractHttpEntity {
      *   MIME type {@link ContentType#TEXT_PLAIN} is assumed.
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      * @since 4.2
      */
-    public StringEntity(final String string, final ContentType contentType) throws UnsupportedCharsetException {
+    public StringEntity(final String string, final ContentType contentType) {
         super();
         Args.notNull(string, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
@@ -84,28 +81,11 @@ public class StringEntity extends AbstractHttpEntity {
      *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
-     * this instance of the Java virtual machine
-     */
-    public StringEntity(final String string, final String charset)
-            throws UnsupportedCharsetException {
-        this(string, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
-    }
-
-    /**
-     * Creates a StringEntity with the specified content and charset. The MIME type defaults
-     * to "text/plain".
-     *
-     * @param string content to be used. Not {@code null}.
-     * @param charset character set to be used. May be {@code null}, in which case the default
-     *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
-     *
-     * @throws IllegalArgumentException if the string parameter is null
      *
      * @since 4.2
      */
     public StringEntity(final String string, final Charset charset) {
-        this(string, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
+        this(string, ContentType.TEXT_PLAIN.withCharset(charset));
     }
 
     /**
@@ -115,10 +95,8 @@ public class StringEntity extends AbstractHttpEntity {
      * @param string content to be used. Not {@code null}.
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * @throws UnsupportedEncodingException if the default HTTP charset is not supported.
      */
-    public StringEntity(final String string)
-            throws UnsupportedEncodingException {
+    public StringEntity(final String string) {
         this(string, ContentType.DEFAULT_TEXT);
     }
 

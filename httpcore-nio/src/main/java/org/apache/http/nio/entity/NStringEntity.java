@@ -89,28 +89,11 @@ public class NStringEntity extends AbstractHttpEntity implements HttpAsyncConten
      *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
-     * @throws UnsupportedEncodingException Thrown when the named charset is not available in
-     * this instance of the Java virtual machine
-     */
-    public NStringEntity(final String s, final String charset)
-            throws UnsupportedEncodingException {
-        this(s, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
-    }
-
-    /**
-     * Creates a NStringEntity with the specified content and charset. The MIME type defaults
-     * to "text/plain".
-     *
-     * @param s content to be used. Not {@code null}.
-     * @param charset character set to be used. May be {@code null}, in which case the default
-     *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
-     *
-     * @throws IllegalArgumentException if the string parameter is null
      *
      * @since 4.2
      */
     public NStringEntity(final String s, final Charset charset) {
-        this(s, ContentType.create(ContentType.TEXT_PLAIN.getMimeType(), charset));
+        this(s, ContentType.TEXT_PLAIN.withCharset(charset));
     }
 
     /**

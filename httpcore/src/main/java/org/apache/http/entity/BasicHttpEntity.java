@@ -42,7 +42,7 @@ import org.apache.http.util.Asserts;
  * @since 4.0
  */
 @NotThreadSafe
-public class BasicHttpEntity extends AbstractHttpEntity {
+public class BasicHttpEntity extends AbstractHttpEntity implements HttpContentProducer {
 
     private InputStream content;
     private long length;

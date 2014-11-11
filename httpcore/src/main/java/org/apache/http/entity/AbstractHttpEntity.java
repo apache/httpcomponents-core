@@ -48,21 +48,11 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      *
      * @since 4.3
      */
-    protected static final int OUTPUT_BUFFER_SIZE = 4096;
+    static final int OUTPUT_BUFFER_SIZE = 4096;
 
-    protected Header contentType;
-    protected Header contentEncoding;
-    protected boolean chunked;
-
-    /**
-     * Protected default constructor.
-     * The contentType, contentEncoding and chunked attributes of the created object are set to
-     * {@code null}, {@code null} and {@code false}, respectively.
-     */
-    protected AbstractHttpEntity() {
-        super();
-    }
-
+    private Header contentType;
+    private Header contentEncoding;
+    private boolean chunked;
 
     /**
      * Obtains the Content-Type header.
@@ -129,7 +119,6 @@ public abstract class AbstractHttpEntity implements HttpEntity {
         }
         setContentType(h);
     }
-
 
     /**
      * Specifies the Content-Encoding header.

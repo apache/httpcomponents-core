@@ -68,9 +68,6 @@ public class TestStringEntity {
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/csv", "ANSI_X3.4-1968"));
         Assert.assertEquals("text/csv; charset=US-ASCII",
                 httpentity.getContentType().getValue());
-        httpentity = new StringEntity(s, Consts.ASCII.name());
-        Assert.assertEquals("text/plain; charset=US-ASCII",
-                httpentity.getContentType().getValue());
         httpentity = new StringEntity(s, Consts.ASCII);
         Assert.assertEquals("text/plain; charset=US-ASCII",
                 httpentity.getContentType().getValue());
@@ -101,10 +98,6 @@ public class TestStringEntity {
         Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
         Assert.assertEquals(s, EntityUtils.toString(httpentity));
         httpentity = new StringEntity(s, (Charset) null);
-        Assert.assertNotNull(httpentity.getContentType());
-        Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
-        Assert.assertEquals(s, EntityUtils.toString(httpentity));
-        httpentity = new StringEntity(s, (String) null);
         Assert.assertNotNull(httpentity.getContentType());
         Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
         Assert.assertEquals(s, EntityUtils.toString(httpentity));

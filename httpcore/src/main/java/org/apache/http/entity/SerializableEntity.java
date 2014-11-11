@@ -47,7 +47,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class SerializableEntity extends AbstractHttpEntity {
+public class SerializableEntity extends AbstractHttpEntity implements HttpContentProducer {
 
     private byte[] objSer;
 

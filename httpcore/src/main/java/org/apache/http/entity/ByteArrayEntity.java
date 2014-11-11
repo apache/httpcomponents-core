@@ -41,7 +41,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class ByteArrayEntity extends AbstractHttpEntity {
+public class ByteArrayEntity extends AbstractHttpEntity implements HttpContentProducer {
 
     private final byte[] b;
     private final int off, len;

@@ -42,9 +42,9 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class FileEntity extends AbstractHttpEntity implements Cloneable {
+public class FileEntity extends AbstractHttpEntity implements HttpContentProducer {
 
-    protected final File file;
+    private final File file;
 
     /**
      * @since 4.2

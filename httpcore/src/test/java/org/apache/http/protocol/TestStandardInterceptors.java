@@ -30,6 +30,7 @@ package org.apache.http.protocol;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
@@ -136,7 +137,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         final String s = "whatever";
-        final StringEntity entity = new StringEntity(s, "US-ASCII");
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
 
         final RequestContent interceptor = new RequestContent();
@@ -152,7 +153,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         final String s = "whatever";
-        final StringEntity entity = new StringEntity(s, "US-ASCII");
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
         entity.setChunked(true);
         request.setEntity(entity);
 
@@ -187,7 +188,7 @@ public class TestStandardInterceptors {
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
         final String s = "whatever";
-        final StringEntity entity = new StringEntity(s, "US-ASCII");
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
         entity.setChunked(true);
         request.setEntity(entity);
 
@@ -297,7 +298,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         final String s = "whatever";
-        final StringEntity entity = new StringEntity(s, "US-ASCII");
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
         final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
@@ -312,7 +313,7 @@ public class TestStandardInterceptors {
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
         final String s = "whatever";
-        final StringEntity entity = new StringEntity(s, "US-ASCII");
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
         final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
@@ -325,7 +326,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         final String s = "";
-        final StringEntity entity = new StringEntity(s, "US-ASCII");
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
         final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, context);
