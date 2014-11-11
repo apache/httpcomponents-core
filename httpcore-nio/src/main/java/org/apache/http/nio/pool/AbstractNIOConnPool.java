@@ -195,6 +195,12 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     protected void onRelease(final E entry) {
     }
 
+    /**
+     * @since 4.4
+     */
+    protected void onReusingPoolEntry(final E entry) {
+    }
+
     public boolean isShutdown() {
         return this.isShutDown.get();
     }
@@ -378,6 +384,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.leased.add(entry);
             request.completed(entry);
             onLease(entry);
+            onReusingPoolEntry(entry);
             return true;
         }
 
