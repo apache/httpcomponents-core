@@ -65,9 +65,9 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
 
     private final long startedTime;
 
-    private long lastReadTime;
-    private long lastWriteTime;
-    private long lastAccessTime;
+    private volatile long lastReadTime;
+    private volatile long lastWriteTime;
+    private volatile long lastAccessTime;
 
     /**
      * Creates new instance of IOSessionImpl.
@@ -207,7 +207,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     @Override
-    public synchronized void setSocketTimeout(final int timeout) {
+    public void setSocketTimeout(final int timeout) {
         this.socketTimeout = timeout;
         this.lastAccessTime = System.currentTimeMillis();
     }
@@ -282,29 +282,29 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
         this.attributes.put(name, obj);
     }
 
-    public synchronized long getStartedTime() {
+    public long getStartedTime() {
         return this.startedTime;
     }
 
-    public synchronized long getLastReadTime() {
+    public long getLastReadTime() {
         return this.lastReadTime;
     }
 
-    public synchronized long getLastWriteTime() {
+    public long getLastWriteTime() {
         return this.lastWriteTime;
     }
 
-    public synchronized long getLastAccessTime() {
+    public long getLastAccessTime() {
         return this.lastAccessTime;
     }
 
-    synchronized void resetLastRead() {
+    void resetLastRead() {
         final long now = System.currentTimeMillis();
         this.lastReadTime = now;
         this.lastAccessTime = now;
     }
 
-    synchronized void resetLastWrite() {
+    void resetLastWrite() {
         final long now = System.currentTimeMillis();
         this.lastWriteTime = now;
         this.lastAccessTime = now;
