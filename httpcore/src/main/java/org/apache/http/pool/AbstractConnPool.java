@@ -113,6 +113,12 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     /**
      * @since 4.4
      */
+    protected void onReuse(final E entry) {
+    }
+
+    /**
+     * @since 4.4
+     */
     protected boolean validate(final E entry) {
         return true;
     }
@@ -253,6 +259,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                 if (entry != null) {
                     this.available.remove(entry);
                     this.leased.add(entry);
+                    onReuse(entry);
                     return entry;
                 }
 
