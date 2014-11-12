@@ -343,8 +343,8 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
 
     @Override
     public String toString() {
+        final StringBuilder buffer = new StringBuilder();
         synchronized (this.key) {
-            final StringBuilder buffer = new StringBuilder();
             final SocketAddress remoteAddress = getRemoteAddress();
             final SocketAddress localAddress = getLocalAddress();
             if (remoteAddress != null && localAddress != null) {
@@ -352,7 +352,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
                 buffer.append("<->");
                 formatAddress(buffer, remoteAddress);
             }
-            buffer.append("[");
+            buffer.append('[');
             switch (this.status) {
             case ACTIVE:
                 buffer.append("ACTIVE");
@@ -368,12 +368,12 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
             if (this.key.isValid()) {
                 formatOps(buffer, this.interestOpsCallback != null ?
                         this.currentEventMask : this.key.interestOps());
-                buffer.append(":");
+                buffer.append(':');
                 formatOps(buffer, this.key.readyOps());
             }
-            buffer.append("]");
-            return buffer.toString();
         }
+        buffer.append(']');
+        return new String(buffer);
     }
 
     @Override
