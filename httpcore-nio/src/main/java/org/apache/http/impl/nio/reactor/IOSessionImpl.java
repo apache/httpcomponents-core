@@ -140,80 +140,65 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     @Override
-    public void setEventMask(final int ops) {
+    public synchronized void setEventMask(final int ops) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this) {
-            if (this.status == CLOSED) {
-                return;
-            }
-            if (this.interestOpsCallback != null) {
-                // update the current event mask
-                this.currentEventMask = ops;
+        if (this.interestOpsCallback != null) {
+            // update the current event mask
+            this.currentEventMask = ops;
 
-                // local variable
-                final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
+            // local variable
+            final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
 
-                // add this operation to the interestOps() queue
-                this.interestOpsCallback.addInterestOps(entry);
-            } else {
-                this.key.interestOps(ops);
-            }
-            this.key.selector().wakeup();
+            // add this operation to the interestOps() queue
+            this.interestOpsCallback.addInterestOps(entry);
+        } else {
+            this.key.interestOps(ops);
         }
+        this.key.selector().wakeup();
     }
 
     @Override
-    public void setEvent(final int op) {
+    public synchronized void setEvent(final int op) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this) {
-            if (this.status == CLOSED) {
-                return;
-            }
-            if (this.interestOpsCallback != null) {
-                // update the current event mask
-                this.currentEventMask |= op;
+        if (this.interestOpsCallback != null) {
+            // update the current event mask
+            this.currentEventMask |= op;
 
-                // local variable
-                final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
+            // local variable
+            final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
 
-                // add this operation to the interestOps() queue
-                this.interestOpsCallback.addInterestOps(entry);
-            } else {
-                final int ops = this.key.interestOps();
-                this.key.interestOps(ops | op);
-            }
-            this.key.selector().wakeup();
+            // add this operation to the interestOps() queue
+            this.interestOpsCallback.addInterestOps(entry);
+        } else {
+            final int ops = this.key.interestOps();
+            this.key.interestOps(ops | op);
         }
+        this.key.selector().wakeup();
     }
 
     @Override
-    public void clearEvent(final int op) {
+    public synchronized void clearEvent(final int op) {
         if (this.status == CLOSED) {
             return;
         }
-        synchronized (this) {
-            if (this.status == CLOSED) {
-                return;
-            }
-            if (this.interestOpsCallback != null) {
-                // update the current event mask
-                this.currentEventMask &= ~op;
+        if (this.interestOpsCallback != null) {
+            // update the current event mask
+            this.currentEventMask &= ~op;
 
-                // local variable
-                final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
+            // local variable
+            final InterestOpEntry entry = new InterestOpEntry(this.key, this.currentEventMask);
 
-                // add this operation to the interestOps() queue
-                this.interestOpsCallback.addInterestOps(entry);
-            } else {
-                final int ops = this.key.interestOps();
-                this.key.interestOps(ops & ~op);
-            }
-            this.key.selector().wakeup();
+            // add this operation to the interestOps() queue
+            this.interestOpsCallback.addInterestOps(entry);
+        } else {
+            final int ops = this.key.interestOps();
+            this.key.interestOps(ops & ~op);
         }
+        this.key.selector().wakeup();
     }
 
     @Override
