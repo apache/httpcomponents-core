@@ -135,7 +135,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     @Override
-    public synchronized int getEventMask() {
+    public int getEventMask() {
         return this.interestOpsCallback != null ? this.currentEventMask : this.key.interestOps();
     }
 
@@ -213,23 +213,27 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     @Override
-    public synchronized void close() {
-        if (this.status == CLOSED) {
-            return;
+    public void close() {
+        synchronized (this) {
+            if (this.status == CLOSED) {
+                return;
+            }
+            this.status = CLOSED;
         }
-        this.status = CLOSED;
-        this.key.cancel();
-        try {
-            this.key.channel().close();
-        } catch (final IOException ex) {
-            // Munching exceptions is not nice
-            // but in this case it is justified
-        }
-        if (this.sessionClosedCallback != null) {
-            this.sessionClosedCallback.sessionClosed(this);
-        }
-        if (this.key.selector().isOpen()) {
-            this.key.selector().wakeup();
+        synchronized (this.key) {
+            this.key.cancel();
+            try {
+                this.key.channel().close();
+            } catch (final IOException ex) {
+                // Munching exceptions is not nice
+                // but in this case it is justified
+            }
+            if (this.sessionClosedCallback != null) {
+                this.sessionClosedCallback.sessionClosed(this);
+            }
+            if (this.key.selector().isOpen()) {
+                this.key.selector().wakeup();
+            }
         }
     }
 
@@ -338,36 +342,38 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     @Override
-    public synchronized String toString() {
+    public String toString() {
         final StringBuilder buffer = new StringBuilder();
-        final SocketAddress remoteAddress = getRemoteAddress();
-        final SocketAddress localAddress = getLocalAddress();
-        if (remoteAddress != null && localAddress != null) {
-            formatAddress(buffer, localAddress);
-            buffer.append("<->");
-            formatAddress(buffer, remoteAddress);
+        synchronized (this.key) {
+            final SocketAddress remoteAddress = getRemoteAddress();
+            final SocketAddress localAddress = getLocalAddress();
+            if (remoteAddress != null && localAddress != null) {
+                formatAddress(buffer, localAddress);
+                buffer.append("<->");
+                formatAddress(buffer, remoteAddress);
+            }
+            buffer.append('[');
+            switch (this.status) {
+            case ACTIVE:
+                buffer.append("ACTIVE");
+                break;
+            case CLOSING:
+                buffer.append("CLOSING");
+                break;
+            case CLOSED:
+                buffer.append("CLOSED");
+                break;
+            }
+            buffer.append("][");
+            if (this.key.isValid()) {
+                formatOps(buffer, this.interestOpsCallback != null ?
+                        this.currentEventMask : this.key.interestOps());
+                buffer.append(':');
+                formatOps(buffer, this.key.readyOps());
+            }
         }
-        buffer.append("[");
-        switch (this.status) {
-        case ACTIVE:
-            buffer.append("ACTIVE");
-            break;
-        case CLOSING:
-            buffer.append("CLOSING");
-            break;
-        case CLOSED:
-            buffer.append("CLOSED");
-            break;
-        }
-        buffer.append("][");
-        if (this.key.isValid()) {
-            formatOps(buffer, this.interestOpsCallback != null ?
-                    this.currentEventMask : this.key.interestOps());
-            buffer.append(":");
-            formatOps(buffer, this.key.readyOps());
-        }
-        buffer.append("]");
-        return buffer.toString();
+        buffer.append(']');
+        return new String(buffer);
     }
 
     @Override
