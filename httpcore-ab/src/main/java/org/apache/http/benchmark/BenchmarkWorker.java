@@ -36,6 +36,7 @@ import java.util.Iterator;
 import javax.net.SocketFactory;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -45,7 +46,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpProcessorBuilder;
@@ -172,7 +172,7 @@ class BenchmarkWorker implements Runnable {
                     final ContentType ct = ContentType.getOrDefault(entity);
                     Charset charset = ct.getCharset();
                     if (charset == null) {
-                        charset = HTTP.DEF_CONTENT_CHARSET;
+                        charset = Consts.ISO_8859_1;
                     }
                     long contentlen = 0;
                     final InputStream instream = entity.getContent();

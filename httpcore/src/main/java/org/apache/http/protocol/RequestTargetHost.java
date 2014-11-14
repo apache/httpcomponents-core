@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -67,7 +68,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             return;
         }
 
-        if (!request.containsHeader(HTTP.TARGET_HOST)) {
+        if (!request.containsHeader(HttpHeaders.HOST)) {
             HttpHost targethost = corecontext.getTargetHost();
             if (targethost == null) {
                 // Populate the context with a default HTTP host based on the
@@ -87,7 +88,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                     }
                 }
             }
-            request.addHeader(HTTP.TARGET_HOST, targethost.toHostString());
+            request.addHeader(HttpHeaders.HOST, targethost.toHostString());
         }
     }
 

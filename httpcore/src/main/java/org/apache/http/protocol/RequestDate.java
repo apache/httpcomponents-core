@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.annotation.ThreadSafe;
@@ -57,9 +58,9 @@ public class RequestDate implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         if ((request instanceof HttpEntityEnclosingRequest) &&
-            !request.containsHeader(HTTP.DATE_HEADER)) {
+            !request.containsHeader(HttpHeaders.DATE)) {
             final String httpdate = DATE_GENERATOR.getCurrentDate();
-            request.setHeader(HTTP.DATE_HEADER, httpdate);
+            request.setHeader(HttpHeaders.DATE, httpdate);
         }
     }
 

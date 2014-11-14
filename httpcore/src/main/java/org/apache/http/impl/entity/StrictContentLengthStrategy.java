@@ -28,13 +28,14 @@
 package org.apache.http.impl.entity;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 
 /**
@@ -81,24 +82,24 @@ public class StrictContentLengthStrategy implements ContentLengthStrategy {
         // Although Transfer-Encoding is specified as a list, in practice
         // it is either missing or has the single value "chunked". So we
         // treat it as a single-valued header here.
-        final Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header transferEncodingHeader = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         if (transferEncodingHeader != null) {
             final String s = transferEncodingHeader.getValue();
-            if (HTTP.CHUNK_CODING.equalsIgnoreCase(s)) {
+            if (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(s)) {
                 if (message.getProtocolVersion().lessEquals(HttpVersion.HTTP_1_0)) {
                     throw new ProtocolException(
                             "Chunked transfer encoding not allowed for " +
                             message.getProtocolVersion());
                 }
                 return CHUNKED;
-            } else if (HTTP.IDENTITY_CODING.equalsIgnoreCase(s)) {
+            } else if (HeaderElements.IDENTITY_ENCODING.equalsIgnoreCase(s)) {
                 return IDENTITY;
             } else {
                 throw new ProtocolException(
                         "Unsupported transfer encoding: " + s);
             }
         }
-        final Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
+        final Header contentLengthHeader = message.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         if (contentLengthHeader != null) {
             final String s = contentLengthHeader.getValue();
             try {

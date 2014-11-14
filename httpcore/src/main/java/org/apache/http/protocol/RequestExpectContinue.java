@@ -29,9 +29,11 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
@@ -58,14 +60,14 @@ public class RequestExpectContinue implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
-        if (!request.containsHeader(HTTP.EXPECT_DIRECTIVE)) {
+        if (!request.containsHeader(HttpHeaders.EXPECT)) {
             if (request instanceof HttpEntityEnclosingRequest) {
                 final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
                 final HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
                 // Do not send the expect header if request body is known to be empty
                 if (entity != null
                         && entity.getContentLength() != 0 && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                    request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+                    request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
                 }
             }
         }

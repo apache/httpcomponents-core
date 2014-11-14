@@ -28,12 +28,13 @@
 package org.apache.http.message;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHeaders;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.protocol.HTTP;
 
 /**
  * Basic implementation of {@link HttpEntityEnclosingRequest}.
@@ -71,8 +72,8 @@ public class BasicHttpEntityEnclosingRequest
 
     @Override
     public boolean expectContinue() {
-        final Header expect = getFirstHeader(HTTP.EXPECT_DIRECTIVE);
-        return expect != null && HTTP.EXPECT_CONTINUE.equalsIgnoreCase(expect.getValue());
+        final Header expect = getFirstHeader(HttpHeaders.EXPECT);
+        return expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue());
     }
 
 }

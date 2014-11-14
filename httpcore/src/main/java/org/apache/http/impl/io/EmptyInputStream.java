@@ -25,44 +25,56 @@
  *
  */
 
-package org.apache.http.protocol;
+package org.apache.http.impl.io;
 
-import java.io.IOException;
+import java.io.InputStream;
 
-import org.apache.http.HttpException;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.HttpStatus;
-import org.apache.http.annotation.ThreadSafe;
-import org.apache.http.util.Args;
+public final class EmptyInputStream extends InputStream {
+    public static final EmptyInputStream INSTANCE = new EmptyInputStream();
 
-/**
- * ResponseDate is responsible for adding {@code Date} header to the
- * outgoing responses. This interceptor is recommended for server side protocol
- * processors.
- *
- * @since 4.0
- */
-@ThreadSafe
-public class ResponseDate implements HttpResponseInterceptor {
-
-    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
-
-    public ResponseDate() {
-        super();
+    private EmptyInputStream() {
     }
 
     @Override
-    public void process(final HttpResponse response, final HttpContext context)
-            throws HttpException, IOException {
-        Args.notNull(response, "HTTP response");
-        final int status = response.getStatusLine().getStatusCode();
-        if ((status >= HttpStatus.SC_OK) &&
-            !response.containsHeader(HttpHeaders.DATE)) {
-            final String httpdate = DATE_GENERATOR.getCurrentDate();
-            response.setHeader(HttpHeaders.DATE, httpdate);
-        }
+    public int available() {
+        return 0;
     }
 
+    @Override
+    public void close() {
+    }
+
+    @Override
+    public void mark(final int readLimit) {
+    }
+
+    @Override
+    public boolean markSupported() {
+        return true;
+    }
+
+    @Override
+    public int read() {
+        return -1;
+    }
+
+    @Override
+    public int read(final byte[] buf) {
+        return -1;
+    }
+
+    @Override
+    public int read(final byte[] buf, final int off, final int len) {
+        return -1;
+    }
+
+    @Override
+    public void reset() {
+    }
+
+    @Override
+    public long skip(final long n) {
+        return 0L;
+    }
 }
+

@@ -35,6 +35,7 @@ import org.apache.http.ByteChannelMock;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -46,14 +47,13 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpConnection;
+import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.SimpleInputBuffer;
-import org.apache.http.protocol.HTTP;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -325,7 +325,7 @@ public class TestDefaultNHttpServerConnection {
         conn = new DefaultNHttpServerConnection(session, 64);
 
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
+        response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
         response.setEntity(entity);
@@ -355,7 +355,7 @@ public class TestDefaultNHttpServerConnection {
         conn = new DefaultNHttpServerConnection(session, 64);
 
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
+        response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
         response.setEntity(entity);

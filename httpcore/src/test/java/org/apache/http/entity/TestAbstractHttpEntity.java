@@ -28,8 +28,8 @@
 package org.apache.http.entity;
 
 import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HTTP;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,12 +42,12 @@ public class TestAbstractHttpEntity {
     @Test
     public void testContentType() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "blah"));
-        Assert.assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
+        httpentity.setContentType(new BasicHeader(HttpHeaders.CONTENT_TYPE, "blah"));
+        Assert.assertEquals(HttpHeaders.CONTENT_TYPE, httpentity.getContentType().getName());
         Assert.assertEquals("blah", httpentity.getContentType().getValue());
 
         httpentity.setContentType("blah");
-        Assert.assertEquals(HTTP.CONTENT_TYPE, httpentity.getContentType().getName());
+        Assert.assertEquals(HttpHeaders.CONTENT_TYPE, httpentity.getContentType().getName());
         Assert.assertEquals("blah", httpentity.getContentType().getValue());
 
         httpentity.setContentType((Header)null);
@@ -59,12 +59,12 @@ public class TestAbstractHttpEntity {
     @Test
     public void testContentEncoding() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentEncoding(new BasicHeader(HTTP.CONTENT_ENCODING, "gzip"));
-        Assert.assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        httpentity.setContentEncoding(new BasicHeader(HttpHeaders.CONTENT_ENCODING, "gzip"));
+        Assert.assertEquals(HttpHeaders.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         Assert.assertEquals("gzip", httpentity.getContentEncoding().getValue());
 
         httpentity.setContentEncoding("gzip");
-        Assert.assertEquals(HTTP.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
+        Assert.assertEquals(HttpHeaders.CONTENT_ENCODING, httpentity.getContentEncoding().getName());
         Assert.assertEquals("gzip", httpentity.getContentEncoding().getValue());
 
         httpentity.setContentEncoding((Header)null);

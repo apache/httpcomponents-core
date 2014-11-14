@@ -30,8 +30,8 @@ package org.apache.http.util;
 import java.io.Serializable;
 import java.nio.CharBuffer;
 
+import org.apache.http.Consts;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.protocol.HTTP;
 
 /**
  * A resizable char array.
@@ -429,6 +429,10 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         return new String(this.buffer, beginIndex, endIndex - beginIndex);
     }
 
+    private static boolean isWhitespace(final char ch) {
+        return ch == Consts.SP || ch == Consts.HT || ch == Consts.CR || ch == Consts.LF;
+    }
+
     /**
      * Returns a substring of this buffer with leading and trailing whitespace
      * omitted. The substring begins with the first non-whitespace character
@@ -457,10 +461,10 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         }
         int beginIndex0 = beginIndex;
         int endIndex0 = endIndex;
-        while (beginIndex0 < endIndex && HTTP.isWhitespace(this.buffer[beginIndex0])) {
+        while (beginIndex0 < endIndex && isWhitespace(this.buffer[beginIndex0])) {
             beginIndex0++;
         }
-        while (endIndex0 > beginIndex0 && HTTP.isWhitespace(this.buffer[endIndex0 - 1])) {
+        while (endIndex0 > beginIndex0 && isWhitespace(this.buffer[endIndex0 - 1])) {
             endIndex0--;
         }
         return new String(this.buffer, beginIndex0, endIndex0 - beginIndex0);

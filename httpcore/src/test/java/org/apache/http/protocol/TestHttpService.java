@@ -30,8 +30,10 @@ package org.apache.http.protocol;
 import java.io.InputStream;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
@@ -210,7 +212,7 @@ public class TestHttpService {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
         request.setEntity(entity);
@@ -269,7 +271,7 @@ public class TestHttpService {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
         request.setEntity(entity);
@@ -313,7 +315,7 @@ public class TestHttpService {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
         request.setEntity(entity);

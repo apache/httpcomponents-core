@@ -28,11 +28,11 @@
 package org.apache.http.nio.protocol;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
-import org.apache.http.protocol.HTTP;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,7 +59,7 @@ public class TestErrorResponseProducer {
         erp = new ErrorResponseProducer(response, entity, true);
         final HttpResponse res = erp.generateResponse();
 
-        Assert.assertEquals(HTTP.CONN_KEEP_ALIVE, res.getFirstHeader(HTTP.CONN_DIRECTIVE).getValue());
+        Assert.assertEquals("keep-alive", res.getFirstHeader(HttpHeaders.CONNECTION).getValue());
         Assert.assertEquals(entity, res.getEntity());
         Assert.assertEquals(200, res.getStatusLine().getStatusCode());
     }
@@ -69,7 +69,7 @@ public class TestErrorResponseProducer {
         erp = new ErrorResponseProducer(response, entity, false);
         final HttpResponse res = erp.generateResponse();
 
-        Assert.assertEquals(HTTP.CONN_CLOSE, res.getFirstHeader(HTTP.CONN_DIRECTIVE).getValue());
+        Assert.assertEquals("close", res.getFirstHeader(HttpHeaders.CONNECTION).getValue());
         Assert.assertEquals(entity, res.getEntity());
         Assert.assertEquals(200, res.getStatusLine().getStatusCode());
     }

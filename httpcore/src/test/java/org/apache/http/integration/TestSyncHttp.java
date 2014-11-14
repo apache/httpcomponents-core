@@ -37,11 +37,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -55,7 +57,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -700,7 +701,7 @@ public class TestSyncHttp {
                     final ContentType contentType = ContentType.getOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
-                        charset = HTTP.DEF_CONTENT_CHARSET;
+                        charset = Consts.ISO_8859_1;
                     }
                     final RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
                     outgoing.setChunked(n % 2 == 0);
@@ -736,7 +737,7 @@ public class TestSyncHttp {
                     final ContentType contentType = ContentType.getOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
-                        charset = HTTP.DEF_CONTENT_CHARSET;
+                        charset = Consts.ISO_8859_1;
                     }
                     Assert.assertNotNull(instream);
                     final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
@@ -895,21 +896,20 @@ public class TestSyncHttp {
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
-                    new HttpRequestInterceptor[] {
-                            new HttpRequestInterceptor() {
+                    new HttpRequestInterceptor() {
 
-                                @Override
-                                public void process(
-                                        final HttpRequest request,
-                                        final HttpContext context) throws HttpException, IOException {
-                                    request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
-                                }
+                        @Override
+                        public void process(
+                                final HttpRequest request,
+                                final HttpContext context) throws HttpException, IOException {
+                            request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
+                        }
 
-                            },
-                            new RequestTargetHost(),
-                            new RequestConnControl(),
-                            new RequestUserAgent(),
-                            new RequestExpectContinue() }));
+                    },
+                    new RequestTargetHost(),
+                    new RequestConnControl(),
+                    new RequestUserAgent(),
+                    new RequestExpectContinue()));
 
             final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());

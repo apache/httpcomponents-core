@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -46,7 +48,6 @@ import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor.State;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.junit.After;
 import org.junit.Assert;
@@ -220,7 +221,7 @@ public class TestHttpAsyncRequestExecutor {
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
         final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.setHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(request);
         Mockito.when(this.conn.getSocketTimeout()).thenReturn(1000);
 

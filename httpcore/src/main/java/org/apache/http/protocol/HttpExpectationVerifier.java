@@ -34,26 +34,6 @@ import org.apache.http.HttpResponse;
 /**
  * Defines an interface to verify whether an incoming HTTP request meets
  * the target server's expectations.
- *<p>
- * The Expect request-header field is used to indicate that particular
- * server behaviors are required by the client.
- *</p>
- *<pre>
- *    Expect       =  "Expect" ":" 1#expectation
- *
- *    expectation  =  "100-continue" | expectation-extension
- *    expectation-extension =  token [ "=" ( token | quoted-string )
- *                             *expect-params ]
- *    expect-params =  ";" token [ "=" ( token | quoted-string ) ]
- *</pre>
- *<p>
- * A server that does not understand or is unable to comply with any of
- * the expectation values in the Expect field of a request MUST respond
- * with appropriate error status. The server MUST respond with a 417
- * (Expectation Failed) status if any of the expectations cannot be met
- * or, if there are other problems with the request, some other 4xx
- * status.
- *</p>
  *
  * @since 4.0
  */

@@ -40,6 +40,7 @@ import java.net.Socket;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.entity.ContentType;
@@ -51,7 +52,6 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -102,7 +102,7 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
                 final String content = "and goodbye";
                 final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
                 response.setEntity(entity);
-                response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+                response.setHeader(HttpHeaders.CONNECTION, "Close");
             }
 
         }));

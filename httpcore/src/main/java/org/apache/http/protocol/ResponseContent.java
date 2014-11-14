@@ -29,8 +29,10 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
@@ -92,13 +94,13 @@ public class ResponseContent implements HttpResponseInterceptor {
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         if (this.overwrite) {
-            response.removeHeaders(HTTP.TRANSFER_ENCODING);
-            response.removeHeaders(HTTP.CONTENT_LEN);
+            response.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
+            response.removeHeaders(HttpHeaders.CONTENT_LENGTH);
         } else {
-            if (response.containsHeader(HTTP.TRANSFER_ENCODING)) {
+            if (response.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
                 throw new ProtocolException("Transfer-encoding header already present");
             }
-            if (response.containsHeader(HTTP.CONTENT_LEN)) {
+            if (response.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
                 throw new ProtocolException("Content-Length header already present");
             }
         }
@@ -107,18 +109,18 @@ public class ResponseContent implements HttpResponseInterceptor {
         if (entity != null) {
             final long len = entity.getContentLength();
             if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                response.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
+                response.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
             } else if (len >= 0) {
-                response.addHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }
             // Specify a content type if known
             if (entity.getContentType() != null && !response.containsHeader(
-                    HTTP.CONTENT_TYPE )) {
+                    HttpHeaders.CONTENT_TYPE)) {
                 response.addHeader(entity.getContentType());
             }
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null && !response.containsHeader(
-                    HTTP.CONTENT_ENCODING)) {
+                    HttpHeaders.CONTENT_ENCODING)) {
                 response.addHeader(entity.getContentEncoding());
             }
         } else {
@@ -126,7 +128,7 @@ public class ResponseContent implements HttpResponseInterceptor {
             if (status != HttpStatus.SC_NO_CONTENT
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {
-                response.addHeader(HTTP.CONTENT_LEN, "0");
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
             }
         }
     }

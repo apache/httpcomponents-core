@@ -35,12 +35,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
+import org.apache.http.Consts;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 
 /**
@@ -71,7 +71,7 @@ public class NStringEntity extends AbstractHttpEntity implements HttpAsyncConten
         Args.notNull(s, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {
-            charset = HTTP.DEF_CONTENT_CHARSET;
+            charset = Consts.ISO_8859_1;
         }
         this.b = s.getBytes(charset);
         this.buf = ByteBuffer.wrap(this.b);
@@ -86,7 +86,7 @@ public class NStringEntity extends AbstractHttpEntity implements HttpAsyncConten
      *
      * @param s content to be used. Not {@code null}.
      * @param charset character set to be used. May be {@code null}, in which case the default
-     *   is {@link HTTP#DEF_CONTENT_CHARSET} is assumed
+     *   is {@link org.apache.http.Consts#ISO_8859_1} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
      *

@@ -25,46 +25,22 @@
  *
  */
 
-package org.apache.http.protocol;
-
-import java.io.IOException;
-
-import org.apache.http.HttpException;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
-import org.apache.http.annotation.Immutable;
-import org.apache.http.util.Args;
+package org.apache.http;
 
 /**
- * RequestUserAgent is responsible for adding {@code User-Agent} header.
- * This interceptor is recommended for client side protocol processors.
+ * Constants for frequently used Header elements.
  *
- * @since 4.0
+ * @since 5.0
  */
-@Immutable
-public class RequestUserAgent implements HttpRequestInterceptor {
+public final class HeaderElements {
 
-    private final String userAgent;
-
-    public RequestUserAgent(final String userAgent) {
-        super();
-        this.userAgent = userAgent;
+    private HeaderElements() {
     }
 
-    public RequestUserAgent() {
-        this(null);
-    }
-
-    @Override
-    public void process(final HttpRequest request, final HttpContext context)
-        throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
-        if (!request.containsHeader(HttpHeaders.USER_AGENT)) {
-            if (this.userAgent != null) {
-                request.addHeader(HttpHeaders.USER_AGENT, this.userAgent);
-            }
-        }
-    }
+    public static final String CHUNKED_ENCODING = "chunked";
+    public static final String IDENTITY_ENCODING = "identity";
+    public static final String CLOSE = "close";
+    public static final String KEEP_ALIVE = "keep-alive";
+    public static final String CONTINUE = "100-continue";
 
 }

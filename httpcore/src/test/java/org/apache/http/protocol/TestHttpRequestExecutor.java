@@ -29,9 +29,11 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -297,7 +299,7 @@ public class TestHttpRequestExecutor {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
 
@@ -331,7 +333,7 @@ public class TestHttpRequestExecutor {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
 
@@ -362,7 +364,7 @@ public class TestHttpRequestExecutor {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
 
@@ -390,7 +392,7 @@ public class TestHttpRequestExecutor {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
 

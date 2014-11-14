@@ -29,13 +29,14 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.EntityAsyncContentProducer;
 import org.apache.http.nio.entity.HttpAsyncContentProducer;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
 class ErrorResponseProducer implements HttpAsyncResponseProducer {
@@ -63,9 +64,9 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
     @Override
     public HttpResponse generateResponse() {
         if (this.keepAlive) {
-            response.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
+            response.addHeader(HttpHeaders.CONNECTION, HeaderElements.KEEP_ALIVE);
         } else {
-            response.addHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+            response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
         }
         response.setEntity(this.entity);
         return response;

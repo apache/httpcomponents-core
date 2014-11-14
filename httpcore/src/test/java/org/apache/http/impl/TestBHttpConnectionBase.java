@@ -36,7 +36,9 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.config.MessageConstraints;
@@ -190,7 +192,7 @@ public class TestBHttpConnectionBase {
     @Test
     public void testPrepareInputChunked() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        message.addHeader("Transfer-Encoding", "chunked");
+        message.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final HttpEntity entity = conn.prepareInput(message);
         Assert.assertNotNull(entity);
         Assert.assertTrue(entity.isChunked());
@@ -224,7 +226,7 @@ public class TestBHttpConnectionBase {
     @Test
     public void testPrepareOutputChunked() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        message.addHeader("Transfer-Encoding", "chunked");
+        message.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final OutputStream outstream = conn.prepareOutput(message);
         Assert.assertNotNull(outstream);
         Assert.assertTrue((outstream instanceof ChunkedOutputStream));

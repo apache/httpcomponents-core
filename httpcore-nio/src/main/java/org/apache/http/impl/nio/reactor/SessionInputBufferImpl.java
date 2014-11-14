@@ -37,6 +37,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.http.Consts;
 import org.apache.http.MessageConstraintException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
@@ -44,7 +45,6 @@ import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -233,7 +233,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         int pos = -1;
         for (int i = this.buffer.position(); i < this.buffer.limit(); i++) {
             final int b = this.buffer.get(i);
-            if (b == HTTP.LF) {
+            if (b == Consts.LF) {
                 pos = i + 1;
                 break;
             }
@@ -320,13 +320,13 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         // discard LF if found
         int l = linebuffer.length();
         if (l > 0) {
-            if (linebuffer.charAt(l - 1) == HTTP.LF) {
+            if (linebuffer.charAt(l - 1) == Consts.LF) {
                 l--;
                 linebuffer.setLength(l);
             }
             // discard CR if found
             if (l > 0) {
-                if (linebuffer.charAt(l - 1) == HTTP.CR) {
+                if (linebuffer.charAt(l - 1) == Consts.CR) {
                     l--;
                     linebuffer.setLength(l);
                 }

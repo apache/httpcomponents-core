@@ -43,6 +43,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
@@ -54,6 +55,7 @@ import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
+import org.apache.http.impl.io.EmptyInputStream;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
@@ -61,7 +63,6 @@ import org.apache.http.impl.io.SessionInputBufferImpl;
 import org.apache.http.impl.io.SessionOutputBufferImpl;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 import org.apache.http.util.NetUtils;
@@ -205,6 +206,8 @@ public class BHttpConnectionBase implements BHttpConnection {
             return new ChunkedInputStream(inbuffer, this.messageConstraints);
         } else if (len == ContentLengthStrategy.IDENTITY) {
             return new IdentityInputStream(inbuffer);
+        } else if (len == 0L) {
+            return EmptyInputStream.INSTANCE;
         } else {
             return new ContentLengthInputStream(inbuffer, len);
         }
@@ -229,11 +232,11 @@ public class BHttpConnectionBase implements BHttpConnection {
             entity.setContent(instream);
         }
 
-        final Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
+        final Header contentTypeHeader = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
         if (contentTypeHeader != null) {
             entity.setContentType(contentTypeHeader);
         }
-        final Header contentEncodingHeader = message.getFirstHeader(HTTP.CONTENT_ENCODING);
+        final Header contentEncodingHeader = message.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
         if (contentEncodingHeader != null) {
             entity.setContentEncoding(contentEncodingHeader);
         }

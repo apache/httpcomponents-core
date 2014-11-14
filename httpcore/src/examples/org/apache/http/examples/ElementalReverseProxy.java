@@ -36,6 +36,7 @@ import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -46,7 +47,6 @@ import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -123,23 +123,23 @@ public class ElementalReverseProxy {
             System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
             // Remove hop-by-hop headers
-            request.removeHeaders(HTTP.CONTENT_LEN);
-            request.removeHeaders(HTTP.TRANSFER_ENCODING);
-            request.removeHeaders(HTTP.CONN_DIRECTIVE);
+            request.removeHeaders(HttpHeaders.CONTENT_LENGTH);
+            request.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
+            request.removeHeaders(HttpHeaders.CONNECTION);
             request.removeHeaders("Keep-Alive");
             request.removeHeaders("Proxy-Authenticate");
-            request.removeHeaders("TE");
-            request.removeHeaders("Trailers");
-            request.removeHeaders("Upgrade");
+            request.removeHeaders(HttpHeaders.TE);
+            request.removeHeaders(HttpHeaders.TRAILER);
+            request.removeHeaders(HttpHeaders.UPGRADE);
 
             this.httpexecutor.preProcess(request, this.httpproc, context);
             final HttpResponse targetResponse = this.httpexecutor.execute(request, conn, context);
             this.httpexecutor.postProcess(response, this.httpproc, context);
 
             // Remove hop-by-hop headers
-            targetResponse.removeHeaders(HTTP.CONTENT_LEN);
-            targetResponse.removeHeaders(HTTP.TRANSFER_ENCODING);
-            targetResponse.removeHeaders(HTTP.CONN_DIRECTIVE);
+            targetResponse.removeHeaders(HttpHeaders.CONTENT_LENGTH);
+            targetResponse.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
+            targetResponse.removeHeaders(HttpHeaders.CONNECTION);
             targetResponse.removeHeaders("Keep-Alive");
             targetResponse.removeHeaders("TE");
             targetResponse.removeHeaders("Trailers");

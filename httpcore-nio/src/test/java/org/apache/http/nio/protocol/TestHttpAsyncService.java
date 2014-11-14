@@ -32,8 +32,10 @@ import java.net.SocketTimeoutException;
 import java.util.Queue;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
@@ -55,7 +57,6 @@ import org.apache.http.nio.protocol.HttpAsyncService.PipelineEntry;
 import org.apache.http.nio.protocol.HttpAsyncService.State;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpProcessor;
@@ -474,7 +475,7 @@ public class TestHttpAsyncService {
 
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
                 HttpVersion.HTTP_1_1);
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Mockito.eq(request), Mockito.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -522,7 +523,7 @@ public class TestHttpAsyncService {
 
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
                 HttpVersion.HTTP_1_1);
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Mockito.eq(request), Mockito.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -605,7 +606,7 @@ public class TestHttpAsyncService {
 
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
                 HttpVersion.HTTP_1_1);
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
 
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
@@ -637,7 +638,7 @@ public class TestHttpAsyncService {
 
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
                 HttpVersion.HTTP_1_1);
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
 
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
@@ -664,7 +665,7 @@ public class TestHttpAsyncService {
 
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
                 HttpVersion.HTTP_1_1);
-        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
+        request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
 
         Mockito.when(this.conn.getContext()).thenReturn(this.connContext);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);

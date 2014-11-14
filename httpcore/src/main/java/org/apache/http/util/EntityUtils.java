@@ -35,11 +35,11 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.entity.ContentType;
-import org.apache.http.protocol.HTTP;
 
 /**
  * Static helpers for dealing with {@link HttpEntity}s.
@@ -185,7 +185,7 @@ public final class EntityUtils {
                 charset = defaultCharset;
             }
             if (charset == null) {
-                charset = HTTP.DEF_CONTENT_CHARSET;
+                charset = Consts.ISO_8859_1;
             }
             final Reader reader = new InputStreamReader(instream, charset);
             final CharArrayBuffer buffer = new CharArrayBuffer(i);

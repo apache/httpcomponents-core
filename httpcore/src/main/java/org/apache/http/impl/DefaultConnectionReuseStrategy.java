@@ -31,13 +31,14 @@ import java.util.Iterator;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
+import org.apache.http.HeaderElements;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicTokenIterator;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 
@@ -83,14 +84,14 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.
         final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
-        final Header teh = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header teh = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         if (teh != null) {
-            if (!HTTP.CHUNK_CODING.equalsIgnoreCase(teh.getValue())) {
+            if (!HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(teh.getValue())) {
                 return false;
             }
         } else {
             if (canResponseHaveBody(response)) {
-                final Header[] clhs = response.getHeaders(HTTP.CONTENT_LEN);
+                final Header[] clhs = response.getHeaders(HttpHeaders.CONTENT_LENGTH);
                 // Do not reuse if not properly content-length delimited
                 if (clhs.length == 1) {
                     final Header clh = clhs[0];
@@ -111,7 +112,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // Check for the "Connection" header. If that is absent, check for
         // the "Proxy-Connection" header. The latter is an unspecified and
         // broken but unfortunately common extension of HTTP.
-        Iterator<Header> hit = response.headerIterator(HTTP.CONN_DIRECTIVE);
+        Iterator<Header> hit = response.headerIterator(HttpHeaders.CONNECTION);
         if (!hit.hasNext()) {
             hit = response.headerIterator("Proxy-Connection");
         }
@@ -144,9 +145,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             boolean keepalive = false;
             while (ti.hasNext()) {
                 final String token = ti.next();
-                if (HTTP.CONN_CLOSE.equalsIgnoreCase(token)) {
+                if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
                     return false;
-                } else if (HTTP.CONN_KEEP_ALIVE.equalsIgnoreCase(token)) {
+                } else if (HeaderElements.KEEP_ALIVE.equalsIgnoreCase(token)) {
                     // continue the loop, there may be a "close" afterwards
                     keepalive = true;
                 }

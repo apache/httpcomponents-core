@@ -29,9 +29,9 @@ package org.apache.http.entity;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HTTP;
 
 /**
  * Abstract base class for entities.
@@ -115,7 +115,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     public void setContentType(final String ctString) {
         Header h = null;
         if (ctString != null) {
-            h = new BasicHeader(HTTP.CONTENT_TYPE, ctString);
+            h = new BasicHeader(HttpHeaders.CONTENT_TYPE, ctString);
         }
         setContentType(h);
     }
@@ -143,7 +143,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     public void setContentEncoding(final String ceString) {
         Header h = null;
         if (ceString != null) {
-            h = new BasicHeader(HTTP.CONTENT_ENCODING, ceString);
+            h = new BasicHeader(HttpHeaders.CONTENT_ENCODING, ceString);
         }
         setContentEncoding(h);
     }

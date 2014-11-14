@@ -30,6 +30,7 @@ package org.apache.http.protocol;
 import java.io.IOException;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.annotation.Immutable;
@@ -62,9 +63,9 @@ public class ResponseServer implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        if (!response.containsHeader(HTTP.SERVER_HEADER)) {
+        if (!response.containsHeader(HttpHeaders.SERVER)) {
             if (this.originServer != null) {
-                response.addHeader(HTTP.SERVER_HEADER, this.originServer);
+                response.addHeader(HttpHeaders.SERVER, this.originServer);
             }
         }
     }

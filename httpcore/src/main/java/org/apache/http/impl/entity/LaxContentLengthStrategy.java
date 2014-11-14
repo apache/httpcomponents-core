@@ -29,13 +29,14 @@ package org.apache.http.impl.entity;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 
 /**
@@ -79,7 +80,7 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
     public long determineLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
 
-        final Header transferEncodingHeader = message.getFirstHeader(HTTP.TRANSFER_ENCODING);
+        final Header transferEncodingHeader = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         // We use Transfer-Encoding if present and ignore Content-Length.
         // RFC2616, 4.4 item number 3
         if (transferEncodingHeader != null) {
@@ -93,19 +94,19 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
             }
             // The chunked encoding must be the last one applied RFC2616, 14.41
             final int len = encodings.length;
-            if (HTTP.IDENTITY_CODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
+            if (HeaderElements.IDENTITY_ENCODING.equalsIgnoreCase(
+                    transferEncodingHeader.getValue())) {
                 return IDENTITY;
-            } else if ((len > 0) && (HTTP.CHUNK_CODING.equalsIgnoreCase(
-                    encodings[len - 1].getName()))) {
+            } else if ((len > 0) && (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase
+                    (encodings[len - 1].getName()))) {
                 return CHUNKED;
             } else {
                 return IDENTITY;
             }
         }
-        final Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
-        if (contentLengthHeader != null) {
+        if (message.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
             long contentlen = -1;
-            final Header[] headers = message.getHeaders(HTTP.CONTENT_LEN);
+            final Header[] headers = message.getHeaders(HttpHeaders.CONTENT_LENGTH);
             for (int i = headers.length - 1; i >= 0; i--) {
                 final Header header = headers[i];
                 try {

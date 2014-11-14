@@ -30,8 +30,10 @@ package org.apache.http.protocol;
 import java.io.IOException;
 
 import org.apache.http.Header;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
@@ -72,11 +74,11 @@ public class ResponseConnControl implements HttpResponseInterceptor {
                 status == HttpStatus.SC_REQUEST_URI_TOO_LONG ||
                 status == HttpStatus.SC_SERVICE_UNAVAILABLE ||
                 status == HttpStatus.SC_NOT_IMPLEMENTED) {
-            response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+            response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
             return;
         }
-        final Header explicit = response.getFirstHeader(HTTP.CONN_DIRECTIVE);
-        if (explicit != null && HTTP.CONN_CLOSE.equalsIgnoreCase(explicit.getValue())) {
+        final Header explicit = response.getFirstHeader(HttpHeaders.CONNECTION);
+        if (explicit != null && HeaderElements.CLOSE.equalsIgnoreCase(explicit.getValue())) {
             // Connection persistence explicitly disabled
             return;
         }
@@ -87,18 +89,18 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
             if (entity.getContentLength() < 0 &&
                     (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
-                response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+                response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
                 return;
             }
         }
         // Drop connection if requested by the client or request was <= 1.0
         final HttpRequest request = corecontext.getRequest();
         if (request != null) {
-            final Header header = request.getFirstHeader(HTTP.CONN_DIRECTIVE);
+            final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
             if (header != null) {
-                response.setHeader(HTTP.CONN_DIRECTIVE, header.getValue());
+                response.setHeader(HttpHeaders.CONNECTION, header.getValue());
             } else if (request.getProtocolVersion().lessEquals(HttpVersion.HTTP_1_0)) {
-                response.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_CLOSE);
+                response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
             }
         }
     }

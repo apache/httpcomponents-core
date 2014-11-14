@@ -32,6 +32,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpVersion;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
@@ -45,7 +46,6 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -214,9 +214,9 @@ public class TestNHttpConnectionBase {
     @Test
     public void testPrepareLengthDelimitedDecoder() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HTTP.CONTENT_LEN, "10");
-        response.addHeader(HTTP.CONTENT_TYPE, "stuff");
-        response.addHeader(HTTP.CONTENT_ENCODING, "identity");
+        response.addHeader(HttpHeaders.CONTENT_LENGTH, "10");
+        response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
+        response.addHeader(HttpHeaders.CONTENT_ENCODING, "identity");
         Mockito.when(session.channel()).thenReturn(channel);
 
         final HttpEntity entity = conn.prepareDecoder(response);
@@ -233,9 +233,9 @@ public class TestNHttpConnectionBase {
     @Test
     public void testPrepareChunkDecoder() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HTTP.TRANSFER_ENCODING, "chunked");
-        response.addHeader(HTTP.CONTENT_TYPE, "stuff");
-        response.addHeader(HTTP.CONTENT_ENCODING, "identity");
+        response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
+        response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
+        response.addHeader(HttpHeaders.CONTENT_ENCODING, "identity");
         Mockito.when(session.channel()).thenReturn(channel);
 
         final HttpEntity entity = conn.prepareDecoder(response);
@@ -261,7 +261,7 @@ public class TestNHttpConnectionBase {
     @Test
     public void testPrepareLengthDelimitedEncoder() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HTTP.CONTENT_LEN, "10");
+        response.addHeader(HttpHeaders.CONTENT_LENGTH, "10");
         Mockito.when(session.channel()).thenReturn(channel);
 
         conn.prepareEncoder(response);
@@ -271,7 +271,7 @@ public class TestNHttpConnectionBase {
     @Test
     public void testPrepareChunkEncoder() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HTTP.TRANSFER_ENCODING, "chunked");
+        response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         Mockito.when(session.channel()).thenReturn(channel);
 
         conn.prepareEncoder(response);

@@ -29,9 +29,11 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
@@ -86,20 +88,20 @@ public class RequestContent implements HttpRequestInterceptor {
         Args.notNull(request, "HTTP request");
         if (request instanceof HttpEntityEnclosingRequest) {
             if (this.overwrite) {
-                request.removeHeaders(HTTP.TRANSFER_ENCODING);
-                request.removeHeaders(HTTP.CONTENT_LEN);
+                request.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
+                request.removeHeaders(HttpHeaders.CONTENT_LENGTH);
             } else {
-                if (request.containsHeader(HTTP.TRANSFER_ENCODING)) {
+                if (request.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
                     throw new ProtocolException("Transfer-encoding header already present");
                 }
-                if (request.containsHeader(HTTP.CONTENT_LEN)) {
+                if (request.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
                     throw new ProtocolException("Content-Length header already present");
                 }
             }
             final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
             final HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
             if (entity == null) {
-                request.addHeader(HTTP.CONTENT_LEN, "0");
+                request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
                 return;
             }
             // Must specify a transfer encoding or a content length
@@ -108,18 +110,18 @@ public class RequestContent implements HttpRequestInterceptor {
                     throw new ProtocolException(
                             "Chunked transfer encoding not allowed for " + ver);
                 }
-                request.addHeader(HTTP.TRANSFER_ENCODING, HTTP.CHUNK_CODING);
+                request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
             } else {
-                request.addHeader(HTTP.CONTENT_LEN, Long.toString(entity.getContentLength()));
+                request.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }
             // Specify a content type if known
             if (entity.getContentType() != null && !request.containsHeader(
-                    HTTP.CONTENT_TYPE )) {
+                    HttpHeaders.CONTENT_TYPE )) {
                 request.addHeader(entity.getContentType());
             }
             // Specify a content encoding if known
             if (entity.getContentEncoding() != null && !request.containsHeader(
-                    HTTP.CONTENT_ENCODING)) {
+                    HttpHeaders.CONTENT_ENCODING)) {
                 request.addHeader(entity.getContentEncoding());
             }
         }

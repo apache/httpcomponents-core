@@ -37,12 +37,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.http.Consts;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.nio.util.ExpandableBuffer;
 import org.apache.http.nio.util.HeapByteBufferAllocator;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -55,7 +55,7 @@ import org.apache.http.util.CharArrayBuffer;
 @NotThreadSafe
 public class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
-    private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
+    private static final byte[] CRLF = new byte[] {Consts.CR, Consts.LF};
 
     private final CharsetEncoder charencoder;
     private final int lineBuffersize;

@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -61,7 +62,6 @@ import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -366,7 +366,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     public void process(
                             final HttpRequest request,
                             final HttpContext context) throws HttpException, IOException {
-                        request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
+                        request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
                     }
 
                 },
