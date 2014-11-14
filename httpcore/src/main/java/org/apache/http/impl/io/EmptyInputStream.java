@@ -29,7 +29,11 @@ package org.apache.http.impl.io;
 
 import java.io.InputStream;
 
+/**
+ * @since 4.4
+ */
 public final class EmptyInputStream extends InputStream {
+
     public static final EmptyInputStream INSTANCE = new EmptyInputStream();
 
     private EmptyInputStream() {
