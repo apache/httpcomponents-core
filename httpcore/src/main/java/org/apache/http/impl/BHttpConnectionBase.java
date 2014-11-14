@@ -56,6 +56,7 @@ import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.ContentLengthOutputStream;
+import org.apache.http.impl.io.EmptyInputStream;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.impl.io.IdentityOutputStream;
@@ -207,6 +208,8 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
             return new ChunkedInputStream(inbuffer, this.messageConstraints);
         } else if (len == ContentLengthStrategy.IDENTITY) {
             return new IdentityInputStream(inbuffer);
+        } else if (len == 0L) {
+            return EmptyInputStream.INSTANCE;
         } else {
             return new ContentLengthInputStream(inbuffer, len);
         }
