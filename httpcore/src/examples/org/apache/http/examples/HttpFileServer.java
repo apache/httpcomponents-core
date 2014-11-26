@@ -139,6 +139,7 @@ public class HttpFileServer {
             this.docRoot = docRoot;
         }
 
+        @Override
         public void handle(
                 final HttpRequest request,
                 final HttpResponse response,

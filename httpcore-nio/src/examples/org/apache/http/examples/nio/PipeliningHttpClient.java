@@ -93,6 +93,7 @@ public class PipeliningHttpClient {
         // Run the I/O reactor in a separate thread
         Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 try {
                     // Ready to go!

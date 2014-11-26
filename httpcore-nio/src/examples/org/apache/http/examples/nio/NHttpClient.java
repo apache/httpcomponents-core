@@ -91,6 +91,7 @@ public class NHttpClient {
         // Run the I/O reactor in a separate thread
         Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 try {
                     // Ready to go!
@@ -126,16 +127,19 @@ public class NHttpClient {
                     // Handle HTTP response from a callback
                     new FutureCallback<HttpResponse>() {
 
+                @Override
                 public void completed(final HttpResponse response) {
                     latch.countDown();
                     System.out.println(target + "->" + response.getStatusLine());
                 }
 
+                @Override
                 public void failed(final Exception ex) {
                     latch.countDown();
                     System.out.println(target + "->" + ex);
                 }
 
+                @Override
                 public void cancelled() {
                     latch.countDown();
                     System.out.println(target + " cancelled");

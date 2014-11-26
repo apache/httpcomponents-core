@@ -84,6 +84,7 @@ public interface HttpClientConnection extends BHttpConnection {
      *
      * @throws IOException in case of an I/O error
      */
+    @Override
     void flush() throws IOException;
 
 }

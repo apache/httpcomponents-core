@@ -109,6 +109,7 @@ public class ElementalReverseProxy {
             this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
         }
 
+        @Override
         public void handle(
                 final HttpRequest request,
                 final HttpResponse response,

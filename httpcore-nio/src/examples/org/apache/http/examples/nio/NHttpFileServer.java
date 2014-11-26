@@ -123,6 +123,7 @@ public class NHttpFileServer {
             this.docRoot = docRoot;
         }
 
+        @Override
         public HttpAsyncRequestConsumer<HttpRequest> processRequest(
                 final HttpRequest request,
                 final HttpContext context) {
@@ -130,6 +131,7 @@ public class NHttpFileServer {
             return new BasicAsyncRequestConsumer();
         }
 
+        @Override
         public void handle(
                 final HttpRequest request,
                 final HttpAsyncExchange httpexchange,

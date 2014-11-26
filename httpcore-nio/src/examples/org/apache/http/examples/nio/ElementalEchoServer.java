@@ -57,12 +57,14 @@ public class ElementalEchoServer {
 
         private final ByteBuffer buffer = ByteBuffer.allocate(1024);
 
+        @Override
         public void connected(IOSession session) {
             System.out.println("connected");
             session.setEventMask(EventMask.READ);
             session.setSocketTimeout(20000);
         }
 
+        @Override
         public void inputReady(final IOSession session) {
             System.out.println("readable");
             try {
@@ -80,6 +82,7 @@ public class ElementalEchoServer {
             }
         }
 
+        @Override
         public void outputReady(final IOSession session) {
             System.out.println("writeable");
             try {
@@ -94,11 +97,13 @@ public class ElementalEchoServer {
             }
         }
 
+        @Override
         public void timeout(final IOSession session) {
             System.out.println("timeout");
             session.close();
         }
 
+        @Override
         public void disconnected(final IOSession session) {
             System.out.println("disconnected");
         }

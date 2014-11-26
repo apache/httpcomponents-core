@@ -171,6 +171,7 @@ public class NHttpReverseProxy {
 
         Thread t = new Thread(new Runnable() {
 
+            @Override
             public void run() {
                 try {
                     connectingIOReactor.execute(connectingEventDispatch);
@@ -350,6 +351,7 @@ public class NHttpReverseProxy {
             this.counter = new AtomicLong(1);
         }
 
+        @Override
         public HttpAsyncRequestConsumer<ProxyHttpExchange> processRequest(
                 final HttpRequest request,
                 final HttpContext context) {
@@ -367,6 +369,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void handle(
                 final ProxyHttpExchange httpExchange,
                 final HttpAsyncExchange responseTrigger,
@@ -416,9 +419,11 @@ public class NHttpReverseProxy {
             this.connPool = connPool;
         }
 
+        @Override
         public void close() throws IOException {
         }
 
+        @Override
         public void requestReceived(final HttpRequest request) {
             synchronized (this.httpExchange) {
                 System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + request.getRequestLine());
@@ -430,6 +435,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void consumeContent(
                 final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
             synchronized (this.httpExchange) {
@@ -458,6 +464,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void requestCompleted(final HttpContext context) {
             synchronized (this.httpExchange) {
                 this.completed = true;;
@@ -470,18 +477,22 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public Exception getException() {
             return null;
         }
 
+        @Override
         public ProxyHttpExchange getResult() {
             return this.httpExchange;
         }
 
+        @Override
         public boolean isDone() {
             return this.completed;
         }
 
+        @Override
         public void failed(final Exception ex) {
             System.out.println("[client->proxy] " + ex.toString());
         }
@@ -497,15 +508,18 @@ public class NHttpReverseProxy {
             this.httpExchange = httpExchange;
         }
 
+        @Override
         public void close() throws IOException {
         }
 
+        @Override
         public HttpHost getTarget() {
             synchronized (this.httpExchange) {
                 return this.httpExchange.getTarget();
             }
         }
 
+        @Override
         public HttpRequest generateRequest() {
             synchronized (this.httpExchange) {
                 HttpRequest request = this.httpExchange.getRequest();
@@ -522,6 +536,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void produceContent(
                 final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
             synchronized (this.httpExchange) {
@@ -554,19 +569,23 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void requestCompleted(final HttpContext context) {
             synchronized (this.httpExchange) {
                 System.out.println("[proxy->origin] " + this.httpExchange.getId() + " request completed");
             }
         }
 
+        @Override
         public boolean isRepeatable() {
             return false;
         }
 
+        @Override
         public void resetRequest() {
         }
 
+        @Override
         public void failed(final Exception ex) {
             System.out.println("[proxy->origin] " + ex.toString());
         }
@@ -584,9 +603,11 @@ public class NHttpReverseProxy {
             this.httpExchange = httpExchange;
         }
 
+        @Override
         public void close() throws IOException {
         }
 
+        @Override
         public void responseReceived(final HttpResponse response) {
             synchronized (this.httpExchange) {
                 System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getStatusLine());
@@ -599,6 +620,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void consumeContent(
                 final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
             synchronized (this.httpExchange) {
@@ -627,6 +649,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void responseCompleted(final HttpContext context) {
             synchronized (this.httpExchange) {
                 if (this.completed) {
@@ -642,6 +665,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void failed(final Exception ex) {
             synchronized (this.httpExchange) {
                 if (this.completed) {
@@ -665,6 +689,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public boolean cancel() {
             synchronized (this.httpExchange) {
                 if (this.completed) {
@@ -675,14 +700,17 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public ProxyHttpExchange getResult() {
             return this.httpExchange;
         }
 
+        @Override
         public Exception getException() {
             return null;
         }
 
+        @Override
         public boolean isDone() {
             return this.completed;
         }
@@ -698,10 +726,12 @@ public class NHttpReverseProxy {
             this.httpExchange = httpExchange;
         }
 
+        @Override
         public void close() throws IOException {
             this.httpExchange.reset();
         }
 
+        @Override
         public HttpResponse generateResponse() {
             synchronized (this.httpExchange) {
                 HttpResponse response = this.httpExchange.getResponse();
@@ -713,6 +743,7 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void produceContent(
                 final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
             synchronized (this.httpExchange) {
@@ -745,12 +776,14 @@ public class NHttpReverseProxy {
             }
         }
 
+        @Override
         public void responseCompleted(final HttpContext context) {
             synchronized (this.httpExchange) {
                 System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response completed");
             }
         }
 
+        @Override
         public void failed(final Exception ex) {
             System.out.println("[client<-proxy] " + ex.toString());
         }
