@@ -28,15 +28,14 @@
 package org.apache.http.nio;
 
 import org.apache.http.HttpMessage;
-import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
- * Factory for {@link NHttpMessageWriter} instances.
+ * Factory for {@link org.apache.http.nio.NHttpMessageWriter} instances.
  *
  * @since 4.3
  */
 public interface NHttpMessageWriterFactory<T extends HttpMessage> {
 
-    NHttpMessageWriter<T> create(SessionOutputBuffer buffer);
+    NHttpMessageWriter<T> create();
 
 }

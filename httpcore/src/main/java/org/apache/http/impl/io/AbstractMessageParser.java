@@ -48,7 +48,7 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Abstract base class for HTTP message parsers that obtain input from
- * an instance of {@link SessionInputBuffer}.
+ * an instance of {@link org.apache.http.io.SessionInputBuffer}.
  *
  * @since 4.0
  */
@@ -58,10 +58,9 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
     private static final int HEAD_LINE    = 0;
     private static final int HEADERS      = 1;
 
-    private final SessionInputBuffer sessionBuffer;
     private final MessageConstraints messageConstraints;
     private final List<CharArrayBuffer> headerLines;
-    protected final LineParser lineParser;
+    private final LineParser lineParser;
 
     private int state;
     private T message;
@@ -69,7 +68,6 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
     /**
      * Creates new instance of AbstractMessageParser.
      *
-     * @param buffer the session input buffer.
      * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param constraints the message constraints. If {@code null}
@@ -77,16 +75,16 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      *
      * @since 4.3
      */
-    public AbstractMessageParser(
-            final SessionInputBuffer buffer,
-            final LineParser lineParser,
-            final MessageConstraints constraints) {
+    public AbstractMessageParser(final LineParser lineParser, final MessageConstraints constraints) {
         super();
-        this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.messageConstraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerLines = new ArrayList<CharArrayBuffer>();
         this.state = HEAD_LINE;
+    }
+
+    LineParser getLineParser() {
+        return this.lineParser;
     }
 
     /**
@@ -214,22 +212,23 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * the very first valid from the data stream and based on the input generate
      * an appropriate instance of {@link HttpMessage}.
      *
-     * @param sessionBuffer the session input buffer.
+     * @param buffer the session input buffer.
      * @return HTTP message based on the input from the session buffer.
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case of HTTP protocol violation.
      * @throws ParseException in case of a parse error.
      */
-    protected abstract T parseHead(SessionInputBuffer sessionBuffer)
+    protected abstract T parseHead(SessionInputBuffer buffer)
         throws IOException, HttpException, ParseException;
 
     @Override
-    public T parse() throws IOException, HttpException {
+    public T parse(final SessionInputBuffer buffer) throws IOException, HttpException {
+        Args.notNull(buffer, "Session input buffer");
         final int st = this.state;
         switch (st) {
         case HEAD_LINE:
             try {
-                this.message = parseHead(this.sessionBuffer);
+                this.message = parseHead(buffer);
             } catch (final ParseException px) {
                 throw new ProtocolException(px.getMessage(), px);
             }
@@ -237,7 +236,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             //$FALL-THROUGH$
         case HEADERS:
             final Header[] headers = AbstractMessageParser.parseHeaders(
-                    this.sessionBuffer,
+                    buffer,
                     this.messageConstraints.getMaxHeaderCount(),
                     this.messageConstraints.getMaxLineLength(),
                     this.lineParser,

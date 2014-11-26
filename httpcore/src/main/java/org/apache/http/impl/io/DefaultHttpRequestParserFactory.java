@@ -34,7 +34,6 @@ import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageParserFactory;
-import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LazyLineParser;
 import org.apache.http.message.LineParser;
 
@@ -64,9 +63,8 @@ public class DefaultHttpRequestParserFactory implements HttpMessageParserFactory
     }
 
     @Override
-    public HttpMessageParser<HttpRequest> create(final SessionInputBuffer buffer,
-            final MessageConstraints constraints) {
-        return new DefaultHttpRequestParser(buffer, lineParser, requestFactory, constraints);
+    public HttpMessageParser<HttpRequest> create(final MessageConstraints constraints) {
+        return new DefaultHttpRequestParser(this.lineParser, this.requestFactory, constraints);
     }
 
 }

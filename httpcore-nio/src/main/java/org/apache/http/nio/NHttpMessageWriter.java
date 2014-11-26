@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
+import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
  * Abstract HTTP message writer for non-blocking connections.
@@ -49,10 +50,11 @@ public interface NHttpMessageWriter<T extends HttpMessage> {
      * Serializes out the HTTP message head.
      *
      * @param message HTTP message.
+     * @param buffer session output buffer.
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case the HTTP message is malformed or
      *  violates the HTTP protocol.
      */
-    void write(T message) throws IOException, HttpException;
+    void write(T message, SessionOutputBuffer buffer) throws IOException, HttpException;
 
 }

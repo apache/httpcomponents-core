@@ -33,7 +33,6 @@ import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
 import org.apache.http.nio.NHttpMessageWriterFactory;
-import org.apache.http.nio.reactor.SessionOutputBuffer;
 
 /**
  * Default factory for response message writers.
@@ -57,8 +56,8 @@ public class DefaultHttpResponseWriterFactory implements NHttpMessageWriterFacto
     }
 
     @Override
-    public NHttpMessageWriter<HttpResponse> create(final SessionOutputBuffer buffer) {
-        return new DefaultHttpResponseWriter(buffer, lineFormatter);
+    public NHttpMessageWriter<HttpResponse> create() {
+        return new DefaultHttpResponseWriter(this.lineFormatter);
     }
 
 }

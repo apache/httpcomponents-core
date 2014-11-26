@@ -44,33 +44,32 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * Abstract base class for HTTP message writers that serialize output to
- * an instance of {@link SessionOutputBuffer}.
+ * an instance of {@link org.apache.http.io.SessionOutputBuffer}.
  *
  * @since 4.0
  */
 @NotThreadSafe
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements HttpMessageWriter<T> {
 
-    protected final SessionOutputBuffer sessionBuffer;
-    protected final CharArrayBuffer lineBuf;
-    protected final LineFormatter lineFormatter;
+    private final CharArrayBuffer lineBuf;
+    private final LineFormatter lineFormatter;
 
     /**
      * Creates an instance of AbstractMessageWriter.
      *
-     * @param buffer the session output buffer.
      * @param formatter the line formatter If {@code null} {@link BasicLineFormatter#INSTANCE}
      *   will be used.
      *
      * @since 4.3
      */
-    public AbstractMessageWriter(
-            final SessionOutputBuffer buffer,
-            final LineFormatter formatter) {
+    public AbstractMessageWriter(final LineFormatter formatter) {
         super();
-        this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
-        this.lineFormatter = (formatter != null) ? formatter : BasicLineFormatter.INSTANCE;
+        this.lineFormatter = formatter != null ? formatter : BasicLineFormatter.INSTANCE;
         this.lineBuf = new CharArrayBuffer(128);
+    }
+
+    LineFormatter getLineFormatter() {
+        return this.lineFormatter;
     }
 
     /**
@@ -80,25 +79,27 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
      * @param message the message whose first line is to be written out.
      * @throws IOException in case of an I/O error.
      */
-    protected abstract void writeHeadLine(T message) throws IOException;
+    protected abstract void writeHeadLine(T message, CharArrayBuffer lineBuf) throws IOException;
 
     @Override
-    public void write(final T message) throws IOException, HttpException {
+    public void write(final T message, final SessionOutputBuffer buffer) throws IOException, HttpException {
         Args.notNull(message, "HTTP message");
-        writeHeadLine(message);
+        Args.notNull(buffer, "Session output buffer");
+        writeHeadLine(message, this.lineBuf);
+        buffer.writeLine(this.lineBuf);
         for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {
             final Header header = it.next();
             if (header instanceof FormattedHeader) {
-                final CharArrayBuffer buffer = ((FormattedHeader) header).getBuffer();
-                this.sessionBuffer.writeLine(buffer);
+                final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
+                buffer.writeLine(chbuffer);
             } else {
                 this.lineBuf.clear();
                 lineFormatter.formatHeader(this.lineBuf, header);
-                this.sessionBuffer.writeLine(this.lineBuf);
+                buffer.writeLine(this.lineBuf);
             }
         }
         this.lineBuf.clear();
-        this.sessionBuffer.writeLine(this.lineBuf);
+        buffer.writeLine(this.lineBuf);
     }
 
 }

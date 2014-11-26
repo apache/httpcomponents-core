@@ -44,7 +44,7 @@ import org.apache.http.util.CharArrayBuffer;
 
 /**
  * HTTP request parser that obtain its input from an instance
- * of {@link SessionInputBuffer}.
+ * of {@link org.apache.http.io.SessionInputBuffer}.
  *
  * @since 4.2
  */
@@ -57,7 +57,6 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
     /**
      * Creates new instance of DefaultHttpRequestParser.
      *
-     * @param buffer the session input buffer.
      * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param requestFactory the response factory. If {@code null}
@@ -68,11 +67,10 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      * @since 4.3
      */
     public DefaultHttpRequestParser(
-            final SessionInputBuffer buffer,
             final LineParser lineParser,
             final HttpRequestFactory requestFactory,
             final MessageConstraints constraints) {
-        super(buffer, lineParser, constraints);
+        super(lineParser, constraints);
         this.requestFactory = requestFactory != null ? requestFactory :
             DefaultHttpRequestFactory.INSTANCE;
         this.lineBuf = new CharArrayBuffer(128);
@@ -81,22 +79,19 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
     /**
      * @since 4.3
      */
-    public DefaultHttpRequestParser(
-            final SessionInputBuffer buffer,
-            final MessageConstraints constraints) {
-        this(buffer, null, null, constraints);
+    public DefaultHttpRequestParser(final MessageConstraints constraints) {
+        this(null, null, constraints);
     }
 
     /**
      * @since 4.3
      */
-    public DefaultHttpRequestParser(final SessionInputBuffer buffer) {
-        this(buffer, null, null, MessageConstraints.DEFAULT);
+    public DefaultHttpRequestParser() {
+        this(MessageConstraints.DEFAULT);
     }
 
     @Override
-    protected HttpRequest parseHead(
-            final SessionInputBuffer sessionBuffer)
+    protected HttpRequest parseHead(final SessionInputBuffer sessionBuffer)
         throws IOException, HttpException, ParseException {
 
         this.lineBuf.clear();
@@ -104,7 +99,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
         if (i == -1) {
             throw new ConnectionClosedException("Client closed connection");
         }
-        final RequestLine requestline = this.lineParser.parseRequestLine(this.lineBuf);
+        final RequestLine requestline = getLineParser().parseRequestLine(this.lineBuf);
         return this.requestFactory.newHttpRequest(requestline);
     }
 

@@ -36,7 +36,6 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.message.LineParser;
-import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -53,7 +52,6 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
     /**
      * Creates an instance of DefaultHttpRequestParser.
      *
-     * @param buffer the session input buffer.
      * @param parser the line parser. If {@code null}
      *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param requestFactory the request factory. If {@code null}
@@ -64,32 +62,31 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      * @since 4.3
      */
     public DefaultHttpRequestParser(
-            final SessionInputBuffer buffer,
             final LineParser parser,
             final HttpRequestFactory requestFactory,
             final MessageConstraints constraints) {
-        super(buffer, parser, constraints);
+        super(parser, constraints);
         this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
     }
 
     /**
     * @since 4.3
     */
-    public DefaultHttpRequestParser(final SessionInputBuffer buffer, final MessageConstraints constraints) {
-        this(buffer, null, null, constraints);
+    public DefaultHttpRequestParser(final MessageConstraints constraints) {
+        this(null, null, constraints);
     }
 
     /**
     * @since 4.3
     */
-    public DefaultHttpRequestParser(final SessionInputBuffer buffer) {
-        this(buffer, null);
+    public DefaultHttpRequestParser() {
+        this(null);
     }
 
     @Override
     protected HttpRequest createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {
-        final RequestLine requestLine = lineParser.parseRequestLine(buffer);
+        final RequestLine requestLine = getLineParser().parseRequestLine(buffer);
         return this.requestFactory.newHttpRequest(requestLine);
     }
 

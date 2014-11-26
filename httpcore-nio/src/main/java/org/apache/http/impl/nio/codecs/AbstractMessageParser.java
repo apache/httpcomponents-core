@@ -28,7 +28,6 @@
 package org.apache.http.impl.nio.codecs;
 
 import java.io.IOException;
-import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,26 +54,22 @@ import org.apache.http.util.CharArrayBuffer;
 @NotThreadSafe
 public abstract class AbstractMessageParser<T extends HttpMessage> implements NHttpMessageParser<T> {
 
-    private final SessionInputBuffer sessionBuffer;
-
     private static final int READ_HEAD_LINE = 0;
     private static final int READ_HEADERS   = 1;
     private static final int COMPLETED      = 2;
 
     private int state;
-    private boolean endOfStream;
 
     private T message;
     private CharArrayBuffer lineBuf;
     private final List<CharArrayBuffer> headerBufs;
 
-    protected final LineParser lineParser;
+    private final LineParser lineParser;
     private final MessageConstraints constraints;
 
     /**
      * Creates an instance of AbstractMessageParser.
      *
-     * @param buffer the session input buffer.
      * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param constraints Message constraints. If {@code null}
@@ -82,34 +77,23 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      *
      * @since 4.3
      */
-    public AbstractMessageParser(
-            final SessionInputBuffer buffer,
-            final LineParser lineParser,
-            final MessageConstraints constraints) {
+    public AbstractMessageParser(final LineParser lineParser, final MessageConstraints constraints) {
         super();
-        this.sessionBuffer = Args.notNull(buffer, "Session input buffer");
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerBufs = new ArrayList<CharArrayBuffer>();
         this.state = READ_HEAD_LINE;
-        this.endOfStream = false;
+    }
+
+    LineParser getLineParser() {
+        return this.lineParser;
     }
 
     @Override
     public void reset() {
         this.state = READ_HEAD_LINE;
-        this.endOfStream = false;
         this.headerBufs.clear();
         this.message = null;
-    }
-
-    @Override
-    public int fillBuffer(final ReadableByteChannel channel) throws IOException {
-        final int bytesRead = this.sessionBuffer.fill(channel);
-        if (bytesRead == -1) {
-            this.endOfStream = true;
-        }
-        return bytesRead;
     }
 
     /**
@@ -155,18 +139,20 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     }
 
     @Override
-    public T parse() throws IOException, HttpException {
+    public T parse(
+            final SessionInputBuffer sessionBuffer, final boolean endOfStream) throws IOException, HttpException {
+        Args.notNull(sessionBuffer, "Session input buffer");
         while (this.state != COMPLETED) {
             if (this.lineBuf == null) {
                 this.lineBuf = new CharArrayBuffer(64);
             } else {
                 this.lineBuf.clear();
             }
-            final boolean lineComplete = this.sessionBuffer.readLine(this.lineBuf, this.endOfStream);
+            final boolean lineComplete = sessionBuffer.readLine(this.lineBuf, endOfStream);
             final int maxLineLen = this.constraints.getMaxLineLength();
             if (maxLineLen > 0 &&
                     (this.lineBuf.length() > maxLineLen ||
-                            (!lineComplete && this.sessionBuffer.length() > maxLineLen))) {
+                            (!lineComplete && sessionBuffer.length() > maxLineLen))) {
                 throw new MessageConstraintException("Maximum line length limit exceeded");
             }
             if (!lineComplete) {
@@ -195,7 +181,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 }
                 break;
             }
-            if (this.endOfStream && !this.sessionBuffer.hasData()) {
+            if (endOfStream && !sessionBuffer.hasData()) {
                 this.state = COMPLETED;
             }
         }

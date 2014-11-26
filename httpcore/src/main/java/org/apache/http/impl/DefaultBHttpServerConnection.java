@@ -97,9 +97,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
                 incomingContentStrategy != null ? incomingContentStrategy :
                     DisallowIdentityContentLengthStrategy.INSTANCE, outgoingContentStrategy);
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
-            DefaultHttpRequestParserFactory.INSTANCE).create(getSessionInputBuffer(), constraints);
+            DefaultHttpRequestParserFactory.INSTANCE).create(constraints);
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
-            DefaultHttpResponseWriterFactory.INSTANCE).create(getSessionOutputBuffer());
+            DefaultHttpResponseWriterFactory.INSTANCE).create();
     }
 
     public DefaultBHttpServerConnection(
@@ -129,7 +129,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
         ensureOpen();
-        final HttpRequest request = this.requestParser.parse();
+        final HttpRequest request = this.requestParser.parse(getSessionInputBuffer());
         onRequestReceived(request);
         incrementRequestCount();
         return request;
@@ -149,7 +149,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         ensureOpen();
-        this.responseWriter.write(response);
+        this.responseWriter.write(response, getSessionOutputBuffer());
         onResponseSubmitted(response);
         if (response.getStatusLine().getStatusCode() >= 200) {
             incrementResponseCount();

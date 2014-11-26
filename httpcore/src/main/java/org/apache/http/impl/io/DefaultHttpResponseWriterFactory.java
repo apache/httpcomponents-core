@@ -31,7 +31,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.io.HttpMessageWriter;
 import org.apache.http.io.HttpMessageWriterFactory;
-import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
 
@@ -57,8 +56,8 @@ public class DefaultHttpResponseWriterFactory implements HttpMessageWriterFactor
     }
 
     @Override
-    public HttpMessageWriter<HttpResponse> create(final SessionOutputBuffer buffer) {
-        return new DefaultHttpResponseWriter(buffer, lineFormatter);
+    public HttpMessageWriter<HttpResponse> create() {
+        return new DefaultHttpResponseWriter(this.lineFormatter);
     }
 
 }

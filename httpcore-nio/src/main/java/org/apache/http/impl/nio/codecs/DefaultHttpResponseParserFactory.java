@@ -36,7 +36,6 @@ import org.apache.http.message.LazyLineParser;
 import org.apache.http.message.LineParser;
 import org.apache.http.nio.NHttpMessageParser;
 import org.apache.http.nio.NHttpMessageParserFactory;
-import org.apache.http.nio.reactor.SessionInputBuffer;
 
 /**
  * Default factory for response message parsers.
@@ -64,9 +63,8 @@ public class DefaultHttpResponseParserFactory implements NHttpMessageParserFacto
     }
 
     @Override
-    public NHttpMessageParser<HttpResponse> create(final SessionInputBuffer buffer,
-            final MessageConstraints constraints) {
-        return new DefaultHttpResponseParser(buffer, lineParser, responseFactory, constraints);
+    public NHttpMessageParser<HttpResponse> create(final MessageConstraints constraints) {
+        return new DefaultHttpResponseParser(this.lineParser, this.responseFactory, constraints);
     }
 
 }

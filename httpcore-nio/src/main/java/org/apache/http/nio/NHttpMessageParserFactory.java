@@ -29,15 +29,14 @@ package org.apache.http.nio;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.config.MessageConstraints;
-import org.apache.http.nio.reactor.SessionInputBuffer;
 
 /**
- * Factory for {@link NHttpMessageParser} instances.
+ * Factory for {@link org.apache.http.nio.NHttpMessageParser} instances.
  *
  * @since 4.3
  */
 public interface NHttpMessageParserFactory<T extends HttpMessage> {
 
-    NHttpMessageParser<T> create(SessionInputBuffer buffer, MessageConstraints constraints);
+    NHttpMessageParser<T> create(MessageConstraints constraints);
 
 }

@@ -64,9 +64,9 @@ public class TestHttpMessageParser {
     @Test
     public void testSimpleParsing() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
-        requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
-        final HttpRequest request = requestParser.parse();
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
+        inbuf.fill(newChannel("GET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
+        final HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNotNull(request);
         Assert.assertEquals("/whatever", request.getRequestLine().getUri());
         Assert.assertEquals(1, request.getAllHeaders().length);
@@ -75,16 +75,16 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingChunkedMessages() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
-        requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = requestParser.parse();
+        inbuf.fill(newChannel("GET /whatev"));
+        HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("er HTTP/1.1\r"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\nSome header: stuff\r\n\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\nSome header: stuff\r\n\r\n"));
+        request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/whatever", request.getRequestLine().getUri());
@@ -95,25 +95,25 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingFoldedHeaders() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
-        requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = requestParser.parse();
+        inbuf.fill(newChannel("GET /whatev"));
+        HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("er HTTP/1.1\r"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\nSome header: stuff\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\nSome header: stuff\r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("   more\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("   more\r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\tstuff\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\tstuff\r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\r\n"));
+        request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/whatever", request.getRequestLine().getUri());
@@ -124,22 +124,22 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingBadlyFoldedFirstHeader() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
-        requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = requestParser.parse();
+        inbuf.fill(newChannel("GET /whatev"));
+        HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("er HTTP/1.1\r"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\n  Some header: stuff\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\n  Some header: stuff\r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("   more stuff\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("   more stuff\r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\r\n"));
+        request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/whatever", request.getRequestLine().getUri());
@@ -150,25 +150,25 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingEmptyFoldedHeader() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
-        requestParser.fillBuffer(newChannel("GET /whatev"));
-        HttpRequest request = requestParser.parse();
+        inbuf.fill(newChannel("GET /whatev"));
+        HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("er HTTP/1.1\r"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("er HTTP/1.1\r"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\n  Some header: stuff\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\n  Some header: stuff\r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("      \r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("      \r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("      more stuff\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("      more stuff\r\n"));
+        request = requestParser.parse(inbuf, false);
         Assert.assertNull(request);
-        requestParser.fillBuffer(newChannel("\r\n"));
-        request = requestParser.parse();
+        inbuf.fill(newChannel("\r\n"));
+        request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/whatever", request.getRequestLine().getUri());
@@ -179,12 +179,11 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingIncompleteRequestLine() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
         final ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0");
-        requestParser.fillBuffer(channel);
-        requestParser.fillBuffer(channel);
-        final HttpRequest request = requestParser.parse();
+        inbuf.fill(channel);
+        final HttpRequest request = requestParser.parse(inbuf, true);
         Assert.assertNotNull(request);
         Assert.assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
@@ -192,12 +191,11 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingIncompleteHeader() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
         final ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: whatever");
-        requestParser.fillBuffer(channel);
-        requestParser.fillBuffer(channel);
-        final HttpRequest request = requestParser.parse();
+        inbuf.fill(channel);
+        final HttpRequest request = requestParser.parse(inbuf, true);
         Assert.assertNotNull(request);
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("whatever", request.getFirstHeader("Header").getValue());
@@ -206,12 +204,12 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingInvalidRequestLine() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
         final ReadableByteChannel channel = newChannel("GET garbage\r\n");
-        requestParser.fillBuffer(channel);
+        inbuf.fill(channel);
         try {
-            requestParser.parse();
+            requestParser.parse(inbuf, false);
             Assert.fail("HttpException should have been thrown");
         } catch (final HttpException ex) {
             // expected
@@ -221,12 +219,12 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingInvalidStatusLine() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser(inbuf);
+        final NHttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser();
 
         final ReadableByteChannel channel = newChannel("HTTP 200 OK\r\n");
-        responseParser.fillBuffer(channel);
+        inbuf.fill(channel);
         try {
-            responseParser.parse();
+            responseParser.parse(inbuf, false);
             Assert.fail("HttpException should have been thrown");
         } catch (final HttpException ex) {
             // expected
@@ -236,12 +234,12 @@ public class TestHttpMessageParser {
     @Test
     public void testParsingInvalidHeader() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser(inbuf);
+        final NHttpMessageParser<HttpResponse> responseParser = new DefaultHttpResponseParser();
 
         final ReadableByteChannel channel = newChannel("HTTP/1.0 200 OK\r\nstuff\r\n\r\n");
-        responseParser.fillBuffer(channel);
+        inbuf.fill(channel);
         try {
-            responseParser.parse();
+            responseParser.parse(inbuf, false);
             Assert.fail("HttpException should have been thrown");
         } catch (final HttpException ex) {
             // expected
@@ -251,11 +249,11 @@ public class TestHttpMessageParser {
     @Test
     public void testResetParser() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser();
 
         ReadableByteChannel channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n");
-        requestParser.fillBuffer(channel);
-        HttpRequest request = requestParser.parse();
+        inbuf.fill(channel);
+        HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNotNull(request);
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("one", request.getFirstHeader("Header").getValue());
@@ -263,36 +261,26 @@ public class TestHttpMessageParser {
         requestParser.reset();
 
         channel = newChannel("GET /whatever HTTP/1.0\r\nHeader: two\r\n\r\n");
-        requestParser.fillBuffer(channel);
-        request = requestParser.parse();
+        inbuf.fill(channel);
+        request = requestParser.parse(inbuf, false);
         Assert.assertNotNull(request);
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("two", request.getFirstHeader("Header").getValue());
     }
 
     @Test
-    public void testInvalidConstructor() {
-        try {
-            new DefaultHttpRequestParser(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // ignore
-        }
-    }
-
-    @Test
     public void testLineLimitForStatus() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
-        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf,
+        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(
                 MessageConstraints.lineLen(0));
-        requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
-        requestParser.parse();
+        inbuf.fill(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
+        requestParser.parse(inbuf, false);
         requestParser.reset();
 
-        requestParser = new DefaultHttpRequestParser(inbuf, MessageConstraints.lineLen(15));
+        requestParser = new DefaultHttpRequestParser(MessageConstraints.lineLen(15));
         try {
-            requestParser.fillBuffer(newChannel("GET /loooooooooooooooong HTTP/1.0\r\nHeader: one\r\n\r\n"));
-            requestParser.parse();
+            inbuf.fill(newChannel("GET /loooooooooooooooong HTTP/1.0\r\nHeader: one\r\n\r\n"));
+            requestParser.parse(inbuf, false);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException expected) {
         }
@@ -302,19 +290,19 @@ public class TestHttpMessageParser {
     public void testLineLimitForHeader() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
 
-        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf,
+        NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(
                 MessageConstraints.lineLen(0));
-        requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
-        requestParser.parse();
+        inbuf.fill(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n\r\n"));
+        requestParser.parse(inbuf, false);
         requestParser.reset();
 
-        requestParser = new DefaultHttpRequestParser(inbuf, MessageConstraints.lineLen(15));
-        requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n\r\n"));
-        requestParser.parse();
+        requestParser = new DefaultHttpRequestParser(MessageConstraints.lineLen(15));
+        inbuf.fill(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n\r\n"));
+        requestParser.parse(inbuf, false);
         requestParser.reset();
         try {
-            requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 90123456\r\n\r\n"));
-            requestParser.parse();
+            inbuf.fill(newChannel("GET / HTTP/1.0\r\nHeader: 90123456\r\n\r\n"));
+            requestParser.parse(inbuf, false);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException expected) {
         }
@@ -326,11 +314,11 @@ public class TestHttpMessageParser {
 
         final MessageConstraints constraints = MessageConstraints.custom()
                 .setMaxHeaderCount(2).setMaxLineLength(15).build();
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, constraints);
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(constraints);
         try {
-            requestParser.fillBuffer(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n" +
+            inbuf.fill(newChannel("GET / HTTP/1.0\r\nHeader: 9012345\r\n" +
                     " 23456789012345\r\n 23456789012345\r\n 23456789012345\r\n\r\n"));
-            requestParser.parse();
+            requestParser.parse(inbuf, false);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException expected) {
         }
@@ -342,15 +330,15 @@ public class TestHttpMessageParser {
 
         final MessageConstraints constraints = MessageConstraints.custom()
                 .setMaxHeaderCount(2).setMaxLineLength(-1).build();
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf, constraints);
-        requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\n\r\n"));
-        requestParser.parse();
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(constraints);
+        inbuf.fill(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\n\r\n"));
+        requestParser.parse(inbuf, false);
         requestParser.reset();
 
         try {
-            requestParser.fillBuffer(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n" +
+            inbuf.fill(newChannel("GET /whatever HTTP/1.0\r\nHeader: one\r\n" +
                     "Header: two\r\nHeader: three\r\n\r\n"));
-            requestParser.parse();
+            requestParser.parse(inbuf, false);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException expected) {
         }
@@ -360,14 +348,14 @@ public class TestHttpMessageParser {
     public void testDetectLineLimitEarly() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(2, 128, Consts.ASCII);
 
-        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(inbuf,
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(
                 MessageConstraints.lineLen(2));
         final ReadableByteChannel channel = newChannel("GET / HTTP/1.0\r\nHeader: one\r\n\r\n");
-        Assert.assertEquals(2, requestParser.fillBuffer(channel));
-        Assert.assertNull(requestParser.parse());
-        Assert.assertEquals(4, requestParser.fillBuffer(channel));
+        Assert.assertEquals(2, inbuf.fill(channel));
+        Assert.assertNull(requestParser.parse(inbuf, false));
+        Assert.assertEquals(4, inbuf.fill(channel));
         try {
-            requestParser.parse();
+            requestParser.parse(inbuf, false);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException expected) {
         }

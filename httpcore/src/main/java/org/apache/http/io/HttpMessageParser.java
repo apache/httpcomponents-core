@@ -43,14 +43,14 @@ import org.apache.http.HttpMessage;
 public interface HttpMessageParser<T extends HttpMessage> {
 
     /**
-     * Generates an instance of {@link HttpMessage} from the underlying data
-     * source.
+     * Generates an instance of {@link HttpMessage} from an input buffer.
      *
+     * @param buffer session input buffer
      * @return HTTP message
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */
-    T parse()
+    T parse(SessionInputBuffer buffer)
         throws IOException, HttpException;
 
 }

@@ -103,9 +103,9 @@ public class DefaultNHttpClientConnection
         super(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder,
                 constraints, incomingContentStrategy, outgoingContentStrategy);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
-            DefaultHttpRequestWriterFactory.INSTANCE).create(this.outbuf);
+            DefaultHttpRequestWriterFactory.INSTANCE).create();
         this.responseParser = (responseParserFactory != null ? responseParserFactory :
-            DefaultHttpResponseParserFactory.INSTANCE).create(this.inbuf, constraints);
+            DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
     }
 
     /**
@@ -163,11 +163,11 @@ public class DefaultNHttpClientConnection
             if (this.response == null) {
                 int bytesRead;
                 do {
-                    bytesRead = this.responseParser.fillBuffer(this.session.channel());
+                    bytesRead = this.inbuf.fill(this.session.channel());
                     if (bytesRead > 0) {
                         this.inTransportMetrics.incrementBytesTransferred(bytesRead);
                     }
-                    this.response = this.responseParser.parse();
+                    this.response = this.responseParser.parse(this.inbuf, bytesRead == -1);
                 } while (bytesRead > 0 && this.response == null);
                 if (this.response != null) {
                     if (this.response.getStatusLine().getStatusCode() >= 200) {
@@ -250,7 +250,7 @@ public class DefaultNHttpClientConnection
             throw new HttpException("Request already submitted");
         }
         onRequestSubmitted(request);
-        this.requestWriter.write(request);
+        this.requestWriter.write(request, this.outbuf);
         this.hasBufferedOutput = this.outbuf.hasData();
 
         if (request instanceof HttpEntityEnclosingRequest

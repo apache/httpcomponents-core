@@ -36,7 +36,6 @@ import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.LineParser;
-import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -53,7 +52,6 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     /**
      * Creates an instance of DefaultHttpResponseParser.
      *
-     * @param buffer the session input buffer.
      * @param parser the line parser. If {@code null}
      *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
      * @param responseFactory the response factory. If {@code null}
@@ -64,11 +62,10 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      * @since 4.3
      */
     public DefaultHttpResponseParser(
-            final SessionInputBuffer buffer,
             final LineParser parser,
             final HttpResponseFactory responseFactory,
             final MessageConstraints constraints) {
-        super(buffer, parser, constraints);
+        super(parser, constraints);
         this.responseFactory = responseFactory != null ? responseFactory :
             DefaultHttpResponseFactory.INSTANCE;
     }
@@ -76,21 +73,21 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     /**
      * @since 4.3
      */
-    public DefaultHttpResponseParser(final SessionInputBuffer buffer, final MessageConstraints constraints) {
-        this(buffer, null, null, constraints);
+    public DefaultHttpResponseParser(final MessageConstraints constraints) {
+        this(null, null, constraints);
     }
 
     /**
      * @since 4.3
      */
-    public DefaultHttpResponseParser(final SessionInputBuffer buffer) {
-        this(buffer, null);
+    public DefaultHttpResponseParser() {
+        this(null);
     }
 
     @Override
     protected HttpResponse createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {
-        final StatusLine statusline = lineParser.parseStatusLine(buffer);
+        final StatusLine statusline = getLineParser().parseStatusLine(buffer);
         return this.responseFactory.newHttpResponse(statusline, null);
     }
 

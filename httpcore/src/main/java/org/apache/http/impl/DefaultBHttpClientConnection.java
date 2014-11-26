@@ -96,9 +96,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         super(buffersize, fragmentSizeHint, chardecoder, charencoder,
                 constraints, incomingContentStrategy, outgoingContentStrategy);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
-            DefaultHttpRequestWriterFactory.INSTANCE).create(getSessionOutputBuffer());
+            DefaultHttpRequestWriterFactory.INSTANCE).create();
         this.responseParser = (responseParserFactory != null ? responseParserFactory :
-            DefaultHttpResponseParserFactory.INSTANCE).create(getSessionInputBuffer(), constraints);
+            DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
     }
 
     public DefaultBHttpClientConnection(
@@ -129,7 +129,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         ensureOpen();
-        this.requestWriter.write(request);
+        this.requestWriter.write(request, getSessionOutputBuffer());
         onRequestSubmitted(request);
         incrementRequestCount();
     }
@@ -151,7 +151,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
         ensureOpen();
-        final HttpResponse response = this.responseParser.parse();
+        final HttpResponse response = this.responseParser.parse(getSessionInputBuffer());
         onResponseReceived(response);
         if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
             incrementResponseCount();

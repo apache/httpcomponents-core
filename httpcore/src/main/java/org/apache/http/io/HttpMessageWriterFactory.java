@@ -36,6 +36,6 @@ import org.apache.http.HttpMessage;
  */
 public interface HttpMessageWriterFactory<T extends HttpMessage> {
 
-    HttpMessageWriter<T> create(SessionOutputBuffer buffer);
+    HttpMessageWriter<T> create();
 
 }

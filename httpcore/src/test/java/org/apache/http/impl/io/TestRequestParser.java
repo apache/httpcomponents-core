@@ -44,11 +44,6 @@ import org.junit.Test;
  */
 public class TestRequestParser {
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testInvalidConstructorInput() throws Exception {
-        new DefaultHttpRequestParser(null);
-    }
-
     @Test
     public void testBasicMessageParsing() throws Exception {
         final String s =
@@ -59,8 +54,8 @@ public class TestRequestParser {
             "\r\n";
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
 
-        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
-        final HttpRequest httprequest = parser.parse();
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
+        final HttpRequest httprequest = parser.parse(inbuffer);
 
         final RequestLine reqline = httprequest.getRequestLine();
         Assert.assertNotNull(reqline);
@@ -75,9 +70,9 @@ public class TestRequestParser {
     public void testConnectionClosedException() throws Exception {
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
-        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
         try {
-            parser.parse();
+            parser.parse(inbuffer);
             Assert.fail("ConnectionClosedException should have been thrown");
         } catch (final ConnectionClosedException expected) {
         }
@@ -94,14 +89,14 @@ public class TestRequestParser {
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes(Consts.ASCII)), 16);
 
-        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
 
         int timeoutCount = 0;
 
         HttpRequest httprequest = null;
         for (int i = 0; i < 10; i++) {
             try {
-                httprequest = parser.parse();
+                httprequest = parser.parse(inbuffer);
                 break;
             } catch (final InterruptedIOException ex) {
                 timeoutCount++;

@@ -41,14 +41,14 @@ import org.apache.http.HttpMessage;
 public interface HttpMessageWriter<T extends HttpMessage> {
 
     /**
-     * Serializes an instance of {@link HttpMessage} to the underlying data
-     * sink.
+     * Serializes an instance of {@link HttpMessage} to an output buffer.
      *
      * @param message HTTP message
+     * @param buffer session output buffer
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */
-    void write(T message)
+    void write(T message, SessionOutputBuffer buffer)
         throws IOException, HttpException;
 
 }

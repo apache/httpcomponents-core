@@ -31,11 +31,12 @@ import java.io.IOException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.LineFormatter;
+import org.apache.http.util.CharArrayBuffer;
 
 /**
- * HTTP response writer that serializes its output to an instance of {@link SessionOutputBuffer}.
+ * HTTP response writer that serializes its output to an instance of
+ * {@link org.apache.http.io.SessionOutputBuffer}.
  *
  * @since 4.3
  */
@@ -45,25 +46,22 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpRespons
     /**
      * Creates an instance of DefaultHttpResponseWriter.
      *
-     * @param buffer the session output buffer.
      * @param formatter the line formatter If {@code null}
      *  {@link org.apache.http.message.BasicLineFormatter#INSTANCE}
      *   will be used.
      */
-    public DefaultHttpResponseWriter(
-            final SessionOutputBuffer buffer,
-            final LineFormatter formatter) {
-        super(buffer, formatter);
+    public DefaultHttpResponseWriter(final LineFormatter formatter) {
+        super(formatter);
     }
 
-    public DefaultHttpResponseWriter(final SessionOutputBuffer buffer) {
-        super(buffer, null);
+    public DefaultHttpResponseWriter() {
+        super(null);
     }
 
     @Override
-    protected void writeHeadLine(final HttpResponse message) throws IOException {
-        lineFormatter.formatStatusLine(this.lineBuf, message.getStatusLine());
-        this.sessionBuffer.writeLine(this.lineBuf);
+    protected void writeHeadLine(
+            final HttpResponse message, final CharArrayBuffer lineBuf) throws IOException {
+        getLineFormatter().formatStatusLine(lineBuf, message.getStatusLine());
     }
 
 }
