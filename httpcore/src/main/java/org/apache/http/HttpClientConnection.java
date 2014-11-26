@@ -52,7 +52,7 @@ public interface HttpClientConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void sendRequestEntity(HttpEntityEnclosingRequest request)
+    void sendRequestEntity(HttpRequest request)
         throws HttpException, IOException;
 
     /**

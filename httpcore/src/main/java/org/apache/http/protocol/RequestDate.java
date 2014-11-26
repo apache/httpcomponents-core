@@ -29,7 +29,7 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -57,8 +57,8 @@ public class RequestDate implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        if ((request instanceof HttpEntityEnclosingRequest) &&
-            !request.containsHeader(HttpHeaders.DATE)) {
+        final HttpEntity entity = request.getEntity();
+        if (entity != null && !request.containsHeader(HttpHeaders.DATE)) {
             final String httpdate = DATE_GENERATOR.getCurrentDate();
             request.setHeader(HttpHeaders.DATE, httpdate);
         }

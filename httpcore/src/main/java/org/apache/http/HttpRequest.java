@@ -34,7 +34,7 @@ package org.apache.http;
  *
  * @since 4.0
  */
-public interface HttpRequest extends HttpMessage {
+public interface HttpRequest extends HttpMessage<HttpEntity> {
 
     /**
      * Returns the request line of this request.

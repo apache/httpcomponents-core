@@ -33,6 +33,7 @@ import java.util.LinkedList;
 
 import org.apache.http.ByteChannelMock;
 import org.apache.http.Consts;
+import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -42,7 +43,6 @@ import org.apache.http.ReadableByteChannelMock;
 import org.apache.http.WritableByteChannelMock;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.nio.codecs.LengthDelimitedDecoder;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
@@ -94,7 +94,8 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testSubmitEntityEnclosingRequest() throws Exception {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setEntity(new StringEntity("stuff"));
 
         Mockito.when(session.channel()).thenReturn(byteChan);
@@ -113,7 +114,8 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testOutputReset() throws Exception {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setEntity(new StringEntity("stuff"));
 
         Mockito.when(session.channel()).thenReturn(byteChan);
@@ -168,7 +170,8 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputShortMessageAfterSubmit() throws Exception {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
 
@@ -177,7 +180,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         conn.submitRequest(request);
-        Assert.assertEquals(19, conn.outbuf.length());
+        Assert.assertTrue(conn.outbuf.hasData());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
             handler).outputReady(Mockito.<NHttpClientConnection>any(), Mockito.<ContentEncoder>any());
@@ -186,15 +189,16 @@ public class TestDefaultNHttpClientConnection {
 
         Assert.assertNull(conn.getHttpRequest());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("POST / HTTP/1.1\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("POST / HTTP/1.1\r\nContent-Length: 5\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
 
         Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
-        Mockito.verify(wchannel, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
 
     @Test
     public void testProduceOutputLongMessageAfterSubmit() throws Exception {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "22");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         request.setEntity(entity);
 
@@ -203,7 +207,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         conn.submitRequest(request);
-        Assert.assertEquals(19, conn.outbuf.length());
+        Assert.assertEquals(39, conn.outbuf.length());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
             handler).outputReady(Mockito.<NHttpClientConnection>any(), Mockito.<ContentEncoder>any());
@@ -212,7 +216,7 @@ public class TestDefaultNHttpClientConnection {
 
         Assert.assertNull(conn.getHttpRequest());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("POST / HTTP/1.1\r\n\r\na lot of various stuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("POST / HTTP/1.1\r\nContent-Length: 22\r\n\r\na lot of various stuff", wchannel.dump(Consts.ASCII));
 
         Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
@@ -220,7 +224,8 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputShortMessage() throws Exception {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
 
@@ -238,15 +243,16 @@ public class TestDefaultNHttpClientConnection {
 
         Assert.assertNull(conn.getHttpRequest());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("POST / HTTP/1.1\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("POST / HTTP/1.1\r\nContent-Length: 5\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
 
         Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
-        Mockito.verify(wchannel, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
 
     @Test
     public void testProduceOutputLongMessage() throws Exception {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "22");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         request.setEntity(entity);
 
@@ -264,7 +270,8 @@ public class TestDefaultNHttpClientConnection {
 
         Assert.assertNull(conn.getHttpRequest());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("POST / HTTP/1.1\r\n\r\na lot of various stuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("POST / HTTP/1.1\r\nContent-Length: 22\r\n\r\na lot of various stuff",
+                wchannel.dump(Consts.ASCII));
 
         Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
@@ -272,11 +279,12 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputLongMessageSaturatedChannel() throws Exception {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "22");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         request.setEntity(entity);
 
-        final WritableByteChannelMock wchannel = Mockito.spy(new WritableByteChannelMock(64, 24));
+        final WritableByteChannelMock wchannel = Mockito.spy(new WritableByteChannelMock(64, 48));
         final ByteChannelMock channel = new ByteChannelMock(null, wchannel);
         Mockito.when(session.channel()).thenReturn(channel);
 
@@ -290,8 +298,7 @@ public class TestDefaultNHttpClientConnection {
 
         Assert.assertNull(conn.getHttpRequest());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("POST / HTTP/1.1\r\n\r\na lot", wchannel.dump(Consts.ASCII));
-        Assert.assertEquals(17, conn.outbuf.length());
+        Assert.assertTrue(conn.outbuf.hasData());
 
         Mockito.verify(session, Mockito.never()).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
@@ -300,11 +307,12 @@ public class TestDefaultNHttpClientConnection {
     @Test
     public void testProduceOutputLongMessageSaturatedChannel2() throws Exception {
         conn = new DefaultNHttpClientConnection(session, 24);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "45");
         final NStringEntity entity = new NStringEntity("a loooooooooooooooooooooooot of various stuff");
         request.setEntity(entity);
 
-        final WritableByteChannelMock wchannel = Mockito.spy(new WritableByteChannelMock(64, 24));
+        final WritableByteChannelMock wchannel = Mockito.spy(new WritableByteChannelMock(64, 48));
         final ByteChannelMock channel = new ByteChannelMock(null, wchannel);
         Mockito.when(session.channel()).thenReturn(channel);
 
@@ -318,7 +326,7 @@ public class TestDefaultNHttpClientConnection {
 
         Assert.assertNotNull(conn.getHttpRequest());
         Assert.assertNotNull(conn.contentEncoder);
-        Assert.assertEquals("POST / HTTP/1.1\r\n\r\na loo", wchannel.dump(Consts.ASCII));
+        Assert.assertFalse(conn.outbuf.hasData());
 
         Mockito.verify(session, Mockito.never()).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
@@ -328,8 +336,8 @@ public class TestDefaultNHttpClientConnection {
     public void testProduceOutputLongChunkedMessage() throws Exception {
         conn = new DefaultNHttpClientConnection(session, 64);
 
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
         request.setEntity(entity);
@@ -359,8 +367,8 @@ public class TestDefaultNHttpClientConnection {
     public void testProduceOutputLongChunkedMessageSaturatedChannel() throws Exception {
         conn = new DefaultNHttpClientConnection(session, 64);
 
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
         request.setEntity(entity);

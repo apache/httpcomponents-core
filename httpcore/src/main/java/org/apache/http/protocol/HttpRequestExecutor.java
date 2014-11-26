@@ -29,15 +29,15 @@ package org.apache.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.http.Header;
 import org.apache.http.HttpClientConnection;
-import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
-import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 
@@ -202,15 +202,15 @@ public class HttpRequestExecutor {
         context.setAttribute(HttpCoreContext.HTTP_REQ_SENT, Boolean.FALSE);
 
         conn.sendRequestHeader(request);
-        if (request instanceof HttpEntityEnclosingRequest) {
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
             // Check for expect-continue handshake. We have to flush the
             // headers and wait for an 100-continue response to handle it.
             // If we get a different response, we must not send the entity.
             boolean sendentity = true;
-            final ProtocolVersion ver =
-                request.getRequestLine().getProtocolVersion();
-            if (((HttpEntityEnclosingRequest) request).expectContinue() &&
-                !ver.lessEquals(HttpVersion.HTTP_1_0)) {
+            final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+            final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+            if (expectContinue) {
 
                 conn.flush();
                 // As suggested by RFC 2616 section 8.2.3, we don't wait for a
@@ -234,7 +234,7 @@ public class HttpRequestExecutor {
                 }
             }
             if (sendentity) {
-                conn.sendRequestEntity((HttpEntityEnclosingRequest) request);
+                conn.sendRequestEntity(request);
             }
         }
         conn.flush();

@@ -30,7 +30,6 @@ import java.io.IOException;
 
 import org.apache.http.ContentTooLongException;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentDecoder;
@@ -73,8 +72,7 @@ public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<Http
             len = 4096;
         }
         this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
-        ((HttpEntityEnclosingRequest) this.request).setEntity(
-                new ContentBufferEntity(entity, this.buf));
+        this.request.setEntity(new ContentBufferEntity(entity, this.buf));
     }
 
     @Override

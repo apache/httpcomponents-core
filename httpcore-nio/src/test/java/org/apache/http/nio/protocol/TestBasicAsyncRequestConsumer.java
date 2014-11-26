@@ -31,7 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpRequest;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.IOControl;
@@ -47,7 +47,7 @@ import org.mockito.MockitoAnnotations;
 public class TestBasicAsyncRequestConsumer {
 
     private BasicAsyncRequestConsumer consumer;
-    @Mock private HttpEntityEnclosingRequest request;
+    @Mock private HttpRequest request;
     @Mock private HttpContext context;
     @Mock private ContentDecoder decoder;
     @Mock private IOControl ioctrl;

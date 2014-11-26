@@ -135,34 +135,13 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testDefaultEntityEnclosingRequestConstructors() {
-        BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
-        Assert.assertNotNull(request.getProtocolVersion());
-        Assert.assertEquals("GET", request.getRequestLine().getMethod());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
-
-        request = new BasicHttpEntityEnclosingRequest("GET", "/", HttpVersion.HTTP_1_0);
-        Assert.assertEquals(HttpVersion.HTTP_1_0, request.getProtocolVersion());
-        Assert.assertEquals("GET", request.getRequestLine().getMethod());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
-    }
-
-    @Test
     public void testSetRequestEntity() {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         Assert.assertNull(request.getEntity());
 
         final HttpEntity entity = new BasicHttpEntity();
         request.setEntity(entity);
         Assert.assertTrue(entity == request.getEntity());
-    }
-
-    @Test
-    public void testExpectContinue() {
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("GET", "/");
-        Assert.assertFalse(request.expectContinue());
-        request.addHeader("Expect", "100-Continue");
-        Assert.assertTrue(request.expectContinue());
     }
 
 }

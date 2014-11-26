@@ -38,7 +38,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -113,9 +112,9 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
+                final HttpEntity requestEntity = request.getEntity();
                 final HttpEntity responseEntity;
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity requestEntity = ((HttpEntityEnclosingRequest) request).getEntity();
+                if (requestEntity != null) {
                     final ContentType contentType = ContentType.getOrDefault(requestEntity);
                     responseEntity = new NByteArrayEntity(
                             EntityUtils.toByteArray(requestEntity), contentType);

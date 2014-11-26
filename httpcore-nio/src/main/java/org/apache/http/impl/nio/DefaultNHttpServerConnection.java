@@ -33,14 +33,14 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseWriterFactory;
@@ -65,8 +65,10 @@ import org.apache.http.util.Args;
 public class DefaultNHttpServerConnection
     extends NHttpConnectionBase implements NHttpServerConnection {
 
-    protected final NHttpMessageParser<HttpRequest> requestParser;
-    protected final NHttpMessageWriter<HttpResponse> responseWriter;
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
+    private final NHttpMessageParser<HttpRequest> requestParser;
+    private final NHttpMessageWriter<HttpResponse> responseWriter;
 
     /**
      * Creates new instance DefaultNHttpServerConnection given the underlying I/O session.
@@ -84,7 +86,7 @@ public class DefaultNHttpServerConnection
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
-     *   {@link DisallowIdentityContentLengthStrategy#INSTANCE} will be used.
+     *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
      *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
      * @param requestParserFactory request parser factory. If {@code null}
@@ -106,16 +108,15 @@ public class DefaultNHttpServerConnection
             final ContentLengthStrategy outgoingContentStrategy,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
-        super(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder,
-                constraints,
-                incomingContentStrategy != null ? incomingContentStrategy :
-                    DisallowIdentityContentLengthStrategy.INSTANCE,
-                outgoingContentStrategy != null ? outgoingContentStrategy :
-                    StrictContentLengthStrategy.INSTANCE);
+        super(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder, constraints);
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
             DefaultHttpRequestParserFactory.INSTANCE).create(constraints);
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
             DefaultHttpResponseWriterFactory.INSTANCE).create();
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+                LaxContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+                StrictContentLengthStrategy.INSTANCE;
     }
 
     /**
@@ -180,10 +181,18 @@ public class DefaultNHttpServerConnection
                     this.request = this.requestParser.parse(this.inbuf, bytesRead == -1);
                 } while (bytesRead > 0 && this.request == null);
                 if (this.request != null) {
-                    if (this.request instanceof HttpEntityEnclosingRequest) {
-                        // Receive incoming entity
-                        final HttpEntity entity = prepareDecoder(this.request);
-                        ((HttpEntityEnclosingRequest)this.request).setEntity(entity);
+                    final long len = this.incomingContentStrategy.determineLength(this.request);
+                    if (len == ContentLengthStrategy.IDENTITY) {
+                        throw new ProtocolException("Identity transfer encoding is not allowed for request messages");
+                    }
+                    if (len != ContentLengthStrategy.UNDEFINED) {
+                        this.contentDecoder = createContentDecoder(
+                                len,
+                                this.session.channel(),
+                                this.inbuf,
+                                this.inTransportMetrics);
+                        final HttpEntity entity = createIncomingEntity(this.request, len);
+                        this.request.setEntity(entity);
                     }
                     this.connMetrics.incrementRequestCount();
                     this.hasBufferedInput = this.inbuf.hasData();
@@ -267,7 +276,12 @@ public class DefaultNHttpServerConnection
             this.connMetrics.incrementResponseCount();
             if (response.getEntity() != null) {
                 this.response = response;
-                prepareEncoder(response);
+                final long len = this.outgoingContentStrategy.determineLength(response);
+                this.contentEncoder = createContentEncoder(
+                        len,
+                        this.session.channel(),
+                        this.outbuf,
+                        this.outTransportMetrics);
             }
         }
 

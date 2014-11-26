@@ -34,7 +34,6 @@ import java.util.LinkedList;
 import org.apache.http.ByteChannelMock;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -325,7 +324,7 @@ public class TestDefaultNHttpServerConnection {
         conn = new DefaultNHttpServerConnection(session, 64);
 
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
+        response.setHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
         response.setEntity(entity);
@@ -355,7 +354,7 @@ public class TestDefaultNHttpServerConnection {
         conn = new DefaultNHttpServerConnection(session, 64);
 
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
+        response.setHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
         response.setEntity(entity);
@@ -489,8 +488,8 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(HttpVersion.HTTP_1_1, request.getRequestLine().getProtocolVersion());
         Assert.assertEquals("POST", request.getRequestLine().getMethod());
         Assert.assertEquals("/", request.getRequestLine().getUri());
-        Assert.assertTrue(request instanceof HttpEntityEnclosingRequest);
-        final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+        Assert.assertTrue(request instanceof HttpRequest);
+        final HttpEntity entity = ((HttpRequest) request).getEntity();
         Assert.assertNotNull(entity);
         Assert.assertEquals(5, entity.getContentLength());
     }
@@ -535,8 +534,8 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(HttpVersion.HTTP_1_1, request.getRequestLine().getProtocolVersion());
         Assert.assertEquals("POST", request.getRequestLine().getMethod());
         Assert.assertEquals("/", request.getRequestLine().getUri());
-        Assert.assertTrue(request instanceof HttpEntityEnclosingRequest);
-        final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
+        Assert.assertTrue(request instanceof HttpRequest);
+        final HttpEntity entity = ((HttpRequest) request).getEntity();
         Assert.assertNotNull(entity);
         Assert.assertEquals(100, entity.getContentLength());
 
@@ -584,7 +583,6 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(HttpVersion.HTTP_1_1, request.getRequestLine().getProtocolVersion());
         Assert.assertEquals("GET", request.getRequestLine().getMethod());
         Assert.assertEquals("/", request.getRequestLine().getUri());
-        Assert.assertFalse(request instanceof HttpEntityEnclosingRequest);
     }
 
     @Test

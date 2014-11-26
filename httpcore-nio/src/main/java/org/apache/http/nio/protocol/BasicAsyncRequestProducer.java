@@ -29,7 +29,6 @@ package org.apache.http.nio.protocol;
 import java.io.IOException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.nio.ContentEncoder;
@@ -68,7 +67,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
      */
     protected BasicAsyncRequestProducer(
             final HttpHost target,
-            final HttpEntityEnclosingRequest request,
+            final HttpRequest request,
             final HttpAsyncContentProducer producer) {
         super();
         Args.notNull(target, "HTTP host");
@@ -92,16 +91,12 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
         Args.notNull(request, "HTTP request");
         this.target = target;
         this.request = request;
-        if (request instanceof HttpEntityEnclosingRequest) {
-            final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            if (entity != null) {
-                if (entity instanceof HttpAsyncContentProducer) {
-                    this.producer = (HttpAsyncContentProducer) entity;
-                } else {
-                    this.producer = new EntityAsyncContentProducer(entity);
-                }
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
+            if (entity instanceof HttpAsyncContentProducer) {
+                this.producer = (HttpAsyncContentProducer) entity;
             } else {
-                this.producer = null;
+                this.producer = new EntityAsyncContentProducer(entity);
             }
         } else {
             this.producer = null;

@@ -34,15 +34,16 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
+import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.io.DefaultHttpResponseWriterFactory;
 import org.apache.http.io.HttpMessageParser;
@@ -60,6 +61,8 @@ import org.apache.http.util.Args;
 public class DefaultBHttpServerConnection extends BHttpConnectionBase
                                                    implements HttpServerConnection {
 
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
     private final HttpMessageParser<HttpRequest> requestParser;
     private final HttpMessageWriter<HttpResponse> responseWriter;
 
@@ -75,7 +78,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
-     *   {@link DisallowIdentityContentLengthStrategy#INSTANCE} will be used.
+     *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
      *   {@link org.apache.http.impl.entity.StrictContentLengthStrategy#INSTANCE} will be used.
      * @param requestParserFactory request parser factory. If {@code null}
@@ -93,13 +96,15 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<HttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
-        super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints,
-                incomingContentStrategy != null ? incomingContentStrategy :
-                    DisallowIdentityContentLengthStrategy.INSTANCE, outgoingContentStrategy);
+        super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints);
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
             DefaultHttpRequestParserFactory.INSTANCE).create(constraints);
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
             DefaultHttpResponseWriterFactory.INSTANCE).create();
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+                LaxContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+                StrictContentLengthStrategy.INSTANCE;
     }
 
     public DefaultBHttpServerConnection(
@@ -129,18 +134,25 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
         ensureOpen();
-        final HttpRequest request = this.requestParser.parse(getSessionInputBuffer());
+        final HttpRequest request = this.requestParser.parse(this.inbuffer);
         onRequestReceived(request);
         incrementRequestCount();
         return request;
     }
 
     @Override
-    public void receiveRequestEntity(final HttpEntityEnclosingRequest request)
+    public void receiveRequestEntity(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         ensureOpen();
-        final HttpEntity entity = prepareInput(request);
+
+        final long len = this.incomingContentStrategy.determineLength(request);
+        if (len == ContentLengthStrategy.UNDEFINED) {
+            return;
+        } else if (len == ContentLengthStrategy.IDENTITY) {
+            throw new ProtocolException("Identity transfer encoding is not allowed for request messages");
+        }
+        final HttpEntity entity = createIncomingEntity(request, this.inbuffer, len);
         request.setEntity(entity);
     }
 
@@ -149,7 +161,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         ensureOpen();
-        this.responseWriter.write(response, getSessionOutputBuffer());
+        this.responseWriter.write(response, this.outbuffer);
         onResponseSubmitted(response);
         if (response.getStatusLine().getStatusCode() >= 200) {
             incrementResponseCount();
@@ -165,7 +177,8 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final OutputStream outstream = prepareOutput(response);
+        final long len = this.outgoingContentStrategy.determineLength(response);
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
         entity.writeTo(outstream);
         outstream.close();
     }

@@ -38,17 +38,32 @@ import org.apache.http.HttpMessage;
  */
 public interface ContentLengthStrategy {
 
-    public static final int IDENTITY         = -1;
-    public static final int CHUNKED          = -2;
+    /**
+     * Identity transfer encoding. Message content is delineated
+     * by the end of connection.
+     */
+    public static final int IDENTITY = -1;
+
+    /**
+     * Message body chunk coded
+     */
+    public static final long CHUNKED = -2;
+
+    /**
+     * Message body not explicitly delineated. Legal for HTTP response messages
+     * and illegal for HTTP request messages.
+     */
+    public static final long UNDEFINED = -Long.MAX_VALUE;
 
     /**
      * Returns length of the given message in bytes. The returned value
      * must be a non-negative number, {@link #IDENTITY} if the end of the
-     * message will be delimited by the end of connection, or {@link #CHUNKED}
-     * if the message is chunk coded
+     * message is delineated by the end of connection, {@link #CHUNKED}
+     * if the message is chunk coded, or {@link #UNDEFINED} if the message
+     * is not explicitly delineated.
      *
      * @param message HTTP message
-     * @return content length, {@link #IDENTITY}, or {@link #CHUNKED}
+     * @return content length, {@link #UNDEFINED}, or {@link #CHUNKED}
      *
      * @throws HttpException in case of HTTP protocol violation
      */

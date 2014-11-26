@@ -35,14 +35,16 @@ import java.nio.charset.CharsetEncoder;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.LaxContentLengthStrategy;
+import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
 import org.apache.http.io.HttpMessageParser;
@@ -62,6 +64,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
     private final HttpMessageParser<HttpResponse> responseParser;
     private final HttpMessageWriter<HttpRequest> requestWriter;
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
 
     /**
      * Creates new instance of DefaultBHttpClientConnection.
@@ -93,12 +97,15 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(buffersize, fragmentSizeHint, chardecoder, charencoder,
-                constraints, incomingContentStrategy, outgoingContentStrategy);
+        super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create();
         this.responseParser = (responseParserFactory != null ? responseParserFactory :
             DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+                LaxContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+                StrictContentLengthStrategy.INSTANCE;
     }
 
     public DefaultBHttpClientConnection(
@@ -129,21 +136,24 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         ensureOpen();
-        this.requestWriter.write(request, getSessionOutputBuffer());
+        this.requestWriter.write(request, this.outbuffer);
         onRequestSubmitted(request);
         incrementRequestCount();
     }
 
     @Override
-    public void sendRequestEntity(final HttpEntityEnclosingRequest request)
-            throws HttpException, IOException {
+    public void sendRequestEntity(final HttpRequest request) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         ensureOpen();
         final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
         }
-        final OutputStream outstream = prepareOutput(request);
+        final long len = this.outgoingContentStrategy.determineLength(request);
+        if (len == ContentLengthStrategy.IDENTITY || len == ContentLengthStrategy.UNDEFINED) {
+            throw new ProtocolException("Identity transfer encoding is not allowed for request messages");
+        }
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
         entity.writeTo(outstream);
         outstream.close();
     }
@@ -151,7 +161,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
         ensureOpen();
-        final HttpResponse response = this.responseParser.parse(getSessionInputBuffer());
+        final HttpResponse response = this.responseParser.parse(this.inbuffer);
         onResponseReceived(response);
         if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
             incrementResponseCount();
@@ -164,8 +174,11 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final HttpResponse response) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         ensureOpen();
-        final HttpEntity entity = prepareInput(response);
-        response.setEntity(entity);
+        final long len = this.incomingContentStrategy.determineLength(response);
+        if (len == ContentLengthStrategy.UNDEFINED) {
+            return;
+        }
+        response.setEntity(createIncomingEntity(response, this.inbuffer, len));
     }
 
 }

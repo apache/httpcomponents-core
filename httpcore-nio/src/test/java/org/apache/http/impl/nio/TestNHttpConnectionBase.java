@@ -31,17 +31,11 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpVersion;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
-import org.apache.http.impl.nio.codecs.ChunkDecoder;
-import org.apache.http.impl.nio.codecs.ChunkEncoder;
-import org.apache.http.impl.nio.codecs.IdentityDecoder;
-import org.apache.http.impl.nio.codecs.IdentityEncoder;
-import org.apache.http.impl.nio.codecs.LengthDelimitedDecoder;
-import org.apache.http.impl.nio.codecs.LengthDelimitedEncoder;
+import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.reactor.IOSession;
@@ -66,10 +60,7 @@ public class TestNHttpConnectionBase {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        conn = new NHttpConnectionBase(session, 1024, 1024, HeapByteBufferAllocator.INSTANCE,
-            null, null,
-            LaxContentLengthStrategy.INSTANCE,
-            StrictContentLengthStrategy.INSTANCE);
+        conn = new NHttpConnectionBase(session, 1024, 1024, HeapByteBufferAllocator.INSTANCE, null, null);
     }
 
     @Test
@@ -98,7 +89,7 @@ public class TestNHttpConnectionBase {
         Assert.assertEquals(new InetSocketAddress(
                 InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), 8888), conn.getLocalAddress());
         Assert.assertEquals(new InetSocketAddress(
-                InetAddress.getByAddress(new byte[] {10, 0, 0, 2}), 80), conn.getRemoteAddress());
+                InetAddress.getByAddress(new byte[]{10, 0, 0, 2}), 80), conn.getRemoteAddress());
     }
 
     @Test
@@ -200,82 +191,54 @@ public class TestNHttpConnectionBase {
     }
 
     @Test
-    public void testPrepareIdentityDecoder() throws Exception {
+    public void testCreateIdentityEntity() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        Mockito.when(session.channel()).thenReturn(channel);
-
-        final HttpEntity entity = conn.prepareDecoder(response);
+        final HttpEntity entity = conn.createIncomingEntity(response, ContentLengthStrategy.IDENTITY);
         Assert.assertNotNull(entity);
         Assert.assertEquals(-1, entity.getContentLength());
         Assert.assertFalse(entity.isChunked());
-        Assert.assertTrue(conn.contentDecoder instanceof IdentityDecoder);
+        final Header h1 = entity.getContentType();
+        Assert.assertNull(h1);
+        final Header h2 = entity.getContentEncoding();
+        Assert.assertNull(h2);
     }
 
     @Test
-    public void testPrepareLengthDelimitedDecoder() throws Exception {
+    public void testCreateEntityWithContentLength() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader(HttpHeaders.CONTENT_LENGTH, "10");
         response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
         response.addHeader(HttpHeaders.CONTENT_ENCODING, "identity");
-        Mockito.when(session.channel()).thenReturn(channel);
 
-        final HttpEntity entity = conn.prepareDecoder(response);
+        final HttpEntity entity = conn.createIncomingEntity(response, 10);
         Assert.assertNotNull(entity);
         Assert.assertEquals(10, entity.getContentLength());
         Assert.assertFalse(entity.isChunked());
-        Assert.assertNotNull(entity.getContentType());
-        Assert.assertEquals("stuff", entity.getContentType().getValue());
-        Assert.assertNotNull(entity.getContentEncoding());
-        Assert.assertEquals("identity", entity.getContentEncoding().getValue());
-        Assert.assertTrue(conn.contentDecoder instanceof LengthDelimitedDecoder);
+        final Header h1 = entity.getContentType();
+        Assert.assertNotNull(h1);
+        Assert.assertEquals("stuff", h1.getValue());
+        final Header h2 = entity.getContentEncoding();
+        Assert.assertNotNull(h2);
+        Assert.assertEquals("identity", h2.getValue());
     }
 
     @Test
-    public void testPrepareChunkDecoder() throws Exception {
+    public void testCreateEntityChunkCoded() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
         response.addHeader(HttpHeaders.CONTENT_ENCODING, "identity");
-        Mockito.when(session.channel()).thenReturn(channel);
 
-        final HttpEntity entity = conn.prepareDecoder(response);
+        final HttpEntity entity = conn.createIncomingEntity(response, ContentLengthStrategy.CHUNKED);
         Assert.assertNotNull(entity);
         Assert.assertEquals(-1, entity.getContentLength());
         Assert.assertTrue(entity.isChunked());
-        Assert.assertNotNull(entity.getContentType());
-        Assert.assertEquals("stuff", entity.getContentType().getValue());
-        Assert.assertNotNull(entity.getContentEncoding());
-        Assert.assertEquals("identity", entity.getContentEncoding().getValue());
-        Assert.assertTrue(conn.contentDecoder instanceof ChunkDecoder);
-    }
-
-    @Test
-    public void testPrepareIdentityEncoder() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        Mockito.when(session.channel()).thenReturn(channel);
-
-        conn.prepareEncoder(response);
-        Assert.assertTrue(conn.contentEncoder instanceof IdentityEncoder);
-    }
-
-    @Test
-    public void testPrepareLengthDelimitedEncoder() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HttpHeaders.CONTENT_LENGTH, "10");
-        Mockito.when(session.channel()).thenReturn(channel);
-
-        conn.prepareEncoder(response);
-        Assert.assertTrue(conn.contentEncoder instanceof LengthDelimitedEncoder);
-    }
-
-    @Test
-    public void testPrepareChunkEncoder() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
-        Mockito.when(session.channel()).thenReturn(channel);
-
-        conn.prepareEncoder(response);
-        Assert.assertTrue(conn.contentEncoder instanceof ChunkEncoder);
+        final Header h1 = entity.getContentType();
+        Assert.assertNotNull(h1);
+        Assert.assertEquals("stuff", h1.getValue());
+        final Header h2 = entity.getContentEncoding();
+        Assert.assertNotNull(h2);
+        Assert.assertEquals("identity", h2.getValue());
     }
 
 }

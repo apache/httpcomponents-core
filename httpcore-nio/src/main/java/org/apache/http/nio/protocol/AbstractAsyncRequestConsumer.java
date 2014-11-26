@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.entity.ContentType;
@@ -60,8 +59,7 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     /**
      * Invoked when a HTTP request message is received. Please note
      * that the {@link #onContentReceived(ContentDecoder, IOControl)} method
-     * will be invoked only for if the request message implements
-     * {@link HttpEntityEnclosingRequest} interface and has a content
+     * will be invoked only for if the request message has a content
      * entity enclosed.
      *
      * @param request HTTP request message.
@@ -127,12 +125,10 @@ public abstract class AbstractAsyncRequestConsumer<T> implements HttpAsyncReques
     public final void requestReceived(
             final HttpRequest request) throws HttpException, IOException {
         onRequestReceived(request);
-        if (request instanceof HttpEntityEnclosingRequest) {
-            final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            if (entity != null) {
-                final ContentType contentType = ContentType.getOrDefault(entity);
-                onEntityEnclosed(entity, contentType);
-            }
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
+            final ContentType contentType = ContentType.getOrDefault(entity);
+            onEntityEnclosed(entity, contentType);
         }
     }
 

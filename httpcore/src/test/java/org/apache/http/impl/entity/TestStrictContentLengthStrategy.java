@@ -28,7 +28,6 @@
 package org.apache.http.impl.entity;
 
 import org.apache.http.HttpMessage;
-import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.junit.Assert;
@@ -62,14 +61,6 @@ public class TestStrictContentLengthStrategy {
         lenStrategy.determineLength(message);
     }
 
-    @Test(expected=ProtocolException.class)
-    public void testEntityWithInvalidChunkEncodingAndHTTP10() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
-        final HttpMessage message = new DummyHttpMessage(HttpVersion.HTTP_1_0);
-        message.addHeader("Transfer-Encoding", "chunked");
-        lenStrategy.determineLength(message);
-    }
-
     @Test
     public void testEntityWithContentLength() throws Exception {
         final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
@@ -98,7 +89,7 @@ public class TestStrictContentLengthStrategy {
     public void testEntityNoContentDelimiter() throws Exception {
         final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
         final HttpMessage message = new DummyHttpMessage();
-        Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
+        Assert.assertEquals(ContentLengthStrategy.UNDEFINED, lenStrategy.determineLength(message));
     }
 
 }

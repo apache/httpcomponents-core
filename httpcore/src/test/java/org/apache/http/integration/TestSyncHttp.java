@@ -41,7 +41,6 @@ import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -55,7 +54,6 @@ import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.DefaultBHttpClientConnection;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpExpectationVerifier;
@@ -202,15 +200,12 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                final HttpEntity incoming = request.getEntity();
+                if (incoming != null) {
                     final byte[] data = EntityUtils.toByteArray(incoming);
 
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(false);
-                    response.setEntity(outgoing);
-                } else {
-                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -228,7 +223,7 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
@@ -285,15 +280,11 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    final byte[] data = EntityUtils.toByteArray(incoming);
-
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final byte[] data = EntityUtils.toByteArray(entity);
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
-                    response.setEntity(outgoing);
-                } else {
-                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -311,7 +302,7 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
@@ -367,15 +358,12 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                final HttpEntity incoming = request.getEntity();
+                if (incoming != null) {
                     final byte[] data = EntityUtils.toByteArray(incoming);
 
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(false);
-                    response.setEntity(outgoing);
-                } else {
-                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -394,7 +382,7 @@ public class TestSyncHttp {
                 }
 
                 // Set protocol level to HTTP/1.0
-                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
+                final BasicHttpRequest post = new BasicHttpRequest(
                         "POST", "/", HttpVersion.HTTP_1_0);
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
@@ -453,15 +441,12 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                final HttpEntity incoming = request.getEntity();
+                if (incoming != null) {
                     final byte[] data = EntityUtils.toByteArray(incoming);
 
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(true);
-                    response.setEntity(outgoing);
-                } else {
-                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -480,7 +465,7 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
@@ -543,7 +528,7 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException {
                 final Header someheader = request.getFirstHeader("Secret");
                 if (someheader != null) {
-                    int secretNumber;
+                    final int secretNumber;
                     try {
                         secretNumber = Integer.parseInt(someheader.getValue());
                     } catch (final NumberFormatException ex) {
@@ -571,7 +556,7 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
                 post.setEntity(new StringEntity("No content " + r, ContentType.TEXT_PLAIN));
 
@@ -609,9 +594,7 @@ public class TestSyncHttp {
         public RepeatingEntity(final String content, final Charset charset, final int n) {
             super();
             final Charset cs = charset != null ? charset : Charset.forName("US-ASCII");
-            byte[] b;
-            b = content.getBytes(cs);
-            this.raw = b;
+            this.raw = content.getBytes(cs);
             this.n = n;
         }
 
@@ -679,7 +662,7 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
+                if (request instanceof HttpRequest) {
                     int n = 1;
                     String s = request.getRequestLine().getUri();
                     if (s.startsWith("/?n=")) {
@@ -696,16 +679,18 @@ public class TestSyncHttp {
                         }
                     }
 
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
-                    final String line = EntityUtils.toString(incoming);
-                    final ContentType contentType = ContentType.getOrDefault(incoming);
-                    Charset charset = contentType.getCharset();
-                    if (charset == null) {
-                        charset = Consts.ISO_8859_1;
+                    final HttpEntity incoming = request.getEntity();
+                    if (incoming != null) {
+                        final String line = EntityUtils.toString(incoming);
+                        final ContentType contentType = ContentType.getOrDefault(incoming);
+                        Charset charset = contentType.getCharset();
+                        if (charset == null) {
+                            charset = Consts.ISO_8859_1;
+                        }
+                        final RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
+                        outgoing.setChunked(n % 2 == 0);
+                        response.setEntity(outgoing);
                     }
-                    final RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
-                    outgoing.setChunked(n % 2 == 0);
-                    response.setEntity(outgoing);
                 } else {
                     throw new HttpException("Invalid request: POST request expected");
                 }
@@ -724,7 +709,7 @@ public class TestSyncHttp {
                         client.connect(host, conn);
                     }
 
-                    final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest(
+                    final BasicHttpRequest post = new BasicHttpRequest(
                             "POST", "/?n=" + n);
                     final StringEntity outgoing = new StringEntity(pattern);
                     outgoing.setChunked(n % 2 == 0);
@@ -770,13 +755,10 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                final HttpEntity incoming = request.getEntity();
+                if (incoming != null) {
                     final byte[] data = EntityUtils.toByteArray(incoming);
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    response.setEntity(outgoing);
-                } else {
-                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -793,7 +775,7 @@ public class TestSyncHttp {
                 client.connect(host, conn);
             }
 
-            final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
             post.setEntity(null);
 
             final HttpResponse response = this.client.execute(post, host, conn);
@@ -816,13 +798,10 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                final HttpEntity incoming = request.getEntity();
+                if (incoming != null) {
                     final byte[] data = EntityUtils.toByteArray(incoming);
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    response.setEntity(outgoing);
-                } else {
-                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -839,15 +818,14 @@ public class TestSyncHttp {
                 client.connect(host, conn);
             }
 
-            final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
-                    new HttpRequestInterceptor[] {
-                            new RequestTargetHost(),
-                            new RequestConnControl(),
-                            new RequestUserAgent(),
-                            new RequestExpectContinue() }));
+                    new RequestTargetHost(),
+                    new RequestConnControl(),
+                    new RequestUserAgent(),
+                    new RequestExpectContinue()));
 
             final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
@@ -869,13 +847,10 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    final HttpEntity incoming = ((HttpEntityEnclosingRequest) request).getEntity();
+                final HttpEntity incoming = request.getEntity();
+                if (incoming != null) {
                     final byte[] data = EntityUtils.toByteArray(incoming);
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    response.setEntity(outgoing);
-                } else {
-                    final StringEntity outgoing = new StringEntity("No content");
                     response.setEntity(outgoing);
                 }
             }
@@ -892,7 +867,7 @@ public class TestSyncHttp {
                 client.connect(host, conn);
             }
 
-            final BasicHttpEntityEnclosingRequest post = new BasicHttpEntityEnclosingRequest("POST", "/");
+            final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(

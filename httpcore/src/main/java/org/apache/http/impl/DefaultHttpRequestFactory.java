@@ -32,7 +32,6 @@ import org.apache.http.HttpRequestFactory;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.RequestLine;
 import org.apache.http.annotation.Immutable;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.util.Args;
 
@@ -46,23 +45,16 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
 
     public static final DefaultHttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();
 
-    private static final String[] RFC2616_COMMON_METHODS = {
-        "GET"
+    private static final String[] SUPPORTED_METHODS = {
+            "GET",
+            "POST",
+            "PUT",
+            "HEAD",
+            "OPTIONS",
+            "DELETE",
+            "TRACE",
+            "CONNECT"
     };
-
-    private static final String[] RFC2616_ENTITY_ENC_METHODS = {
-        "POST",
-        "PUT"
-    };
-
-    private static final String[] RFC2616_SPECIAL_METHODS = {
-        "HEAD",
-        "OPTIONS",
-        "DELETE",
-        "TRACE",
-        "CONNECT"
-    };
-
 
     public DefaultHttpRequestFactory() {
         super();
@@ -82,11 +74,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
             throws MethodNotSupportedException {
         Args.notNull(requestline, "Request line");
         final String method = requestline.getMethod();
-        if (isOneOf(RFC2616_COMMON_METHODS, method)) {
-            return new BasicHttpRequest(requestline);
-        } else if (isOneOf(RFC2616_ENTITY_ENC_METHODS, method)) {
-            return new BasicHttpEntityEnclosingRequest(requestline);
-        } else if (isOneOf(RFC2616_SPECIAL_METHODS, method)) {
+        if (isOneOf(SUPPORTED_METHODS, method)) {
             return new BasicHttpRequest(requestline);
         } else {
             throw new MethodNotSupportedException(method +  " method not supported");
@@ -96,11 +84,7 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     @Override
     public HttpRequest newHttpRequest(final String method, final String uri)
             throws MethodNotSupportedException {
-        if (isOneOf(RFC2616_COMMON_METHODS, method)) {
-            return new BasicHttpRequest(method, uri);
-        } else if (isOneOf(RFC2616_ENTITY_ENC_METHODS, method)) {
-            return new BasicHttpEntityEnclosingRequest(method, uri);
-        } else if (isOneOf(RFC2616_SPECIAL_METHODS, method)) {
+        if (isOneOf(SUPPORTED_METHODS, method)) {
             return new BasicHttpRequest(method, uri);
         } else {
             throw new MethodNotSupportedException(method

@@ -27,6 +27,7 @@
 
 package org.apache.http.message;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpMessage;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
@@ -37,7 +38,9 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public abstract class AbstractHttpMessage extends HeaderGroup implements HttpMessage {
+public abstract class AbstractHttpMessage extends HeaderGroup implements HttpMessage<HttpEntity> {
+
+    private HttpEntity entity;
 
     @Override
     public void addHeader(final String name, final String value) {
@@ -49,6 +52,16 @@ public abstract class AbstractHttpMessage extends HeaderGroup implements HttpMes
     public void setHeader(final String name, final String value) {
         Args.notNull(name, "Header name");
         setHeader(new BasicHeader(name, value));
+    }
+
+    @Override
+    public HttpEntity getEntity() {
+        return this.entity;
+    }
+
+    @Override
+    public void setEntity(final HttpEntity entity) {
+        this.entity = entity;
     }
 
 }

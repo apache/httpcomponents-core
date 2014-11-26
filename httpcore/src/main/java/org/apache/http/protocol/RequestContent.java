@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -86,24 +85,20 @@ public class RequestContent implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        if (request instanceof HttpEntityEnclosingRequest) {
-            if (this.overwrite) {
-                request.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
-                request.removeHeaders(HttpHeaders.CONTENT_LENGTH);
-            } else {
-                if (request.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
-                    throw new ProtocolException("Transfer-encoding header already present");
-                }
-                if (request.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
-                    throw new ProtocolException("Content-Length header already present");
-                }
+        if (this.overwrite) {
+            request.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
+            request.removeHeaders(HttpHeaders.CONTENT_LENGTH);
+        } else {
+            if (request.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
+                throw new ProtocolException("Transfer-encoding header already present");
             }
+            if (request.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
+                throw new ProtocolException("Content-Length header already present");
+            }
+        }
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
             final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-            final HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-            if (entity == null) {
-                request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
-                return;
-            }
             // Must specify a transfer encoding or a content length
             if (entity.isChunked() || entity.getContentLength() < 0) {
                 if (ver.lessEquals(HttpVersion.HTTP_1_0)) {

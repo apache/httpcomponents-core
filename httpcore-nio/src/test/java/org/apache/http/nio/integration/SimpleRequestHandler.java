@@ -30,11 +30,9 @@ package org.apache.http.nio.integration;
 import java.io.IOException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.protocol.HttpContext;
@@ -70,14 +68,9 @@ final class SimpleRequestHandler implements HttpRequestHandler {
         response.addHeader("Pattern", pattern);
 
         final String content;
-        if (request instanceof HttpEntityEnclosingRequest) {
-            final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-            if (entity != null) {
-                content = EntityUtils.toString(entity);
-            } else {
-                response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
-                content = "Request entity not available";
-            }
+        final HttpEntity incomingEntity = request.getEntity();
+        if (incomingEntity != null) {
+            content = EntityUtils.toString(incomingEntity);
         } else {
             final StringBuilder buffer = new StringBuilder();
             for (int i = 0; i < count; i++) {
@@ -85,9 +78,9 @@ final class SimpleRequestHandler implements HttpRequestHandler {
             }
             content = buffer.toString();
         }
-        final NStringEntity entity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
-        entity.setChunked(this.chunking);
-        response.setEntity(entity);
+        final NStringEntity outgoingEntity = new NStringEntity(content, ContentType.DEFAULT_TEXT);
+        outgoingEntity.setChunked(this.chunking);
+        response.setEntity(outgoingEntity);
     }
 
 }

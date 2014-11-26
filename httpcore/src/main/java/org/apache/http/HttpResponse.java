@@ -35,7 +35,7 @@ import java.util.Locale;
  *
  * @since 4.0
  */
-public interface HttpResponse extends HttpMessage {
+public interface HttpResponse extends HttpMessage<HttpEntity> {
 
     /**
      * Obtains the status line of this response.
@@ -102,30 +102,6 @@ public interface HttpResponse extends HttpMessage {
      */
     void setReasonPhrase(String reason)
         throws IllegalStateException;
-
-    /**
-     * Obtains the message entity of this response, if any.
-     * The entity is provided by calling {@link #setEntity setEntity}.
-     *
-     * @return  the response entity, or
-     *          {@code null} if there is none
-     */
-    HttpEntity getEntity();
-
-    /**
-     * Associates a response entity with this response.
-     * <p>
-     * Please note that if an entity has already been set for this response and it depends on
-     * an input stream ({@link HttpEntity#isStreaming()} returns {@code true}),
-     * it must be fully consumed in order to ensure release of resources.
-     *
-     * @param entity    the entity to associate with this response, or
-     *                  {@code null} to unset
-     *
-     * @see HttpEntity#isStreaming()
-     * @see org.apache.http.util.EntityUtils#updateEntity(HttpResponse, HttpEntity)
-     */
-    void setEntity(HttpEntity entity);
 
     /**
      * Obtains the locale of this response.

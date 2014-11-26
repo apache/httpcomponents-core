@@ -36,7 +36,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -44,7 +43,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NStringEntity;
@@ -231,15 +229,15 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
-            final HttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest("POST", requestUri);
+            final HttpRequest request1 = new BasicHttpRequest("POST", requestUri);
             final NStringEntity entity1 = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity1.setChunked(RndTestPatternGenerator.generateBoolean());
             request1.setEntity(entity1);
-            final HttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest("POST", requestUri);
+            final HttpRequest request2 = new BasicHttpRequest("POST", requestUri);
             final NStringEntity entity2 = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity2.setChunked(RndTestPatternGenerator.generateBoolean());
             request2.setEntity(entity2);
-            final HttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest("POST", requestUri);
+            final HttpRequest request3 = new BasicHttpRequest("POST", requestUri);
             final NStringEntity entity3 = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity3.setChunked(RndTestPatternGenerator.generateBoolean());
             request3.setEntity(entity3);
@@ -322,12 +320,12 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
         for (int i = 0; i < 1; i++) {
             final HttpRequest request1 = new BasicHttpRequest("GET", createRequestUri(pattern1, count));
-            final HttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest("POST",
+            final HttpRequest request2 = new BasicHttpRequest("POST",
                     createRequestUri(pattern2, count));
             final NStringEntity entity2 = new NStringEntity(expectedPattern2, ContentType.DEFAULT_TEXT);
             entity2.setChunked(RndTestPatternGenerator.generateBoolean());
             request2.setEntity(entity2);
-            final HttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest("POST",
+            final HttpRequest request3 = new BasicHttpRequest("POST",
                     createRequestUri(pattern3, count));
             final NStringEntity entity3 = new NStringEntity(expectedPattern3, ContentType.DEFAULT_TEXT);
             entity3.setChunked(RndTestPatternGenerator.generateBoolean());

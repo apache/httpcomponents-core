@@ -28,6 +28,7 @@
 package org.apache.http.impl.entity;
 
 import org.apache.http.HttpMessage;
+import org.apache.http.ProtocolException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class TestLaxContentLengthStrategy {
         final HttpMessage message = new DummyHttpMessage();
 
         message.addHeader("Content-Type", "unknown");
-        message.addHeader("Transfer-Encoding", "identity, chunked");
+        message.addHeader("Transfer-Encoding", "chunked");
         message.addHeader("Content-Length", "plain wrong");
         Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
     }
@@ -56,7 +57,7 @@ public class TestLaxContentLengthStrategy {
         Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
     }
 
-    @Test
+    @Test(expected=ProtocolException.class)
     public void testEntityWithUnsupportedTransferEncoding() throws Exception {
         final ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         final HttpMessage message = new DummyHttpMessage();
@@ -64,10 +65,10 @@ public class TestLaxContentLengthStrategy {
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "whatever; param=value, chunked");
         message.addHeader("Content-Length", "plain wrong");
-        Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
+        lenStrategy.determineLength(message);
     }
 
-    @Test
+    @Test(expected=ProtocolException.class)
     public void testChunkedTransferEncodingMustBeLast() throws Exception {
         final ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         final HttpMessage message = new DummyHttpMessage();
@@ -75,7 +76,7 @@ public class TestLaxContentLengthStrategy {
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Transfer-Encoding", "chunked, identity");
         message.addHeader("Content-Length", "plain wrong");
-        Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
+        lenStrategy.determineLength(message);
     }
 
     @Test
@@ -112,7 +113,7 @@ public class TestLaxContentLengthStrategy {
         Assert.assertEquals(1, lenStrategy.determineLength(message));
     }
 
-    @Test
+    @Test(expected=ProtocolException.class)
     public void testEntityWithMultipleContentLengthAllWrong() throws Exception {
         final ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         final HttpMessage message = new DummyHttpMessage();
@@ -120,17 +121,17 @@ public class TestLaxContentLengthStrategy {
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "yyy");
         message.addHeader("Content-Length", "xxx");
-        Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
+        lenStrategy.determineLength(message);
     }
 
-    @Test
+    @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidContentLength() throws Exception {
         final ContentLengthStrategy lenStrategy = new LaxContentLengthStrategy();
         final HttpMessage message = new DummyHttpMessage();
 
         message.addHeader("Content-Type", "unknown");
         message.addHeader("Content-Length", "xxx");
-        Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
+        lenStrategy.determineLength(message);
     }
 
     @Test
@@ -139,7 +140,7 @@ public class TestLaxContentLengthStrategy {
         final HttpMessage message = new DummyHttpMessage();
 
         // lenient mode
-        Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
+        Assert.assertEquals(ContentLengthStrategy.UNDEFINED, lenStrategy.determineLength(message));
     }
 
 }

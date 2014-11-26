@@ -57,7 +57,7 @@ public interface HttpServerConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void receiveRequestEntity(HttpEntityEnclosingRequest request)
+    void receiveRequestEntity(HttpRequest request)
         throws HttpException, IOException;
 
     /**

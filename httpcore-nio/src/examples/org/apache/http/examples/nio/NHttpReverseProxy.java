@@ -35,7 +35,6 @@ import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
@@ -55,7 +54,6 @@ import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
@@ -525,14 +523,9 @@ public class NHttpReverseProxy {
                 HttpRequest request = this.httpExchange.getRequest();
                 System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getRequestLine());
                 // Rewrite request!!!!
-                if (request instanceof HttpEntityEnclosingRequest) {
-                    BasicHttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest(
-                            request.getRequestLine());
-                    r.setEntity(((HttpEntityEnclosingRequest) request).getEntity());
-                    return r;
-                } else {
-                    return new BasicHttpRequest(request.getRequestLine());
-                }
+                BasicHttpRequest newREquest = new BasicHttpRequest(request.getRequestLine());
+                newREquest.setEntity(request.getEntity());
+                return newREquest;
             }
         }
 

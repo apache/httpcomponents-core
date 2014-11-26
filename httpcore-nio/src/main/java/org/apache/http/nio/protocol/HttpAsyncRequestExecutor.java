@@ -32,9 +32,10 @@ import java.net.SocketTimeoutException;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ExceptionLogger;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -183,8 +184,10 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
         state.setRequest(request);
 
-        if (request instanceof HttpEntityEnclosingRequest) {
-            final boolean expectContinue = ((HttpEntityEnclosingRequest) request).expectContinue();
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
+            final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+            final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
             if (expectContinue && pipelined) {
                 throw new ProtocolException("Expect-continue handshake cannot be used with request pipelining");
             }
@@ -195,13 +198,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 conn.setSocketTimeout(this.waitForContinue);
                 state.setRequestState(MessageState.ACK_EXPECTED);
             } else {
-                final HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                if (entity != null) {
-                    state.setRequestState(MessageState.BODY_STREAM);
-                } else {
-                    handler.requestCompleted();
-                    state.setRequestState(pipelined ? MessageState.READY : MessageState.COMPLETED);
-                }
+                state.setRequestState(MessageState.BODY_STREAM);
             }
         } else {
             conn.submitRequest(request);

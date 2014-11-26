@@ -45,7 +45,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ContentType;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NStringEntity;
@@ -214,7 +213,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+            final BasicHttpRequest request = new BasicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
@@ -246,7 +245,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+            final BasicHttpRequest request = new BasicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity.setChunked(true);
@@ -279,7 +278,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+            final BasicHttpRequest request = new BasicHttpRequest(
                     "POST", createRequestUri(pattern, count), HttpVersion.HTTP_1_0);
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
@@ -309,7 +308,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+            final BasicHttpRequest request = new BasicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             request.setEntity(null);
             final Future<HttpResponse> future = this.client.execute(target, request);
@@ -343,7 +342,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request = new BasicHttpRequest(
                 "POST", createRequestUri(pattern, count));
         request.setEntity(null);
 
@@ -383,7 +382,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request = new BasicHttpRequest(
                 "POST", createRequestUri(pattern, count));
         request.setEntity(null);
 
@@ -410,7 +409,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+            final BasicHttpRequest request = new BasicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
@@ -458,13 +457,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         final HttpHost target = start(registry, expectationVerifier);
 
-        final BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request1 = new BasicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request2 = new BasicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request3 = new BasicHttpRequest(
                 "POST", createRequestUri("BBBBB", 10));
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
@@ -600,13 +599,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         final HttpHost target = start(registry, expectationVerifier);
 
-        final BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request1 = new BasicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpEntityEnclosingRequest request2 = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request2 = new BasicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpEntityEnclosingRequest request3 = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request3 = new BasicHttpRequest(
                 "POST", createRequestUri("BBBBB", 10));
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 

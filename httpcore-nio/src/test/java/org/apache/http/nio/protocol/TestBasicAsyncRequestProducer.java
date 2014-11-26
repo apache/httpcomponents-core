@@ -31,7 +31,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.nio.ContentEncoder;
@@ -48,7 +47,7 @@ public class TestBasicAsyncRequestProducer {
     private BasicAsyncRequestProducer producer;
     private HttpHost target;
     @Mock private HttpAsyncContentProducer contentProducer;
-    @Mock private HttpEntityEnclosingRequest request;
+    @Mock private HttpRequest request;
     @Mock private ContentEncoder encoder;
 
     @Before

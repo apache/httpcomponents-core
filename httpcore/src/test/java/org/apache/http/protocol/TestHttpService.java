@@ -31,7 +31,6 @@ import java.io.InputStream;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HeaderElements;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -44,7 +43,6 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.junit.Assert;
@@ -169,7 +167,7 @@ public class TestHttpService {
                 handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
         request.setEntity(entity);
@@ -211,7 +209,7 @@ public class TestHttpService {
                 handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
@@ -270,7 +268,7 @@ public class TestHttpService {
                 expectationVerifier);
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
@@ -314,8 +312,8 @@ public class TestHttpService {
                 expectationVerifier);
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        request.addHeader(HttpHeaders.EXPECT, "100-continue");
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
         request.setEntity(entity);

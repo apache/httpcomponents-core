@@ -36,20 +36,14 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.config.MessageConstraints;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
-import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
-import org.apache.http.impl.io.ContentLengthOutputStream;
 import org.apache.http.impl.io.IdentityInputStream;
-import org.apache.http.impl.io.IdentityOutputStream;
 import org.apache.http.message.BasicHttpResponse;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,11 +62,7 @@ public class TestBHttpConnectionBase {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        conn = new BHttpConnectionBase(1024, 1024,
-            null, null,
-            MessageConstraints.DEFAULT,
-            LaxContentLengthStrategy.INSTANCE,
-            StrictContentLengthStrategy.INSTANCE);
+        conn = new BHttpConnectionBase(1024, 1024, null, null, MessageConstraints.DEFAULT);
     }
 
     @Test
@@ -118,7 +108,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.getSessionOutputBuffer().write(0);
+        conn.outbuffer.write(0);
 
         Assert.assertTrue(conn.isOpen());
 
@@ -127,7 +117,7 @@ public class TestBHttpConnectionBase {
         Assert.assertFalse(conn.isOpen());
 
         Mockito.verify(outstream, Mockito.times(1)).write(
-                Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
+                Mockito.<byte[]>any(), Mockito.anyInt(), Mockito.anyInt());
         Mockito.verify(socket, Mockito.times(1)).shutdownInput();
         Mockito.verify(socket, Mockito.times(1)).shutdownOutput();
         Mockito.verify(socket, Mockito.times(1)).close();
@@ -135,7 +125,7 @@ public class TestBHttpConnectionBase {
         conn.close();
         Mockito.verify(socket, Mockito.times(1)).close();
         Mockito.verify(outstream, Mockito.times(1)).write(
-                Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
+                Mockito.<byte[]>any(), Mockito.anyInt(), Mockito.anyInt());
     }
 
     @Test
@@ -147,7 +137,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.getSessionOutputBuffer().write(0);
+        conn.outbuffer.write(0);
 
         Assert.assertTrue(conn.isOpen());
 
@@ -169,12 +159,12 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testPrepareInputLengthDelimited() throws Exception {
+    public void testCreateEntityLengthDelimited() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         message.addHeader("Content-Length", "10");
         message.addHeader("Content-Type", "stuff");
         message.addHeader("Content-Encoding", "identity");
-        final HttpEntity entity = conn.prepareInput(message);
+        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, 10);
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals(10, entity.getContentLength());
@@ -190,10 +180,10 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testPrepareInputChunked() throws Exception {
+    public void testCreateEntityInputChunked() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        message.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
-        final HttpEntity entity = conn.prepareInput(message);
+        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer,
+                ContentLengthStrategy.CHUNKED);
         Assert.assertNotNull(entity);
         Assert.assertTrue(entity.isChunked());
         Assert.assertEquals(-1, entity.getContentLength());
@@ -203,9 +193,10 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testPrepareInputIdentity() throws Exception {
+    public void testCreateEntityInputIdentity() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final HttpEntity entity = conn.prepareInput(message);
+        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer,
+                ContentLengthStrategy.IDENTITY);
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals(-1, entity.getContentLength());
@@ -215,29 +206,16 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testPrepareOutputLengthDelimited() throws Exception {
+    public void testCreateEntityInputUndefined() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        message.addHeader("Content-Length", "10");
-        final OutputStream outstream = conn.prepareOutput(message);
-        Assert.assertNotNull(outstream);
-        Assert.assertTrue((outstream instanceof ContentLengthOutputStream));
-    }
-
-    @Test
-    public void testPrepareOutputChunked() throws Exception {
-        final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        message.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
-        final OutputStream outstream = conn.prepareOutput(message);
-        Assert.assertNotNull(outstream);
-        Assert.assertTrue((outstream instanceof ChunkedOutputStream));
-    }
-
-    @Test
-    public void testPrepareOutputIdentity() throws Exception {
-        final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final OutputStream outstream = conn.prepareOutput(message);
-        Assert.assertNotNull(outstream);
-        Assert.assertTrue((outstream instanceof IdentityOutputStream));
+        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer,
+                ContentLengthStrategy.UNDEFINED);
+        Assert.assertNotNull(entity);
+        Assert.assertFalse(entity.isChunked());
+        Assert.assertEquals(-1, entity.getContentLength());
+        final InputStream instream = entity.getContent();
+        Assert.assertNotNull(instream);
+        Assert.assertTrue((instream instanceof IdentityInputStream));
     }
 
     @Test
@@ -288,7 +266,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.getSessionInputBuffer().read();
+        conn.inbuffer.read();
 
         Assert.assertTrue(conn.awaitInput(432));
 

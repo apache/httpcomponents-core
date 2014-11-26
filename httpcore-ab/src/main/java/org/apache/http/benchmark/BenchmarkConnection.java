@@ -43,13 +43,13 @@ class BenchmarkConnection extends DefaultBHttpClientConnection {
     }
 
     @Override
-    protected OutputStream createOutputStream(final long len, final SessionOutputBuffer outbuffer) {
-        return new CountingOutputStream(super.createOutputStream(len, outbuffer), this.stats);
+    protected OutputStream createContentOutputStream(final long len, final SessionOutputBuffer outbuffer) {
+        return new CountingOutputStream(super.createContentOutputStream(len, outbuffer), this.stats);
     }
 
     @Override
-    protected InputStream createInputStream(final long len, final SessionInputBuffer inbuffer) {
-        return new CountingInputStream(super.createInputStream(len, inbuffer), this.stats);
+    protected InputStream createContentInputStream(final long len, final SessionInputBuffer inbuffer) {
+        return new CountingInputStream(super.createContentInputStream(len, inbuffer), this.stats);
     }
 
 }

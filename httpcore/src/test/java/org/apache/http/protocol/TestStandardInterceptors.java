@@ -43,7 +43,6 @@ import org.apache.http.ProtocolException;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.junit.Assert;
@@ -101,9 +100,9 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentProtocolException() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpRequest request1 = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request1 = new BasicHttpRequest("POST", "/");
         request1.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "chunked"));
-        final BasicHttpRequest request2 = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request2 = new BasicHttpRequest("POST", "/");
         request2.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "12"));
 
         final RequestContent interceptor = new RequestContent();
@@ -124,20 +123,19 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentNullEntity() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
 
         final RequestContent interceptor = new RequestContent();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
-        Assert.assertNotNull(header);
-        Assert.assertEquals("0", header.getValue());
+        Assert.assertNull(header);
         Assert.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
    }
 
     @Test
     public void testRequestContentEntityContentLengthDelimitedHTTP11() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         final String s = "whatever";
         final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
@@ -153,7 +151,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentEntityChunkedHTTP11() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         final String s = "whatever";
         final StringEntity entity = new StringEntity(s, Consts.ASCII);
         entity.setChunked(true);
@@ -170,7 +168,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentEntityUnknownLengthHTTP11() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentLength(-1);
         entity.setChunked(false);
@@ -187,8 +185,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentEntityChunkedHTTP10() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                "POST", "/", HttpVersion.HTTP_1_0);
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_0);
         final String s = "whatever";
         final StringEntity entity = new StringEntity(s, Consts.ASCII);
         entity.setChunked(true);
@@ -206,7 +203,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentTypeAndEncoding() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentType("whatever");
         entity.setContentEncoding("whatever");
@@ -225,7 +222,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentNullTypeAndEncoding() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         final BasicHttpEntity entity = new BasicHttpEntity();
         request.setEntity(entity);
 
@@ -238,7 +235,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestContentEntityUnknownLengthHTTP10() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
+        final BasicHttpRequest request = new BasicHttpRequest(
                 "POST", "/", HttpVersion.HTTP_1_0);
         final BasicHttpEntity entity = new BasicHttpEntity();
         entity.setContentLength(-1);
@@ -278,27 +275,34 @@ public class TestStandardInterceptors {
     public void testRequestContentOverwriteHeaders() throws Exception {
         final RequestContent interceptor = new RequestContent(true);
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "whatever"));
+        request.setEntity(new StringEntity(""));
         interceptor.process(request, context);
-        Assert.assertEquals("0", request.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
+        final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
+        Assert.assertNotNull(h1);
+        Assert.assertEquals("0", h1.getValue());
     }
 
     @Test
     public void testRequestContentAddHeaders() throws Exception {
         final RequestContent interceptor = new RequestContent(true);
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setEntity(new StringEntity(""));
         interceptor.process(request, context);
-        Assert.assertEquals("0", request.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
-        Assert.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
+        final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
+        Assert.assertNotNull(h1);
+        Assert.assertEquals("0", h1.getValue());
+        final Header h2 = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
+        Assert.assertNull(h2);
     }
 
     @Test
     public void testRequestExpectContinueGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         final String s = "whatever";
         final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
@@ -312,8 +316,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestExpectContinueHTTP10() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
-                "POST", "/", HttpVersion.HTTP_1_0);
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_0);
         final String s = "whatever";
         final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
@@ -326,7 +329,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestExpectContinueZeroContent() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
-        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
         final String s = "";
         final StringEntity entity = new StringEntity(s, Consts.ASCII);
         request.setEntity(entity);
@@ -933,9 +936,8 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestDateGenerated() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final BasicHttpRequest request =
-            new BasicHttpEntityEnclosingRequest("POST", "/");
-        //BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setEntity(new StringEntity("stuff"));
 
         final RequestDate interceptor = new RequestDate();
         interceptor.process(request, context);

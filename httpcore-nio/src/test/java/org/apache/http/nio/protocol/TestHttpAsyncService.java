@@ -33,7 +33,6 @@ import java.util.Queue;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HeaderElements;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
@@ -43,7 +42,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
@@ -417,9 +415,10 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST",
-                "/stuff", HttpVersion.HTTP_1_1);
-        request.setEntity(new NStringEntity("stuff"));
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Mockito.eq(request), Mockito.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -440,8 +439,10 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Mockito.eq(request), Mockito.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -473,9 +474,11 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Mockito.eq(request), Mockito.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -521,9 +524,11 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Mockito.eq(request), Mockito.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -604,9 +609,11 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
 
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
@@ -636,9 +643,11 @@ public class TestHttpAsyncService {
 
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
 
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
@@ -663,9 +672,11 @@ public class TestHttpAsyncService {
         this.conn = Mockito.mock(NHttpServerConnection.class,
                 Mockito.withSettings().extraInterfaces(SessionBufferStatus.class));
 
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
 
         Mockito.when(this.conn.getContext()).thenReturn(this.connContext);
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
@@ -718,8 +729,10 @@ public class TestHttpAsyncService {
     public void testRequestContent() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         state.setRequestState(MessageState.BODY_STREAM);
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
@@ -740,8 +753,10 @@ public class TestHttpAsyncService {
     public void testRequestContentCompleted() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         state.setRequestState(MessageState.BODY_STREAM);
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
@@ -773,8 +788,10 @@ public class TestHttpAsyncService {
     public void testRequestCompletedWithException() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         state.setRequestState(MessageState.BODY_STREAM);
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
@@ -997,8 +1014,10 @@ public class TestHttpAsyncService {
     public void testResponseContinue() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
@@ -1033,8 +1052,10 @@ public class TestHttpAsyncService {
     public void testResponseFailedExpectation() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
@@ -1141,8 +1162,10 @@ public class TestHttpAsyncService {
     public void testInvalidResponseStatus() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
@@ -1164,8 +1187,10 @@ public class TestHttpAsyncService {
     public void testInvalidResponseStatusToExpection() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/",
-                HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);

@@ -33,9 +33,6 @@ import java.io.OutputStream;
 
 /**
  * An entity that can be sent or received with an HTTP message.
- * Entities can be found in some
- * {@link HttpEntityEnclosingRequest requests} and in
- * {@link HttpResponse responses}, where they are optional.
  * <p>
  * There are three distinct types of entities in HttpCore,
  * depending on where their {@link #getContent content} originates:

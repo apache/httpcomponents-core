@@ -45,12 +45,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ChunkedOutputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
@@ -67,47 +64,20 @@ import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 import org.apache.http.util.NetUtils;
 
-/**
- * This class serves as a base for all {@link org.apache.http.BHttpConnection} implementations
- * and provides functionality common to both client and server HTTP connections.
- *
- * @since 4.0
- */
-@NotThreadSafe
-public class BHttpConnectionBase implements BHttpConnection {
+class BHttpConnectionBase implements BHttpConnection {
 
-    private final SessionInputBufferImpl inbuffer;
-    private final SessionOutputBufferImpl outbuffer;
-    private final MessageConstraints messageConstraints;
-    private final HttpConnectionMetricsImpl connMetrics;
-    private final ContentLengthStrategy incomingContentStrategy;
-    private final ContentLengthStrategy outgoingContentStrategy;
-    private final AtomicReference<Socket> socketHolder;
+    final SessionInputBufferImpl inbuffer;
+    final SessionOutputBufferImpl outbuffer;
+    final MessageConstraints messageConstraints;
+    final HttpConnectionMetricsImpl connMetrics;
+    final AtomicReference<Socket> socketHolder;
 
-    /**
-     * Creates new instance of BHttpConnectionBase.
-     *
-     * @param buffersize buffer size. Must be a positive number.
-     * @param fragmentSizeHint fragment size hint.
-     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
-     *   If {@code null} simple type cast will be used for byte to char conversion.
-     * @param charencoder encoder to be used for encoding HTTP protocol elements.
-     *   If {@code null} simple type cast will be used for char to byte conversion.
-     * @param messageConstraints Message constraints. If {@code null}
-     *   {@link MessageConstraints#DEFAULT} will be used.
-     * @param incomingContentStrategy incoming content length strategy. If {@code null}
-     *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
-     * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
-     *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
-     */
-    protected BHttpConnectionBase(
+    BHttpConnectionBase(
             final int buffersize,
             final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final MessageConstraints messageConstraints,
-            final ContentLengthStrategy incomingContentStrategy,
-            final ContentLengthStrategy outgoingContentStrategy) {
+            final MessageConstraints messageConstraints) {
         super();
         Args.positive(buffersize, "Buffer size");
         final HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
@@ -118,10 +88,6 @@ public class BHttpConnectionBase implements BHttpConnection {
                 charencoder);
         this.messageConstraints = messageConstraints;
         this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
-        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-            LaxContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-            StrictContentLengthStrategy.INSTANCE;
         this.socketHolder = new AtomicReference<Socket>();
     }
 
@@ -161,76 +127,57 @@ public class BHttpConnectionBase implements BHttpConnection {
         this.outbuffer.bind(null);
     }
 
-    protected SessionInputBuffer getSessionInputBuffer() {
-        return this.inbuffer;
-    }
-
-    protected SessionOutputBuffer getSessionOutputBuffer() {
-        return this.outbuffer;
-    }
-
-    protected void doFlush() throws IOException {
-        this.outbuffer.flush();
-    }
-
     @Override
     public boolean isOpen() {
         return this.socketHolder.get() != null;
     }
 
-    protected Socket getSocket() {
+    Socket getSocket() {
         return this.socketHolder.get();
     }
 
-    protected OutputStream createOutputStream(
+    protected OutputStream createContentOutputStream(
             final long len,
             final SessionOutputBuffer outbuffer) {
-        if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedOutputStream(2048, outbuffer);
-        } else if (len == ContentLengthStrategy.IDENTITY) {
-            return new IdentityOutputStream(outbuffer);
-        } else {
+        if (len >= 0) {
             return new ContentLengthOutputStream(outbuffer, len);
+        } else if (len == ContentLengthStrategy.CHUNKED) {
+            return new ChunkedOutputStream(2048, outbuffer);
+        } else {
+            return new IdentityOutputStream(outbuffer);
         }
     }
 
-    protected OutputStream prepareOutput(final HttpMessage message) throws HttpException {
-        final long len = this.outgoingContentStrategy.determineLength(message);
-        return createOutputStream(len, this.outbuffer);
-    }
-
-    protected InputStream createInputStream(
+    protected InputStream createContentInputStream(
             final long len,
             final SessionInputBuffer inbuffer) {
-        if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedInputStream(inbuffer, this.messageConstraints);
-        } else if (len == ContentLengthStrategy.IDENTITY) {
-            return new IdentityInputStream(inbuffer);
-        } else if (len == 0L) {
-            return EmptyInputStream.INSTANCE;
-        } else {
+        if (len > 0) {
             return new ContentLengthInputStream(inbuffer, len);
+        } else if (len == 0) {
+            return EmptyInputStream.INSTANCE;
+        } else if (len == ContentLengthStrategy.CHUNKED) {
+            return new ChunkedInputStream(inbuffer, this.messageConstraints);
+        } else {
+            return new IdentityInputStream(inbuffer);
         }
     }
 
-    protected HttpEntity prepareInput(final HttpMessage message) throws HttpException {
+    HttpEntity createIncomingEntity(
+            final HttpMessage message,
+            final SessionInputBuffer inbuffer,
+            final long len) throws HttpException {
         final BasicHttpEntity entity = new BasicHttpEntity();
-
-        final long len = this.incomingContentStrategy.determineLength(message);
-        final InputStream instream = createInputStream(len, this.inbuffer);
-        if (len == ContentLengthStrategy.CHUNKED) {
-            entity.setChunked(true);
-            entity.setContentLength(-1);
-            entity.setContent(instream);
-        } else if (len == ContentLengthStrategy.IDENTITY) {
-            entity.setChunked(false);
-            entity.setContentLength(-1);
-            entity.setContent(instream);
-        } else {
+        if (len >= 0) {
             entity.setChunked(false);
             entity.setContentLength(len);
-            entity.setContent(instream);
+        } else if (len == ContentLengthStrategy.CHUNKED) {
+            entity.setChunked(true);
+            entity.setContentLength(-1);
+        } else {
+            entity.setChunked(false);
+            entity.setContentLength(-1);
         }
+        entity.setContent(createContentInputStream(len, inbuffer));
 
         final Header contentTypeHeader = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
         if (contentTypeHeader != null) {
@@ -365,7 +312,7 @@ public class BHttpConnectionBase implements BHttpConnection {
     @Override
     public void flush() throws IOException {
         ensureOpen();
-        doFlush();
+        this.outbuffer.flush();
     }
 
     protected void incrementRequestCount() {

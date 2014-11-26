@@ -35,7 +35,7 @@ import java.util.Iterator;
  *
  * @since 4.0
  */
-public interface HttpMessage {
+public interface HttpMessage<T> {
 
     /**
      * Returns the protocol version this message is compatible with.
@@ -167,5 +167,26 @@ public interface HttpMessage {
      *         in the sequence they are sent over a connection.
      */
     Iterator<Header> headerIterator(String name);
+
+    /**
+     * Obtains the message entity, if available.
+     *
+     * @return  the message entity, or {@code null} if not available
+     *
+     * @since 5.0
+     */
+    T getEntity();
+
+    /**
+     * Sets an entity for this message.
+     * <p>
+     * Please note that if an entity has already been set it is responsibility of the caller
+     * to ensure release of the resources that may be associated with that entity.
+     *
+     * @param entity    the entity to set of this message, or {@code null} to unset
+     *
+     * @since 5.0
+     */
+    void setEntity(T entity);
 
 }

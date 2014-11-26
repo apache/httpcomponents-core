@@ -42,7 +42,6 @@ import org.apache.http.ConnectionClosedException;
 import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -151,30 +150,30 @@ public class HttpFileServer {
             }
             String target = request.getRequestLine().getUri();
 
-            if (request instanceof HttpEntityEnclosingRequest) {
-                HttpEntity entity = ((HttpEntityEnclosingRequest) request).getEntity();
-                byte[] entityContent = EntityUtils.toByteArray(entity);
-                System.out.println("Incoming entity content (bytes): " + entityContent.length);
+            HttpEntity incomingEntity = request.getEntity();
+            if (incomingEntity != null) {
+                byte[] entityContent = EntityUtils.toByteArray(incomingEntity);
+                System.out.println("Incoming incomingEntity content (bytes): " + entityContent.length);
             }
 
             final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists()) {
 
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
-                StringEntity entity = new StringEntity(
+                StringEntity outgoingEntity = new StringEntity(
                         "<html><body><h1>File" + file.getPath() +
                         " not found</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
-                response.setEntity(entity);
+                response.setEntity(outgoingEntity);
                 System.out.println("File " + file.getPath() + " not found");
 
             } else if (!file.canRead() || file.isDirectory()) {
 
                 response.setStatusCode(HttpStatus.SC_FORBIDDEN);
-                StringEntity entity = new StringEntity(
+                StringEntity outgoingEntity = new StringEntity(
                         "<html><body><h1>Access denied</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
-                response.setEntity(entity);
+                response.setEntity(outgoingEntity);
                 System.out.println("Cannot read file " + file.getPath());
 
             } else {

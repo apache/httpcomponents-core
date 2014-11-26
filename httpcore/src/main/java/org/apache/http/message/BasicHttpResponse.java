@@ -29,7 +29,6 @@ package org.apache.http.message;
 
 import java.util.Locale;
 
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
@@ -52,7 +51,6 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     private ProtocolVersion     ver;
     private int                 code;
     private String              reasonPhrase;
-    private HttpEntity          entity;
     private final ReasonPhraseCatalog reasonCatalog;
     private Locale              locale;
 
@@ -138,12 +136,6 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         return this.statusline;
     }
 
-    // non-javadoc, see interface HttpResponse
-    @Override
-    public HttpEntity getEntity() {
-        return this.entity;
-    }
-
     @Override
     public Locale getLocale() {
         return this.locale;
@@ -193,12 +185,6 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     public void setReasonPhrase(final String reason) {
         this.statusline = null;
         this.reasonPhrase = reason;
-    }
-
-    // non-javadoc, see interface HttpResponse
-    @Override
-    public void setEntity(final HttpEntity entity) {
-        this.entity = entity;
     }
 
     @Override

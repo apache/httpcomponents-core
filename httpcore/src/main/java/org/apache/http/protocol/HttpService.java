@@ -30,9 +30,10 @@ package org.apache.http.protocol;
 import java.io.IOException;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
@@ -161,31 +162,30 @@ public class HttpService {
         try {
 
             final HttpRequest request = conn.receiveRequestHeader();
-            if (request instanceof HttpEntityEnclosingRequest) {
-
-                if (((HttpEntityEnclosingRequest) request).expectContinue()) {
-                    response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
-                            HttpStatus.SC_CONTINUE, context);
-                    if (this.expectationVerifier != null) {
-                        try {
-                            this.expectationVerifier.verify(request, response, context);
-                        } catch (final HttpException ex) {
-                            response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
-                                    HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                            handleException(ex, response);
-                        }
+            final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+            final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+            if (expectContinue) {
+                response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
+                        HttpStatus.SC_CONTINUE, context);
+                if (this.expectationVerifier != null) {
+                    try {
+                        this.expectationVerifier.verify(request, response, context);
+                    } catch (final HttpException ex) {
+                        response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
+                                HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+                        handleException(ex, response);
                     }
-                    if (response.getStatusLine().getStatusCode() < 200) {
-                        // Send 1xx response indicating the server expections
-                        // have been met
-                        conn.sendResponseHeader(response);
-                        conn.flush();
-                        response = null;
-                        conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
-                    }
-                } else {
-                    conn.receiveRequestEntity((HttpEntityEnclosingRequest) request);
                 }
+                if (response.getStatusLine().getStatusCode() < 200) {
+                    // Send 1xx response indicating the server expections
+                    // have been met
+                    conn.sendResponseHeader(response);
+                    conn.flush();
+                    response = null;
+                    conn.receiveRequestEntity(request);
+                }
+            } else {
+                conn.receiveRequestEntity(request);
             }
 
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
@@ -198,10 +198,8 @@ public class HttpService {
             }
 
             // Make sure the request content is fully consumed
-            if (request instanceof HttpEntityEnclosingRequest) {
-                final HttpEntity entity = ((HttpEntityEnclosingRequest)request).getEntity();
-                EntityUtils.consume(entity);
-            }
+            final HttpEntity entity = request.getEntity();
+            EntityUtils.consume(entity);
 
         } catch (final HttpException ex) {
             response = this.responseFactory.newHttpResponse

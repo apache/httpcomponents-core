@@ -35,9 +35,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.ExceptionLogger;
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
@@ -283,11 +284,13 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         final Incoming incoming = new Incoming(request, requestHandler, consumer, context);
         state.setIncoming(incoming);
 
-        if (request instanceof HttpEntityEnclosingRequest) {
-
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
             // If 100-continue is expected make sure
             // there is no pending response data, no pipelined requests or buffered input
-            if (((HttpEntityEnclosingRequest) request).expectContinue()
+            final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+            final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+            if (expectContinue
                         && state.getResponseState() == MessageState.READY
                         && state.getPipeline().isEmpty()
                         && !conn.isDataAvailable()) {

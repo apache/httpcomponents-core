@@ -28,29 +28,31 @@ package org.apache.http.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.Socket;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.ProtocolException;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
 import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.io.ChunkedInputStream;
+import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.io.DefaultHttpResponseWriterFactory;
 import org.apache.http.message.BasicHttpResponse;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import org.junit.Assert;
 
 public class TestDefaultBHttpServerConnection {
 
@@ -97,7 +99,7 @@ public class TestDefaultBHttpServerConnection {
     }
 
     @Test
-    public void testReadRequestEntity() throws Exception {
+    public void testReadRequestEntityWithContentLength() throws Exception {
         final String s = "POST / HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123";
         final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
@@ -106,7 +108,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpEntityEnclosingRequest request = (HttpEntityEnclosingRequest) conn.receiveRequestHeader();
+        final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
         Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
@@ -122,6 +124,92 @@ public class TestDefaultBHttpServerConnection {
         Assert.assertNotNull(entity);
         Assert.assertEquals(3, entity.getContentLength());
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+        final InputStream content = entity.getContent();
+        Assert.assertNotNull(content);
+        Assert.assertTrue(content instanceof ContentLengthInputStream);
+    }
+
+    @Test
+    public void testReadRequestEntityChunckCoded() throws Exception {
+        final String s = "POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
+                "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n";
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(instream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getRequestCount());
+
+        final HttpRequest request = conn.receiveRequestHeader();
+
+        Assert.assertNotNull(request);
+        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
+        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
+        Assert.assertEquals("POST", request.getRequestLine().getMethod());
+        Assert.assertTrue(request.containsHeader("User-Agent"));
+        Assert.assertNull(request.getEntity());
+        Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+
+        conn.receiveRequestEntity(request);
+
+        final HttpEntity entity = request.getEntity();
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertEquals(true, entity.isChunked());
+        Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+        final InputStream content = entity.getContent();
+        Assert.assertNotNull(content);
+        Assert.assertTrue(content instanceof ChunkedInputStream);
+    }
+
+    @Test(expected = ProtocolException.class)
+    public void testReadRequestEntityIdentity() throws Exception {
+        final String s = "POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
+                "identity\r\n\r\n123";
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(instream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getRequestCount());
+
+        final HttpRequest request = conn.receiveRequestHeader();
+
+        Assert.assertNotNull(request);
+        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
+        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
+        Assert.assertEquals("POST", request.getRequestLine().getMethod());
+        Assert.assertTrue(request.containsHeader("User-Agent"));
+        Assert.assertNull(request.getEntity());
+        Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+
+        conn.receiveRequestEntity(request);
+    }
+
+    @Test
+    public void testReadRequestNoEntity() throws Exception {
+        final String s = "POST /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n";
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(instream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getRequestCount());
+
+        final HttpRequest request = conn.receiveRequestHeader();
+
+        Assert.assertNotNull(request);
+        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
+        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
+        Assert.assertEquals("POST", request.getRequestLine().getMethod());
+        Assert.assertTrue(request.containsHeader("User-Agent"));
+        Assert.assertNull(request.getEntity());
+        Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+
+        conn.receiveRequestEntity(request);
+
+        final HttpEntity entity = request.getEntity();
+        Assert.assertNull(entity);
     }
 
     @Test
@@ -164,7 +252,7 @@ public class TestDefaultBHttpServerConnection {
     }
 
     @Test
-    public void testWriteResponseEntity() throws Exception {
+    public void testWriteResponseEntityWithContentLength() throws Exception {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outstream);
 
@@ -173,7 +261,7 @@ public class TestDefaultBHttpServerConnection {
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader("User-Agent", "test");
+        response.addHeader("Server", "test");
         response.addHeader("Content-Length", "3");
         response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
 
@@ -183,7 +271,75 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
         final String s = new String(outstream.toByteArray(), "ASCII");
-        Assert.assertEquals("HTTP/1.1 200 OK\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123", s);
+        Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nContent-Length: 3\r\n\r\n123", s);
+    }
+
+    @Test
+    public void testWriteResponseEntityChunkCoded() throws Exception {
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getResponseCount());
+
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response.addHeader("Server", "test");
+        response.addHeader("Transfer-Encoding", "chunked");
+        response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
+
+        conn.sendResponseHeader(response);
+        conn.sendResponseEntity(response);
+        conn.flush();
+
+        Assert.assertEquals(1, conn.getMetrics().getResponseCount());
+        final String s = new String(outstream.toByteArray(), "ASCII");
+        Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: " +
+                "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
+    }
+
+    @Test
+    public void testWriteResponseEntityIdentity() throws Exception {
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getResponseCount());
+
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response.addHeader("Server", "test");
+        response.addHeader("Transfer-Encoding", "identity");
+        response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
+
+        conn.sendResponseHeader(response);
+        conn.sendResponseEntity(response);
+        conn.flush();
+
+        Assert.assertEquals(1, conn.getMetrics().getResponseCount());
+        final String s = new String(outstream.toByteArray(), "ASCII");
+        Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: identity\r\n\r\n123", s);
+    }
+
+    @Test
+    public void testWriteResponseNoEntity() throws Exception {
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getResponseCount());
+
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response.addHeader("Server", "test");
+
+        conn.sendResponseHeader(response);
+        conn.sendResponseEntity(response);
+        conn.flush();
+
+        Assert.assertEquals(1, conn.getMetrics().getResponseCount());
+        final String s = new String(outstream.toByteArray(), "ASCII");
+        Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\n\r\n", s);
     }
 
 }

@@ -52,7 +52,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
@@ -114,13 +113,13 @@ public class HttpBenchmark {
         final HttpVersion ver = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
         final HttpRequest request;
         if ("POST".equals(config.getMethod())) {
-            final BasicHttpEntityEnclosingRequest httppost =
-                    new BasicHttpEntityEnclosingRequest("POST", url.getPath(), ver);
+            final BasicHttpRequest httppost =
+                    new BasicHttpRequest("POST", url.getPath(), ver);
             httppost.setEntity(entity);
             request = httppost;
         } else if ("PUT".equals(config.getMethod())) {
-            final BasicHttpEntityEnclosingRequest httpput =
-                    new BasicHttpEntityEnclosingRequest("PUT", url.getPath(), ver);
+            final BasicHttpRequest httpput =
+                    new BasicHttpRequest("PUT", url.getPath(), ver);
             httpput.setEntity(entity);
             request = httpput;
         } else {

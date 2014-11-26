@@ -28,12 +28,10 @@
 package org.apache.http.impl.entity;
 
 import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElements;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
-import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -44,7 +42,7 @@ import org.apache.http.util.Args;
  * unrecognized transfer encodings and malformed {@code Content-Length}
  * header values.
  * <p>
- * This class recognizes "chunked" and "identitiy" transfer-coding only.
+ * This class recognizes "chunked" transfer-coding only.
  *
  * @since 4.0
  */
@@ -53,27 +51,11 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
 
     public static final LaxContentLengthStrategy INSTANCE = new LaxContentLengthStrategy();
 
-    private final int implicitLen;
-
     /**
-     * Creates {@code LaxContentLengthStrategy} instance with the given length used per default
-     * when content length is not explicitly specified in the message.
-     *
-     * @param implicitLen implicit content length.
-     *
-     * @since 4.2
-     */
-    public LaxContentLengthStrategy(final int implicitLen) {
-        super();
-        this.implicitLen = implicitLen;
-    }
-
-    /**
-     * Creates {@code LaxContentLengthStrategy} instance. {@link ContentLengthStrategy#IDENTITY}
+     * Creates {@code LaxContentLengthStrategy} instance. {@link ContentLengthStrategy#UNDEFINED}
      * is used per default when content length is not explicitly specified in the message.
      */
     public LaxContentLengthStrategy() {
-        this(IDENTITY);
     }
 
     @Override
@@ -81,27 +63,17 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         Args.notNull(message, "HTTP message");
 
         final Header transferEncodingHeader = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
-        // We use Transfer-Encoding if present and ignore Content-Length.
-        // RFC2616, 4.4 item number 3
+        // Although Transfer-Encoding is specified as a list, in practice
+        // it is either missing or has the single value "chunked". So we
+        // treat it as a single-valued header here.
         if (transferEncodingHeader != null) {
-            final HeaderElement[] encodings;
-            try {
-                encodings = transferEncodingHeader.getElements();
-            } catch (final ParseException px) {
-                throw new ProtocolException
-                    ("Invalid Transfer-Encoding header value: " +
-                     transferEncodingHeader, px);
-            }
-            // The chunked encoding must be the last one applied RFC2616, 14.41
-            final int len = encodings.length;
-            if (HeaderElements.IDENTITY_ENCODING.equalsIgnoreCase(
-                    transferEncodingHeader.getValue())) {
-                return IDENTITY;
-            } else if ((len > 0) && (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase
-                    (encodings[len - 1].getName()))) {
+            final String s = transferEncodingHeader.getValue();
+            if (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(s)) {
                 return CHUNKED;
-            } else {
+            } else if (HeaderElements.IDENTITY_ENCODING.equalsIgnoreCase(s)) {
                 return IDENTITY;
+            } else {
+                throw new ProtocolException("Unsupported transfer encoding: " + s);
             }
         }
         if (message.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
@@ -119,10 +91,10 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
             if (contentlen >= 0) {
                 return contentlen;
             } else {
-                return IDENTITY;
+                throw new ProtocolException("Invalid content length");
             }
         }
-        return this.implicitLen;
+        return UNDEFINED;
     }
 
 }
