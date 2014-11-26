@@ -30,7 +30,6 @@ package org.apache.http.nio.util;
 import java.nio.ByteBuffer;
 
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.BufferInfo;
 import org.apache.http.util.Args;
 
 /**
@@ -43,7 +42,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class ExpandableBuffer implements BufferInfo {
+public class ExpandableBuffer {
 
     public final static int INPUT_MODE = 0;
     public final static int OUTPUT_MODE = 1;
@@ -136,7 +135,6 @@ public class ExpandableBuffer implements BufferInfo {
      *
      * @return total capacity.
      */
-    @Override
     public int capacity() {
         return this.buffer.capacity();
     }
@@ -157,7 +155,6 @@ public class ExpandableBuffer implements BufferInfo {
      *
      * @return buffer length.
      */
-    @Override
     public int length() {
         setOutputMode();
         return this.buffer.remaining();
@@ -168,7 +165,6 @@ public class ExpandableBuffer implements BufferInfo {
      *
      * @return buffer length.
      */
-    @Override
     public int available() {
         setInputMode();
         return this.buffer.remaining();

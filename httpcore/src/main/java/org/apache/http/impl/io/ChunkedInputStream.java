@@ -37,7 +37,6 @@ import org.apache.http.MalformedChunkCodingException;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
-import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
@@ -118,12 +117,8 @@ public class ChunkedInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        if (this.in instanceof BufferInfo) {
-            final int len = ((BufferInfo) this.in).length();
-            return Math.min(len, this.chunkSize - this.pos);
-        } else {
-            return 0;
-        }
+        final int len = this.in.length();
+        return Math.min(len, this.chunkSize - this.pos);
     }
 
     /**

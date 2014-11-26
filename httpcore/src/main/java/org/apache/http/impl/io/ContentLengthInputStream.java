@@ -32,7 +32,6 @@ import java.io.InputStream;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.Args;
 
@@ -113,12 +112,8 @@ public class ContentLengthInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        if (this.in instanceof BufferInfo) {
-            final int len = ((BufferInfo) this.in).length();
-            return Math.min(len, (int) (this.contentLength - this.pos));
-        } else {
-            return 0;
-        }
+        final int len = this.in.length();
+        return Math.min(len, (int) (this.contentLength - this.pos));
     }
 
     /**

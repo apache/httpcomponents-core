@@ -55,6 +55,20 @@ public interface SessionOutputBuffer {
     boolean hasData();
 
     /**
+     * Returns total capacity of the buffer
+     *
+     * @return total capacity
+     */
+    int capacity();
+
+    /**
+     * Returns available space in the buffer.
+     *
+     * @return available space.
+     */
+    int available();
+
+    /**
      * Returns the length of this buffer.
      *
      * @return buffer length.

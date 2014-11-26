@@ -33,7 +33,6 @@ import java.nio.channels.WritableByteChannel;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.http.io.BufferInfo;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -48,8 +47,6 @@ public class ChunkEncoder extends AbstractContentEncoder {
 
     private final int fragHint;
     private final CharArrayBuffer lineBuffer;
-
-    private final BufferInfo bufferinfo;
 
     /**
      * @since 4.3
@@ -69,11 +66,6 @@ public class ChunkEncoder extends AbstractContentEncoder {
         super(channel, buffer, metrics);
         this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
-        if (buffer instanceof BufferInfo) {
-            this.bufferinfo = (BufferInfo) buffer;
-        } else {
-            this.bufferinfo = null;
-        }
     }
 
     public ChunkEncoder(
@@ -94,11 +86,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
         while (src.hasRemaining()) {
             int chunk = src.remaining();
             int avail;
-            if (this.bufferinfo != null) {
-                avail = this.bufferinfo.available();
-            } else {
-                avail = 4096;
-            }
+            avail = this.buffer.available();
 
             // subtract the length of the longest chunk header
             // 12345678\r\n

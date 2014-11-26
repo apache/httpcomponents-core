@@ -37,6 +37,13 @@ import java.io.IOException;
 public interface ContentOutputBuffer {
 
     /**
+     * Return length data stored in the buffer
+     *
+     * @return data length
+     */
+    int length();
+
+    /**
      * Resets the buffer by clearing its state and stored content.
      */
     void reset();

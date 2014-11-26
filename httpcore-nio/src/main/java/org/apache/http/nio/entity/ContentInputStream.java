@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.BufferInfo;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.util.Args;
 
@@ -53,11 +52,7 @@ public class ContentInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        if (this.buffer instanceof BufferInfo) {
-            return ((BufferInfo) this.buffer).length();
-        } else {
-            return super.available();
-        }
+        return this.buffer.length();
     }
 
     @Override

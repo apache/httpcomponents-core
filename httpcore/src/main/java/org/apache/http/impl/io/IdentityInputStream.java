@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.io.BufferInfo;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.util.Args;
 
@@ -66,11 +65,7 @@ public class IdentityInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        if (this.in instanceof BufferInfo) {
-            return ((BufferInfo) this.in).length();
-        } else {
-            return 0;
-        }
+        return this.in.length();
     }
 
     @Override

@@ -43,6 +43,27 @@ import org.apache.http.util.CharArrayBuffer;
 public interface SessionInputBuffer {
 
     /**
+     * Return length data stored in the buffer
+     *
+     * @return data length
+     */
+    int length();
+
+    /**
+     * Returns total capacity of the buffer
+     *
+     * @return total capacity
+     */
+    int capacity();
+
+    /**
+     * Returns available space in the buffer.
+     *
+     * @return available space.
+     */
+    int available();
+
+    /**
      * Reads up to {@code len} bytes of data from the session buffer into
      * an array of bytes.  An attempt is made to read as many as
      * {@code len} bytes, but a smaller number may be read, possibly

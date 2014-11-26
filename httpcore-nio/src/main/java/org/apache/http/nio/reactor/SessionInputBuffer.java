@@ -62,6 +62,20 @@ public interface SessionInputBuffer {
     int length();
 
     /**
+     * Returns total capacity of the buffer
+     *
+     * @return total capacity
+     */
+    int capacity();
+
+    /**
+     * Returns available space in the buffer.
+     *
+     * @return available space.
+     */
+    int available();
+
+    /**
      * Makes an attempt to fill the buffer with data from the given
      * {@link ReadableByteChannel}.
      *

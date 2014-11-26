@@ -43,6 +43,27 @@ import org.apache.http.util.CharArrayBuffer;
 public interface SessionOutputBuffer {
 
     /**
+     * Return length data stored in the buffer
+     *
+     * @return data length
+     */
+    int length();
+
+    /**
+     * Returns total capacity of the buffer
+     *
+     * @return total capacity
+     */
+    int capacity();
+
+    /**
+     * Returns available space in the buffer.
+     *
+     * @return available space.
+     */
+    int available();
+
+    /**
      * Writes {@code len} bytes from the specified byte array
      * starting at offset {@code off} to this session buffer.
      * <p>
