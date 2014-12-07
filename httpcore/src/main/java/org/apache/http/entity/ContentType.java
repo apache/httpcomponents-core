@@ -30,7 +30,11 @@ package org.apache.http.entity;
 import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.apache.http.Consts;
 import org.apache.http.Header;
@@ -40,6 +44,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.message.BasicHeaderValueFormatter;
 import org.apache.http.message.BasicHeaderValueParser;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.ParserCursor;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
@@ -208,8 +213,10 @@ public final class ContentType implements Serializable {
         if (TextUtils.isBlank(mimeType)) {
             return null;
         }
-        final NameValuePair[] params = helem.getParameters();
+        return create(helem.getName(), helem.getParameters(), strict);
+    }
 
+    private static ContentType create(final String mimeType, final NameValuePair[] params, final boolean strict) {
         Charset charset = null;
         for (final NameValuePair param: params) {
             if (param.getName().equalsIgnoreCase("charset")) {
@@ -227,6 +234,23 @@ public final class ContentType implements Serializable {
             }
         }
         return new ContentType(mimeType, charset, params != null && params.length > 0 ? params : null);
+    }
+
+    /**
+     * Creates a new instance of {@link ContentType} with the given parameters.
+     *
+     * @param mimeType MIME type. It may not be {@code null} or empty. It may not contain
+     *        characters {@code <">, <;>, <,>} reserved by the HTTP specification.
+     * @param params parameters.
+     * @return content type
+     *
+     * @since 4.4
+     */
+    public static ContentType create(
+            final String mimeType, final NameValuePair... params) throws UnsupportedCharsetException {
+        final String type = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.ROOT);
+        Args.check(valid(type), "MIME type may not contain reserved characters");
+        return create(mimeType, params, true);
     }
 
     /**
@@ -338,6 +362,50 @@ public final class ContentType implements Serializable {
      */
     public ContentType withCharset(final Charset charset) {
         return create(this.getMimeType(), charset);
+    }
+
+    /**
+     * Creates a new instance with this MIME type and the given Charset name.
+     *
+     * @param charset name
+     * @return a new instance with this MIME type and the given Charset name.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * this instance of the Java virtual machine
+     * @since 4.3
+     */
+    public ContentType withCharset(final String charset) {
+        return create(this.getMimeType(), charset);
+    }
+
+    /**
+     * Creates a new instance with this MIME type and the given parameters.
+     *
+     * @param params
+     * @return a new instance with this MIME type and the given parameters.
+     * @since 4.4
+     */
+    public ContentType withParameters(
+            final NameValuePair... params) throws UnsupportedCharsetException {
+        if (params.length == 0) {
+            return this;
+        }
+        final Map<String, String> paramMap = new LinkedHashMap<String, String>();
+        if (this.params != null) {
+            for (NameValuePair param: this.params) {
+                paramMap.put(param.getName(), param.getValue());
+            }
+        }
+        for (NameValuePair param: params) {
+            paramMap.put(param.getName(), param.getValue());
+        }
+        final List<NameValuePair> newParams = new ArrayList<NameValuePair>(paramMap.size() + 1);
+        if (this.charset != null && !paramMap.containsKey("charset")) {
+            newParams.add(new BasicNameValuePair("charset", this.charset.name()));
+        }
+        for (Map.Entry<String, String> entry: paramMap.entrySet()) {
+            newParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
+        }
+        return create(this.getMimeType(), newParams.toArray(new NameValuePair[newParams.size()]), true);
     }
 
 }
