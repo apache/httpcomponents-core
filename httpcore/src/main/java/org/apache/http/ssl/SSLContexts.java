@@ -58,6 +58,8 @@ public class SSLContexts {
      * are not taken into consideration.
      *
      * @return the default SSL socket factory
+     * @throws SSLInitializationException if NoSuchAlgorithmException or KeyManagementException
+     * are thrown when invoking {@link SSLContext#getInstance(String)}
      */
     public static SSLContext createDefault() throws SSLInitializationException {
         try {
@@ -79,6 +81,7 @@ public class SSLContexts {
      * {@code Default} algorithm is not available.
      *
      * @return default system SSL context
+     * @throws SSLInitializationException if {@link #createDefault()} throws it
      */
     public static SSLContext createSystemDefault() throws SSLInitializationException {
         try {
