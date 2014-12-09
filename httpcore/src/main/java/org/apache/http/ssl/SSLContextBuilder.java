@@ -44,7 +44,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -80,8 +80,8 @@ public class SSLContextBuilder {
 
     public SSLContextBuilder() {
         super();
-        this.keymanagers = new HashSet<KeyManager>();
-        this.trustmanagers = new HashSet<TrustManager>();
+        this.keymanagers = new LinkedHashSet<KeyManager>();
+        this.trustmanagers = new LinkedHashSet<TrustManager>();
     }
 
     public SSLContextBuilder useProtocol(final String protocol) {
