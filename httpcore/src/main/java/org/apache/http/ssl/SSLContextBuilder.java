@@ -43,6 +43,7 @@ import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -255,13 +256,21 @@ public class SSLContextBuilder {
         return loadKeyMaterial(url, storePassword, keyPassword, null);
     }
 
+    protected void initSSLContext(
+            final SSLContext sslcontext,
+            final Collection<KeyManager> keyManagers,
+            final Collection<TrustManager> trustManagers,
+            final SecureRandom secureRandom) throws KeyManagementException {
+        sslcontext.init(
+                !keyManagers.isEmpty() ? keyManagers.toArray(new KeyManager[keyManagers.size()]) : null,
+                !trustManagers.isEmpty() ? trustManagers.toArray(new TrustManager[trustManagers.size()]) : null,
+                secureRandom);
+    }
+
     public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException {
         final SSLContext sslcontext = SSLContext.getInstance(
                 this.protocol != null ? this.protocol : TLS);
-        sslcontext.init(
-                !keymanagers.isEmpty() ? keymanagers.toArray(new KeyManager[keymanagers.size()]) : null,
-                !trustmanagers.isEmpty() ? trustmanagers.toArray(new TrustManager[trustmanagers.size()]) : null,
-                secureRandom);
+        initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
         return sslcontext;
     }
 
