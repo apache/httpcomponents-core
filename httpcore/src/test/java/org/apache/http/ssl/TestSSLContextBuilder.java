@@ -27,6 +27,7 @@
 
 package org.apache.http.ssl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
@@ -346,7 +347,7 @@ public class TestSSLContextBuilder {
         Assert.assertNull(clientPrincipal);
     }
 
-    @Test(expected = SSLHandshakeException.class)
+    @Test(expected = IOException.class)
     public void testSSLHanskshakeClientUnauthenticatedError() throws Exception {
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
