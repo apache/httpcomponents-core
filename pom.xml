@@ -78,7 +78,7 @@
     <junit.version>4.11</junit.version>
     <mockito.version>1.8.5</mockito.version>
     <commons-logging.version>1.2</commons-logging.version>
-    <api.comparison.version>4.3</api.comparison.version>
+    <api.comparison.version>4.4</api.comparison.version>
     <hc.stylecheck.version>1</hc.stylecheck.version>
   </properties>
 
