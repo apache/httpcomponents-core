@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  * requirements of the HTTP protocol or a related protocol that are now obsolete.
  */
 @Documented
-@Target({ElementType.FIELD, ElementType.METHOD})
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS)
 public @interface Obsolete {
 }
