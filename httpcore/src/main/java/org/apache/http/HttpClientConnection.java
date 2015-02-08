@@ -79,12 +79,4 @@ public interface HttpClientConnection extends BHttpConnection {
     void receiveResponseEntity(HttpResponse response)
         throws HttpException, IOException;
 
-    /**
-     * Writes out all pending buffered data over the open connection.
-     *
-     * @throws IOException in case of an I/O error
-     */
-    @Override
-    void flush() throws IOException;
-
 }
