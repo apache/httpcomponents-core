@@ -53,8 +53,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class LengthDelimitedDecoder extends AbstractContentDecoder
-        implements FileContentDecoder {
+public class LengthDelimitedDecoder extends AbstractContentDecoder implements FileContentDecoder {
 
     private final long contentLength;
 

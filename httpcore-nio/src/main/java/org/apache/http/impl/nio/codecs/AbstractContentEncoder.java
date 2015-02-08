@@ -47,14 +47,11 @@ import org.apache.http.util.Asserts;
 @NotThreadSafe
 public abstract class AbstractContentEncoder implements ContentEncoder {
 
-    protected final WritableByteChannel channel;
-    protected final SessionOutputBuffer buffer;
-    protected final HttpTransportMetricsImpl metrics;
+    final WritableByteChannel channel;
+    final SessionOutputBuffer buffer;
+    final HttpTransportMetricsImpl metrics;
 
-    /**
-     * TODO: make private
-     */
-    protected boolean completed;
+    boolean completed;
 
     /**
      * Creates an instance of this class.
@@ -75,6 +72,18 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
         this.buffer = buffer;
         this.channel = channel;
         this.metrics = metrics;
+    }
+
+    protected WritableByteChannel channel() {
+        return this.channel;
+    }
+
+    protected SessionOutputBuffer buffer() {
+        return this.buffer;
+    }
+
+    protected HttpTransportMetricsImpl metrics() {
+        return this.metrics;
     }
 
     @Override

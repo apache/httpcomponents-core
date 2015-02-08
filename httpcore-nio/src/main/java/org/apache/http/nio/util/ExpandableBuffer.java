@@ -50,7 +50,7 @@ public class ExpandableBuffer {
     private final ByteBufferAllocator allocator;
 
     private int mode;
-    protected ByteBuffer buffer = null;
+    private ByteBuffer buffer;
 
     /**
      * Allocates buffer of the given size using the given allocator.
@@ -75,8 +75,12 @@ public class ExpandableBuffer {
      *
      * @return current input/output mode.
      */
-    protected int getMode() {
+    protected int mode() {
         return this.mode;
+    }
+
+    protected ByteBuffer buffer() {
+        return this.buffer;
     }
 
     /**
@@ -182,7 +186,7 @@ public class ExpandableBuffer {
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("[mode=");
-        if (getMode() == INPUT_MODE) {
+        if (mode() == INPUT_MODE) {
             sb.append("in");
         } else {
             sb.append("out");

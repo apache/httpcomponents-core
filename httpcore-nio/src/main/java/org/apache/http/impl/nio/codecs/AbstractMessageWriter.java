@@ -49,7 +49,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 @NotThreadSafe
-public abstract class AbstractMessageWriter<T extends HttpMessage> implements NHttpMessageWriter<T> {
+public abstract class AbstractMessageWriter<T extends HttpMessage<?>> implements NHttpMessageWriter<T> {
 
     private final CharArrayBuffer lineBuf;
     private final LineFormatter lineFormatter;

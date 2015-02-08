@@ -148,7 +148,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             setOutputMode();
             int bytesWritten = 0;
             if (super.hasData()) {
-                bytesWritten = encoder.write(this.buffer);
+                bytesWritten = encoder.write(buffer());
                 if (encoder.isCompleted()) {
                     this.endOfStream = true;
                 }
@@ -202,12 +202,12 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
             setInputMode();
             int remaining = len;
             while (remaining > 0) {
-                if (!this.buffer.hasRemaining()) {
+                if (!buffer().hasRemaining()) {
                     flushContent();
                     setInputMode();
                 }
-                final int chunk = Math.min(remaining, this.buffer.remaining());
-                this.buffer.put(b, pos, chunk);
+                final int chunk = Math.min(remaining, buffer().remaining());
+                buffer().put(b, pos, chunk);
                 remaining -= chunk;
                 pos += chunk;
             }
@@ -229,11 +229,11 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
         try {
             Asserts.check(!this.shutdown && !this.endOfStream, "Buffer already closed for writing");
             setInputMode();
-            if (!this.buffer.hasRemaining()) {
+            if (!buffer().hasRemaining()) {
                 flushContent();
                 setInputMode();
             }
-            this.buffer.put((byte)b);
+            buffer().put((byte)b);
         } finally {
             this.lock.unlock();
         }

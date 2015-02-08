@@ -121,19 +121,19 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
             if (!this.done) {
                 this.lineBuffer.clear();
                 this.lineBuffer.append(Integer.toHexString(GARBAGE.length * 10));
-                this.buffer.writeLine(this.lineBuffer);
-                this.buffer.write(ByteBuffer.wrap(GARBAGE));
+                this.buffer().writeLine(this.lineBuffer);
+                this.buffer().write(ByteBuffer.wrap(GARBAGE));
                 this.done = true;
                 chunk = GARBAGE.length;
             } else {
                 chunk = 0;
             }
-            final long bytesWritten = this.buffer.flush(this.channel);
+            final long bytesWritten = this.buffer().flush(this.channel());
             if (bytesWritten > 0) {
-                this.metrics.incrementBytesTransferred(bytesWritten);
+                this.metrics().incrementBytesTransferred(bytesWritten);
             }
-            if (!this.buffer.hasData()) {
-                this.channel.close();
+            if (!this.buffer().hasData()) {
+                this.channel().close();
             }
             return chunk;
         }

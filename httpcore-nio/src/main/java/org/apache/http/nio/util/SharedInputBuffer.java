@@ -107,13 +107,13 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             setInputMode();
             int totalRead = 0;
             int bytesRead;
-            while ((bytesRead = decoder.read(this.buffer)) > 0) {
+            while ((bytesRead = decoder.read(buffer())) > 0) {
                 totalRead += bytesRead;
             }
             if (bytesRead == -1 || decoder.isCompleted()) {
                 this.endOfStream = true;
             }
-            if (!this.buffer.hasRemaining()) {
+            if (!buffer().hasRemaining()) {
                 if (this.ioctrl != null) {
                     this.ioctrl.suspendInput();
                 }
@@ -242,7 +242,7 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             if (isEndOfStream()) {
                 return -1;
             }
-            return this.buffer.get() & 0xff;
+            return buffer().get() & 0xff;
         } finally {
             this.lock.unlock();
         }
@@ -266,10 +266,10 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
             }
             setOutputMode();
             int chunk = len;
-            if (chunk > this.buffer.remaining()) {
-                chunk = this.buffer.remaining();
+            if (chunk > buffer().remaining()) {
+                chunk = buffer().remaining();
             }
-            this.buffer.get(b, off, chunk);
+            buffer().get(b, off, chunk);
             return chunk;
         } finally {
             this.lock.unlock();

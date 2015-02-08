@@ -56,11 +56,11 @@ public class WritableByteChannelMock implements WritableByteChannel {
             setInputMode();
             if (this.capacityLimit > 0) {
                 if (this.curCapacity > 0) {
-                    final int requiredCapacity = this.buffer.position() + this.curCapacity;
+                    final int requiredCapacity = buffer().position() + this.curCapacity;
                     ensureCapacity(requiredCapacity);
                     int count = 0;
                     while (src.hasRemaining() && this.curCapacity > 0) {
-                        this.buffer.put(src.get());
+                        buffer().put(src.get());
                         count++;
                         this.curCapacity--;
                     }
@@ -70,9 +70,9 @@ public class WritableByteChannelMock implements WritableByteChannel {
                 }
             } else {
                 final int chunk = src.remaining();
-                final int requiredCapacity = this.buffer.position() + src.remaining();
+                final int requiredCapacity = buffer().position() + src.remaining();
                 ensureCapacity(requiredCapacity);
-                this.buffer.put(src);
+                buffer().put(src);
                 return chunk;
             }
         }
@@ -93,11 +93,11 @@ public class WritableByteChannelMock implements WritableByteChannel {
 
         public String dump(final Charset charset) {
             setOutputMode();
-            if (this.buffer.hasArray()) {
-                return toString(this.buffer.array(), this.buffer.position(), this.buffer.limit(),
+            if (buffer().hasArray()) {
+                return toString(buffer().array(), buffer().position(), buffer().limit(),
                     charset);
             } else {
-                final ByteBuffer dup = this.buffer.duplicate();
+                final ByteBuffer dup = buffer().duplicate();
                 final byte[] b = new byte[dup.remaining()];
                 int i = 0;
                 while (dup.hasRemaining()) {

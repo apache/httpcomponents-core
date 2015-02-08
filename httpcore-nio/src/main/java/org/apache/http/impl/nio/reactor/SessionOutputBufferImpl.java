@@ -116,7 +116,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     public int flush(final WritableByteChannel channel) throws IOException {
         Args.notNull(channel, "Channel");
         setOutputMode();
-        return channel.write(this.buffer);
+        return channel.write(buffer());
     }
 
     @Override
@@ -125,9 +125,9 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             return;
         }
         setInputMode();
-        final int requiredCapacity = this.buffer.position() + src.remaining();
+        final int requiredCapacity = buffer().position() + src.remaining();
         ensureCapacity(requiredCapacity);
-        this.buffer.put(src);
+        buffer().put(src);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             return;
         }
         setInputMode();
-        src.read(this.buffer);
+        src.read(buffer());
     }
 
     private void write(final byte[] b) {
@@ -146,9 +146,9 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         setInputMode();
         final int off = 0;
         final int len = b.length;
-        final int requiredCapacity = this.buffer.position() + len;
+        final int requiredCapacity = buffer().position() + len;
         ensureCapacity(requiredCapacity);
-        this.buffer.put(b, off, len);
+        buffer().put(b, off, len);
     }
 
     private void writeCRLF() {
@@ -164,19 +164,19 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         // Do not bother if the buffer is empty
         if (linebuffer.length() > 0 ) {
             if (this.charencoder == null) {
-                final int requiredCapacity = this.buffer.position() + linebuffer.length();
+                final int requiredCapacity = buffer().position() + linebuffer.length();
                 ensureCapacity(requiredCapacity);
-                if (this.buffer.hasArray()) {
-                    final byte[] b = this.buffer.array();
+                if (buffer().hasArray()) {
+                    final byte[] b = buffer().array();
                     final int len = linebuffer.length();
-                    final int off = this.buffer.position();
+                    final int off = buffer().position();
                     for (int i = 0; i < len; i++) {
                         b[off + i]  = (byte) linebuffer.charAt(i);
                     }
-                    this.buffer.position(off + len);
+                    buffer().position(off + len);
                 } else {
                     for (int i = 0; i < linebuffer.length(); i++) {
-                        this.buffer.put((byte) linebuffer.charAt(i));
+                        buffer().put((byte) linebuffer.charAt(i));
                     }
                 }
             } else {
@@ -200,7 +200,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
                     boolean retry = true;
                     while (retry) {
-                        final CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
+                        final CoderResult result = this.charencoder.encode(this.charbuffer, buffer(), eol);
                         if (result.isError()) {
                             result.throwException();
                         }
@@ -216,7 +216,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                 // flush the encoder
                 boolean retry = true;
                 while (retry) {
-                    final CoderResult result = this.charencoder.flush(this.buffer);
+                    final CoderResult result = this.charencoder.flush(buffer());
                     if (result.isError()) {
                         result.throwException();
                     }

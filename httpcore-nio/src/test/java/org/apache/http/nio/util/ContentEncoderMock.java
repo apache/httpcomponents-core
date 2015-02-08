@@ -51,7 +51,7 @@ public class ContentEncoderMock extends AbstractContentEncoder {
             return 0;
         }
         Asserts.check(!isCompleted(), "Decoding process already completed");
-        return this.channel.write(src);
+        return this.channel().write(src);
     }
 
 }

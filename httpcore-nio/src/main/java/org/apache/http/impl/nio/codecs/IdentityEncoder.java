@@ -50,8 +50,7 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
  * @since 4.0
  */
 @NotThreadSafe
-public class IdentityEncoder extends AbstractContentEncoder
-        implements FileContentEncoder {
+public class IdentityEncoder extends AbstractContentEncoder implements FileContentEncoder {
 
     private final int fragHint;
 

@@ -36,6 +36,11 @@ import org.apache.http.entity.AbstractImmutableHttpEntity;
 import org.apache.http.entity.HttpContentProducer;
 import org.apache.http.impl.io.EmptyInputStream;
 
+/**
+ * Represents entity received from an open connection.
+ *
+ * @since 5.0
+ */
 @NotThreadSafe
 public class IncomingHttpEntity extends AbstractImmutableHttpEntity implements HttpContentProducer {
 

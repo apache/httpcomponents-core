@@ -52,8 +52,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class LengthDelimitedEncoder extends AbstractContentEncoder
-        implements FileContentEncoder {
+public class LengthDelimitedEncoder extends AbstractContentEncoder implements FileContentEncoder {
 
     private final long contentLength;
     private final int fragHint;

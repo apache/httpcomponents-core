@@ -52,7 +52,7 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 @NotThreadSafe
-public abstract class AbstractMessageParser<T extends HttpMessage> implements NHttpMessageParser<T> {
+public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements NHttpMessageParser<T> {
 
     private static final int READ_HEAD_LINE = 0;
     private static final int READ_HEADERS   = 1;

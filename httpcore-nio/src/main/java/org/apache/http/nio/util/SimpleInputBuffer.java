@@ -64,9 +64,9 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         setInputMode();
         int totalRead = 0;
         int bytesRead;
-        while ((bytesRead = decoder.read(this.buffer)) != -1) {
+        while ((bytesRead = decoder.read(buffer())) != -1) {
             if (bytesRead == 0) {
-                if (!this.buffer.hasRemaining()) {
+                if (!buffer().hasRemaining()) {
                     expand();
                 } else {
                     break;
@@ -91,7 +91,7 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
             return -1;
         }
         setOutputMode();
-        return this.buffer.get() & 0xff;
+        return buffer().get() & 0xff;
     }
 
     @Override
@@ -104,10 +104,10 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
         }
         setOutputMode();
         int chunk = len;
-        if (chunk > this.buffer.remaining()) {
-            chunk = this.buffer.remaining();
+        if (chunk > buffer().remaining()) {
+            chunk = buffer().remaining();
         }
-        this.buffer.get(b, off, chunk);
+        buffer().get(b, off, chunk);
         return chunk;
     }
 

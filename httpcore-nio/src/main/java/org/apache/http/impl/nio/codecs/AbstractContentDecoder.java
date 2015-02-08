@@ -46,11 +46,11 @@ import org.apache.http.util.Args;
 @NotThreadSafe
 public abstract class AbstractContentDecoder implements ContentDecoder {
 
-    protected final ReadableByteChannel channel;
-    protected final SessionInputBuffer buffer;
-    protected final HttpTransportMetricsImpl metrics;
+    final ReadableByteChannel channel;
+    final SessionInputBuffer buffer;
+    final HttpTransportMetricsImpl metrics;
 
-    protected boolean completed;
+    boolean completed;
 
     /**
      * Creates an instance of this class.
@@ -71,6 +71,18 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
         this.buffer = buffer;
         this.channel = channel;
         this.metrics = metrics;
+    }
+
+    protected ReadableByteChannel channel() {
+        return this.channel;
+    }
+
+    protected SessionInputBuffer buffer() {
+        return this.buffer;
+    }
+
+    protected HttpTransportMetricsImpl metrics() {
+        return this.metrics;
     }
 
     @Override

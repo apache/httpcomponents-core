@@ -154,16 +154,16 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     public int fill(final ReadableByteChannel channel) throws IOException {
         Args.notNull(channel, "Channel");
         setInputMode();
-        if (!this.buffer.hasRemaining()) {
+        if (!buffer().hasRemaining()) {
             expand();
         }
-        return channel.read(this.buffer);
+        return channel.read(buffer());
     }
 
     @Override
     public int read() {
         setOutputMode();
-        return this.buffer.get() & 0xff;
+        return buffer().get() & 0xff;
     }
 
     @Override
@@ -173,16 +173,16 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         }
         setOutputMode();
         final int len = Math.min(dst.remaining(), maxLen);
-        final int chunk = Math.min(this.buffer.remaining(), len);
-        if (this.buffer.remaining() > chunk) {
-            final int oldLimit = this.buffer.limit();
-            final int newLimit = this.buffer.position() + chunk;
-            this.buffer.limit(newLimit);
-            dst.put(this.buffer);
-            this.buffer.limit(oldLimit);
+        final int chunk = Math.min(buffer().remaining(), len);
+        if (buffer().remaining() > chunk) {
+            final int oldLimit = buffer().limit();
+            final int newLimit = buffer().position() + chunk;
+            buffer().limit(newLimit);
+            dst.put(buffer());
+            buffer().limit(oldLimit);
             return len;
         } else {
-            dst.put(this.buffer);
+            dst.put(buffer());
         }
         return chunk;
     }
@@ -202,14 +202,14 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         }
         setOutputMode();
         final int bytesRead;
-        if (this.buffer.remaining() > maxLen) {
-            final int oldLimit = this.buffer.limit();
-            final int newLimit = oldLimit - (this.buffer.remaining() - maxLen);
-            this.buffer.limit(newLimit);
-            bytesRead = dst.write(this.buffer);
-            this.buffer.limit(oldLimit);
+        if (buffer().remaining() > maxLen) {
+            final int oldLimit = buffer().limit();
+            final int newLimit = oldLimit - (buffer().remaining() - maxLen);
+            buffer().limit(newLimit);
+            bytesRead = dst.write(buffer());
+            buffer().limit(oldLimit);
         } else {
-            bytesRead = dst.write(this.buffer);
+            bytesRead = dst.write(buffer());
         }
         return bytesRead;
     }
@@ -220,7 +220,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             return 0;
         }
         setOutputMode();
-        return dst.write(this.buffer);
+        return dst.write(buffer());
     }
 
     @Override
@@ -231,8 +231,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         setOutputMode();
         // See if there is LF char present in the buffer
         int pos = -1;
-        for (int i = this.buffer.position(); i < this.buffer.limit(); i++) {
-            final int b = this.buffer.get(i);
+        for (int i = buffer().position(); i < buffer().limit(); i++) {
+            final int b = buffer().get(i);
             if (b == Consts.LF) {
                 pos = i + 1;
                 break;
@@ -241,39 +241,39 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
 
         final int maxLineLen = this.constraints.getMaxLineLength();
         if (maxLineLen > 0) {
-            final int currentLen = (pos > 0 ? pos : this.buffer.limit()) - this.buffer.position();
+            final int currentLen = (pos > 0 ? pos : buffer().limit()) - buffer().position();
             if (currentLen >= maxLineLen) {
                 throw new MessageConstraintException("Maximum line length limit exceeded");
             }
         }
 
         if (pos == -1) {
-            if (endOfStream && this.buffer.hasRemaining()) {
+            if (endOfStream && buffer().hasRemaining()) {
                 // No more data. Get the rest
-                pos = this.buffer.limit();
+                pos = buffer().limit();
             } else {
                 // Either no complete line present in the buffer
                 // or no more data is expected
                 return false;
             }
         }
-        final int origLimit = this.buffer.limit();
-        this.buffer.limit(pos);
+        final int origLimit = buffer().limit();
+        buffer().limit(pos);
 
-        final int requiredCapacity = this.buffer.limit() - this.buffer.position();
+        final int requiredCapacity = buffer().limit() - buffer().position();
         // Ensure capacity of len assuming ASCII as the most likely charset
         linebuffer.ensureCapacity(requiredCapacity);
 
         if (this.chardecoder == null) {
-            if (this.buffer.hasArray()) {
-                final byte[] b = this.buffer.array();
-                final int off = this.buffer.position();
-                final int len = this.buffer.remaining();
+            if (buffer().hasArray()) {
+                final byte[] b = buffer().array();
+                final int off = buffer().position();
+                final int len = buffer().remaining();
                 linebuffer.append(b, off, len);
-                this.buffer.position(off + len);
+                buffer().position(off + len);
             } else {
-                while (this.buffer.hasRemaining()) {
-                    linebuffer.append((char) (this.buffer.get() & 0xff));
+                while (buffer().hasRemaining()) {
+                    linebuffer.append((char) (buffer().get() & 0xff));
                 }
             }
         } else {
@@ -284,7 +284,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
 
             for (;;) {
                 final CoderResult result = this.chardecoder.decode(
-                        this.buffer,
+                        buffer(),
                         this.charbuffer,
                         true);
                 if (result.isError()) {
@@ -315,7 +315,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             }
 
         }
-        this.buffer.limit(origLimit);
+        buffer().limit(origLimit);
 
         // discard LF if found
         int l = linebuffer.length();
