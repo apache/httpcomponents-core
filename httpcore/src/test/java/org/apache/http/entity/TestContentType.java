@@ -31,8 +31,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.http.Consts;
-import org.apache.http.Header;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -156,14 +154,14 @@ public class TestContentType {
     @Test
     public void testExtractNullContentType() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType((Header)null);
+        httpentity.setContentType(null);
         Assert.assertNull(ContentType.get(httpentity));
     }
 
     @Test
     public void testExtract() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = UTF-8"));
+        httpentity.setContentType("text/plain; charset = UTF-8");
         final ContentType contentType = ContentType.get(httpentity);
         Assert.assertNotNull(contentType);
         Assert.assertEquals("text/plain", contentType.getMimeType());
@@ -173,7 +171,7 @@ public class TestContentType {
     @Test
     public void testExtractNoCharset() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; param=yadayada"));
+        httpentity.setContentType("text/plain; param=yadayada");
         final ContentType contentType = ContentType.get(httpentity);
         Assert.assertNotNull(contentType);
         Assert.assertEquals("text/plain", contentType.getMimeType());
@@ -183,7 +181,7 @@ public class TestContentType {
     @Test(expected = UnsupportedCharsetException.class)
     public void testExtractInvalidCharset() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = stuff"));
+        httpentity.setContentType("text/plain; charset = stuff");
         ContentType.get(httpentity);
     }
 
@@ -195,14 +193,14 @@ public class TestContentType {
     @Test
     public void testExtractLenientNullContentType() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType((Header) null);
+        httpentity.setContentType(null);
         Assert.assertNull(ContentType.getLenient(httpentity));
     }
 
     @Test
     public void testLenientExtractInvalidCharset() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset = stuff"));
+        httpentity.setContentType("text/plain; charset = stuff");
         final ContentType contentType = ContentType.getLenient(httpentity);
         Assert.assertNotNull(contentType);
         Assert.assertEquals("text/plain", contentType.getMimeType());

@@ -27,21 +27,16 @@
 
 package org.apache.http.entity;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.message.BasicHeader;
 
 /**
- * Abstract base class for entities.
- * Provides the commonly used attributes for streamed and self-contained
- * implementations of {@link HttpEntity HttpEntity}.
+ * Abstract base class for mutable entities. Provides the commonly used attributes for streamed and
+ * self-contained implementations.
  *
  * @since 4.0
  */
 @NotThreadSafe
-public abstract class AbstractHttpEntity implements HttpEntity {
+public abstract class AbstractHttpEntity extends AbstractImmutableHttpEntity {
 
     /**
      * Buffer size for output stream processing.
@@ -50,147 +45,35 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      */
     static final int OUTPUT_BUFFER_SIZE = 4096;
 
-    private Header contentType;
-    private Header contentEncoding;
+    private String contentType;
+    private String contentEncoding;
     private boolean chunked;
 
-    /**
-     * Obtains the Content-Type header.
-     * The default implementation returns the value of the
-     * {@link #contentType contentType} attribute.
-     *
-     * @return  the Content-Type header, or {@code null}
-     */
     @Override
-    public Header getContentType() {
+    public String getContentType() {
         return this.contentType;
     }
 
-
-    /**
-     * Obtains the Content-Encoding header.
-     * The default implementation returns the value of the
-     * {@link #contentEncoding contentEncoding} attribute.
-     *
-     * @return  the Content-Encoding header, or {@code null}
-     */
     @Override
-    public Header getContentEncoding() {
+    public String getContentEncoding() {
         return this.contentEncoding;
     }
 
-    /**
-     * Obtains the 'chunked' flag.
-     * The default implementation returns the value of the
-     * {@link #chunked chunked} attribute.
-     *
-     * @return  the 'chunked' flag
-     */
     @Override
     public boolean isChunked() {
         return this.chunked;
     }
 
-
-    /**
-     * Specifies the Content-Type header.
-     * The default implementation sets the value of the
-     * {@link #contentType contentType} attribute.
-     *
-     * @param contentType       the new Content-Encoding header, or
-     *                          {@code null} to unset
-     */
-    public void setContentType(final Header contentType) {
+    public void setContentType(final String contentType) {
         this.contentType = contentType;
     }
 
-    /**
-     * Specifies the Content-Type header, as a string.
-     * The default implementation calls
-     * {@link #setContentType(Header) setContentType(Header)}.
-     *
-     * @param ctString     the new Content-Type header, or
-     *                     {@code null} to unset
-     */
-    public void setContentType(final String ctString) {
-        Header h = null;
-        if (ctString != null) {
-            h = new BasicHeader(HttpHeaders.CONTENT_TYPE, ctString);
-        }
-        setContentType(h);
-    }
-
-    /**
-     * Specifies the Content-Encoding header.
-     * The default implementation sets the value of the
-     * {@link #contentEncoding contentEncoding} attribute.
-     *
-     * @param contentEncoding   the new Content-Encoding header, or
-     *                          {@code null} to unset
-     */
-    public void setContentEncoding(final Header contentEncoding) {
+    public void setContentEncoding(final String contentEncoding) {
         this.contentEncoding = contentEncoding;
     }
 
-    /**
-     * Specifies the Content-Encoding header, as a string.
-     * The default implementation calls
-     * {@link #setContentEncoding(Header) setContentEncoding(Header)}.
-     *
-     * @param ceString     the new Content-Encoding header, or
-     *                     {@code null} to unset
-     */
-    public void setContentEncoding(final String ceString) {
-        Header h = null;
-        if (ceString != null) {
-            h = new BasicHeader(HttpHeaders.CONTENT_ENCODING, ceString);
-        }
-        setContentEncoding(h);
-    }
-
-
-    /**
-     * Specifies the 'chunked' flag.
-     * <p>
-     * Note that the chunked setting is a hint only.
-     * If using HTTP/1.0, chunking is never performed.
-     * Otherwise, even if chunked is false, HttpClient must
-     * use chunk coding if the entity content length is
-     * unknown (-1).
-     * <p>
-     * The default implementation sets the value of the
-     * {@link #chunked chunked} attribute.
-     *
-     * @param b         the new 'chunked' flag
-     */
     public void setChunked(final boolean b) {
         this.chunked = b;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        if (contentType != null) {
-            sb.append("Content-Type: ");
-            sb.append(contentType.getValue());
-            sb.append(',');
-        }
-        if (contentEncoding != null) {
-            sb.append("Content-Encoding: ");
-            sb.append(contentEncoding.getValue());
-            sb.append(',');
-        }
-        final long len = getContentLength();
-        if (len >= 0) {
-            sb.append("Content-Length: ");
-            sb.append(len);
-            sb.append(',');
-        }
-        sb.append("Chunked: ");
-        sb.append(chunked);
-        sb.append(']');
-        return sb.toString();
     }
 
 }

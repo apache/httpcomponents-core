@@ -27,13 +27,10 @@
 
 package org.apache.http.entity;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.EmptyInputStream;
-import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
 /**
@@ -43,7 +40,7 @@ import org.apache.http.util.Asserts;
  * @since 4.0
  */
 @NotThreadSafe
-public class BasicHttpEntity extends AbstractHttpEntity implements HttpContentProducer {
+public class BasicHttpEntity extends AbstractHttpEntity {
 
     private InputStream content;
     private long length;
@@ -106,21 +103,6 @@ public class BasicHttpEntity extends AbstractHttpEntity implements HttpContentPr
      */
     public void setContent(final InputStream instream) {
         this.content = instream;
-    }
-
-    @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
-        final InputStream instream = getContent();
-        try {
-            int l;
-            final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
-            while ((l = instream.read(tmp)) != -1) {
-                outstream.write(tmp, 0, l);
-            }
-        } finally {
-            instream.close();
-        }
     }
 
     @Override

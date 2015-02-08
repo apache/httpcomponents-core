@@ -104,7 +104,7 @@ public interface HttpEntity {
      * @return  the Content-Type header for this entity, or
      *          {@code null} if the content type is unknown
      */
-    Header getContentType();
+    String getContentType();
 
     /**
      * Obtains the Content-Encoding header, if known.
@@ -116,7 +116,7 @@ public interface HttpEntity {
      * @return  the Content-Encoding header for this entity, or
      *          {@code null} if the content encoding is unknown
      */
-    Header getContentEncoding();
+    String getContentEncoding();
 
     /**
      * Returns a content stream of the entity.

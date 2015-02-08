@@ -27,66 +27,61 @@
 
 package org.apache.http.entity;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
- * A self contained, repeatable entity that obtains its content from a file.
+ * Abstract base class for immutable entities.
  *
- * @since 4.0
+ * @since 5.0
  */
 @NotThreadSafe
-public class FileEntity extends AbstractHttpEntity {
+public abstract class AbstractImmutableHttpEntity implements HttpEntity, HttpContentProducer {
 
-    private final File file;
+    static final int OUTPUT_BUFFER_SIZE = 4096;
 
-    /**
-     * @since 4.2
-     */
-    public FileEntity(final File file, final ContentType contentType) {
-        super();
-        this.file = Args.notNull(file, "File");
-        if (contentType != null) {
-            setContentType(contentType.toString());
+    @Override
+    public void writeTo(final OutputStream outstream) throws IOException {
+        Args.notNull(outstream, "Output stream");
+        final InputStream instream = getContent();
+        if (instream != null) {
+            try {
+                int l;
+                final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
+                while ((l = instream.read(tmp)) != -1) {
+                    outstream.write(tmp, 0, l);
+                }
+            } finally {
+                instream.close();
+            }
         }
     }
 
-    /**
-     * @since 4.2
-     */
-    public FileEntity(final File file) {
-        super();
-        this.file = Args.notNull(file, "File");
-    }
-
     @Override
-    public boolean isRepeatable() {
-        return true;
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        sb.append("Content-Type: ");
+        sb.append(getContentType());
+        sb.append(',');
+        sb.append("Content-Encoding: ");
+        sb.append(getContentEncoding());
+        sb.append(',');
+        final long len = getContentLength();
+        if (len >= 0) {
+            sb.append("Content-Length: ");
+            sb.append(len);
+            sb.append(',');
+        }
+        sb.append("Chunked: ");
+        sb.append(isChunked());
+        sb.append(']');
+        return sb.toString();
     }
 
-    @Override
-    public long getContentLength() {
-        return this.file.length();
-    }
-
-    @Override
-    public InputStream getContent() throws IOException {
-        return new FileInputStream(this.file);
-    }
-
-    /**
-     * Tells that this entity is not streaming.
-     *
-     * @return {@code false}
-     */
-    @Override
-    public boolean isStreaming() {
-        return false;
-    }
-
-} // class FileEntity
+}

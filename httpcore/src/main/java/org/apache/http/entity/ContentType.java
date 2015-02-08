@@ -37,7 +37,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.http.Consts;
-import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -263,13 +262,17 @@ public final class ContentType implements Serializable {
      * this instance of the Java virtual machine
      */
     public static ContentType parse(final CharSequence s) throws UnsupportedCharsetException {
+        return parse(s, true);
+    }
+
+    private static ContentType parse(final CharSequence s, final boolean strict) throws UnsupportedCharsetException {
         if (TextUtils.isBlank(s)) {
             return null;
         }
         final ParserCursor cursor = new ParserCursor(0, s.length());
         final HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(s, cursor);
         if (elements.length > 0) {
-            return create(elements[0], true);
+            return create(elements[0], strict);
         } else {
             return null;
         }
@@ -290,12 +293,9 @@ public final class ContentType implements Serializable {
         if (entity == null) {
             return null;
         }
-        final Header header = entity.getContentType();
-        if (header != null) {
-            final HeaderElement[] elements = header.getElements();
-            if (elements.length > 0) {
-                return create(elements[0], true);
-            }
+        final String contentType = entity.getContentType();
+        if (contentType != null) {
+            return parse(contentType);
         }
         return null;
     }
@@ -314,12 +314,9 @@ public final class ContentType implements Serializable {
         if (entity == null) {
             return null;
         }
-        final Header header = entity.getContentType();
-        if (header != null) {
-            final HeaderElement[] elements = header.getElements();
-            if (elements.length > 0) {
-                return create(elements[0], false);
-            }
+        final String contentType = entity.getContentType();
+        if (contentType != null) {
+            return parse(contentType, false);
         }
         return null;
     }

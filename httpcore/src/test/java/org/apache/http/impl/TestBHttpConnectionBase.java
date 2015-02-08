@@ -35,7 +35,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
@@ -168,12 +167,8 @@ public class TestBHttpConnectionBase {
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals(10, entity.getContentLength());
-        final Header ct = entity.getContentType();
-        Assert.assertNotNull(ct);
-        Assert.assertEquals("stuff", ct.getValue());
-        final Header ce = entity.getContentEncoding();
-        Assert.assertNotNull(ce);
-        Assert.assertEquals("identity", ce.getValue());
+        Assert.assertEquals("stuff", entity.getContentType());
+        Assert.assertEquals("identity", entity.getContentEncoding());
         final InputStream instream = entity.getContent();
         Assert.assertNotNull(instream);
         Assert.assertTrue((instream instanceof ContentLengthInputStream));

@@ -25,56 +25,67 @@
  *
  */
 
-package org.apache.http.nio.entity;
+package org.apache.http.impl;
 
-import org.apache.http.HttpEntity;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.http.Header;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.nio.util.ContentInputBuffer;
-import org.apache.http.util.Args;
+import org.apache.http.entity.AbstractImmutableHttpEntity;
+import org.apache.http.entity.HttpContentProducer;
+import org.apache.http.impl.io.EmptyInputStream;
 
-/**
- * HTTP entity wrapper whose content is provided by a
- * {@link ContentInputBuffer}.
- *
- * @since 4.0
- */
 @NotThreadSafe
-public class ContentBufferEntity extends BasicHttpEntity {
+public class IncomingHttpEntity extends AbstractImmutableHttpEntity implements HttpContentProducer {
 
-    private final HttpEntity wrappedEntity;
+    private final InputStream content;
+    private final long len;
+    private final boolean chunked;
+    private final Header contentType;
+    private final Header contentEncoding;
 
-    /**
-     * Creates new instance of ContentBufferEntity.
-     *
-     * @param entity the original entity.
-     * @param buffer the content buffer.
-     */
-    public ContentBufferEntity(final HttpEntity entity, final ContentInputBuffer buffer) {
-        super();
-        Args.notNull(entity, "HTTP entity");
-        this.wrappedEntity = entity;
-        setContent(new ContentInputStream(buffer));
+    public IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
+        this.content = content;
+        this.len = len;
+        this.chunked = chunked;
+        this.contentType = contentType;
+        this.contentEncoding = contentEncoding;
+    }
+
+    @Override
+    public boolean isRepeatable() {
+        return false;
     }
 
     @Override
     public boolean isChunked() {
-        return this.wrappedEntity.isChunked();
+        return chunked;
     }
 
     @Override
     public long getContentLength() {
-        return this.wrappedEntity.getContentLength();
+        return len;
     }
 
     @Override
     public String getContentType() {
-        return this.wrappedEntity.getContentType();
+        return contentType != null ? contentType.getValue() : null;
     }
 
     @Override
     public String getContentEncoding() {
-        return this.wrappedEntity.getContentEncoding();
+        return contentEncoding != null ? contentEncoding.getValue() : null;
+    }
+
+    @Override
+    public InputStream getContent() throws IOException, IllegalStateException {
+        return content;
+    }
+
+    @Override
+    public boolean isStreaming() {
+        return content != null && content != EmptyInputStream.INSTANCE;
     }
 
 }

@@ -39,6 +39,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.util.Args;
 
 /**
@@ -110,14 +111,12 @@ public class RequestContent implements HttpRequestInterceptor {
                 request.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }
             // Specify a content type if known
-            if (entity.getContentType() != null && !request.containsHeader(
-                    HttpHeaders.CONTENT_TYPE )) {
-                request.addHeader(entity.getContentType());
+            if (entity.getContentType() != null && !request.containsHeader(HttpHeaders.CONTENT_TYPE)) {
+                request.addHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, entity.getContentType()));
             }
             // Specify a content encoding if known
-            if (entity.getContentEncoding() != null && !request.containsHeader(
-                    HttpHeaders.CONTENT_ENCODING)) {
-                request.addHeader(entity.getContentEncoding());
+            if (entity.getContentEncoding() != null && !request.containsHeader(HttpHeaders.CONTENT_ENCODING)) {
+                request.addHeader(new BasicHeader(HttpHeaders.CONTENT_ENCODING, entity.getContentEncoding()));
             }
         }
     }

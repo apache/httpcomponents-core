@@ -56,6 +56,17 @@ public class TestBasicHttpEntity {
     }
 
     @Test
+    public void testToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContentType("blah");
+        httpentity.setContentEncoding("yada");
+        httpentity.setContentLength(10);
+        httpentity.setChunked(true);
+        Assert.assertEquals("[Content-Type: blah,Content-Encoding: yada,Content-Length: 10,Chunked: true]",
+                httpentity.toString());
+    }
+
+    @Test
     public void testContent() throws Exception {
         final byte[] bytes = "Message content".getBytes(Consts.ASCII);
         final InputStream content = new ByteArrayInputStream(bytes);

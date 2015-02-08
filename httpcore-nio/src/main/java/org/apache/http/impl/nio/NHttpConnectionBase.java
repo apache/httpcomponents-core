@@ -36,7 +36,6 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -45,9 +44,9 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.config.MessageConstraints;
-import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.HttpConnectionMetricsImpl;
+import org.apache.http.impl.IncomingHttpEntity;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.codecs.ChunkDecoder;
 import org.apache.http.impl.nio.codecs.ChunkEncoder;
@@ -189,26 +188,11 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     HttpEntity createIncomingEntity(
             final HttpMessage message,
             final long len) throws HttpException {
-        final BasicHttpEntity entity = new BasicHttpEntity();
-        if (len >= 0) {
-            entity.setChunked(false);
-            entity.setContentLength(len);
-        } else if (len == ContentLengthStrategy.CHUNKED) {
-            entity.setChunked(true);
-            entity.setContentLength(-1);
-        } else {
-            entity.setChunked(false);
-            entity.setContentLength(-1);
-        }
-        final Header contentTypeHeader = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-        if (contentTypeHeader != null) {
-            entity.setContentType(contentTypeHeader);
-        }
-        final Header contentEncodingHeader = message.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
-        if (contentEncodingHeader != null) {
-            entity.setContentEncoding(contentEncodingHeader);
-        }
-        return entity;
+        return new IncomingHttpEntity(
+                null,
+                len >= 0 ? len : -1, len == ContentLengthStrategy.CHUNKED,
+                message.getFirstHeader(HttpHeaders.CONTENT_TYPE),
+                message.getFirstHeader(HttpHeaders.CONTENT_ENCODING));
     }
 
     /**

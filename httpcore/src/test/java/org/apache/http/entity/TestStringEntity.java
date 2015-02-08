@@ -66,14 +66,11 @@ public class TestStringEntity {
     public void testDefaultContent() throws Exception {
         final String s = "Message content";
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/csv", "ANSI_X3.4-1968"));
-        Assert.assertEquals("text/csv; charset=US-ASCII",
-                httpentity.getContentType().getValue());
+        Assert.assertEquals("text/csv; charset=US-ASCII", httpentity.getContentType());
         httpentity = new StringEntity(s, Consts.ASCII);
-        Assert.assertEquals("text/plain; charset=US-ASCII",
-                httpentity.getContentType().getValue());
+        Assert.assertEquals("text/plain; charset=US-ASCII", httpentity.getContentType());
         httpentity = new StringEntity(s);
-        Assert.assertEquals("text/plain; charset=ISO-8859-1",
-                httpentity.getContentType().getValue());
+        Assert.assertEquals("text/plain; charset=ISO-8859-1", httpentity.getContentType());
     }
 
     private static String constructString(final int [] unicodeChars) {
@@ -95,11 +92,11 @@ public class TestStringEntity {
         final String s = constructString(SWISS_GERMAN_HELLO);
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/plain", (Charset) null));
         Assert.assertNotNull(httpentity.getContentType());
-        Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
+        Assert.assertEquals("text/plain", httpentity.getContentType());
         Assert.assertEquals(s, EntityUtils.toString(httpentity));
         httpentity = new StringEntity(s, (Charset) null);
         Assert.assertNotNull(httpentity.getContentType());
-        Assert.assertEquals("text/plain", httpentity.getContentType().getValue());
+        Assert.assertEquals("text/plain", httpentity.getContentType());
         Assert.assertEquals(s, EntityUtils.toString(httpentity));
     }
 

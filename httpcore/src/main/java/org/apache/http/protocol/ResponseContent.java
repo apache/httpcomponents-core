@@ -40,6 +40,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.util.Args;
 
 /**
@@ -114,14 +115,12 @@ public class ResponseContent implements HttpResponseInterceptor {
                 response.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }
             // Specify a content type if known
-            if (entity.getContentType() != null && !response.containsHeader(
-                    HttpHeaders.CONTENT_TYPE)) {
-                response.addHeader(entity.getContentType());
+            if (entity.getContentType() != null && !response.containsHeader(HttpHeaders.CONTENT_TYPE)) {
+                response.addHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, entity.getContentType()));
             }
             // Specify a content encoding if known
-            if (entity.getContentEncoding() != null && !response.containsHeader(
-                    HttpHeaders.CONTENT_ENCODING)) {
-                response.addHeader(entity.getContentEncoding());
+            if (entity.getContentEncoding() != null && !response.containsHeader(HttpHeaders.CONTENT_ENCODING)) {
+                response.addHeader(new BasicHeader(HttpHeaders.CONTENT_ENCODING, entity.getContentEncoding()));
             }
         } else {
             final int status = response.getStatusLine().getStatusCode();

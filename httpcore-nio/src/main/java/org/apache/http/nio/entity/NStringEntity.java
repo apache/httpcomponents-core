@@ -37,8 +37,8 @@ import java.nio.charset.Charset;
 
 import org.apache.http.Consts;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.util.Args;

@@ -39,14 +39,12 @@ import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.http.BHttpConnection;
-import org.apache.http.Header;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
 import org.apache.http.config.MessageConstraints;
-import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ChunkedOutputStream;
@@ -166,28 +164,11 @@ class BHttpConnectionBase implements BHttpConnection {
             final HttpMessage message,
             final SessionInputBuffer inbuffer,
             final long len) throws HttpException {
-        final BasicHttpEntity entity = new BasicHttpEntity();
-        if (len >= 0) {
-            entity.setChunked(false);
-            entity.setContentLength(len);
-        } else if (len == ContentLengthStrategy.CHUNKED) {
-            entity.setChunked(true);
-            entity.setContentLength(-1);
-        } else {
-            entity.setChunked(false);
-            entity.setContentLength(-1);
-        }
-        entity.setContent(createContentInputStream(len, inbuffer));
-
-        final Header contentTypeHeader = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-        if (contentTypeHeader != null) {
-            entity.setContentType(contentTypeHeader);
-        }
-        final Header contentEncodingHeader = message.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
-        if (contentEncodingHeader != null) {
-            entity.setContentEncoding(contentEncodingHeader);
-        }
-        return entity;
+        return new IncomingHttpEntity(
+                createContentInputStream(len, inbuffer),
+                len >= 0 ? len : -1, len == ContentLengthStrategy.CHUNKED,
+                message.getFirstHeader(HttpHeaders.CONTENT_TYPE),
+                message.getFirstHeader(HttpHeaders.CONTENT_ENCODING));
     }
 
     @Override

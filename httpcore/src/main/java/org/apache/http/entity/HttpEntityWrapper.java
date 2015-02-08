@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
@@ -75,12 +74,12 @@ public class HttpEntityWrapper implements HttpEntity {
     }
 
     @Override
-    public Header getContentType() {
+    public String getContentType() {
         return wrappedEntity.getContentType();
     }
 
     @Override
-    public Header getContentEncoding() {
+    public String getContentEncoding() {
         return wrappedEntity.getContentEncoding();
     }
 

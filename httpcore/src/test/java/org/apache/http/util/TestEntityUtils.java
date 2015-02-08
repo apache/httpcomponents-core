@@ -33,7 +33,6 @@ import java.nio.charset.Charset;
 
 import org.apache.http.Consts;
 import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.message.BasicHeader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -178,7 +177,7 @@ public class TestEntityUtils {
         final byte[] bytes = content.getBytes(Consts.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain"));
+        httpentity.setContentType("text/plain");
         final String s = EntityUtils.toString(httpentity);
         Assert.assertEquals(content, s);
     }
@@ -189,7 +188,7 @@ public class TestEntityUtils {
         final byte[] bytes = content.getBytes(Charset.forName("KOI8-R"));
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain"));
+        httpentity.setContentType("text/plain");
         final String s = EntityUtils.toString(httpentity, "KOI8-R");
         Assert.assertEquals(content, s);
     }
@@ -200,7 +199,7 @@ public class TestEntityUtils {
         final byte[] bytes = content.getBytes(Consts.UTF_8);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset=UTF-8"));
+        httpentity.setContentType("text/plain; charset=UTF-8");
         final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
         Assert.assertEquals(content, s);
     }
@@ -210,7 +209,7 @@ public class TestEntityUtils {
         final byte[] bytes = content.getBytes("UTF-8");
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType(new BasicHeader("Content-Type", "text/plain; charset=nosuchcharset"));
+        httpentity.setContentType("text/plain; charset=nosuchcharset");
         final String s = EntityUtils.toString(httpentity, "UTF-8");
         Assert.assertEquals(content, s);
     }

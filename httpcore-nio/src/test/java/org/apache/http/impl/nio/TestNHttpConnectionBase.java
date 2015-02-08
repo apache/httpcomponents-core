@@ -31,7 +31,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpVersion;
@@ -197,10 +196,8 @@ public class TestNHttpConnectionBase {
         Assert.assertNotNull(entity);
         Assert.assertEquals(-1, entity.getContentLength());
         Assert.assertFalse(entity.isChunked());
-        final Header h1 = entity.getContentType();
-        Assert.assertNull(h1);
-        final Header h2 = entity.getContentEncoding();
-        Assert.assertNull(h2);
+        Assert.assertNull(entity.getContentType());
+        Assert.assertNull(entity.getContentEncoding());
     }
 
     @Test
@@ -214,12 +211,8 @@ public class TestNHttpConnectionBase {
         Assert.assertNotNull(entity);
         Assert.assertEquals(10, entity.getContentLength());
         Assert.assertFalse(entity.isChunked());
-        final Header h1 = entity.getContentType();
-        Assert.assertNotNull(h1);
-        Assert.assertEquals("stuff", h1.getValue());
-        final Header h2 = entity.getContentEncoding();
-        Assert.assertNotNull(h2);
-        Assert.assertEquals("identity", h2.getValue());
+        Assert.assertEquals("stuff", entity.getContentType());
+        Assert.assertEquals("identity", entity.getContentEncoding());
     }
 
     @Test
@@ -233,12 +226,8 @@ public class TestNHttpConnectionBase {
         Assert.assertNotNull(entity);
         Assert.assertEquals(-1, entity.getContentLength());
         Assert.assertTrue(entity.isChunked());
-        final Header h1 = entity.getContentType();
-        Assert.assertNotNull(h1);
-        Assert.assertEquals("stuff", h1.getValue());
-        final Header h2 = entity.getContentEncoding();
-        Assert.assertNotNull(h2);
-        Assert.assertEquals("identity", h2.getValue());
+        Assert.assertEquals("stuff", entity.getContentType());
+        Assert.assertEquals("identity", entity.getContentEncoding());
     }
 
 }

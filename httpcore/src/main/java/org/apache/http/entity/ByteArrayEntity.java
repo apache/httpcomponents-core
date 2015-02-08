@@ -41,7 +41,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @NotThreadSafe
-public class ByteArrayEntity extends AbstractHttpEntity implements HttpContentProducer {
+public class ByteArrayEntity extends AbstractHttpEntity {
 
     private final byte[] b;
     private final int off, len;
@@ -107,7 +107,6 @@ public class ByteArrayEntity extends AbstractHttpEntity implements HttpContentPr
         outstream.write(this.b, this.off, this.len);
         outstream.flush();
     }
-
 
     /**
      * Tells that this entity is not streaming.
