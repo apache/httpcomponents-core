@@ -51,14 +51,13 @@ public class ProtocolVersion implements Serializable {
 
 
     /** Name of the protocol. */
-    protected final String protocol;
+    private final String protocol;
 
     /** Major version number of the protocol */
-    protected final int major;
+    private final int major;
 
     /** Minor version number of the protocol */
-    protected final int minor;
-
+    private final int minor;
 
     /**
      * Create a protocol version designator.

@@ -84,7 +84,7 @@ public final class HttpVersion extends ProtocolVersion
     @Override
     public ProtocolVersion forVersion(final int major, final int minor) {
 
-        if ((major == this.major) && (minor == this.minor)) {
+        if ((major == getMajor()) && (minor == getMinor())) {
             return this;
         }
 

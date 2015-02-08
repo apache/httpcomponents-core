@@ -51,19 +51,18 @@ public final class HttpHost implements Serializable {
     public static final String DEFAULT_SCHEME_NAME = "http";
 
     /** The host to use. */
-    protected final String hostname;
+    private final String hostname;
 
     /** The lowercase host, for {@link #equals} and {@link #hashCode}. */
-    protected final String lcHostname;
-
+    private final String lcHostname;
 
     /** The port to use, defaults to -1 if not set. */
-    protected final int port;
+    private final int port;
 
     /** The scheme (lowercased) */
-    protected final String schemeName;
+    private final String schemeName;
 
-    protected final InetAddress address;
+    private final InetAddress address;
 
     /**
      * Creates {@code HttpHost} instance with the given scheme, hostname and port.
@@ -309,7 +308,7 @@ public final class HttpHost implements Serializable {
             return this.lcHostname.equals(that.lcHostname)
                 && this.port == that.port
                 && this.schemeName.equals(that.schemeName)
-                && (this.address==null ? that.address== null : this.address.equals(that.address));
+                && LangUtils.equals(this.address, that.address);
         } else {
             return false;
         }
@@ -324,9 +323,7 @@ public final class HttpHost implements Serializable {
         hash = LangUtils.hashCode(hash, this.lcHostname);
         hash = LangUtils.hashCode(hash, this.port);
         hash = LangUtils.hashCode(hash, this.schemeName);
-        if (address!=null) {
-            hash = LangUtils.hashCode(hash, address);
-        }
+        hash = LangUtils.hashCode(hash, address);
         return hash;
     }
 
