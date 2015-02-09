@@ -29,39 +29,49 @@ package org.apache.http.nio.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpEntityEnclosingRequest;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
+import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
+import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
+import org.apache.http.nio.protocol.HttpAsyncRequestProducer;
+import org.apache.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
+import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
@@ -348,6 +358,86 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertEquals(expectedPattern1, EntityUtils.toString(responses.get(0).getEntity()));
             Assert.assertEquals(expectedPattern2, EntityUtils.toString(responses.get(1).getEntity()));
             Assert.assertEquals(expectedPattern3, EntityUtils.toString(responses.get(2).getEntity()));
+        }
+    }
+
+    @Test
+    public void testUnexpectedConnectionClosure() throws Exception {
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setStatusCode(HttpStatus.SC_OK);
+                response.setEntity(new StringEntity("all is well", ContentType.TEXT_PLAIN));
+            }
+
+        }));
+        registry.register("/boom", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                response.setHeader(HttpHeaders.CONNECTION, "Close");
+                response.setEntity(new StringEntity("boooooom!!!!!", ContentType.TEXT_PLAIN));
+            }
+
+        }));
+        final HttpHost target = start(registry, null);
+
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
+
+        for (int i = 0; i < 20; i++) {
+
+            final HttpAsyncRequestProducer p1 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
+            final HttpAsyncRequestProducer p2 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
+            final HttpAsyncRequestProducer p3 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/boom"));
+            final HttpAsyncRequestProducer p4 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
+            final HttpAsyncRequestProducer p5 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
+            final List<HttpAsyncRequestProducer> requestProducers = new ArrayList<HttpAsyncRequestProducer>();
+            requestProducers.add(p1);
+            requestProducers.add(p2);
+            requestProducers.add(p3);
+            requestProducers.add(p4);
+            requestProducers.add(p5);
+
+            final HttpAsyncResponseConsumer<HttpResponse> c1 = new BasicAsyncResponseConsumer();
+            final HttpAsyncResponseConsumer<HttpResponse> c2 = new BasicAsyncResponseConsumer();
+            final HttpAsyncResponseConsumer<HttpResponse> c3 = new BasicAsyncResponseConsumer();
+            final HttpAsyncResponseConsumer<HttpResponse> c4 = new BasicAsyncResponseConsumer();
+            final HttpAsyncResponseConsumer<HttpResponse> c5 = new BasicAsyncResponseConsumer();
+            final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers = new ArrayList<HttpAsyncResponseConsumer<HttpResponse>>();
+            responseConsumers.add(c1);
+            responseConsumers.add(c2);
+            responseConsumers.add(c3);
+            responseConsumers.add(c4);
+            responseConsumers.add(c5);
+
+            final Future<List<HttpResponse>> future = this.client.executePipelined(target, requestProducers, responseConsumers, null, null);
+            try {
+                future.get();
+            } catch (ExecutionException ex) {
+                final Throwable cause = ex.getCause();
+                Assert.assertTrue(cause instanceof ConnectionClosedException);
+            }
+
+            Assert.assertTrue(c1.isDone());
+            Assert.assertNotNull(c1.getResult());
+            Assert.assertTrue(c2.isDone());
+            Assert.assertNotNull(c2.getResult());
+            Assert.assertTrue(c2.isDone());
+            Assert.assertNotNull(c3.getResult());
+            Assert.assertTrue(c4.isDone());
+            Assert.assertNull(c4.getResult());
+            Assert.assertTrue(c5.isDone());
+            Assert.assertNull(c5.getResult());
         }
     }
 

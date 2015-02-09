@@ -259,7 +259,7 @@ public class DefaultNHttpClientConnection
                         resetInput();
                     }
                 }
-                if (bytesRead == -1) {
+                if (bytesRead == -1 && !this.inbuf.hasData()) {
                     handler.endOfInput(this);
                 }
             }

@@ -1,3 +1,12 @@
+Changes since 4.4
+-----------------
+
+* Non-blocking connection should not trigger end-of-stream callback as long as there is still
+  data in the session input buffer. This can cause a series of short pipelined requests to
+  fail prematurely in case of an unexpected connection termination by the opposite endpoint. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.4
 -----------------
 
