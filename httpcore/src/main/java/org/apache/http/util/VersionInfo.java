@@ -301,8 +301,7 @@ public class VersionInfo {
     }
 
     /**
-     * Sets the user agent to {@code "<name>/<release> (Java/<java.version>)"}. If release is
-     * {@link #UNAVAILABLE}, it will be omitted.
+     * Sets the user agent to {@code "<name>/<release> (Java/<java.version>)"}.
      * <p>
      * For example:
      * <pre>"Apache-HttpClient/4.3 (Java/1.6.0_35)"</pre>
@@ -321,11 +320,7 @@ public class VersionInfo {
         final String release = (vi != null) ? vi.getRelease() : VersionInfo.UNAVAILABLE;
         final String javaVersion = System.getProperty("java.version");
 
-        String nameAndRelease = name;
-        if (!UNAVAILABLE.equals(release))
-            nameAndRelease += "/" + release;
-
-        return String.format("%s (Java/%s)", nameAndRelease, javaVersion);
+        return String.format("%s/%s (Java/%s)", name, release, javaVersion);
     }
 
 } // class VersionInfo
