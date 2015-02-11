@@ -301,10 +301,11 @@ public class VersionInfo {
     }
 
     /**
-     * Sets the user agent to {@code "<name>/<release> (Java 1.5 minimum; Java/<java.version>)"}.
+     * Sets the user agent to {@code "<name>/<release> (Java/<java.version>)"}. If release is
+     * {@link #UNAVAILABLE}, it will be omitted.
      * <p>
      * For example:
-     * <pre>"Apache-HttpClient/4.3 (Java 1.5 minimum; Java/1.6.0_35)"</pre>
+     * <pre>"Apache-HttpClient/4.3 (Java/1.6.0_35)"</pre>
      *
      * @param name the component name, like "Apache-HttpClient".
      * @param pkg
@@ -319,7 +320,12 @@ public class VersionInfo {
         final VersionInfo vi = VersionInfo.loadVersionInfo(pkg, cls.getClassLoader());
         final String release = (vi != null) ? vi.getRelease() : VersionInfo.UNAVAILABLE;
         final String javaVersion = System.getProperty("java.version");
-        return name + "/" + release + " (Java 1.5 minimum; Java/" + javaVersion + ")";
+
+        String nameAndRelease = name;
+        if (!UNAVAILABLE.equals(release))
+            nameAndRelease += "/" + release;
+
+        return String.format("%s (Java/%s)", nameAndRelease, javaVersion);
     }
 
 } // class VersionInfo
