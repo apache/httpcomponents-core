@@ -322,8 +322,9 @@ public class VersionInfo {
         final String javaVersion = System.getProperty("java.version");
 
         String nameAndRelease = name;
-        if (!UNAVAILABLE.equals(release))
+        if (!UNAVAILABLE.equals(release)) {
             nameAndRelease += "/" + release;
+        }
 
         return String.format("%s (Java/%s)", nameAndRelease, javaVersion);
     }
