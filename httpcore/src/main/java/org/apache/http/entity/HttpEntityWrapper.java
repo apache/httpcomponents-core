@@ -48,7 +48,7 @@ import org.apache.http.util.Args;
 public class HttpEntityWrapper implements HttpEntity {
 
     /** The wrapped entity. */
-    protected HttpEntity wrappedEntity;
+    private final HttpEntity wrappedEntity;
 
     /**
      * Creates a new entity wrapper.
