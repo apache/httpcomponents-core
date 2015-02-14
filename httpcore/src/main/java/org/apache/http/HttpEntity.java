@@ -137,12 +137,12 @@ public interface HttpEntity {
      * @return content stream of the entity.
      *
      * @throws IOException if the stream could not be created
-     * @throws IllegalStateException
-     *  if content stream cannot be created.
+     * @throws UnsupportedOperationException
+     *  if entity content cannot be represented as {@link java.io.InputStream}.
      *
      * @see #isRepeatable()
      */
-    InputStream getContent() throws IOException, IllegalStateException;
+    InputStream getContent() throws IOException, UnsupportedOperationException;
 
     /**
      * Writes the entity content out to the output stream.
