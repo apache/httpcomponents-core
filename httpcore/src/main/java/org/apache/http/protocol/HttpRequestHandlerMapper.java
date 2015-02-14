@@ -44,7 +44,9 @@ public interface HttpRequestHandlerMapper {
      * @param request the request to map to a handler
      * @return HTTP request handler or {@code null} if no match
      * is found.
+     *
+     * @since 5.0
      */
-    HttpRequestHandler lookup(HttpRequest request);
+    HttpRequestHandler lookup(HttpRequest request, HttpContext context);
 
 }

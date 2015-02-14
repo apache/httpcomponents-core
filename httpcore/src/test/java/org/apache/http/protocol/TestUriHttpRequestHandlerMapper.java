@@ -55,7 +55,8 @@ public class TestUriHttpRequestHandlerMapper {
         final UriHttpRequestHandlerMapper registry = new UriHttpRequestHandlerMapper(matcher);
 
         final HttpRequest request = new BasicHttpRequest("GET", "/");
-        registry.lookup(request);
+        final HttpCoreContext context = HttpCoreContext.create();
+        registry.lookup(request, context);
         registry.unregister("/h1");
 
         Mockito.verify(matcher).lookup("/");
@@ -87,15 +88,16 @@ public class TestUriHttpRequestHandlerMapper {
 
         HttpRequestHandler h;
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/that.view?param=value"));
+        final HttpCoreContext context = HttpCoreContext.create();
+        h = registry.lookup(new BasicHttpRequest("GET", "/that.view?param=value"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(h1 == h);
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/that.form?whatever"));
+        h = registry.lookup(new BasicHttpRequest("GET", "/that.form?whatever"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(h2 == h);
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/whatever"));
+        h = registry.lookup(new BasicHttpRequest("GET", "/whatever"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(def == h);
     }

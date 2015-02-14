@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.UriPatternMatcher;
 import org.apache.http.util.Args;
 
@@ -106,7 +107,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
      * @return handler or {@code null} if no match is found.
      */
     @Override
-    public HttpAsyncRequestHandler<?> lookup(final HttpRequest request) {
+    public HttpAsyncRequestHandler<?> lookup(final HttpRequest request, final HttpContext context) {
         return matcher.lookup(getRequestPath(request));
     }
 

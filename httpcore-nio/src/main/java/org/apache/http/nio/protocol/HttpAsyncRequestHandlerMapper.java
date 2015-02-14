@@ -28,6 +28,7 @@
 package org.apache.http.nio.protocol;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * {@code HttpAsyncRequestHandlerMapper} can be used to resolve an instance
@@ -44,7 +45,9 @@ public interface HttpAsyncRequestHandlerMapper {
      * @param request the request
      * @return HTTP request handler or {@code null} if no match
      * is found.
+     *
+     * @since 5.0
      */
-    HttpAsyncRequestHandler<?> lookup(HttpRequest request);
+    HttpAsyncRequestHandler<?> lookup(HttpRequest request, HttpContext context);
 
 }

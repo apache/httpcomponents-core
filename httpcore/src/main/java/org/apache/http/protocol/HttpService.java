@@ -269,7 +269,7 @@ public class HttpService {
             final HttpContext context) throws HttpException, IOException {
         HttpRequestHandler handler = null;
         if (this.handlerMapper != null) {
-            handler = this.handlerMapper.lookup(request);
+            handler = this.handlerMapper.lookup(request, context);
         }
         if (handler != null) {
             handler.handle(request, response, context);

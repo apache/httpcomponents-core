@@ -277,7 +277,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         this.httpProcessor.process(request, context);
 
-        final HttpAsyncRequestHandler<Object> requestHandler = getRequestHandler(request);
+        final HttpAsyncRequestHandler<Object> requestHandler = getRequestHandler(request, context);
         final HttpAsyncRequestConsumer<Object> consumer = requestHandler.processRequest(request, context);
         consumer.requestReceived(request);
 
@@ -709,10 +709,10 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private HttpAsyncRequestHandler<Object> getRequestHandler(final HttpRequest request) {
+    private HttpAsyncRequestHandler<Object> getRequestHandler(final HttpRequest request, final HttpContext context) {
         HttpAsyncRequestHandler<Object> handler = null;
         if (this.handlerMapper != null) {
-            handler = (HttpAsyncRequestHandler<Object>) this.handlerMapper.lookup(request);
+            handler = (HttpAsyncRequestHandler<Object>) this.handlerMapper.lookup(request, context);
         }
         if (handler == null) {
             handler = new NullRequestHandler();

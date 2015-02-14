@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.message.BasicHttpRequest;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.UriPatternMatcher;
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,7 +59,8 @@ public class TestUriHttpAsyncRequestHandlerMapper {
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
 
         final HttpRequest request = new BasicHttpRequest("GET", "/");
-        registry.lookup(request);
+        final HttpCoreContext context = HttpCoreContext.create();
+        registry.lookup(request, context);
         registry.unregister("/h1");
 
         Mockito.verify(matcher).lookup("/");
@@ -91,15 +93,16 @@ public class TestUriHttpAsyncRequestHandlerMapper {
 
         HttpAsyncRequestHandler<?> h;
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/that.view?param=value"));
+        final HttpCoreContext context = HttpCoreContext.create();
+        h = registry.lookup(new BasicHttpRequest("GET", "/that.view?param=value"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(h1 == h);
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/that.form?whatever"));
+        h = registry.lookup(new BasicHttpRequest("GET", "/that.form?whatever"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(h2 == h);
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/whatever"));
+        h = registry.lookup(new BasicHttpRequest("GET", "/whatever"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(def == h);
     }
