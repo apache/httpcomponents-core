@@ -227,17 +227,10 @@ c3 = c
                     </formalpara>
                 </listitem>
             </itemizedlist>
-            <para>
-            This distinction is important for connection management with incoming entities. For
-            an application that creates entities and only sends them using the HttpCore framework,
-            the difference between streamed and self-contained is of little importance. In that
-            case, we suggest you consider non-repeatable entities as streamed, and those that
-            are repeatable as self-contained.
-            </para>
             <section>
                 <title>Repeatable entities</title>
                 <para>
-                An entity can be repeatable, meaning you can read its content more than once. This
+                An entity can be repeatable, meaning its content can be read more than once. This
                 is only possible with self-contained entities (like
                 <classname>ByteArrayEntity</classname> or <classname>StringEntity</classname>).
                 </para>
@@ -258,7 +251,12 @@ c3 = c
                 the <methodname>HttpEntity#getContent()</methodname> method, which returns an
                 <classname>java.io.InputStream</classname>, or one can supply an output stream to
                 the <methodname>HttpEntity#writeTo(OutputStream)</methodname> method, which will
-                return once all content has been written to the given stream.
+                return once all content has been written to the given stream. Please note that
+                some non-streaming (self-contained) entities may be unable to represent their
+                content as a <classname>java.io.InputStream</classname> efficiently. It is legal
+                for such entities to implement <methodname>HttpEntity#writeTo(OutputStream)
+                </methodname> method only and to throw <classname>UnsupportedOperationException
+                </classname> from <methodname>HttpEntity#getContent()</methodname> method.
                 </para>
                 <para>
                 The <classname>EntityUtils</classname> class exposes several static methods to simplify 
