@@ -302,8 +302,12 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
         final Socket socket = this.socketHolder.getAndSet(null);
         if (socket != null) {
             // force abortive close (RST)
-            socket.setSoLinger(true, 0);
-            socket.close();
+            try {
+                socket.setSoLinger(true, 0);
+            } catch (IOException ex) {
+            } finally {
+                socket.close();
+            }
         }
     }
 
