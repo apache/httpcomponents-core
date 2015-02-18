@@ -52,6 +52,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
@@ -456,7 +457,7 @@ public class TestSSLContextBuilder {
 
         final PrivateKeyStrategy privateKeyStrategy = new PrivateKeyStrategy() {
             @Override
-            public String chooseAlias(final Map<String, PrivateKeyDetails> aliases, final Socket socket) {
+            public String chooseAlias(final Map<String, PrivateKeyDetails> aliases, final SSLParameters sslParameters) {
                 if (aliases.keySet().contains("client2")) {
                     return "client2";
                 } else {

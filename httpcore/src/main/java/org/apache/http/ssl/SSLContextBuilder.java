@@ -52,9 +52,11 @@ import java.util.Set;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
 
 import org.apache.http.annotation.NotThreadSafe;
@@ -69,6 +71,7 @@ import org.apache.http.util.Args;
  * <a href="http://docs.oracle.com/javase/7/docs/api/javax/net/ssl/SSLContext.html#init%28javax.net.ssl.KeyManager[],%20javax.net.ssl.TrustManager[],%20java.security.SecureRandom%29">
  * SSLContext.html#init
  * </a>
+ *
  * @since 4.4
  */
 @NotThreadSafe
@@ -190,9 +193,8 @@ public class SSLContextBuilder {
             if (aliasStrategy != null) {
                 for (int i = 0; i < kms.length; i++) {
                     final KeyManager km = kms[i];
-                    if (km instanceof X509KeyManager) {
-                        kms[i] = new KeyManagerDelegate(
-                                (X509KeyManager) km, aliasStrategy);
+                    if (km instanceof X509ExtendedKeyManager) {
+                        kms[i] = new KeyManagerDelegate((X509ExtendedKeyManager) km, aliasStrategy);
                     }
                 }
             }
@@ -305,12 +307,12 @@ public class SSLContextBuilder {
 
     }
 
-    static class KeyManagerDelegate implements X509KeyManager {
+    static class KeyManagerDelegate extends X509ExtendedKeyManager {
 
-        private final X509KeyManager keyManager;
+        private final X509ExtendedKeyManager keyManager;
         private final PrivateKeyStrategy aliasStrategy;
 
-        KeyManagerDelegate(final X509KeyManager keyManager, final PrivateKeyStrategy aliasStrategy) {
+        KeyManagerDelegate(final X509ExtendedKeyManager keyManager, final PrivateKeyStrategy aliasStrategy) {
             super();
             this.keyManager = keyManager;
             this.aliasStrategy = aliasStrategy;
@@ -322,9 +324,8 @@ public class SSLContextBuilder {
             return this.keyManager.getClientAliases(keyType, issuers);
         }
 
-        @Override
-        public String chooseClientAlias(
-                final String[] keyTypes, final Principal[] issuers, final Socket socket) {
+        public Map<String, PrivateKeyDetails> getClientAliasMap(
+                final String[] keyTypes, final Principal[] issuers) {
             final Map<String, PrivateKeyDetails> validAliases = new HashMap<String, PrivateKeyDetails>();
             for (final String keyType: keyTypes) {
                 final String[] aliases = this.keyManager.getClientAliases(keyType, issuers);
@@ -335,7 +336,28 @@ public class SSLContextBuilder {
                     }
                 }
             }
-            return this.aliasStrategy.chooseAlias(validAliases, socket);
+            return validAliases;
+        }
+
+        public Map<String, PrivateKeyDetails> getServerAliasMap(
+                final String keyType, final Principal[] issuers) {
+            final Map<String, PrivateKeyDetails> validAliases = new HashMap<String, PrivateKeyDetails>();
+            final String[] aliases = this.keyManager.getServerAliases(keyType, issuers);
+            if (aliases != null) {
+                for (final String alias: aliases) {
+                    validAliases.put(alias,
+                            new PrivateKeyDetails(keyType, this.keyManager.getCertificateChain(alias)));
+                }
+            }
+            return validAliases;
+        }
+
+        @Override
+        public String chooseClientAlias(
+                final String[] keyTypes, final Principal[] issuers, final Socket socket) {
+            final Map<String, PrivateKeyDetails> validAliases = getClientAliasMap(keyTypes, issuers);
+            return this.aliasStrategy.chooseAlias(validAliases,
+                    socket instanceof SSLSocket ? ((SSLSocket) socket).getSSLParameters() : null);
         }
 
         @Override
@@ -347,15 +369,9 @@ public class SSLContextBuilder {
         @Override
         public String chooseServerAlias(
                 final String keyType, final Principal[] issuers, final Socket socket) {
-            final Map<String, PrivateKeyDetails> validAliases = new HashMap<String, PrivateKeyDetails>();
-            final String[] aliases = this.keyManager.getServerAliases(keyType, issuers);
-            if (aliases != null) {
-                for (final String alias: aliases) {
-                    validAliases.put(alias,
-                            new PrivateKeyDetails(keyType, this.keyManager.getCertificateChain(alias)));
-                }
-            }
-            return this.aliasStrategy.chooseAlias(validAliases, socket);
+            final Map<String, PrivateKeyDetails> validAliases = getServerAliasMap(keyType, issuers);
+            return this.aliasStrategy.chooseAlias(validAliases,
+                    socket instanceof SSLSocket ? ((SSLSocket) socket).getSSLParameters() : null);
         }
 
         @Override
@@ -366,6 +382,20 @@ public class SSLContextBuilder {
         @Override
         public PrivateKey getPrivateKey(final String alias) {
             return this.keyManager.getPrivateKey(alias);
+        }
+
+        @Override
+        public String chooseEngineClientAlias(
+                final String[] keyTypes, final Principal[] issuers, final SSLEngine sslEngine) {
+            final Map<String, PrivateKeyDetails> validAliases = getClientAliasMap(keyTypes, issuers);
+            return this.aliasStrategy.chooseAlias(validAliases, sslEngine.getSSLParameters());
+        }
+
+        @Override
+        public String chooseEngineServerAlias(
+                final String keyType, final Principal[] issuers, final SSLEngine sslEngine) {
+            final Map<String, PrivateKeyDetails> validAliases = getServerAliasMap(keyType, issuers);
+            return this.aliasStrategy.chooseAlias(validAliases, sslEngine.getSSLParameters());
         }
 
     }

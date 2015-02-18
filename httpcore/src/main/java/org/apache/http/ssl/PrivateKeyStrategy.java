@@ -26,8 +26,9 @@
  */
 package org.apache.http.ssl;
 
-import java.net.Socket;
 import java.util.Map;
+
+import javax.net.ssl.SSLParameters;
 
 /**
  * A strategy allowing for a choice of an alias during SSL authentication.
@@ -39,6 +40,6 @@ public interface PrivateKeyStrategy {
     /**
      * Determines what key material to use for SSL authentication.
      */
-    String chooseAlias(Map<String, PrivateKeyDetails> aliases, Socket socket);
+    String chooseAlias(Map<String, PrivateKeyDetails> aliases, SSLParameters sslParameters);
 
 }
