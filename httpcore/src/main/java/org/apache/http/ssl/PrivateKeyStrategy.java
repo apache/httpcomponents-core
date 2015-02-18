@@ -38,6 +38,10 @@ public interface PrivateKeyStrategy {
 
     /**
      * Determines what key material to use for SSL authentication.
+     *
+     * @param aliases available private key material
+     * @param socket socket used for the connection. Please note this parameter can be {@code null}
+     * if key material is applicable to any socket.
      */
     String chooseAlias(Map<String, PrivateKeyDetails> aliases, Socket socket);
 
