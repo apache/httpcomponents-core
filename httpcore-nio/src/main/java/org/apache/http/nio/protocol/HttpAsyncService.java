@@ -499,14 +499,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         this.exceptionLogger.log(ex);
     }
 
-    private void closeConnection(final NHttpConnection conn) {
-        try {
-            conn.close();
-        } catch (final IOException ex) {
-            log(ex);
-        }
-    }
-
     private void shutdownConnection(final NHttpConnection conn) {
         try {
             conn.shutdown();

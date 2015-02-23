@@ -157,11 +157,12 @@ public class HttpService {
 
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
+        HttpRequest request = null;
         HttpResponse response = null;
 
         try {
 
-            final HttpRequest request = conn.receiveRequestHeader();
+            request = conn.receiveRequestHeader();
             final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
             final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
             if (expectContinue) {
@@ -212,12 +213,25 @@ public class HttpService {
 
         this.processor.process(response, context);
         conn.sendResponseHeader(response);
-        conn.sendResponseEntity(response);
+        if (canResponseHaveBody(request, response)) {
+            conn.sendResponseEntity(response);
+        }
         conn.flush();
 
         if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
         }
+    }
+
+    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+            return false;
+        }
+        final int status = response.getStatusLine().getStatusCode();
+        return status >= HttpStatus.SC_OK
+                && status != HttpStatus.SC_NO_CONTENT
+                && status != HttpStatus.SC_NOT_MODIFIED
+                && status != HttpStatus.SC_RESET_CONTENT;
     }
 
     /**
