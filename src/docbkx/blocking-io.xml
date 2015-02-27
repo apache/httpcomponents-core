@@ -427,7 +427,7 @@ BasicPoolEntry poolEntry = future.get();
 try {
     HttpClientConnection conn = poolEntry.getConnection();
 } finally {
-    connpool.release(poolEntry, conn.isOpen());
+    connpool.release(poolEntry, true);
 }
 ]]></programlisting>
         <para>
@@ -456,6 +456,43 @@ System.out.println("target pending: " + targetStats.getPending());
 BasicConnPool connpool = <...>
 connpool.closeExpired();
 connpool.closeIdle(1, TimeUnit.MINUTES);
+]]></programlisting>
+      <para>
+      Generally it is considered to be a responsibility of the consumer to keep track of
+      connections leased from the pool and to ensure their immediate release as soon as they
+      are no longer needed or actively used. Nevertheless <classname>BasicConnPool </classname>
+      provides protected methods to enumerate available idle connections and those currently
+      leased from the pool. This enables the pool consumer to query connection state and
+      selectively terminate connections meeting a particular criterion.
+      </para>
+      <programlisting><![CDATA[
+static class MyBasicConnPool extends BasicConnPool {
+
+    @Override
+    protected void enumAvailable(final PoolEntryCallback<HttpHost, HttpClientConnection> callback) {
+        super.enumAvailable(callback);
+    }
+
+    @Override
+    protected void enumLeased(final PoolEntryCallback<HttpHost, HttpClientConnection> callback) {
+        super.enumLeased(callback);
+    }
+
+}
+]]></programlisting>
+      <programlisting><![CDATA[
+MyBasicConnPool connpool = new MyBasicConnPool();
+connpool.enumAvailable(new PoolEntryCallback<HttpHost, HttpClientConnection>() {
+
+    @Override
+    public void process(final PoolEntry<HttpHost, HttpClientConnection> entry) {
+        Date creationTime = new Date(entry.getCreated());
+        if (creationTime.before(someTime)) {
+            entry.close();
+        }
+    }
+
+});
 ]]></programlisting>
     </section>
     <section>
