@@ -1,8 +1,19 @@
-Changes since 4.4
------------------
+Release 4.4.1
+-------------------
+
+This maintenance release fixes a number of minor bugs found since 4.4.
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
 
 * [HTTPCORE-396]: PrivateKeyStrategy does not work with NIO SSL.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-395]: VersionInfo#getUserAgent reports incorrect Java version.
+  Contributed by Michael Osipov <michaelo at apache.org>
 
 * Non-blocking connection should not trigger end-of-stream callback as long as there is still
   data in the session input buffer. This can cause a series of short pipelined requests to
