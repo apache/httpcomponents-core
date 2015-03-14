@@ -11,7 +11,7 @@ For building from source instructions please refer to BUILDING.txt.
 Dependencies
 ------------
 
-HttpCore requires Java 1.5 compatible runtime.
+HttpCore requires Java 1.6 compatible runtime.
 
 Licensing
 ---------
