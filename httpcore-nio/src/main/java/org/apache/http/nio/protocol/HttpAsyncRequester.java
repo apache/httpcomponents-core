@@ -127,7 +127,7 @@ public class HttpAsyncRequester {
         Args.notNull(responseConsumer, "HTTP response consumer");
         Args.notNull(conn, "HTTP connection");
         Args.notNull(context, "HTTP context");
-        final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
+        final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<>(
                 requestProducer, responseConsumer, callback, context, conn,
                 this.httpprocessor, this.connReuseStrategy);
         initExection(handler, conn);
@@ -205,9 +205,9 @@ public class HttpAsyncRequester {
         Args.notNull(responseConsumer, "HTTP response consumer");
         Args.notNull(connPool, "HTTP connection pool");
         Args.notNull(context, "HTTP context");
-        final BasicFuture<T> future = new BasicFuture<T>(callback);
+        final BasicFuture<T> future = new BasicFuture<>(callback);
         final HttpHost target = requestProducer.getTarget();
-        connPool.lease(target, null, new ConnRequestCallback<T, E>(
+        connPool.lease(target, null, new ConnRequestCallback<>(
                 future, requestProducer, responseConsumer, connPool, context));
         return future;
     }
@@ -239,8 +239,8 @@ public class HttpAsyncRequester {
         Args.notEmpty(responseConsumers, "Response consumer list");
         Args.notNull(connPool, "HTTP connection pool");
         Args.notNull(context, "HTTP context");
-        final BasicFuture<List<T>> future = new BasicFuture<List<T>>(callback);
-        connPool.lease(target, null, new ConnPipelinedRequestCallback<T, E>(
+        final BasicFuture<List<T>> future = new BasicFuture<>(callback);
+        connPool.lease(target, null, new ConnPipelinedRequestCallback<>(
                 future, requestProducers, responseConsumers, connPool, context));
         return future;
     }
@@ -274,11 +274,11 @@ public class HttpAsyncRequester {
         Args.notNull(connPool, "HTTP connection pool");
         Args.notNull(poolEntry, "Pool entry");
         Args.notNull(context, "HTTP context");
-        final BasicFuture<T> future = new BasicFuture<T>(callback);
+        final BasicFuture<T> future = new BasicFuture<>(callback);
         final NHttpClientConnection conn = poolEntry.getConnection();
-        final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
+        final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<>(
                 requestProducer, responseConsumer,
-                new RequestExecutionCallback<T, E>(future, poolEntry, connPool),
+                new RequestExecutionCallback<>(future, poolEntry, connPool),
                 context, conn,
                 this.httpprocessor, this.connReuseStrategy);
         initExection(handler, conn);
@@ -314,11 +314,11 @@ public class HttpAsyncRequester {
         Args.notNull(connPool, "HTTP connection pool");
         Args.notNull(poolEntry, "Pool entry");
         Args.notNull(context, "HTTP context");
-        final BasicFuture<List<T>> future = new BasicFuture<List<T>>(callback);
+        final BasicFuture<List<T>> future = new BasicFuture<>(callback);
         final NHttpClientConnection conn = poolEntry.getConnection();
-        final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<T>(
+        final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<>(
                 requestProducers, responseConsumers,
-                new RequestExecutionCallback<List<T>, E>(future, poolEntry, connPool),
+                new RequestExecutionCallback<>(future, poolEntry, connPool),
                 context, conn,
                 this.httpprocessor, this.connReuseStrategy);
         initExection(handler, conn);
@@ -390,9 +390,9 @@ public class HttpAsyncRequester {
                 return;
             }
             final NHttpClientConnection conn = result.getConnection();
-            final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
+            final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<>(
                     this.requestProducer, this.responseConsumer,
-                    new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
+                    new RequestExecutionCallback<>(this.requestFuture, result, this.connPool),
                     this.context, conn, httpprocessor, connReuseStrategy);
             initExection(handler, conn);
         }
@@ -459,9 +459,9 @@ public class HttpAsyncRequester {
                 return;
             }
             final NHttpClientConnection conn = result.getConnection();
-            final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<T>(
+            final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<>(
                     this.requestProducers, this.responseConsumers,
-                    new RequestExecutionCallback<List<T>, E>(this.requestFuture, result, this.connPool),
+                    new RequestExecutionCallback<>(this.requestFuture, result, this.connPool),
                     this.context, conn, httpprocessor, connReuseStrategy);
             initExection(handler, conn);
         }

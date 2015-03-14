@@ -79,7 +79,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.messageConstraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
-        this.headerLines = new ArrayList<CharArrayBuffer>();
+        this.headerLines = new ArrayList<>();
         this.state = HEAD_LINE;
     }
 
@@ -111,7 +111,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             final int maxHeaderCount,
             final int maxLineLen,
             final LineParser lineParser) throws HttpException, IOException {
-        final List<CharArrayBuffer> headerLines = new ArrayList<CharArrayBuffer>();
+        final List<CharArrayBuffer> headerLines = new ArrayList<>();
         return parseHeaders(inbuffer, maxHeaderCount, maxLineLen,
                 lineParser != null ? lineParser : LazyLineParser.INSTANCE, headerLines);
     }

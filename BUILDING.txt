@@ -3,7 +3,7 @@ Building HttpComponents Core
 
 (1) Requisites
 --------------
-JDK 1.6+ is required in order to compile and run HttpCore.
+JDK 1.7+ is required in order to compile and run HttpCore.
 
 HttpCore utilizes Maven as a distribution management and packaging tool.
 Version 3.0.3 or later is required.

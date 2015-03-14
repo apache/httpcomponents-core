@@ -77,7 +77,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             final IOReactorConfig config,
             final ThreadFactory threadFactory) throws IOReactorException {
         super(config, threadFactory);
-        this.requestQueue = new ConcurrentLinkedQueue<SessionRequestImpl>();
+        this.requestQueue = new ConcurrentLinkedQueue<>();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 

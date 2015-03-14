@@ -88,7 +88,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.endOfChunk = false;
         this.endOfStream = false;
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
-        this.trailerBufs = new ArrayList<CharArrayBuffer>();
+        this.trailerBufs = new ArrayList<>();
     }
 
     public ChunkDecoder(

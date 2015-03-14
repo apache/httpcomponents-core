@@ -386,7 +386,7 @@ public final class ContentType implements Serializable {
         if (params.length == 0) {
             return this;
         }
-        final Map<String, String> paramMap = new LinkedHashMap<String, String>();
+        final Map<String, String> paramMap = new LinkedHashMap<>();
         if (this.params != null) {
             for (NameValuePair param: this.params) {
                 paramMap.put(param.getName(), param.getValue());
@@ -395,7 +395,7 @@ public final class ContentType implements Serializable {
         for (NameValuePair param: params) {
             paramMap.put(param.getName(), param.getValue());
         }
-        final List<NameValuePair> newParams = new ArrayList<NameValuePair>(paramMap.size() + 1);
+        final List<NameValuePair> newParams = new ArrayList<>(paramMap.size() + 1);
         if (this.charset != null && !paramMap.containsKey("charset")) {
             newParams.add(new BasicNameValuePair("charset", this.charset.name()));
         }

@@ -49,8 +49,8 @@ final class ChainBuilder<E> {
     private final Map<Class<?>, E> uniqueClasses;
 
     public ChainBuilder() {
-        this.list = new LinkedList<E>();
-        this.uniqueClasses = new HashMap<Class<?>, E>();
+        this.list = new LinkedList<>();
+        this.uniqueClasses = new HashMap<>();
     }
 
     private void ensureUnique(final E e) {
@@ -120,7 +120,7 @@ final class ChainBuilder<E> {
     }
 
     public LinkedList<E> build() {
-        return new LinkedList<E>(this.list);
+        return new LinkedList<>(this.list);
     }
 
 }

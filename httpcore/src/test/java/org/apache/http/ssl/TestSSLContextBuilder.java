@@ -219,7 +219,7 @@ public class TestSSLContextBuilder {
                 .build();
         Assert.assertNotNull(serverSslContext);
 
-        final AtomicReference<X509Certificate[]> certChainRef = new AtomicReference<X509Certificate[]>();
+        final AtomicReference<X509Certificate[]> certChainRef = new AtomicReference<>();
 
         final TrustStrategy trustStrategy = new TrustStrategy() {
 
@@ -528,7 +528,7 @@ public class TestSSLContextBuilder {
                 .build();
         Assert.assertNotNull(clientSslContext);
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
-        final Set<String> supportedServerProtocols = new LinkedHashSet<String>(Arrays.asList(serverSocket.getSupportedProtocols()));
+        final Set<String> supportedServerProtocols = new LinkedHashSet<>(Arrays.asList(serverSocket.getSupportedProtocols()));
         Assert.assertTrue(supportedServerProtocols.contains("TLSv1"));
         serverSocket.setEnabledProtocols(new String[] {"TLSv1"});
         serverSocket.bind(new InetSocketAddress(0));
@@ -550,7 +550,7 @@ public class TestSSLContextBuilder {
         final int localPort = serverSocket.getLocalPort();
         final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
         try {
-            final Set<String> supportedClientProtocols = new LinkedHashSet<String>(Arrays.asList(clientSocket.getSupportedProtocols()));
+            final Set<String> supportedClientProtocols = new LinkedHashSet<>(Arrays.asList(clientSocket.getSupportedProtocols()));
             Assert.assertTrue(supportedClientProtocols.contains("SSLv3"));
             clientSocket.setEnabledProtocols(new String[] {"SSLv3"} );
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
@@ -575,7 +575,7 @@ public class TestSSLContextBuilder {
                 .build();
         Assert.assertNotNull(clientSslContext);
         final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
-        final Set<String> supportedServerProtocols = new LinkedHashSet<String>(Arrays.asList(serverSocket.getSupportedProtocols()));
+        final Set<String> supportedServerProtocols = new LinkedHashSet<>(Arrays.asList(serverSocket.getSupportedProtocols()));
         Assert.assertTrue(supportedServerProtocols.contains("SSLv3"));
         serverSocket.setEnabledProtocols(new String[] {"SSLv3"});
         serverSocket.bind(new InetSocketAddress(0));
@@ -597,7 +597,7 @@ public class TestSSLContextBuilder {
         final int localPort = serverSocket.getLocalPort();
         final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
         try {
-            final Set<String> supportedClientProtocols = new LinkedHashSet<String>(Arrays.asList(clientSocket.getSupportedProtocols()));
+            final Set<String> supportedClientProtocols = new LinkedHashSet<>(Arrays.asList(clientSocket.getSupportedProtocols()));
             Assert.assertTrue(supportedClientProtocols.contains("TLSv1"));
             clientSocket.setEnabledProtocols(new String[] {"TLSv1"});
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);

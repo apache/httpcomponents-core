@@ -106,7 +106,7 @@ public class TestSyncHttp {
         final Random rnd = new Random();
 
         // Prepare some random data
-        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             final int size = rnd.nextInt(5000);
             final byte[] data = new byte[size];
@@ -183,7 +183,7 @@ public class TestSyncHttp {
         final Random rnd = new Random();
 
         // Prepare some random data
-        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             final int size = rnd.nextInt(5000);
             final byte[] data = new byte[size];
@@ -263,7 +263,7 @@ public class TestSyncHttp {
         final Random rnd = new Random();
 
         // Prepare some random data
-        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             final int size = rnd.nextInt(20000);
             final byte[] data = new byte[size];
@@ -341,7 +341,7 @@ public class TestSyncHttp {
         final Random rnd = new Random();
 
         // Prepare some random data
-        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             final int size = rnd.nextInt(5000);
             final byte[] data = new byte[size];
@@ -424,7 +424,7 @@ public class TestSyncHttp {
         final Random rnd = new Random();
 
         // Prepare some random data
-        final List<byte[]> testData = new ArrayList<byte[]>(reqNo);
+        final List<byte[]> testData = new ArrayList<>(reqNo);
         for (int i = 0; i < reqNo; i++) {
             final int size = rnd.nextInt(5000);
             final byte[] data = new byte[size];

@@ -45,7 +45,7 @@ public final class Registry<I> implements Lookup<I> {
 
     Registry(final Map<String, I> map) {
         super();
-        this.map = new ConcurrentHashMap<String, I>(map);
+        this.map = new ConcurrentHashMap<>(map);
     }
 
     @Override

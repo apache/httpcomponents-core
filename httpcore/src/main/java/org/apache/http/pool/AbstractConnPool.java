@@ -86,11 +86,11 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         this.defaultMaxPerRoute = Args.positive(defaultMaxPerRoute, "Max per route value");
         this.maxTotal = Args.positive(maxTotal, "Max total value");
         this.lock = new ReentrantLock();
-        this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
-        this.leased = new HashSet<E>();
-        this.available = new LinkedList<E>();
-        this.pending = new LinkedList<PoolEntryFuture<E>>();
-        this.maxPerRoute = new HashMap<T, Integer>();
+        this.routeToPool = new HashMap<>();
+        this.leased = new HashSet<>();
+        this.available = new LinkedList<>();
+        this.pending = new LinkedList<>();
+        this.maxPerRoute = new HashMap<>();
     }
 
     /**
@@ -465,7 +465,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     public Set<T> getRoutes() {
         this.lock.lock();
         try {
-            return new HashSet<T>(routeToPool.keySet());
+            return new HashSet<>(routeToPool.keySet());
         } finally {
             this.lock.unlock();
         }

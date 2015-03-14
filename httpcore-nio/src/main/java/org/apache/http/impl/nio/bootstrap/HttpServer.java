@@ -102,7 +102,7 @@ public class HttpServer {
                 return false;
             }
         });
-        this.status = new AtomicReference<Status>(Status.READY);
+        this.status = new AtomicReference<>(Status.READY);
     }
 
     public ListenerEndpoint getEndpoint() {

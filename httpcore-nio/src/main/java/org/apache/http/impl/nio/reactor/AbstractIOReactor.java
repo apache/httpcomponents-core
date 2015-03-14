@@ -96,9 +96,9 @@ public abstract class AbstractIOReactor implements IOReactor {
         this.selectTimeout = selectTimeout;
         this.interestOpsQueueing = interestOpsQueueing;
         this.sessions = Collections.synchronizedSet(new HashSet<IOSession>());
-        this.interestOpsQueue = new ConcurrentLinkedQueue<InterestOpEntry>();
-        this.closedSessions = new ConcurrentLinkedQueue<IOSession>();
-        this.newChannels = new ConcurrentLinkedQueue<ChannelEntry>();
+        this.interestOpsQueue = new ConcurrentLinkedQueue<>();
+        this.closedSessions = new ConcurrentLinkedQueue<>();
+        this.newChannels = new ConcurrentLinkedQueue<>();
         try {
             this.selector = Selector.open();
         } catch (final IOException ex) {

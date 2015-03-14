@@ -472,7 +472,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<HttpResponse>();
+        final LinkedList<HttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Mockito.<NHttpClientConnection>any());
@@ -517,7 +517,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<HttpResponse>();
+        final LinkedList<HttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Mockito.<NHttpClientConnection>any());
@@ -569,7 +569,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<HttpResponse>();
+        final LinkedList<HttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Mockito.<NHttpClientConnection>any());
@@ -607,7 +607,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<HttpResponse>();
+        final LinkedList<HttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Mockito.<NHttpClientConnection>any());

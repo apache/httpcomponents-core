@@ -69,7 +69,7 @@ public class TestBasicAsyncClientExchangeHandler {
         this.conn = Mockito.mock(NHttpClientConnection.class);
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
         this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        this.exchangeHandler = new BasicAsyncClientExchangeHandler<Object>(
+        this.exchangeHandler = new BasicAsyncClientExchangeHandler<>(
                 this.requestProducer,
                 this.responseConsumer,
                 null,
@@ -88,7 +88,7 @@ public class TestBasicAsyncClientExchangeHandler {
     @Test
     public void testInvalidExecution() throws Exception {
         try {
-            new BasicAsyncClientExchangeHandler<Object>(
+            new BasicAsyncClientExchangeHandler<>(
                     null,
                     this.responseConsumer,
                     null,
@@ -100,7 +100,7 @@ public class TestBasicAsyncClientExchangeHandler {
         } catch (final IllegalArgumentException ex) {
         }
         try {
-            new BasicAsyncClientExchangeHandler<Object>(
+            new BasicAsyncClientExchangeHandler<>(
                     this.requestProducer,
                     null,
                     null,
@@ -112,7 +112,7 @@ public class TestBasicAsyncClientExchangeHandler {
         } catch (final IllegalArgumentException ex) {
         }
         try {
-            new BasicAsyncClientExchangeHandler<Object>(
+            new BasicAsyncClientExchangeHandler<>(
                     this.requestProducer,
                     this.responseConsumer,
                     null,
@@ -124,7 +124,7 @@ public class TestBasicAsyncClientExchangeHandler {
         } catch (final IllegalArgumentException ex) {
         }
         try {
-            new BasicAsyncClientExchangeHandler<Object>(
+            new BasicAsyncClientExchangeHandler<>(
                     this.requestProducer,
                     this.responseConsumer,
                     null,
@@ -136,7 +136,7 @@ public class TestBasicAsyncClientExchangeHandler {
         } catch (final IllegalArgumentException ex) {
         }
         try {
-            new BasicAsyncClientExchangeHandler<Object>(
+            new BasicAsyncClientExchangeHandler<>(
                     this.requestProducer,
                     this.responseConsumer,
                     null,

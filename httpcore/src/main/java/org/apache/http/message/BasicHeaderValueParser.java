@@ -64,7 +64,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     public HeaderElement[] parseElements(final CharSequence buffer, final ParserCursor cursor) {
         Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
-        final List<HeaderElement> elements = new ArrayList<HeaderElement>();
+        final List<HeaderElement> elements = new ArrayList<>();
         while (!cursor.atEnd()) {
             final HeaderElement element = parseHeaderElement(buffer, cursor);
             if (!(element.getName().length() == 0 && element.getValue() == null)) {
@@ -94,7 +94,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         tokenParser.skipWhiteSpace(buffer, cursor);
-        final List<NameValuePair> params = new ArrayList<NameValuePair>();
+        final List<NameValuePair> params = new ArrayList<>();
         while (!cursor.atEnd()) {
             final NameValuePair param = parseNameValuePair(buffer, cursor);
             params.add(param);

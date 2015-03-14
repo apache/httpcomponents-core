@@ -837,7 +837,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         State() {
             super();
-            this.pipeline = new ConcurrentLinkedQueue<PipelineEntry>();
+            this.pipeline = new ConcurrentLinkedQueue<>();
             this.requestState = MessageState.READY;
             this.responseState = MessageState.READY;
         }

@@ -50,14 +50,14 @@ public class HttpProcessorBuilder {
 
     private ChainBuilder<HttpRequestInterceptor> getRequestChainBuilder() {
         if (requestChainBuilder == null) {
-            requestChainBuilder = new ChainBuilder<HttpRequestInterceptor>();
+            requestChainBuilder = new ChainBuilder<>();
         }
         return requestChainBuilder;
     }
 
     private ChainBuilder<HttpResponseInterceptor> getResponseChainBuilder() {
         if (responseChainBuilder == null) {
-            responseChainBuilder = new ChainBuilder<HttpResponseInterceptor>();
+            responseChainBuilder = new ChainBuilder<>();
         }
         return responseChainBuilder;
     }

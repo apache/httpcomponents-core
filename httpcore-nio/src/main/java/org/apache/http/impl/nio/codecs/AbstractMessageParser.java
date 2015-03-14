@@ -81,7 +81,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
-        this.headerBufs = new ArrayList<CharArrayBuffer>();
+        this.headerBufs = new ArrayList<>();
         this.state = READ_HEAD_LINE;
     }
 

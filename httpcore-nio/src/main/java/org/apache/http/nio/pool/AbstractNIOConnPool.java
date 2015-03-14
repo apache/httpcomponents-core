@@ -108,13 +108,13 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         this.connFactory = connFactory;
         this.addressResolver = addressResolver;
         this.sessionRequestCallback = new InternalSessionRequestCallback();
-        this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
-        this.leasingRequests = new LinkedList<LeaseRequest<T, C, E>>();
-        this.pending = new HashSet<SessionRequest>();
-        this.leased = new HashSet<E>();
-        this.available = new LinkedList<E>();
-        this.completedRequests = new ConcurrentLinkedQueue<LeaseRequest<T, C, E>>();
-        this.maxPerRoute = new HashMap<T, Integer>();
+        this.routeToPool = new HashMap<>();
+        this.leasingRequests = new LinkedList<>();
+        this.pending = new HashSet<>();
+        this.leased = new HashSet<>();
+        this.available = new LinkedList<>();
+        this.completedRequests = new ConcurrentLinkedQueue<>();
+        this.maxPerRoute = new HashMap<>();
         this.lock = new ReentrantLock();
         this.isShutDown = new AtomicBoolean(false);
         this.defaultMaxPerRoute = defaultMaxPerRoute;
@@ -207,11 +207,11 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         Args.notNull(route, "Route");
         Args.notNull(tunit, "Time unit");
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
-        final BasicFuture<E> future = new BasicFuture<E>(callback);
+        final BasicFuture<E> future = new BasicFuture<>(callback);
         this.lock.lock();
         try {
             final long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
-            final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, leaseTimeout, future);
+            final LeaseRequest<T, C, E> request = new LeaseRequest<>(route, state, timeout, leaseTimeout, future);
             final boolean completed = processPendingRequest(request);
             if (!request.isDone() && !completed) {
                 this.leasingRequests.add(request);
@@ -617,7 +617,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     public Set<T> getRoutes() {
         this.lock.lock();
         try {
-            return new HashSet<T>(routeToPool.keySet());
+            return new HashSet<>(routeToPool.keySet());
         } finally {
             this.lock.unlock();
         }

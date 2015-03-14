@@ -139,7 +139,7 @@ public class TestNIOConnPool {
     @Test
     public void testInternalLeaseRequest() throws Exception {
         final LeaseRequest<String, IOSession, LocalPoolEntry> leaseRequest =
-            new LeaseRequest<String, IOSession, LocalPoolEntry>("somehost", null, 0, 0,
+            new LeaseRequest<>("somehost", null, 0, 0,
                     new BasicFuture<LocalPoolEntry>(null));
         Assert.assertEquals("[somehost][null]", leaseRequest.toString());
     }

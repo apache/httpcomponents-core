@@ -85,7 +85,7 @@ public class BaseIOReactor extends AbstractIOReactor {
     public BaseIOReactor(
             final long selectTimeout, final boolean interestOpsQueueing) throws IOReactorException {
         super(selectTimeout, interestOpsQueueing);
-        this.bufferingSessions = new HashSet<IOSession>();
+        this.bufferingSessions = new HashSet<>();
         this.timeoutCheckInterval = selectTimeout;
         this.lastTimeoutCheck = System.currentTimeMillis();
     }

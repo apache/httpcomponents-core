@@ -46,9 +46,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     RouteSpecificPool(final T route) {
         super();
         this.route = route;
-        this.leased = new HashSet<E>();
-        this.available = new LinkedList<E>();
-        this.pending = new LinkedList<PoolEntryFuture<E>>();
+        this.leased = new HashSet<>();
+        this.available = new LinkedList<>();
+        this.pending = new LinkedList<>();
     }
 
     protected abstract E createEntry(C conn);

@@ -80,9 +80,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             final IOReactorConfig config,
             final ThreadFactory threadFactory) throws IOReactorException {
         super(config, threadFactory);
-        this.requestQueue = new ConcurrentLinkedQueue<ListenerEndpointImpl>();
+        this.requestQueue = new ConcurrentLinkedQueue<>();
         this.endpoints = Collections.synchronizedSet(new HashSet<ListenerEndpointImpl>());
-        this.pausedEndpoints = new HashSet<SocketAddress>();
+        this.pausedEndpoints = new HashSet<>();
     }
 
     /**
@@ -247,7 +247,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
     @Override
     public Set<ListenerEndpoint> getEndpoints() {
-        final Set<ListenerEndpoint> set = new HashSet<ListenerEndpoint>();
+        final Set<ListenerEndpoint> set = new HashSet<>();
         synchronized (this.endpoints) {
             final Iterator<ListenerEndpointImpl> it = this.endpoints.iterator();
             while (it.hasNext()) {

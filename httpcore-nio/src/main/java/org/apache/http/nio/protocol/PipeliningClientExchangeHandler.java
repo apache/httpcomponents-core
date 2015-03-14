@@ -104,19 +104,19 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
         Args.notEmpty(responseConsumers, "Response consumer list");
         Args.check(requestProducers.size() == responseConsumers.size(),
                 "Number of request producers does not match that of response consumers");
-        this.requestProducerQueue = new ConcurrentLinkedQueue<HttpAsyncRequestProducer>(requestProducers);
-        this.responseConsumerQueue = new ConcurrentLinkedQueue<HttpAsyncResponseConsumer<T>>(responseConsumers);
-        this.requestQueue = new ConcurrentLinkedQueue<HttpRequest>();
-        this.resultQueue = new ConcurrentLinkedQueue<T>();
-        this.future = new BasicFuture<List<T>>(callback);
+        this.requestProducerQueue = new ConcurrentLinkedQueue<>(requestProducers);
+        this.responseConsumerQueue = new ConcurrentLinkedQueue<>(responseConsumers);
+        this.requestQueue = new ConcurrentLinkedQueue<>();
+        this.resultQueue = new ConcurrentLinkedQueue<>();
+        this.future = new BasicFuture<>(callback);
         this.localContext = Args.notNull(localContext, "HTTP context");
         this.conn = Args.notNull(conn, "HTTP connection");
         this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
         this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
-        this.requestProducerRef = new AtomicReference<HttpAsyncRequestProducer>(null);
-        this.responseConsumerRef = new AtomicReference<HttpAsyncResponseConsumer<T>>(null);
+        this.requestProducerRef = new AtomicReference<>(null);
+        this.responseConsumerRef = new AtomicReference<>(null);
         this.keepAlive = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
     }
@@ -254,7 +254,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
                 }
             }
             if (!this.future.isDone() && this.responseConsumerQueue.isEmpty()) {
-                this.future.completed(new ArrayList<T>(this.resultQueue));
+                this.future.completed(new ArrayList<>(this.resultQueue));
                 this.resultQueue.clear();
             }
         } catch (final RuntimeException ex) {

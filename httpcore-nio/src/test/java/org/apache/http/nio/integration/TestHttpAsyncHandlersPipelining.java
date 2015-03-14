@@ -167,7 +167,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
+        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
             final Future<List<HttpResponse>> future = this.client.executePipelined(target,
@@ -201,7 +201,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
+        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
             final Future<List<HttpResponse>> future = this.client.executePipelined(target,
@@ -236,7 +236,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
+        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
             final HttpRequest request1 = new BasicHttpRequest("POST", requestUri);
@@ -327,7 +327,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final String expectedPattern2 = createExpectedString(pattern2, count);
         final String expectedPattern3 = createExpectedString(pattern3, count);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
+        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 1; i++) {
             final HttpRequest request1 = new BasicHttpRequest("GET", createRequestUri(pattern1, count));
             final HttpRequest request2 = new BasicHttpRequest("POST",
@@ -399,7 +399,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             final HttpAsyncRequestProducer p3 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/boom"));
             final HttpAsyncRequestProducer p4 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
             final HttpAsyncRequestProducer p5 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
-            final List<HttpAsyncRequestProducer> requestProducers = new ArrayList<HttpAsyncRequestProducer>();
+            final List<HttpAsyncRequestProducer> requestProducers = new ArrayList<>();
             requestProducers.add(p1);
             requestProducers.add(p2);
             requestProducers.add(p3);
@@ -411,7 +411,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             final HttpAsyncResponseConsumer<HttpResponse> c3 = new BasicAsyncResponseConsumer();
             final HttpAsyncResponseConsumer<HttpResponse> c4 = new BasicAsyncResponseConsumer();
             final HttpAsyncResponseConsumer<HttpResponse> c5 = new BasicAsyncResponseConsumer();
-            final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers = new ArrayList<HttpAsyncResponseConsumer<HttpResponse>>();
+            final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers = new ArrayList<>();
             responseConsumers.add(c1);
             responseConsumers.add(c2);
             responseConsumers.add(c3);

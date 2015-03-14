@@ -57,7 +57,7 @@ public class UriPatternMatcher<T> {
 
     public UriPatternMatcher() {
         super();
-        this.map = new HashMap<String, T>();
+        this.map = new HashMap<>();
     }
 
     /**

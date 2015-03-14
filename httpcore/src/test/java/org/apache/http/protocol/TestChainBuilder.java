@@ -38,7 +38,7 @@ public class TestChainBuilder {
 
     @Test
     public void testBuildChain() throws Exception {
-        final ChainBuilder<HttpRequestInterceptor> cb = new ChainBuilder<HttpRequestInterceptor>();
+        final ChainBuilder<HttpRequestInterceptor> cb = new ChainBuilder<>();
         final HttpRequestInterceptor i1 = new RequestContent();
         final HttpRequestInterceptor i2 = new RequestTargetHost();
         final HttpRequestInterceptor i3 = new RequestConnControl();

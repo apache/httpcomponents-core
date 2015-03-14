@@ -458,7 +458,7 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpRequest> requests = new LinkedList<HttpRequest>();
+        final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
             handler).requestReceived(Mockito.<NHttpServerConnection>any());
@@ -504,7 +504,7 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpRequest> requests = new LinkedList<HttpRequest>();
+        final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
             handler).requestReceived(Mockito.<NHttpServerConnection>any());
@@ -557,7 +557,7 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpRequest> requests = new LinkedList<HttpRequest>();
+        final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
             handler).requestReceived(Mockito.<NHttpServerConnection>any());
@@ -594,7 +594,7 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpRequest> requests = new LinkedList<HttpRequest>();
+        final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
             handler).requestReceived(Mockito.<NHttpServerConnection>any());

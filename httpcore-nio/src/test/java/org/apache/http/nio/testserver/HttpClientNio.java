@@ -170,9 +170,9 @@ public class HttpClientNio {
             final HttpContext context,
             final FutureCallback<List<HttpResponse>> callback) {
         final List<HttpAsyncRequestProducer> requestProducers =
-                new ArrayList<HttpAsyncRequestProducer>(requests.size());
+                new ArrayList<>(requests.size());
         final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers =
-                new ArrayList<HttpAsyncResponseConsumer<HttpResponse>>(requests.size());
+                new ArrayList<>(requests.size());
         for (HttpRequest request: requests) {
             requestProducers.add(new BasicAsyncRequestProducer(target, request));
             responseConsumers.add(new BasicAsyncResponseConsumer());

@@ -142,7 +142,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         } else {
             this.threadFactory = new DefaultThreadFactory();
         }
-        this.auditLog = new ArrayList<ExceptionEvent>();
+        this.auditLog = new ArrayList<>();
         this.workerCount = this.config.getIoThreadCount();
         this.dispatchers = new BaseIOReactor[workerCount];
         this.workers = new Worker[workerCount];
@@ -174,7 +174,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      */
     public List<ExceptionEvent> getAuditLog() {
         synchronized (this.auditLog) {
-            return new ArrayList<ExceptionEvent>(this.auditLog);
+            return new ArrayList<>(this.auditLog);
         }
     }
 

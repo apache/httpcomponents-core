@@ -53,7 +53,7 @@ public class BasicHttpContext implements HttpContext {
 
     public BasicHttpContext(final HttpContext parentContext) {
         super();
-        this.map = new ConcurrentHashMap<String, Object>();
+        this.map = new ConcurrentHashMap<>();
         this.parentContext = parentContext;
     }
 

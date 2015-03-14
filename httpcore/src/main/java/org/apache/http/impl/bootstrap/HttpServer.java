@@ -90,7 +90,7 @@ public class HttpServer {
         this.workerThreads = new ThreadGroup("HTTP-workers");
         this.workerExecutorService = Executors.newCachedThreadPool(
                 new ThreadFactoryImpl("HTTP-worker", this.workerThreads));
-        this.status = new AtomicReference<Status>(Status.READY);
+        this.status = new AtomicReference<>(Status.READY);
     }
 
     public InetAddress getInetAddress() {

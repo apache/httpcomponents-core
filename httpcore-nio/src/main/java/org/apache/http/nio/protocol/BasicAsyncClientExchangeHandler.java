@@ -90,7 +90,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         super();
         this.requestProducer = Args.notNull(requestProducer, "Request producer");
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
-        this.future = new BasicFuture<T>(callback);
+        this.future = new BasicFuture<>(callback);
         this.localContext = Args.notNull(localContext, "HTTP context");
         this.conn = Args.notNull(conn, "HTTP connection");
         this.httppocessor = Args.notNull(httppocessor, "HTTP processor");

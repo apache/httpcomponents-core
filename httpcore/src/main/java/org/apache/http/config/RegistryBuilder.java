@@ -45,12 +45,12 @@ public final class RegistryBuilder<I> {
     private final Map<String, I> items;
 
     public static <I> RegistryBuilder<I> create() {
-        return new RegistryBuilder<I>();
+        return new RegistryBuilder<>();
     }
 
     RegistryBuilder() {
         super();
-        this.items = new HashMap<String, I>();
+        this.items = new HashMap<>();
     }
 
     public RegistryBuilder<I> register(final String id, final I item) {
@@ -61,7 +61,7 @@ public final class RegistryBuilder<I> {
     }
 
     public Registry<I> build() {
-        return new Registry<I>(items);
+        return new Registry<>(items);
     }
 
     @Override

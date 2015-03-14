@@ -90,8 +90,8 @@ public class SSLContextBuilder {
 
     public SSLContextBuilder() {
         super();
-        this.keymanagers = new LinkedHashSet<KeyManager>();
-        this.trustmanagers = new LinkedHashSet<TrustManager>();
+        this.keymanagers = new LinkedHashSet<>();
+        this.trustmanagers = new LinkedHashSet<>();
     }
 
     public SSLContextBuilder useProtocol(final String protocol) {
@@ -326,7 +326,7 @@ public class SSLContextBuilder {
 
         public Map<String, PrivateKeyDetails> getClientAliasMap(
                 final String[] keyTypes, final Principal[] issuers) {
-            final Map<String, PrivateKeyDetails> validAliases = new HashMap<String, PrivateKeyDetails>();
+            final Map<String, PrivateKeyDetails> validAliases = new HashMap<>();
             for (final String keyType: keyTypes) {
                 final String[] aliases = this.keyManager.getClientAliases(keyType, issuers);
                 if (aliases != null) {
@@ -341,7 +341,7 @@ public class SSLContextBuilder {
 
         public Map<String, PrivateKeyDetails> getServerAliasMap(
                 final String keyType, final Principal[] issuers) {
-            final Map<String, PrivateKeyDetails> validAliases = new HashMap<String, PrivateKeyDetails>();
+            final Map<String, PrivateKeyDetails> validAliases = new HashMap<>();
             final String[] aliases = this.keyManager.getServerAliases(keyType, issuers);
             if (aliases != null) {
                 for (final String alias: aliases) {

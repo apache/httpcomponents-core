@@ -124,13 +124,7 @@ public class HttpRequestExecutor {
                 response = doReceiveResponse(request, conn, context);
             }
             return response;
-        } catch (final IOException ex) {
-            closeConnection(conn);
-            throw ex;
-        } catch (final HttpException ex) {
-            closeConnection(conn);
-            throw ex;
-        } catch (final RuntimeException ex) {
+        } catch (final HttpException | IOException | RuntimeException ex) {
             closeConnection(conn);
             throw ex;
         }

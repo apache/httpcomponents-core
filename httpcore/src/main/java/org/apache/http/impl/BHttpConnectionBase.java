@@ -86,7 +86,7 @@ class BHttpConnectionBase implements BHttpConnection {
                 charencoder);
         this.messageConstraints = messageConstraints;
         this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
-        this.socketHolder = new AtomicReference<Socket>();
+        this.socketHolder = new AtomicReference<>();
     }
 
     protected void ensureOpen() throws IOException {

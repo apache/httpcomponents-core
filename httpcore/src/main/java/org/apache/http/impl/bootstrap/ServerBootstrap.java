@@ -145,7 +145,7 @@ public class ServerBootstrap {
             return this;
         }
         if (responseFirst == null) {
-            responseFirst = new LinkedList<HttpResponseInterceptor>();
+            responseFirst = new LinkedList<>();
         }
         responseFirst.addFirst(itcp);
         return this;
@@ -162,7 +162,7 @@ public class ServerBootstrap {
             return this;
         }
         if (responseLast == null) {
-            responseLast = new LinkedList<HttpResponseInterceptor>();
+            responseLast = new LinkedList<>();
         }
         responseLast.addLast(itcp);
         return this;
@@ -179,7 +179,7 @@ public class ServerBootstrap {
             return this;
         }
         if (requestFirst == null) {
-            requestFirst = new LinkedList<HttpRequestInterceptor>();
+            requestFirst = new LinkedList<>();
         }
         requestFirst.addFirst(itcp);
         return this;
@@ -196,7 +196,7 @@ public class ServerBootstrap {
             return this;
         }
         if (requestLast == null) {
-            requestLast = new LinkedList<HttpRequestInterceptor>();
+            requestLast = new LinkedList<>();
         }
         requestLast.addLast(itcp);
         return this;
@@ -252,7 +252,7 @@ public class ServerBootstrap {
             return this;
         }
         if (handlerMap == null) {
-            handlerMap = new HashMap<String, HttpRequestHandler>();
+            handlerMap = new HashMap<>();
         }
         handlerMap.put(pattern, handler);
         return this;

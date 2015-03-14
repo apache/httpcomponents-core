@@ -58,7 +58,7 @@ public class HeaderGroup implements Serializable {
      * Constructor for HeaderGroup.
      */
     public HeaderGroup() {
-        this.headers = new ArrayList<Header>(16);
+        this.headers = new ArrayList<>(16);
     }
 
     /**
@@ -175,7 +175,7 @@ public class HeaderGroup implements Serializable {
      * @return an array of length &ge; 0
      */
     public Header[] getHeaders(final String name) {
-        final List<Header> headersFound = new ArrayList<Header>();
+        final List<Header> headersFound = new ArrayList<>();
         // HTTPCORE-361 : we don't use the for-each syntax, i.e.
         //     for (Header header : headers)
         // as that creates an Iterator that needs to be garbage-collected

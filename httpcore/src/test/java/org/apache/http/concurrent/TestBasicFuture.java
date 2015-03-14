@@ -37,8 +37,8 @@ public class TestBasicFuture {
 
     @Test
     public void testCompleted() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<Object>();
-        final BasicFuture<Object> future = new BasicFuture<Object>(callback);
+        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final BasicFuture<Object> future = new BasicFuture<>(callback);
 
         Assert.assertFalse(future.isDone());
 
@@ -60,8 +60,8 @@ public class TestBasicFuture {
 
     @Test
     public void testCompletedWithTimeout() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<Object>();
-        final BasicFuture<Object> future = new BasicFuture<Object>(callback);
+        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final BasicFuture<Object> future = new BasicFuture<>(callback);
 
         Assert.assertFalse(future.isDone());
 
@@ -82,8 +82,8 @@ public class TestBasicFuture {
 
     @Test
     public void testFailed() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<Object>();
-        final BasicFuture<Object> future = new BasicFuture<Object>(callback);
+        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object result = new Object();
         final Exception boom = new Exception();
         future.failed(boom);
@@ -105,8 +105,8 @@ public class TestBasicFuture {
 
     @Test
     public void testCancelled() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<Object>();
-        final BasicFuture<Object> future = new BasicFuture<Object>(callback);
+        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object result = new Object();
         final Exception boom = new Exception();
         future.cancel(true);
@@ -125,7 +125,7 @@ public class TestBasicFuture {
 
     @Test
     public void testAsyncCompleted() throws Exception {
-        final BasicFuture<Object> future = new BasicFuture<Object>(null);
+        final BasicFuture<Object> future = new BasicFuture<>(null);
         final Object result = new Object();
 
         final Thread t = new Thread() {
@@ -149,7 +149,7 @@ public class TestBasicFuture {
 
     @Test
     public void testAsyncFailed() throws Exception {
-        final BasicFuture<Object> future = new BasicFuture<Object>(null);
+        final BasicFuture<Object> future = new BasicFuture<>(null);
         final Exception boom = new Exception();
 
         final Thread t = new Thread() {
@@ -177,7 +177,7 @@ public class TestBasicFuture {
 
     @Test
     public void testAsyncCancelled() throws Exception {
-        final BasicFuture<Object> future = new BasicFuture<Object>(null);
+        final BasicFuture<Object> future = new BasicFuture<>(null);
 
         final Thread t = new Thread() {
 
@@ -200,7 +200,7 @@ public class TestBasicFuture {
 
     @Test(expected=TimeoutException.class)
     public void testAsyncTimeout() throws Exception {
-        final BasicFuture<Object> future = new BasicFuture<Object>(null);
+        final BasicFuture<Object> future = new BasicFuture<>(null);
         final Object result = new Object();
 
         final Thread t = new Thread() {
@@ -222,7 +222,7 @@ public class TestBasicFuture {
 
     @Test(expected=TimeoutException.class)
     public void testAsyncNegativeTimeout() throws Exception {
-        final BasicFuture<Object> future = new BasicFuture<Object>(null);
+        final BasicFuture<Object> future = new BasicFuture<>(null);
         future.get(-1, TimeUnit.MILLISECONDS);
     }
 

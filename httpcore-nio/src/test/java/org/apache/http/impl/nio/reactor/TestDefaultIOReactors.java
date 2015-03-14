@@ -152,7 +152,7 @@ public class TestDefaultIOReactors extends HttpCoreNIOTestBase {
 
         Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
-        final Queue<Future<BasicNIOPoolEntry>> queue = new LinkedList<Future<BasicNIOPoolEntry>>();
+        final Queue<Future<BasicNIOPoolEntry>> queue = new LinkedList<>();
         for (int i = 0; i < connNo; i++) {
             queue.add(this.client.lease(target, null));
         }
