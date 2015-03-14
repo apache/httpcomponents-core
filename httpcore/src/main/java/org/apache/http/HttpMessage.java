@@ -27,72 +27,18 @@
 
 package org.apache.http;
 
-import java.util.Iterator;
-
 /**
  * HTTP messages consist of requests from client to server and responses
  * from server to client.
  *
  * @since 4.0
  */
-public interface HttpMessage<T> {
+public interface HttpMessage<T> extends MessageHead {
 
     /**
      * Returns the protocol version this message is compatible with.
      */
     ProtocolVersion getProtocolVersion();
-
-    /**
-     * Checks if a certain header is present in this message. Header values are
-     * ignored.
-     *
-     * @param name the header name to check for.
-     * @return true if at least one header with this name is present.
-     */
-    boolean containsHeader(String name);
-
-    /**
-     * Returns all the headers with a specified name of this message. Header values
-     * are ignored. Headers are orderd in the sequence they will be sent over a
-     * connection.
-     *
-     * @param name the name of the headers to return.
-     * @return the headers whose name property equals {@code name}.
-     */
-    Header[] getHeaders(String name);
-
-    /**
-     * Returns the first header with a specified name of this message. Header
-     * values are ignored. If there is more than one matching header in the
-     * message the first element of {@link #getHeaders(String)} is returned.
-     * If there is no matching header in the message {@code null} is
-     * returned.
-     *
-     * @param name the name of the header to return.
-     * @return the first header whose name property equals {@code name}
-     *   or {@code null} if no such header could be found.
-     */
-    Header getFirstHeader(String name);
-
-    /**
-     * Returns the last header with a specified name of this message. Header values
-     * are ignored. If there is more than one matching header in the message the
-     * last element of {@link #getHeaders(String)} is returned. If there is no
-     * matching header in the message {@code null} is returned.
-     *
-     * @param name the name of the header to return.
-     * @return the last header whose name property equals {@code name}.
-     *   or {@code null} if no such header could be found.
-     */
-    Header getLastHeader(String name);
-
-    /**
-     * Returns all the headers of this message. Headers are orderd in the sequence
-     * they will be sent over a connection.
-     *
-     * @return all the headers of this message
-     */
-    Header[] getAllHeaders();
 
     /**
      * Adds a header to this message. The header will be appended to the end of
@@ -148,25 +94,6 @@ public interface HttpMessage<T> {
      * @param name The name of the headers to remove.
      */
     void removeHeaders(String name);
-
-    /**
-     * Returns an iterator of all the headers.
-     *
-     * @return Iterator that returns Header objects in the sequence they are
-     *         sent over a connection.
-     */
-    Iterator<Header> headerIterator();
-
-    /**
-     * Returns an iterator of the headers with a given name.
-     *
-     * @param name      the name of the headers over which to iterate, or
-     *                  {@code null} for all headers
-     *
-     * @return Iterator that returns Header objects with the argument name
-     *         in the sequence they are sent over a connection.
-     */
-    Iterator<Header> headerIterator(String name);
 
     /**
      * Obtains the message entity, if available.

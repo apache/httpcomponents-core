@@ -41,20 +41,9 @@ public class TestAbstractMessage {
 
     static class TestHttpMessage extends AbstractHttpMessage {
 
-        private final ProtocolVersion ver;
-
-        public TestHttpMessage(final ProtocolVersion ver) {
-            super();
-            this.ver = ver != null ? ver : HttpVersion.HTTP_1_1;
-        }
-
-        public TestHttpMessage() {
-            this(HttpVersion.HTTP_1_1);
-        }
-
         @Override
         public ProtocolVersion getProtocolVersion() {
-            return ver;
+            return HttpVersion.HTTP_1_1;
         }
 
     }
