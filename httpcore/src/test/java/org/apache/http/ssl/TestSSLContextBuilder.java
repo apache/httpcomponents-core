@@ -512,7 +512,7 @@ public class TestSSLContextBuilder {
     }
 
 
-    @Test(expected = SSLHandshakeException.class)
+    @Test(expected = IOException.class)
     public void testSSLHanskshakeProtocolMismatch1() throws Exception {
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
