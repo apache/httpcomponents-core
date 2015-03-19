@@ -61,8 +61,8 @@ import org.apache.http.util.CharArrayBuffer;
 public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
 
     private final HttpTransportMetricsImpl metrics;
-    private final byte[] buffer;
-    private final ByteArrayBuffer linebuffer;
+    private byte[] buffer;
+    private ByteArrayBuffer linebuffer;
     private final int minChunkLimit;
     private final MessageConstraints constraints;
     private final CharsetDecoder decoder;
@@ -70,7 +70,22 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
     private InputStream instream;
     private int bufferpos;
     private int bufferlen;
-    private CharBuffer cbuf;
+    private int buffersize;
+
+    private static final ThreadLocal<ByteArrayBuffer> LINE_BUFFERS = new ThreadLocal<ByteArrayBuffer>() {
+        @Override
+        protected ByteArrayBuffer initialValue() {
+            return new ByteArrayBuffer(DEFAULT_BUFFER_SIZE);
+        }
+    };
+    private static final ThreadLocal<CharBuffer> CHAR_BUFFERS = new ThreadLocal<CharBuffer>() {
+        @Override
+        protected CharBuffer initialValue() {
+            return CharBuffer.allocate(1024);
+        }
+    };
+
+    private static final ThreadLocal<byte[]> BYTEARRAY_BUFFERS = new ThreadLocal<byte[]>() ;
 
     /**
      * Creates new instance of SessionInputBufferImpl.
@@ -96,12 +111,24 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         Args.notNull(metrics, "HTTP transport metrcis");
         Args.positive(buffersize, "Buffer size");
         this.metrics = metrics;
-        this.buffer = new byte[buffersize];
+        CHAR_BUFFERS.get().clear() ;
+        this.buffer = BYTEARRAY_BUFFERS.get() ;
+        if (this.buffer == null || this.buffer.length > MAX_RESUSABLE_SIZE || this.buffer.length < buffersize) {
+            this.buffer = new byte[buffersize];
+            BYTEARRAY_BUFFERS.set(this.buffer);
+        }
         this.bufferpos = 0;
         this.bufferlen = 0;
+        this.buffersize = buffersize ;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
-        this.linebuffer = new ByteArrayBuffer(buffersize);
+        this.linebuffer = LINE_BUFFERS.get();
+        if (this.linebuffer.capacity() > MAX_RESUSABLE_SIZE) {
+            this.linebuffer = new ByteArrayBuffer(buffersize);
+            LINE_BUFFERS.set(this.linebuffer);
+        }
+        this.linebuffer.ensureCapacity(buffersize);
+        this.linebuffer.clear();
         this.decoder = chardecoder;
     }
 
@@ -121,7 +148,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
 
     @Override
     public int capacity() {
-        return this.buffer.length;
+        return this.buffersize;
     }
 
     @Override
@@ -151,7 +178,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         }
         final int l;
         final int off = this.bufferlen;
-        final int len = this.buffer.length - off;
+        final int len = this.capacity() - off;
         l = streamRead(this.buffer, off, len);
         if (l == -1) {
             return -1;
@@ -357,18 +384,16 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         if (!bbuf.hasRemaining()) {
             return 0;
         }
-        if (this.cbuf == null) {
-            this.cbuf = CharBuffer.allocate(1024);
-        }
+        final CharBuffer cbuf = CHAR_BUFFERS.get() ;
         this.decoder.reset();
         int len = 0;
         while (bbuf.hasRemaining()) {
-            final CoderResult result = this.decoder.decode(bbuf, this.cbuf, true);
+            final CoderResult result = this.decoder.decode(bbuf, cbuf, true);
             len += handleDecodingResult(result, charbuffer, bbuf);
         }
-        final CoderResult result = this.decoder.flush(this.cbuf);
+        final CoderResult result = this.decoder.flush(cbuf);
         len += handleDecodingResult(result, charbuffer, bbuf);
-        this.cbuf.clear();
+        cbuf.clear();
         return len;
     }
 
@@ -379,12 +404,13 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
         if (result.isError()) {
             result.throwException();
         }
-        this.cbuf.flip();
-        final int len = this.cbuf.remaining();
-        while (this.cbuf.hasRemaining()) {
-            charbuffer.append(this.cbuf.get());
+        final CharBuffer cbuf = CHAR_BUFFERS.get() ;
+        cbuf.flip();
+        final int len = cbuf.remaining();
+        while (cbuf.hasRemaining()) {
+            charbuffer.append(cbuf.get());
         }
-        this.cbuf.compact();
+        cbuf.compact();
         return len;
     }
 
