@@ -37,6 +37,7 @@ import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.TokenIterator;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.message.BasicHeaderIterator;
 import org.apache.http.message.BasicTokenIterator;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
@@ -107,9 +108,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // Check for the "Connection" header. If that is absent, check for
         // the "Proxy-Connection" header. The latter is an unspecified and
         // broken but unfortunately common extension of HTTP.
-        HeaderIterator hit = response.headerIterator(HTTP.CONN_DIRECTIVE);
-        if (!hit.hasNext()) {
-            hit = response.headerIterator("Proxy-Connection");
+        Header[] connHeaders = response.getHeaders(HTTP.CONN_DIRECTIVE);
+        if (connHeaders.length == 0) {
+            connHeaders = response.getHeaders("Proxy-Connection");
         }
 
         // Experimental usage of the "Connection" header in HTTP/1.0 is
@@ -135,9 +136,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // it takes precedence and indicates a non-persistent connection.
         // If there is no "close" but a "keep-alive", we take the hint.
 
-        if (hit.hasNext()) {
+        if (connHeaders.length != 0) {
             try {
-                final TokenIterator ti = createTokenIterator(hit);
+                final TokenIterator ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
                 boolean keepalive = false;
                 while (ti.hasNext()) {
                     final String token = ti.nextToken();
@@ -148,8 +149,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                         keepalive = true;
                     }
                 }
-                if (keepalive)
-                 {
+                if (keepalive) {
                     return true;
                 // neither "close" nor "keep-alive", use default policy
                 }
