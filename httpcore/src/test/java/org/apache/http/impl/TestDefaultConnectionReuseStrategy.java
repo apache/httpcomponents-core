@@ -28,9 +28,11 @@
 package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -249,6 +251,41 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0,
                 HttpStatus.SC_NO_CONTENT, "No Content");
         Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
+    }
+
+    @Test
+    public void testRequestExplicitClose() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.addHeader("Connection", "close");
+
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response.addHeader("Transfer-Encoding", "chunked");
+        response.addHeader("Connection", "keep-alive");
+        Assert.assertFalse(reuseStrategy.keepAlive(request, response, context));
+    }
+
+    @Test
+    public void testRequestNoExplicitClose() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.addHeader("Connection", "blah, blah, blah");
+
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response.addHeader("Transfer-Encoding", "chunked");
+        response.addHeader("Connection", "keep-alive");
+        Assert.assertTrue(reuseStrategy.keepAlive(request, response, context));
+    }
+
+    @Test
+    public void testRequestExplicitCloseMultipleTokens() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.addHeader("Connection", "blah, blah, blah");
+        request.addHeader("Connection", "keep-alive");
+        request.addHeader("Connection", "close");
+
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response.addHeader("Transfer-Encoding", "chunked");
+        response.addHeader("Connection", "keep-alive");
+        Assert.assertFalse(reuseStrategy.keepAlive(request, response, context));
     }
 
 }

@@ -78,6 +78,19 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
         Args.notNull(context, "HTTP context");
 
+        if (request != null) {
+            final Header[] connHeaders = request.getHeaders(HttpHeaders.CONNECTION);
+            if (connHeaders.length != 0) {
+                final Iterator<String> ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+                while (ti.hasNext()) {
+                    final String token = ti.next();
+                    if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.
         final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
