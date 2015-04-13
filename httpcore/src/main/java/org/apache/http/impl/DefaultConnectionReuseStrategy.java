@@ -39,6 +39,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.annotation.Immutable;
+import org.apache.http.message.BasicHeaderIterator;
 import org.apache.http.message.BasicTokenIterator;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
@@ -108,9 +109,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // Check for the "Connection" header. If that is absent, check for
         // the "Proxy-Connection" header. The latter is an unspecified and
         // broken but unfortunately common extension of HTTP.
-        Iterator<Header> hit = response.headerIterator(HttpHeaders.CONNECTION);
-        if (!hit.hasNext()) {
-            hit = response.headerIterator("Proxy-Connection");
+        Header[] connHeaders = response.getHeaders(HttpHeaders.CONNECTION);
+        if (connHeaders.length == 0) {
+            connHeaders = response.getHeaders("Proxy-Connection");
         }
 
         // Experimental usage of the "Connection" header in HTTP/1.0 is
@@ -136,8 +137,8 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // it takes precedence and indicates a non-persistent connection.
         // If there is no "close" but a "keep-alive", we take the hint.
 
-        if (hit.hasNext()) {
-            final Iterator<String> ti = new BasicTokenIterator(hit);
+        if (connHeaders.length != 0) {
+            final Iterator<String> ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
             boolean keepalive = false;
             while (ti.hasNext()) {
                 final String token = ti.next();

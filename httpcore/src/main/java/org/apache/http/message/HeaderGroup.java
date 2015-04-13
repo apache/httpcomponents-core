@@ -51,6 +51,8 @@ public class HeaderGroup implements Serializable {
 
     private static final long serialVersionUID = 2608834160639271617L;
 
+    private final Header[] EMPTY = new Header[] {};
+
     /** The list of headers for this group, in the order in which they were added */
     private final List<Header> headers;
 
@@ -175,18 +177,20 @@ public class HeaderGroup implements Serializable {
      * @return an array of length &ge; 0
      */
     public Header[] getHeaders(final String name) {
-        final List<Header> headersFound = new ArrayList<>();
+        List<Header> headersFound = null;
         // HTTPCORE-361 : we don't use the for-each syntax, i.e.
         //     for (Header header : headers)
         // as that creates an Iterator that needs to be garbage-collected
         for (int i = 0; i < this.headers.size(); i++) {
             final Header header = this.headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
+                if (headersFound == null) {
+                    headersFound = new ArrayList<Header>();
+                }
                 headersFound.add(header);
             }
         }
-
-        return headersFound.toArray(new Header[headersFound.size()]);
+        return headersFound != null ? headersFound.toArray(new Header[headersFound.size()]) : EMPTY;
     }
 
     /**
