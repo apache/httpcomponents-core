@@ -173,7 +173,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         this.httppocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
-        this.keepAlive.set(this.connReuseStrategy.keepAlive(response, this.localContext));
+        this.keepAlive.set(this.connReuseStrategy.keepAlive(null, response, this.localContext));
     }
 
     @Override

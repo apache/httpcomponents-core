@@ -113,8 +113,8 @@ public class HttpClient {
         return response;
     }
 
-    public boolean keepAlive(final HttpResponse response) {
-        return this.connStrategy.keepAlive(response, this.context);
+    public boolean keepAlive(final HttpRequest request, final HttpResponse response) {
+        return this.connStrategy.keepAlive(request, response, this.context);
     }
 
 }

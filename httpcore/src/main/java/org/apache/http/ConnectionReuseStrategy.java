@@ -59,14 +59,16 @@ public interface ConnectionReuseStrategy {
      * connection reuse strategy.
      * </p>
      *
+     * @param request
+     *          The last request transmitted over that connection.
      * @param response
-     *          The last response received over that connection.
+     *          The last response transmitted over that connection.
      * @param context   the context in which the connection is being
      *          used.
      *
      * @return {@code true} if the connection is allowed to be reused, or
      *         {@code false} if it MUST NOT be reused
      */
-    boolean keepAlive(HttpResponse response, HttpContext context);
+    boolean keepAlive(HttpRequest request, HttpResponse response, HttpContext context);
 
 }

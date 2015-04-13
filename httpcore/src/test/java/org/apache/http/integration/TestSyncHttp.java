@@ -155,7 +155,7 @@ public class TestSyncHttp {
                 for (int i = 0; i < expected.length; i++) {
                     Assert.assertEquals(expected[i], received[i]);
                 }
-                if (!this.client.keepAlive(response)) {
+                if (!this.client.keepAlive(get, response)) {
                     conn.close();
                 }
             }
@@ -236,7 +236,7 @@ public class TestSyncHttp {
                 for (int i = 0; i < expected.length; i++) {
                     Assert.assertEquals(expected[i], received[i]);
                 }
-                if (!this.client.keepAlive(response)) {
+                if (!this.client.keepAlive(post, response)) {
                     conn.close();
                 }
             }
@@ -316,7 +316,7 @@ public class TestSyncHttp {
                 for (int i = 0; i < expected.length; i++) {
                     Assert.assertEquals(expected[i], received[i]);
                 }
-                if (!this.client.keepAlive(response)) {
+                if (!this.client.keepAlive(post, response)) {
                     conn.close();
                 }
             }
@@ -397,7 +397,7 @@ public class TestSyncHttp {
                 for (int i = 0; i < expected.length; i++) {
                     Assert.assertEquals(expected[i], received[i]);
                 }
-                if (!this.client.keepAlive(response)) {
+                if (!this.client.keepAlive(post, response)) {
                     conn.close();
                 }
             }
@@ -479,7 +479,7 @@ public class TestSyncHttp {
                 for (int i = 0; i < expected.length; i++) {
                     Assert.assertEquals(expected[i], received[i]);
                 }
-                if (!this.client.keepAlive(response)) {
+                if (!this.client.keepAlive(post, response)) {
                     conn.close();
                 }
             }
@@ -572,7 +572,7 @@ public class TestSyncHttp {
                     Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
                 }
 
-                if (!this.client.keepAlive(response)) {
+                if (!this.client.keepAlive(post, response)) {
                     conn.close();
                 }
             }
@@ -734,7 +734,7 @@ public class TestSyncHttp {
                         count++;
                     }
                     Assert.assertEquals(n, count);
-                    if (!this.client.keepAlive(response)) {
+                    if (!this.client.keepAlive(post, response)) {
                         conn.close();
                     }
                 }
@@ -926,7 +926,7 @@ public class TestSyncHttp {
                 final BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
                 final HttpResponse response = this.client.execute(get, host, conn);
                 Assert.assertNull(response.getEntity());
-                if (!this.client.keepAlive(response)) {
+                if (!this.client.keepAlive(get, response)) {
                     conn.close();
                     Assert.fail("Connection expected to be re-usable");
                 }

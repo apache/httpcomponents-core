@@ -330,9 +330,10 @@ public class TestBasicAsyncClientExchangeHandler {
         final Object obj = new Object();
         Mockito.when(this.responseConsumer.getResult()).thenReturn(obj);
 
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
 
-        Mockito.when(reuseStrategy.keepAlive(response, this.context)).thenReturn(Boolean.FALSE);
+        Mockito.when(reuseStrategy.keepAlive(request, response, this.context)).thenReturn(Boolean.FALSE);
 
         this.exchangeHandler.responseReceived(response);
         this.exchangeHandler.responseCompleted();

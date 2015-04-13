@@ -835,7 +835,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(Boolean.TRUE);
+        Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.TRUE);
 
         this.protocolHandler.responseReady(this.conn);
 
@@ -875,7 +875,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(Boolean.TRUE);
+        Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.TRUE);
 
         this.protocolHandler.responseReady(this.conn);
 
@@ -904,7 +904,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(Boolean.FALSE);
+        Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.FALSE);
 
         this.protocolHandler.responseReady(this.conn);
 
@@ -965,7 +965,7 @@ public class TestHttpAsyncService {
 
         response.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(Boolean.TRUE);
+        Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.TRUE);
 
         this.protocolHandler.responseReady(this.conn);
 
@@ -997,7 +997,7 @@ public class TestHttpAsyncService {
 
         response.setEntity(new NStringEntity("stuff"));
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(Boolean.TRUE);
+        Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.TRUE);
 
         this.protocolHandler.responseReady(this.conn);
 
@@ -1293,7 +1293,7 @@ public class TestHttpAsyncService {
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.encoder.isCompleted()).thenReturn(true);
-        Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(Boolean.TRUE);
+        Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.TRUE);
 
         this.protocolHandler.outputReady(conn, this.encoder);
 
@@ -1319,7 +1319,7 @@ public class TestHttpAsyncService {
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.encoder.isCompleted()).thenReturn(true);
-        Mockito.when(this.reuseStrategy.keepAlive(response, exchangeContext)).thenReturn(Boolean.FALSE);
+        Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.FALSE);
 
         this.protocolHandler.outputReady(conn, this.encoder);
 

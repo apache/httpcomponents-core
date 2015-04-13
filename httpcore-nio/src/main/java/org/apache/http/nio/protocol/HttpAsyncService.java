@@ -678,6 +678,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final NHttpServerConnection conn,
             final State state) throws IOException, HttpException {
         final HttpContext context = outgoing.getContext();
+        final HttpRequest request = outgoing.getRequest();
         final HttpResponse response = outgoing.getResponse();
         final HttpAsyncResponseProducer responseProducer = outgoing.getProducer();
         try {
@@ -688,7 +689,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         } finally {
             responseProducer.close();
         }
-        if (!this.connStrategy.keepAlive(response, context)) {
+        if (!this.connStrategy.keepAlive(request, response, context)) {
             conn.close();
         } else {
             // Ready to process new request

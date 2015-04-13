@@ -786,10 +786,10 @@ public class NHttpReverseProxy {
     static class ProxyIncomingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
 
         @Override
-        public boolean keepAlive(final HttpResponse response, final HttpContext context) {
+        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
-            boolean keepAlive = super.keepAlive(response, context);
+            boolean keepAlive = super.keepAlive(request, response, context);
             if (keepAlive) {
                 System.out.println("[client->proxy] connection kept alive " + conn);
             }
@@ -801,10 +801,10 @@ public class NHttpReverseProxy {
     static class ProxyOutgoingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
 
         @Override
-        public boolean keepAlive(final HttpResponse response, final HttpContext context) {
+        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
-            boolean keepAlive = super.keepAlive(response, context);
+            boolean keepAlive = super.keepAlive(request, response, context);
             if (keepAlive) {
                 System.out.println("[proxy->origin] connection kept alive " + conn);
             }

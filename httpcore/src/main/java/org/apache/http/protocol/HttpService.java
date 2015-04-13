@@ -218,7 +218,7 @@ public class HttpService {
         }
         conn.flush();
 
-        if (!this.connStrategy.keepAlive(response, context)) {
+        if (!this.connStrategy.keepAlive(request, response, context)) {
             conn.close();
         }
     }

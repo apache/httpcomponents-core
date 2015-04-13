@@ -54,39 +54,39 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Test(expected=IllegalArgumentException.class)
     public void testIllegalResponseArg() throws Exception {
-        reuseStrategy.keepAlive(null, this.context);
+        reuseStrategy.keepAlive(null, null, this.context);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testIllegalContextArg() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        reuseStrategy.keepAlive(response, null);
+        reuseStrategy.keepAlive(null, response, null);
     }
 
     @Test
     public void testNoContentLengthResponseHttp1_0() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
     public void testNoContentLengthResponseHttp1_1() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
     public void testChunkedContent() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
     public void testIgnoreInvalidKeepAlive() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Connection", "keep-alive");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
         response.addHeader("Connection", "close");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -105,28 +105,28 @@ public class TestDefaultConnectionReuseStrategy {
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", "keep-alive");
 
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
     public void testHTTP10Default() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Content-Length", "10");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
     public void testHTTP11Default() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Content-Length", "10");
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
     public void testFutureHTTP() throws Exception {
         final HttpResponse response = new BasicHttpResponse(new HttpVersion(3, 45), 200, "OK");
         response.addHeader("Content-Length", "10");
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -135,7 +135,7 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", "keep--alive");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", null);
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -153,7 +153,7 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
         response.addHeader("Connection", "yadda, cLOSe, dumdy");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -162,7 +162,7 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
         response.addHeader("Connection", "yadda, kEEP-alive, dumdy");
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -171,7 +171,7 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
         response.addHeader("Connection", "yadda, keep-alive, close, dumdy");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -182,7 +182,7 @@ public class TestDefaultConnectionReuseStrategy {
         response.addHeader("Connection", "yadda, close, dumdy");
         response.addHeader("Proxy-Connection", "keep-alive");
         // Connection takes precedence over Proxy-Connection
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -195,7 +195,7 @@ public class TestDefaultConnectionReuseStrategy {
         // Connection takes precedence over Proxy-Connection,
         // even if it doesn't contain a recognized token.
         // Default for HTTP/1.1 is to keep alive.
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class TestDefaultConnectionReuseStrategy {
         response.addHeader("Proxy-Connection", "close");
         // Connection takes precedence over Proxy-Connection,
         // even if it is empty. Default for HTTP/1.1 is to keep alive.
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -216,7 +216,7 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Content-Length", "10");
         response.addHeader("Content-Length", "11");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -224,7 +224,7 @@ public class TestDefaultConnectionReuseStrategy {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Content-Length", "crap");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -232,7 +232,7 @@ public class TestDefaultConnectionReuseStrategy {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader("Content-Length", "-10");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -240,7 +240,7 @@ public class TestDefaultConnectionReuseStrategy {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
                 HttpStatus.SC_NO_CONTENT, "No Content");
-        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
@@ -248,7 +248,7 @@ public class TestDefaultConnectionReuseStrategy {
         // Use HTTP 1.0
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0,
                 HttpStatus.SC_NO_CONTENT, "No Content");
-        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
 }

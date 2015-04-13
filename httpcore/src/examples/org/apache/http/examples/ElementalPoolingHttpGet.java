@@ -109,7 +109,7 @@ public class ElementalPoolingHttpGet {
                         System.out.println("<< Response: " + response.getStatusLine());
                         System.out.println(EntityUtils.toString(response.getEntity()));
 
-                        reusable = connStrategy.keepAlive(response, coreContext);
+                        reusable = connStrategy.keepAlive(request, response, coreContext);
                     } catch (IOException | HttpException ex) {
                         throw ex;
                     } finally {

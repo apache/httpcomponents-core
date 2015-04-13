@@ -33,6 +33,7 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HeaderElements;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -69,14 +70,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         super();
     }
 
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
     // see interface ConnectionReuseStrategy
     @Override
-    public boolean keepAlive(final HttpResponse response,
+    public boolean keepAlive(final HttpRequest request, final HttpResponse response,
                              final HttpContext context) {
         Args.notNull(response, "HTTP response");
         Args.notNull(context, "HTTP context");

@@ -152,7 +152,7 @@ public class ElementalReverseProxy {
 
             System.out.println("<< Response: " + response.getStatusLine());
 
-            final boolean keepalive = this.connStrategy.keepAlive(response, context);
+            final boolean keepalive = this.connStrategy.keepAlive(request, response, context);
             context.setAttribute(HTTP_CONN_KEEPALIVE, new Boolean(keepalive));
         }
 

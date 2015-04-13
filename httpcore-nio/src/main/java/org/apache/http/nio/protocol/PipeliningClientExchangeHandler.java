@@ -220,7 +220,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.httppocessor.process(response, this.localContext);
 
         responseConsumer.responseReceived(response);
-        this.keepAlive.set(this.connReuseStrategy.keepAlive(response, this.localContext));
+        this.keepAlive.set(this.connReuseStrategy.keepAlive(request, response, this.localContext));
     }
 
     @Override
