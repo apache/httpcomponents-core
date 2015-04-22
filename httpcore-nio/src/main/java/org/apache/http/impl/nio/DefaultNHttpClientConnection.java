@@ -307,9 +307,6 @@ public class DefaultNHttpClientConnection
                     this.status = CLOSED;
                     resetOutput();
                 }
-                if (this.contentEncoder == null && this.status != CLOSED) {
-                    this.session.clearEvent(EventMask.WRITE);
-                }
             }
         } catch (final Exception ex) {
             handler.exception(this, ex);

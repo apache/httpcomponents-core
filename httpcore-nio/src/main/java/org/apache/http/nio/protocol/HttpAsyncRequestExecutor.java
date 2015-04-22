@@ -175,6 +175,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
         final HttpRequest request = handler.generateRequest();
         if (request == null) {
+            conn.suspendOutput();
             return;
         }
         final ProtocolVersion version = request.getRequestLine().getProtocolVersion();

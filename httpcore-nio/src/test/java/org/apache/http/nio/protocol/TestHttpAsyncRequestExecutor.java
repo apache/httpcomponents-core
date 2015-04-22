@@ -193,6 +193,7 @@ public class TestHttpAsyncRequestExecutor {
         Mockito.verify(this.exchangeHandler).generateRequest();
         Assert.assertNull(state.getRequest());
 
+        Mockito.verify(this.conn, Mockito.times(1)).suspendOutput();
         Mockito.verify(this.conn, Mockito.never()).submitRequest(Mockito.<HttpRequest>any());
     }
 

@@ -188,7 +188,6 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertNull(conn.contentEncoder);
         Assert.assertEquals("POST / HTTP/1.1\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
 
-        Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
     }
 
@@ -214,7 +213,6 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertNull(conn.contentEncoder);
         Assert.assertEquals("POST / HTTP/1.1\r\n\r\na lot of various stuff", wchannel.dump(Consts.ASCII));
 
-        Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
 
@@ -240,7 +238,6 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertNull(conn.contentEncoder);
         Assert.assertEquals("POST / HTTP/1.1\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
 
-        Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
     }
 
@@ -266,7 +263,6 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertNull(conn.contentEncoder);
         Assert.assertEquals("POST / HTTP/1.1\r\n\r\na lot of various stuff", wchannel.dump(Consts.ASCII));
 
-        Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
 
@@ -351,7 +347,6 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertEquals("POST / HTTP/1.1\r\nTransfer-Encoding: chunked\r\n\r\n" +
                 "5\r\na lot\r\n11\r\n of various stuff\r\n0\r\n\r\n", wchannel.dump(Consts.ASCII));
 
-        Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
 
