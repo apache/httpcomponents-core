@@ -35,6 +35,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
+import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -67,16 +68,12 @@ public class TestResponseParser {
         Assert.assertEquals(3, headers.length);
     }
 
-    @Test
+    @Test(expected = NoHttpResponseException.class)
     public void testConnectionClosedException() throws Exception {
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
-        try {
-            parser.parse(inbuffer);
-            Assert.fail("NoHttpResponseException should have been thrown");
-        } catch (final NoHttpResponseException expected) {
-        }
+        parser.parse(inbuffer);
     }
 
     @Test
@@ -102,20 +99,26 @@ public class TestResponseParser {
             } catch (final InterruptedIOException ex) {
                 timeoutCount++;
             }
-
         }
         Assert.assertNotNull(httpresponse);
         Assert.assertEquals(5, timeoutCount);
 
         @SuppressWarnings("null") // httpresponse cannot be null here
-        final
-        StatusLine statusline = httpresponse.getStatusLine();
+        final StatusLine statusline = httpresponse.getStatusLine();
         Assert.assertNotNull(statusline);
         Assert.assertEquals(200, statusline.getStatusCode());
         Assert.assertEquals("OK", statusline.getReasonPhrase());
         Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
         final Header[] headers = httpresponse.getAllHeaders();
         Assert.assertEquals(3, headers.length);
+    }
+
+    @Test(expected = UnsupportedHttpVersionException.class)
+    public void testParsingUnsupportedVersion() throws Exception {
+        final String s = "HTTP/2.0 200 OK\r\n\r\n";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
+        parser.parse(inbuffer);
     }
 
 }

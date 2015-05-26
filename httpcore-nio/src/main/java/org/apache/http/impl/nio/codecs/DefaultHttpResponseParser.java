@@ -30,8 +30,11 @@ package org.apache.http.impl.nio.codecs;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
+import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -87,8 +90,12 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     @Override
     protected HttpResponse createMessage(final CharArrayBuffer buffer)
             throws HttpException, ParseException {
-        final StatusLine statusline = getLineParser().parseStatusLine(buffer);
-        return this.responseFactory.newHttpResponse(statusline, null);
+        final StatusLine statusLine = getLineParser().parseStatusLine(buffer);
+        final ProtocolVersion version = statusLine.getProtocolVersion();
+        if (version.greaterEquals(HttpVersion.HTTP_2)) {
+            throw new UnsupportedHttpVersionException("Unsupported version: " + version);
+        }
+        return this.responseFactory.newHttpResponse(statusLine, null);
     }
 
 }

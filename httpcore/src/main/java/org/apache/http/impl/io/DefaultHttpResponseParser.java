@@ -32,9 +32,12 @@ import java.io.IOException;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
+import org.apache.http.HttpVersion;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ParseException;
+import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
+import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -71,8 +74,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
             final HttpResponseFactory responseFactory,
             final MessageConstraints constraints) {
         super(lineParser, constraints);
-        this.responseFactory = responseFactory != null ? responseFactory :
-            DefaultHttpResponseFactory.INSTANCE;
+        this.responseFactory = responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE;
         this.lineBuf = new CharArrayBuffer(128);
     }
 
@@ -91,8 +93,8 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     }
 
     @Override
-    protected HttpResponse parseHead(final SessionInputBuffer sessionBuffer)
-        throws IOException, HttpException, ParseException {
+    protected HttpResponse parseHead(
+            final SessionInputBuffer sessionBuffer) throws IOException, HttpException, ParseException {
 
         this.lineBuf.clear();
         final int i = sessionBuffer.readLine(this.lineBuf);
@@ -101,6 +103,10 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
         }
         //create the status line from the status string
         final StatusLine statusline = getLineParser().parseStatusLine(this.lineBuf);
+        final ProtocolVersion version = statusline.getProtocolVersion();
+        if (version.greaterEquals(HttpVersion.HTTP_2)) {
+            throw new UnsupportedHttpVersionException("Unsupported version: " + version);
+        }
         return this.responseFactory.newHttpResponse(statusline, null);
     }
 

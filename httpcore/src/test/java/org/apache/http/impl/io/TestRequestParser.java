@@ -34,6 +34,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.RequestLine;
+import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -66,16 +67,12 @@ public class TestRequestParser {
         Assert.assertEquals(3, headers.length);
     }
 
-    @Test
+    @Test(expected = ConnectionClosedException.class)
     public void testConnectionClosedException() throws Exception {
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
-        try {
-            parser.parse(inbuffer);
-            Assert.fail("ConnectionClosedException should have been thrown");
-        } catch (final ConnectionClosedException expected) {
-        }
+        parser.parse(inbuffer);
     }
 
     @Test
@@ -107,14 +104,21 @@ public class TestRequestParser {
         Assert.assertEquals(5, timeoutCount);
 
         @SuppressWarnings("null") // httprequest cannot be null here
-        final
-        RequestLine reqline = httprequest.getRequestLine();
+        final RequestLine reqline = httprequest.getRequestLine();
         Assert.assertNotNull(reqline);
         Assert.assertEquals("GET", reqline.getMethod());
         Assert.assertEquals("/", reqline.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, reqline.getProtocolVersion());
         final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(3, headers.length);
+    }
+
+    @Test(expected = UnsupportedHttpVersionException.class)
+    public void testParsingUnsupportedVersion() throws Exception {
+        final String s = "GET / HTTP/2.0\r\n\r\n";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
+        parser.parse(inbuffer);
     }
 
 }
