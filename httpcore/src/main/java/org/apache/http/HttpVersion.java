@@ -59,6 +59,9 @@ public final class HttpVersion extends ProtocolVersion
     /** HTTP protocol version 1.1 */
     public static final HttpVersion HTTP_1_1 = new HttpVersion(1, 1);
 
+    /** HTTP protocol version 2.0 */
+    public static final HttpVersion HTTP_2_0 = new HttpVersion(2, 0);
+    public static final HttpVersion HTTP_2   = HTTP_2_0;
 
     /**
      * Create an HTTP protocol version designator.
