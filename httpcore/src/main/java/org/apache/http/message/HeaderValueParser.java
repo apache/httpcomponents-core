@@ -29,7 +29,6 @@ package org.apache.http.message;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 
 /**
  * Interface for parsing header values into elements.
@@ -48,12 +47,8 @@ public interface HeaderValueParser {
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  an array holding all elements of the header value
-     *
-     * @throws ParseException        in case of a parsing error
      */
-    HeaderElement[] parseElements(
-            CharSequence buffer,
-            ParserCursor cursor) throws ParseException;
+    HeaderElement[] parseElements(CharSequence buffer, ParserCursor cursor);
 
     /**
      * Parses a single header element.
@@ -65,12 +60,8 @@ public interface HeaderValueParser {
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  the parsed element
-     *
-     * @throws ParseException        in case of a parse error
      */
-    HeaderElement parseHeaderElement(
-            CharSequence buffer,
-            ParserCursor cursor) throws ParseException;
+    HeaderElement parseHeaderElement(CharSequence buffer, ParserCursor cursor);
 
     /**
      * Parses a list of name-value pairs.
@@ -82,12 +73,8 @@ public interface HeaderValueParser {
      *                  the bounds within the buffer for the parsing operation
      *
      * @return  an array holding all items of the name-value list
-     *
-     * @throws ParseException        in case of a parse error
      */
-    NameValuePair[] parseParameters(
-            CharSequence buffer,
-            ParserCursor cursor) throws ParseException;
+    NameValuePair[] parseParameters(CharSequence buffer, ParserCursor cursor);
 
 
     /**
@@ -100,9 +87,7 @@ public interface HeaderValueParser {
      * @return  the name-value pair, where the value is {@code null}
      *          if no value is specified
      */
-    NameValuePair parseNameValuePair(
-            CharSequence buffer,
-            ParserCursor cursor) throws ParseException;
+    NameValuePair parseNameValuePair(CharSequence buffer, ParserCursor cursor);
 
 }
 

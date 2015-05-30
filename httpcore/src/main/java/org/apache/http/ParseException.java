@@ -28,17 +28,11 @@
 package org.apache.http;
 
 /**
- * Signals a parse error.
- * Parse errors when receiving a message will typically trigger
- * {@link ProtocolException}. Parse errors that do not occur during
- * protocol execution may be handled differently.
- * This is an unchecked exception, since there are cases where
- * the data to be parsed has been generated and is therefore
- * known to be parseable.
+ * Signals a protocol exception due to failure to parse a message element.
  *
  * @since 4.0
  */
-public class ParseException extends RuntimeException {
+public class ParseException extends ProtocolException {
 
     private static final long serialVersionUID = -7288819855864183578L;
 

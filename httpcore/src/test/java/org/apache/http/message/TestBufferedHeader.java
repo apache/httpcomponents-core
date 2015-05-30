@@ -44,7 +44,7 @@ import org.junit.Test;
 public class TestBufferedHeader {
 
     @Test
-    public void testBasicConstructor() {
+    public void testBasicConstructor() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
         final BufferedHeader header = new BufferedHeader(buf);
@@ -55,7 +55,7 @@ public class TestBufferedHeader {
     }
 
     @Test
-    public void testInvalidName() {
+    public void testInvalidName() throws Exception {
         try {
             new BufferedHeader(null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -65,7 +65,7 @@ public class TestBufferedHeader {
     }
 
     @Test
-    public void testHeaderElements() {
+    public void testHeaderElements()  throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: element1 = value1, element2; param1 = value1, element3");
         final BufferedHeader header = new BufferedHeader(buf);

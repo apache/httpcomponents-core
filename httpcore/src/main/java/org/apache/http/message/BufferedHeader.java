@@ -99,7 +99,7 @@ public class BufferedHeader implements FormattedHeader, Serializable {
     }
 
     @Override
-    public HeaderElement[] getElements() throws ParseException {
+    public HeaderElement[] getElements() {
         final ParserCursor cursor = new ParserCursor(0, this.buffer.length());
         cursor.updatePos(this.valuePos);
         return BasicHeaderValueParser.INSTANCE.parseElements(this.buffer, cursor);
