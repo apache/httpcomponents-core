@@ -33,6 +33,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.apache.http.HeaderElement;
+import org.apache.http.ParseException;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,7 +48,7 @@ public class TestBufferedHeader {
     public void testBasicConstructor() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
-        final BufferedHeader header = new BufferedHeader(buf);
+        final BufferedHeader header = new BufferedHeader(buf, false);
         Assert.assertEquals("name", header.getName());
         Assert.assertEquals("value", header.getValue());
         Assert.assertSame(buf, header.getBuffer());
@@ -55,20 +56,10 @@ public class TestBufferedHeader {
     }
 
     @Test
-    public void testInvalidName() throws Exception {
-        try {
-            new BufferedHeader(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            //expected
-        }
-    }
-
-    @Test
     public void testHeaderElements()  throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: element1 = value1, element2; param1 = value1, element3");
-        final BufferedHeader header = new BufferedHeader(buf);
+        final BufferedHeader header = new BufferedHeader(buf, false);
         final HeaderElement[] elements = header.getElements();
         Assert.assertNotNull(elements);
         Assert.assertEquals(3, elements.length);
@@ -85,7 +76,7 @@ public class TestBufferedHeader {
     public void testSerialization() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
-        final BufferedHeader orig = new BufferedHeader(buf);
+        final BufferedHeader orig = new BufferedHeader(buf, false);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
@@ -96,6 +87,67 @@ public class TestBufferedHeader {
         final BufferedHeader clone = (BufferedHeader) instream.readObject();
         Assert.assertEquals(orig.getName(), clone.getName());
         Assert.assertEquals(orig.getValue(), clone.getValue());
+    }
+
+    @Test
+    public void testInvalidHeaderParsing() throws Exception {
+        final CharArrayBuffer buf = new CharArrayBuffer(16);
+        buf.clear();
+        buf.append("");
+        try {
+            new BufferedHeader(buf, false);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buf.clear();
+        buf.append("blah");
+        try {
+            new BufferedHeader(buf, false);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buf.clear();
+        buf.append(":");
+        try {
+            new BufferedHeader(buf, false);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buf.clear();
+        buf.append("   :");
+        try {
+            new BufferedHeader(buf, false);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buf.clear();
+        buf.append(": blah");
+        try {
+            new BufferedHeader(buf, false);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buf.clear();
+        buf.append(" : blah");
+        try {
+            new BufferedHeader(buf, false);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buf.clear();
+        buf.append("header : blah");
+        try {
+            new BufferedHeader(buf, true);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
     }
 
 }

@@ -39,20 +39,25 @@ import org.apache.http.util.CharArrayBuffer;
  * {@link org.apache.http.Header#getValue()} or {@link org.apache.http.Header#getElements()}
  * methods.
  * <p>
- * This parser should be used to parse request messages on the server server.
+ * This parser unlike {@link BasicLineParser} and {@link LazyLineParser}
+ * will not reject headers containing whitespaces between the header field
+ * name and colon.
+ * <p>
+ * This parser should be used to parse response messages on the client server
+ * or to parse both request and response messages by an intermediary (proxy).
  *
  * @since 5.0
  */
 @Immutable
-public class LazyLineParser extends BasicLineParser {
+public class LazyLaxLineParser extends BasicLineParser {
 
-    public final static LazyLineParser INSTANCE = new LazyLineParser();
+    public final static LazyLaxLineParser INSTANCE = new LazyLaxLineParser();
 
     @Override
     public Header parseHeader(final CharArrayBuffer buffer) throws ParseException {
         Args.notNull(buffer, "Char array buffer");
 
-        return new BufferedHeader(buffer, true);
+        return new BufferedHeader(buffer, false);
     }
 
 }

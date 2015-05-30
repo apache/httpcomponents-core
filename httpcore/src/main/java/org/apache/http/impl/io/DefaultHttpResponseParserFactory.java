@@ -34,7 +34,7 @@ import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.HttpMessageParserFactory;
-import org.apache.http.message.LazyLineParser;
+import org.apache.http.message.LazyLaxLineParser;
 import org.apache.http.message.LineParser;
 
 /**
@@ -53,9 +53,8 @@ public class DefaultHttpResponseParserFactory implements HttpMessageParserFactor
     public DefaultHttpResponseParserFactory(final LineParser lineParser,
             final HttpResponseFactory responseFactory) {
         super();
-        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
-        this.responseFactory = responseFactory != null ? responseFactory
-                : DefaultHttpResponseFactory.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : LazyLaxLineParser.INSTANCE;
+        this.responseFactory = responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE;
     }
 
     public DefaultHttpResponseParserFactory() {

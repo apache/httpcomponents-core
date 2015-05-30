@@ -195,7 +195,10 @@ public class BasicLineParser implements LineParser {
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
         this.tokenParser.skipWhiteSpace(buffer, cursor);
         final String name = this.tokenParser.parseToken(buffer, cursor, COLON);
-        if (TextUtils.isEmpty(name) || cursor.atEnd()) {
+        if (cursor.getPos() == cursor.getLowerBound() || cursor.getPos() == cursor.getUpperBound() ||
+                buffer.charAt(cursor.getPos()) != ':' ||
+                TextUtils.isEmpty(name) ||
+                TokenParser.isWhitespace(buffer.charAt(cursor.getPos() - 1))) {
             throw new ParseException("Invalid header: " + buffer.toString());
         }
         final String value = buffer.substringTrimmed(cursor.getPos() + 1, cursor.getUpperBound());

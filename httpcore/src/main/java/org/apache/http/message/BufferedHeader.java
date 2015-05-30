@@ -72,11 +72,17 @@ public class BufferedHeader implements FormattedHeader, Serializable {
      * @throws ParseException   in case of a parse error
      */
     public BufferedHeader(final CharArrayBuffer buffer) throws ParseException {
+        this(buffer, true);
+    }
 
+    BufferedHeader(final CharArrayBuffer buffer, final boolean strict) throws ParseException {
         super();
         Args.notNull(buffer, "Char array buffer");
         final int colon = buffer.indexOf(':');
-        if (colon == -1) {
+        if (colon <= 0) {
+            throw new ParseException("Invalid header: " + buffer.toString());
+        }
+        if (strict && TokenParser.isWhitespace(buffer.charAt(colon - 1))) {
             throw new ParseException("Invalid header: " + buffer.toString());
         }
         final String s = buffer.substringTrimmed(0, colon);

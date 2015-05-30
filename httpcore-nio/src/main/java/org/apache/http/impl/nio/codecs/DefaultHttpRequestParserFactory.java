@@ -54,8 +54,7 @@ public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactor
             final HttpRequestFactory requestFactory) {
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
-        this.requestFactory = requestFactory != null ? requestFactory
-                : DefaultHttpRequestFactory.INSTANCE;
+        this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
     }
 
     public DefaultHttpRequestParserFactory() {

@@ -59,15 +59,14 @@ public class TestMessageParser {
     public void testBasicHeaderParsing() throws Exception {
         final String s =
             "header1: stuff\r\n" +
-            "header2  : stuff \r\n" +
+            "header2:  stuff \r\n" +
             "header3: stuff\r\n" +
             "     and more stuff\r\n" +
             "\t and even more stuff\r\n" +
             "     \r\n" +
             "\r\n";
         final SessionInputBuffer receiver = new SessionInputBufferMock(s, Consts.ASCII);
-        final Header[] headers = AbstractMessageParser.parseHeaders
-            (receiver, -1, -1, null);
+        final Header[] headers = AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(3, headers.length);
         Assert.assertEquals("header1", headers[0].getName());
@@ -80,15 +79,13 @@ public class TestMessageParser {
 
     @Test
     public void testParsingHeader() throws Exception {
-        final String s =
-            "header1  : stuff; param1 = value1; param2 = \"value 2\" \r\n" +
-            "\r\n";
+        final String s = "header1: stuff; param1 = value1; param2 = \"value 2\" \r\n" +
+                "\r\n";
         final SessionInputBuffer receiver = new SessionInputBufferMock(s, Consts.ASCII);
-        final Header[] headers = AbstractMessageParser.parseHeaders
-            (receiver, -1, -1, null);
+        final Header[] headers = AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(1, headers.length);
-        Assert.assertEquals("header1  : stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
+        Assert.assertEquals("header1: stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
         final HeaderElement[] elements = headers[0].getElements();
         Assert.assertNotNull(elements);
         Assert.assertEquals(1, elements.length);
@@ -131,10 +128,9 @@ public class TestMessageParser {
     public void testParsingMalformedFirstHeader() throws Exception {
         final String s =
             "    header1: stuff\r\n" +
-            "header2  : stuff \r\n";
+            "header2: stuff \r\n";
         final SessionInputBuffer receiver = new SessionInputBufferMock(s, Consts.ASCII);
-        final Header[] headers = AbstractMessageParser.parseHeaders
-            (receiver, -1, -1, null);
+        final Header[] headers = AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(2, headers.length);
         Assert.assertEquals("header1", headers[0].getName());
@@ -147,8 +143,7 @@ public class TestMessageParser {
     public void testEmptyDataStream() throws Exception {
         final String s = "";
         final SessionInputBuffer receiver = new SessionInputBufferMock(s, Consts.ASCII);
-        final Header[] headers = AbstractMessageParser.parseHeaders
-            (receiver, -1, -1, null);
+        final Header[] headers = AbstractMessageParser.parseHeaders(receiver, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(0, headers.length);
     }

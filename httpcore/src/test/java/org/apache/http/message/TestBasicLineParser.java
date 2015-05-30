@@ -27,6 +27,7 @@
 
 package org.apache.http.message;
 
+import org.apache.http.Header;
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
@@ -346,6 +347,85 @@ public class TestBasicLineParser {
         cursor = new ParserCursor(0, buffer.length());
         try {
             this.parser.parseProtocolVersion(buffer, cursor);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+    }
+
+    @Test
+    public void testHeaderParse() throws Exception {
+        final CharArrayBuffer buf = new CharArrayBuffer(64);
+        //typical request line
+        buf.clear();
+        buf.append("header: blah");
+        Header header = this.parser.parseHeader(buf);
+        Assert.assertEquals("header", header.getName());
+        Assert.assertEquals("blah", header.getValue());
+
+        //Lots of blanks
+        buf.clear();
+        buf.append("    header:    blah    ");
+        header = this.parser.parseHeader(buf);
+        Assert.assertEquals("header", header.getName());
+        Assert.assertEquals("blah", header.getValue());
+    }
+
+    @Test
+    public void testInvalidHeaderParsing() throws Exception {
+        final CharArrayBuffer buffer = new CharArrayBuffer(16);
+        buffer.clear();
+        buffer.append("");
+        try {
+            this.parser.parseHeader(buffer);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buffer.clear();
+        buffer.append("blah");
+        try {
+            this.parser.parseHeader(buffer);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buffer.clear();
+        buffer.append(":");
+        try {
+            this.parser.parseHeader(buffer);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buffer.clear();
+        buffer.append("   :");
+        try {
+            this.parser.parseHeader(buffer);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buffer.clear();
+        buffer.append(": blah");
+        try {
+            this.parser.parseHeader(buffer);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buffer.clear();
+        buffer.append(" : blah");
+        try {
+            this.parser.parseHeader(buffer);
+            Assert.fail("ParseException should have been thrown");
+        } catch (final ParseException e) {
+            //expected
+        }
+        buffer.clear();
+        buffer.append("header : blah");
+        try {
+            this.parser.parseHeader(buffer);
             Assert.fail("ParseException should have been thrown");
         } catch (final ParseException e) {
             //expected
