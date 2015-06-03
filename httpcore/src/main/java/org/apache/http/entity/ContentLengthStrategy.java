@@ -42,18 +42,18 @@ public interface ContentLengthStrategy {
      * Identity transfer encoding. Message content is delineated
      * by the end of connection.
      */
-    public static final int IDENTITY = -1;
+    int IDENTITY = -1;
 
     /**
      * Message body chunk coded
      */
-    public static final long CHUNKED = -2;
+    long CHUNKED = -2;
 
     /**
      * Message body not explicitly delineated. Legal for HTTP response messages
      * and illegal for HTTP request messages.
      */
-    public static final long UNDEFINED = -Long.MAX_VALUE;
+    long UNDEFINED = -Long.MAX_VALUE;
 
     /**
      * Returns length of the given message in bytes. The returned value

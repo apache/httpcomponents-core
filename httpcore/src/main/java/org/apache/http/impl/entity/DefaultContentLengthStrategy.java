@@ -32,40 +32,41 @@ import org.apache.http.HeaderElements;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
+import org.apache.http.NotImplementedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.util.Args;
 
 /**
- * The lax implementation of the content length strategy. This class will ignore
- * unrecognized transfer encodings and malformed {@code Content-Length}
- * header values.
+ * The default implementation of the content length strategy. This class
+ * will throw {@link ProtocolException} if it encounters an unsupported
+ * transfer encoding, multiple {@code Content-Length} header
+ * values or a malformed {@code Content-Length} header value.
  * <p>
  * This class recognizes "chunked" transfer-coding only.
  *
- * @since 4.0
+ * @since 5.0
  */
 @Immutable
-public class LaxContentLengthStrategy implements ContentLengthStrategy {
+public class DefaultContentLengthStrategy implements ContentLengthStrategy {
 
-    public static final LaxContentLengthStrategy INSTANCE = new LaxContentLengthStrategy();
+    public static final DefaultContentLengthStrategy INSTANCE = new DefaultContentLengthStrategy();
 
     /**
-     * Creates {@code LaxContentLengthStrategy} instance. {@link ContentLengthStrategy#UNDEFINED}
+     * Creates {@code DefaultContentLengthStrategy} instance. {@link ContentLengthStrategy#UNDEFINED}
      * is used per default when content length is not explicitly specified in the message.
      */
-    public LaxContentLengthStrategy() {
+    public DefaultContentLengthStrategy() {
     }
 
     @Override
     public long determineLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
-
-        final Header transferEncodingHeader = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         // Although Transfer-Encoding is specified as a list, in practice
         // it is either missing or has the single value "chunked". So we
         // treat it as a single-valued header here.
+        final Header transferEncodingHeader = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         if (transferEncodingHeader != null) {
             final String s = transferEncodingHeader.getValue();
             if (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(s)) {
@@ -73,25 +74,23 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
             } else if (HeaderElements.IDENTITY_ENCODING.equalsIgnoreCase(s)) {
                 return IDENTITY;
             } else {
-                throw new ProtocolException("Unsupported transfer encoding: " + s);
+                throw new NotImplementedException("Unsupported transfer encoding: " + s);
             }
         }
-        if (message.containsHeader(HttpHeaders.CONTENT_LENGTH)) {
-            long contentlen = -1;
-            final Header[] headers = message.getHeaders(HttpHeaders.CONTENT_LENGTH);
-            for (int i = headers.length - 1; i >= 0; i--) {
-                final Header header = headers[i];
-                try {
-                    contentlen = Long.parseLong(header.getValue());
-                    break;
-                } catch (final NumberFormatException ignore) {
+        if (message.containsHeaders(HttpHeaders.CONTENT_LENGTH) > 1) {
+            throw new ProtocolException("Multiple Content-Length headers");
+        }
+        final Header contentLengthHeader = message.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
+        if (contentLengthHeader != null) {
+            final String s = contentLengthHeader.getValue();
+            try {
+                final long len = Long.parseLong(s);
+                if (len < 0) {
+                    throw new ProtocolException("Negative content length: " + s);
                 }
-                // See if we can have better luck with another header, if present
-            }
-            if (contentlen >= 0) {
-                return contentlen;
-            } else {
-                throw new ProtocolException("Invalid content length");
+                return len;
+            } catch (final NumberFormatException e) {
+                throw new ProtocolException("Invalid content length: " + s);
             }
         }
         return UNDEFINED;

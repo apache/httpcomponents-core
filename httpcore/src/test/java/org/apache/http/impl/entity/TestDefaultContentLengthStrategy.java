@@ -36,7 +36,7 @@ import org.apache.http.message.AbstractHttpMessage;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestStrictContentLengthStrategy {
+public class TestDefaultContentLengthStrategy {
 
     static class TestHttpMessage extends AbstractHttpMessage {
 
@@ -49,7 +49,7 @@ public class TestStrictContentLengthStrategy {
 
     @Test
     public void testEntityWithChunkTransferEncoding() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked");
 
@@ -58,7 +58,7 @@ public class TestStrictContentLengthStrategy {
 
     @Test
     public void testEntityWithIdentityTransferEncoding() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Identity");
 
@@ -67,7 +67,7 @@ public class TestStrictContentLengthStrategy {
 
     @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidTransferEncoding() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "whatever");
         lenStrategy.determineLength(message);
@@ -75,7 +75,7 @@ public class TestStrictContentLengthStrategy {
 
     @Test
     public void testEntityWithContentLength() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "100");
         Assert.assertEquals(100, lenStrategy.determineLength(message));
@@ -83,7 +83,7 @@ public class TestStrictContentLengthStrategy {
 
     @Test(expected=ProtocolException.class)
     public void testEntityWithInvalidContentLength() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "whatever");
         lenStrategy.determineLength(message);
@@ -91,7 +91,7 @@ public class TestStrictContentLengthStrategy {
 
     @Test(expected=ProtocolException.class)
     public void testEntityWithNegativeContentLength() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "-10");
         lenStrategy.determineLength(message);
@@ -99,7 +99,7 @@ public class TestStrictContentLengthStrategy {
 
     @Test
     public void testEntityNoContentDelimiter() throws Exception {
-        final ContentLengthStrategy lenStrategy = new StrictContentLengthStrategy();
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         Assert.assertEquals(ContentLengthStrategy.UNDEFINED, lenStrategy.determineLength(message));
     }

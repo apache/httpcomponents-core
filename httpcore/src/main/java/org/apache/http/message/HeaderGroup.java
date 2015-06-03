@@ -267,6 +267,27 @@ public class HeaderGroup implements Serializable {
     }
 
     /**
+     * Checks if a certain header is present in this message and how many times.
+     * <p>Header name comparison is case insensitive.
+     *
+     * @param name the header name to check for.
+     * @return number of occurrences of the header in the message.
+     */
+    public int containsHeaders(final String name) {
+        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
+        //     for (Header header : headers)
+        // as that creates an Iterator that needs to be garbage-collected
+        int count = 0;
+        for (int i = 0; i < this.headers.size(); i++) {
+            final Header header = this.headers.get(i);
+            if (header.getName().equalsIgnoreCase(name)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
      * Returns an iterator over this group of headers.
      *
      * @return iterator over this group of headers.

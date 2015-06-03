@@ -40,8 +40,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
 import org.apache.http.nio.NHttpClientConnection;
@@ -89,7 +88,7 @@ public class DefaultNHttpClientConnection
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
-     *   {@link org.apache.http.impl.entity.StrictContentLengthStrategy#INSTANCE} will be used.
+     *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
      *
      * @since 4.3
      */
@@ -111,9 +110,9 @@ public class DefaultNHttpClientConnection
         this.responseParser = (responseParserFactory != null ? responseParserFactory :
             DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-                LaxContentLengthStrategy.INSTANCE;
+                DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                StrictContentLengthStrategy.INSTANCE;
+                DefaultContentLengthStrategy.INSTANCE;
     }
 
     /**

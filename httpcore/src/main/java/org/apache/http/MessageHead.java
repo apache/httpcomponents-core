@@ -46,6 +46,14 @@ public interface MessageHead {
     boolean containsHeader(String name);
 
     /**
+     * Checks if a certain header is present in this message and how many times.
+     *
+     * @param name the header name to check for.
+     * @return number of occurrences of the header in the message.
+     */
+    int containsHeaders(String name);
+
+    /**
      * Returns all the headers with a specified name of this message. Header values
      * are ignored. Headers are orderd in the sequence they will be sent over a
      * connection.

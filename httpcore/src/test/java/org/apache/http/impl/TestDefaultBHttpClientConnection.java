@@ -40,8 +40,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
@@ -68,8 +67,8 @@ public class TestDefaultBHttpClientConnection {
         conn = new DefaultBHttpClientConnection(1024, 1024,
             null, null,
             MessageConstraints.DEFAULT,
-            LaxContentLengthStrategy.INSTANCE,
-            StrictContentLengthStrategy.INSTANCE,
+            DefaultContentLengthStrategy.INSTANCE,
+            DefaultContentLengthStrategy.INSTANCE,
             DefaultHttpRequestWriterFactory.INSTANCE,
             DefaultHttpResponseParserFactory.INSTANCE);
     }

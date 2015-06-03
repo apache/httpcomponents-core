@@ -42,8 +42,7 @@ import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
-import org.apache.http.impl.entity.LaxContentLengthStrategy;
-import org.apache.http.impl.entity.StrictContentLengthStrategy;
+import org.apache.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.io.DefaultHttpResponseWriterFactory;
 import org.apache.http.io.HttpMessageParser;
@@ -78,9 +77,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
-     *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
+     *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
-     *   {@link org.apache.http.impl.entity.StrictContentLengthStrategy#INSTANCE} will be used.
+     *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
      * @param requestParserFactory request parser factory. If {@code null}
      *   {@link DefaultHttpRequestParserFactory#INSTANCE} will be used.
      * @param responseWriterFactory response writer factory. If {@code null}
@@ -102,9 +101,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
             DefaultHttpResponseWriterFactory.INSTANCE).create();
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-                LaxContentLengthStrategy.INSTANCE;
+                DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                StrictContentLengthStrategy.INSTANCE;
+                DefaultContentLengthStrategy.INSTANCE;
     }
 
     public DefaultBHttpServerConnection(

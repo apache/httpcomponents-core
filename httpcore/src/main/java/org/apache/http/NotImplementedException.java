@@ -28,18 +28,18 @@
 package org.apache.http;
 
 /**
- * Signals an unsupported version of the HTTP protocol.
+ * Signals an unsupported / unimplemented feature of the HTTP protocol.
  *
  * @since 4.0
  */
-public class UnsupportedHttpVersionException extends ProtocolException {
+public class NotImplementedException extends ProtocolException {
 
-    private static final long serialVersionUID = -1348448090193107031L;
+    private static final long serialVersionUID = 7929295893253266373L;
 
     /**
      * Creates an exception without a detail message.
      */
-    public UnsupportedHttpVersionException() {
+    public NotImplementedException() {
         super();
     }
 
@@ -48,7 +48,7 @@ public class UnsupportedHttpVersionException extends ProtocolException {
      *
      * @param message The exception detail message
      */
-    public UnsupportedHttpVersionException(final String message) {
+    public NotImplementedException(final String message) {
         super(message);
     }
 
