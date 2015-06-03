@@ -29,9 +29,10 @@ package org.apache.http.nio.testserver;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.List;
 
-import org.apache.http.HttpResponseInterceptor;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
@@ -49,6 +50,7 @@ import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.ImmutableHttpProcessor;
+import org.apache.http.protocol.RequestValidateHost;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -57,11 +59,12 @@ import org.apache.http.protocol.ResponseServer;
 public class HttpServerNio {
 
     public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
-            new HttpResponseInterceptor[] {
+            Arrays.<HttpRequestInterceptor>asList(new RequestValidateHost()),
+            Arrays.asList(
                     new ResponseDate(),
                     new ResponseServer("TEST-SERVER/1.1"),
                     new ResponseContent(),
-                    new ResponseConnControl()});
+                    new ResponseConnControl()));
 
     private final DefaultListeningIOReactor ioReactor;
     private final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;

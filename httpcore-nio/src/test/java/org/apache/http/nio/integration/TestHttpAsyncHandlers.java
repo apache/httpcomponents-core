@@ -35,6 +35,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 
+import org.apache.http.Consts;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -60,12 +61,14 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
+import org.apache.http.nio.testserver.HttpServerNio;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
@@ -740,6 +743,40 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             Assert.assertNotNull(response);
             Assert.assertNull(response.getEntity());
         }
+    }
+
+    @Test
+    public void testAbsentHostHeader() throws Exception {
+        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
+        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setStatusCode(HttpStatus.SC_OK);
+                response.setEntity(new NStringEntity("All is well", Consts.ASCII));
+            }
+
+        }));
+        final HttpHost target = start(
+                new ImmutableHttpProcessor(new RequestContent(), new RequestConnControl()),
+                HttpServerNio.DEFAULT_HTTP_PROC, registry, null);
+
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
+
+        final BasicHttpRequest request1 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
+        final Future<HttpResponse> future1 = this.client.execute(target, request1);
+        final HttpResponse response1 = future1.get();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(200, response1.getStatusLine().getStatusCode());
+        final BasicHttpRequest request2 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final Future<HttpResponse> future2 = this.client.execute(target, request2);
+        final HttpResponse response2 = future2.get();
+        Assert.assertNotNull(response2);
+        Assert.assertEquals(400, response2.getStatusLine().getStatusCode());
     }
 
 }

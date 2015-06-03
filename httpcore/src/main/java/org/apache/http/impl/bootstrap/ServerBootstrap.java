@@ -52,6 +52,7 @@ import org.apache.http.protocol.HttpProcessorBuilder;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.HttpRequestHandlerMapper;
 import org.apache.http.protocol.HttpService;
+import org.apache.http.protocol.RequestValidateHost;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -337,6 +338,8 @@ public class ServerBootstrap {
                     new ResponseServer(serverInfoCopy),
                     new ResponseContent(),
                     new ResponseConnControl());
+            b.addAll(
+                    new RequestValidateHost());
             if (requestLast != null) {
                 for (final HttpRequestInterceptor i: requestLast) {
                     b.addLast(i);

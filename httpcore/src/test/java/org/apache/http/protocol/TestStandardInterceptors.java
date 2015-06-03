@@ -1014,4 +1014,39 @@ public class TestStandardInterceptors {
         }
     }
 
+    @Test
+    public void testRequestHttp10HostHeaderAbsent() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
+        final RequestValidateHost interceptor = new RequestValidateHost();
+        interceptor.process(request, context);
+    }
+
+    @Test
+    public void testRequestHttp11HostHeaderPresent() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.HOST, "blah");
+        final RequestValidateHost interceptor = new RequestValidateHost();
+        interceptor.process(request, context);
+    }
+
+    @Test(expected = ProtocolException.class)
+    public void testRequestHttp11HostHeaderAbsent() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final RequestValidateHost interceptor = new RequestValidateHost();
+        interceptor.process(request, context);
+    }
+
+    @Test(expected = ProtocolException.class)
+    public void testRequestHttp11MultipleHostHeaders() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        request.addHeader(HttpHeaders.HOST, "blah");
+        request.addHeader(HttpHeaders.HOST, "blah");
+        final RequestValidateHost interceptor = new RequestValidateHost();
+        interceptor.process(request, context);
+    }
+
 }

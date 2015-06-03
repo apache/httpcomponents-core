@@ -54,6 +54,7 @@ import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpProcessorBuilder;
+import org.apache.http.protocol.RequestValidateHost;
 import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
@@ -332,6 +333,8 @@ public class ServerBootstrap {
                     new ResponseServer(serverInfoCopy),
                     new ResponseContent(),
                     new ResponseConnControl());
+            b.addAll(
+                    new RequestValidateHost());
             if (requestLast != null) {
                 for (final HttpRequestInterceptor i: requestLast) {
                     b.addLast(i);

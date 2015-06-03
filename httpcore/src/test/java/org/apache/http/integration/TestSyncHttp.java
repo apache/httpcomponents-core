@@ -60,6 +60,7 @@ import org.apache.http.protocol.HttpExpectationVerifier;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
+import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
@@ -936,6 +937,45 @@ public class TestSyncHttp {
             final HttpConnectionMetrics cm = conn.getMetrics();
             Assert.assertEquals(reqNo, cm.getRequestCount());
             Assert.assertEquals(reqNo, cm.getResponseCount());
+
+        } finally {
+            conn.close();
+            this.server.shutdown();
+        }
+    }
+
+    @Test
+    public void testAbsentHostHeader() throws Exception {
+
+        // Initialize the server-side request handler
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setEntity(new StringEntity("All is well", Consts.ASCII));
+            }
+
+        });
+
+        this.client = new HttpClient(new ImmutableHttpProcessor(new RequestContent(), new RequestConnControl()));
+        this.server.start();
+
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        client.connect(host, conn);
+
+        try {
+            final BasicHttpRequest get1 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
+            final HttpResponse response1 = this.client.execute(get1, host, conn);
+            Assert.assertEquals(200, response1.getStatusLine().getStatusCode());
+            EntityUtils.consume(response1.getEntity());
+            final BasicHttpRequest get2 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+            final HttpResponse response2 = this.client.execute(get2, host, conn);
+            Assert.assertEquals(400, response2.getStatusLine().getStatusCode());
+            EntityUtils.consume(response2.getEntity());
 
         } finally {
             conn.close();
