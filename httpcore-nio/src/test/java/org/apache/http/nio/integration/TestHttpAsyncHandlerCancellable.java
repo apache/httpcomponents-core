@@ -51,8 +51,6 @@ import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.http.nio.protocol.HttpAsyncResponseProducer;
-import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.protocol.HttpContext;
@@ -111,8 +109,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
 
         };
 
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -131,12 +128,11 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
 
         });
-        this.server.start(registry);
+        this.server.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
         try {
@@ -170,8 +166,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
         };
 
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -191,12 +186,11 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
 
         });
-        this.server.start(registry);
+        this.server.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
         try {

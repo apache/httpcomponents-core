@@ -90,14 +90,13 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     public void initServer() throws Exception {
-        this.server = new HttpServerNio(createServerConnectionFactory());
-        this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
+        this.server = new HttpServerNio();
+        this.server.setConnectionFactory(createServerConnectionFactory());
         this.server.setTimeout(5000);
     }
 
     public void initClient() throws Exception {
         this.client = new HttpClientNio(createClientConnectionFactory());
-        this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.client.setTimeout(5000);
     }
 

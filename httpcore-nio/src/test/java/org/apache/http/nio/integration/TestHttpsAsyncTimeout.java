@@ -40,7 +40,6 @@ import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.http.nio.protocol.BasicAsyncResponseConsumer;
-import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
@@ -70,8 +69,7 @@ public class TestHttpsAsyncTimeout extends HttpCoreNIOTestBase {
 
     private InetSocketAddress start() throws Exception {
 
-        final HttpAsyncRequestExecutor clientHandler = new HttpAsyncRequestExecutor();
-        this.client.start(clientHandler);
+        this.client.start();
         serverSocket = new ServerSocket(0);
         return new InetSocketAddress(serverSocket.getInetAddress(), serverSocket.getLocalPort());
     }

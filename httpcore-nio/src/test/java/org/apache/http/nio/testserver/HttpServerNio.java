@@ -28,53 +28,38 @@
 package org.apache.http.nio.testserver;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.List;
+import java.net.SocketException;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.ConnectionClosedException;
+import org.apache.http.ExceptionLogger;
 import org.apache.http.impl.nio.DefaultNHttpServerConnection;
-import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
-import org.apache.http.impl.nio.reactor.ExceptionEvent;
+import org.apache.http.impl.nio.bootstrap.HttpServer;
+import org.apache.http.impl.nio.bootstrap.ServerBootstrap;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
-import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.protocol.HttpAsyncService;
-import org.apache.http.nio.reactor.IOEventDispatch;
-import org.apache.http.nio.reactor.IOReactorExceptionHandler;
-import org.apache.http.nio.reactor.IOReactorStatus;
-import org.apache.http.nio.reactor.IOSession;
+import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
+import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
 import org.apache.http.nio.reactor.ListenerEndpoint;
-import org.apache.http.nio.reactor.ListeningIOReactor;
 import org.apache.http.protocol.HttpProcessor;
-import org.apache.http.protocol.ImmutableHttpProcessor;
-import org.apache.http.protocol.ResponseConnControl;
-import org.apache.http.protocol.ResponseContent;
-import org.apache.http.protocol.ResponseDate;
-import org.apache.http.protocol.ResponseServer;
+import org.apache.http.util.Asserts;
 
 public class HttpServerNio {
 
-    public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
-            new HttpResponseInterceptor[] {
-                    new ResponseDate(),
-                    new ResponseServer("TEST-SERVER/1.1"),
-                    new ResponseContent(),
-                    new ResponseConnControl()});
-
-    private final DefaultListeningIOReactor ioReactor;
-    private final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory;
-
-    private volatile IOReactorThread thread;
-    private volatile ListenerEndpoint endpoint;
+    private final UriHttpAsyncRequestHandlerMapper reqistry;
+    private volatile HttpAsyncExpectationVerifier expectationVerifier;
+    private volatile NHttpConnectionFactory<DefaultNHttpServerConnection> connectionFactory;
+    private volatile HttpProcessor httpProcessor;
     private volatile int timeout;
 
-    public HttpServerNio(
-            final NHttpConnectionFactory<DefaultNHttpServerConnection> connFactory) throws IOException {
+    private volatile HttpServer server;
+
+    public HttpServerNio() throws IOException {
         super();
-        this.ioReactor = new DefaultListeningIOReactor();
-        this.connFactory = connFactory;
+        this.reqistry = new UriHttpAsyncRequestHandlerMapper();
     }
 
     public int getTimeout() {
@@ -85,114 +70,71 @@ public class HttpServerNio {
         this.timeout = timeout;
     }
 
-    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
-        this.ioReactor.setExceptionHandler(exceptionHandler);
+    public void registerHandler(
+            final String pattern,
+            final HttpAsyncRequestHandler handler) {
+        this.reqistry.register(pattern, handler);
     }
 
-    private void execute(final NHttpServerEventHandler serviceHandler) throws IOException {
-        final IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(serviceHandler, this.connFactory) {
+    public void setExpectationVerifier(final HttpAsyncExpectationVerifier expectationVerifier) {
+        this.expectationVerifier = expectationVerifier;
+    }
 
-            @Override
-            protected DefaultNHttpServerConnection createConnection(final IOSession session) {
-                final DefaultNHttpServerConnection conn = super.createConnection(session);
-                conn.setSocketTimeout(timeout);
-                return conn;
-            }
+    public void setConnectionFactory(final NHttpConnectionFactory<DefaultNHttpServerConnection> connectionFactory) {
+        this.connectionFactory = connectionFactory;
+    }
 
-        };
-        this.ioReactor.execute(ioEventDispatch);
+    public void setHttpProcessor(final HttpProcessor httpProcessor) {
+        this.httpProcessor = httpProcessor;
     }
 
     public ListenerEndpoint getListenerEndpoint() {
-        return this.endpoint;
-    }
-
-    public void setEndpoint(final ListenerEndpoint endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public void start(final NHttpServerEventHandler serviceHandler) {
-        this.endpoint = this.ioReactor.listen(new InetSocketAddress(0));
-        this.thread = new IOReactorThread(serviceHandler);
-        this.thread.start();
-    }
-
-    public void start(
-            final HttpProcessor protocolProcessor,
-            final HttpAsyncRequestHandlerMapper handlerMapper,
-            final HttpAsyncExpectationVerifier expectationVerifier) {
-        start(new HttpAsyncService(protocolProcessor != null ? protocolProcessor :
-            DEFAULT_HTTP_PROC, null, null, handlerMapper, expectationVerifier));
-    }
-
-    public void start(
-            final HttpAsyncRequestHandlerMapper handlerMapper,
-            final HttpAsyncExpectationVerifier expectationVerifier) {
-        start(null, handlerMapper, expectationVerifier);
-    }
-
-    public void start(final HttpAsyncRequestHandlerMapper handlerMapper) {
-        start(null, handlerMapper, null);
-    }
-
-    public ListeningIOReactor getIoReactor() {
-        return this.ioReactor;
-    }
-
-    public IOReactorStatus getStatus() {
-        return this.ioReactor.getStatus();
-    }
-
-    public List<ExceptionEvent> getAuditLog() {
-        return this.ioReactor.getAuditLog();
-    }
-
-    public void join(final long timeout) throws InterruptedException {
-        if (this.thread != null) {
-            this.thread.join(timeout);
-        }
-    }
-
-    public Exception getException() {
-        if (this.thread != null) {
-            return this.thread.getException();
+        final HttpServer local = this.server;
+        if (local != null) {
+            return this.server.getEndpoint();
         } else {
-            return null;
+            throw new IllegalStateException("Server not running");
         }
     }
 
-    public void shutdown() throws IOException {
-        this.ioReactor.shutdown();
-        try {
-            join(500);
-        } catch (final InterruptedException ignore) {
+    public void start() throws IOException {
+        Asserts.check(this.server == null, "Server already running");
+        this.server = ServerBootstrap.bootstrap()
+                .setIOReactorConfig(IOReactorConfig.custom()
+                        .setSoTimeout(this.timeout)
+                        .build())
+                .setServerInfo("TEST-SERVER/1.1")
+                .setConnectionFactory(connectionFactory)
+                .setExceptionLogger(new SimpleExceptionLogger())
+                .setExpectationVerifier(this.expectationVerifier)
+                .setHttpProcessor(this.httpProcessor)
+                .setHandlerMapper(this.reqistry)
+                .create();
+        this.server.start();
+    }
+
+    public void shutdown() {
+        final HttpServer local = this.server;
+        this.server = null;
+        if (local != null) {
+            local.shutdown(5, TimeUnit.SECONDS);
         }
     }
 
-    private class IOReactorThread extends Thread {
+    static class SimpleExceptionLogger implements ExceptionLogger {
 
-        private final NHttpServerEventHandler serviceHandler;
-
-        private volatile Exception ex;
-
-        public IOReactorThread(final NHttpServerEventHandler serviceHandler) {
-            super();
-            this.serviceHandler = serviceHandler;
-        }
+        private final Log log = LogFactory.getLog(HttpServer.class);
 
         @Override
-        public void run() {
-            try {
-                execute(this.serviceHandler);
-            } catch (final Exception ex) {
-                this.ex = ex;
+        public void log(final Exception ex) {
+            if (ex instanceof ConnectionClosedException) {
+                this.log.debug(ex.getMessage());
+            } else if (ex instanceof SocketException) {
+                this.log.debug(ex.getMessage());
+            } else {
+                this.log.error(ex.getMessage(), ex);
             }
         }
-
-        public Exception getException() {
-            return this.ex;
-        }
-
     }
 
 }

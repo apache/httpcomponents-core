@@ -49,12 +49,8 @@ import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
-import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.protocol.BasicHttpContext;
@@ -79,23 +75,19 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
         shutDownServer();
     }
 
-    private InetSocketAddress start(
-            final HttpAsyncRequestHandlerMapper requestHandlerResolver,
-            final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
-        this.server.start(requestHandlerResolver, expectationVerifier);
+    private InetSocketAddress start() throws Exception {
+        this.server.start();
         this.client.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
         return (InetSocketAddress) endpoint.getAddress();
     }
 
     @Test
     public void testConnectionTerminatedProcessingRequest() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -118,7 +110,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
             }
 
         });
-        final InetSocketAddress address = start(registry, null);
+        final InetSocketAddress address = start();
         final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -151,7 +143,6 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
     @Test
     public void testConnectionTerminatedHandlingRequest() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         final CountDownLatch responseStreamClosed = new CountDownLatch(1);
         final InputStream testInputStream = new ByteArrayInputStream(
                 "all is well".getBytes(Consts.ASCII)) {
@@ -161,7 +152,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                 super.close();
             }
         };
-        registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -184,7 +175,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
             }
 
         });
-        final InetSocketAddress address = start(registry, null);
+        final InetSocketAddress address = start();
         final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -218,8 +209,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
     @Test
     public void testConnectionTerminatedSendingResponse() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
 
             @Override
             public HttpAsyncRequestConsumer<HttpRequest> processRequest(
@@ -248,7 +238,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
             }
 
         });
-        final InetSocketAddress address = start(registry, null);
+        final InetSocketAddress address = start();
         final HttpHost target = new HttpHost("localhost", address.getPort());
 
         final CountDownLatch latch = new CountDownLatch(1);

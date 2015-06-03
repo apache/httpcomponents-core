@@ -55,8 +55,6 @@ import org.apache.http.nio.entity.ContentInputStream;
 import org.apache.http.nio.protocol.AbstractAsyncResponseConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
 import org.apache.http.nio.protocol.BasicAsyncRequestProducer;
-import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -170,15 +168,12 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     @Test
     public void testTruncatedChunkException() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        this.server.start(registry);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
+        this.server.start();
         this.client.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
@@ -246,15 +241,12 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
     @Test
     public void testIgnoreTruncatedChunkException() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
-        this.server.start(registry);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler(true)));
+        this.server.start();
         this.client.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);

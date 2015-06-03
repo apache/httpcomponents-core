@@ -55,15 +55,11 @@ import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.RequestConnControl;
@@ -108,26 +104,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         shutDownServer();
     }
 
-    private HttpHost start(
-            final HttpProcessor clientProtocolProcessor,
-            final HttpProcessor serverProtocolProcessor,
-            final HttpAsyncRequestHandlerMapper requestHandlerResolver,
-            final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
-        this.server.start(serverProtocolProcessor, requestHandlerResolver, expectationVerifier);
-        this.client.start(clientProtocolProcessor);
+    private HttpHost start() throws IOException, InterruptedException {
+        this.server.start();
+        this.client.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         return new HttpHost("localhost", address.getPort(), getScheme().name());
-    }
-
-    private HttpHost start(
-            final HttpAsyncRequestHandlerMapper requestHandlerResolver,
-            final HttpAsyncExpectationVerifier expectationVerifier) throws Exception {
-        return start(null, null, requestHandlerResolver, expectationVerifier);
     }
 
     private static String createRequestUri(final String pattern, final int count) {
@@ -144,9 +129,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpGets() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -173,9 +157,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpHeads() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -200,9 +183,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithContentLength() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -232,9 +214,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsChunked() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -265,9 +246,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsHTTP10() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -297,9 +277,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsNoEntity() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -326,16 +305,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostNoContentLength() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
-        final HttpProcessor clientHttpProc = new ImmutableHttpProcessor(
+        this.client.setHttpProcessor(new ImmutableHttpProcessor(
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue(true));
+                new RequestExpectContinue(true)));
 
-        final HttpHost target = start(clientHttpProc, null, registry, null);
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -356,10 +334,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostIdentity() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
-        final HttpProcessor clientHttpProc = new ImmutableHttpProcessor(
+        this.client.setHttpProcessor(new ImmutableHttpProcessor(
                 new HttpRequestInterceptor() {
 
                     @Override
@@ -373,9 +350,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
-                new RequestExpectContinue(true));
+                new RequestExpectContinue(true)));
 
-        final HttpHost target = start(clientHttpProc, null, registry, null);
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -396,9 +373,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -430,7 +406,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
-        final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
 
             @Override
             public void verify(
@@ -452,11 +429,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 }
             }
 
-        };
+        });
 
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, expectationVerifier);
+        final HttpHost target = start();
 
         final BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
@@ -537,9 +512,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         }
 
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new DelayedRequestHandler());
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new DelayedRequestHandler());
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -564,7 +538,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithExpectationVerificationDelayedResponse() throws Exception {
-        final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
 
             @Override
             public void verify(
@@ -574,7 +549,10 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     @Override
                     public void run() {
                         // Wait a bit, to make sure this is delayed.
-                        try { Thread.sleep(100); } catch(final InterruptedException ie) {}
+                        try {
+                            Thread.sleep(100);
+                        } catch (final InterruptedException ie) {
+                        }
                         // Set the entity after delaying...
                         final HttpRequest request = httpexchange.getRequest();
                         ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
@@ -594,11 +572,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 }.start();
             }
 
-        };
-
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        final HttpHost target = start(registry, expectationVerifier);
+        });
+        final HttpHost target = start();
 
         final BasicHttpEntityEnclosingRequest request1 = new BasicHttpEntityEnclosingRequest(
                 "POST", createRequestUri("AAAAA", 10));
@@ -658,9 +633,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         }
 
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new FailingRequestHandler());
-        final HttpHost target = start(registry, null);
+        this.server.registerHandler("*", new FailingRequestHandler());
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -685,8 +659,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testNoServiceHandler() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        final HttpHost target = start(registry, null);
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
@@ -711,8 +684,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testResponseNoContent() throws Exception {
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
             @Override
             public void handle(
@@ -723,7 +695,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         }));
-        final HttpHost target = start(registry, null);
+        final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
