@@ -53,6 +53,10 @@ public class TestHttpsAsyncTimeout extends HttpCoreNIOTestBase {
 
     private ServerSocket serverSocket;
 
+    public TestHttpsAsyncTimeout() {
+        super(ProtocolScheme.https);
+    }
+
     @Before
     public void setUp() throws Exception {
         initClient();
