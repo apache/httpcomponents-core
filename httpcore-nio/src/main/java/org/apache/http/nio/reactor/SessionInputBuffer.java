@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.CharacterCodingException;
 
 import org.apache.http.util.CharArrayBuffer;
 
@@ -162,10 +161,10 @@ public interface SessionInputBuffer {
      *  line has been transferred to the destination buffer, {@code false}
      *  otherwise.
      *
-     * @throws CharacterCodingException in case a character encoding or decoding
+     * @throws java.nio.charset.CharacterCodingException in case a character encoding or decoding
      *   error occurs.
+     * @throws org.apache.http.MessageConstraintException in case a message constraint violation.
      */
-    boolean readLine(CharArrayBuffer dst, boolean endOfStream)
-        throws CharacterCodingException;
+    boolean readLine(CharArrayBuffer dst, boolean endOfStream) throws IOException;
 
 }

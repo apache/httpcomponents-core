@@ -45,11 +45,13 @@ public class MessageConstraints {
 
     private final int maxLineLength;
     private final int maxHeaderCount;
+    private final int maxEmptyLineCount;
 
-    MessageConstraints(final int maxLineLength, final int maxHeaderCount) {
+    MessageConstraints(final int maxLineLength, final int maxHeaderCount, final int maxEmptyLineCount) {
         super();
         this.maxLineLength = maxLineLength;
         this.maxHeaderCount = maxHeaderCount;
+        this.maxEmptyLineCount = maxEmptyLineCount;
     }
 
     public int getMaxLineLength() {
@@ -60,6 +62,13 @@ public class MessageConstraints {
         return maxHeaderCount;
     }
 
+    /**
+     * @since 5.0
+     */
+    public int getMaxEmptyLineCount() {
+        return this.maxEmptyLineCount;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -67,10 +76,6 @@ public class MessageConstraints {
                 .append(", maxHeaderCount=").append(maxHeaderCount)
                 .append("]");
         return builder.toString();
-    }
-
-    public static MessageConstraints lineLen(final int max) {
-        return new MessageConstraints(Args.notNegative(max, "Max line length"), -1);
     }
 
     public static MessageConstraints.Builder custom() {
@@ -88,10 +93,12 @@ public class MessageConstraints {
 
         private int maxLineLength;
         private int maxHeaderCount;
+        private int maxEmptyLineCount;
 
         Builder() {
             this.maxLineLength = -1;
             this.maxHeaderCount = -1;
+            this.maxEmptyLineCount = 10;
         }
 
         public Builder setMaxLineLength(final int maxLineLength) {
@@ -104,10 +111,19 @@ public class MessageConstraints {
             return this;
         }
 
-        public MessageConstraints build() {
-            return new MessageConstraints(maxLineLength, maxHeaderCount);
+        public Builder setMaxEmptyLineCount(final int maxEmptyLineCount) {
+            this.maxEmptyLineCount = maxEmptyLineCount;
+            return this;
         }
 
+        public MessageConstraints build() {
+            return new MessageConstraints(maxLineLength, maxHeaderCount, maxEmptyLineCount);
+        }
+
+    }
+
+    public static MessageConstraints lineLen(final int max) {
+        return custom().setMaxLineLength(Args.notNegative(max, "Max line length")).build();
     }
 
 }

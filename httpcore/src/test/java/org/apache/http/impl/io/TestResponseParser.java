@@ -33,9 +33,11 @@ import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.MessageConstraintException;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.StatusLine;
 import org.apache.http.UnsupportedHttpVersionException;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -73,6 +75,45 @@ public class TestResponseParser {
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
+        parser.parse(inbuffer);
+    }
+
+    @Test
+    public void testBasicMessageParsingLeadingEmptyLines() throws Exception {
+        final String s =
+                "\r\n" +
+                "\r\n" +
+                "HTTP/1.1 200 OK\r\n" +
+                "Server: whatever\r\n" +
+                "\r\n";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+
+        final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
+                MessageConstraints.custom().setMaxEmptyLineCount(3).build());
+        final HttpResponse httpresponse = parser.parse(inbuffer);
+
+        final StatusLine statusline = httpresponse.getStatusLine();
+        Assert.assertNotNull(statusline);
+        Assert.assertEquals(200, statusline.getStatusCode());
+        Assert.assertEquals("OK", statusline.getReasonPhrase());
+        Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
+        final Header[] headers = httpresponse.getAllHeaders();
+        Assert.assertEquals(1, headers.length);
+    }
+
+    @Test(expected = MessageConstraintException.class)
+    public void testBasicMessageParsingTooManyLeadingEmptyLines() throws Exception {
+        final String s =
+                "\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "HTTP/1.1 200 OK\r\n" +
+                "Server: whatever\r\n" +
+                "\r\n";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+
+        final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
+                MessageConstraints.custom().setMaxEmptyLineCount(3).build());
         parser.parse(inbuffer);
     }
 

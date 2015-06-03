@@ -34,8 +34,6 @@ import java.util.List;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.MessageConstraintException;
-import org.apache.http.ParseException;
-import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.message.LazyLineParser;
@@ -63,24 +61,25 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
     private T message;
     private CharArrayBuffer lineBuf;
     private final List<CharArrayBuffer> headerBufs;
+    private int emptyLineCount;
 
     private final LineParser lineParser;
-    private final MessageConstraints constraints;
+    private final MessageConstraints messageConstraints;
 
     /**
      * Creates an instance of AbstractMessageParser.
      *
      * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param constraints Message constraints. If {@code null}
+     * @param messageConstraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      *
      * @since 4.3
      */
-    public AbstractMessageParser(final LineParser lineParser, final MessageConstraints constraints) {
+    public AbstractMessageParser(final LineParser lineParser, final MessageConstraints messageConstraints) {
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
-        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
+        this.messageConstraints = messageConstraints != null ? messageConstraints : MessageConstraints.DEFAULT;
         this.headerBufs = new ArrayList<>();
         this.state = READ_HEAD_LINE;
     }
@@ -93,6 +92,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
     public void reset() {
         this.state = READ_HEAD_LINE;
         this.headerBufs.clear();
+        this.emptyLineCount = 0;
         this.message = null;
     }
 
@@ -103,13 +103,19 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
      * @param buffer the line buffer.
      * @return HTTP message.
      * @throws HttpException in case of HTTP protocol violation
-     * @throws ParseException in case of a parse error.
      */
-    protected abstract T createMessage(CharArrayBuffer buffer)
-        throws HttpException, ParseException;
+    protected abstract T createMessage(CharArrayBuffer buffer) throws HttpException;
 
-    private void parseHeadLine() throws HttpException, ParseException {
-        this.message = createMessage(this.lineBuf);
+    private T parseHeadLine() throws IOException, HttpException {
+        if (this.lineBuf.length() == 0) {
+            this.emptyLineCount++;
+            if (this.emptyLineCount >= this.messageConstraints.getMaxEmptyLineCount()) {
+                throw new MessageConstraintException("Maximum empty line limit exceeded");
+            }
+            return null;
+        } else {
+            return createMessage(this.lineBuf);
+        }
     }
 
     private void parseHeader() throws IOException {
@@ -126,7 +132,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
                 }
                 i++;
             }
-            final int maxLineLen = this.constraints.getMaxLineLength();
+            final int maxLineLen = this.messageConstraints.getMaxLineLength();
             if (maxLineLen > 0 && previous.length() + 1 + current.length() - i > maxLineLen) {
                 throw new MessageConstraintException("Maximum line length limit exceeded");
             }
@@ -149,7 +155,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
                 this.lineBuf.clear();
             }
             final boolean lineComplete = sessionBuffer.readLine(this.lineBuf, endOfStream);
-            final int maxLineLen = this.constraints.getMaxLineLength();
+            final int maxLineLen = this.messageConstraints.getMaxLineLength();
             if (maxLineLen > 0 &&
                     (this.lineBuf.length() > maxLineLen ||
                             (!lineComplete && sessionBuffer.length() > maxLineLen))) {
@@ -161,16 +167,14 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
 
             switch (this.state) {
             case READ_HEAD_LINE:
-                try {
-                    parseHeadLine();
-                } catch (final ParseException px) {
-                    throw new ProtocolException(px.getMessage(), px);
+                this.message = parseHeadLine();
+                if (this.message != null) {
+                    this.state = READ_HEADERS;
                 }
-                this.state = READ_HEADERS;
                 break;
             case READ_HEADERS:
                 if (this.lineBuf.length() > 0) {
-                    final int maxHeaderCount = this.constraints.getMaxHeaderCount();
+                    final int maxHeaderCount = this.messageConstraints.getMaxHeaderCount();
                     if (maxHeaderCount > 0 && headerBufs.size() >= maxHeaderCount) {
                         throw new MessageConstraintException("Maximum header count exceeded");
                     }
@@ -187,11 +191,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
         }
         if (this.state == COMPLETED) {
             for (final CharArrayBuffer buffer : this.headerBufs) {
-                try {
-                    this.message.addHeader(lineParser.parseHeader(buffer));
-                } catch (final ParseException ex) {
-                    throw new ProtocolException(ex.getMessage(), ex);
-                }
+                this.message.addHeader(this.lineParser.parseHeader(buffer));
             }
             return this.message;
         } else {

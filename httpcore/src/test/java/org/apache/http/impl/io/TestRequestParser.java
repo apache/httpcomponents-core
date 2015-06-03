@@ -33,8 +33,10 @@ import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
+import org.apache.http.MessageConstraintException;
 import org.apache.http.RequestLine;
 import org.apache.http.UnsupportedHttpVersionException;
+import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -72,6 +74,45 @@ public class TestRequestParser {
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
+        parser.parse(inbuffer);
+    }
+
+    @Test
+    public void testBasicMessageParsingLeadingEmptyLines() throws Exception {
+        final String s =
+                "\r\n" +
+                "\r\n" +
+                "GET / HTTP/1.1\r\n" +
+                "Host: localhost\r\n" +
+                "\r\n";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
+                MessageConstraints.custom().setMaxEmptyLineCount(3).build());
+        final HttpRequest httprequest = parser.parse(inbuffer);
+
+        final RequestLine reqline = httprequest.getRequestLine();
+        Assert.assertNotNull(reqline);
+        Assert.assertEquals("GET", reqline.getMethod());
+        Assert.assertEquals("/", reqline.getUri());
+        Assert.assertEquals(HttpVersion.HTTP_1_1, reqline.getProtocolVersion());
+        final Header[] headers = httprequest.getAllHeaders();
+        Assert.assertEquals(1, headers.length);
+    }
+
+    @Test(expected = MessageConstraintException.class)
+    public void testBasicMessageParsingTooManyLeadingEmptyLines() throws Exception {
+        final String s =
+                "\r\n" +
+                "\r\n" +
+                "\r\n" +
+                "GET / HTTP/1.1\r\n" +
+                "Host: localhost\r\n" +
+                "\r\n";
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
+                MessageConstraints.custom().setMaxEmptyLineCount(3).build());
         parser.parse(inbuffer);
     }
 

@@ -34,14 +34,12 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpVersion;
-import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
-import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -55,7 +53,6 @@ import org.apache.http.util.CharArrayBuffer;
 public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
 
     private final HttpRequestFactory requestFactory;
-    private final CharArrayBuffer lineBuf;
 
     /**
      * Creates new instance of DefaultHttpRequestParser.
@@ -74,9 +71,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
             final HttpRequestFactory requestFactory,
             final MessageConstraints constraints) {
         super(lineParser, constraints);
-        this.requestFactory = requestFactory != null ? requestFactory :
-            DefaultHttpRequestFactory.INSTANCE;
-        this.lineBuf = new CharArrayBuffer(128);
+        this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
     }
 
     /**
@@ -94,15 +89,13 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
     }
 
     @Override
-    protected HttpRequest parseHead(final SessionInputBuffer sessionBuffer)
-        throws IOException, HttpException, ParseException {
+    protected IOException createConnectionClosedException() {
+        return new ConnectionClosedException("Client closed connection");
+    }
 
-        this.lineBuf.clear();
-        final int i = sessionBuffer.readLine(this.lineBuf);
-        if (i == -1) {
-            throw new ConnectionClosedException("Client closed connection");
-        }
-        final RequestLine requestLine = getLineParser().parseRequestLine(this.lineBuf);
+    @Override
+    protected HttpRequest createMessage(final CharArrayBuffer buffer) throws IOException, HttpException {
+        final RequestLine requestLine = getLineParser().parseRequestLine(buffer);
         final ProtocolVersion version = requestLine.getProtocolVersion();
         if (version.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException("Unsupported version: " + version);

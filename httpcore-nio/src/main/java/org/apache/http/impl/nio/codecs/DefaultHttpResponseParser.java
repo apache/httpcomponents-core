@@ -31,7 +31,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpVersion;
-import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.UnsupportedHttpVersionException;
@@ -88,8 +87,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     }
 
     @Override
-    protected HttpResponse createMessage(final CharArrayBuffer buffer)
-            throws HttpException, ParseException {
+    protected HttpResponse createMessage(final CharArrayBuffer buffer) throws HttpException {
         final StatusLine statusLine = getLineParser().parseStatusLine(buffer);
         final ProtocolVersion version = statusLine.getProtocolVersion();
         if (version.greaterEquals(HttpVersion.HTTP_2)) {

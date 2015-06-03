@@ -35,8 +35,6 @@ import org.apache.http.Header;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
 import org.apache.http.MessageConstraintException;
-import org.apache.http.ParseException;
-import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.io.HttpMessageParser;
@@ -60,6 +58,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
 
     private final MessageConstraints messageConstraints;
     private final List<CharArrayBuffer> headerLines;
+    private final CharArrayBuffer headLine;
     private final LineParser lineParser;
 
     private int state;
@@ -80,6 +79,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.messageConstraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.headerLines = new ArrayList<>();
+        this.headLine = new CharArrayBuffer(128);
         this.state = HEAD_LINE;
     }
 
@@ -195,11 +195,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         final Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
             final CharArrayBuffer buffer = headerLines.get(i);
-            try {
-                headers[i] = parser.parseHeader(buffer);
-            } catch (final ParseException ex) {
-                throw new ProtocolException(ex.getMessage());
-            }
+            headers[i] = parser.parseHeader(buffer);
         }
         return headers;
     }
@@ -216,10 +212,18 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * @return HTTP message based on the input from the session buffer.
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case of HTTP protocol violation.
-     * @throws ParseException in case of a parse error.
+     *
+     * @since 5.0
      */
-    protected abstract T parseHead(SessionInputBuffer buffer)
-        throws IOException, HttpException, ParseException;
+    protected abstract T createMessage(CharArrayBuffer buffer) throws IOException, HttpException;
+
+    /**
+     * Subclasses must override this method to generate an appropriate exception
+     * in case of unexpected connection termination by the peer endpoint.
+     *
+     * @since 5.0
+     */
+    protected abstract IOException createConnectionClosedException();
 
     @Override
     public T parse(final SessionInputBuffer buffer) throws IOException, HttpException {
@@ -227,10 +231,19 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         final int st = this.state;
         switch (st) {
         case HEAD_LINE:
-            try {
-                this.message = parseHead(buffer);
-            } catch (final ParseException px) {
-                throw new ProtocolException(px.getMessage(), px);
+            for (int n = 0; n < this.messageConstraints.getMaxEmptyLineCount(); n++) {
+                this.headLine.clear();
+                final int i = buffer.readLine(this.headLine);
+                if (i == -1) {
+                    throw createConnectionClosedException();
+                }
+                if (this.headLine.length() > 0) {
+                    this.message = createMessage(this.headLine);
+                    break;
+                }
+            }
+            if (this.message == null) {
+                throw new MessageConstraintException("Maximum empty line limit exceeded");
             }
             this.state = HEADERS;
             //$FALL-THROUGH$

@@ -39,6 +39,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.MessageConstraintException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.nio.reactor.SessionInputBufferImpl;
@@ -304,6 +305,30 @@ public class TestHttpMessageParser {
         Assert.assertEquals(2, inbuf.fill(channel));
         Assert.assertNull(requestParser.parse(inbuf, false));
         Assert.assertEquals(4, inbuf.fill(channel));
+        requestParser.parse(inbuf, false);
+    }
+
+    @Test
+    public void testParsingEmptyLines() throws Exception {
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
+        final MessageConstraints constraints = MessageConstraints.custom()
+                .setMaxEmptyLineCount(3).build();
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(constraints);
+        inbuf.fill(newChannel("\r\n\r\nGET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
+        final HttpRequest request = requestParser.parse(inbuf, false);
+        Assert.assertNotNull(request);
+        Assert.assertEquals("/whatever", request.getRequestLine().getUri());
+        Assert.assertEquals(1, request.getAllHeaders().length);
+    }
+
+    @Test(expected = MessageConstraintException.class)
+    public void testParsingTooManyEmptyLines() throws Exception {
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 128, Consts.ASCII);
+
+        final MessageConstraints constraints = MessageConstraints.custom()
+                .setMaxEmptyLineCount(3).build();
+        final NHttpMessageParser<HttpRequest> requestParser = new DefaultHttpRequestParser(constraints);
+        inbuf.fill(newChannel("\r\n\r\n\r\nGET /whatever HTTP/1.0\r\nHeader: one\r\nHeader: two\r\n\r\n"));
         requestParser.parse(inbuf, false);
     }
 

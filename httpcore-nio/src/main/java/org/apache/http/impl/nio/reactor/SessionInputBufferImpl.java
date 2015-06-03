@@ -32,7 +32,6 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
@@ -226,7 +225,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     @Override
     public boolean readLine(
             final CharArrayBuffer linebuffer,
-            final boolean endOfStream) throws CharacterCodingException {
+            final boolean endOfStream) throws IOException {
 
         setOutputMode();
         // See if there is LF char present in the buffer
