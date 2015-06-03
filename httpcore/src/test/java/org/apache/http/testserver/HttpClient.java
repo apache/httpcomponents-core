@@ -36,7 +36,6 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -70,13 +69,11 @@ public class HttpClient {
 
     public HttpClient() {
         this(new ImmutableHttpProcessor(
-                new HttpRequestInterceptor[] {
-                        new RequestContent(),
-                        new RequestTargetHost(),
-                        new RequestConnControl(),
-                        new RequestUserAgent("TEST-CLIENT/1.1"),
-                        new RequestExpectContinue()
-                }));
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent("TEST-CLIENT/1.1"),
+                new RequestExpectContinue()));
     }
 
     public HttpContext getContext() {

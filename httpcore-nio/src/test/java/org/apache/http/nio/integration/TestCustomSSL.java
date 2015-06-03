@@ -46,8 +46,6 @@ import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
-import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
@@ -55,7 +53,6 @@ import org.apache.http.nio.testserver.ClientConnectionFactory;
 import org.apache.http.nio.testserver.HttpClientNio;
 import org.apache.http.nio.testserver.HttpServerNio;
 import org.apache.http.nio.testserver.ServerConnectionFactory;
-import org.apache.http.nio.testserver.SimpleIOReactorExceptionHandler;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -125,29 +122,25 @@ public class TestCustomSSL {
                 .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
                 .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
                 .build();
-        this.server = new HttpServerNio(new ServerConnectionFactory(serverSSLContext, sslSetupHandler));
-        this.server.setExceptionHandler(new SimpleIOReactorExceptionHandler());
+        this.server = new HttpServerNio();
+        this.server.setConnectionFactory(new ServerConnectionFactory(serverSSLContext, sslSetupHandler));
         this.server.setTimeout(5000);
 
         final SSLContext clientSSLContext = SSLContextBuilder.create()
                 .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
                 .build();
 
-        this.client = new HttpClientNio(
-                new BasicNIOConnFactory(new ClientConnectionFactory(clientSSLContext), null));
-        this.client.setExceptionHandler(new SimpleIOReactorExceptionHandler());
+        this.client = new HttpClientNio(new BasicNIOConnFactory(new ClientConnectionFactory(clientSSLContext), null));
         this.client.setTimeout(5000);
 
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(requestHandler));
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(requestHandler));
 
-        this.server.start(HttpServerNio.DEFAULT_HTTP_PROC, registry, null);
-        this.client.start(HttpClientNio.DEFAULT_HTTP_PROC);
+        this.server.start();
+        this.client.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
 
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
 
         final HttpHost target = new HttpHost("localhost", address.getPort());

@@ -37,8 +37,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
+import org.apache.http.OoopsieRuntimeException;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
@@ -76,17 +76,17 @@ import org.apache.http.protocol.RequestUserAgent;
 public class HttpClientNio {
 
     public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
-            new HttpRequestInterceptor[] {
-                    new RequestContent(),
-                    new RequestTargetHost(),
-                    new RequestConnControl(),
-                    new RequestUserAgent("TEST-CLIENT/1.1"),
-                    new RequestExpectContinue()});
+            new RequestContent(),
+            new RequestTargetHost(),
+            new RequestConnControl(),
+            new RequestUserAgent("TEST-CLIENT/1.1"),
+            new RequestExpectContinue());
 
     private final DefaultConnectingIOReactor ioReactor;
     private final BasicNIOConnPool connpool;
 
-    private volatile  HttpAsyncRequester executor;
+    private volatile HttpProcessor httpProcessor;
+    private volatile HttpAsyncRequester executor;
     private volatile IOReactorThread thread;
     private volatile int timeout;
 
@@ -94,6 +94,7 @@ public class HttpClientNio {
             final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory) throws IOException {
         super();
         this.ioReactor = new DefaultConnectingIOReactor();
+        this.ioReactor.setExceptionHandler(new SimpleIOReactorExceptionHandler());
         this.connpool = new BasicNIOConnPool(this.ioReactor, new NIOConnFactory<HttpHost, NHttpClientConnection>() {
 
             @Override
@@ -121,6 +122,10 @@ public class HttpClientNio {
 
     public void setMaxPerRoute(final int max) {
         this.connpool.setDefaultMaxPerRoute(max);
+    }
+
+    public void setHttpProcessor(final HttpProcessor httpProcessor) {
+        this.httpProcessor = httpProcessor;
     }
 
     public Future<BasicNIOPoolEntry> lease(
@@ -207,10 +212,6 @@ public class HttpClientNio {
         return executePipelined(target, Arrays.asList(requests), null, null);
     }
 
-    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
-        this.ioReactor.setExceptionHandler(exceptionHandler);
-    }
-
     private void execute(final NHttpClientEventHandler clientHandler) throws IOException {
         final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(clientHandler,
             new DefaultNHttpClientConnectionFactory(ConnectionConfig.DEFAULT)) {
@@ -232,27 +233,10 @@ public class HttpClientNio {
         return sessionRequest;
     }
 
-    public void start(
-            final HttpProcessor protocolProcessor,
-            final NHttpClientEventHandler clientHandler) {
-        this.executor = new HttpAsyncRequester(protocolProcessor != null ? protocolProcessor :
-            DEFAULT_HTTP_PROC);
-        this.thread = new IOReactorThread(clientHandler);
-        this.thread.start();
-    }
-
-    public void start(
-            final HttpProcessor protocolProcessor) {
-        start(protocolProcessor, new HttpAsyncRequestExecutor());
-    }
-
-    public void start(
-            final NHttpClientEventHandler clientHandler) {
-        start(null, clientHandler);
-    }
-
     public void start() {
-        start(null, new HttpAsyncRequestExecutor());
+        this.executor = new HttpAsyncRequester(this.httpProcessor != null ? this.httpProcessor : DEFAULT_HTTP_PROC);
+        this.thread = new IOReactorThread(new HttpAsyncRequestExecutor());
+        this.thread.start();
     }
 
     public ConnectingIOReactor getIoReactor() {
@@ -311,6 +295,24 @@ public class HttpClientNio {
 
         public Exception getException() {
             return this.ex;
+        }
+
+    }
+
+    static class SimpleIOReactorExceptionHandler implements IOReactorExceptionHandler {
+
+        @Override
+        public boolean handle(final RuntimeException ex) {
+            if (!(ex instanceof OoopsieRuntimeException)) {
+                ex.printStackTrace(System.out);
+            }
+            return false;
+        }
+
+        @Override
+        public boolean handle(final IOException ex) {
+            ex.printStackTrace(System.out);
+            return false;
         }
 
     }

@@ -46,13 +46,10 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
-import org.apache.http.nio.protocol.HttpAsyncService;
 import org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.http.nio.reactor.IOReactorStatus;
 import org.apache.http.nio.reactor.ListenerEndpoint;
 import org.apache.http.nio.testserver.HttpCoreNIOTestBase;
 import org.apache.http.protocol.HttpContext;
-import org.apache.http.protocol.HttpProcessor;
 import org.apache.http.protocol.HttpRequestHandler;
 import org.apache.http.protocol.ImmutableHttpProcessor;
 import org.apache.http.protocol.ResponseConnControl;
@@ -69,16 +66,13 @@ import org.junit.Test;
  */
 public class TestServerSidePipelining extends HttpCoreNIOTestBase {
 
-    protected HttpProcessor serverHttpProc;
-    protected HttpAsyncService serviceHandler;
-
     @Before
     public void setUp() throws Exception {
         initServer();
-        this.serverHttpProc = new ImmutableHttpProcessor(
-                new ResponseServer("TEST-SERVER/1.1"), new ResponseContent(), new ResponseConnControl());
+        this.server.setHttpProcessor(new ImmutableHttpProcessor(
+                new ResponseServer("TEST-SERVER/1.1"), new ResponseContent(), new ResponseConnControl()));
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
-        registry.register("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
             @Override
             public void handle(
@@ -91,7 +85,7 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
             }
 
         }));
-        registry.register("/goodbye", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+        this.server.registerHandler("/goodbye", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
             @Override
             public void handle(
@@ -105,7 +99,7 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
             }
 
         }));
-        registry.register("/echo", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+        this.server.registerHandler("/echo", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
             @Override
             public void handle(
@@ -125,7 +119,6 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
             }
 
         }));
-        this.serviceHandler = new HttpAsyncService(this.serverHttpProc, registry);
     }
 
     @After
@@ -135,12 +128,10 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
 
     @Test
     public void testGetRequestPipelining() throws Exception {
-        this.server.start(this.serviceHandler);
+        this.server.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
@@ -207,12 +198,10 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
 
     @Test
     public void testPostRequestPipelining() throws Exception {
-        this.server.start(this.serviceHandler);
+        this.server.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
@@ -288,12 +277,10 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
 
     @Test
     public void testPostRequestPipeliningExpectContinue() throws Exception {
-        this.server.start(this.serviceHandler);
+        this.server.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();
         endpoint.waitFor();
-
-        Assert.assertEquals("Test server status", IOReactorStatus.ACTIVE, this.server.getStatus());
 
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
