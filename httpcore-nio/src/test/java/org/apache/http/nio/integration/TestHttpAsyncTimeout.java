@@ -30,6 +30,8 @@ package org.apache.http.nio.integration;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -47,14 +49,25 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-public class TestHttpsAsyncTimeout extends HttpCoreNIOTestBase {
+@RunWith(Parameterized.class)
+public class TestHttpAsyncTimeout extends HttpCoreNIOTestBase {
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                {ProtocolScheme.http},
+                {ProtocolScheme.https},
+        });
+    }
+
+    public TestHttpAsyncTimeout(final ProtocolScheme scheme) {
+        super(scheme);
+    }
 
     private ServerSocket serverSocket;
-
-    public TestHttpsAsyncTimeout() {
-        super(ProtocolScheme.https);
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -82,7 +95,7 @@ public class TestHttpsAsyncTimeout extends HttpCoreNIOTestBase {
         // time out when SO_TIMEOUT has elapsed.
 
         final InetSocketAddress address = start();
-        final HttpHost target = new HttpHost("localhost", address.getPort(), "https");
+        final HttpHost target = new HttpHost("localhost", address.getPort(), getScheme().name());
 
         final CountDownLatch latch = new CountDownLatch(1);
 
