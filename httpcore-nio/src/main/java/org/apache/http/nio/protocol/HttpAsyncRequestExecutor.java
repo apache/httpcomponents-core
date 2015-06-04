@@ -165,11 +165,13 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                         state.getRequestState() == MessageState.COMPLETED,
                 "Unexpected request state %s", state.getRequestState());
 
-        if (state.getRequestState() != MessageState.READY) {
+        if (state.getRequestState() == MessageState.COMPLETED) {
+            conn.suspendOutput();
             return;
         }
         final HttpAsyncClientExchangeHandler handler = getHandler(conn);
         if (handler == null || handler.isDone()) {
+            conn.suspendOutput();
             return;
         }
         final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
