@@ -57,6 +57,9 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     private static final AtomicLong COUNTER = new AtomicLong();
 
+    public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 25;
+    public static final int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 5;
+
     private final int connectTimeout;
 
     static class BasicAddressResolver implements SocketAddressResolver<HttpHost> {
@@ -89,7 +92,7 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
             final ConnectingIOReactor ioreactor,
             final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
             final int connectTimeout) {
-        super(ioreactor, connFactory, new BasicAddressResolver(), 2, 20);
+        super(ioreactor, connFactory, new BasicAddressResolver(), DEFAULT_MAX_CONNECTIONS_PER_ROUTE, DEFAULT_MAX_TOTAL_CONNECTIONS);
         this.connectTimeout = connectTimeout;
     }
 

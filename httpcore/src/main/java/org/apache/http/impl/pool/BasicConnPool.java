@@ -49,24 +49,37 @@ import org.apache.http.pool.ConnFactory;
 @ThreadSafe
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
+    public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 25;
+    public static final int DEFAULT_MAX_CONNECTIONS_PER_ROUTE = 5;
+
     private static final AtomicLong COUNTER = new AtomicLong();
 
+    /**
+     * @since 5.0
+     */
+    public BasicConnPool(
+            final ConnFactory<HttpHost, HttpClientConnection> connFactory,
+            final int defaultMaxPerRoute,
+            final int maxTotal) {
+        super(connFactory, defaultMaxPerRoute, maxTotal);
+    }
+
     public BasicConnPool(final ConnFactory<HttpHost, HttpClientConnection> connFactory) {
-        super(connFactory, 2, 20);
+        this(connFactory, DEFAULT_MAX_CONNECTIONS_PER_ROUTE, DEFAULT_MAX_TOTAL_CONNECTIONS);
     }
 
     /**
      * @since 4.3
      */
     public BasicConnPool(final SocketConfig sconfig, final ConnectionConfig cconfig) {
-        super(new BasicConnFactory(sconfig, cconfig), 2, 20);
+        this(new BasicConnFactory(sconfig, cconfig));
     }
 
     /**
      * @since 4.3
      */
     public BasicConnPool() {
-        super(new BasicConnFactory(SocketConfig.DEFAULT, ConnectionConfig.DEFAULT), 2, 20);
+        this(new BasicConnFactory(SocketConfig.DEFAULT, ConnectionConfig.DEFAULT));
     }
 
     @Override
