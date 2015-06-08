@@ -45,20 +45,22 @@ import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.Args;
 
 /**
- * Default implementation of a strategy deciding about connection re-use.
- * The default implementation first checks some basics, for example
- * whether the connection is still open or whether the end of the
- * request entity can be determined without closing the connection.
- * If these checks pass, the tokens in the {@code Connection} header will
- * be examined. In the absence of a {@code Connection} header, the
- * non-standard but commonly used {@code Proxy-Connection} header takes
- * it's role. A token {@code close} indicates that the connection cannot
- * be reused. If there is no such token, a token {@code keep-alive}
- * indicates that the connection should be re-used. If neither token is found,
- * or if there are no {@code Connection} headers, the default policy for
- * the HTTP version is applied. Since {@code HTTP/1.1}, connections are
- * re-used by default. Up until {@code HTTP/1.0}, connections are not
- * re-used by default.
+ * Default implementation of a strategy deciding about connection re-use. The strategy
+ * determines whether a connection is persistent or not based on the message’s protocol
+ * version and {@code Connection} header field if present. Connections will not be
+ * re-used and will close if any of these conditions is met
+ * <ul>
+ *     <li>the {@code close} connection option is present in the request message</li>
+ *     <li>the response message content body is incorrectly or ambiguously delineated</li>
+ *     <li>the {@code close} connection option is present in the response message</li>
+ *     <li>If the received protocol is {@code HTTP/1.0} (or earlier) and {@code keep-alive}
+ *     connection option is not present</li>
+ * </ul>
+ * In the absence of a {@code Connection} header field, the non-standard but commonly used
+ * {@code Proxy-Connection} header field will be used instead. If no connection options are
+ * explicitly given the default policy for the HTTP version is applied. {@code HTTP/1.1}
+ * (or later) connections are re-used by default. {@code HTTP/1.0} (or earlier) connections
+ * are not re-used by default.
  *
  * @since 4.0
  */
@@ -101,19 +103,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             }
         } else {
             if (canResponseHaveBody(response)) {
-                final Header[] clhs = response.getHeaders(HttpHeaders.CONTENT_LENGTH);
-                // Do not reuse if not properly content-length delimited
-                if (clhs.length == 1) {
-                    final Header clh = clhs[0];
-                    try {
-                        final int contentLen = Integer.parseInt(clh.getValue());
-                        if (contentLen < 0) {
-                            return false;
-                        }
-                    } catch (final NumberFormatException ex) {
-                        return false;
-                    }
-                } else {
+                if (response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
                     return false;
                 }
             }
@@ -127,49 +117,28 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             connHeaders = response.getHeaders("Proxy-Connection");
         }
 
-        // Experimental usage of the "Connection" header in HTTP/1.0 is
-        // documented in RFC 2068, section 19.7.1. A token "keep-alive" is
-        // used to indicate that the connection should be persistent.
-        // Note that the final specification of HTTP/1.1 in RFC 2616 does not
-        // include this information. Neither is the "Connection" header
-        // mentioned in RFC 1945, which informally describes HTTP/1.0.
-        //
-        // RFC 2616 specifies "close" as the only connection token with a
-        // specific meaning: it disables persistent connections.
-        //
-        // The "Proxy-Connection" header is not formally specified anywhere,
-        // but is commonly used to carry one token, "close" or "keep-alive".
-        // The "Connection" header, on the other hand, is defined as a
-        // sequence of tokens, where each token is a header name, and the
-        // token "close" has the above-mentioned additional meaning.
-        //
-        // To get through this mess, we treat the "Proxy-Connection" header
-        // in exactly the same way as the "Connection" header, but only if
-        // the latter is missing. We scan the sequence of tokens for both
-        // "close" and "keep-alive". As "close" is specified by RFC 2068,
-        // it takes precedence and indicates a non-persistent connection.
-        // If there is no "close" but a "keep-alive", we take the hint.
-
         if (connHeaders.length != 0) {
-            final Iterator<String> ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
-            boolean keepalive = false;
-            while (ti.hasNext()) {
-                final String token = ti.next();
-                if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
-                    return false;
-                } else if (HeaderElements.KEEP_ALIVE.equalsIgnoreCase(token)) {
-                    // continue the loop, there may be a "close" afterwards
-                    keepalive = true;
+            if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
+                final Iterator<String> it = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+                while (it.hasNext()) {
+                    final String token = it.next();
+                    if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
+                        return false;
+                    }
                 }
-            }
-            if (keepalive) {
-                // neither "close" nor "keep-alive", use default policy
                 return true;
+            } else {
+                final Iterator<String> it = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+                while (it.hasNext()) {
+                    final String token = it.next();
+                    if (HeaderElements.KEEP_ALIVE.equalsIgnoreCase(token)) {
+                        return true;
+                    }
+                }
+                return false;
             }
         }
-
-        // default since HTTP/1.1 is persistent, before it was non-persistent
-        return !ver.lessEquals(HttpVersion.HTTP_1_0);
+        return ver.greaterEquals(HttpVersion.HTTP_1_1);
     }
 
     private boolean canResponseHaveBody(final HttpResponse response) {

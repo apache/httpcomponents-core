@@ -222,22 +222,6 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testInvalidContentLength() throws Exception {
-        // Use HTTP 1.1
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader("Content-Length", "crap");
-        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
-    }
-
-    @Test
-    public void testInvalidNegativeContentLength() throws Exception {
-        // Use HTTP 1.1
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.addHeader("Content-Length", "-10");
-        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
-    }
-
-    @Test
     public void testNoContentResponse() throws Exception {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
