@@ -71,8 +71,6 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
             final String s = transferEncodingHeader.getValue();
             if (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(s)) {
                 return CHUNKED;
-            } else if (HeaderElements.IDENTITY_ENCODING.equalsIgnoreCase(s)) {
-                return IDENTITY;
             } else {
                 throw new NotImplementedException("Unsupported transfer encoding: " + s);
             }

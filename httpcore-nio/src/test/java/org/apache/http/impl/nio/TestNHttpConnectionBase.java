@@ -190,29 +190,18 @@ public class TestNHttpConnectionBase {
     }
 
     @Test
-    public void testCreateIdentityEntity() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final HttpEntity entity = conn.createIncomingEntity(response, ContentLengthStrategy.IDENTITY);
-        Assert.assertNotNull(entity);
-        Assert.assertEquals(-1, entity.getContentLength());
-        Assert.assertFalse(entity.isChunked());
-        Assert.assertNull(entity.getContentType());
-        Assert.assertNull(entity.getContentEncoding());
-    }
-
-    @Test
     public void testCreateEntityWithContentLength() throws Exception {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader(HttpHeaders.CONTENT_LENGTH, "10");
         response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
-        response.addHeader(HttpHeaders.CONTENT_ENCODING, "identity");
+        response.addHeader(HttpHeaders.CONTENT_ENCODING, "blah");
 
         final HttpEntity entity = conn.createIncomingEntity(response, 10);
         Assert.assertNotNull(entity);
         Assert.assertEquals(10, entity.getContentLength());
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals("stuff", entity.getContentType());
-        Assert.assertEquals("identity", entity.getContentEncoding());
+        Assert.assertEquals("blah", entity.getContentEncoding());
     }
 
     @Test
@@ -220,14 +209,14 @@ public class TestNHttpConnectionBase {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
-        response.addHeader(HttpHeaders.CONTENT_ENCODING, "identity");
+        response.addHeader(HttpHeaders.CONTENT_ENCODING, "blah");
 
         final HttpEntity entity = conn.createIncomingEntity(response, ContentLengthStrategy.CHUNKED);
         Assert.assertNotNull(entity);
         Assert.assertEquals(-1, entity.getContentLength());
         Assert.assertTrue(entity.isChunked());
         Assert.assertEquals("stuff", entity.getContentType());
-        Assert.assertEquals("identity", entity.getContentEncoding());
+        Assert.assertEquals("blah", entity.getContentEncoding());
     }
 
 }

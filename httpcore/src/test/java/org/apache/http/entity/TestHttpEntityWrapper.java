@@ -44,7 +44,7 @@ public class TestHttpEntityWrapper {
     public void testBasics() throws Exception {
         final String s = "Message content";
         final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
-        httpentity.setContentEncoding("identity");
+        httpentity.setContentEncoding("blah");
         final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 
         Assert.assertEquals(httpentity.getContentLength(), wrapped.getContentLength());

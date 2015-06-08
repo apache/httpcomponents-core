@@ -36,7 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
+import org.apache.http.LengthRequiredException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -86,7 +86,7 @@ public class DefaultNHttpClientConnection
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
-     *   {@link org.apache.http.impl.entity.LaxContentLengthStrategy#INSTANCE} will be used.
+     *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
      *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
      *
@@ -272,8 +272,8 @@ public class DefaultNHttpClientConnection
         if (request.getEntity() != null) {
             this.request = request;
             final long len = this.outgoingContentStrategy.determineLength(request);
-            if (len == ContentLengthStrategy.IDENTITY || len == ContentLengthStrategy.UNDEFINED) {
-                throw new ProtocolException("Identity transfer encoding is not allowed for request messages");
+            if (len == ContentLengthStrategy.UNDEFINED) {
+                throw new LengthRequiredException("Length required");
             }
             this.contentEncoder = createContentEncoder(
                     len,

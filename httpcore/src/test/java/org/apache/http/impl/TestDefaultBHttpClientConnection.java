@@ -36,7 +36,8 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
-import org.apache.http.ProtocolException;
+import org.apache.http.LengthRequiredException;
+import org.apache.http.NotImplementedException;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
@@ -45,7 +46,6 @@ import org.apache.http.impl.io.ChunkedInputStream;
 import org.apache.http.impl.io.ContentLengthInputStream;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
-import org.apache.http.impl.io.IdentityInputStream;
 import org.apache.http.message.BasicHttpRequest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -157,7 +157,7 @@ public class TestDefaultBHttpClientConnection {
         Assert.assertTrue(content instanceof ChunkedInputStream);
     }
 
-    @Test
+    @Test(expected = NotImplementedException.class)
     public void testReadResponseEntityIdentity() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: identity\r\n\r\n123";
         final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
@@ -176,15 +176,6 @@ public class TestDefaultBHttpClientConnection {
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
 
         conn.receiveResponseEntity(response);
-
-        final HttpEntity entity = response.getEntity();
-        Assert.assertNotNull(entity);
-        Assert.assertEquals(-1, entity.getContentLength());
-        Assert.assertEquals(false, entity.isChunked());
-        Assert.assertEquals(1, conn.getMetrics().getResponseCount());
-        final InputStream content = entity.getContent();
-        Assert.assertNotNull(content);
-        Assert.assertTrue(content instanceof IdentityInputStream);
     }
 
     @Test
@@ -278,8 +269,8 @@ public class TestDefaultBHttpClientConnection {
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
     }
 
-    @Test(expected = ProtocolException.class)
-    public void testWriteRequestEntityIdentity() throws Exception {
+    @Test(expected = LengthRequiredException.class)
+    public void testWriteRequestEntityNoContentLength() throws Exception {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outstream);
 
@@ -289,7 +280,6 @@ public class TestDefaultBHttpClientConnection {
 
         final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
         request.addHeader("User-Agent", "test");
-        request.addHeader("Transfer-Encoding", "identity");
         request.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
 
         conn.sendRequestHeader(request);

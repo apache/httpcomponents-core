@@ -39,7 +39,7 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.ProtocolException;
+import org.apache.http.LengthRequiredException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -149,8 +149,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
-        if (len == ContentLengthStrategy.IDENTITY || len == ContentLengthStrategy.UNDEFINED) {
-            throw new ProtocolException("Identity transfer encoding is not allowed for request messages");
+        if (len == ContentLengthStrategy.UNDEFINED) {
+            throw new LengthRequiredException("Length required");
         }
         final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
         entity.writeTo(outstream);

@@ -36,6 +36,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
+import org.apache.http.NotImplementedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentType;
@@ -297,7 +298,7 @@ public class TestDefaultBHttpServerConnection {
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
     }
 
-    @Test
+    @Test(expected = NotImplementedException.class)
     public void testWriteResponseEntityIdentity() throws Exception {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outstream);
@@ -314,10 +315,6 @@ public class TestDefaultBHttpServerConnection {
         conn.sendResponseHeader(response);
         conn.sendResponseEntity(response);
         conn.flush();
-
-        Assert.assertEquals(1, conn.getMetrics().getResponseCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
-        Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: identity\r\n\r\n123", s);
     }
 
     @Test

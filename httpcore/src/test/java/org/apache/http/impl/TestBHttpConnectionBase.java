@@ -162,13 +162,13 @@ public class TestBHttpConnectionBase {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         message.addHeader("Content-Length", "10");
         message.addHeader("Content-Type", "stuff");
-        message.addHeader("Content-Encoding", "identity");
+        message.addHeader("Content-Encoding", "chunked");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, 10);
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals(10, entity.getContentLength());
         Assert.assertEquals("stuff", entity.getContentType());
-        Assert.assertEquals("identity", entity.getContentEncoding());
+        Assert.assertEquals("chunked", entity.getContentEncoding());
         final InputStream instream = entity.getContent();
         Assert.assertNotNull(instream);
         Assert.assertTrue((instream instanceof ContentLengthInputStream));
@@ -185,19 +185,6 @@ public class TestBHttpConnectionBase {
         final InputStream instream = entity.getContent();
         Assert.assertNotNull(instream);
         Assert.assertTrue((instream instanceof ChunkedInputStream));
-    }
-
-    @Test
-    public void testCreateEntityInputIdentity() throws Exception {
-        final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer,
-                ContentLengthStrategy.IDENTITY);
-        Assert.assertNotNull(entity);
-        Assert.assertFalse(entity.isChunked());
-        Assert.assertEquals(-1, entity.getContentLength());
-        final InputStream instream = entity.getContent();
-        Assert.assertNotNull(instream);
-        Assert.assertTrue((instream instanceof IdentityInputStream));
     }
 
     @Test

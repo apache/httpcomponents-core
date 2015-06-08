@@ -29,6 +29,7 @@ package org.apache.http.impl.entity;
 
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpVersion;
+import org.apache.http.NotImplementedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -56,13 +57,12 @@ public class TestDefaultContentLengthStrategy {
         Assert.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
     }
 
-    @Test
+    @Test(expected = NotImplementedException.class)
     public void testEntityWithIdentityTransferEncoding() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Identity");
-
-        Assert.assertEquals(ContentLengthStrategy.IDENTITY, lenStrategy.determineLength(message));
+        lenStrategy.determineLength(message);
     }
 
     @Test(expected=ProtocolException.class)

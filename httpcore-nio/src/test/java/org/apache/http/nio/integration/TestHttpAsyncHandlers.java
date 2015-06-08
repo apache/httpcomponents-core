@@ -369,7 +369,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final HttpResponse response = future.get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
     }
 
     @Test

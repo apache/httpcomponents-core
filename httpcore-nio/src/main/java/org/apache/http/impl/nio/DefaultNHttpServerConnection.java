@@ -36,7 +36,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -181,9 +180,6 @@ public class DefaultNHttpServerConnection
                 } while (bytesRead > 0 && this.request == null);
                 if (this.request != null) {
                     final long len = this.incomingContentStrategy.determineLength(this.request);
-                    if (len == ContentLengthStrategy.IDENTITY) {
-                        throw new ProtocolException("Identity transfer encoding is not allowed for request messages");
-                    }
                     if (len != ContentLengthStrategy.UNDEFINED) {
                         this.contentDecoder = createContentDecoder(
                                 len,

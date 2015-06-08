@@ -45,6 +45,7 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
+import org.apache.http.NotImplementedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
 import org.apache.http.annotation.Immutable;
@@ -564,6 +565,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
         } else if (ex instanceof UnsupportedHttpVersionException) {
             code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
+        } else if (ex instanceof NotImplementedException) {
+            code = HttpStatus.SC_NOT_IMPLEMENTED;
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
         } else {
