@@ -39,6 +39,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
 import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
@@ -66,7 +67,6 @@ import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
-import org.apache.http.util.Asserts;
 import org.apache.http.util.NetUtils;
 
 /**
@@ -129,7 +129,9 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
 
     protected void ensureOpen() throws IOException {
         final Socket socket = this.socketHolder.get();
-        Asserts.check(socket != null, "Connection is not open");
+        if (socket == null) {
+            throw new ConnectionClosedException("Connection is closed");
+        }
         if (!this.inbuffer.isBound()) {
             this.inbuffer.bind(getSocketInputStream(socket));
         }
