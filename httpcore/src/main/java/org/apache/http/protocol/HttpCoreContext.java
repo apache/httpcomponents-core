@@ -67,13 +67,6 @@ public class HttpCoreContext implements HttpContext {
      */
     public static final String HTTP_TARGET_HOST = "http.target_host";
 
-    /**
-     * Attribute name of a {@link Boolean} object that represents the
-     * the flag indicating whether the actual request has been fully transmitted
-     * to the target host.
-     */
-    public static final String HTTP_REQ_SENT    = "http.request_sent";
-
     public static HttpCoreContext create() {
         return new HttpCoreContext(new BasicHttpContext());
     }
@@ -133,11 +126,6 @@ public class HttpCoreContext implements HttpContext {
 
     public HttpRequest getRequest() {
         return getAttribute(HTTP_REQUEST, HttpRequest.class);
-    }
-
-    public boolean isRequestSent() {
-        final Boolean b = getAttribute(HTTP_REQ_SENT, Boolean.class);
-        return b != null && b.booleanValue();
     }
 
     public HttpResponse getResponse() {

@@ -319,8 +319,6 @@ public class TestHttpRequestExecutor {
 
         executor.postProcess(response, httprocessor, context);
         Mockito.verify(httprocessor).process(response, context);
-
-        Assert.assertEquals(Boolean.TRUE, context.isRequestSent());
     }
 
     @Test
@@ -378,7 +376,6 @@ public class TestHttpRequestExecutor {
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             Mockito.verify(conn).close();
-            Assert.assertEquals(Boolean.FALSE, context.isRequestSent());
         }
     }
 
@@ -427,7 +424,6 @@ public class TestHttpRequestExecutor {
             Assert.fail("IOException should have been thrown");
         } catch (final IOException ex) {
             Mockito.verify(conn).close();
-            Assert.assertEquals(Boolean.FALSE, context.isRequestSent());
         }
     }
 
@@ -445,7 +441,6 @@ public class TestHttpRequestExecutor {
             Assert.fail("IOException should have been thrown");
         } catch (final RuntimeException ex) {
             Mockito.verify(conn).close();
-            Assert.assertEquals(Boolean.TRUE, context.isRequestSent());
         }
     }
 
