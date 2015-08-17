@@ -373,31 +373,23 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 3; i++) {
 
             final HttpAsyncRequestProducer p1 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
             final HttpAsyncRequestProducer p2 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
             final HttpAsyncRequestProducer p3 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/boom"));
-            final HttpAsyncRequestProducer p4 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
-            final HttpAsyncRequestProducer p5 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
             final List<HttpAsyncRequestProducer> requestProducers = new ArrayList<>();
             requestProducers.add(p1);
             requestProducers.add(p2);
             requestProducers.add(p3);
-            requestProducers.add(p4);
-            requestProducers.add(p5);
 
             final HttpAsyncResponseConsumer<HttpResponse> c1 = new BasicAsyncResponseConsumer();
             final HttpAsyncResponseConsumer<HttpResponse> c2 = new BasicAsyncResponseConsumer();
             final HttpAsyncResponseConsumer<HttpResponse> c3 = new BasicAsyncResponseConsumer();
-            final HttpAsyncResponseConsumer<HttpResponse> c4 = new BasicAsyncResponseConsumer();
-            final HttpAsyncResponseConsumer<HttpResponse> c5 = new BasicAsyncResponseConsumer();
             final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers = new ArrayList<>();
             responseConsumers.add(c1);
             responseConsumers.add(c2);
             responseConsumers.add(c3);
-            responseConsumers.add(c4);
-            responseConsumers.add(c5);
 
             final Future<List<HttpResponse>> future = this.client.executePipelined(target, requestProducers, responseConsumers, null, null);
             try {
@@ -413,10 +405,6 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertNotNull(c2.getResult());
             Assert.assertTrue(c2.isDone());
             Assert.assertNotNull(c3.getResult());
-            Assert.assertTrue(c4.isDone());
-            Assert.assertNull(c4.getResult());
-            Assert.assertTrue(c5.isDone());
-            Assert.assertNull(c5.getResult());
         }
     }
 
