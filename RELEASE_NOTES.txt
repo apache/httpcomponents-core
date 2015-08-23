@@ -1,3 +1,22 @@
+Release 4.4.2
+-------------------
+
+This maintenance release fixes a bug in HTTP request pipelining code discovered 
+after 4.4.1 release.
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
+
+* Throw ConnectionClosedException instead of IllegalStateException if an attempt is made to 
+  use a closed (not bound to a socket) blocking connection.
+
+* [HTTPCORE-399] Non-blocking client connections incorrectly suspend output causing 
+  sequential execution of requests. 
+
+
 Release 4.4.1
 -------------------
 
