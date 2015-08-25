@@ -65,6 +65,12 @@
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-container-native</artifactId>
           <version>${pax.exam.version}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId> org.osgi</groupId>
+                  <artifactId>org.osgi.core</artifactId>
+              </exclusion>
+          </exclusions>
           <scope>test</scope>
       </dependency>
       <dependency>
@@ -86,16 +92,16 @@
           <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
+          <groupId>org.ops4j.pax.url</groupId>
+          <artifactId>pax-url-wrap</artifactId>
+          <version>${pax.url.version}</version>
           <scope>test</scope>
-          <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-          <scope>test</scope>
-          <version>${slf4j.version}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId> org.osgi</groupId>
+                  <artifactId>org.osgi.core</artifactId>
+              </exclusion>
+          </exclusions>
       </dependency>
       <dependency>
           <groupId>org.mockito</groupId>
@@ -105,6 +111,30 @@
       <dependency>
           <groupId>commons-logging</groupId>
           <artifactId>commons-logging</artifactId>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.logging</groupId>
+          <artifactId>pax-logging-service</artifactId>
+          <version>1.7.2</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.logging</groupId>
+          <artifactId>pax-logging-api</artifactId>
+          <version>1.7.2</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.framework</artifactId>
+          <version>4.2.0</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.objenesis</groupId>
+          <artifactId>objenesis</artifactId>
+          <version>1.4</version>
           <scope>test</scope>
       </dependency>
   </dependencies>
