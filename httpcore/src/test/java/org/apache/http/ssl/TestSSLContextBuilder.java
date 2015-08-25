@@ -168,7 +168,7 @@ public class TestSSLContextBuilder {
         Assert.assertNotNull(result);
     }
 
-    @Test(expected = SSLHandshakeException.class)
+    @Test(expected = IOException.class)
     public void testSSLHanskshakeServerNotTrusted() throws Exception {
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
