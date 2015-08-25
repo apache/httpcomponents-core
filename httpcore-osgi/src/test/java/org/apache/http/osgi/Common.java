@@ -84,19 +84,16 @@ public class Common {
                         .version(projectVersion)
                         .classifier("tests"))
                 .exports("org.apache.http.integration")
-                .imports("org.apache.http.protocol", "org.apache.http",
+                .imports("org.apache.http.protocol",
+                        "org.apache.http",
                         "org.apache.http.config",
                         "org.apache.http.entity",
                         "org.apache.http.impl",
                         "org.apache.http.impl.bootstrap",
                         "org.apache.http.util",
                         "org.apache.http.message",
-                        "org.apache.commons.logging",
+                        "org.apache.commons.logging; provider=paxlogging",
                         "org.junit"),
-                mavenBundle("org.mockito", "mockito-core", getDependencyVersion("org.mockito", "mockito-core")),
-                mavenBundle("org.hamcrest", "hamcrest-core", getDependencyVersion("org.hamcrest", "hamcrest-core")),
-                mavenBundle("org.objenesis", "objenesis", getDependencyVersion("org.objenesis", "objenesis")),
-                mavenBundle("commons-logging", "commons-logging", getDependencyVersion("commons-logging", "commons-logging")),
                 junitBundles(),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
                 systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value(paxLoggingLevel)
