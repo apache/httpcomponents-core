@@ -33,6 +33,7 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.util.PathUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -96,7 +97,10 @@ public class Common {
                         "org.junit"),
                 junitBundles(),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
-                systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value(paxLoggingLevel)
+                systemProperty("pax.exam.logging").value("none"),
+                systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value(paxLoggingLevel),
+                systemProperty("logback.configurationFile")
+                        .value("file:" + PathUtils.getBaseDir() + "/src/test/resources/logback.xml")
         );
     }
 }

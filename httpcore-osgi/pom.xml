@@ -42,6 +42,7 @@
       <pax.url.version>2.0.0</pax.url.version>
       <pax.exam.version>3.5.0</pax.exam.version>
       <slf4j.version>1.5.4</slf4j.version>
+      <logback.version>1.0.1</logback.version>
   </properties>
   <dependencies>
     <dependency>
@@ -104,15 +105,21 @@
           </exclusions>
       </dependency>
       <dependency>
-          <groupId>org.ops4j.pax.logging</groupId>
-          <artifactId>pax-logging-service</artifactId>
-          <version>1.7.2</version>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+          <version>1.6.4</version>
           <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>org.ops4j.pax.logging</groupId>
-          <artifactId>pax-logging-api</artifactId>
-          <version>1.7.2</version>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+          <version>${logback.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
+          <version>${logback.version}</version>
           <scope>test</scope>
       </dependency>
       <dependency>
