@@ -305,6 +305,7 @@
         </executions>
         <configuration>
           <excludes>
+            <exclude>.pmd</exclude>
             <exclude>src/docbkx/resources/**</exclude>
             <exclude>src/test/resources/*.truststore</exclude>
           </excludes>
