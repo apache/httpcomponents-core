@@ -58,6 +58,24 @@
     </dependency>
   </dependencies>
 
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-Name>Apache ${project.name}</Bundle-Name>
+            <Bundle-SymbolicName>${project.groupId}.httpcore</Bundle-SymbolicName>
+            <_exportcontents>org.apache.http.*;version=${project.version}</_exportcontents>
+            <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
   <reporting>
     <plugins>
 
