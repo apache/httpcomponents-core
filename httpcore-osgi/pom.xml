@@ -42,6 +42,7 @@
       <pax.url.version>2.0.0</pax.url.version>
       <pax.exam.version>3.5.0</pax.exam.version>
       <slf4j.version>1.5.4</slf4j.version>
+      <logback.version>1.0.1</logback.version>
   </properties>
   <dependencies>
     <dependency>
@@ -65,6 +66,12 @@
           <groupId>org.ops4j.pax.exam</groupId>
           <artifactId>pax-exam-container-native</artifactId>
           <version>${pax.exam.version}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId> org.osgi</groupId>
+                  <artifactId>org.osgi.core</artifactId>
+              </exclusion>
+          </exclusions>
           <scope>test</scope>
       </dependency>
       <dependency>
@@ -86,25 +93,39 @@
           <scope>test</scope>
       </dependency>
       <dependency>
+          <groupId>org.ops4j.pax.url</groupId>
+          <artifactId>pax-url-wrap</artifactId>
+          <version>${pax.url.version}</version>
+          <scope>test</scope>
+          <exclusions>
+              <exclusion>
+                  <groupId> org.osgi</groupId>
+                  <artifactId>org.osgi.core</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
-          <scope>test</scope>
-          <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-          <scope>test</scope>
-          <version>${slf4j.version}</version>
-      </dependency>
-      <dependency>
-          <groupId>org.mockito</groupId>
-          <artifactId>mockito-core</artifactId>
+          <version>1.6.4</version>
           <scope>test</scope>
       </dependency>
       <dependency>
-          <groupId>commons-logging</groupId>
-          <artifactId>commons-logging</artifactId>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-classic</artifactId>
+          <version>${logback.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>ch.qos.logback</groupId>
+          <artifactId>logback-core</artifactId>
+          <version>${logback.version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.framework</artifactId>
+          <version>4.2.0</version>
           <scope>test</scope>
       </dependency>
   </dependencies>
