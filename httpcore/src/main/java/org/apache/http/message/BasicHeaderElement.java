@@ -41,7 +41,7 @@ import org.apache.http.util.Args;
 public class BasicHeaderElement implements HeaderElement {
 
     private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];
-    
+
     private final String name;
     private final String value;
     private final NameValuePair[] parameters;
