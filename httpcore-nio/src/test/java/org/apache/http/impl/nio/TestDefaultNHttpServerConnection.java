@@ -179,7 +179,7 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(19, conn.outbuf.length());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -204,7 +204,7 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(19, conn.outbuf.length());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -226,10 +226,10 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         Mockito.doAnswer(new ResponseReadyAnswer(response)).when(
-            handler).responseReady(Mockito.<NHttpServerConnection>any());
+            handler).responseReady(Matchers.<NHttpServerConnection>any());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -251,10 +251,10 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         Mockito.doAnswer(new ResponseReadyAnswer(response)).when(
-            handler).responseReady(Mockito.<NHttpServerConnection>any());
+            handler).responseReady(Matchers.<NHttpServerConnection>any());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -276,10 +276,10 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         Mockito.doAnswer(new ResponseReadyAnswer(response)).when(
-            handler).responseReady(Mockito.<NHttpServerConnection>any());
+            handler).responseReady(Matchers.<NHttpServerConnection>any());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -304,10 +304,10 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         Mockito.doAnswer(new ResponseReadyAnswer(response)).when(
-            handler).responseReady(Mockito.<NHttpServerConnection>any());
+            handler).responseReady(Matchers.<NHttpServerConnection>any());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -334,10 +334,10 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         Mockito.doAnswer(new ResponseReadyAnswer(response)).when(
-            handler).responseReady(Mockito.<NHttpServerConnection>any());
+            handler).responseReady(Matchers.<NHttpServerConnection>any());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -364,10 +364,10 @@ public class TestDefaultNHttpServerConnection {
         Mockito.when(session.channel()).thenReturn(channel);
 
         Mockito.doAnswer(new ResponseReadyAnswer(response)).when(
-            handler).responseReady(Mockito.<NHttpServerConnection>any());
+            handler).responseReady(Matchers.<NHttpServerConnection>any());
 
         Mockito.doAnswer(new ProduceContentAnswer(entity)).when(
-            handler).outputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            handler).outputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
 
         conn.produceOutput(handler);
 
@@ -402,9 +402,9 @@ public class TestDefaultNHttpServerConnection {
         Mockito.verify(session, Mockito.times(1)).close();
         Mockito.verify(session, Mockito.never()).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(handler, Mockito.never()).responseReady(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.never()).outputReady(
-            Mockito.<NHttpServerConnection>any(), Mockito.<ContentEncoder>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<ContentEncoder>any());
     }
 
     static class RequestCapturingAnswer implements Answer<Void> {
@@ -461,9 +461,9 @@ public class TestDefaultNHttpServerConnection {
         final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
-            handler).requestReceived(Mockito.<NHttpServerConnection>any());
+            handler).requestReceived(Matchers.<NHttpServerConnection>any());
         Mockito.doAnswer(new ConsumeContentAnswer(new SimpleInputBuffer(64))).when(
-            handler).inputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentDecoder>any());
+            handler).inputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentDecoder>any());
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
@@ -475,12 +475,12 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(43, conn.getMetrics().getReceivedBytesCount());
 
         Mockito.verify(handler, Mockito.times(1)).requestReceived(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.times(1)).inputReady(
-            Mockito.<NHttpServerConnection>any(), Mockito.<LengthDelimitedDecoder>any());
-        Mockito.verify(rchannel, Mockito.times(2)).read(Mockito.<ByteBuffer>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<LengthDelimitedDecoder>any());
+        Mockito.verify(rchannel, Mockito.times(2)).read(Matchers.<ByteBuffer>any());
         Mockito.verify(handler, Mockito.never()).exception(
-            Mockito.<NHttpServerConnection>any(), Mockito.<Exception>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<Exception>any());
 
         Assert.assertFalse(requests.isEmpty());
         final HttpRequest request = requests.getFirst();
@@ -507,9 +507,9 @@ public class TestDefaultNHttpServerConnection {
         final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
-            handler).requestReceived(Mockito.<NHttpServerConnection>any());
+            handler).requestReceived(Matchers.<NHttpServerConnection>any());
         Mockito.doAnswer(new ConsumeContentAnswer(new SimpleInputBuffer(64))).when(
-            handler).inputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentDecoder>any());
+            handler).inputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentDecoder>any());
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
@@ -521,12 +521,12 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(54, conn.getMetrics().getReceivedBytesCount());
 
         Mockito.verify(handler, Mockito.times(1)).requestReceived(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.times(1)).inputReady(
-            Mockito.<NHttpServerConnection>any(), Mockito.<LengthDelimitedDecoder>any());
-        Mockito.verify(rchannel, Mockito.times(2)).read(Mockito.<ByteBuffer>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<LengthDelimitedDecoder>any());
+        Mockito.verify(rchannel, Mockito.times(2)).read(Matchers.<ByteBuffer>any());
         Mockito.verify(handler, Mockito.never()).exception(
-            Mockito.<NHttpServerConnection>any(), Mockito.<Exception>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<Exception>any());
 
         Assert.assertFalse(requests.isEmpty());
         final HttpRequest request = requests.getFirst();
@@ -544,9 +544,9 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
         Assert.assertEquals(54, conn.getMetrics().getReceivedBytesCount());
 
-        Mockito.verify(rchannel, Mockito.times(3)).read(Mockito.<ByteBuffer>any());
+        Mockito.verify(rchannel, Mockito.times(3)).read(Matchers.<ByteBuffer>any());
         Mockito.verify(handler, Mockito.never()).exception(
-            Mockito.<NHttpServerConnection>any(), Mockito.<Exception>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<Exception>any());
     }
 
     @Test
@@ -560,9 +560,9 @@ public class TestDefaultNHttpServerConnection {
         final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
-            handler).requestReceived(Mockito.<NHttpServerConnection>any());
+            handler).requestReceived(Matchers.<NHttpServerConnection>any());
         Mockito.doAnswer(new ConsumeContentAnswer(new SimpleInputBuffer(64))).when(
-            handler).inputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentDecoder>any());
+            handler).inputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentDecoder>any());
 
         conn.consumeInput(handler);
 
@@ -570,12 +570,12 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertNull(conn.contentDecoder);
 
         Mockito.verify(handler, Mockito.times(1)).requestReceived(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.never()).inputReady(
-            Mockito.<NHttpServerConnection>any(), Mockito.<LengthDelimitedDecoder>any());
-        Mockito.verify(rchannel, Mockito.times(1)).read(Mockito.<ByteBuffer>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<LengthDelimitedDecoder>any());
+        Mockito.verify(rchannel, Mockito.times(1)).read(Matchers.<ByteBuffer>any());
         Mockito.verify(handler, Mockito.never()).exception(
-            Mockito.<NHttpServerConnection>any(), Mockito.<Exception>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<Exception>any());
 
         Assert.assertFalse(requests.isEmpty());
         final HttpRequest request = requests.getFirst();
@@ -597,9 +597,9 @@ public class TestDefaultNHttpServerConnection {
         final LinkedList<HttpRequest> requests = new LinkedList<>();
 
         Mockito.doAnswer(new RequestCapturingAnswer(requests)).when(
-            handler).requestReceived(Mockito.<NHttpServerConnection>any());
+            handler).requestReceived(Matchers.<NHttpServerConnection>any());
         Mockito.doAnswer(new ConsumeContentAnswer(new SimpleInputBuffer(64))).when(
-            handler).inputReady(Mockito.<NHttpServerConnection>any(), Mockito.<ContentDecoder>any());
+            handler).inputReady(Matchers.<NHttpServerConnection>any(), Matchers.<ContentDecoder>any());
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
@@ -611,12 +611,12 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(0, conn.getMetrics().getReceivedBytesCount());
 
         Mockito.verify(handler, Mockito.never()).requestReceived(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.never()).inputReady(
-            Mockito.<NHttpServerConnection>any(), Mockito.<LengthDelimitedDecoder>any());
-        Mockito.verify(rchannel, Mockito.times(1)).read(Mockito.<ByteBuffer>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<LengthDelimitedDecoder>any());
+        Mockito.verify(rchannel, Mockito.times(1)).read(Matchers.<ByteBuffer>any());
         Mockito.verify(handler, Mockito.never()).exception(
-            Mockito.<NHttpServerConnection>any(), Mockito.<Exception>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<Exception>any());
 
         conn.consumeInput(handler);
 
@@ -626,12 +626,12 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(0, conn.getMetrics().getReceivedBytesCount());
 
         Mockito.verify(handler, Mockito.never()).requestReceived(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.never()).inputReady(
-            Mockito.<NHttpServerConnection>any(), Mockito.<LengthDelimitedDecoder>any());
-        Mockito.verify(rchannel, Mockito.times(2)).read(Mockito.<ByteBuffer>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<LengthDelimitedDecoder>any());
+        Mockito.verify(rchannel, Mockito.times(2)).read(Matchers.<ByteBuffer>any());
         Mockito.verify(handler, Mockito.never()).exception(
-            Mockito.<NHttpServerConnection>any(), Mockito.<Exception>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<Exception>any());
 
         conn.consumeInput(handler);
         Assert.assertNull(conn.getHttpResponse());
@@ -640,14 +640,14 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertEquals(0, conn.getMetrics().getReceivedBytesCount());
 
         Mockito.verify(handler, Mockito.never()).requestReceived(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.never()).inputReady(
-            Mockito.<NHttpServerConnection>any(), Mockito.<LengthDelimitedDecoder>any());
-        Mockito.verify(rchannel, Mockito.times(3)).read(Mockito.<ByteBuffer>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<LengthDelimitedDecoder>any());
+        Mockito.verify(rchannel, Mockito.times(3)).read(Matchers.<ByteBuffer>any());
         Mockito.verify(handler, Mockito.times(1)).endOfInput(
-            Mockito.<NHttpServerConnection>any());
+            Matchers.<NHttpServerConnection>any());
         Mockito.verify(handler, Mockito.never()).exception(
-            Mockito.<NHttpServerConnection>any(), Mockito.<Exception>any());
+            Matchers.<NHttpServerConnection>any(), Matchers.<Exception>any());
 
     }
 
@@ -662,7 +662,7 @@ public class TestDefaultNHttpServerConnection {
 
         conn.close();
         conn.consumeInput(handler);
-        Mockito.verify(rchannel, Mockito.never()).read(Mockito.<ByteBuffer>any());
+        Mockito.verify(rchannel, Mockito.never()).read(Matchers.<ByteBuffer>any());
         Mockito.verify(session, Mockito.times(1)).clearEvent(SelectionKey.OP_READ);
     }
 
