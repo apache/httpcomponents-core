@@ -27,8 +27,6 @@
 
 package org.apache.http;
 
-import java.io.Serializable;
-
 import org.apache.http.annotation.Immutable;
 
 /**
