@@ -185,7 +185,7 @@ public class HeaderGroup implements Serializable {
             final Header header = this.headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
                 if (headersFound == null) {
-                    headersFound = new ArrayList<Header>();
+                    headersFound = new ArrayList<>();
                 }
                 headersFound.add(header);
             }
