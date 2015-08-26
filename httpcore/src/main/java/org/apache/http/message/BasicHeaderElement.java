@@ -40,6 +40,8 @@ import org.apache.http.util.Args;
 @NotThreadSafe
 public class BasicHeaderElement implements HeaderElement {
 
+    private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];
+    
     private final String name;
     private final String value;
     private final NameValuePair[] parameters;
@@ -62,7 +64,7 @@ public class BasicHeaderElement implements HeaderElement {
         if (parameters != null) {
             this.parameters = parameters;
         } else {
-            this.parameters = new NameValuePair[] {};
+            this.parameters = EMPTY_NAME_VALUE_PAIR_ARRAY;
         }
     }
 
