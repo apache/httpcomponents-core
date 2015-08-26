@@ -33,7 +33,6 @@ import java.io.InputStream;
 import org.apache.http.Header;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractImmutableHttpEntity;
-import org.apache.http.entity.HttpContentProducer;
 import org.apache.http.impl.io.EmptyInputStream;
 
 /**
