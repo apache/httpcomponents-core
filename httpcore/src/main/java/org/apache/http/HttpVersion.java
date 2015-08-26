@@ -42,8 +42,7 @@ import org.apache.http.annotation.Immutable;
  * @since 4.0
  */
 @Immutable
-public final class HttpVersion extends ProtocolVersion
-    implements Serializable {
+public final class HttpVersion extends ProtocolVersion {
 
     private static final long serialVersionUID = -5856653513894415344L;
 
