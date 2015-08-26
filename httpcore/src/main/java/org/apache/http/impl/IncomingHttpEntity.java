@@ -42,7 +42,7 @@ import org.apache.http.impl.io.EmptyInputStream;
  * @since 5.0
  */
 @NotThreadSafe
-public class IncomingHttpEntity extends AbstractImmutableHttpEntity implements HttpContentProducer {
+public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
 
     private final InputStream content;
     private final long len;
