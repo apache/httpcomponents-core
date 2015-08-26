@@ -40,6 +40,7 @@ import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
 import static org.ops4j.pax.exam.CoreOptions.systemPackages;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  * Test inherit from this.
@@ -66,15 +67,20 @@ public class Common {
     @Configuration
     public Option[] config() {
         final String projectVersion = System.getProperty("project.version");
+        final String buildDir = System.getProperty("project.build.directory", "target");
         final String paxLoggingLevel = System.getProperty("bt.osgi.pax.logging.level", "WARN");
 
         return options(
-                bundle(String.format("org.apache.httpcomponents.httpcore_%s", projectVersion)),
-                mavenBundle("org.apache.httpcomponents", "httpcore-osgi", projectVersion),
+                bundle(String.format("%s/org.apache.httpcomponents.httpcore_%s",
+                        buildDir,
+                        projectVersion)),
+                wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents")
+                  .artifactId("httpcore")
+                  .version(projectVersion)
+                  .type("test-jar")),
                 mavenBundle("org.mockito", "mockito-core", getDependencyVersion("org.mockito", "mockito-core")),
                 systemPackages(
                         String.format("org.slf4j;version=\"%s\"", getDependencyVersion("org.slf4j", "slf4j-api"))
-
                 ),
                 junitBundles(),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
