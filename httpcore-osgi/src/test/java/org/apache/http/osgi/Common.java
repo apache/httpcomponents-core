@@ -27,8 +27,13 @@
 
 package org.apache.http.osgi;
 
+import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.ops4j.pax.exam.util.PathUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -38,17 +43,18 @@ import static org.ops4j.pax.exam.CoreOptions.bundle;
 import static org.ops4j.pax.exam.CoreOptions.junitBundles;
 import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
 import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.systemPackages;
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
 import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  * Test inherit from this.
  */
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerClass.class)
 public class Common {
 
     public static String getDependencyVersion(final String groupId, final String artifactId) {
-        final URL depPropsUrl = BasicIT.class.getResource("META-INF/maven/dependencies.properties");
+        final URL depPropsUrl = Common.class.getResource("/META-INF/maven/dependencies.properties");
         final Properties depProps = new Properties();
         try {
             depProps.load(depPropsUrl.openStream());
@@ -65,26 +71,36 @@ public class Common {
 
 
     @Configuration
-    public Option[] config() {
+    public static Option[] config() {
         final String projectVersion = System.getProperty("project.version");
         final String buildDir = System.getProperty("project.build.directory", "target");
         final String paxLoggingLevel = System.getProperty("bt.osgi.pax.logging.level", "WARN");
 
         return options(
-                bundle(String.format("%s/org.apache.httpcomponents.httpcore_%s",
+                bundle(String.format("file:%s/org.apache.httpcomponents.httpcore_%s.jar",
                         buildDir,
                         projectVersion)),
                 wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents")
-                  .artifactId("httpcore")
-                  .version(projectVersion)
-                  .type("test-jar")),
-                mavenBundle("org.mockito", "mockito-core", getDependencyVersion("org.mockito", "mockito-core")),
-                systemPackages(
-                        String.format("org.slf4j;version=\"%s\"", getDependencyVersion("org.slf4j", "slf4j-api"))
-                ),
+                        .artifactId("httpcore")
+                        .version(projectVersion)
+                        .classifier("tests"))
+                .exports("org.apache.http.integration")
+                .imports("org.apache.http.protocol",
+                        "org.apache.http",
+                        "org.apache.http.config",
+                        "org.apache.http.entity",
+                        "org.apache.http.impl",
+                        "org.apache.http.impl.bootstrap",
+                        "org.apache.http.util",
+                        "org.apache.http.message",
+                        "org.apache.commons.logging; provider=paxlogging",
+                        "org.junit"),
                 junitBundles(),
                 systemProperty("pax.exam.osgi.unresolved.fail").value("true"),
-                systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value(paxLoggingLevel)
+                systemProperty("pax.exam.logging").value("none"),
+                systemProperty("org.ops4j.pax.logging.DefaultServiceLog.level").value(paxLoggingLevel),
+                systemProperty("logback.configurationFile")
+                        .value("file:" + PathUtils.getBaseDir() + "/src/test/resources/logback.xml")
         );
     }
 }
