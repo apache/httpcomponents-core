@@ -47,6 +47,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
+import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.HttpAsyncService.Incoming;
@@ -1357,7 +1358,7 @@ public class TestHttpAsyncService {
     public void testTimeoutActiveConnection() throws Exception {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
-        Mockito.when(this.conn.getStatus()).thenReturn(NHttpClientConnection.ACTIVE, NHttpClientConnection.CLOSED);
+        Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.ACTIVE, NHttpConnection.CLOSED);
 
         this.protocolHandler.timeout(this.conn);
 
@@ -1369,7 +1370,7 @@ public class TestHttpAsyncService {
     public void testTimeoutActiveConnectionBufferedData() throws Exception {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
-        Mockito.when(this.conn.getStatus()).thenReturn(NHttpClientConnection.ACTIVE, NHttpClientConnection.CLOSING);
+        Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.ACTIVE, NHttpConnection.CLOSING);
 
         this.protocolHandler.timeout(this.conn);
 
@@ -1390,7 +1391,7 @@ public class TestHttpAsyncService {
                 request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
-        Mockito.when(this.conn.getStatus()).thenReturn(NHttpClientConnection.CLOSING);
+        Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.CLOSING);
 
         this.protocolHandler.timeout(this.conn);
 
