@@ -217,19 +217,21 @@ public final class ContentType implements Serializable {
 
     private static ContentType create(final String mimeType, final NameValuePair[] params, final boolean strict) {
         Charset charset = null;
-        for (final NameValuePair param: params) {
-            if (param.getName().equalsIgnoreCase("charset")) {
-                final String s = param.getValue();
-                if (!TextUtils.isBlank(s)) {
-                    try {
-                        charset =  Charset.forName(s);
-                    } catch (UnsupportedCharsetException ex) {
-                        if (strict) {
-                            throw ex;
+        if (params != null) {
+            for (final NameValuePair param : params) {
+                if (param.getName().equalsIgnoreCase("charset")) {
+                    final String s = param.getValue();
+                    if (!TextUtils.isBlank(s)) {
+                        try {
+                            charset = Charset.forName(s);
+                        } catch (UnsupportedCharsetException ex) {
+                            if (strict) {
+                                throw ex;
+                            }
                         }
                     }
+                    break;
                 }
-                break;
             }
         }
         return new ContentType(mimeType, charset, params != null && params.length > 0 ? params : null);
