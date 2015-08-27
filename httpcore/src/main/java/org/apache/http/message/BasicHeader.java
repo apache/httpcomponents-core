@@ -84,9 +84,8 @@ public class BasicHeader implements Header, Serializable {
         if (this.value != null) {
             final ParserCursor cursor = new ParserCursor(0, this.value.length());
             return BasicHeaderValueParser.INSTANCE.parseElements(this.value, cursor);
-        } else {
-            return new HeaderElement[] {};
         }
+        return new HeaderElement[] {};
     }
 
 }
