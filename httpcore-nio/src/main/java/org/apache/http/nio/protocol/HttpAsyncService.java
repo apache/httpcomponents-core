@@ -629,8 +629,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         state.setIncoming(null);
 
         final PipelineEntry pipelineEntry;
-        final HttpAsyncRequestConsumer<?> consumer = incoming.getConsumer();
-        try {
+        try (final HttpAsyncRequestConsumer<?> consumer = incoming.getConsumer()) {
             final HttpContext context = incoming.getContext();
             consumer.requestCompleted(context);
             pipelineEntry = new PipelineEntry(
@@ -639,8 +638,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     consumer.getException(),
                     incoming.getHandler(),
                     context);
-        } finally {
-            consumer.close();
         }
         final Queue<PipelineEntry> pipeline = state.getPipeline();
         pipeline.add(pipelineEntry);
