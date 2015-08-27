@@ -134,8 +134,7 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        final Socket socket = new Socket("localhost", address.getPort());
-        try {
+        try (final Socket socket = new Socket("localhost", address.getPort())) {
             final OutputStream outstream = socket.getOutputStream();
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
             writer.write("GET / HTTP/1.1\r\n");
@@ -190,8 +189,6 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
                     "thank you very much";
             Assert.assertEquals(expected, buf.toString());
 
-        } finally {
-            socket.close();
         }
 
     }
@@ -204,8 +201,7 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        final Socket socket = new Socket("localhost", address.getPort());
-        try {
+        try (final Socket socket = new Socket("localhost", address.getPort())) {
             final OutputStream outstream = socket.getOutputStream();
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
             writer.write("POST /echo HTTP/1.1\r\n");
@@ -269,8 +265,6 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
                     "and goodbye";
             Assert.assertEquals(expected, buf.toString());
 
-        } finally {
-            socket.close();
         }
 
     }
@@ -283,8 +277,7 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
         endpoint.waitFor();
 
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
-        final Socket socket = new Socket("localhost", address.getPort());
-        try {
+        try (final Socket socket = new Socket("localhost", address.getPort())) {
             final OutputStream outstream = socket.getOutputStream();
             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
             writer.write("POST /echo HTTP/1.1\r\n");
@@ -341,8 +334,6 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
                     "booo booo booo\r\n";
             Assert.assertEquals(expected, buf.toString());
 
-        } finally {
-            socket.close();
         }
     }
 
