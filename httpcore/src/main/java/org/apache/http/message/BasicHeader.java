@@ -42,6 +42,8 @@ import org.apache.http.util.Args;
 @Immutable
 public class BasicHeader implements Header, Serializable {
 
+    private static final HeaderElement[] EMPTY_HEADER_ELEMENT_ARRAY = new HeaderElement[0];
+
     private static final long serialVersionUID = -5427236326487562174L;
 
     private final String name;
@@ -85,7 +87,7 @@ public class BasicHeader implements Header, Serializable {
             final ParserCursor cursor = new ParserCursor(0, this.value.length());
             return BasicHeaderValueParser.INSTANCE.parseElements(this.value, cursor);
         }
-        return new HeaderElement[] {};
+        return EMPTY_HEADER_ELEMENT_ARRAY;
     }
 
 }
