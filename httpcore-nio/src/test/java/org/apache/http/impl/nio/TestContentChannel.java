@@ -68,13 +68,10 @@ public class TestContentChannel {
 
     @Test
     public void testContentEncoder() throws Exception {
-        final ContentEncoderChannel cec = new ContentEncoderChannel(encoder);
-
-        cec.write(bb);
-        verify(encoder, times(1)).write(bb);
-
-        assertTrue(cec.isOpen());
-
-        cec.close();
+        try (final ContentEncoderChannel cec = new ContentEncoderChannel(encoder)) {
+            cec.write(bb);
+            verify(encoder, times(1)).write(bb);
+            assertTrue(cec.isOpen());
+        }
     }
 }
