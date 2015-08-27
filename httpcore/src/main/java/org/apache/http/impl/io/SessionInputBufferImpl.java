@@ -154,11 +154,10 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         l = streamRead(this.buffer, off, len);
         if (l == -1) {
             return -1;
-        } else {
-            this.bufferlen = off + l;
-            this.metrics.incrementBytesTransferred(l);
-            return l;
         }
+        this.bufferlen = off + l;
+        this.metrics.incrementBytesTransferred(l);
+        return l;
     }
 
     public boolean hasBufferedData() {
@@ -201,19 +200,18 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
                 this.metrics.incrementBytesTransferred(read);
             }
             return read;
-        } else {
-            // otherwise read to the buffer first
-            while (!hasBufferedData()) {
-                final int noRead = fillBuffer();
-                if (noRead == -1) {
-                    return -1;
-                }
-            }
-            final int chunk = Math.min(len, this.bufferlen - this.bufferpos);
-            System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
-            this.bufferpos += chunk;
-            return chunk;
         }
+        // otherwise read to the buffer first
+        while (!hasBufferedData()) {
+            final int noRead = fillBuffer();
+            if (noRead == -1) {
+                return -1;
+            }
+        }
+        final int chunk = Math.min(len, this.bufferlen - this.bufferpos);
+        System.arraycopy(this.buffer, this.bufferpos, b, off, chunk);
+        this.bufferpos += chunk;
+        return chunk;
     }
 
     @Override

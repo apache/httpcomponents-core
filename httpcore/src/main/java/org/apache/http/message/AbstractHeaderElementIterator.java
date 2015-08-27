@@ -66,13 +66,12 @@ abstract class AbstractHeaderElementIterator<T> implements Iterator<T> {
                 this.cursor = new ParserCursor(0, this.buffer.length());
                 this.cursor.updatePos(((FormattedHeader) h).getValuePos());
                 break;
-            } else {
-                final String value = h.getValue();
-                if (value != null) {
-                    this.buffer = value;
-                    this.cursor = new ParserCursor(0, value.length());
-                    break;
-                }
+            }
+            final String value = h.getValue();
+            if (value != null) {
+                this.buffer = value;
+                this.cursor = new ParserCursor(0, value.length());
+                break;
             }
         }
     }

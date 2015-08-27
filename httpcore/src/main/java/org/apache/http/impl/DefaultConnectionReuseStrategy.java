@@ -127,16 +127,15 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                     }
                 }
                 return true;
-            } else {
-                final Iterator<String> it = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
-                while (it.hasNext()) {
-                    final String token = it.next();
-                    if (HeaderElements.KEEP_ALIVE.equalsIgnoreCase(token)) {
-                        return true;
-                    }
-                }
-                return false;
             }
+            final Iterator<String> it = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+            while (it.hasNext()) {
+                final String token = it.next();
+                if (HeaderElements.KEEP_ALIVE.equalsIgnoreCase(token)) {
+                    return true;
+                }
+            }
+            return false;
         }
         return ver.greaterEquals(HttpVersion.HTTP_1_1);
     }

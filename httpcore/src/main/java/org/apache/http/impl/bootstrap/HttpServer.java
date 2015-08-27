@@ -97,18 +97,16 @@ public class HttpServer {
         final ServerSocket localSocket = this.serverSocket;
         if (localSocket != null) {
             return localSocket.getInetAddress();
-        } else {
-            return null;
         }
+        return null;
     }
 
     public int getLocalPort() {
         final ServerSocket localSocket = this.serverSocket;
         if (localSocket != null) {
             return localSocket.getLocalPort();
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     public void start() throws IOException {

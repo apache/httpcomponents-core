@@ -122,11 +122,10 @@ public class UriPatternMatcher<T> {
     protected boolean matchUriRequestPattern(final String pattern, final String path) {
         if (pattern.equals("*")) {
             return true;
-        } else {
-            return
-            (pattern.endsWith("*") && path.startsWith(pattern.substring(0, pattern.length() - 1))) ||
-            (pattern.startsWith("*") && path.endsWith(pattern.substring(1, pattern.length())));
         }
+        return
+        (pattern.endsWith("*") && path.startsWith(pattern.substring(0, pattern.length() - 1))) ||
+        (pattern.startsWith("*") && path.endsWith(pattern.substring(1, pattern.length())));
     }
 
     @Override

@@ -51,9 +51,8 @@ public final class ConnSupport {
             return charset.newDecoder()
                     .onMalformedInput(malformed != null ? malformed : CodingErrorAction.REPORT)
                     .onUnmappableCharacter(unmappable != null ? unmappable: CodingErrorAction.REPORT);
-        } else {
-            return null;
         }
+        return null;
     }
 
     public static CharsetEncoder createEncoder(final ConnectionConfig cconfig) {
@@ -67,9 +66,8 @@ public final class ConnSupport {
             return charset.newEncoder()
                 .onMalformedInput(malformed != null ? malformed : CodingErrorAction.REPORT)
                 .onUnmappableCharacter(unmappable != null ? unmappable: CodingErrorAction.REPORT);
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

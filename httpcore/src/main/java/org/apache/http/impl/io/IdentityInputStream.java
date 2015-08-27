@@ -77,18 +77,16 @@ public class IdentityInputStream extends InputStream {
     public int read() throws IOException {
         if (this.closed) {
             return -1;
-        } else {
-            return this.in.read();
         }
+        return this.in.read();
     }
 
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
         if (this.closed) {
             return -1;
-        } else {
-            return this.in.read(b, off, len);
         }
+        return this.in.read(b, off, len);
     }
 
 }

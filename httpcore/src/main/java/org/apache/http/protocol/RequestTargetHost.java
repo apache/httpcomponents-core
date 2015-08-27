@@ -65,6 +65,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
         final String method = request.getRequestLine().getMethod();
         if (method.equalsIgnoreCase("CONNECT") && ver.lessEquals(HttpVersion.HTTP_1_0)) {
+            extracted();
             return;
         }
 
@@ -82,14 +83,18 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                 }
                 if (targethost == null) {
                     if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                        extracted();
                         return;
-                    } else {
-                        throw new ProtocolException("Target host missing");
                     }
+                    throw new ProtocolException("Target host missing");
                 }
             }
             request.addHeader(HttpHeaders.HOST, targethost.toHostString());
         }
+    }
+
+    private void extracted() {
+        return;
     }
 
 }

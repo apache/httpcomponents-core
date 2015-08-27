@@ -71,18 +71,16 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
     public long getReceivedBytesCount() {
         if (this.inTransportMetric != null) {
             return this.inTransportMetric.getBytesTransferred();
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
     public long getSentBytesCount() {
         if (this.outTransportMetric != null) {
             return this.outTransportMetric.getBytesTransferred();
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
@@ -117,15 +115,13 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
             } else if (RECEIVED_BYTES_COUNT.equals(metricName)) {
                 if (this.inTransportMetric != null) {
                     return Long.valueOf(this.inTransportMetric.getBytesTransferred());
-                } else {
-                    return null;
                 }
+                return null;
             } else if (SENT_BYTES_COUNT.equals(metricName)) {
                 if (this.outTransportMetric != null) {
                     return Long.valueOf(this.outTransportMetric.getBytesTransferred());
-                } else {
-                    return null;
                 }
+                return null;
             }
         }
         return value;

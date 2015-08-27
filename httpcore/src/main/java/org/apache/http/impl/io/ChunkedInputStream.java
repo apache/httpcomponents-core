@@ -190,12 +190,11 @@ public class ChunkedInputStream extends InputStream {
                 state = CHUNK_CRLF;
             }
             return bytesRead;
-        } else {
-            eof = true;
-            throw new TruncatedChunkException("Truncated chunk "
-                    + "( expected size: " + chunkSize
-                    + "; actual size: " + pos + ")");
         }
+        eof = true;
+        throw new TruncatedChunkException("Truncated chunk "
+                + "( expected size: " + chunkSize
+                + "; actual size: " + pos + ")");
     }
 
     /**

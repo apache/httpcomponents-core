@@ -63,9 +63,8 @@ public class BasicHeaderElementIterator extends AbstractHeaderElementIterator<He
         final HeaderElement e = this.parser.parseHeaderElement(buf, cursor);
         if (!(e.getName().length() == 0 && e.getValue() == null)) {
             return e;
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

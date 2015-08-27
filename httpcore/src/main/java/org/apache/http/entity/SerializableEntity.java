@@ -100,9 +100,8 @@ public class SerializableEntity extends AbstractHttpEntity {
     public long getContentLength() {
         if (this.objSer ==  null) {
             return -1;
-        } else {
-            return this.objSer.length;
         }
+        return this.objSer.length;
     }
 
     @Override

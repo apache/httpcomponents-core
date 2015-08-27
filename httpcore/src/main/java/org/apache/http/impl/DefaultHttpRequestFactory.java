@@ -76,9 +76,8 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
         final String method = requestline.getMethod();
         if (isOneOf(SUPPORTED_METHODS, method)) {
             return new BasicHttpRequest(requestline);
-        } else {
-            throw new MethodNotSupportedException(method +  " method not supported");
         }
+        throw new MethodNotSupportedException(method +  " method not supported");
     }
 
     @Override
@@ -86,10 +85,9 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
             throws MethodNotSupportedException {
         if (isOneOf(SUPPORTED_METHODS, method)) {
             return new BasicHttpRequest(method, uri);
-        } else {
-            throw new MethodNotSupportedException(method
-                    + " method not supported");
         }
+        throw new MethodNotSupportedException(method
+                + " method not supported");
     }
 
 }

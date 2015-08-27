@@ -356,9 +356,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         final Integer v = this.maxPerRoute.get(route);
         if (v != null) {
             return v.intValue();
-        } else {
-            return this.defaultMaxPerRoute;
         }
+        return this.defaultMaxPerRoute;
     }
 
     @Override

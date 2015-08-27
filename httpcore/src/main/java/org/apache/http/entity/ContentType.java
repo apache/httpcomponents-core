@@ -275,9 +275,8 @@ public final class ContentType implements Serializable {
         final HeaderElement[] elements = BasicHeaderValueParser.INSTANCE.parseElements(s, cursor);
         if (elements.length > 0) {
             return create(elements[0], strict);
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**

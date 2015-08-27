@@ -286,9 +286,8 @@ public final class HttpHost implements Serializable {
             buffer.append(":");
             buffer.append(Integer.toString(this.port));
             return buffer.toString();
-        } else {
-            return this.hostname;
         }
+        return this.hostname;
     }
 
 
@@ -309,9 +308,8 @@ public final class HttpHost implements Serializable {
                 && this.port == that.port
                 && this.schemeName.equals(that.schemeName)
                 && LangUtils.equals(this.address, that.address);
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

@@ -208,9 +208,8 @@ class BHttpConnectionBase implements BHttpConnection {
             } catch (final SocketException ignore) {
                 return -1;
             }
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
@@ -328,9 +327,8 @@ class BHttpConnectionBase implements BHttpConnection {
                 NetUtils.formatAddress(buffer, remoteAddress);
             }
             return buffer.toString();
-        } else {
-            return "[Not bound]";
         }
+        return "[Not bound]";
     }
 
 }
