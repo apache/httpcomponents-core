@@ -353,8 +353,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final int status = response.getStatusLine().getStatusCode();
             if (status == 100) {
                 final HttpContext context = outgoing.getContext();
-                final HttpAsyncResponseProducer responseProducer = outgoing.getProducer();
-                try {
+                try (final HttpAsyncResponseProducer responseProducer = outgoing.getProducer()) {
                     // Make sure 100 response has no entity
                     response.setEntity(null);
                     conn.requestInput();
@@ -362,8 +361,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     state.setOutgoing(null);
                     conn.submitResponse(response);
                     responseProducer.responseCompleted(context);
-                } finally {
-                    responseProducer.close();
                 }
             } else if (status >= 400) {
                 conn.resetInput();
