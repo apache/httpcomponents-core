@@ -184,11 +184,10 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
                 this.metrics.incrementBytesTransferred(bytesWritten);
             }
             return bytesWritten;
-        } else {
-            final int chunk = src.remaining();
-            this.buffer.write(src);
-            return chunk;
         }
+        final int chunk = src.remaining();
+        this.buffer.write(src);
+        return chunk;
     }
 
 }

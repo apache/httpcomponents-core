@@ -577,9 +577,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
                 this.status = CLOSED;
             }
             return result.bytesConsumed();
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     private synchronized int readPlain(final ByteBuffer dst) {
@@ -602,13 +601,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
                 inPlainBuf = null;
             }
             return n;
-        } else {
-            if (this.endOfStream) {
-                return -1;
-            } else {
-                return 0;
-            }
         }
+        if (this.endOfStream) {
+            return -1;
+        }
+        return 0;
     }
 
     @Override
@@ -785,9 +782,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     public Socket getSocket(){
         if (this.session instanceof SocketAccessor){
             return ((SocketAccessor) this.session).getSocket();
-        } else {
-            return null;
         }
+        return null;
     }
 
     private class InternalByteChannel implements ByteChannel {

@@ -108,9 +108,8 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     public E getLastUsed() {
         if (!this.available.isEmpty()) {
             return this.available.getLast();
-        } else {
-            return null;
         }
+        return null;
     }
 
     public boolean remove(final E entry) {

@@ -98,9 +98,8 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         }
         if (this.completed && bytesRead == 0) {
             return -1;
-        } else {
-            return bytesRead;
         }
+        return bytesRead;
     }
 
     @Override

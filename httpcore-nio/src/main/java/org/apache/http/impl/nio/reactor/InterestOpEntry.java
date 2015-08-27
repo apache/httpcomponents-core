@@ -65,9 +65,8 @@ class InterestOpEntry {
         if (obj instanceof InterestOpEntry) {
             final InterestOpEntry that = (InterestOpEntry) obj;
             return this.key.equals(that.key);
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override

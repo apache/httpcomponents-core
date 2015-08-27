@@ -378,9 +378,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.add(sessionRequest);
             pool.addPending(sessionRequest, request.getFuture());
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     private void fireCallbacks() {
@@ -509,9 +508,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final Integer v = this.maxPerRoute.get(route);
         if (v != null) {
             return v.intValue();
-        } else {
-            return this.defaultMaxPerRoute;
         }
+        return this.defaultMaxPerRoute;
     }
 
     @Override

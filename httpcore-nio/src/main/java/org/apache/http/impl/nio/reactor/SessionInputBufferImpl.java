@@ -180,9 +180,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             dst.put(buffer());
             buffer().limit(oldLimit);
             return len;
-        } else {
-            dst.put(buffer());
         }
+        dst.put(buffer());
         return chunk;
     }
 

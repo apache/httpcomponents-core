@@ -113,9 +113,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
                 throw new MessageConstraintException("Maximum empty line limit exceeded");
             }
             return null;
-        } else {
-            return createMessage(this.lineBuf);
         }
+        return createMessage(this.lineBuf);
     }
 
     private void parseHeader() throws IOException {
@@ -194,9 +193,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements
                 this.message.addHeader(this.lineParser.parseHeader(buffer));
             }
             return this.message;
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

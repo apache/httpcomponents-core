@@ -336,18 +336,16 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
             buffer.append("<->");
             NetUtils.formatAddress(buffer, remoteAddress);
             return buffer.toString();
-        } else {
-            return "[Not bound]";
         }
+        return "[Not bound]";
     }
 
     @Override
     public Socket getSocket() {
         if (this.session instanceof SocketAccessor) {
             return ((SocketAccessor) this.session).getSocket();
-        } else {
-            return null;
         }
+        return null;
     }
 
 }
