@@ -60,7 +60,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
-        final HttpCoreContext corecontext = HttpCoreContext.adapt(context);
+        final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
 
         final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
         final String method = request.getRequestLine().getMethod();
@@ -70,11 +70,11 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         }
 
         if (!request.containsHeader(HttpHeaders.HOST)) {
-            HttpHost targethost = corecontext.getTargetHost();
+            HttpHost targethost = coreContext.getTargetHost();
             if (targethost == null) {
                 // Populate the context with a default HTTP host based on the
                 // inet address of the target host
-                final HttpConnection conn = corecontext.getConnection();
+                final HttpConnection conn = coreContext.getConnection();
                 if (conn != null) {
                     final InetSocketAddress remoteAddress = (InetSocketAddress) conn.getRemoteAddress();
                     if (remoteAddress != null) {
