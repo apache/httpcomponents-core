@@ -125,11 +125,8 @@ public class TestHttpAsyncTimeout extends HttpCoreNIOTestBase {
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
                 context, callback);
-        final Socket accepted = serverSocket.accept();
-        try {
+        try (final Socket accepted = serverSocket.accept()) {
             Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
-        } finally {
-            accepted.close();
         }
     }
 
