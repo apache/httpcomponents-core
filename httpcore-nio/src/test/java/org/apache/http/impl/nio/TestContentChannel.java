@@ -59,14 +59,11 @@ public class TestContentChannel {
 
     @Test
     public void testContentDecoder() throws Exception {
-        final ContentDecoderChannel cdc = new ContentDecoderChannel(decoder);
-
-        cdc.read(bb);
-        verify(decoder, times(1)).read(bb);
-
-        assertTrue(cdc.isOpen());
-
-        cdc.close();
+        try (final ContentDecoderChannel cdc = new ContentDecoderChannel(decoder)) {
+            cdc.read(bb);
+            verify(decoder, times(1)).read(bb);
+            assertTrue(cdc.isOpen());
+        }
     }
 
     @Test
