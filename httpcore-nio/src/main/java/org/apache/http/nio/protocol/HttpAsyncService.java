@@ -683,14 +683,11 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         final HttpContext context = outgoing.getContext();
         final HttpRequest request = outgoing.getRequest();
         final HttpResponse response = outgoing.getResponse();
-        final HttpAsyncResponseProducer responseProducer = outgoing.getProducer();
-        try {
+        try (final HttpAsyncResponseProducer responseProducer = outgoing.getProducer()) {
             responseProducer.responseCompleted(context);
             state.setOutgoing(null);
             state.setCancellable(null);
             state.setResponseState(MessageState.READY);
-        } finally {
-            responseProducer.close();
         }
         if (!this.connStrategy.keepAlive(request, response, context)) {
             conn.close();
