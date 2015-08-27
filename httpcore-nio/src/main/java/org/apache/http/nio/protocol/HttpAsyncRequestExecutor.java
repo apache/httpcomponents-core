@@ -343,13 +343,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 state.setRequestState(MessageState.BODY_STREAM);
                 state.setTimeout(0);
                 return;
-            } else {
-                state.invalidate();
-                final HttpAsyncClientExchangeHandler handler = getHandler(conn);
-                if (handler != null) {
-                    handler.failed(new SocketTimeoutException());
-                    handler.close();
-                }
+            }
+            state.invalidate();
+            final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+            if (handler != null) {
+                handler.failed(new SocketTimeoutException());
+                handler.close();
             }
         }
         if (conn.getStatus() == NHttpConnection.ACTIVE) {
