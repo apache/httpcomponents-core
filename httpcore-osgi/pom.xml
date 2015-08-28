@@ -235,9 +235,9 @@
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
+            <artifactId>maven-failsafe-plugin</artifactId>
             <configuration>
-              <skipTests>true</skipTests>
+              <skip>true</skip>
             </configuration>
           </plugin>
         </plugins>
