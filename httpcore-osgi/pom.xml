@@ -221,4 +221,28 @@
 
     </plugins>
   </reporting>
+
+  <profiles>
+    <profile>
+      <id>disableOSGiTests</id>
+      <activation>
+        <property>
+          <name>disableOSGiTests</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
 </project>
