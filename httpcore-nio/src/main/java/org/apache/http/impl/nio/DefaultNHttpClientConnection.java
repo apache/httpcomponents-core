@@ -224,7 +224,7 @@ public class DefaultNHttpClientConnection
     public void produceOutput(final NHttpClientEventHandler handler) {
         try {
             if (this.status == ACTIVE) {
-                if (this.contentEncoder == null) {
+                if (this.contentEncoder == null && !this.outbuf.hasData()) {
                     handler.requestReady(this);
                 }
                 if (this.contentEncoder != null) {
