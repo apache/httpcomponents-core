@@ -305,7 +305,7 @@ public class DefaultNHttpServerConnection
     public void produceOutput(final NHttpServerEventHandler handler) {
         try {
             if (this.status == ACTIVE) {
-                if (this.contentEncoder == null) {
+                if (this.contentEncoder == null && !this.outbuf.hasData()) {
                     handler.responseReady(this);
                 }
                 if (this.contentEncoder != null) {
