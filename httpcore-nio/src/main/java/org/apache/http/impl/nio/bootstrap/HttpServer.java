@@ -140,6 +140,7 @@ public class HttpServer {
             } catch (IOException ex) {
                 this.exceptionLogger.log(ex);
             }
+            this.listenerExecutorService.shutdown();
         }
     }
 
