@@ -150,16 +150,22 @@ public class HttpAsyncRequester {
 
     private void initExection(
             final HttpAsyncClientExchangeHandler handler, final NHttpClientConnection conn) {
-        conn.getContext().setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
-        if (!conn.isOpen()) {
-            handler.failed(new ConnectionClosedException("Connection closed"));
+
+        final HttpContext context = conn.getContext();
+        synchronized (context) {
+            context.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
+            if (!conn.isOpen()) {
+                handler.failed(new ConnectionClosedException("Connection closed"));
+            } else {
+                conn.requestOutput();
+            }
+        }
+        if (handler.isDone()) {
             try {
                 handler.close();
             } catch (final IOException ex) {
                 log(ex);
             }
-        } else {
-            conn.requestOutput();
         }
     }
 
