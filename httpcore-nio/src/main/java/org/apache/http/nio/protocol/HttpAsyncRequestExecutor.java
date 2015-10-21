@@ -171,10 +171,14 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             conn.suspendOutput();
             return;
         }
-        final HttpAsyncClientExchangeHandler handler = getHandler(conn);
-        if (handler == null || handler.isDone()) {
-            conn.suspendOutput();
-            return;
+        final HttpContext context = conn.getContext();
+        final HttpAsyncClientExchangeHandler handler;
+        synchronized (context) {
+            handler = getHandler(conn);
+            if (handler == null || handler.isDone()) {
+                conn.suspendOutput();
+                return;
+            }
         }
         final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
 
