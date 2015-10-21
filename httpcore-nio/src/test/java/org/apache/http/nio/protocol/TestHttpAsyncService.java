@@ -827,7 +827,6 @@ public class TestHttpAsyncService {
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
         Mockito.verify(this.conn).requestInput();
-        Mockito.verify(this.conn).suspendOutput();
         Mockito.verify(this.conn, Mockito.never()).close();
     }
 

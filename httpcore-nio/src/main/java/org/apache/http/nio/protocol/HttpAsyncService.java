@@ -745,11 +745,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         if (!this.connStrategy.keepAlive(response, context)) {
             conn.close();
         } else {
-            // Ready to process new request
-            final Queue<PipelineEntry> pipeline = state.getPipeline();
-            if (pipeline.isEmpty()) {
-                conn.suspendOutput();
-            }
             conn.requestInput();
         }
     }
