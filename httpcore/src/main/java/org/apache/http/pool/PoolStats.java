@@ -26,6 +26,8 @@
  */
 package org.apache.http.pool;
 
+import java.io.Serializable;
+
 import org.apache.http.annotation.Immutable;
 
 /**
@@ -37,7 +39,9 @@ import org.apache.http.annotation.Immutable;
  * @since 4.2
  */
 @Immutable
-public class PoolStats {
+public class PoolStats implements Serializable {
+
+    private static final long serialVersionUID = -2807686144795228544L;
 
     private final int leased;
     private final int pending;
