@@ -28,6 +28,7 @@
 package org.apache.http.entity;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,7 +36,6 @@ import java.io.OutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
-import org.apache.http.util.EntityUtils;
 
 /**
  * A wrapping entity that buffers it content if necessary.
@@ -60,7 +60,10 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
     public BufferedHttpEntity(final HttpEntity entity) throws IOException {
         super(entity);
         if (!entity.isRepeatable() || entity.getContentLength() < 0) {
-            this.buffer = EntityUtils.toByteArray(entity);
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            entity.writeTo(out);
+            out.flush();
+            this.buffer = out.toByteArray();
         } else {
             this.buffer = null;
         }
