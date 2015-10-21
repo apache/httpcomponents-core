@@ -29,6 +29,8 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ExceptionLogger;
@@ -185,6 +187,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             throw new ProtocolException(version + " cannot be used with request pipelining");
         }
         state.setRequest(request);
+        if (pipelined) {
+            state.getRequestQueue().add(request);
+        }
 
         final HttpEntity entity = request.getEntity();
         if (entity != null) {
@@ -241,12 +246,21 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         Asserts.check(state.getResponseState() == MessageState.READY,
                 "Unexpected request state %s", state.getResponseState());
 
-        final HttpRequest request = state.getRequest();
-        if (request == null) {
-            throw new HttpException("Out of sequence response");
-        }
         final HttpAsyncClientExchangeHandler handler = getHandler(conn);
         Asserts.notNull(handler, "Client exchange handler");
+
+        final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
+        final HttpRequest request;
+        if (pipelined) {
+            request = state.getRequestQueue().poll();
+            Asserts.notNull(request, "HTTP request");
+        } else {
+            request = state.getRequest();
+            if (request == null) {
+                throw new HttpException("Out of sequence response");
+            }
+        }
+
         final HttpResponse response = conn.getHttpResponse();
 
         final int statusCode = response.getStatusLine().getStatusCode();
@@ -442,6 +456,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     static class State {
 
+        private final Queue<HttpRequest> requestQueue;
         private volatile MessageState requestState;
         private volatile MessageState responseState;
         private volatile HttpRequest request;
@@ -451,6 +466,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
         State() {
             super();
+            this.requestQueue = new ConcurrentLinkedQueue<>();
             this.valid = true;
             this.requestState = MessageState.READY;
             this.responseState = MessageState.READY;
@@ -486,6 +502,10 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
         public void setResponse(final HttpResponse response) {
             this.response = response;
+        }
+
+        public Queue<HttpRequest> getRequestQueue() {
+            return this.requestQueue;
         }
 
         public int getTimeout() {
