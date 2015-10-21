@@ -40,7 +40,7 @@ import org.apache.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.http.impl.nio.reactor.DefaultListeningIOReactor;
 import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.NHttpConnectionFactory;
-import org.apache.http.nio.protocol.HttpAsyncService;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorExceptionHandler;
@@ -56,7 +56,7 @@ public class HttpServer {
     private final int port;
     private final InetAddress ifAddress;
     private final IOReactorConfig ioReactorConfig;
-    private final HttpAsyncService httpService;
+    private final NHttpServerEventHandler serverEventHandler;
     private final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory;
     private final ExceptionLogger exceptionLogger;
     private final ExecutorService listenerExecutorService;
@@ -70,13 +70,13 @@ public class HttpServer {
             final int port,
             final InetAddress ifAddress,
             final IOReactorConfig ioReactorConfig,
-            final HttpAsyncService httpService,
+            final NHttpServerEventHandler serverEventHandler,
             final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory,
             final ExceptionLogger exceptionLogger) {
         this.port = port;
         this.ifAddress = ifAddress;
         this.ioReactorConfig = ioReactorConfig;
-        this.httpService = httpService;
+        this.serverEventHandler = serverEventHandler;
         this.connectionFactory = connectionFactory;
         this.exceptionLogger = exceptionLogger;
         this.listenerExecutorService = Executors.newSingleThreadExecutor(
@@ -113,7 +113,7 @@ public class HttpServer {
         if (this.status.compareAndSet(Status.READY, Status.ACTIVE)) {
             this.endpoint = this.ioReactor.listen(new InetSocketAddress(this.ifAddress, this.port > 0 ? this.port : 0));
             final IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(
-                    this.httpService, this.connectionFactory);
+                    this.serverEventHandler, this.connectionFactory);
             this.listenerExecutorService.execute(new Runnable() {
 
                 @Override
