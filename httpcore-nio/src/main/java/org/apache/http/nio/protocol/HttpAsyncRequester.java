@@ -144,11 +144,11 @@ public class HttpAsyncRequester {
         final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<T>(
                 requestProducer, responseConsumer, callback, context, conn,
                 this.httpprocessor, this.connReuseStrategy);
-        initExection(handler, conn);
+        initExecution(handler, conn);
         return handler.getFuture();
     }
 
-    private void initExection(
+    private void initExecution(
             final HttpAsyncClientExchangeHandler handler, final NHttpClientConnection conn) {
 
         final HttpContext context = conn.getContext();
@@ -301,7 +301,7 @@ public class HttpAsyncRequester {
                 new RequestExecutionCallback<T, E>(future, poolEntry, connPool),
                 context, conn,
                 this.httpprocessor, this.connReuseStrategy);
-        initExection(handler, conn);
+        initExecution(handler, conn);
         return future;
     }
 
@@ -341,7 +341,7 @@ public class HttpAsyncRequester {
                 new RequestExecutionCallback<List<T>, E>(future, poolEntry, connPool),
                 context, conn,
                 this.httpprocessor, this.connReuseStrategy);
-        initExection(handler, conn);
+        initExecution(handler, conn);
         return future;
     }
 
@@ -414,7 +414,7 @@ public class HttpAsyncRequester {
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<T, E>(this.requestFuture, result, this.connPool),
                     this.context, conn, httpprocessor, connReuseStrategy);
-            initExection(handler, conn);
+            initExecution(handler, conn);
         }
 
         @Override
@@ -483,7 +483,7 @@ public class HttpAsyncRequester {
                     this.requestProducers, this.responseConsumers,
                     new RequestExecutionCallback<List<T>, E>(this.requestFuture, result, this.connPool),
                     this.context, conn, httpprocessor, connReuseStrategy);
-            initExection(handler, conn);
+            initExecution(handler, conn);
         }
 
         @Override
