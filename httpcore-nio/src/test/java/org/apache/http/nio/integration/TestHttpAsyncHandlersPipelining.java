@@ -190,10 +190,11 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<Future<List<HttpResponse>>>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
-            final Future<List<HttpResponse>> future = this.client.executePipelined(target,
-                    new BasicHttpRequest("GET", requestUri),
-                    new BasicHttpRequest("GET", requestUri),
-                    new BasicHttpRequest("GET", requestUri));
+            final HttpRequest head1 = new BasicHttpRequest("HEAD", requestUri);
+            final HttpRequest head2 = new BasicHttpRequest("HEAD", requestUri);
+            final BasicHttpEntityEnclosingRequest post1 = new BasicHttpEntityEnclosingRequest("POST", requestUri);
+            post1.setEntity(new NStringEntity("stuff", ContentType.TEXT_PLAIN));
+            final Future<List<HttpResponse>> future = this.client.executePipelined(target, head1, head2, post1);
             queue.add(future);
         }
 
