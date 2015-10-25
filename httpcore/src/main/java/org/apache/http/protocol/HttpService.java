@@ -39,7 +39,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.NotImplementedException;
 import org.apache.http.ProtocolException;
@@ -158,66 +157,71 @@ public class HttpService {
 
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
-        HttpRequest request = null;
+        final HttpRequest request = conn.receiveRequestHeader();
+
+        final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+        final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+
         HttpResponse response = null;
 
-        try {
-
-            request = conn.receiveRequestHeader();
-            final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-            final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
-            if (expectContinue) {
-                response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
-                        HttpStatus.SC_CONTINUE, context);
-                if (this.expectationVerifier != null) {
-                    try {
-                        this.expectationVerifier.verify(request, response, context);
-                    } catch (final HttpException ex) {
-                        response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_0,
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
-                        handleException(ex, response);
-                    }
+        if (expectContinue) {
+            response = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE, context);
+            if (this.expectationVerifier != null) {
+                try {
+                    this.expectationVerifier.verify(request, response, context);
+                } catch (final HttpException ex) {
+                    response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+                    handleException(ex, response);
                 }
-                if (response.getStatusLine().getStatusCode() < 200) {
-                    // Send 1xx response indicating the server expections
-                    // have been met
-                    conn.sendResponseHeader(response);
-                    conn.flush();
-                    response = null;
-                    conn.receiveRequestEntity(request);
-                }
+            }
+            if (response.getStatusLine().getStatusCode() < 200) {
+                // Send 1xx response indicating the server expectations
+                // have been met
+                conn.sendResponseHeader(response);
+                conn.flush();
+                response = null;
             } else {
+                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+                context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+                this.processor.process(response, context);
+                conn.sendResponseHeader(response);
+                if (canResponseHaveBody(request, response)) {
+                    conn.sendResponseEntity(response);
+                }
+                conn.flush();
                 conn.receiveRequestEntity(request);
+                return;
             }
-
-            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-
-            if (response == null) {
-                response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
-                        HttpStatus.SC_OK, context);
-                this.processor.process(request, context);
-                doService(request, response, context);
-            }
-
-            // Make sure the request content is fully consumed
-            final HttpEntity entity = request.getEntity();
-            EntityUtils.consume(entity);
-
-        } catch (final HttpException ex) {
-            response = this.responseFactory.newHttpResponse
-                (HttpVersion.HTTP_1_0, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                 context);
-            handleException(ex, response);
         }
 
-        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+        try {
+            conn.receiveRequestEntity(request);
 
-        this.processor.process(response, context);
+            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            this.processor.process(request, context);
+
+            response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK, context);
+            doService(request, response, context);
+
+            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+            this.processor.process(response, context);
+
+        } catch (final HttpException ex) {
+            response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+            handleException(ex, response);
+            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+            this.processor.process(response, context);
+        }
+
         conn.sendResponseHeader(response);
         if (canResponseHaveBody(request, response)) {
             conn.sendResponseEntity(response);
         }
         conn.flush();
+
+        // Make sure the request content is fully consumed
+        final HttpEntity entity = request.getEntity();
+        EntityUtils.consume(entity);
 
         if (!this.connStrategy.keepAlive(request, response, context)) {
             conn.close();

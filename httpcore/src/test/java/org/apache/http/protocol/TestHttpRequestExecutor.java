@@ -45,7 +45,6 @@ import org.mockito.Mockito;
 
 public class TestHttpRequestExecutor {
 
-
     @Test
     public void testInvalidInput() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
@@ -68,44 +67,6 @@ public class TestHttpRequestExecutor {
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(request, conn, null);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-
-        try {
-            final HttpRequestExecutor executor = new HttpRequestExecutor();
-            executor.doSendRequest(null, conn, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            final HttpRequestExecutor executor = new HttpRequestExecutor();
-            executor.doSendRequest(request, null, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            final HttpRequestExecutor executor = new HttpRequestExecutor();
-            executor.doSendRequest(request, conn, null);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-
-        try {
-            final HttpRequestExecutor executor = new HttpRequestExecutor();
-            executor.doReceiveResponse(null, conn, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            final HttpRequestExecutor executor = new HttpRequestExecutor();
-            executor.doReceiveResponse(request, null, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            final HttpRequestExecutor executor = new HttpRequestExecutor();
-            executor.doReceiveResponse(request, conn, null);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException expected) {
         }
@@ -268,7 +229,6 @@ public class TestHttpRequestExecutor {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpRequest request = new BasicHttpRequest("POST", "/");
-//        request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
 
@@ -343,6 +303,7 @@ public class TestHttpRequestExecutor {
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn, Mockito.never()).sendRequestEntity(request);
+        Mockito.verify(conn).terminateRequest(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
         Mockito.verify(conn).isDataAvailable(3000);
         Mockito.verify(conn).receiveResponseHeader();

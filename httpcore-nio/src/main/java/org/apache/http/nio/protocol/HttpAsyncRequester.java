@@ -32,13 +32,11 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpHost;
 import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.pool.ConnPool;
 import org.apache.http.pool.PoolEntry;
@@ -60,14 +58,11 @@ import org.apache.http.util.Args;
 public class HttpAsyncRequester {
 
     private final HttpProcessor httpprocessor;
-    private final ConnectionReuseStrategy connReuseStrategy;
     private final ExceptionLogger exceptionLogger;
 
     /**
      * Creates new instance of {@code HttpAsyncRequester}.
      * @param httpprocessor HTTP protocol processor.
-     * @param connReuseStrategy Connection re-use strategy. If {@code null}
-     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
      * @param exceptionLogger Exception logger. If {@code null}
      *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
@@ -77,24 +72,10 @@ public class HttpAsyncRequester {
      */
     public HttpAsyncRequester(
             final HttpProcessor httpprocessor,
-            final ConnectionReuseStrategy connReuseStrategy,
             final ExceptionLogger exceptionLogger) {
         super();
         this.httpprocessor = Args.notNull(httpprocessor, "HTTP processor");
-        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
-                DefaultConnectionReuseStrategy.INSTANCE;
         this.exceptionLogger = exceptionLogger != null ? exceptionLogger : ExceptionLogger.NO_OP;
-    }
-
-    /**
-     * Creates new instance of HttpAsyncRequester.
-     *
-     * @since 4.3
-     */
-    public HttpAsyncRequester(
-            final HttpProcessor httpprocessor,
-            final ConnectionReuseStrategy connReuseStrategy) {
-        this(httpprocessor, connReuseStrategy, (ExceptionLogger) null);
     }
 
     /**
@@ -128,8 +109,7 @@ public class HttpAsyncRequester {
         Args.notNull(conn, "HTTP connection");
         Args.notNull(context, "HTTP context");
         final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<>(
-                requestProducer, responseConsumer, callback, context, conn,
-                this.httpprocessor, this.connReuseStrategy);
+                requestProducer, responseConsumer, callback, context, conn, this.httpprocessor);
         initExection(handler, conn);
         return handler.getFuture();
     }
@@ -285,8 +265,7 @@ public class HttpAsyncRequester {
         final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<>(
                 requestProducer, responseConsumer,
                 new RequestExecutionCallback<>(future, poolEntry, connPool),
-                context, conn,
-                this.httpprocessor, this.connReuseStrategy);
+                context, conn, this.httpprocessor);
         initExection(handler, conn);
         return future;
     }
@@ -325,8 +304,7 @@ public class HttpAsyncRequester {
         final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<>(
                 requestProducers, responseConsumers,
                 new RequestExecutionCallback<>(future, poolEntry, connPool),
-                context, conn,
-                this.httpprocessor, this.connReuseStrategy);
+                context, conn, this.httpprocessor);
         initExection(handler, conn);
         return future;
     }
@@ -399,7 +377,7 @@ public class HttpAsyncRequester {
             final BasicAsyncClientExchangeHandler<T> handler = new BasicAsyncClientExchangeHandler<>(
                     this.requestProducer, this.responseConsumer,
                     new RequestExecutionCallback<>(this.requestFuture, result, this.connPool),
-                    this.context, conn, httpprocessor, connReuseStrategy);
+                    this.context, conn, httpprocessor);
             initExection(handler, conn);
         }
 
@@ -468,7 +446,7 @@ public class HttpAsyncRequester {
             final PipeliningClientExchangeHandler<T> handler = new PipeliningClientExchangeHandler<>(
                     this.requestProducers, this.responseConsumers,
                     new RequestExecutionCallback<>(this.requestFuture, result, this.connPool),
-                    this.context, conn, httpprocessor, connReuseStrategy);
+                    this.context, conn, httpprocessor);
             initExection(handler, conn);
         }
 

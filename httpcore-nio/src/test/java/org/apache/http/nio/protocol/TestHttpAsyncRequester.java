@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpHost;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
@@ -53,7 +52,6 @@ import org.mockito.Mockito;
 public class TestHttpAsyncRequester {
 
     private HttpProcessor httpProcessor;
-    private ConnectionReuseStrategy reuseStrategy;
     private HttpAsyncRequester requester;
     private HttpContext exchangeContext;
     private HttpContext connContext;
@@ -67,8 +65,7 @@ public class TestHttpAsyncRequester {
     @Before
     public void setUp() throws Exception {
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
-        this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        this.requester = new HttpAsyncRequester(this.httpProcessor, this.reuseStrategy);
+        this.requester = new HttpAsyncRequester(this.httpProcessor);
         this.exchangeContext = new BasicHttpContext();
         this.requestProducer = Mockito.mock(HttpAsyncRequestProducer.class);
         this.responseConsumer = Mockito.mock(HttpAsyncResponseConsumer.class);

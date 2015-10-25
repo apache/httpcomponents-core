@@ -38,6 +38,18 @@ import java.io.IOException;
 public interface HttpClientConnection extends BHttpConnection {
 
     /**
+     * Checks whether this connection is in a consistent state.
+     *
+     * @return  {@code true} if the connection is known to be
+     * in a inconsistent state and cannot be re-used.
+     *
+     * @see #terminateRequest(HttpRequest)
+     *
+     * @since 5.0
+     */
+    boolean isConsistent();
+
+    /**
      * Sends the request line and all headers over the connection.
      * @param request the request whose headers to send.
      * @throws HttpException in case of HTTP protocol violation
@@ -45,6 +57,21 @@ public interface HttpClientConnection extends BHttpConnection {
      */
     void sendRequestHeader(HttpRequest request)
         throws HttpException, IOException;
+
+    /**
+     * Terminates request prematurely potentially leaving
+     * the connection in a inconsistent state.
+     *
+     * @param request the request to be terminated prematurely.
+     * @throws HttpException
+     * @throws IOException
+     *
+     * @see #isConsistent()
+     *
+     * @since 5.0
+     */
+    void terminateRequest(HttpRequest request)
+            throws HttpException, IOException;
 
     /**
      * Sends the request entity over the connection.

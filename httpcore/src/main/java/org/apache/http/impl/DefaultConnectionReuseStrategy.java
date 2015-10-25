@@ -75,10 +75,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
     // see interface ConnectionReuseStrategy
     @Override
-    public boolean keepAlive(final HttpRequest request, final HttpResponse response,
-                             final HttpContext context) {
+    public boolean keepAlive(
+            final HttpRequest request, final HttpResponse response, final HttpContext context) {
         Args.notNull(response, "HTTP response");
-        Args.notNull(context, "HTTP context");
 
         if (request != null) {
             final Header[] connHeaders = request.getHeaders(HttpHeaders.CONNECTION);

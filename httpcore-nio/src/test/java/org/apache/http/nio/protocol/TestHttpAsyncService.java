@@ -29,6 +29,7 @@ package org.apache.http.nio.protocol;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.nio.ByteBuffer;
 import java.util.Queue;
 
 import org.apache.http.ConnectionReuseStrategy;
@@ -39,7 +40,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
-import org.apache.http.HttpVersion;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.message.BasicHttpRequest;
@@ -133,13 +133,11 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.COMPLETED);
         final HttpContext exchangeContext = new BasicHttpContext();
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -157,9 +155,8 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.READY);
         state.setResponseState(MessageState.READY);
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -200,13 +197,11 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.READY);
         state.setResponseState(MessageState.READY);
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -233,13 +228,11 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.READY);
         state.setResponseState(MessageState.READY);
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -264,13 +257,11 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.READY);
         state.setResponseState(MessageState.READY);
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.conn.isResponseSubmitted()).thenReturn(Boolean.TRUE);
@@ -292,7 +283,7 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Matchers.eq(request), Matchers.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -320,7 +311,7 @@ public class TestHttpAsyncService {
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.conn).requestOutput();
 
-        final PipelineEntry entry = state.getPipeline().poll();
+        final PipelineEntry entry = state.getRequestQueue().poll();
         Assert.assertNotNull(entry);
         Assert.assertSame(request, entry.getRequest());
         Assert.assertSame(requestHandler, entry.getHandler());
@@ -335,7 +326,7 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Matchers.eq(request), Matchers.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -358,8 +349,8 @@ public class TestHttpAsyncService {
                 Matchers.any(HttpAsyncExchange.class),
                 Matchers.any(HttpContext.class));
 
-        Assert.assertFalse(state.getPipeline().isEmpty());
-        final PipelineEntry entry = state.getPipeline().remove();
+        Assert.assertFalse(state.getRequestQueue().isEmpty());
+        final PipelineEntry entry = state.getRequestQueue().remove();
         Assert.assertSame(request, entry.getRequest());
         Assert.assertSame(data, entry.getResult());
     }
@@ -370,17 +361,17 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.READY);
         state.setResponseState(MessageState.READY);
 
-        final Queue<PipelineEntry> pipeline = state.getPipeline();
+        final Queue<PipelineEntry> pipeline = state.getRequestQueue();
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest pipelinedRequest = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest pipelinedRequest = new BasicHttpRequest("GET", "/");
         final PipelineEntry entry = new PipelineEntry(pipelinedRequest, pipelinedRequest,
                 null, requestHandler, exchangeContext);
         pipeline.add(entry);
 
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.requestHandler.processRequest(
                 Matchers.eq(request), Matchers.any(HttpContext.class))).thenReturn(this.requestConsumer);
@@ -403,10 +394,10 @@ public class TestHttpAsyncService {
                 Matchers.any(HttpAsyncExchange.class),
                 Matchers.any(HttpContext.class));
 
-        Assert.assertFalse(state.getPipeline().isEmpty());
-        final PipelineEntry entry1 = state.getPipeline().remove();
+        Assert.assertFalse(state.getRequestQueue().isEmpty());
+        final PipelineEntry entry1 = state.getRequestQueue().remove();
         Assert.assertSame(entry, entry1);
-        final PipelineEntry entry2 = state.getPipeline().remove();
+        final PipelineEntry entry2 = state.getRequestQueue().remove();
         Assert.assertSame(request, entry2.getRequest());
         Assert.assertSame(data, entry2.getResult());
     }
@@ -416,7 +407,7 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -440,7 +431,7 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -475,7 +466,7 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final NStringEntity entity = new NStringEntity("stuff");
@@ -525,7 +516,7 @@ public class TestHttpAsyncService {
         final State state = new State();
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final NStringEntity entity = new NStringEntity("stuff");
@@ -537,7 +528,7 @@ public class TestHttpAsyncService {
         this.protocolHandler.requestReceived(this.conn);
 
         Assert.assertEquals(MessageState.ACK_EXPECTED, state.getRequestState());
-        Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Assert.assertEquals(MessageState.INIT, state.getResponseState());
 
         final Incoming incoming = state.getIncoming();
         Assert.assertNotNull(incoming);
@@ -553,7 +544,6 @@ public class TestHttpAsyncService {
 
         Mockito.verify(this.httpProcessor).process(request, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
-        Mockito.verify(this.conn).suspendInput();
         Mockito.verify(expectationVerifier).verify(
                 Matchers.any(HttpAsyncExchange.class),
                 Matchers.eq(exchangeContext));
@@ -563,16 +553,29 @@ public class TestHttpAsyncService {
     public void testRequestExpectationFailed() throws Exception {
         final State state = new State();
         state.setRequestState(MessageState.ACK_EXPECTED);
-        this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
-                new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
+
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
+        state.setIncoming(incoming);
+
+        this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+
+        final HttpAsyncExchange httpexchanage = this.protocolHandler.new HttpAsyncExchangeImpl(
+                incoming,
+                new BasicHttpRequest("GET", "/"),
+                new BasicHttpResponse(100, "Continue"),
                 state, this.conn, exchangeContext);
         Assert.assertFalse(httpexchanage.isCompleted());
+
+        Mockito.when(this.responseProducer.generateResponse()).thenReturn(new BasicHttpResponse(407, "Oppsie"));
         httpexchanage.submitResponse(this.responseProducer);
         Assert.assertTrue(httpexchanage.isCompleted());
+        Assert.assertTrue(incoming.isEarlyResponse());
 
         Assert.assertEquals(MessageState.ACK_EXPECTED, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
@@ -597,8 +600,8 @@ public class TestHttpAsyncService {
 
         final HttpContext exchangeContext = new BasicHttpContext();
         final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
-                new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
+                new BasicHttpRequest("GET", "/"),
+                new BasicHttpResponse(200, "OK"),
                 state, this.conn, exchangeContext);
         httpexchanage.submitResponse(null);
     }
@@ -610,7 +613,7 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final NStringEntity entity = new NStringEntity("stuff");
@@ -634,17 +637,17 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.READY);
         state.setResponseState(MessageState.READY);
 
-        final Queue<PipelineEntry> pipeline = state.getPipeline();
+        final Queue<PipelineEntry> pipeline = state.getRequestQueue();
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest pipelinedRequest = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest pipelinedRequest = new BasicHttpRequest("GET", "/");
         final PipelineEntry entry = new PipelineEntry(pipelinedRequest, pipelinedRequest,
                 null, requestHandler, exchangeContext);
         pipeline.add(entry);
 
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final NStringEntity entity = new NStringEntity("stuff");
@@ -673,7 +676,7 @@ public class TestHttpAsyncService {
         this.conn = Mockito.mock(NHttpServerConnection.class,
                 Mockito.withSettings().extraInterfaces(SessionBufferStatus.class));
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final NStringEntity entity = new NStringEntity("stuff");
@@ -701,8 +704,8 @@ public class TestHttpAsyncService {
 
         final HttpContext exchangeContext = new BasicHttpContext();
         final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
-                new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue"),
+                new BasicHttpRequest("GET", "/"),
+                new BasicHttpResponse(100, "Continue"),
                 state, this.conn, exchangeContext);
         Assert.assertFalse(httpexchanage.isCompleted());
         httpexchanage.submitResponse();
@@ -730,13 +733,12 @@ public class TestHttpAsyncService {
     public void testRequestContent() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequestState(MessageState.BODY_STREAM);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.FALSE);
@@ -754,13 +756,12 @@ public class TestHttpAsyncService {
     public void testRequestContentCompleted() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequestState(MessageState.BODY_STREAM);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.TRUE);
@@ -777,7 +778,7 @@ public class TestHttpAsyncService {
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.conn).requestOutput();
 
-        final PipelineEntry entry = state.getPipeline().poll();
+        final PipelineEntry entry = state.getRequestQueue().poll();
         Assert.assertNotNull(entry);
         Assert.assertSame(request, entry.getRequest());
         Assert.assertSame(requestHandler, entry.getHandler());
@@ -789,13 +790,12 @@ public class TestHttpAsyncService {
     public void testRequestCompletedWithException() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequestState(MessageState.BODY_STREAM);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.TRUE);
@@ -811,7 +811,7 @@ public class TestHttpAsyncService {
         Mockito.verify(this.requestConsumer).requestCompleted(exchangeContext);
         Mockito.verify(this.conn).requestOutput();
 
-        final PipelineEntry entry = state.getPipeline().poll();
+        final PipelineEntry entry = state.getRequestQueue().poll();
         Assert.assertNotNull(entry);
         Assert.assertSame(request, entry.getRequest());
         Assert.assertSame(requestHandler, entry.getHandler());
@@ -820,15 +820,70 @@ public class TestHttpAsyncService {
     }
 
     @Test
-    public void testBasicResponse() throws Exception {
+    public void testRequestContentEarlyResponse() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
+        state.setRequestState(MessageState.BODY_STREAM);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
+        incoming.setEarlyResponse(true);
+        state.setIncoming(incoming);
+        this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+        Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.FALSE);
+
+        this.protocolHandler.inputReady(conn, this.decoder);
+
+        Assert.assertEquals(MessageState.BODY_STREAM, state.getRequestState());
+        Assert.assertEquals(MessageState.READY, state.getResponseState());
+
+        Mockito.verify(this.decoder).read(Mockito.<ByteBuffer>any());
+        Mockito.verify(this.requestConsumer, Mockito.never()).consumeContent(this.decoder, this.conn);
+        Mockito.verify(this.requestConsumer, Mockito.never()).requestCompleted(exchangeContext);
+        Mockito.verify(this.requestConsumer, Mockito.never()).close();
+    }
+
+    @Test
+    public void testRequestContentCompletedEarlyResponse() throws Exception {
+        final State state = new State();
+        final HttpContext exchangeContext = new BasicHttpContext();
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
+        final NStringEntity entity = new NStringEntity("stuff");
+        request.setEntity(entity);
+        state.setRequestState(MessageState.BODY_STREAM);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
+        incoming.setEarlyResponse(true);
+        state.setIncoming(incoming);
+        this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+        Mockito.when(this.decoder.isCompleted()).thenReturn(Boolean.TRUE);
+        Mockito.when(this.requestConsumer.isDone()).thenReturn(Boolean.TRUE);
+
+        this.protocolHandler.inputReady(conn, this.decoder);
+
+        Assert.assertEquals(MessageState.READY, state.getRequestState());
+        Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Assert.assertEquals(null, state.getIncoming());
+
+        Mockito.verify(this.decoder).read(Mockito.<ByteBuffer>any());
+        Mockito.verify(this.requestConsumer, Mockito.never()).consumeContent(this.decoder, this.conn);
+        Mockito.verify(this.requestConsumer, Mockito.never()).requestCompleted(exchangeContext);
+        Mockito.verify(this.requestConsumer).close();
+    }
+
+    @Test
+    public void testBasicResponse() throws Exception {
+
+        final State state = new State();
+        final HttpContext exchangeContext = new BasicHttpContext();
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         final Incoming incoming = new Incoming(
                 request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.COMPLETED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         final Outgoing outgoing = new Outgoing(
                 request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
@@ -845,7 +900,6 @@ public class TestHttpAsyncService {
         Mockito.verify(this.httpProcessor).process(response, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
-        Mockito.verify(this.conn).requestInput();
         Mockito.verify(this.conn, Mockito.never()).close();
     }
 
@@ -853,21 +907,19 @@ public class TestHttpAsyncService {
     public void testBasicResponseWithPipelining() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.COMPLETED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         response.setEntity(new NStringEntity("stuff"));
         state.setOutgoing(outgoing);
 
-        final Queue<PipelineEntry> pipeline = state.getPipeline();
+        final Queue<PipelineEntry> pipeline = state.getRequestQueue();
 
         final HttpContext exchangeContext2 = new BasicHttpContext();
-        final HttpRequest pipelinedRequest = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest pipelinedRequest = new BasicHttpRequest("GET", "/");
         final PipelineEntry entry = new PipelineEntry(pipelinedRequest, pipelinedRequest,
                 null, requestHandler, exchangeContext2);
         pipeline.add(entry);
@@ -891,14 +943,12 @@ public class TestHttpAsyncService {
     public void testBasicResponseNoKeepAlive() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.COMPLETED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -920,14 +970,12 @@ public class TestHttpAsyncService {
     public void testEntityEnclosingResponse() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.COMPLETED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -951,14 +999,12 @@ public class TestHttpAsyncService {
     public void testResponseToHead() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("HEAD", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("HEAD", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.COMPLETED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -974,7 +1020,6 @@ public class TestHttpAsyncService {
         Mockito.verify(this.httpProcessor).process(response, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
-        Mockito.verify(this.conn).requestInput();
         Mockito.verify(this.conn, Mockito.never()).close();
     }
 
@@ -982,15 +1027,12 @@ public class TestHttpAsyncService {
     public void testResponseNotModified() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("HEAD", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("HEAD", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.COMPLETED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_NOT_MODIFIED, "Not modified");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not modified");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
@@ -1006,7 +1048,6 @@ public class TestHttpAsyncService {
         Mockito.verify(this.httpProcessor).process(response, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
-        Mockito.verify(this.conn).requestInput();
         Mockito.verify(this.conn, Mockito.never()).close();
     }
 
@@ -1014,29 +1055,27 @@ public class TestHttpAsyncService {
     public void testResponseContinue() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.ACK_EXPECTED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
-                HttpStatus.SC_CONTINUE, "Continue");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_CONTINUE, "Continue");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
+        state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
 
         this.protocolHandler.responseReady(this.conn);
 
-        Assert.assertEquals(MessageState.BODY_STREAM, state.getRequestState());
+        Assert.assertEquals(MessageState.ACK_EXPECTED, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
+        Assert.assertEquals(null, state.getOutgoing());
 
-        Mockito.verify(this.conn).requestInput();
         Mockito.verify(this.conn).submitResponse(Matchers.argThat(new ArgumentMatcher<HttpResponse>() {
 
             @Override
@@ -1052,19 +1091,17 @@ public class TestHttpAsyncService {
     public void testResponseFailedExpectation() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.ACK_EXPECTED);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1,
-                417, "Expectation failed");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(417, "Expectation failed");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
+        state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         response.setEntity(new NStringEntity("stuff"));
@@ -1072,10 +1109,10 @@ public class TestHttpAsyncService {
 
         this.protocolHandler.responseReady(this.conn);
 
-        Assert.assertEquals(MessageState.READY, state.getRequestState());
+        Assert.assertEquals(MessageState.ACK_EXPECTED, state.getRequestState());
         Assert.assertEquals(MessageState.BODY_STREAM, state.getResponseState());
+        Assert.assertSame(outgoing, state.getOutgoing());
 
-        Mockito.verify(this.conn).resetInput();
         Mockito.verify(this.httpProcessor).process(response, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer, Mockito.never()).responseCompleted(exchangeContext);
@@ -1101,10 +1138,10 @@ public class TestHttpAsyncService {
     @Test
     public void testResponseHandlePipelinedRequest() throws Exception {
         final State state = new State();
-        final Queue<PipelineEntry> pipeline = state.getPipeline();
+        final Queue<PipelineEntry> pipeline = state.getRequestQueue();
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         final PipelineEntry entry = new PipelineEntry(request, request, null, requestHandler, exchangeContext);
         pipeline.add(entry);
 
@@ -1131,10 +1168,10 @@ public class TestHttpAsyncService {
     @Test
     public void testResponseHandleFailedPipelinedRequest() throws Exception {
         final State state = new State();
-        final Queue<PipelineEntry> pipeline = state.getPipeline();
+        final Queue<PipelineEntry> pipeline = state.getRequestQueue();
 
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
         final Exception ex = new Exception("Opppsie");
         final PipelineEntry entry = new PipelineEntry(request, null, ex, requestHandler, exchangeContext);
         pipeline.add(entry);
@@ -1158,57 +1195,6 @@ public class TestHttpAsyncService {
         Mockito.verify(this.conn).submitResponse(Matchers.same(response));
     }
 
-    @Test(expected=HttpException.class)
-    public void testInvalidResponseStatus() throws Exception {
-        final State state = new State();
-        final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
-        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
-        final NStringEntity entity = new NStringEntity("stuff");
-        request.setEntity(entity);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
-        state.setIncoming(incoming);
-        state.setRequestState(MessageState.COMPLETED);
-        state.setResponseState(MessageState.INIT);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 112, "Something stupid");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
-        state.setOutgoing(outgoing);
-        this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
-
-        Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        Mockito.when(this.conn.isResponseSubmitted()).thenReturn(Boolean.FALSE);
-
-        this.protocolHandler.responseReady(this.conn);
-    }
-
-    @Test(expected=HttpException.class)
-    public void testInvalidResponseStatusToExpection() throws Exception {
-        final State state = new State();
-        final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("POST", "/", HttpVersion.HTTP_1_1);
-        request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
-        final NStringEntity entity = new NStringEntity("stuff");
-        request.setEntity(entity);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
-        state.setIncoming(incoming);
-        state.setRequestState(MessageState.ACK_EXPECTED);
-        state.setResponseState(MessageState.READY);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        response.setEntity(new NStringEntity("stuff"));
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
-        state.setOutgoing(outgoing);
-        this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
-
-        Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
-        Mockito.when(this.conn.isResponseSubmitted()).thenReturn(Boolean.FALSE);
-
-        this.protocolHandler.responseReady(this.conn);
-    }
-
     @Test
     public void testResponseTrigger() throws Exception {
         final State state = new State();
@@ -1218,10 +1204,13 @@ public class TestHttpAsyncService {
 
         final HttpContext exchangeContext = new BasicHttpContext();
         final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
-                new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
+                new BasicHttpRequest("GET", "/"),
+                new BasicHttpResponse(200, "OK"),
                 state, this.conn, exchangeContext);
         Assert.assertFalse(httpexchanage.isCompleted());
+
+        Mockito.when(this.responseProducer.generateResponse()).thenReturn(new BasicHttpResponse(200, "OK"));
+
         httpexchanage.submitResponse(this.responseProducer);
         Assert.assertTrue(httpexchanage.isCompleted());
 
@@ -1248,8 +1237,8 @@ public class TestHttpAsyncService {
 
         final HttpContext exchangeContext = new BasicHttpContext();
         final HttpAsyncExchange httpexchanage = protocolHandler.new HttpAsyncExchangeImpl(
-                new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"),
+                new BasicHttpRequest("GET", "/"),
+                new BasicHttpResponse(200, "OK"),
                 state, this.conn, exchangeContext);
         httpexchanage.submitResponse(null);
     }
@@ -1260,11 +1249,10 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.BODY_STREAM);
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setEntity(new NStringEntity("stuff"));
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.encoder.isCompleted()).thenReturn(Boolean.FALSE);
@@ -1285,11 +1273,10 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.BODY_STREAM);
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setEntity(new NStringEntity("stuff"));
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.encoder.isCompleted()).thenReturn(true);
@@ -1301,7 +1288,6 @@ public class TestHttpAsyncService {
 
         Mockito.verify(this.responseProducer).produceContent(this.encoder, this.conn);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
-        Mockito.verify(this.conn).requestInput();
         Mockito.verify(this.conn, Mockito.never()).close();
     }
 
@@ -1311,11 +1297,10 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.COMPLETED);
         state.setResponseState(MessageState.BODY_STREAM);
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setEntity(new NStringEntity("stuff"));
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.encoder.isCompleted()).thenReturn(true);
@@ -1327,7 +1312,6 @@ public class TestHttpAsyncService {
 
         Mockito.verify(this.responseProducer).produceContent(this.encoder, this.conn);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
-        Mockito.verify(this.conn, Mockito.never()).requestInput();
         Mockito.verify(this.conn).close();
     }
 
@@ -1381,13 +1365,11 @@ public class TestHttpAsyncService {
     public void testTimeoutClosingConnection() throws Exception {
         final State state = new State();
         final HttpContext exchangeContext = new BasicHttpContext();
-        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
-        final Incoming incoming = new Incoming(
-                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final Outgoing outgoing = new Outgoing(
-                request, response, this.responseProducer, exchangeContext);
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
         state.setOutgoing(outgoing);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
         Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.CLOSING);

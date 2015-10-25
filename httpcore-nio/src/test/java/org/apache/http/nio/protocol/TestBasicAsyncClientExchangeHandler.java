@@ -30,7 +30,6 @@ package org.apache.http.nio.protocol;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpVersion;
 import org.apache.http.message.BasicHttpRequest;
@@ -56,7 +55,6 @@ public class TestBasicAsyncClientExchangeHandler {
     private HttpContext context;
     private HttpProcessor httpProcessor;
     private NHttpClientConnection conn;
-    private ConnectionReuseStrategy reuseStrategy;
     private BasicAsyncClientExchangeHandler<Object> exchangeHandler;
     private ContentEncoder encoder;
     private ContentDecoder decoder;
@@ -69,15 +67,13 @@ public class TestBasicAsyncClientExchangeHandler {
         this.context = new BasicHttpContext();
         this.conn = Mockito.mock(NHttpClientConnection.class);
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
-        this.reuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
         this.exchangeHandler = new BasicAsyncClientExchangeHandler<>(
                 this.requestProducer,
                 this.responseConsumer,
                 null,
                 this.context,
                 this.conn,
-                this.httpProcessor,
-                this.reuseStrategy);
+                this.httpProcessor);
         this.encoder = Mockito.mock(ContentEncoder.class);
         this.decoder = Mockito.mock(ContentDecoder.class);
     }
@@ -95,8 +91,7 @@ public class TestBasicAsyncClientExchangeHandler {
                     null,
                     this.context,
                     this.conn,
-                    this.httpProcessor,
-                    this.reuseStrategy);
+                    this.httpProcessor);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException ex) {
         }
@@ -107,8 +102,7 @@ public class TestBasicAsyncClientExchangeHandler {
                     null,
                     this.context,
                     this.conn,
-                    this.httpProcessor,
-                    this.reuseStrategy);
+                    this.httpProcessor);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException ex) {
         }
@@ -119,8 +113,7 @@ public class TestBasicAsyncClientExchangeHandler {
                     null,
                     null,
                     this.conn,
-                    this.httpProcessor,
-                    this.reuseStrategy);
+                    this.httpProcessor);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException ex) {
         }
@@ -131,8 +124,7 @@ public class TestBasicAsyncClientExchangeHandler {
                     null,
                     this.context,
                     null,
-                    this.httpProcessor,
-                    this.reuseStrategy);
+                    this.httpProcessor);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException ex) {
         }
@@ -143,8 +135,7 @@ public class TestBasicAsyncClientExchangeHandler {
                     null,
                     this.context,
                     this.conn,
-                    null,
-                    this.reuseStrategy);
+                    null);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException ex) {
         }
@@ -324,22 +315,6 @@ public class TestBasicAsyncClientExchangeHandler {
             } catch (final ExecutionException exex) {
             }
         }
-    }
-
-    @Test
-    public void testResponseNoKeepAlive() throws Exception {
-        final Object obj = new Object();
-        Mockito.when(this.responseConsumer.getResult()).thenReturn(obj);
-
-        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-
-        Mockito.when(reuseStrategy.keepAlive(request, response, this.context)).thenReturn(Boolean.FALSE);
-
-        this.exchangeHandler.responseReceived(response);
-        this.exchangeHandler.responseCompleted();
-
-        Mockito.verify(this.conn).close();
     }
 
     @Test

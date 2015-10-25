@@ -117,6 +117,18 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         this.locale = null;
     }
 
+    /**
+     * Creates a response from elements of a status line.
+     * The response will not have a reason phrase catalog and
+     * use the system default locale.
+     *
+     * @param code      the status code of the response
+     * @param reason    the reason phrase to the status code, or
+     *                  {@code null}
+     */
+    public BasicHttpResponse(final int code, final String reason) {
+        this(HttpVersion.HTTP_1_1, code, reason);
+    }
 
     // non-javadoc, see interface HttpMessage
     @Override

@@ -37,6 +37,7 @@ import org.apache.http.concurrent.Cancellable;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
+import org.apache.http.protocol.HttpContext;
 
 /**
  * {@code HttpAsyncClientExchangeHandler} represents a callback interface whose
@@ -56,12 +57,14 @@ import org.apache.http.nio.IOControl;
 public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
 
     /**
-     * Invoked to generate a HTTP request message head. The message is expected
-     * to implement the {@link org.apache.http.HttpEntityEnclosingRequest} interface if it is
-     * to enclose a content entity. The {@link #produceContent(ContentEncoder,
-     * IOControl)} method will not be invoked if
-     * {@link org.apache.http.HttpEntityEnclosingRequest#getEntity()} returns
-     * {@code null}.
+     * Returns actual HTTP context.
+     *
+     * @since 5.0
+     */
+    HttpContext getContext();
+
+    /**
+     * Invoked to generate a HTTP request message head.
      *
      * @return HTTP request message.
      * @throws HttpException in case of HTTP protocol violation

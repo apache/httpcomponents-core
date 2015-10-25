@@ -32,13 +32,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.ConnectionClosedException;
-import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -63,9 +61,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     private final HttpContext localContext;
     private final NHttpClientConnection conn;
     private final HttpProcessor httppocessor;
-    private final ConnectionReuseStrategy connReuseStrategy;
     private final AtomicBoolean requestSent;
-    private final AtomicBoolean keepAlive;
     private final AtomicBoolean closed;
 
     /**
@@ -77,7 +73,6 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param localContext the local execution context.
      * @param conn the actual connection.
      * @param httppocessor the HTTP protocol processor.
-     * @param connReuseStrategy the connection re-use strategy.
      */
     public BasicAsyncClientExchangeHandler(
             final HttpAsyncRequestProducer requestProducer,
@@ -85,8 +80,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
             final FutureCallback<T> callback,
             final HttpContext localContext,
             final NHttpClientConnection conn,
-            final HttpProcessor httppocessor,
-            final ConnectionReuseStrategy connReuseStrategy) {
+            final HttpProcessor httppocessor) {
         super();
         this.requestProducer = Args.notNull(requestProducer, "Request producer");
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
@@ -94,10 +88,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.localContext = Args.notNull(localContext, "HTTP context");
         this.conn = Args.notNull(conn, "HTTP connection");
         this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
-        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
-            DefaultConnectionReuseStrategy.INSTANCE;
         this.requestSent = new AtomicBoolean(false);
-        this.keepAlive = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
     }
 
@@ -116,7 +107,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
             final HttpContext localContext,
             final NHttpClientConnection conn,
             final HttpProcessor httppocessor) {
-        this(requestProducer, responseConsumer, null, localContext, conn, httppocessor, null);
+        this(requestProducer, responseConsumer, null, localContext, conn, httppocessor);
     }
 
     public Future<T> getFuture() {
@@ -142,6 +133,11 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
                 this.future.cancel();
             }
         }
+    }
+
+    @Override
+    public HttpContext getContext() {
+        return localContext;
     }
 
     @Override
@@ -173,7 +169,6 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         this.httppocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
-        this.keepAlive.set(this.connReuseStrategy.keepAlive(null, response, this.localContext));
     }
 
     @Override
@@ -185,9 +180,6 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     @Override
     public void responseCompleted() throws IOException {
         try {
-            if (!this.keepAlive.get()) {
-                this.conn.close();
-            }
             this.responseConsumer.responseCompleted(this.localContext);
             final T result = this.responseConsumer.getResult();
             final Exception ex = this.responseConsumer.getException();

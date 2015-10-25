@@ -65,6 +65,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     private final HttpMessageWriter<HttpRequest> requestWriter;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
+    private volatile boolean consistent;
 
     /**
      * Creates new instance of DefaultBHttpClientConnection.
@@ -105,6 +106,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
                 DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
+        this.consistent = true;
     }
 
     public DefaultBHttpClientConnection(
@@ -155,6 +157,32 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
         entity.writeTo(outstream);
         outstream.close();
+    }
+
+    @Override
+    public boolean isConsistent() {
+        return this.consistent;
+    }
+
+    @Override
+    public void terminateRequest(final HttpRequest request) throws HttpException, IOException {
+        Args.notNull(request, "HTTP request");
+        ensureOpen();
+        final HttpEntity entity = request.getEntity();
+        if (entity == null) {
+            return;
+        }
+        final long len = this.outgoingContentStrategy.determineLength(request);
+        if (len == ContentLengthStrategy.CHUNKED) {
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            outstream.close();
+        } else if (len >= 0 && len <= 1024) {
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            entity.writeTo(outstream);
+            outstream.close();
+        } else {
+            this.consistent = false;
+        }
     }
 
     @Override

@@ -89,6 +89,7 @@ public class HttpClientNio {
     private volatile HttpAsyncRequester executor;
     private volatile IOReactorThread thread;
     private volatile int timeout;
+    private volatile int waitForContinue;
 
     public HttpClientNio(
             final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory) throws IOException {
@@ -126,6 +127,10 @@ public class HttpClientNio {
 
     public void setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
+    }
+
+    public void setWaitForContinue(final int waitForContinue) {
+        this.waitForContinue = waitForContinue;
     }
 
     public Future<BasicNIOPoolEntry> lease(
@@ -235,7 +240,8 @@ public class HttpClientNio {
 
     public void start() {
         this.executor = new HttpAsyncRequester(this.httpProcessor != null ? this.httpProcessor : DEFAULT_HTTP_PROC);
-        this.thread = new IOReactorThread(new HttpAsyncRequestExecutor());
+        this.thread = new IOReactorThread(new HttpAsyncRequestExecutor(
+                this.waitForContinue > 0 ? this.waitForContinue : HttpAsyncRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE));
         this.thread.start();
     }
 

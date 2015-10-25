@@ -39,6 +39,7 @@ import org.apache.http.HttpVersion;
 import org.apache.http.LengthRequiredException;
 import org.apache.http.NotImplementedException;
 import org.apache.http.config.MessageConstraints;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.entity.DefaultContentLengthStrategy;
@@ -305,6 +306,87 @@ public class TestDefaultBHttpClientConnection {
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
         final String s = new String(outstream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n", s);
+    }
+
+    @Test
+    public void testTerminateRequestChunkedEntity() throws Exception {
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getRequestCount());
+
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        request.addHeader("User-Agent", "test");
+        request.addHeader("Transfer-Encoding", "chunked");
+        final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN);
+        entity.setChunked(true);
+        request.setEntity(entity);
+
+        conn.sendRequestHeader(request);
+        conn.terminateRequest(request);
+        conn.flush();
+
+        Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+        final String s = new String(outstream.toByteArray(), "ASCII");
+        Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
+                "chunked\r\n\r\n0\r\n\r\n", s);
+        Assert.assertTrue(conn.isConsistent());
+    }
+
+    @Test
+    public void testTerminateRequestContentLengthShort() throws Exception {
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getRequestCount());
+
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        request.addHeader("User-Agent", "test");
+        request.addHeader("Content-Length", "3");
+        final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN);
+        entity.setChunked(false);
+        request.setEntity(entity);
+
+        conn.sendRequestHeader(request);
+        conn.terminateRequest(request);
+        conn.flush();
+
+        Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+        final String s = new String(outstream.toByteArray(), "ASCII");
+        Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: " +
+                "3\r\n\r\n123", s);
+        Assert.assertTrue(conn.isConsistent());
+    }
+
+    @Test
+    public void testTerminateRequestContentLengthLong() throws Exception {
+        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getMetrics().getRequestCount());
+
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        request.addHeader("User-Agent", "test");
+        request.addHeader("Content-Length", "3000");
+        final ByteArrayEntity entity = new ByteArrayEntity(new byte[3000], ContentType.TEXT_PLAIN);
+        entity.setChunked(false);
+        request.setEntity(entity);
+
+        conn.sendRequestHeader(request);
+        conn.terminateRequest(request);
+        conn.flush();
+
+        Assert.assertEquals(1, conn.getMetrics().getRequestCount());
+        final String s = new String(outstream.toByteArray(), "ASCII");
+        Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: " +
+                "3000\r\n\r\n", s);
+        Assert.assertFalse(conn.isConsistent());
     }
 
 }

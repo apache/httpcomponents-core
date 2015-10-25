@@ -193,7 +193,7 @@ class BenchmarkWorker implements Runnable {
                     System.out.println();
                 }
 
-                if (!config.isKeepAlive() || !this.connstrategy.keepAlive(request, response, this.context)) {
+                if (!config.isKeepAlive() || !conn.isConsistent() || !this.connstrategy.keepAlive(request, response, this.context)) {
                     conn.close();
                 } else {
                     stats.incKeepAliveCount();

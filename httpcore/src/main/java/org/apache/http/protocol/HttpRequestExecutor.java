@@ -119,11 +119,57 @@ public class HttpRequestExecutor {
         Args.notNull(conn, "Client connection");
         Args.notNull(context, "HTTP context");
         try {
-            HttpResponse response = doSendRequest(request, conn, context);
-            if (response == null) {
-                response = doReceiveResponse(request, conn, context);
+
+            Args.notNull(request, "HTTP request");
+            Args.notNull(conn, "Client connection");
+            Args.notNull(context, "HTTP context");
+
+            HttpResponse response = null;
+
+            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
+
+            conn.sendRequestHeader(request);
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+                final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+                if (expectContinue) {
+
+                    conn.flush();
+                    // Don't wait for a 100-continue response forever. On timeout, send the entity.
+                    if (conn.isDataAvailable(this.waitForContinue)) {
+                        response = conn.receiveResponseHeader();
+                        final int status = response.getStatusLine().getStatusCode();
+                        if (status < 200) {
+                            if (status != HttpStatus.SC_CONTINUE) {
+                                throw new ProtocolException("Unexpected response: " + response.getStatusLine());
+                            }
+                            // discard 100-continue
+                            response = null;
+                            conn.sendRequestEntity(request);
+                        } else {
+                            if (canResponseHaveBody(request, response)) {
+                                conn.receiveResponseEntity(response);
+                            }
+                            conn.terminateRequest(request);
+                        }
+                    } else {
+                        conn.sendRequestEntity(request);
+                    }
+                } else {
+                    conn.sendRequestEntity(request);
+                }
+            }
+            conn.flush();
+
+            while (response == null || response.getStatusLine().getStatusCode() < HttpStatus.SC_OK) {
+                response = conn.receiveResponseHeader();
+                if (canResponseHaveBody(request, response)) {
+                    conn.receiveResponseEntity(response);
+                }
             }
             return response;
+
         } catch (final HttpException | IOException | RuntimeException ex) {
             closeConnection(conn);
             throw ex;
@@ -158,118 +204,6 @@ public class HttpRequestExecutor {
         Args.notNull(context, "HTTP context");
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         processor.process(request, context);
-    }
-
-    /**
-     * Send the given request over the given connection.
-     * <p>
-     * This method also handles the expect-continue handshake if necessary.
-     * If it does not have to handle an expect-continue handshake, it will
-     * not use the connection for reading or anything else that depends on
-     * data coming in over the connection.
-     *
-     * @param request   the request to send, already
-     *                  {@link #preProcess preprocessed}
-     * @param conn      the connection over which to send the request,
-     *                  already established
-     * @param context   the context for sending the request
-     *
-     * @return  a terminal response received as part of an expect-continue
-     *          handshake, or
-     *          {@code null} if the expect-continue handshake is not used
-     *
-     * @throws IOException in case of an I/O error.
-     * @throws HttpException in case of HTTP protocol violation or a processing
-     *   problem.
-     */
-    protected HttpResponse doSendRequest(
-            final HttpRequest request,
-            final HttpClientConnection conn,
-            final HttpContext context) throws IOException, HttpException {
-        Args.notNull(request, "HTTP request");
-        Args.notNull(conn, "Client connection");
-        Args.notNull(context, "HTTP context");
-
-        HttpResponse response = null;
-
-        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
-
-        conn.sendRequestHeader(request);
-        final HttpEntity entity = request.getEntity();
-        if (entity != null) {
-            // Check for expect-continue handshake. We have to flush the
-            // headers and wait for an 100-continue response to handle it.
-            // If we get a different response, we must not send the entity.
-            boolean sendentity = true;
-            final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-            final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
-            if (expectContinue) {
-
-                conn.flush();
-                // As suggested by RFC 2616 section 8.2.3, we don't wait for a
-                // 100-continue response forever. On timeout, send the entity.
-                if (conn.isDataAvailable(this.waitForContinue)) {
-                    response = conn.receiveResponseHeader();
-                    if (canResponseHaveBody(request, response)) {
-                        conn.receiveResponseEntity(response);
-                    }
-                    final int status = response.getStatusLine().getStatusCode();
-                    if (status < 200) {
-                        if (status != HttpStatus.SC_CONTINUE) {
-                            throw new ProtocolException(
-                                    "Unexpected response: " + response.getStatusLine());
-                        }
-                        // discard 100-continue
-                        response = null;
-                    } else {
-                        sendentity = false;
-                    }
-                }
-            }
-            if (sendentity) {
-                conn.sendRequestEntity(request);
-            }
-        }
-        conn.flush();
-        return response;
-    }
-
-    /**
-     * Waits for and receives a response.
-     * This method will automatically ignore intermediate responses
-     * with status code 1xx.
-     *
-     * @param request   the request for which to obtain the response
-     * @param conn      the connection over which the request was sent
-     * @param context   the context for receiving the response
-     *
-     * @return  the terminal response, not yet post-processed
-     *
-     * @throws IOException in case of an I/O error.
-     * @throws HttpException in case of HTTP protocol violation or a processing
-     *   problem.
-     */
-    protected HttpResponse doReceiveResponse(
-            final HttpRequest request,
-            final HttpClientConnection conn,
-            final HttpContext context) throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
-        Args.notNull(conn, "Client connection");
-        Args.notNull(context, "HTTP context");
-        HttpResponse response = null;
-        int statusCode = 0;
-
-        while (response == null || statusCode < HttpStatus.SC_OK) {
-
-            response = conn.receiveResponseHeader();
-            if (canResponseHaveBody(request, response)) {
-                conn.receiveResponseEntity(response);
-            }
-            statusCode = response.getStatusLine().getStatusCode();
-
-        } // while intermediate response
-
-        return response;
     }
 
     /**

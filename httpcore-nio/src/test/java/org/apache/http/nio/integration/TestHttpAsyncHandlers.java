@@ -34,8 +34,10 @@ import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
@@ -48,6 +50,8 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.entity.ContentType;
 import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.nio.ContentEncoder;
+import org.apache.http.nio.IOControl;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.protocol.BasicAsyncRequestConsumer;
 import org.apache.http.nio.protocol.BasicAsyncRequestHandler;
@@ -606,6 +610,195 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final Future<HttpResponse> future3 = queue.remove();
         final HttpResponse response3 = future3.get();
         Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void testHttpPostsFailedExpectionContentLengthNonReusableConnection() throws Exception {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+
+            @Override
+            public void verify(
+                    final HttpAsyncExchange httpexchange,
+                    final HttpContext context) throws HttpException {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        final HttpRequest request = httpexchange.getRequest();
+                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+                        final String s = request.getRequestLine().getUri();
+                        if (!s.equals("AAAAAx10")) {
+                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                                ver = HttpVersion.HTTP_1_1;
+                            }
+                            final BasicHttpResponse response = new BasicHttpResponse(ver,
+                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
+                            httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
+                        } else {
+                            httpexchange.submitResponse();
+                        }
+                    }
+                }.start();
+            }
+
+        });
+
+        this.client.setMaxPerRoute(1);
+        this.client.setMaxTotal(1);
+
+        final HttpHost target = start();
+
+        for (int i = 0; i < 3; i++) {
+            final BasicHttpRequest request1 = new BasicHttpRequest("POST", createRequestUri("AAAAA", 10));
+            final HttpEntity entity1 = new NStringEntity(createExpectedString("AAAAA", 10));
+            request1.setEntity(entity1);
+
+            final HttpContext context = new BasicHttpContext();
+            final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
+            final HttpResponse response1 = future1.get();
+            Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+
+            final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
+            final HttpEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 500));
+            request2.setEntity(entity2);
+
+            final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
+            final HttpResponse response2 = future2.get();
+            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getStatusLine().getStatusCode());
+        }
+    }
+
+    @Test
+    public void testHttpPostsFailedExpectionConnectionReuse() throws Exception {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+
+            @Override
+            public void verify(
+                    final HttpAsyncExchange httpexchange,
+                    final HttpContext context) throws HttpException {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        final HttpRequest request = httpexchange.getRequest();
+                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+                        final String s = request.getRequestLine().getUri();
+                        if (!s.equals("AAAAAx10")) {
+                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                                ver = HttpVersion.HTTP_1_1;
+                            }
+                            final BasicHttpResponse response = new BasicHttpResponse(ver,
+                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
+                            httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
+                        } else {
+                            httpexchange.submitResponse();
+                        }
+                    }
+                }.start();
+            }
+
+        });
+
+        this.client.setMaxPerRoute(1);
+        this.client.setMaxTotal(1);
+
+        final HttpHost target = start();
+
+        for (int i = 0; i < 10; i++) {
+            final BasicHttpRequest request1 = new BasicHttpRequest("POST", createRequestUri("AAAAA", 10));
+            final NStringEntity entity1 = new NStringEntity(createExpectedString("AAAAA", 10));
+            entity1.setChunked(i % 2 == 0);
+            request1.setEntity(entity1);
+
+            final HttpContext context = new BasicHttpContext();
+            final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
+            final HttpResponse response1 = future1.get();
+            Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+
+            final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
+            final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 10));
+            entity2.setChunked(i % 2 == 0);
+            request2.setEntity(entity2);
+
+            final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
+            final HttpResponse response2 = future2.get();
+            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getStatusLine().getStatusCode());
+        }
+    }
+
+    @Test
+    public void testHttpPostsFailedExpectionConnectionReuseLateResponseBody() throws Exception {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+
+            @Override
+            public void verify(
+                    final HttpAsyncExchange httpexchange,
+                    final HttpContext context) throws HttpException {
+                new Thread() {
+                    @Override
+                    public void run() {
+                        final HttpRequest request = httpexchange.getRequest();
+                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+                        final String s = request.getRequestLine().getUri();
+                        if (!s.equals("AAAAAx10")) {
+                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
+                                ver = HttpVersion.HTTP_1_1;
+                            }
+                            final BasicHttpResponse response = new BasicHttpResponse(ver,
+                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
+
+                            final AtomicInteger count = new AtomicInteger(0);
+                            httpexchange.submitResponse(new BasicAsyncResponseProducer(response) {
+                                @Override
+                                public void produceContent(final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+                                    if (count.incrementAndGet() < 3) {
+                                        try {
+                                            Thread.sleep(50);
+                                        } catch (InterruptedException ignore) {
+                                        }
+                                    } else {
+                                        super.produceContent(encoder, ioctrl);
+                                    }
+                                }
+                            });
+                        } else {
+                            httpexchange.submitResponse();
+                        }
+                    }
+                }.start();
+            }
+
+        });
+
+        this.client.setMaxPerRoute(1);
+        this.client.setMaxTotal(1);
+
+        final HttpHost target = start();
+
+        for (int i = 0; i < 10; i++) {
+            final BasicHttpRequest request1 = new BasicHttpRequest("POST", createRequestUri("AAAAA", 10));
+            final NStringEntity entity1 = new NStringEntity(createExpectedString("AAAAA", 10));
+            entity1.setChunked(i % 2 == 0);
+            request1.setEntity(entity1);
+
+            final HttpContext context = new BasicHttpContext();
+            final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
+            final HttpResponse response1 = future1.get();
+            Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+
+            final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
+            final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 10));
+            entity2.setChunked(i % 2 == 0);
+            request2.setEntity(entity2);
+
+            final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
+            final HttpResponse response2 = future2.get();
+            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getStatusLine().getStatusCode());
+        }
     }
 
     @Test

@@ -503,7 +503,7 @@ public class TestSyncHttp {
     @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
 
-        final int reqNo = 3;
+        final int reqNo = 20;
 
         // Initialize the server-side request handler
         this.server.registerHandler("*", new HttpRequestHandler() {
@@ -536,7 +536,7 @@ public class TestSyncHttp {
                         response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
                         return;
                     }
-                    if (secretNumber < 2) {
+                    if (secretNumber >= 2) {
                         response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
                         response.setEntity(
                                 new StringEntity("Wrong secret number", ContentType.TEXT_PLAIN));
@@ -559,21 +559,28 @@ public class TestSyncHttp {
 
                 final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
-                post.setEntity(new StringEntity("No content " + r, ContentType.TEXT_PLAIN));
+
+                final byte[] b = new byte[2048];
+                for (int i = 0; i < b.length; i++) {
+                    b[i] = (byte) ('a' + r);
+                }
+                final ByteArrayEntity requestEntity = new ByteArrayEntity(b, ContentType.TEXT_PLAIN);
+                requestEntity.setChunked(false);
+                post.setEntity(requestEntity);
 
                 final HttpResponse response = this.client.execute(post, host, conn);
 
-                final HttpEntity entity = response.getEntity();
-                Assert.assertNotNull(entity);
-                EntityUtils.consume(entity);
+                final HttpEntity responseEntity = response.getEntity();
+                Assert.assertNotNull(responseEntity);
+                EntityUtils.consume(responseEntity);
 
-                if (r < 2) {
+                if (r >= 2) {
                     Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
                 } else {
                     Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
                 }
 
-                if (!this.client.keepAlive(post, response)) {
+                if (!conn.isConsistent() || !this.client.keepAlive(post, response)) {
                     conn.close();
                 }
             }

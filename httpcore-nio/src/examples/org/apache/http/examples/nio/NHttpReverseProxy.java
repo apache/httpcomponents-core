@@ -40,7 +40,6 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.config.ConnectionConfig;
@@ -128,15 +127,14 @@ public class NHttpReverseProxy {
 
         // Set up HTTP protocol processor for incoming connections
         HttpProcessor inhttpproc = new ImmutableHttpProcessor(
-                new HttpResponseInterceptor[] {
-                        new ResponseDate(),
-                        new ResponseServer("Test/1.1"),
-                        new ResponseContent(),
-                        new ResponseConnControl()
-         });
+                new ResponseDate(),
+                new ResponseServer("Test/1.1"),
+                new ResponseContent(),
+                new ResponseConnControl());
 
         // Set up HTTP protocol processor for outgoing connections
-        HttpProcessor outhttpproc = new ImmutableHttpProcessor(
+        HttpProcessor outhttpproc;
+        outhttpproc = new ImmutableHttpProcessor(
                 new HttpRequestInterceptor[] {
                         new RequestContent(),
                         new RequestTargetHost(),
@@ -146,8 +144,7 @@ public class NHttpReverseProxy {
         });
 
         ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();
-        HttpAsyncRequester executor = new HttpAsyncRequester(
-                outhttpproc, new ProxyOutgoingConnectionReuseStrategy());
+        HttpAsyncRequester executor = new HttpAsyncRequester(outhttpproc);
 
         ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, ConnectionConfig.DEFAULT);
         connPool.setMaxTotal(100);
@@ -844,7 +841,7 @@ public class NHttpReverseProxy {
     static class ProxyClientProtocolHandler extends HttpAsyncRequestExecutor {
 
         public ProxyClientProtocolHandler() {
-            super();
+            super(HttpAsyncRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE, new ProxyOutgoingConnectionReuseStrategy(), null);
         }
 
         @Override

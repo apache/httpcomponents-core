@@ -59,12 +59,6 @@ public class TestDefaultConnectionReuseStrategy {
         reuseStrategy.keepAlive(null, null, this.context);
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testIllegalContextArg() throws Exception {
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        reuseStrategy.keepAlive(null, response, null);
-    }
-
     @Test
     public void testNoContentLengthResponseHttp1_0() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, 200, "OK");
