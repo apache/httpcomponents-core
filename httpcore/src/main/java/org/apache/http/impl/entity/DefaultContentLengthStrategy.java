@@ -67,7 +67,7 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
         // it is either missing or has the single value "chunked". So we
         // treat it as a single-valued header here.
         final Header transferEncodingHeader = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
-        if (transferEncodingHeader != null) {
+        if (transferEncodingHeader != null || !message.getTrailers().isEmpty()) {
             final String s = transferEncodingHeader.getValue();
             if (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(s)) {
                 return CHUNKED;

@@ -29,6 +29,9 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
@@ -63,6 +66,8 @@ public class ChunkedOutputStream extends OutputStream {
 
     private final CharArrayBuffer linebuffer;
 
+    private final Map<String, Callable<String>> trailingHeaders;
+
     /**
      * Wraps a session output buffer and chunk-encodes the output.
      *
@@ -70,10 +75,17 @@ public class ChunkedOutputStream extends OutputStream {
      * @param out The session output buffer
      */
     public ChunkedOutputStream(final int bufferSize, final SessionOutputBuffer out) {
+        this(bufferSize, out, Collections.<String, Callable<String>>emptyMap());
+    }
+
+    public ChunkedOutputStream(final int bufferSize,
+                               final SessionOutputBuffer out,
+                               final Map<String, Callable<String>> trailerHeaders) {
         super();
         this.cache = new byte[bufferSize];
         this.out = out;
         this.linebuffer = new CharArrayBuffer(32);
+        this.trailingHeaders = trailerHeaders;
     }
 
     /**
@@ -111,8 +123,30 @@ public class ChunkedOutputStream extends OutputStream {
         this.linebuffer.clear();
         this.linebuffer.append('0');
         this.out.writeLine(this.linebuffer);
+        writeTrailers();
         this.linebuffer.clear();
         this.out.writeLine(this.linebuffer);
+    }
+
+    private void writeTrailers() throws IOException {
+        if (trailingHeaders.isEmpty()) {
+            return;
+        }
+        try {
+            for (Map.Entry<String, Callable<String>> header : trailingHeaders.entrySet()) {
+                this.linebuffer.clear();
+                final String value = header.getValue().call();
+                if (value == null) {
+                    continue;
+                }
+                this.linebuffer.append(header.getKey());
+                this.linebuffer.append(": ");
+                this.linebuffer.append(value);
+                this.out.writeLine(this.linebuffer);
+            }
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
     }
 
     // ----------------------------------------------------------- Public Methods

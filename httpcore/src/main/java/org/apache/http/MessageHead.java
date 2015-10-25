@@ -28,6 +28,8 @@
 package org.apache.http;
 
 import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * HTTP messages head consisting of multiple message headers.
@@ -115,4 +117,5 @@ public interface MessageHead {
      */
     Iterator<Header> headerIterator(String name);
 
+    Map<String,Callable<String>> getTrailers();
 }

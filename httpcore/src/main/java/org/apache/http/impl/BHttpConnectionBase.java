@@ -36,6 +36,8 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.http.BHttpConnection;
@@ -138,11 +140,12 @@ class BHttpConnectionBase implements BHttpConnection {
 
     protected OutputStream createContentOutputStream(
             final long len,
-            final SessionOutputBuffer outbuffer) {
+            final SessionOutputBuffer outbuffer,
+            final Map<String, Callable<String>> trailers) {
         if (len >= 0) {
             return new ContentLengthOutputStream(outbuffer, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedOutputStream(2048, outbuffer);
+            return new ChunkedOutputStream(2048, outbuffer, trailers);
         } else {
             return new IdentityOutputStream(outbuffer);
         }

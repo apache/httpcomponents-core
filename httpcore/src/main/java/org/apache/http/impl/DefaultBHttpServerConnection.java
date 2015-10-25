@@ -32,6 +32,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Collections;
+import java.util.concurrent.Callable;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -174,7 +176,8 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                Collections.<String, Callable<String>>emptyMap());
         entity.writeTo(outstream);
         outstream.close();
     }

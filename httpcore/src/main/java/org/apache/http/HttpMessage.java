@@ -27,6 +27,9 @@
 
 package org.apache.http;
 
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 /**
  * HTTP messages consist of requests from client to server and responses
  * from server to client.
@@ -116,4 +119,5 @@ public interface HttpMessage<T> extends MessageHead {
      */
     void setEntity(T entity);
 
+    void setTrailers(Map<String, Callable<String>> trailers);
 }

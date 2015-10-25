@@ -40,6 +40,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.LengthRequiredException;
+import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -148,11 +149,14 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
+        if (!request.getTrailers().isEmpty() && !entity.isChunked()) {
+            throw new ProtocolException("Request with trailers should have chunked encoding");
+        }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException("Length required");
         }
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, request.getTrailers());
         entity.writeTo(outstream);
         outstream.close();
     }

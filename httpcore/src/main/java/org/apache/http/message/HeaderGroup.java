@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
 import org.apache.http.Header;
 import org.apache.http.annotation.NotThreadSafe;
@@ -55,6 +57,8 @@ public class HeaderGroup implements Serializable {
 
     /** The list of headers for this group, in the order in which they were added */
     private final List<Header> headers;
+
+    private Map<String, Callable<String>> trailers = Collections.emptyMap();
 
     /**
      * Constructor for HeaderGroup.
@@ -336,4 +340,14 @@ public class HeaderGroup implements Serializable {
         return this.headers.toString();
     }
 
+    public void setTrailers(final Map<String, Callable<String>> trailers) {
+        if (trailers == null) {
+            throw new NullPointerException();
+        }
+        this.trailers = trailers;
+    }
+
+    public Map<String, Callable<String>> getTrailers() {
+        return trailers;
+    }
 }
