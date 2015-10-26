@@ -1,3 +1,30 @@
+Release 4.4.4
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.3.
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
+
+* [HTTPCORE-410] PoolStats made Serializable
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* BufferedHttpEntity to use HttpEntity#writeTo when buffering non-repeatable entities
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed race condition in request initialization code in async client protocol handlers
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed handling of pipelined HEAD requests
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-409] NIO HttpServer does not shutdown listener ExecutorService 
+  Contributed by Hiranya Jayathilaka <hiranya at apache.org>
+
+
 Release 4.4.3
 -------------------
 
@@ -10,7 +37,7 @@ Changelog
 -------------------
 
 * Fixed regression introduced by HTTPCORE-399. 
-
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
 Release 4.4.2
@@ -27,9 +54,11 @@ Changelog
 
 * Throw ConnectionClosedException instead of IllegalStateException if an attempt is made to 
   use a closed (not bound to a socket) blocking connection.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-399] Non-blocking client connections incorrectly suspend output causing 
   sequential execution of requests. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
 Release 4.4.1
