@@ -31,11 +31,13 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Collections;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -276,7 +278,8 @@ public class DefaultNHttpServerConnection
                         len,
                         this.session.channel(),
                         this.outbuf,
-                        this.outTransportMetrics);
+                        this.outTransportMetrics,
+                        Collections.<String, TrailerValueSupplier>emptyMap());
             }
         }
 

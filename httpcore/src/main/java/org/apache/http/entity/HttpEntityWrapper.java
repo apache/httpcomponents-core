@@ -30,8 +30,10 @@ package org.apache.http.entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
@@ -100,4 +102,8 @@ public class HttpEntityWrapper implements HttpEntity {
         return wrappedEntity.isStreaming();
     }
 
+    @Override
+    public Map<String, TrailerValueSupplier> getTrailers() {
+        return wrappedEntity.getTrailers();
+    }
 }

@@ -32,12 +32,14 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Collections;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -174,7 +176,8 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                Collections.<String, TrailerValueSupplier>emptyMap());
         entity.writeTo(outstream);
         outstream.close();
     }

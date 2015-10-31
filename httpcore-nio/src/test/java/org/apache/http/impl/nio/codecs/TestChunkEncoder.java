@@ -27,9 +27,15 @@
 
 package org.apache.http.impl.nio.codecs;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import org.apache.http.ConstTrailerValueSupplier;
 import org.apache.http.Consts;
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.WritableByteChannelMock;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.impl.nio.reactor.SessionOutputBufferImpl;
@@ -120,7 +126,8 @@ public class TestChunkEncoder {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(1024));
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 1024);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
-        final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 1024);
+        final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 1024,
+                Collections.<String, TrailerValueSupplier>emptyMap());
 
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
@@ -229,4 +236,27 @@ public class TestChunkEncoder {
         }
     }
 
+    @Test
+    public void testTrailers() throws IOException {
+        final WritableByteChannelMock channel = new WritableByteChannelMock(64);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
+        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final Map<String, TrailerValueSupplier> trailers = new LinkedHashMap<>();
+        trailers.put("SKIP-CAUSE-NULL", new ConstTrailerValueSupplier(null));
+        trailers.put("E", new ConstTrailerValueSupplier(""));
+        trailers.put("Y", new ConstTrailerValueSupplier("Z"));
+        final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 0, trailers);
+
+        encoder.write(CodecTestUtils.wrap("1"));
+        encoder.write(CodecTestUtils.wrap("23"));
+        encoder.complete();
+
+        outbuf.flush(channel);
+
+        final String s = channel.dump(Consts.ASCII);
+
+        Assert.assertTrue(encoder.isCompleted());
+        Assert.assertEquals("1\r\n1\r\n2\r\n23\r\n0\r\nE: \r\nY: Z\r\n\r\n", s);
+        Assert.assertEquals("[chunk-coded; completed: true]", encoder.toString());
+    }
 }
