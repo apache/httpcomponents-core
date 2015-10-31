@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Collections;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
@@ -41,6 +42,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.LengthRequiredException;
 import org.apache.http.ProtocolException;
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -186,12 +188,14 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final long len = this.outgoingContentStrategy.determineLength(request);
+        final long len = determineLength(request, entity);
         if (len == ContentLengthStrategy.CHUNKED) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                    entity.getTrailers());
             outstream.close();
         } else if (len >= 0 && len <= 1024) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                    Collections.<String, TrailerValueSupplier>emptyMap());
             entity.writeTo(outstream);
             outstream.close();
         } else {
