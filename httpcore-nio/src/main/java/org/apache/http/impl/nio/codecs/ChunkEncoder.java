@@ -30,7 +30,10 @@ package org.apache.http.impl.nio.codecs;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.Collections;
+import java.util.Map;
 
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -47,6 +50,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
 
     private final int fragHint;
     private final CharArrayBuffer lineBuffer;
+    private final Map<String, TrailerValueSupplier> trailers;
 
     /**
      * @since 4.3
@@ -62,17 +66,20 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
-            final int fragementSizeHint) {
+            final int fragementSizeHint,
+            final Map<String, TrailerValueSupplier> trailers) {
         super(channel, buffer, metrics);
         this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
+        this.trailers = trailers;
     }
 
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
-        this(channel, buffer, metrics, 0);
+        this(channel, buffer, metrics, 0,
+                Collections.<String, TrailerValueSupplier>emptyMap());
     }
 
     @Override
@@ -130,9 +137,27 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
         this.buffer.writeLine(this.lineBuffer);
+        writeTrailers();
         this.lineBuffer.clear();
         this.buffer.writeLine(this.lineBuffer);
         super.complete();
+    }
+
+    private void writeTrailers() throws IOException {
+        if (trailers.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, TrailerValueSupplier> header : trailers.entrySet()) {
+            this.lineBuffer.clear();
+            final String value = header.getValue().get();
+            if (value == null) {
+                continue;
+            }
+            this.lineBuffer.append(header.getKey());
+            this.lineBuffer.append(": ");
+            this.lineBuffer.append(value);
+            this.buffer.writeLine(this.lineBuffer);
+        }
     }
 
     @Override
