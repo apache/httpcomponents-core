@@ -30,6 +30,7 @@ package org.apache.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 /**
  * An entity that can be sent or received with an HTTP message.
@@ -166,4 +167,12 @@ public interface HttpEntity {
      */
     boolean isStreaming(); // don't expect an exception here
 
+    /**
+     * Map of HTTP trailers which will be delivered to a server.
+     * Keys are used to compose HTTP trailer to declare trailers in advance.
+     * Callbacks are called only after body transferred,
+     * the values they returned are used as trailer values.
+     * @return map of trailing headers
+     */
+    Map<String, TrailerValueSupplier> getTrailers();
 }

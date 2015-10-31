@@ -27,6 +27,11 @@
 
 package org.apache.http.entity;
 
+import static java.util.Collections.emptyMap;
+
+import java.util.Map;
+
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 
 /**
@@ -48,6 +53,7 @@ public abstract class AbstractHttpEntity extends AbstractImmutableHttpEntity {
     private String contentType;
     private String contentEncoding;
     private boolean chunked;
+    private Map<String, TrailerValueSupplier> trailers = emptyMap();
 
     @Override
     public String getContentType() {
@@ -76,4 +82,14 @@ public abstract class AbstractHttpEntity extends AbstractImmutableHttpEntity {
         this.chunked = b;
     }
 
+    public void setTrailers(final Map<String, TrailerValueSupplier> trailers) {
+        if (trailers == null) {
+            throw new NullPointerException();
+        }
+        this.trailers = trailers;
+    }
+
+    public Map<String, TrailerValueSupplier> getTrailers() {
+        return trailers;
+    }
 }

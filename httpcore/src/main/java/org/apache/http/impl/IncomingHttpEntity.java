@@ -29,8 +29,11 @@ package org.apache.http.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.http.Header;
+import org.apache.http.TrailerValueSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractImmutableHttpEntity;
 import org.apache.http.impl.io.EmptyInputStream;
@@ -48,13 +51,25 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
     private final boolean chunked;
     private final Header contentType;
     private final Header contentEncoding;
+    private final Map<String, TrailerValueSupplier> trailers;
 
-    public IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
+    public IncomingHttpEntity(final InputStream content, final long len,
+                              final boolean chunked, final Header contentType,
+                              final Header contentEncoding) {
+        this(content, len, chunked, contentType, contentEncoding,
+                Collections.<String, TrailerValueSupplier>emptyMap());
+    }
+
+    public IncomingHttpEntity(final InputStream content, final long len,
+                              final boolean chunked, final Header contentType,
+                              final Header contentEncoding,
+                              final Map<String, TrailerValueSupplier> trailers) {
         this.content = content;
         this.len = len;
         this.chunked = chunked;
         this.contentType = contentType;
         this.contentEncoding = contentEncoding;
+        this.trailers = trailers;
     }
 
     @Override
@@ -92,4 +107,8 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
         return content != null && content != EmptyInputStream.INSTANCE;
     }
 
+    @Override
+    public Map<String, TrailerValueSupplier> getTrailers() {
+        return trailers;
+    }
 }

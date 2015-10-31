@@ -28,9 +28,15 @@
 package org.apache.http.impl.io;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -64,4 +70,33 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
         getLineFormatter().formatRequestLine(lineBuf, message.getRequestLine());
     }
 
+    protected void addTrailerHeader(final SessionOutputBuffer buffer,
+                                    final HttpRequest message)
+            throws IOException {
+        final HttpEntity entity = message.getEntity();
+        if (entity == null) {
+            return;
+        }
+        final Set<String> trailerNames = entity.getTrailers().keySet();
+        if (trailerNames.isEmpty()) {
+            return;
+        }
+        this.lineBuf.clear();
+        lineFormatter.formatHeader(this.lineBuf,
+                new BasicHeader("Trailer", join(trailerNames)));
+        buffer.writeLine(this.lineBuf);
+    }
+
+    private String join(final Collection<String> headerNames) {
+        final CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
+        final Iterator<String> headerNameIterator = headerNames.iterator();
+        if (headerNameIterator.hasNext()) {
+            valueBuffer.append(headerNameIterator.next());
+        }
+        while (headerNameIterator.hasNext()) {
+            valueBuffer.append(", ");
+            valueBuffer.append(headerNameIterator.next());
+        }
+        return valueBuffer.toString();
+    }
 }
