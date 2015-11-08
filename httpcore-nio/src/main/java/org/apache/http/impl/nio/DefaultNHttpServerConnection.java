@@ -27,12 +27,13 @@
 
 package org.apache.http.impl.nio;
 
+import static org.apache.http.impl.entity.DefaultContentLengthStrategy.determineLength;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
-import org.apache.http.EmptyTrailerSupplier;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -272,13 +273,13 @@ public class DefaultNHttpServerConnection
             this.connMetrics.incrementResponseCount();
             if (response.getEntity() != null) {
                 this.response = response;
-                final long len = this.outgoingContentStrategy.determineLength(response);
                 this.contentEncoder = createContentEncoder(
-                        len,
+                        determineLength(outgoingContentStrategy, response,
+                                response.getEntity()),
                         this.session.channel(),
                         this.outbuf,
                         this.outTransportMetrics,
-                        EmptyTrailerSupplier.instance);
+                        response.getEntity().getTrailers());
             }
         }
 
