@@ -27,6 +27,8 @@
 
 package org.apache.http.impl;
 
+import static org.apache.http.impl.entity.DefaultContentLengthStrategy.determineLength;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -40,8 +42,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.LengthRequiredException;
-import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -153,26 +153,10 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             return;
         }
         final OutputStream outstream = createContentOutputStream(
-                determineLength(request, entity),
+                determineLength(outgoingContentStrategy, request, entity),
                 this.outbuffer, entity.getTrailers());
         entity.writeTo(outstream);
         outstream.close();
-    }
-
-    private long determineLength(final HttpRequest request,
-                                 final HttpEntity entity)
-            throws HttpException {
-        final boolean hasTrailers = entity.getTrailers() != EmptyTrailerSupplier.instance;
-        if (hasTrailers && !entity.isChunked()) {
-            throw new ProtocolException("Request with trailers should have chunked encoding");
-        }
-        final long len = this.outgoingContentStrategy.determineLength(request);
-        if (len == ContentLengthStrategy.UNDEFINED) {
-            throw new LengthRequiredException("Length required");
-        } else if (hasTrailers && len != ContentLengthStrategy.CHUNKED) {
-            throw new ProtocolException("Request with trailers should have chunked encoding");
-        }
-        return len;
     }
 
     @Override
@@ -188,7 +172,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final long len = determineLength(request, entity);
+        final long len = determineLength(outgoingContentStrategy, request, entity);
         if (len == ContentLengthStrategy.CHUNKED) {
             final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
                     entity.getTrailers());

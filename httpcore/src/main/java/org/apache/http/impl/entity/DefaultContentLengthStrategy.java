@@ -27,11 +27,14 @@
 
 package org.apache.http.impl.entity;
 
+import org.apache.http.EmptyTrailerSupplier;
 import org.apache.http.Header;
 import org.apache.http.HeaderElements;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
+import org.apache.http.LengthRequiredException;
 import org.apache.http.NotImplementedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.annotation.Immutable;
@@ -93,4 +96,20 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
         return UNDEFINED;
     }
 
+    public static long determineLength(final ContentLengthStrategy strategy,
+                                       final HttpMessage message,
+                                       final HttpEntity entity)
+            throws HttpException {
+        final boolean hasTrailers = entity.getTrailers() != EmptyTrailerSupplier.instance;
+        if (hasTrailers && !entity.isChunked()) {
+            throw new ProtocolException("Request with trailers should have chunked encoding");
+        }
+        final long len = strategy.determineLength(message);
+        if (len == ContentLengthStrategy.UNDEFINED) {
+            throw new LengthRequiredException("Length required");
+        } else if (hasTrailers && len != ContentLengthStrategy.CHUNKED) {
+            throw new ProtocolException("Request with trailers should have chunked encoding");
+        }
+        return len;
+    }
 }
