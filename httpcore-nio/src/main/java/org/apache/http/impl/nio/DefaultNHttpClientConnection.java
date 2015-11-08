@@ -27,6 +27,8 @@
 
 package org.apache.http.impl.nio;
 
+import static org.apache.http.impl.entity.DefaultContentLengthStrategy.determineLength;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharsetDecoder;
@@ -36,7 +38,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.LengthRequiredException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -268,12 +269,8 @@ public class DefaultNHttpClientConnection
 
         if (request.getEntity() != null) {
             this.request = request;
-            final long len = this.outgoingContentStrategy.determineLength(request);
-            if (len == ContentLengthStrategy.UNDEFINED) {
-                throw new LengthRequiredException("Length required");
-            }
             this.contentEncoder = createContentEncoder(
-                    len,
+                    determineLength(outgoingContentStrategy, request, request.getEntity()),
                     this.session.channel(),
                     this.outbuf,
                     this.outTransportMetrics,
