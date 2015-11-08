@@ -45,6 +45,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.CheckUndefinedDecorator;
 import org.apache.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
@@ -106,8 +107,10 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = new CheckUndefinedDecorator(
+                outgoingContentStrategy != null
+                        ? outgoingContentStrategy
+                        : DefaultContentLengthStrategy.INSTANCE);
         this.consistent = true;
     }
 
@@ -209,5 +212,4 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         response.setEntity(createIncomingEntity(response, this.inbuffer, len));
     }
-
 }

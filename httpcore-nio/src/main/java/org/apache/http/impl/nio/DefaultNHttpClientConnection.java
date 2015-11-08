@@ -41,6 +41,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.CheckUndefinedDecorator;
 import org.apache.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
@@ -112,8 +113,10 @@ public class DefaultNHttpClientConnection
             DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = new CheckUndefinedDecorator(
+                outgoingContentStrategy != null
+                        ? outgoingContentStrategy
+                        : DefaultContentLengthStrategy.INSTANCE);
     }
 
     /**
