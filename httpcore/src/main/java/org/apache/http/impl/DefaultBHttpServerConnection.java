@@ -33,6 +33,7 @@ import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
+import org.apache.http.EmptyTrailerSupplier;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
@@ -174,9 +175,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                EmptyTrailerSupplier.instance);
         entity.writeTo(outstream);
         outstream.close();
     }
-
 }

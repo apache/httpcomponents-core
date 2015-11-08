@@ -33,6 +33,7 @@ import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
+import org.apache.http.EmptyTrailerSupplier;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -40,6 +41,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.LengthRequiredException;
+import org.apache.http.ProtocolException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -150,13 +152,27 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
+        final OutputStream outstream = createContentOutputStream(
+                determineLength(request, entity),
+                this.outbuffer, entity.getTrailers());
+        entity.writeTo(outstream);
+        outstream.close();
+    }
+
+    private long determineLength(final HttpRequest request,
+                                 final HttpEntity entity)
+            throws HttpException {
+        final boolean hasTrailers = entity.getTrailers() != EmptyTrailerSupplier.instance;
+        if (hasTrailers && !entity.isChunked()) {
+            throw new ProtocolException("Request with trailers should have chunked encoding");
+        }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException("Length required");
+        } else if (hasTrailers && len != ContentLengthStrategy.CHUNKED) {
+            throw new ProtocolException("Request with trailers should have chunked encoding");
         }
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
-        entity.writeTo(outstream);
-        outstream.close();
+        return len;
     }
 
     @Override
@@ -172,12 +188,14 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final long len = this.outgoingContentStrategy.determineLength(request);
+        final long len = determineLength(request, entity);
         if (len == ContentLengthStrategy.CHUNKED) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                    entity.getTrailers());
             outstream.close();
         } else if (len >= 0 && len <= 1024) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                    EmptyTrailerSupplier.instance);
             entity.writeTo(outstream);
             outstream.close();
         } else {

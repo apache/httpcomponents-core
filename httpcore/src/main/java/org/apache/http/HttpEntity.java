@@ -166,4 +166,12 @@ public interface HttpEntity {
      */
     boolean isStreaming(); // don't expect an exception here
 
+    /**
+     * Map of HTTP trailers which will be delivered to a server.
+     * Keys are used to compose HTTP trailer to declare trailers in advance.
+     * Callbacks are called only after body transferred,
+     * the values they returned are used as trailer values.
+     * @return map of trailing headers
+     */
+     TrailerSupplier getTrailers();
 }

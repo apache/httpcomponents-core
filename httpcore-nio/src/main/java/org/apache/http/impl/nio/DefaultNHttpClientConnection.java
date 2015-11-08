@@ -276,7 +276,8 @@ public class DefaultNHttpClientConnection
                     len,
                     this.session.channel(),
                     this.outbuf,
-                    this.outTransportMetrics);
+                    this.outTransportMetrics,
+                    request.getEntity().getTrailers());
         }
         this.connMetrics.incrementRequestCount();
         this.session.setEvent(EventMask.WRITE);
