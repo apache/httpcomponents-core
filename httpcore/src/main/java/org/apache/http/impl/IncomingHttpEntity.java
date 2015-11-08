@@ -27,10 +27,13 @@
 
 package org.apache.http.impl;
 
+import static org.apache.http.EmptyTrailerSupplier.instance;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.http.Header;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractImmutableHttpEntity;
 import org.apache.http.impl.io.EmptyInputStream;
@@ -48,13 +51,24 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
     private final boolean chunked;
     private final Header contentType;
     private final Header contentEncoding;
+    private final TrailerSupplier trailers;
 
-    public IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
+    public IncomingHttpEntity(final InputStream content, final long len,
+                              final boolean chunked, final Header contentType,
+                              final Header contentEncoding) {
+        this(content, len, chunked, contentType, contentEncoding, instance);
+    }
+
+    public IncomingHttpEntity(final InputStream content, final long len,
+                              final boolean chunked, final Header contentType,
+                              final Header contentEncoding,
+                              final TrailerSupplier trailers) {
         this.content = content;
         this.len = len;
         this.chunked = chunked;
         this.contentType = contentType;
         this.contentEncoding = contentEncoding;
+        this.trailers = trailers;
     }
 
     @Override
@@ -92,4 +106,8 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
         return content != null && content != EmptyInputStream.INSTANCE;
     }
 
+    @Override
+    public TrailerSupplier getTrailers() {
+        return trailers;
+    }
 }

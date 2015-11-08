@@ -51,8 +51,8 @@ import org.apache.http.util.CharArrayBuffer;
 @NotThreadSafe
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements HttpMessageWriter<T> {
 
-    private final CharArrayBuffer lineBuf;
-    private final LineFormatter lineFormatter;
+    protected final CharArrayBuffer lineBuf;
+    protected final LineFormatter lineFormatter;
 
     /**
      * Creates an instance of AbstractMessageWriter.
@@ -98,8 +98,11 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
                 buffer.writeLine(this.lineBuf);
             }
         }
+        addTrailerHeader(buffer, message);
         this.lineBuf.clear();
         buffer.writeLine(this.lineBuf);
     }
 
+    protected void addTrailerHeader(final SessionOutputBuffer buffer, final T message)
+            throws IOException {}
 }

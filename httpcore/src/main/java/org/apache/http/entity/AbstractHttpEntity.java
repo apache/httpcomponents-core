@@ -27,6 +27,9 @@
 
 package org.apache.http.entity;
 
+import static org.apache.http.EmptyTrailerSupplier.instance;
+
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 
 /**
@@ -48,6 +51,7 @@ public abstract class AbstractHttpEntity extends AbstractImmutableHttpEntity {
     private String contentType;
     private String contentEncoding;
     private boolean chunked;
+    private TrailerSupplier trailers = instance;
 
     @Override
     public String getContentType() {
@@ -76,4 +80,14 @@ public abstract class AbstractHttpEntity extends AbstractImmutableHttpEntity {
         this.chunked = b;
     }
 
+    public void setTrailers(final TrailerSupplier trailers) {
+        if (trailers == null) {
+            throw new NullPointerException();
+        }
+        this.trailers = trailers;
+    }
+
+    public TrailerSupplier getTrailers() {
+        return trailers;
+    }
 }

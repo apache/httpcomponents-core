@@ -43,6 +43,7 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.HttpConnectionMetricsImpl;
@@ -225,12 +226,13 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     /**
      * Factory method for {@link ContentEncoder} instances.
      *
-     * @param len content length, if known, {@link ContentLengthStrategy#CHUNKED} or
-     *   {@link ContentLengthStrategy#UNDEFINED}, if unknown.
+     * @param len content length, if known, {@link org.apache.http.entity.ContentLengthStrategy#CHUNKED} or
+     *   {@link org.apache.http.entity.ContentLengthStrategy#UNDEFINED}, if unknown.
      * @param channel the session channel.
      * @param buffer the session buffer.
      * @param metrics transport metrics.
      *
+     * @param trailers
      * @return content encoder.
      *
      * @since 4.1
@@ -239,11 +241,13 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
             final long len,
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final HttpTransportMetricsImpl metrics,
+            final TrailerSupplier trailers) {
         if (len >= 0) {
             return new LengthDelimitedEncoder(channel, buffer, metrics, len, this.fragmentSizeHint);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkEncoder(channel, buffer, metrics, this.fragmentSizeHint);
+            return new ChunkEncoder(channel, buffer, metrics,
+                    this.fragmentSizeHint, trailers);
         } else {
             return new IdentityEncoder(channel, buffer, metrics, this.fragmentSizeHint);
         }

@@ -24,35 +24,18 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.http.benchmark;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+package org.apache.http;
 
-import org.apache.http.TrailerSupplier;
-import org.apache.http.impl.DefaultBHttpClientConnection;
-import org.apache.http.io.SessionInputBuffer;
-import org.apache.http.io.SessionOutputBuffer;
+public class ConstTrailerSupplier implements TrailerSupplier {
+    private final Header[] values;
 
-class BenchmarkConnection extends DefaultBHttpClientConnection {
-
-    private final Stats stats;
-
-    BenchmarkConnection(final int bufsize, final Stats stats) {
-        super(bufsize);
-        this.stats = stats;
+    public ConstTrailerSupplier(final Header[] values) {
+        this.values = values;
     }
 
     @Override
-    protected OutputStream createContentOutputStream(final long len,
-                                                     final SessionOutputBuffer outbuffer,
-                                                     final TrailerSupplier trailers) {
-        return new CountingOutputStream(super.createContentOutputStream(len, outbuffer, trailers), this.stats);
+    public Header[] get() {
+        return values;
     }
-
-    @Override
-    protected InputStream createContentInputStream(final long len, final SessionInputBuffer inbuffer) {
-        return new CountingInputStream(super.createContentInputStream(len, inbuffer), this.stats);
-    }
-
 }

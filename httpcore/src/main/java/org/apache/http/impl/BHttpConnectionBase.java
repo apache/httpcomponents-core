@@ -45,6 +45,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
@@ -138,11 +139,12 @@ class BHttpConnectionBase implements BHttpConnection {
 
     protected OutputStream createContentOutputStream(
             final long len,
-            final SessionOutputBuffer outbuffer) {
+            final SessionOutputBuffer outbuffer,
+            final TrailerSupplier trailers) {
         if (len >= 0) {
             return new ContentLengthOutputStream(outbuffer, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedOutputStream(2048, outbuffer);
+            return new ChunkedOutputStream(2048, outbuffer, trailers);
         } else {
             return new IdentityOutputStream(outbuffer);
         }

@@ -31,6 +31,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.EmptyTrailerSupplier;
+import org.apache.http.Header;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -47,6 +50,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
 
     private final int fragHint;
     private final CharArrayBuffer lineBuffer;
+    private final TrailerSupplier trailers;
 
     /**
      * @since 4.3
@@ -62,17 +66,19 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
-            final int fragementSizeHint) {
+            final int fragementSizeHint,
+            final TrailerSupplier trailers) {
         super(channel, buffer, metrics);
         this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
+        this.trailers = trailers;
     }
 
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
-        this(channel, buffer, metrics, 0);
+        this(channel, buffer, metrics, 0, EmptyTrailerSupplier.instance);
     }
 
     @Override
@@ -130,9 +136,24 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
         this.buffer.writeLine(this.lineBuffer);
+        writeTrailers();
         this.lineBuffer.clear();
         this.buffer.writeLine(this.lineBuffer);
         super.complete();
+    }
+
+    private void writeTrailers() throws IOException {
+        for (Header header : trailers.get()) {
+            this.lineBuffer.clear();
+            final String value = header.getValue();
+            if (value == null) {
+                continue;
+            }
+            this.lineBuffer.append(header.getName());
+            this.lineBuffer.append(": ");
+            this.lineBuffer.append(value);
+            this.buffer.writeLine(this.lineBuffer);
+        }
     }
 
     @Override

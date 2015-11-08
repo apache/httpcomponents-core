@@ -29,8 +29,12 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.annotation.NotThreadSafe;
+import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -64,4 +68,30 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
         getLineFormatter().formatRequestLine(lineBuf, message.getRequestLine());
     }
 
+    protected void addTrailerHeader(final SessionOutputBuffer buffer,
+                                    final HttpRequest message)
+            throws IOException {
+        final HttpEntity entity = message.getEntity();
+        if (entity == null) {
+            return;
+        }
+        final Header[] trailerNames = entity.getTrailers().get();
+        if (trailerNames.length == 0) {
+            return;
+        }
+        this.lineBuf.clear();
+        lineFormatter.formatHeader(this.lineBuf,
+                new BasicHeader("Trailer", join(trailerNames)));
+        buffer.writeLine(this.lineBuf);
+    }
+
+    private String join(final Header[] headerNames) {
+        final CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
+        valueBuffer.append(headerNames[0].getName());
+        for (int i = 1; i < headerNames.length; ++i) {
+            valueBuffer.append(", ");
+            valueBuffer.append(headerNames[i].getName());
+        }
+        return valueBuffer.toString();
+    }
 }
