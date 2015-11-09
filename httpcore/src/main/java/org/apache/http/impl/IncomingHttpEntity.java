@@ -27,10 +27,15 @@
 
 package org.apache.http.impl;
 
+import static org.apache.http.EmptyTrailerSupplier.instance;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
+import java.util.Set;
 
 import org.apache.http.Header;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractImmutableHttpEntity;
 import org.apache.http.impl.io.EmptyInputStream;
@@ -48,13 +53,34 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
     private final boolean chunked;
     private final Header contentType;
     private final Header contentEncoding;
+    private final TrailerSupplier trailers;
+    private final Set<String> expectedTrailerNames;
 
-    public IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
+    public IncomingHttpEntity(final InputStream content, final long len,
+                              final boolean chunked, final Header contentType,
+                              final Header contentEncoding) {
+        this(content, len, chunked, contentType, contentEncoding,
+                instance, Collections.<String>emptySet());
+    }
+
+    public IncomingHttpEntity(final InputStream content, final long len,
+                              final boolean chunked, final Header contentType,
+                              final Header contentEncoding,
+                              final TrailerSupplier trailers,
+                              final Set<String> expectedTrailerNames) {
         this.content = content;
         this.len = len;
         this.chunked = chunked;
         this.contentType = contentType;
         this.contentEncoding = contentEncoding;
+        if (trailers == null) {
+            throw new NullPointerException();
+        }
+        this.trailers = trailers;
+        if (expectedTrailerNames == null) {
+            throw new NullPointerException();
+        }
+        this.expectedTrailerNames = expectedTrailerNames;
     }
 
     @Override
@@ -92,4 +118,13 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
         return content != null && content != EmptyInputStream.INSTANCE;
     }
 
+    @Override
+    public TrailerSupplier getTrailers() {
+        return trailers;
+    }
+
+    @Override
+    public Set<String> getExpectedTrailerNames() {
+        return expectedTrailerNames;
+    }
 }

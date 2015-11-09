@@ -29,7 +29,13 @@ package org.apache.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Set;
 
+import org.apache.http.EmptyTrailerSupplier;
+import org.apache.http.Header;
+import org.apache.http.ProtocolException;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.util.CharArrayBuffer;
@@ -63,6 +69,10 @@ public class ChunkedOutputStream extends OutputStream {
 
     private final CharArrayBuffer linebuffer;
 
+    private final TrailerSupplier trailingHeaders;
+
+    private final Set<String> expectedTrailerNames;
+
     /**
      * Wraps a session output buffer and chunk-encodes the output.
      *
@@ -70,10 +80,20 @@ public class ChunkedOutputStream extends OutputStream {
      * @param out The session output buffer
      */
     public ChunkedOutputStream(final int bufferSize, final SessionOutputBuffer out) {
+        this(bufferSize, out, EmptyTrailerSupplier.instance,
+                Collections.<String>emptySet());
+    }
+
+    public ChunkedOutputStream(final int bufferSize,
+                               final SessionOutputBuffer out,
+                               final TrailerSupplier trailerHeaders,
+                               final Set<String> expectedTrailerNames) {
         super();
         this.cache = new byte[bufferSize];
         this.out = out;
         this.linebuffer = new CharArrayBuffer(32);
+        this.trailingHeaders = trailerHeaders;
+        this.expectedTrailerNames = expectedTrailerNames;
     }
 
     /**
@@ -111,8 +131,24 @@ public class ChunkedOutputStream extends OutputStream {
         this.linebuffer.clear();
         this.linebuffer.append('0');
         this.out.writeLine(this.linebuffer);
+        writeTrailers();
         this.linebuffer.clear();
         this.out.writeLine(this.linebuffer);
+    }
+
+    private void writeTrailers() throws IOException {
+        for (Header header : trailingHeaders.get()) {
+            this.linebuffer.clear();
+            if (expectedTrailerNames.contains(header.getName())) {
+                this.linebuffer.append(header.getName());
+                this.linebuffer.append(": ");
+                this.linebuffer.append(header.getValue());
+                this.out.writeLine(this.linebuffer);
+            } else {
+                throw new IOException(new ProtocolException("Unexpected trailer header: "
+                        + header.getName()));
+            }
+        }
     }
 
     // ----------------------------------------------------------- Public Methods

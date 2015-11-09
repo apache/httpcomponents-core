@@ -32,8 +32,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.HashSet;
 
 import org.apache.http.ConnectionClosedException;
+import org.apache.http.ConstTrailerSupplier;
 import org.apache.http.Consts;
 import org.apache.http.Header;
 import org.apache.http.MalformedChunkCodingException;
@@ -43,6 +46,7 @@ import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.SessionInputBufferMock;
 import org.apache.http.impl.SessionOutputBufferMock;
 import org.apache.http.io.SessionInputBuffer;
+import org.apache.http.message.BasicHeader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -362,7 +366,48 @@ public class TestChunkCoding {
         final String output = new String(result.toByteArray(), Consts.ISO_8859_1);
         Assert.assertEquals(input, output);
         in.close();
-}
+    }
+
+    @Test
+    public void testChunkedOutputStreamWithTrailers() throws IOException {
+        final SessionOutputBufferMock buffer = new SessionOutputBufferMock();
+        final Header[] trailers = new Header[] {
+                new BasicHeader("E", ""),
+                new BasicHeader("Y", "Z")
+        };
+        final ChunkedOutputStream out = new ChunkedOutputStream(2, buffer,
+                new ConstTrailerSupplier(trailers),
+                new HashSet<>(Arrays.asList("E", "Y")));
+        out.write('x');
+        out.finish();
+        out.close();
+
+        final byte [] rawdata =  buffer.getData();
+
+        Assert.assertEquals(22, rawdata.length);
+        Assert.assertEquals('1', rawdata[0]);
+        Assert.assertEquals('\r', rawdata[1]);
+        Assert.assertEquals('\n', rawdata[2]);
+        Assert.assertEquals('x', rawdata[3]);
+        Assert.assertEquals('\r', rawdata[4]);
+        Assert.assertEquals('\n', rawdata[5]);
+        Assert.assertEquals('0', rawdata[6]);
+        Assert.assertEquals('\r', rawdata[7]);
+        Assert.assertEquals('\n', rawdata[8]);
+        Assert.assertEquals('E', rawdata[9]);
+        Assert.assertEquals(':', rawdata[10]);
+        Assert.assertEquals(' ', rawdata[11]);
+        Assert.assertEquals('\r', rawdata[12]);
+        Assert.assertEquals('\n', rawdata[13]);
+        Assert.assertEquals('Y', rawdata[14]);
+        Assert.assertEquals(':', rawdata[15]);
+        Assert.assertEquals(' ', rawdata[16]);
+        Assert.assertEquals('Z', rawdata[17]);
+        Assert.assertEquals('\r', rawdata[18]);
+        Assert.assertEquals('\n', rawdata[19]);
+        Assert.assertEquals('\r', rawdata[20]);
+        Assert.assertEquals('\n', rawdata[21]);
+    }
 
     @Test
     public void testChunkedOutputStream() throws IOException {

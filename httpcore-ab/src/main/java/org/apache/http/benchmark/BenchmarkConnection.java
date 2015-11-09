@@ -28,7 +28,9 @@ package org.apache.http.benchmark;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Set;
 
+import org.apache.http.TrailerSupplier;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.io.SessionOutputBuffer;
@@ -43,8 +45,13 @@ class BenchmarkConnection extends DefaultBHttpClientConnection {
     }
 
     @Override
-    protected OutputStream createContentOutputStream(final long len, final SessionOutputBuffer outbuffer) {
-        return new CountingOutputStream(super.createContentOutputStream(len, outbuffer), this.stats);
+    protected OutputStream createContentOutputStream(final long len,
+                                                     final SessionOutputBuffer outbuffer,
+                                                     final TrailerSupplier trailers,
+                                                     final Set<String> expectedTrailerNames) {
+        return new CountingOutputStream(
+                super.createContentOutputStream(len, outbuffer, trailers, expectedTrailerNames),
+                this.stats);
     }
 
     @Override

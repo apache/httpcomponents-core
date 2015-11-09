@@ -27,6 +27,8 @@
 
 package org.apache.http.impl.nio;
 
+import static org.apache.http.impl.entity.DefaultContentLengthStrategy.determineLength;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharsetDecoder;
@@ -269,14 +271,16 @@ public class DefaultNHttpServerConnection
 
         if (response.getStatusLine().getStatusCode() >= 200) {
             this.connMetrics.incrementResponseCount();
-            if (response.getEntity() != null) {
+            final HttpEntity entity = response.getEntity();
+            if (entity != null) {
                 this.response = response;
-                final long len = this.outgoingContentStrategy.determineLength(response);
                 this.contentEncoder = createContentEncoder(
-                        len,
+                        determineLength(outgoingContentStrategy, response, entity),
                         this.session.channel(),
                         this.outbuf,
-                        this.outTransportMetrics);
+                        this.outTransportMetrics,
+                        entity.getTrailers(),
+                        entity.getExpectedTrailerNames());
             }
         }
 

@@ -27,6 +27,8 @@
 
 package org.apache.http.impl.nio;
 
+import static org.apache.http.impl.entity.DefaultContentLengthStrategy.determineLength;
+
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharsetDecoder;
@@ -36,10 +38,10 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.LengthRequiredException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.CheckUndefinedDecorator;
 import org.apache.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.http.impl.nio.codecs.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.nio.codecs.DefaultHttpResponseParserFactory;
@@ -111,8 +113,10 @@ public class DefaultNHttpClientConnection
             DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = new CheckUndefinedDecorator(
+                outgoingContentStrategy != null
+                        ? outgoingContentStrategy
+                        : DefaultContentLengthStrategy.INSTANCE);
     }
 
     /**
@@ -265,18 +269,16 @@ public class DefaultNHttpClientConnection
         onRequestSubmitted(request);
         this.requestWriter.write(request, this.outbuf);
         this.hasBufferedOutput = this.outbuf.hasData();
-
-        if (request.getEntity() != null) {
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
             this.request = request;
-            final long len = this.outgoingContentStrategy.determineLength(request);
-            if (len == ContentLengthStrategy.UNDEFINED) {
-                throw new LengthRequiredException("Length required");
-            }
             this.contentEncoder = createContentEncoder(
-                    len,
+                    determineLength(outgoingContentStrategy, request, entity),
                     this.session.channel(),
                     this.outbuf,
-                    this.outTransportMetrics);
+                    this.outTransportMetrics,
+                    entity.getTrailers(),
+                    entity.getExpectedTrailerNames());
         }
         this.connMetrics.incrementRequestCount();
         this.session.setEvent(EventMask.WRITE);
