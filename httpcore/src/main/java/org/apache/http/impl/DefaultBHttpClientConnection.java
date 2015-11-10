@@ -27,22 +27,26 @@
 
 package org.apache.http.impl;
 
+import static org.apache.http.impl.entity.DefaultContentLengthStrategy.determineLength;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Collections;
 
+import org.apache.http.EmptyTrailerSupplier;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.LengthRequiredException;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
+import org.apache.http.impl.entity.CheckUndefinedDecorator;
 import org.apache.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.http.impl.io.DefaultHttpRequestWriterFactory;
 import org.apache.http.impl.io.DefaultHttpResponseParserFactory;
@@ -104,8 +108,10 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             DefaultHttpResponseParserFactory.INSTANCE).create(constraints);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = new CheckUndefinedDecorator(
+                outgoingContentStrategy != null
+                        ? outgoingContentStrategy
+                        : DefaultContentLengthStrategy.INSTANCE);
         this.consistent = true;
     }
 
@@ -150,11 +156,10 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final long len = this.outgoingContentStrategy.determineLength(request);
-        if (len == ContentLengthStrategy.UNDEFINED) {
-            throw new LengthRequiredException("Length required");
-        }
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+        final OutputStream outstream = createContentOutputStream(
+                determineLength(outgoingContentStrategy, request, entity),
+                this.outbuffer, entity.getTrailers(),
+                entity.getExpectedTrailerNames());
         entity.writeTo(outstream);
         outstream.close();
     }
@@ -172,12 +177,14 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final long len = this.outgoingContentStrategy.determineLength(request);
+        final long len = determineLength(outgoingContentStrategy, request, entity);
         if (len == ContentLengthStrategy.CHUNKED) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                    entity.getTrailers(), entity.getExpectedTrailerNames());
             outstream.close();
         } else if (len >= 0 && len <= 1024) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer,
+                    EmptyTrailerSupplier.instance, Collections.<String>emptySet());
             entity.writeTo(outstream);
             outstream.close();
         } else {
@@ -207,5 +214,4 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         response.setEntity(createIncomingEntity(response, this.inbuffer, len));
     }
-
 }

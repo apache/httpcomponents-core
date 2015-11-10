@@ -36,6 +36,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.http.BHttpConnection;
@@ -45,6 +46,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
@@ -138,11 +140,14 @@ class BHttpConnectionBase implements BHttpConnection {
 
     protected OutputStream createContentOutputStream(
             final long len,
-            final SessionOutputBuffer outbuffer) {
+            final SessionOutputBuffer outbuffer,
+            final TrailerSupplier trailers,
+            final Set<String> expectedTrailerNames) {
         if (len >= 0) {
             return new ContentLengthOutputStream(outbuffer, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedOutputStream(2048, outbuffer);
+            return new ChunkedOutputStream(2048, outbuffer, trailers,
+                    expectedTrailerNames);
         } else {
             return new IdentityOutputStream(outbuffer);
         }

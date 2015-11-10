@@ -27,6 +27,8 @@
 
 package org.apache.http.impl;
 
+import static org.apache.http.impl.entity.DefaultContentLengthStrategy.determineLength;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -173,10 +175,12 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final long len = this.outgoingContentStrategy.determineLength(response);
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+        final OutputStream outstream = createContentOutputStream(
+                determineLength(outgoingContentStrategy, response, entity),
+                this.outbuffer,
+                entity.getTrailers(),
+                entity.getExpectedTrailerNames());
         entity.writeTo(outstream);
         outstream.close();
     }
-
 }

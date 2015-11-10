@@ -25,42 +25,15 @@
  *
  */
 
-package org.apache.http.impl.io;
+package org.apache.http;
 
-import java.io.IOException;
+public class EmptyTrailerSupplier implements TrailerSupplier {
+    private static final Header[] EMPTY = new Header[0];
+    public static final EmptyTrailerSupplier instance = new EmptyTrailerSupplier();
 
-import org.apache.http.HttpRequest;
-import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.message.LineFormatter;
-import org.apache.http.util.CharArrayBuffer;
+    private EmptyTrailerSupplier() {}
 
-/**
- * HTTP request writer that serializes its output to an instance of
- * {@link org.apache.http.io.SessionOutputBuffer}.
- *
- * @since 4.3
- */
-@NotThreadSafe
-public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
-
-    /**
-     * Creates an instance of DefaultHttpRequestWriter.
-     *
-     * @param formatter the line formatter If {@code null}
-     *   {@link org.apache.http.message.BasicLineFormatter#INSTANCE}
-     *   will be used.
-     */
-    public DefaultHttpRequestWriter(final LineFormatter formatter) {
-        super(formatter);
-    }
-
-    public DefaultHttpRequestWriter() {
-        this(null);
-    }
-
-    @Override
-    protected void writeHeadLine(
-            final HttpRequest message, final CharArrayBuffer lineBuf) throws IOException {
-        getLineFormatter().formatRequestLine(lineBuf, message.getRequestLine());
+    public Header[] get() {
+        return EMPTY;
     }
 }

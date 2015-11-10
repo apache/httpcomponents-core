@@ -29,6 +29,7 @@ package org.apache.http.impl.entity;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderElements;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpMessage;
@@ -93,4 +94,18 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
         return UNDEFINED;
     }
 
+    public static long determineLength(final ContentLengthStrategy strategy,
+                                       final HttpMessage message,
+                                       final HttpEntity entity)
+            throws HttpException {
+        final boolean hasTrailers = !entity.getExpectedTrailerNames().isEmpty();
+        if (hasTrailers && !entity.isChunked()) {
+            throw new ProtocolException("Request with trailers should have chunked encoding");
+        }
+        final long len = strategy.determineLength(message);
+        if (hasTrailers && len != ContentLengthStrategy.CHUNKED) {
+            throw new ProtocolException("Request with trailers should have chunked encoding");
+        }
+        return len;
+    }
 }

@@ -30,7 +30,13 @@ package org.apache.http.impl.nio.codecs;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.Collections;
+import java.util.Set;
 
+import org.apache.http.EmptyTrailerSupplier;
+import org.apache.http.Header;
+import org.apache.http.ProtocolException;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -44,9 +50,10 @@ import org.apache.http.util.CharArrayBuffer;
  */
 @NotThreadSafe
 public class ChunkEncoder extends AbstractContentEncoder {
-
     private final int fragHint;
     private final CharArrayBuffer lineBuffer;
+    private final TrailerSupplier trailers;
+    private final Set<String> expectedTrailerNames;
 
     /**
      * @since 4.3
@@ -62,17 +69,22 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
-            final int fragementSizeHint) {
+            final int fragementSizeHint,
+            final TrailerSupplier trailers,
+            final Set<String> expectedTrailerNames) {
         super(channel, buffer, metrics);
         this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
+        this.trailers = trailers;
+        this.expectedTrailerNames = expectedTrailerNames;
     }
 
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
-        this(channel, buffer, metrics, 0);
+        this(channel, buffer, metrics, 0,
+                EmptyTrailerSupplier.instance, Collections.<String>emptySet());
     }
 
     @Override
@@ -130,9 +142,25 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
         this.buffer.writeLine(this.lineBuffer);
+        writeTrailers();
         this.lineBuffer.clear();
         this.buffer.writeLine(this.lineBuffer);
         super.complete();
+    }
+
+    private void writeTrailers() throws IOException {
+        for (Header header : trailers.get()) {
+            this.lineBuffer.clear();
+            if (expectedTrailerNames.contains(header.getName())) {
+                this.lineBuffer.append(header.getName());
+                this.lineBuffer.append(": ");
+                this.lineBuffer.append(header.getValue());
+                this.buffer.writeLine(this.lineBuffer);
+            } else {
+                throw new IOException(new ProtocolException("Unexpected trailer header: "
+                        + header.getName()));
+            }
+        }
     }
 
     @Override

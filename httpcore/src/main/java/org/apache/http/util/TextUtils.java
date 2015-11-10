@@ -27,11 +27,13 @@
 
 package org.apache.http.util;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 /**
  * @since 4.3
  */
 public final class TextUtils {
-
     /**
      * Returns true if the parameter is null or of zero length
      */
@@ -72,4 +74,18 @@ public final class TextUtils {
         return false;
     }
 
+    public static String join(final String separator,
+                              final Collection<String> collection) {
+        final Iterator<String> iterator = collection.iterator();
+        if (!iterator.hasNext()) {
+            return "";
+        }
+        final CharArrayBuffer valueBuffer = new CharArrayBuffer(128);
+        valueBuffer.append(iterator.next());
+        while (iterator.hasNext()) {
+            valueBuffer.append(separator);
+            valueBuffer.append(iterator.next());
+        }
+        return valueBuffer.toString();
+    }
 }

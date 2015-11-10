@@ -25,42 +25,31 @@
  *
  */
 
-package org.apache.http.impl.io;
+package org.apache.http.protocol;
+
+import static org.apache.http.util.TextUtils.join;
 
 import java.io.IOException;
+import java.util.Set;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpRequest;
-import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.message.LineFormatter;
-import org.apache.http.util.CharArrayBuffer;
+import org.apache.http.HttpRequestInterceptor;
 
-/**
- * HTTP request writer that serializes its output to an instance of
- * {@link org.apache.http.io.SessionOutputBuffer}.
- *
- * @since 4.3
- */
-@NotThreadSafe
-public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
-
-    /**
-     * Creates an instance of DefaultHttpRequestWriter.
-     *
-     * @param formatter the line formatter If {@code null}
-     *   {@link org.apache.http.message.BasicLineFormatter#INSTANCE}
-     *   will be used.
-     */
-    public DefaultHttpRequestWriter(final LineFormatter formatter) {
-        super(formatter);
-    }
-
-    public DefaultHttpRequestWriter() {
-        this(null);
-    }
-
+public class RequestTrailer implements HttpRequestInterceptor {
     @Override
-    protected void writeHeadLine(
-            final HttpRequest message, final CharArrayBuffer lineBuf) throws IOException {
-        getLineFormatter().formatRequestLine(lineBuf, message.getRequestLine());
+    public void process(final HttpRequest request, final HttpContext context)
+            throws HttpException, IOException {
+        final HttpEntity entity = request.getEntity();
+        if (entity == null) {
+            return;
+        }
+        final Set<String> trailerNames = entity.getExpectedTrailerNames();
+        if (trailerNames.isEmpty()) {
+            return;
+        }
+        request.setHeader(HttpHeaders.TRAILER, join(", ", trailerNames));
     }
 }
