@@ -50,6 +50,7 @@ import org.apache.http.protocol.HttpRequestExecutor;
 import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestTrailer;
 import org.apache.http.protocol.RequestUserAgent;
 import org.apache.http.util.EntityUtils;
 
@@ -68,6 +69,7 @@ import org.apache.http.util.EntityUtils;
 public class ElementalHttpPost {
     public static void main(String[] args) throws Exception {
         HttpProcessor httpproc = HttpProcessorBuilder.create()
+                .add(new RequestTrailer())
                 .add(new RequestContent())
                 .add(new RequestTargetHost())
                 .add(new RequestConnControl())

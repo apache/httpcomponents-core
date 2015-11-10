@@ -58,6 +58,7 @@ import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestContent;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
+import org.apache.http.protocol.RequestTrailer;
 import org.apache.http.protocol.RequestUserAgent;
 
 /**
@@ -68,6 +69,7 @@ public class NHttpClient {
         // Create HTTP protocol processing chain
         HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
+                .add(new RequestTrailer())
                 .add(new RequestContent())
                 .add(new RequestTargetHost())
                 .add(new RequestConnControl())

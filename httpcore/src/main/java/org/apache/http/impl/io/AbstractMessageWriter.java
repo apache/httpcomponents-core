@@ -98,11 +98,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
                 buffer.writeLine(this.lineBuf);
             }
         }
-        addTrailerHeader(buffer, message);
         this.lineBuf.clear();
         buffer.writeLine(this.lineBuf);
     }
-
-    protected void addTrailerHeader(final SessionOutputBuffer buffer, final T message)
-            throws IOException {}
 }
