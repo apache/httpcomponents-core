@@ -25,84 +25,99 @@
  *
  */
 
-package org.apache.http.impl;
+package org.apache.http.entity;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
+import java.io.OutputStream;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
-import org.apache.http.entity.AbstractImmutableHttpEntity;
-import org.apache.http.impl.io.EmptyInputStream;
+import org.apache.http.util.Args;
 
 /**
- * Represents entity received from an open connection.
+ * Wrapping entity that also includes trailers.
  *
  * @since 5.0
  */
 @NotThreadSafe
-public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
+public class HttpEntityWithTrailers implements HttpEntity {
 
-    private final InputStream content;
-    private final long len;
-    private final boolean chunked;
-    private final Header contentType;
-    private final Header contentEncoding;
+    private final HttpEntity wrappedEntity;
+    private final Header[] trailers;
 
-    public IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
-        this.content = content;
-        this.len = len;
-        this.chunked = chunked;
-        this.contentType = contentType;
-        this.contentEncoding = contentEncoding;
+    /**
+     * Creates a new entity wrapper.
+     */
+    public HttpEntityWithTrailers(final HttpEntity wrappedEntity, final Header... trailers) {
+        super();
+        this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
+        this.trailers = trailers;
     }
 
     @Override
     public boolean isRepeatable() {
-        return false;
+        return wrappedEntity.isRepeatable();
     }
 
     @Override
     public boolean isChunked() {
-        return chunked;
+        return true;
     }
 
     @Override
     public long getContentLength() {
-        return len;
+        return wrappedEntity.getContentLength();
     }
 
     @Override
     public String getContentType() {
-        return contentType != null ? contentType.getValue() : null;
+        return wrappedEntity.getContentType();
     }
 
     @Override
     public String getContentEncoding() {
-        return contentEncoding != null ? contentEncoding.getValue() : null;
+        return wrappedEntity.getContentEncoding();
     }
 
     @Override
-    public InputStream getContent() throws IOException, IllegalStateException {
-        return content;
+    public InputStream getContent()
+        throws IOException {
+        return wrappedEntity.getContent();
+    }
+
+    @Override
+    public void writeTo(final OutputStream outstream)
+        throws IOException {
+        wrappedEntity.writeTo(outstream);
     }
 
     @Override
     public boolean isStreaming() {
-        return content != null && content != EmptyInputStream.INSTANCE;
+        return wrappedEntity.isStreaming();
     }
 
     @Override
     public TrailerSupplier getTrailers() {
-        return null;
+        return new TrailerSupplier() {
+            @Override
+            public Header[] get() {
+                return trailers;
+            }
+        };
     }
 
     @Override
     public Set<String> getTrailerNames() {
-        return Collections.emptySet();
+        final Set<String> names = new LinkedHashSet<>();
+        for (Header trailer: trailers) {
+            names.add(trailer.getName());
+        }
+        return names;
     }
 
 }

@@ -41,6 +41,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.entity.HttpEntityWithTrailers;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicHttpRequest;
@@ -297,6 +298,24 @@ public class TestStandardInterceptors {
         Assert.assertEquals("0", h1.getValue());
         final Header h2 = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNull(h2);
+    }
+
+    @Test
+    public void testRequestContentEntityWithTrailers() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final String s = "whatever";
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
+        request.setEntity(new HttpEntityWithTrailers(entity,
+                new BasicHeader("h1", "this"), new BasicHeader("h1", "that"), new BasicHeader("h2", "this and that")));
+
+        final RequestContent interceptor = new RequestContent();
+        interceptor.process(request, context);
+        final Header header1 = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
+        Assert.assertNotNull(header1);
+        final Header header2 = request.getFirstHeader(HttpHeaders.TRAILER);
+        Assert.assertNotNull(header2);
+        Assert.assertEquals("h1, h2", header2.getValue());
     }
 
     @Test
@@ -896,6 +915,24 @@ public class TestStandardInterceptors {
         interceptor.process(response, context);
         Assert.assertEquals("0", response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
         Assert.assertNull(response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
+    }
+
+    @Test
+    public void testResponseContentEntityWithTrailers() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final String s = "whatever";
+        final StringEntity entity = new StringEntity(s, Consts.ASCII);
+        response.setEntity(new HttpEntityWithTrailers(entity,
+                new BasicHeader("h1", "this"), new BasicHeader("h1", "that"), new BasicHeader("h2", "this and that")));
+
+        final ResponseContent interceptor = new ResponseContent();
+        interceptor.process(response, context);
+        final Header header1 = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
+        Assert.assertNotNull(header1);
+        final Header header2 = response.getFirstHeader(HttpHeaders.TRAILER);
+        Assert.assertNotNull(header2);
+        Assert.assertEquals("h1, h2", header2.getValue());
     }
 
     @Test

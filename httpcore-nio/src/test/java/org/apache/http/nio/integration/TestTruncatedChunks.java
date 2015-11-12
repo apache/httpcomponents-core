@@ -40,6 +40,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.MalformedChunkCodingException;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.TruncatedChunkException;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.entity.ContentType;
@@ -153,11 +154,12 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
                         final long len,
                         final WritableByteChannel channel,
                         final SessionOutputBuffer buffer,
-                        final HttpTransportMetricsImpl metrics) {
+                        final HttpTransportMetricsImpl metrics,
+                        final TrailerSupplier trailers) {
                     if (len == ContentLengthStrategy.CHUNKED) {
                         return new BrokenChunkEncoder(channel, buffer, metrics);
                     } else {
-                        return super.createContentEncoder(len, channel, buffer, metrics);
+                        return super.createContentEncoder(len, channel, buffer, metrics, trailers);
                     }
                 }
 

@@ -269,14 +269,16 @@ public class DefaultNHttpServerConnection
 
         if (response.getStatusLine().getStatusCode() >= 200) {
             this.connMetrics.incrementResponseCount();
-            if (response.getEntity() != null) {
+            final HttpEntity entity = response.getEntity();
+            if (entity != null) {
                 this.response = response;
                 final long len = this.outgoingContentStrategy.determineLength(response);
                 this.contentEncoder = createContentEncoder(
                         len,
                         this.session.channel(),
                         this.outbuf,
-                        this.outTransportMetrics);
+                        this.outTransportMetrics,
+                        entity.getTrailers());
             }
         }
 

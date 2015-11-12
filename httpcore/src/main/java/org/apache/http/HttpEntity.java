@@ -30,6 +30,7 @@ package org.apache.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Set;
 
 /**
  * An entity that can be sent or received with an HTTP message.
@@ -165,5 +166,21 @@ public interface HttpEntity {
      *          {@code false} otherwise
      */
     boolean isStreaming(); // don't expect an exception here
+
+    /**
+     * Returns supplier of message trailers - headers sent after message body.
+     * May return {@code null} if trailers are not available.
+     *
+     * @since 5.0
+     */
+     TrailerSupplier getTrailers();
+
+    /**
+     * Preliminary declaration of trailing headers
+     * @return names of expected trailing headers
+     *
+     * @since 5.0
+     */
+     Set<String> getTrailerNames();
 
 }

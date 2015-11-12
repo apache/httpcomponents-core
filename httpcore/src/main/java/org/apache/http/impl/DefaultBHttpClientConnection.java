@@ -154,7 +154,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException("Length required");
         }
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, entity.getTrailers());
         entity.writeTo(outstream);
         outstream.close();
     }
@@ -174,10 +174,10 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.CHUNKED) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, entity.getTrailers());
             outstream.close();
         } else if (len >= 0 && len <= 1024) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, null);
             entity.writeTo(outstream);
             outstream.close();
         } else {
@@ -207,5 +207,4 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         response.setEntity(createIncomingEntity(response, this.inbuffer, len));
     }
-
 }

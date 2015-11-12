@@ -28,6 +28,7 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
@@ -111,6 +112,10 @@ public class ResponseContent implements HttpResponseInterceptor {
             final long len = entity.getContentLength();
             if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                 response.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
+                final Set<String> trailerNames = entity.getTrailerNames();
+                if (trailerNames != null && !trailerNames.isEmpty()) {
+                    response.setHeader(TrailerNameFormatter.format(entity));
+                }
             } else if (len >= 0) {
                 response.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }

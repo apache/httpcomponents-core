@@ -287,7 +287,7 @@ public class ChunkedInputStream extends InputStream {
                     constraints.getMaxLineLength(),
                     null);
         } catch (final HttpException ex) {
-            final IOException ioe = new MalformedChunkCodingException("Invalid footer: "
+            final IOException ioe = new MalformedChunkCodingException("Invalid trailing header: "
                     + ex.getMessage());
             ioe.initCause(ex);
             throw ioe;

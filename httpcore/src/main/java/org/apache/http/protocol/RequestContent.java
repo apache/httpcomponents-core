@@ -28,6 +28,7 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.apache.http.HeaderElements;
 import org.apache.http.HttpEntity;
@@ -107,6 +108,10 @@ public class RequestContent implements HttpRequestInterceptor {
                             "Chunked transfer encoding not allowed for " + ver);
                 }
                 request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
+                final Set<String> trailerNames = entity.getTrailerNames();
+                if (trailerNames != null && !trailerNames.isEmpty()) {
+                    request.setHeader(TrailerNameFormatter.format(entity));
+                }
             } else {
                 request.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }

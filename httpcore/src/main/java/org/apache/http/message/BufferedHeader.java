@@ -63,6 +63,17 @@ public class BufferedHeader implements FormattedHeader, Serializable {
     private final int valuePos;
 
     /**
+     * @since 5.0
+     */
+    public static BufferedHeader create(final CharArrayBuffer buffer) {
+        try {
+            return new BufferedHeader(buffer);
+        } catch (ParseException ex) {
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+    }
+
+    /**
      * Creates a new header from a buffer.
      * The name of the header will be parsed immediately,
      * the value only if it is accessed.

@@ -30,8 +30,12 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.http.FormattedHeader;
+import org.apache.http.Header;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
+import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -63,6 +67,24 @@ public class ChunkedOutputStream extends OutputStream {
 
     private final CharArrayBuffer linebuffer;
 
+    private final TrailerSupplier trailers;
+
+    /**
+     * Wraps a session output buffer and chunk-encodes the output.
+     *
+     * @param bufferSize The minimum chunk size (excluding last chunk)
+     * @param out The session output buffer
+     *
+     * @since 5.0
+     */
+    public ChunkedOutputStream(final int bufferSize, final SessionOutputBuffer out, final TrailerSupplier trailers) {
+        super();
+        this.cache = new byte[bufferSize];
+        this.out = out;
+        this.linebuffer = new CharArrayBuffer(32);
+        this.trailers = trailers;
+    }
+
     /**
      * Wraps a session output buffer and chunk-encodes the output.
      *
@@ -70,10 +92,7 @@ public class ChunkedOutputStream extends OutputStream {
      * @param out The session output buffer
      */
     public ChunkedOutputStream(final int bufferSize, final SessionOutputBuffer out) {
-        super();
-        this.cache = new byte[bufferSize];
-        this.out = out;
-        this.linebuffer = new CharArrayBuffer(32);
+        this(bufferSize, out, null);
     }
 
     /**
@@ -111,8 +130,25 @@ public class ChunkedOutputStream extends OutputStream {
         this.linebuffer.clear();
         this.linebuffer.append('0');
         this.out.writeLine(this.linebuffer);
+        writeTrailers();
         this.linebuffer.clear();
         this.out.writeLine(this.linebuffer);
+    }
+
+    private void writeTrailers() throws IOException {
+        final Header[] headers = this.trailers != null ? this.trailers.get() : null;
+        if (headers != null) {
+            for (Header header: headers) {
+                if (header instanceof FormattedHeader) {
+                    final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
+                    this.out.writeLine(chbuffer);
+                } else {
+                    this.linebuffer.clear();
+                    BasicLineFormatter.INSTANCE.formatHeader(this.linebuffer, header);
+                    this.out.writeLine(this.linebuffer);
+                }
+            }
+        }
     }
 
     // ----------------------------------------------------------- Public Methods

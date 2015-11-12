@@ -31,8 +31,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
+import org.apache.http.FormattedHeader;
+import org.apache.http.Header;
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -44,35 +48,37 @@ import org.apache.http.util.CharArrayBuffer;
  */
 @NotThreadSafe
 public class ChunkEncoder extends AbstractContentEncoder {
-
     private final int fragHint;
     private final CharArrayBuffer lineBuffer;
+    private final TrailerSupplier trailers;
 
     /**
-     * @since 4.3
-     *
      * @param channel underlying channel.
      * @param buffer  session buffer.
      * @param metrics transport metrics.
      * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
      *   that should be written out directly to the channel bypassing the session buffer.
      *   Value {@code 0} disables fragment buffering.
+     *
+     * @since 5.0
      */
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics,
-            final int fragementSizeHint) {
+            final int fragementSizeHint,
+            final TrailerSupplier trailers) {
         super(channel, buffer, metrics);
         this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
+        this.trailers = trailers;
     }
 
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final HttpTransportMetricsImpl metrics) {
-        this(channel, buffer, metrics, 0);
+        this(channel, buffer, metrics, 0, null);
     }
 
     @Override
@@ -130,9 +136,26 @@ public class ChunkEncoder extends AbstractContentEncoder {
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
         this.buffer.writeLine(this.lineBuffer);
+        writeTrailers();
         this.lineBuffer.clear();
         this.buffer.writeLine(this.lineBuffer);
         super.complete();
+    }
+
+    private void writeTrailers() throws IOException {
+        final Header[] headers = this.trailers != null ? this.trailers.get() : null;
+        if (headers != null) {
+            for (Header header: headers) {
+                if (header instanceof FormattedHeader) {
+                    final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
+                    buffer.writeLine(chbuffer);
+                } else {
+                    this.lineBuffer.clear();
+                    BasicLineFormatter.INSTANCE.formatHeader(this.lineBuffer, header);
+                    buffer.writeLine(this.lineBuffer);
+                }
+            }
+        }
     }
 
     @Override

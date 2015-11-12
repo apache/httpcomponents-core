@@ -265,8 +265,8 @@ public class DefaultNHttpClientConnection
         onRequestSubmitted(request);
         this.requestWriter.write(request, this.outbuf);
         this.hasBufferedOutput = this.outbuf.hasData();
-
-        if (request.getEntity() != null) {
+        final HttpEntity entity = request.getEntity();
+        if (entity != null) {
             this.request = request;
             final long len = this.outgoingContentStrategy.determineLength(request);
             if (len == ContentLengthStrategy.UNDEFINED) {
@@ -276,7 +276,8 @@ public class DefaultNHttpClientConnection
                     len,
                     this.session.channel(),
                     this.outbuf,
-                    this.outTransportMetrics);
+                    this.outTransportMetrics,
+                    entity.getTrailers());
         }
         this.connMetrics.incrementRequestCount();
         this.session.setEvent(EventMask.WRITE);

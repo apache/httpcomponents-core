@@ -27,6 +27,10 @@
 
 package org.apache.http.entity;
 
+import java.util.Collections;
+import java.util.Set;
+
+import org.apache.http.TrailerSupplier;
 import org.apache.http.annotation.NotThreadSafe;
 
 /**
@@ -74,6 +78,16 @@ public abstract class AbstractHttpEntity extends AbstractImmutableHttpEntity {
 
     public void setChunked(final boolean b) {
         this.chunked = b;
+    }
+
+    @Override
+    public TrailerSupplier getTrailers() {
+        return null;
+    }
+
+    @Override
+    public Set<String> getTrailerNames() {
+        return Collections.emptySet();
     }
 
 }
