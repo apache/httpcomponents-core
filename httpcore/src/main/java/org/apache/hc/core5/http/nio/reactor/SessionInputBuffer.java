@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Session input buffer for non-blocking connections. This interface facilitates

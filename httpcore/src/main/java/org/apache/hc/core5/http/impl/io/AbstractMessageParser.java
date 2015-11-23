@@ -31,18 +31,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Abstract base class for HTTP message parsers that obtain input from

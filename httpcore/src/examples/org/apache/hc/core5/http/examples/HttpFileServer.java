@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.entity.ContentType;
+import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.entity.FileEntity;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
@@ -56,8 +57,7 @@ import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpRequestHandler;
-import org.apache.hc.core5.http.ssl.SSLContexts;
-import org.apache.hc.core5.http.util.EntityUtils;
+import org.apache.hc.core5.ssl.SSLContexts;
 
 /**
  * Embedded HTTP/1.1 file server based on a classic (blocking) I/O model.

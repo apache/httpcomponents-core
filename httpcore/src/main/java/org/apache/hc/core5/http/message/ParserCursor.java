@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
+import org.apache.hc.core5.annotation.NotThreadSafe;
 
 /**
  * This class represents a context of a parsing operation:

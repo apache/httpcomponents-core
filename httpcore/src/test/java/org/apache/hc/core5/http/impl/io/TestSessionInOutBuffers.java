@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.SessionInputBufferMock;
 import org.apache.hc.core5.http.impl.SessionOutputBufferMock;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;

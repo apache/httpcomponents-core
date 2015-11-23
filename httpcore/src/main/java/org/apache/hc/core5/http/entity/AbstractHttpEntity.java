@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.entity;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.TrailerSupplier;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 
 /**
  * Abstract base class for mutable entities. Provides the commonly used attributes for streamed and

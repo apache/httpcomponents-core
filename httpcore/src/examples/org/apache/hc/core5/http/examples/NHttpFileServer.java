@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.hc.core5.http.nio.reactor.IOReactorConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.SSLContexts;
 
 /**
  * Embedded HTTP/1.1 file server based on a non-blocking I/O model and capable of direct channel

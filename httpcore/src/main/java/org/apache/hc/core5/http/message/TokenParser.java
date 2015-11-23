@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.message;
 
 import java.util.BitSet;
 
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Low level parser for header field elements. The parsing routines of this class are designed

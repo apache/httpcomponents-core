@@ -30,17 +30,17 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.message.LineFormatter;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Abstract base class for HTTP message writers that serialize output to

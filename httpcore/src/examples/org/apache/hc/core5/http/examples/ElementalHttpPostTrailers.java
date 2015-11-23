@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.entity.ContentType;
+import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.entity.HttpEntityWithTrailers;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.DefaultBHttpClientConnection;
@@ -46,7 +47,6 @@ import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.http.util.EntityUtils;
 
 /**
  * Elemental example for executing POST request with trailing headers

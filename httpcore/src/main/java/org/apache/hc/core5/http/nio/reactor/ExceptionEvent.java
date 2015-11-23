@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.nio.reactor;
 
 import java.util.Date;
 
-import org.apache.hc.core5.http.annotation.Immutable;
+import org.apache.hc.core5.annotation.Immutable;
 
 /**
  * A {@link Throwable} instance along with a time stamp.

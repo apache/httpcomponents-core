@@ -33,13 +33,13 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.concurrent.FutureCallback;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.InputStreamEntity;
 import org.apache.hc.core5.http.message.BasicHttpRequest;

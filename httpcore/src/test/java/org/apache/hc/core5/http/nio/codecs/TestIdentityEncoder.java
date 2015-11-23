@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.reactor.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.reactor.SessionOutputBufferImpl;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

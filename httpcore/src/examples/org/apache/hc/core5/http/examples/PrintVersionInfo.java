@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.examples;
 
-import org.apache.hc.core5.http.util.VersionInfo;
+import org.apache.hc.core5.util.VersionInfo;
 
 /**
  * Prints version information for debugging purposes.

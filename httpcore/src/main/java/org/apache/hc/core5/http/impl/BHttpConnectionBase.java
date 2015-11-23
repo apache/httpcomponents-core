@@ -60,8 +60,8 @@ import org.apache.hc.core5.http.impl.io.SessionInputBufferImpl;
 import org.apache.hc.core5.http.impl.io.SessionOutputBufferImpl;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.NetUtils;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.NetUtils;
 
 class BHttpConnectionBase implements BHttpConnection {
 

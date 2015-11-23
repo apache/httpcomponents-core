@@ -36,7 +36,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.http.nio.reactor.ConnectingIOReactor;
 import org.apache.hc.core5.http.nio.reactor.IOReactorStatus;
 import org.apache.hc.core5.http.nio.reactor.IOSession;

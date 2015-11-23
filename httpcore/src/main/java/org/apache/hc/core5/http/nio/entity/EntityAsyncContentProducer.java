@@ -33,11 +33,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.IOControl;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncContentProducer} that relies on

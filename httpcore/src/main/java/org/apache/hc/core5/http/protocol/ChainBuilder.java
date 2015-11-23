@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
+import org.apache.hc.core5.annotation.NotThreadSafe;
 
 /**
  * Builder class to build a linked list (chain) of unique class instances. Each class can have

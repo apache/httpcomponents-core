@@ -32,11 +32,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.FileContentDecoder;
 import org.apache.hc.core5.http.nio.reactor.SessionInputBuffer;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Content decoder that reads data without any transformation. The end of the

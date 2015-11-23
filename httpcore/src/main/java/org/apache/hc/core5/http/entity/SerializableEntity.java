@@ -35,8 +35,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * A streamed entity that obtains its content from a {@link Serializable}.

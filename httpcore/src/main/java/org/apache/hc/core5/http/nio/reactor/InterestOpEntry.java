@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.nio.reactor;
 
 import java.nio.channels.SelectionKey;
 
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Helper class, representing an entry on an {@link java.nio.channels.SelectionKey#interestOps(int)

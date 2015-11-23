@@ -27,6 +27,17 @@
 
 package org.apache.hc.core5.http.osgi;
 
+import static org.ops4j.pax.exam.CoreOptions.bundle;
+import static org.ops4j.pax.exam.CoreOptions.junitBundles;
+import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.options;
+import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.Properties;
+
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -34,17 +45,6 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.ops4j.pax.exam.util.PathUtils;
-
-import java.io.IOException;
-import java.net.URL;
-import java.util.Properties;
-
-import static org.ops4j.pax.exam.CoreOptions.bundle;
-import static org.ops4j.pax.exam.CoreOptions.junitBundles;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
-import static org.ops4j.pax.exam.CoreOptions.options;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.CoreOptions.wrappedBundle;
 
 /**
  * Test inherit from this.
@@ -84,15 +84,19 @@ public class Common {
                         .artifactId("httpcore")
                         .version(projectVersion)
                         .classifier("tests"))
-                .exports("org.apache.http.integration")
-                .imports("org.apache.http.protocol",
-                        "org.apache.http",
-                        "org.apache.http.config",
-                        "org.apache.http.entity",
-                        "org.apache.http.impl",
-                        "org.apache.http.impl.bootstrap",
-                        "org.apache.http.util",
-                        "org.apache.http.message",
+                .exports("org.apache.hc.core5.http.integration")
+                .imports("org.apache.hc.core5.annotation",
+                        "org.apache.hc.core5.concurrent",
+                        "org.apache.hc.core5.http",
+                        "org.apache.hc.core5.http.config",
+                        "org.apache.hc.core5.http.entity",
+                        "org.apache.hc.core5.http.message",
+                        "org.apache.hc.core5.http.pool",
+                        "org.apache.hc.core5.http.protocol",
+                        "org.apache.hc.core5.http.impl",
+                        "org.apache.hc.core5.http.impl.bootstrap",
+                        "org.apache.hc.core5.ssl",
+                        "org.apache.hc.core5.util",
                         "org.apache.commons.logging; provider=paxlogging",
                         "org.junit"),
                 junitBundles(),

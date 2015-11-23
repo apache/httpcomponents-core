@@ -42,14 +42,14 @@ import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
+import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.annotation.ThreadSafe;
 import org.apache.hc.core5.http.nio.reactor.EventMask;
 import org.apache.hc.core5.http.nio.reactor.IOSession;
 import org.apache.hc.core5.http.nio.reactor.SessionBufferStatus;
 import org.apache.hc.core5.http.nio.reactor.SocketAccessor;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * {@code SSLIOSession} is a decorator class intended to transparently extend

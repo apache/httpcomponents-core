@@ -27,11 +27,11 @@
 
 package org.apache.hc.core5.http.message;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Default {@link org.apache.hc.core5.http.message.HeaderValueFormatter} implementation.

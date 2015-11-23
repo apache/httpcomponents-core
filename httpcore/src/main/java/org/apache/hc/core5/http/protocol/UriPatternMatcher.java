@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hc.core5.http.annotation.GuardedBy;
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.GuardedBy;
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Maintains a map of objects keyed by a request URI pattern.

@@ -27,9 +27,9 @@
 
 package org.apache.hc.core5.http.nio.codecs;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
 import org.apache.hc.core5.http.message.LazyLaxLineParser;

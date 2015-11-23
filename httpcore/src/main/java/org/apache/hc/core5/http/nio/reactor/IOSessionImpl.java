@@ -38,8 +38,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Default implementation of {@link IOSession}.

@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -36,8 +37,7 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * RequestValidateHost is responsible for validating {@code Host} header in HTTP/1.1 messages.

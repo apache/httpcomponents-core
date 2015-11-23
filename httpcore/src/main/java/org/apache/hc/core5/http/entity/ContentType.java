@@ -36,18 +36,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.message.BasicHeaderValueFormatter;
 import org.apache.hc.core5.http.message.BasicHeaderValueParser;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
-import org.apache.hc.core5.http.util.TextUtils;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Content type information consisting of a MIME type and an optional charset.

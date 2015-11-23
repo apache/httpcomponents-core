@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.HttpClientConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.pool.BasicConnFactory;
 import org.apache.hc.core5.http.impl.pool.BasicConnPool;
@@ -49,7 +50,6 @@ import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.http.util.EntityUtils;
 
 /**
  * Elemental example for executing multiple GET requests from different threads using a connection

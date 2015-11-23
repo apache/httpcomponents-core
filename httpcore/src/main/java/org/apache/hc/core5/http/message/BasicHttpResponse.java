@@ -29,13 +29,13 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Locale;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
 import org.apache.hc.core5.http.StatusLine;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link HttpResponse}.

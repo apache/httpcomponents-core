@@ -31,7 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.ThreadSafe;
 
 /**
  * Generic registry of items keyed by low-case string ID.

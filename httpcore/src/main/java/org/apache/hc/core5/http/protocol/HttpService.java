@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
@@ -43,13 +44,12 @@ import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.entity.ContentType;
+import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.EntityUtils;
+import org.apache.hc.core5.util.Args;
 
 /**
  * {@code HttpService} is a server side HTTP protocol handler based on

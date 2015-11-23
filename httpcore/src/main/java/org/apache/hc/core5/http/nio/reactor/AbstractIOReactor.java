@@ -41,9 +41,9 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * Generic implementation of {@link IOReactor} that can used as a subclass

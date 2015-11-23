@@ -29,10 +29,10 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.message.LineFormatter;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * HTTP request writer that serializes its output to an instance of

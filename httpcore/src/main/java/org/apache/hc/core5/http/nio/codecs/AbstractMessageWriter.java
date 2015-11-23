@@ -30,17 +30,17 @@ package org.apache.hc.core5.http.nio.codecs;
 import java.io.IOException;
 import java.util.Iterator;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.message.LineFormatter;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.reactor.SessionOutputBuffer;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Abstract {@link NHttpMessageWriter} that serves as a base for all message

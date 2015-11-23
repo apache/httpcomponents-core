@@ -33,11 +33,11 @@ import java.io.OutputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.TrailerSupplier;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Wrapping entity that also includes trailers.

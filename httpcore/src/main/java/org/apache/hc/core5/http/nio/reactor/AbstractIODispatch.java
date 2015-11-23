@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.nio.reactor;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.annotation.Immutable;
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.nio.reactor.ssl.SSLIOSession;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * Abstract {@link IOEventDispatch} implementation that supports both plain (non-encrypted)

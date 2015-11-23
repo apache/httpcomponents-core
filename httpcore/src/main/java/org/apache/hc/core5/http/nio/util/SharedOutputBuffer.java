@@ -31,10 +31,10 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.IOControl;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * Implementation of the {@link ContentOutputBuffer} interface that can be

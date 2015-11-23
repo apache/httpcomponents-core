@@ -26,9 +26,9 @@
  */
 package org.apache.hc.core5.http.nio;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentLengthStrategy;
 import org.apache.hc.core5.http.impl.ConnSupport;

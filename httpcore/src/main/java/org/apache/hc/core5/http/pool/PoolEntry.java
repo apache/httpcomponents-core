@@ -28,9 +28,9 @@ package org.apache.hc.core5.http.pool;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.annotation.GuardedBy;
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.GuardedBy;
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Pool entry containing a pool connection object along with its route.

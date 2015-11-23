@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.entity;
 
 import java.io.InputStream;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * A generic streamed, non-repeatable entity that obtains its content

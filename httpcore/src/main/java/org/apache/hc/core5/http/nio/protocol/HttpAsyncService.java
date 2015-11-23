@@ -34,6 +34,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionLogger;
 import org.apache.hc.core5.http.Header;
@@ -48,8 +50,6 @@ import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.concurrent.Cancellable;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
@@ -63,8 +63,8 @@ import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * {@code HttpAsyncService} is a fully asynchronous HTTP server side protocol

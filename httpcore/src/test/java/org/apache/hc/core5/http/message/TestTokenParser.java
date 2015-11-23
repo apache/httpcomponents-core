@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

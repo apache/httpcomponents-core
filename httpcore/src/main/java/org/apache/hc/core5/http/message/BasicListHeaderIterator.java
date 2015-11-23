@@ -31,10 +31,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.Header}s. For use by {@link HeaderGroup}.

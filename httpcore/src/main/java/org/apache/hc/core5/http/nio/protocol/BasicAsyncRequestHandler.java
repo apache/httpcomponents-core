@@ -29,12 +29,12 @@ package org.apache.hc.core5.http.nio.protocol;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpRequestHandler;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncRequestHandler} that delegates

@@ -28,8 +28,8 @@ package org.apache.hc.core5.http.nio.pool;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.concurrent.BasicFuture;
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.http.pool.PoolEntry;
 
 @Immutable

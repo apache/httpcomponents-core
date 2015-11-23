@@ -29,13 +29,13 @@ package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * RequestDate interceptor is responsible for adding {@code Date} header

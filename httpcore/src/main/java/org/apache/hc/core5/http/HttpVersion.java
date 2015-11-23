@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http;
 
-import org.apache.hc.core5.http.annotation.Immutable;
+import org.apache.hc.core5.annotation.Immutable;
 
 /**
  * Represents an HTTP version. HTTP uses a "major.minor" numbering

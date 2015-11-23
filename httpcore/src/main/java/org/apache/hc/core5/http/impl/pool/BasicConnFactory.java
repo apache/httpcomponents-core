@@ -33,10 +33,10 @@ import java.net.Socket;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpClientConnection;
 import org.apache.hc.core5.http.HttpConnectionFactory;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultBHttpClientConnectionFactory;

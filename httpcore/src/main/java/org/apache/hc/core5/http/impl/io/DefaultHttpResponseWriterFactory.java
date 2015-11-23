@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.impl.io;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.BasicLineFormatter;

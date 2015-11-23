@@ -51,7 +51,7 @@ import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.http.protocol.UriHttpRequestHandlerMapper;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Asserts;
 
 public class HttpServer {
 

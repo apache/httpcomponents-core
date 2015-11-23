@@ -28,7 +28,7 @@ package org.apache.hc.core5.http.nio.reactor.ssl;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * A {@link SSLBufferManagementStrategy} that releases the underlying buffer when deactivated.

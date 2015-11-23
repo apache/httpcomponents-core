@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.config;
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Consts;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP connection configuration.

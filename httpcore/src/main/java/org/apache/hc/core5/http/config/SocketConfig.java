@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.config;
 
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Socket configuration.

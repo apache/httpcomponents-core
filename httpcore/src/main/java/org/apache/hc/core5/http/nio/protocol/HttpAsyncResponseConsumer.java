@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.nio.protocol;
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.concurrent.Cancellable;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.IOControl;
 import org.apache.hc.core5.http.protocol.HttpContext;

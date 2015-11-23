@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.nio.util;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.http.annotation.Immutable;
+import org.apache.hc.core5.annotation.Immutable;
 
 /**
  * Allocates {@link ByteBuffer} instances using

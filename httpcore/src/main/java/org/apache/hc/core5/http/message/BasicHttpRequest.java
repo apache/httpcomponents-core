@@ -27,12 +27,12 @@
 
 package org.apache.hc.core5.http.message;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.RequestLine;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link HttpRequest}.

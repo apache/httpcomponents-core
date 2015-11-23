@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.nio.IOControl;
 import org.apache.hc.core5.http.nio.entity.EntityAsyncContentProducer;
 import org.apache.hc.core5.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link HttpAsyncResponseProducer}. The producer

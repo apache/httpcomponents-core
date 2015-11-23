@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.impl.io;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 
 /**

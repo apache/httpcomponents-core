@@ -28,7 +28,7 @@ package org.apache.hc.core5.http.pool;
 
 import java.io.Serializable;
 
-import org.apache.hc.core5.http.annotation.Immutable;
+import org.apache.hc.core5.annotation.Immutable;
 
 /**
  * Pool statistics.

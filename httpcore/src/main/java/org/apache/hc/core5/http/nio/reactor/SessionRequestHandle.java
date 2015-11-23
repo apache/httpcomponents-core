@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.nio.reactor;
 
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Session request handle class used by I/O reactor implementations to keep

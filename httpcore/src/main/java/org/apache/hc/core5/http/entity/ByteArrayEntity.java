@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a byte array.

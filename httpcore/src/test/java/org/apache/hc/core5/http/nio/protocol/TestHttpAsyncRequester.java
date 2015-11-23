@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.nio.protocol;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.concurrent.FutureCallback;
 import org.apache.hc.core5.http.nio.NHttpClientConnection;
 import org.apache.hc.core5.http.nio.pool.BasicNIOPoolEntry;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequester.ConnRequestCallback;

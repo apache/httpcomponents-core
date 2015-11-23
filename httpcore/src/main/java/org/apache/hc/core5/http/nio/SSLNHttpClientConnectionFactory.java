@@ -28,9 +28,9 @@ package org.apache.hc.core5.http.nio;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentLengthStrategy;
 import org.apache.hc.core5.http.impl.ConnSupport;
@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.nio.reactor.ssl.SSLIOSession;
 import org.apache.hc.core5.http.nio.reactor.ssl.SSLMode;
 import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
-import org.apache.hc.core5.http.ssl.SSLContexts;
+import org.apache.hc.core5.ssl.SSLContexts;
 
 /**
  * Default factory for SSL encrypted, non-blocking

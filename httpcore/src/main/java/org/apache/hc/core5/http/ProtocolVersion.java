@@ -29,8 +29,8 @@ package org.apache.hc.core5.http;
 
 import java.io.Serializable;
 
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Represents a protocol version. The "major.minor" numbering

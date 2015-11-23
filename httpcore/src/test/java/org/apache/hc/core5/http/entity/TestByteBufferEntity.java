@@ -27,12 +27,12 @@
 
 package org.apache.hc.core5.http.entity;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
+
 import org.apache.hc.core5.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.nio.ByteBuffer;
 
 /**
  * Unit tests for {@link ByteBufferEntity}.

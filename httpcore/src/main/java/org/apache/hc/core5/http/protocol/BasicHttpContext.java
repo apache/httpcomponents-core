@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.protocol;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Default implementation of {@link HttpContext}.

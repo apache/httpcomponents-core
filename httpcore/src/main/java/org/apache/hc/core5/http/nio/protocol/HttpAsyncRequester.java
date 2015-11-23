@@ -31,19 +31,19 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionLogger;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.concurrent.BasicFuture;
-import org.apache.hc.core5.http.concurrent.FutureCallback;
 import org.apache.hc.core5.http.nio.NHttpClientConnection;
 import org.apache.hc.core5.http.pool.ConnPool;
 import org.apache.hc.core5.http.pool.PoolEntry;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * {@code HttpAsyncRequester} is a utility class that can be used

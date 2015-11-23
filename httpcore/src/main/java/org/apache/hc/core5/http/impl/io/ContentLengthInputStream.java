@@ -30,10 +30,10 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Input stream that cuts off after a defined number of bytes. This class

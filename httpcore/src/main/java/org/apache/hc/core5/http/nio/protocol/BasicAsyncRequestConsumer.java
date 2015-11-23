@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.nio.entity.ContentBufferEntity;
 import org.apache.hc.core5.http.nio.util.HeapByteBufferAllocator;
 import org.apache.hc.core5.http.nio.util.SimpleInputBuffer;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * Basic implementation of {@link HttpAsyncRequestConsumer}. Please note that

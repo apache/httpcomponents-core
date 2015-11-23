@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Interface for formatting elements of a header value.

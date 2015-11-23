@@ -32,8 +32,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a file.

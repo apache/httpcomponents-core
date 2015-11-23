@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
 import org.apache.hc.core5.http.nio.util.DirectByteBufferAllocator;
 import org.apache.hc.core5.http.nio.util.HeapByteBufferAllocator;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;

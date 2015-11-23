@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.nio.util;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.util.Args;
 
 /**
  * A buffer that expand its capacity on demand using {@link ByteBufferAllocator}

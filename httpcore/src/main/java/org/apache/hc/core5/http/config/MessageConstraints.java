@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.config;
 
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP Message constraints: line length and header count.

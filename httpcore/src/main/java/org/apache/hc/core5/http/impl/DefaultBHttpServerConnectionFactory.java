@@ -27,17 +27,17 @@
 
 package org.apache.hc.core5.http.impl;
 
+import java.io.IOException;
+import java.net.Socket;
+
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpConnectionFactory;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentLengthStrategy;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
-
-import java.io.IOException;
-import java.net.Socket;
 
 /**
  * Default factory for {@link org.apache.hc.core5.http.HttpServerConnection}s.

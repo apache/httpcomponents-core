@@ -37,13 +37,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Consts;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
 import org.apache.hc.core5.http.nio.util.ExpandableBuffer;
 import org.apache.hc.core5.http.nio.util.HeapByteBufferAllocator;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Default implementation of {@link SessionOutputBuffer} based on

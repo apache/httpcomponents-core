@@ -27,9 +27,9 @@
 
 package org.apache.hc.core5.http.nio.protocol;
 
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.concurrent.Cancellable;
 
 /**
  * {@code HttpAsyncExchange} represents a server-side HTTP message exchange

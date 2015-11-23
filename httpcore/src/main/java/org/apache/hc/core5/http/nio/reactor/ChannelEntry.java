@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.nio.reactor;
 
 import java.nio.channels.SocketChannel;
 
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.util.Args;
 
 /**
  * {@link SocketChannel} entry maintained by the I/O reactor. If the channel

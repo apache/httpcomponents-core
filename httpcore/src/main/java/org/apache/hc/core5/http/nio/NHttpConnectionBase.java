@@ -65,8 +65,8 @@ import org.apache.hc.core5.http.nio.reactor.SessionOutputBufferImpl;
 import org.apache.hc.core5.http.nio.reactor.SocketAccessor;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.NetUtils;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.NetUtils;
 
 class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, SocketAccessor {
 

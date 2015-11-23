@@ -31,12 +31,12 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.http.annotation.Immutable;
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.nio.reactor.AbstractIODispatch;
 import org.apache.hc.core5.http.nio.reactor.IOSession;
 import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Default {@link org.apache.hc.core5.http.nio.reactor.IOEventDispatch} implementation

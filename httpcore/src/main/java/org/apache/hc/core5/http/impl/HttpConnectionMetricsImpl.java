@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 
 /**

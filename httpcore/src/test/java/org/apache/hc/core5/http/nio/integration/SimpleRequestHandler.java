@@ -34,10 +34,10 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.entity.ContentType;
+import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.nio.entity.NStringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpRequestHandler;
-import org.apache.hc.core5.http.util.EntityUtils;
 
 final class SimpleRequestHandler implements HttpRequestHandler {
 

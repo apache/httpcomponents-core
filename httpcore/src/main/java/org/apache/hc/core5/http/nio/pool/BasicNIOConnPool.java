@@ -32,9 +32,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.concurrent.FutureCallback;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.nio.NHttpClientConnection;
 import org.apache.hc.core5.http.nio.reactor.ConnectingIOReactor;

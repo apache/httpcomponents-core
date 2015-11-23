@@ -31,7 +31,7 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.IOControl;
 

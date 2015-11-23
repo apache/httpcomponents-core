@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.impl.entity;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
@@ -34,9 +35,8 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.entity.ContentLengthStrategy;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * The default implementation of the content length strategy. This class

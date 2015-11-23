@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Session output buffer for blocking connections. This interface is similar to

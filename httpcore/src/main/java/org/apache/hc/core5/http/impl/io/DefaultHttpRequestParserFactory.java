@@ -27,9 +27,9 @@
 
 package org.apache.hc.core5.http.impl.io;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.DefaultHttpRequestFactory;
 import org.apache.hc.core5.http.io.HttpMessageParser;

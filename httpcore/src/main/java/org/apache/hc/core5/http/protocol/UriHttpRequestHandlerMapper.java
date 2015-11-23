@@ -27,9 +27,9 @@
 
 package org.apache.hc.core5.http.protocol;
 
+import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Maintains a map of HTTP request handlers keyed by a request URI pattern.

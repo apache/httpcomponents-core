@@ -30,10 +30,10 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.hc.core5.http.nio.NHttpClientConnection;
@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.nio.reactor.IOEventDispatch;
 import org.apache.hc.core5.http.nio.reactor.IOSession;
 import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * A basic {@link NIOConnFactory} implementation that creates

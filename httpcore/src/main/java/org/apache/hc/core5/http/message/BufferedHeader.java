@@ -29,12 +29,12 @@ package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * This class represents a raw HTTP header whose content is parsed 'on demand'

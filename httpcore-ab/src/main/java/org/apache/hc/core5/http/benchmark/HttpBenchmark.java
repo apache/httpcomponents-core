@@ -53,8 +53,8 @@ import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.FileEntity;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.ssl.SSLContextBuilder;
-import org.apache.hc.core5.http.ssl.TrustStrategy;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.TrustStrategy;
 
 /**
  * Main program of the HTTP benchmark.

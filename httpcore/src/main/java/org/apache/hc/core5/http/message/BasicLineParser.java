@@ -29,16 +29,16 @@ package org.apache.hc.core5.http.message;
 
 import java.util.BitSet;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.RequestLine;
 import org.apache.hc.core5.http.StatusLine;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
-import org.apache.hc.core5.http.util.TextUtils;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Default {@link org.apache.hc.core5.http.message.LineParser} implementation.

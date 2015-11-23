@@ -27,11 +27,11 @@
 
 package org.apache.hc.core5.http.message;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Extension of {@link org.apache.hc.core5.http.message.BasicLineParser} that defers parsing of

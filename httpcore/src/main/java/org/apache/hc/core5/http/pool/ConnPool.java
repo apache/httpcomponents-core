@@ -28,7 +28,7 @@ package org.apache.hc.core5.http.pool;
 
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.http.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.FutureCallback;
 
 /**
  * {@code ConnPool} represents a shared pool connections can be leased from

@@ -33,8 +33,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-import org.apache.hc.core5.http.annotation.GuardedBy;
-import org.apache.hc.core5.http.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.GuardedBy;
+import org.apache.hc.core5.annotation.ThreadSafe;
 
 /**
  * Generates a date in the format required by the HTTP protocol.

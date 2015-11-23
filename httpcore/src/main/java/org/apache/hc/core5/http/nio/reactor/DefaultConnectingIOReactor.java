@@ -40,8 +40,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadFactory;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * Default implementation of {@link ConnectingIOReactor}. This class extends

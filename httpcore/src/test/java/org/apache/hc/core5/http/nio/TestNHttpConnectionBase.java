@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.entity.ContentLengthStrategy;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.reactor.IOSession;
 import org.apache.hc.core5.http.nio.util.HeapByteBufferAllocator;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

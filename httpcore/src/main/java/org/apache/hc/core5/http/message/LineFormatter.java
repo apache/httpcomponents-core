@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.RequestLine;
 import org.apache.hc.core5.http.StatusLine;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Interface for formatting elements of the HEAD section of an HTTP message.

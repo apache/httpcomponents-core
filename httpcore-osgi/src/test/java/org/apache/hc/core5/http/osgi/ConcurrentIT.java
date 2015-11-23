@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.osgi;
 
-import org.apache.hc.core5.http.concurrent.BasicFuture;
-import org.apache.hc.core5.http.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.junit.Test;
 
 /**

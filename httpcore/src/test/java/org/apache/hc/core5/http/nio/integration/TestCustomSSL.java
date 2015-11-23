@@ -56,7 +56,7 @@ import org.apache.hc.core5.http.nio.testserver.ServerConnectionFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpRequestHandler;
-import org.apache.hc.core5.http.ssl.SSLContextBuilder;
+import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;

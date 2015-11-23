@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl;
 
 import java.util.Iterator;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
@@ -38,11 +39,10 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.annotation.Immutable;
 import org.apache.hc.core5.http.message.BasicHeaderIterator;
 import org.apache.hc.core5.http.message.BasicTokenIterator;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Default implementation of a strategy deciding about connection re-use. The strategy

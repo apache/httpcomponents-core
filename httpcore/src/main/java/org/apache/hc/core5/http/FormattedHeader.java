@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http;
 
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * An HTTP header which is already formatted.

@@ -43,9 +43,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.hc.core5.http.annotation.ThreadSafe;
-import org.apache.hc.core5.http.concurrent.BasicFuture;
-import org.apache.hc.core5.http.concurrent.FutureCallback;
+import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.nio.reactor.ConnectingIOReactor;
 import org.apache.hc.core5.http.nio.reactor.IOReactorStatus;
 import org.apache.hc.core5.http.nio.reactor.IOSession;
@@ -56,8 +56,8 @@ import org.apache.hc.core5.http.pool.ConnPoolControl;
 import org.apache.hc.core5.http.pool.PoolEntry;
 import org.apache.hc.core5.http.pool.PoolEntryCallback;
 import org.apache.hc.core5.http.pool.PoolStats;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * Abstract non-blocking connection pool.

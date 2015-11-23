@@ -26,12 +26,12 @@
  */
 package org.apache.hc.core5.http.impl;
 
-import org.apache.hc.core5.http.config.ConnectionConfig;
-
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
+
+import org.apache.hc.core5.http.config.ConnectionConfig;
 
 /**
  * Connection support methods.

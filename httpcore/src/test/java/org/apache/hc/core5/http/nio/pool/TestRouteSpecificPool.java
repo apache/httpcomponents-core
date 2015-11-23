@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.hc.core5.http.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.http.nio.reactor.IOSession;
 import org.apache.hc.core5.http.nio.reactor.SessionRequest;
 import org.apache.hc.core5.http.pool.PoolEntry;

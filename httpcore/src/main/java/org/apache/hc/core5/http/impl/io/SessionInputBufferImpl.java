@@ -34,16 +34,16 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.Asserts;
-import org.apache.hc.core5.http.util.ByteArrayBuffer;
-import org.apache.hc.core5.http.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Abstract base class for session input buffers that stream data from

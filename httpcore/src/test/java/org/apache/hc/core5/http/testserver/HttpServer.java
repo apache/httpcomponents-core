@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.protocol.HttpExpectationVerifier;
 import org.apache.hc.core5.http.protocol.HttpRequestHandler;
 import org.apache.hc.core5.http.protocol.UriHttpRequestHandlerMapper;
-import org.apache.hc.core5.http.util.Asserts;
+import org.apache.hc.core5.util.Asserts;
 
 public class HttpServer {
 

@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.entity;
 import java.io.ByteArrayOutputStream;
 
 import org.apache.hc.core5.http.Consts;
-import org.apache.hc.core5.http.util.EntityUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

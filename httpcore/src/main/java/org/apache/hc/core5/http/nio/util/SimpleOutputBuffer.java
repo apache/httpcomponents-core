@@ -28,7 +28,7 @@ package org.apache.hc.core5.http.nio.util;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.annotation.NotThreadSafe;
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 
 /**

@@ -29,10 +29,10 @@ package org.apache.hc.core5.http.impl;
 
 import java.util.Locale;
 
+import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
+import org.apache.hc.core5.util.Args;
 
 /**
  * English reason phrases for HTTP status codes.

@@ -31,9 +31,9 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.Locale;
 
-import org.apache.hc.core5.http.annotation.Immutable;
-import org.apache.hc.core5.http.util.Args;
-import org.apache.hc.core5.http.util.LangUtils;
+import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.LangUtils;
 
 /**
  * Holds all of the variables needed to describe an HTTP connection to a host.
