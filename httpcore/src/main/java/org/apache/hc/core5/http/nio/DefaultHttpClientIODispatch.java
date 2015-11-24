@@ -33,13 +33,13 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.config.ConnectionConfig;
-import org.apache.hc.core5.http.nio.reactor.AbstractIODispatch;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
+import org.apache.hc.core5.reactor.AbstractIODispatch;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Default {@link org.apache.hc.core5.http.nio.reactor.IOEventDispatch} implementation
+ * Default {@link org.apache.hc.core5.reactor.IOEventDispatch} implementation
  * that supports both plain (non-encrypted) and SSL encrypted client side HTTP
  * connections.
  *

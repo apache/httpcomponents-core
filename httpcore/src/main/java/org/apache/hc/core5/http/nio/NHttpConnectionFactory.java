@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.nio;
 
-import org.apache.hc.core5.http.nio.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSession;
 
 /**
  * Factory for {@link NHttpConnection} instances.

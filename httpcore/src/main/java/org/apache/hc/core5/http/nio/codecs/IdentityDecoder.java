@@ -35,7 +35,7 @@ import java.nio.channels.ReadableByteChannel;
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.FileContentDecoder;
-import org.apache.hc.core5.http.nio.reactor.SessionInputBuffer;
+import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 
 /**

@@ -59,7 +59,6 @@ import org.apache.hc.core5.http.nio.NHttpServerConnection;
 import org.apache.hc.core5.http.nio.entity.NStringEntity;
 import org.apache.hc.core5.http.nio.pool.BasicNIOConnPool;
 import org.apache.hc.core5.http.nio.pool.BasicNIOPoolEntry;
-import org.apache.hc.core5.http.nio.pool.NIOConnFactory;
 import org.apache.hc.core5.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestConsumer;
@@ -72,13 +71,6 @@ import org.apache.hc.core5.http.nio.protocol.HttpAsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncResponseProducer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncService;
 import org.apache.hc.core5.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.hc.core5.http.nio.reactor.ConnectingIOReactor;
-import org.apache.hc.core5.http.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.hc.core5.http.nio.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.http.nio.reactor.IOEventDispatch;
-import org.apache.hc.core5.http.nio.reactor.IOReactorConfig;
-import org.apache.hc.core5.http.nio.reactor.ListeningIOReactor;
-import org.apache.hc.core5.http.pool.PoolStats;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -92,6 +84,14 @@ import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
+import org.apache.hc.core5.pool.PoolStats;
+import org.apache.hc.core5.pool.nio.NIOConnFactory;
+import org.apache.hc.core5.reactor.ConnectingIOReactor;
+import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
+import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
+import org.apache.hc.core5.reactor.IOEventDispatch;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.ListeningIOReactor;
 
 /**
  * Asynchronous, fully streaming HTTP/1.1 reverse proxy.

@@ -31,7 +31,6 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.nio.reactor.SessionOutputBuffer;
 
 /**
  * Abstract HTTP message writer for non-blocking connections.

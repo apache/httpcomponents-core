@@ -38,11 +38,11 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionLogger;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.NHttpClientConnection;
-import org.apache.hc.core5.http.pool.ConnPool;
-import org.apache.hc.core5.http.pool.PoolEntry;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.pool.ConnPool;
+import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.util.Args;
 
 /**

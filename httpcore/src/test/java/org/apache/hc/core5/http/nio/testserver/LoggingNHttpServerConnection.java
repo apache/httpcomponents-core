@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.nio.DefaultNHttpServerConnection;
 import org.apache.hc.core5.http.nio.NHttpServerEventHandler;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSession;
 
 public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
 

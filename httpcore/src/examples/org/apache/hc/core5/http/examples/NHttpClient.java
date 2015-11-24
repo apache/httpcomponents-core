@@ -41,9 +41,6 @@ import org.apache.hc.core5.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequester;
-import org.apache.hc.core5.http.nio.reactor.ConnectingIOReactor;
-import org.apache.hc.core5.http.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.hc.core5.http.nio.reactor.IOEventDispatch;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
@@ -52,6 +49,9 @@ import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.reactor.ConnectingIOReactor;
+import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
+import org.apache.hc.core5.reactor.IOEventDispatch;
 
 /**
  * Minimal asynchronous HTTP/1.1 client.

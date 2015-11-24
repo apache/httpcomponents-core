@@ -32,8 +32,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.codecs.AbstractContentEncoder;
-import org.apache.hc.core5.http.nio.reactor.SessionOutputBuffer;
 import org.apache.hc.core5.util.Asserts;
 
 public class ContentEncoderMock extends AbstractContentEncoder {

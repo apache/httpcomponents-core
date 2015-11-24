@@ -50,8 +50,6 @@ import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestHandlerMapper;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncService;
 import org.apache.hc.core5.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.hc.core5.http.nio.reactor.IOReactorConfig;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
@@ -59,6 +57,8 @@ import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.ssl.SSLSetupHandler;
 
 /**
  * @since 4.4
@@ -288,7 +288,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler} instance.
+     * Assigns {@link SSLSetupHandler} instance.
      * <p>
      * Please note this value can be overridden by the {@link #setConnectionFactory(
      *   org.apache.hc.core5.http.nio.NHttpConnectionFactory)} method.

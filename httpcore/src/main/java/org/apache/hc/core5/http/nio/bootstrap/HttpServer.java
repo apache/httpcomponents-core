@@ -39,12 +39,12 @@ import org.apache.hc.core5.http.nio.DefaultHttpServerIODispatch;
 import org.apache.hc.core5.http.nio.DefaultNHttpServerConnection;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
 import org.apache.hc.core5.http.nio.NHttpServerEventHandler;
-import org.apache.hc.core5.http.nio.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.http.nio.reactor.IOEventDispatch;
-import org.apache.hc.core5.http.nio.reactor.IOReactorConfig;
-import org.apache.hc.core5.http.nio.reactor.IOReactorException;
-import org.apache.hc.core5.http.nio.reactor.IOReactorExceptionHandler;
-import org.apache.hc.core5.http.nio.reactor.ListenerEndpoint;
+import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
+import org.apache.hc.core5.reactor.IOEventDispatch;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorException;
+import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
+import org.apache.hc.core5.reactor.ListenerEndpoint;
 
 /**
  * @since 4.4

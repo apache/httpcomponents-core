@@ -42,9 +42,9 @@ import org.apache.hc.core5.http.nio.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncExpectationVerifier;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestHandler;
 import org.apache.hc.core5.http.nio.protocol.UriHttpAsyncRequestHandlerMapper;
-import org.apache.hc.core5.http.nio.reactor.IOReactorConfig;
-import org.apache.hc.core5.http.nio.reactor.ListenerEndpoint;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.Asserts;
 
 public class HttpServerNio {

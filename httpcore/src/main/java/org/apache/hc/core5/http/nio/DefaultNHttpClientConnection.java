@@ -43,9 +43,9 @@ import org.apache.hc.core5.http.entity.ContentLengthStrategy;
 import org.apache.hc.core5.http.impl.entity.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.nio.codecs.DefaultHttpRequestWriterFactory;
 import org.apache.hc.core5.http.nio.codecs.DefaultHttpResponseParserFactory;
-import org.apache.hc.core5.http.nio.reactor.EventMask;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
+import org.apache.hc.core5.reactor.EventMask;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
 /**

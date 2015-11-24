@@ -41,10 +41,11 @@ import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.nio.SSLNHttpClientConnectionFactory;
-import org.apache.hc.core5.http.nio.reactor.IOEventDispatch;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
+import org.apache.hc.core5.pool.nio.NIOConnFactory;
+import org.apache.hc.core5.reactor.IOEventDispatch;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.util.Args;
 
 /**

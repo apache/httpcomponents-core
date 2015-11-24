@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.nio;
 
-import org.apache.hc.core5.http.nio.reactor.IOSession;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.reactor.IOSession;
 
 class SessionHttpContext implements HttpContext {
 

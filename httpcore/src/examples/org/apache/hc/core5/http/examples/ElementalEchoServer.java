@@ -31,11 +31,11 @@ import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.http.nio.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.http.nio.reactor.EventMask;
-import org.apache.hc.core5.http.nio.reactor.IOEventDispatch;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
-import org.apache.hc.core5.http.nio.reactor.ListeningIOReactor;
+import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
+import org.apache.hc.core5.reactor.EventMask;
+import org.apache.hc.core5.reactor.IOEventDispatch;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ListeningIOReactor;
 
 public class ElementalEchoServer {
 

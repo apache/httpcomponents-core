@@ -31,7 +31,7 @@ import java.io.IOException;
 import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.http.HttpClientConnection;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.pool.PoolEntry;
+import org.apache.hc.core5.pool.PoolEntry;
 
 /**
  * A very basic {@link PoolEntry} implementation that represents an entry

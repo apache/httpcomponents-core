@@ -37,10 +37,13 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.nio.NHttpClientConnection;
-import org.apache.hc.core5.http.nio.reactor.ConnectingIOReactor;
+import org.apache.hc.core5.pool.nio.AbstractNIOConnPool;
+import org.apache.hc.core5.pool.nio.NIOConnFactory;
+import org.apache.hc.core5.pool.nio.SocketAddressResolver;
+import org.apache.hc.core5.reactor.ConnectingIOReactor;
 
 /**
- * A very basic {@link org.apache.hc.core5.http.pool.ConnPool} implementation that
+ * A very basic {@link org.apache.hc.core5.pool.ConnPool} implementation that
  * represents a pool of non-blocking {@link NHttpClientConnection} connections
  * identified by an {@link HttpHost} instance. Please note this pool
  * implementation does not support complex routes via a proxy cannot

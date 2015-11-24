@@ -30,10 +30,10 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.nio.DefaultNHttpServerConnection;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLIOSession;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLMode;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLIOSession;
+import org.apache.hc.core5.reactor.ssl.SSLMode;
+import org.apache.hc.core5.reactor.ssl.SSLSetupHandler;
 
 public class ServerConnectionFactory implements NHttpConnectionFactory<DefaultNHttpServerConnection> {
 

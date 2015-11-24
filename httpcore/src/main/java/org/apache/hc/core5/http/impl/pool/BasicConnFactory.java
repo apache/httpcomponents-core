@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultBHttpClientConnectionFactory;
-import org.apache.hc.core5.http.pool.ConnFactory;
+import org.apache.hc.core5.pool.io.ConnFactory;
 
 /**
  * A very basic {@link ConnFactory} implementation that creates

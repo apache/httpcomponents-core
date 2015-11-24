@@ -52,9 +52,9 @@ import org.apache.hc.core5.http.nio.protocol.BasicAsyncResponseProducer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestHandler;
-import org.apache.hc.core5.http.nio.reactor.IOReactorConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.ssl.SSLContexts;
 
 /**

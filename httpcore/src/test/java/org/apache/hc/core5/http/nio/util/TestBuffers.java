@@ -39,8 +39,8 @@ import org.apache.hc.core5.http.ReadableByteChannelMock;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
-import org.apache.hc.core5.http.nio.reactor.SessionOutputBuffer;
-import org.apache.hc.core5.http.nio.reactor.SessionOutputBufferImpl;
+import org.apache.hc.core5.http.nio.SessionOutputBuffer;
+import org.apache.hc.core5.http.nio.SessionOutputBufferImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

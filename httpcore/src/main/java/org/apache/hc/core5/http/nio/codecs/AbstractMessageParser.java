@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
-import org.apache.hc.core5.http.nio.reactor.SessionInputBuffer;
+import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 

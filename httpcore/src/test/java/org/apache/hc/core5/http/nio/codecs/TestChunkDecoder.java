@@ -40,8 +40,8 @@ import org.apache.hc.core5.http.ReadableByteChannelMock;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
-import org.apache.hc.core5.http.nio.reactor.SessionInputBuffer;
-import org.apache.hc.core5.http.nio.reactor.SessionInputBufferImpl;
+import org.apache.hc.core5.http.nio.SessionInputBuffer;
+import org.apache.hc.core5.http.nio.SessionInputBufferImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

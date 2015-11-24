@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
-import org.apache.hc.core5.http.nio.reactor.SessionOutputBuffer;
+import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**

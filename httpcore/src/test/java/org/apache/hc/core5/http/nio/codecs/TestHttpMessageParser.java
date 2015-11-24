@@ -43,8 +43,8 @@ import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
-import org.apache.hc.core5.http.nio.reactor.SessionInputBuffer;
-import org.apache.hc.core5.http.nio.reactor.SessionInputBufferImpl;
+import org.apache.hc.core5.http.nio.SessionInputBuffer;
+import org.apache.hc.core5.http.nio.SessionInputBufferImpl;
 import org.junit.Assert;
 import org.junit.Test;
 

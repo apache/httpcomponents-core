@@ -33,11 +33,11 @@ import org.apache.hc.core5.http.HttpClientConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.SocketConfig;
-import org.apache.hc.core5.http.pool.AbstractConnPool;
-import org.apache.hc.core5.http.pool.ConnFactory;
+import org.apache.hc.core5.pool.io.AbstractConnPool;
+import org.apache.hc.core5.pool.io.ConnFactory;
 
 /**
- * A very basic {@link org.apache.hc.core5.http.pool.ConnPool} implementation that
+ * A very basic {@link org.apache.hc.core5.pool.ConnPool} implementation that
  * represents a pool of blocking {@link HttpClientConnection} connections
  * identified by an {@link HttpHost} instance. Please note this pool
  * implementation does not support complex routes via a proxy cannot

@@ -34,7 +34,7 @@ import java.nio.channels.WritableByteChannel;
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.ContentEncoder;
-import org.apache.hc.core5.http.nio.reactor.SessionOutputBuffer;
+import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 

@@ -48,21 +48,12 @@ import org.apache.hc.core5.http.nio.NHttpClientConnection;
 import org.apache.hc.core5.http.nio.NHttpClientEventHandler;
 import org.apache.hc.core5.http.nio.pool.BasicNIOConnPool;
 import org.apache.hc.core5.http.nio.pool.BasicNIOPoolEntry;
-import org.apache.hc.core5.http.nio.pool.NIOConnFactory;
 import org.apache.hc.core5.http.nio.protocol.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.nio.protocol.BasicAsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequestProducer;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.protocol.HttpAsyncResponseConsumer;
-import org.apache.hc.core5.http.nio.reactor.ConnectingIOReactor;
-import org.apache.hc.core5.http.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.hc.core5.http.nio.reactor.ExceptionEvent;
-import org.apache.hc.core5.http.nio.reactor.IOEventDispatch;
-import org.apache.hc.core5.http.nio.reactor.IOReactorExceptionHandler;
-import org.apache.hc.core5.http.nio.reactor.IOReactorStatus;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
-import org.apache.hc.core5.http.nio.reactor.SessionRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -72,6 +63,15 @@ import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.pool.nio.NIOConnFactory;
+import org.apache.hc.core5.reactor.ConnectingIOReactor;
+import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
+import org.apache.hc.core5.reactor.ExceptionEvent;
+import org.apache.hc.core5.reactor.IOEventDispatch;
+import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
+import org.apache.hc.core5.reactor.IOReactorStatus;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.SessionRequest;
 
 public class HttpClientNio {
 

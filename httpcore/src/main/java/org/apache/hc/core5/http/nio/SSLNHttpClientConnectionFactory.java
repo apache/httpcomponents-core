@@ -34,11 +34,11 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentLengthStrategy;
 import org.apache.hc.core5.http.impl.ConnSupport;
-import org.apache.hc.core5.http.nio.reactor.IOSession;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLIOSession;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLMode;
-import org.apache.hc.core5.http.nio.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.http.nio.util.ByteBufferAllocator;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLIOSession;
+import org.apache.hc.core5.reactor.ssl.SSLMode;
+import org.apache.hc.core5.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.ssl.SSLContexts;
 
 /**
