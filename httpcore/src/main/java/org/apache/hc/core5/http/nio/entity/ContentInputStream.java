@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.nio.util.ContentInputBuffer;
+import org.apache.hc.core5.http.nio.ContentInputBuffer;
 import org.apache.hc.core5.util.Args;
 
 /**

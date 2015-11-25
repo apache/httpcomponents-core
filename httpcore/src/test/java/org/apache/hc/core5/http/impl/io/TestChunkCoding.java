@@ -41,8 +41,6 @@ import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.SessionInputBufferMock;
-import org.apache.hc.core5.http.impl.SessionOutputBufferMock;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.junit.Assert;

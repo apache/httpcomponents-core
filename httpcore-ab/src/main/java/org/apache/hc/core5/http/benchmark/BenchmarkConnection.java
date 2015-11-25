@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.apache.hc.core5.http.TrailerSupplier;
-import org.apache.hc.core5.http.impl.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 

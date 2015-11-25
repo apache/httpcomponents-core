@@ -33,7 +33,6 @@ import java.io.InputStream;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Consts;
-import org.apache.hc.core5.http.impl.SessionInputBufferMock;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;

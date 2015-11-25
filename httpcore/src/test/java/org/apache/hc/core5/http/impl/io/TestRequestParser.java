@@ -37,7 +37,6 @@ import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.RequestLine;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.SessionInputBufferMock;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
