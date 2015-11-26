@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Commons constants.
@@ -41,9 +42,9 @@ public final class Consts {
     public static final int SP = 32; // <US-ASCII SP, space (32)>
     public static final int HT = 9;  // <US-ASCII HT, horizontal-tab (9)>
 
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
-    public static final Charset ASCII = Charset.forName("US-ASCII");
-    public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
+    public static final Charset ASCII = StandardCharsets.US_ASCII;
+    public static final Charset ISO_8859_1 = StandardCharsets.ISO_8859_1;
 
     private Consts() {
     }
