@@ -34,9 +34,9 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -71,7 +71,7 @@ public class NStringEntity extends AbstractHttpEntity implements HttpAsyncConten
         Args.notNull(s, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {
-            charset = Consts.ISO_8859_1;
+            charset = StandardCharsets.ISO_8859_1;
         }
         this.b = s.getBytes(charset);
         this.buf = ByteBuffer.wrap(this.b);

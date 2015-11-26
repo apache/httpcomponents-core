@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -73,7 +73,7 @@ public class TestLengthDelimitedEncoder {
         encoder.write(CodecTestUtils.wrap("stuff;"));
         encoder.write(CodecTestUtils.wrap("more stuff"));
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -91,7 +91,7 @@ public class TestLengthDelimitedEncoder {
         encoder.write(CodecTestUtils.wrap("stuff;"));
         encoder.write(CodecTestUtils.wrap("more stuff; and a lot more stuff"));
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -114,7 +114,7 @@ public class TestLengthDelimitedEncoder {
 
         encoder.write(CodecTestUtils.wrap("more stuff"));
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -182,8 +182,8 @@ public class TestLengthDelimitedEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes(Consts.ASCII));
-            testfile.write("more stuff; and a lot more stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff;".getBytes(StandardCharsets.US_ASCII));
+            testfile.write("more stuff; and a lot more stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -196,7 +196,7 @@ public class TestLengthDelimitedEncoder {
             testfile.close();
         }
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -226,7 +226,7 @@ public class TestLengthDelimitedEncoder {
             testfile.close();
         }
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -245,7 +245,7 @@ public class TestLengthDelimitedEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("more stuff".getBytes(Consts.ASCII));
+            testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -274,8 +274,8 @@ public class TestLengthDelimitedEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes(Consts.ASCII));
-            testfile.write("more stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff;".getBytes(StandardCharsets.US_ASCII));
+            testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -287,7 +287,7 @@ public class TestLengthDelimitedEncoder {
         } finally {
             testfile.close();
         }
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -309,8 +309,8 @@ public class TestLengthDelimitedEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes(Consts.ASCII));
-            testfile.write("more stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff;".getBytes(StandardCharsets.US_ASCII));
+            testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -322,7 +322,7 @@ public class TestLengthDelimitedEncoder {
         } finally {
             testfile.close();
         }
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("header\r\nstuff;more stuff", s);
@@ -344,7 +344,7 @@ public class TestLengthDelimitedEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -357,7 +357,7 @@ public class TestLengthDelimitedEncoder {
         } finally {
             testfile.close();
         }
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertFalse(encoder.isCompleted());
         Assert.assertEquals("head", s);
@@ -383,7 +383,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(13, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("header\r\nstuff", s);
     }
@@ -408,7 +408,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("header\r\nstuff", s);
     }
@@ -432,7 +432,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff-more stuff", s);
     }
@@ -456,7 +456,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff-more stuff", s);
     }
@@ -481,7 +481,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(13, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
         Assert.assertEquals("header\r\nstuff", s);
     }
 
@@ -506,7 +506,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(18, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff---more stuff", s);
     }
@@ -532,7 +532,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(18, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff---more stuff", s);
     }
@@ -560,7 +560,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(21, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff------more stuff", s);
     }
@@ -584,7 +584,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(3, outbuf.length());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff-stuff", s);
     }
@@ -608,7 +608,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(0, outbuf.length());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff-much more stuff", s);
     }
@@ -638,7 +638,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(8, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff---", s);
         Assert.assertEquals(3, outbuf.length());
@@ -664,7 +664,7 @@ public class TestLengthDelimitedEncoder {
         Assert.assertEquals(8, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff--m", s);
         Assert.assertEquals(0, outbuf.length());

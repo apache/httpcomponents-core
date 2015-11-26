@@ -31,13 +31,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
-
-import org.apache.hc.core5.http.Consts;
+import java.nio.charset.StandardCharsets;
 
 class CodecTestUtils {
 
     public static ByteBuffer wrap(final String s) {
-        return ByteBuffer.wrap(s.getBytes(Consts.ASCII));
+        return ByteBuffer.wrap(s.getBytes(StandardCharsets.US_ASCII));
     }
 
     public static String convert(final ByteBuffer src) {

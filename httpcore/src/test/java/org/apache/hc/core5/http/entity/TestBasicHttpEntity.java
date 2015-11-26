@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.entity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class TestBasicHttpEntity {
     @Test
     public void testBasics() throws Exception {
 
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStream content = new ByteArrayInputStream(bytes);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);
@@ -68,7 +68,7 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testContent() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStream content = new ByteArrayInputStream(bytes);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         try {
@@ -91,7 +91,7 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testWriteTo() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStream content = new ByteArrayInputStream(bytes);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(content);

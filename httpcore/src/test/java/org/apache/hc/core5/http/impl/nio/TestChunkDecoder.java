@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
@@ -52,8 +52,8 @@ public class TestChunkDecoder {
     public void testBasicDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -77,9 +77,9 @@ public class TestChunkDecoder {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -114,9 +114,9 @@ public class TestChunkDecoder {
         final String s1 = "5\r\n01234\r\n5\r\n5678";
         final String s2 = "9\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s1, s2}, Consts.ASCII);
+                new String[] {s1, s2}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -150,9 +150,9 @@ public class TestChunkDecoder {
                 "-----------------------------------------------------------------------------" +
                 "-----------------------------------------------------------------------------";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(32, 32, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(32, 32, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -180,9 +180,9 @@ public class TestChunkDecoder {
                 "ghij\r\n\r\n"
         };
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                chunks, Consts.ASCII);
+                chunks, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
@@ -217,9 +217,9 @@ public class TestChunkDecoder {
     public void testMalformedChunkSizeDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5zz\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -231,9 +231,9 @@ public class TestChunkDecoder {
     public void testMalformedChunkEndingDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5\r\n56789\r\r6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -245,9 +245,9 @@ public class TestChunkDecoder {
     public void testMalformedChunkTruncatedChunk() throws Exception {
         final String s = "3\r\n12";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -261,9 +261,9 @@ public class TestChunkDecoder {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\n   \r\n  fghij\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -284,9 +284,9 @@ public class TestChunkDecoder {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -299,9 +299,9 @@ public class TestChunkDecoder {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -317,9 +317,9 @@ public class TestChunkDecoder {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -347,9 +347,9 @@ public class TestChunkDecoder {
                 "40\r\n12345678901234561234567890123456" +
                 "12345678901234561234567890123456\r\n0\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -379,9 +379,9 @@ public class TestChunkDecoder {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
@@ -404,7 +404,7 @@ public class TestChunkDecoder {
     public void testTooLongChunkHeader() throws Exception {
         final String s = "5; and some very looooong comment\r\n12345\r\n0\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.DEFAULT, null, null);
@@ -420,7 +420,7 @@ public class TestChunkDecoder {
         Assert.assertTrue(decoder1.isCompleted());
 
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.lineLen(10), null, null);
@@ -442,9 +442,9 @@ public class TestChunkDecoder {
 //        final String s = "10\r\n1234567890123456\r\n" +
 //                "0\r\nFooter1: looooooooooooooooooooooooooooooooooooooooog\r\n   \r\n  fghij\r\n\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.DEFAULT, Consts.ASCII);
+                MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics1 = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
@@ -458,9 +458,9 @@ public class TestChunkDecoder {
         Assert.assertEquals(1, footers.length);
 
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.lineLen(25), Consts.ASCII);
+                MessageConstraints.lineLen(25), StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics2 = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
@@ -477,9 +477,9 @@ public class TestChunkDecoder {
         final String s = "10\r\n1234567890123456\r\n" +
                 "0\r\nFooter1: blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.DEFAULT, Consts.ASCII);
+                MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics1 = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
@@ -494,9 +494,9 @@ public class TestChunkDecoder {
 
         final MessageConstraints constraints = MessageConstraints.lineLen(25);
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
-                constraints, Consts.ASCII);
+                constraints, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics2 = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, constraints, metrics2);
 
@@ -513,9 +513,9 @@ public class TestChunkDecoder {
         final String s = "10\r\n1234567890123456\r\n" +
                 "0\r\nFooter1: blah\r\nFooter2: blah\r\nFooter3: blah\r\nFooter4: blah\r\n\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.DEFAULT, Consts.ASCII);
+                MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics1 = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
@@ -531,9 +531,9 @@ public class TestChunkDecoder {
         final MessageConstraints constraints = MessageConstraints.custom()
                 .setMaxHeaderCount(3).build();
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
-                constraints, Consts.ASCII);
+                constraints, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics2 = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, constraints, metrics2);
 
@@ -548,9 +548,9 @@ public class TestChunkDecoder {
     @Test
     public void testInvalidConstructor() {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {"stuff;", "more stuff"}, Consts.ASCII);
+                new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         try {
             new ChunkDecoder(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -576,9 +576,9 @@ public class TestChunkDecoder {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {s}, Consts.ASCII);
+                new String[] {s}, StandardCharsets.US_ASCII);
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, Consts.ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         decoder.read(null);

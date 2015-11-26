@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.entity;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,7 +44,7 @@ public class TestStringEntity {
         final String s = "Message content";
         final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
 
-        final byte[] bytes = s.getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
         Assert.assertNotNull(httpentity.getContent());
         Assert.assertTrue(httpentity.isRepeatable());
@@ -66,7 +66,7 @@ public class TestStringEntity {
         final String s = "Message content";
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/csv", "ANSI_X3.4-1968"));
         Assert.assertEquals("text/csv; charset=US-ASCII", httpentity.getContentType());
-        httpentity = new StringEntity(s, Consts.ASCII);
+        httpentity = new StringEntity(s, StandardCharsets.US_ASCII);
         Assert.assertEquals("text/plain; charset=US-ASCII", httpentity.getContentType());
         httpentity = new StringEntity(s);
         Assert.assertEquals("text/plain; charset=ISO-8859-1", httpentity.getContentType());
@@ -102,7 +102,7 @@ public class TestStringEntity {
     @Test
     public void testWriteTo() throws Exception {
         final String s = "Message content";
-        final byte[] bytes = s.getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
         final StringEntity httpentity = new StringEntity(s);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

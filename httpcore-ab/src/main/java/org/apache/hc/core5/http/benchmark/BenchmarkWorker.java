@@ -31,12 +31,12 @@ import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import javax.net.SocketFactory;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
@@ -172,7 +172,7 @@ class BenchmarkWorker implements Runnable {
                     final ContentType ct = ContentType.getOrDefault(entity);
                     Charset charset = ct.getCharset();
                     if (charset == null) {
-                        charset = Consts.ISO_8859_1;
+                        charset = StandardCharsets.ISO_8859_1;
                     }
                     long contentlen = 0;
                     final InputStream instream = entity.getContent();

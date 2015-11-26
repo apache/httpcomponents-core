@@ -32,8 +32,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -76,7 +76,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(5, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff", s);
         Assert.assertEquals("[identity; completed: true]", encoder.toString());
@@ -98,7 +98,7 @@ public class TestIdentityEncoder {
         encoder.complete();
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("stuff", s);
@@ -158,8 +158,8 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes(Consts.ASCII));
-            testfile.write("more stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff;".getBytes(StandardCharsets.US_ASCII));
+            testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -172,7 +172,7 @@ public class TestIdentityEncoder {
             testfile.close();
         }
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertFalse(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -201,7 +201,7 @@ public class TestIdentityEncoder {
             testfile.close();
         }
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertFalse(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -218,8 +218,8 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes(Consts.ASCII));
-            testfile.write("more stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff;".getBytes(StandardCharsets.US_ASCII));
+            testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -231,7 +231,7 @@ public class TestIdentityEncoder {
         } finally {
             testfile.close();
         }
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertFalse(encoder.isCompleted());
         Assert.assertEquals("stuff;more stuff", s);
@@ -252,8 +252,8 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff;".getBytes(Consts.ASCII));
-            testfile.write("more stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff;".getBytes(StandardCharsets.US_ASCII));
+            testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -265,7 +265,7 @@ public class TestIdentityEncoder {
         } finally {
             testfile.close();
         }
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertFalse(encoder.isCompleted());
         Assert.assertEquals("header\r\nstuff;more stuff", s);
@@ -286,7 +286,7 @@ public class TestIdentityEncoder {
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
         try {
-            testfile.write("stuff".getBytes(Consts.ASCII));
+            testfile.write("stuff".getBytes(StandardCharsets.US_ASCII));
         } finally {
             testfile.close();
         }
@@ -299,7 +299,7 @@ public class TestIdentityEncoder {
         } finally {
             testfile.close();
         }
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertFalse(encoder.isCompleted());
         Assert.assertEquals("head", s);
@@ -324,7 +324,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(13, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("header\r\nstuff", s);
     }
@@ -348,7 +348,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("header\r\nstuff", s);
     }
@@ -371,7 +371,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff-more stuff", s);
     }
@@ -395,7 +395,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(13, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
         Assert.assertEquals("header\r\nstuff", s);
     }
 
@@ -419,7 +419,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(18, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff---more stuff", s);
     }
@@ -444,7 +444,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(18, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff---more stuff", s);
     }
@@ -471,7 +471,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(21, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff------more stuff", s);
     }
@@ -494,7 +494,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(3, outbuf.length());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff-stuff", s);
     }
@@ -517,7 +517,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(0, outbuf.length());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff-much more stuff", s);
     }
@@ -546,7 +546,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(8, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff---", s);
         Assert.assertEquals(3, outbuf.length());
@@ -571,7 +571,7 @@ public class TestIdentityEncoder {
         Assert.assertEquals(8, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertEquals("stuff--m", s);
         Assert.assertEquals(0, outbuf.length());

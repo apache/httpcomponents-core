@@ -33,11 +33,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
@@ -693,7 +693,7 @@ public class TestSyncHttp {
                         final ContentType contentType = ContentType.getOrDefault(incoming);
                         Charset charset = contentType.getCharset();
                         if (charset == null) {
-                            charset = Consts.ISO_8859_1;
+                            charset = StandardCharsets.ISO_8859_1;
                         }
                         final RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
                         outgoing.setChunked(n % 2 == 0);
@@ -730,7 +730,7 @@ public class TestSyncHttp {
                     final ContentType contentType = ContentType.getOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
-                        charset = Consts.ISO_8859_1;
+                        charset = StandardCharsets.ISO_8859_1;
                     }
                     Assert.assertNotNull(instream);
                     final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
@@ -962,7 +962,7 @@ public class TestSyncHttp {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                response.setEntity(new StringEntity("All is well", Consts.ASCII));
+                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII));
             }
 
         });

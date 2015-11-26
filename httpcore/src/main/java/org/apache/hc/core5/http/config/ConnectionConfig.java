@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.config;
 
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Immutable;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -148,7 +148,7 @@ public class ConnectionConfig {
         public Builder setMalformedInputAction(final CodingErrorAction malformedInputAction) {
             this.malformedInputAction = malformedInputAction;
             if (malformedInputAction != null && this.charset == null) {
-                this.charset = Consts.ASCII;
+                this.charset = StandardCharsets.US_ASCII;
             }
             return this;
         }
@@ -156,7 +156,7 @@ public class ConnectionConfig {
         public Builder setUnmappableInputAction(final CodingErrorAction unmappableInputAction) {
             this.unmappableInputAction = unmappableInputAction;
             if (unmappableInputAction != null && this.charset == null) {
-                this.charset = Consts.ASCII;
+                this.charset = StandardCharsets.US_ASCII;
             }
             return this;
         }
@@ -169,7 +169,7 @@ public class ConnectionConfig {
         public ConnectionConfig build() {
             Charset cs = charset;
             if (cs == null && (malformedInputAction != null || unmappableInputAction != null)) {
-                cs = Consts.ASCII;
+                cs = StandardCharsets.US_ASCII;
             }
             final int bufSize = this.bufferSize > 0 ? this.bufferSize : 8 * 1024;
             final int fragmentHintSize  = this.fragmentSizeHint >= 0 ? this.fragmentSizeHint : bufSize;

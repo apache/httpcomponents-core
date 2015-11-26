@@ -30,8 +30,8 @@ package org.apache.hc.core5.util;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.entity.BasicHttpEntity;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.junit.Assert;
@@ -62,7 +62,7 @@ public class TestEntityUtils {
 
     @Test
     public void testMaxIntContentToByteArray() throws Exception {
-        final byte[] content = "Message content".getBytes(Consts.ISO_8859_1);
+        final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(content));
         httpentity.setContentLength(Integer.MAX_VALUE + 100L);
@@ -76,7 +76,7 @@ public class TestEntityUtils {
 
     @Test
     public void testUnknownLengthContentToByteArray() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(-1L);
@@ -90,7 +90,7 @@ public class TestEntityUtils {
 
     @Test
     public void testKnownLengthContentToByteArray() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(bytes.length);
@@ -121,7 +121,7 @@ public class TestEntityUtils {
 
     @Test
     public void testMaxIntContentToString() throws Exception {
-        final byte[] content = "Message content".getBytes(Consts.ISO_8859_1);
+        final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(content));
         httpentity.setContentLength(Integer.MAX_VALUE + 100L);
@@ -135,7 +135,7 @@ public class TestEntityUtils {
 
     @Test
     public void testUnknownLengthContentToString() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(-1L);
@@ -145,7 +145,7 @@ public class TestEntityUtils {
 
     @Test
     public void testKnownLengthContentToString() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentLength(bytes.length);
@@ -175,7 +175,7 @@ public class TestEntityUtils {
     @Test
     public void testNoCharsetContentToString() throws Exception {
         final String content = constructString(SWISS_GERMAN_HELLO);
-        final byte[] bytes = content.getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = content.getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentType("text/plain");
@@ -197,7 +197,7 @@ public class TestEntityUtils {
     @Test
     public void testContentWithContentTypeToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
-        final byte[] bytes = content.getBytes(Consts.UTF_8);
+        final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         final BasicHttpEntity httpentity = new BasicHttpEntity();
         httpentity.setContent(new ByteArrayInputStream(bytes));
         httpentity.setContentType("text/plain; charset=UTF-8");

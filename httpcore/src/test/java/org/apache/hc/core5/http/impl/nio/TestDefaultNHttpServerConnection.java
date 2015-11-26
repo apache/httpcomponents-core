@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.impl.nio;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -180,7 +180,7 @@ public class TestDefaultNHttpServerConnection {
 
         Assert.assertNull(conn.getHttpResponse());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\nstuff", wchannel.dump(StandardCharsets.US_ASCII));
 
         Mockito.verify(wchannel, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
     }
@@ -205,7 +205,7 @@ public class TestDefaultNHttpServerConnection {
 
         Assert.assertNull(conn.getHttpResponse());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na lot of various stuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na lot of various stuff", wchannel.dump(StandardCharsets.US_ASCII));
 
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
@@ -230,7 +230,7 @@ public class TestDefaultNHttpServerConnection {
 
         Assert.assertNull(conn.getHttpResponse());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\nstuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\nstuff", wchannel.dump(StandardCharsets.US_ASCII));
 
         Mockito.verify(wchannel, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
     }
@@ -255,7 +255,7 @@ public class TestDefaultNHttpServerConnection {
 
         Assert.assertNull(conn.getHttpResponse());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na lot of various stuff", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na lot of various stuff", wchannel.dump(StandardCharsets.US_ASCII));
 
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
@@ -280,7 +280,7 @@ public class TestDefaultNHttpServerConnection {
 
         Assert.assertNull(conn.getHttpResponse());
         Assert.assertNull(conn.contentEncoder);
-        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na lot", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na lot", wchannel.dump(StandardCharsets.US_ASCII));
         Assert.assertEquals(17, conn.outbuf.length());
 
         Mockito.verify(session, Mockito.never()).clearEvent(SelectionKey.OP_WRITE);
@@ -308,7 +308,7 @@ public class TestDefaultNHttpServerConnection {
 
         Assert.assertNotNull(conn.getHttpResponse());
         Assert.assertNotNull(conn.contentEncoder);
-        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na loo", wchannel.dump(Consts.ASCII));
+        Assert.assertEquals("HTTP/1.1 200 OK\r\n\r\na loo", wchannel.dump(StandardCharsets.US_ASCII));
 
         Mockito.verify(session, Mockito.never()).clearEvent(SelectionKey.OP_WRITE);
         Mockito.verify(wchannel, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
@@ -339,7 +339,7 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertNull(conn.getHttpResponse());
         Assert.assertNull(conn.contentEncoder);
         Assert.assertEquals("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n" +
-                "5\r\na lot\r\n11\r\n of various stuff\r\n0\r\n\r\n", wchannel.dump(Consts.ASCII));
+                "5\r\na lot\r\n11\r\n of various stuff\r\n0\r\n\r\n", wchannel.dump(StandardCharsets.US_ASCII));
 
         Mockito.verify(wchannel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
     }
@@ -369,7 +369,7 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertNull(conn.getHttpResponse());
         Assert.assertNull(conn.contentEncoder);
         Assert.assertEquals("HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n" +
-                "5\r\na lot\r\n11\r\n of", wchannel.dump(Consts.ASCII));
+                "5\r\na lot\r\n11\r\n of", wchannel.dump(StandardCharsets.US_ASCII));
         Assert.assertEquals(21, conn.outbuf.length());
 
         Mockito.verify(session, Mockito.never()).clearEvent(SelectionKey.OP_WRITE);
@@ -448,7 +448,7 @@ public class TestDefaultNHttpServerConnection {
     @Test
     public void testConsumeInputShortMessage() throws Exception {
         final ReadableByteChannelMock rchannel = Mockito.spy(new ReadableByteChannelMock(
-            new String[] {"POST / HTTP/1.1\r\nContent-Length: 5\r\n\r\nstuff"}, Consts.ASCII));
+            new String[] {"POST / HTTP/1.1\r\nContent-Length: 5\r\n\r\nstuff"}, StandardCharsets.US_ASCII));
         final ByteChannelMock channel = new ByteChannelMock(rchannel, null);
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
@@ -494,7 +494,7 @@ public class TestDefaultNHttpServerConnection {
         conn = new DefaultNHttpServerConnection(session, 1024);
         final ReadableByteChannelMock rchannel = Mockito.spy(new ReadableByteChannelMock(
             new String[] {"POST / HTTP/1.1\r\nContent-Length: 100\r\n\r\na lot of stuff",
-                "", ""}, Consts.ASCII));
+                "", ""}, StandardCharsets.US_ASCII));
         final ByteChannelMock channel = new ByteChannelMock(rchannel, null);
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
@@ -547,7 +547,7 @@ public class TestDefaultNHttpServerConnection {
     @Test
     public void testConsumeInputBasicMessageNoEntity() throws Exception {
         final ReadableByteChannelMock rchannel = Mockito.spy(new ReadableByteChannelMock(
-            new String[] {"GET / HTTP/1.1\r\n\r\n"}, Consts.ASCII));
+            new String[] {"GET / HTTP/1.1\r\n\r\n"}, StandardCharsets.US_ASCII));
         final ByteChannelMock channel = new ByteChannelMock(rchannel, null);
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
@@ -584,7 +584,7 @@ public class TestDefaultNHttpServerConnection {
     public void testConsumeInputNoData() throws Exception {
         conn = new DefaultNHttpServerConnection(session, 1024);
         final ReadableByteChannelMock rchannel = Mockito.spy(new ReadableByteChannelMock(
-            new String[] {"", ""}, Consts.ASCII));
+            new String[] {"", ""}, StandardCharsets.US_ASCII));
         final ByteChannelMock channel = new ByteChannelMock(rchannel, null);
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
@@ -650,7 +650,7 @@ public class TestDefaultNHttpServerConnection {
     public void testConsumeInputConnectionClosed() throws Exception {
         conn = new DefaultNHttpServerConnection(session, 1024);
         final ReadableByteChannelMock rchannel = Mockito.spy(new ReadableByteChannelMock(
-            new String[] {"", ""}, Consts.ASCII));
+            new String[] {"", ""}, StandardCharsets.US_ASCII));
         final ByteChannelMock channel = new ByteChannelMock(rchannel, null);
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);

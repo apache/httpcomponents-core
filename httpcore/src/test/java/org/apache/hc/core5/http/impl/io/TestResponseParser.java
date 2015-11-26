@@ -28,8 +28,8 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.InterruptedIOException;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
@@ -55,7 +55,7 @@ public class TestResponseParser {
             "Date: some date\r\n" +
             "Set-Cookie: c1=stuff\r\n" +
             "\r\n";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, StandardCharsets.US_ASCII);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
         final HttpResponse httpresponse = parser.parse(inbuffer);
@@ -85,7 +85,7 @@ public class TestResponseParser {
                 "HTTP/1.1 200 OK\r\n" +
                 "Server: whatever\r\n" +
                 "\r\n";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, StandardCharsets.US_ASCII);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 MessageConstraints.custom().setMaxEmptyLineCount(3).build());
@@ -109,7 +109,7 @@ public class TestResponseParser {
                 "HTTP/1.1 200 OK\r\n" +
                 "Server: whatever\r\n" +
                 "\r\n";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, StandardCharsets.US_ASCII);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 MessageConstraints.custom().setMaxEmptyLineCount(3).build());
@@ -125,7 +125,7 @@ public class TestResponseParser {
             "Set-Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
         final SessionInputBuffer inbuffer = new SessionInputBufferMock(
-                new TimeoutByteArrayInputStream(s.getBytes(Consts.ASCII)), 16);
+                new TimeoutByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII)), 16);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
 
@@ -156,7 +156,7 @@ public class TestResponseParser {
     @Test(expected = UnsupportedHttpVersionException.class)
     public void testParsingUnsupportedVersion() throws Exception {
         final String s = "HTTP/2.0 200 OK\r\n\r\n";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, StandardCharsets.US_ASCII);
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
         parser.parse(inbuffer);
     }

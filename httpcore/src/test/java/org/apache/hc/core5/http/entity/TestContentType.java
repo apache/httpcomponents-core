@@ -28,9 +28,9 @@
 package org.apache.hc.core5.http.entity;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class TestContentType {
     public void testBasis() throws Exception {
         final ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.ASCII, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
     }
 
@@ -53,7 +53,7 @@ public class TestContentType {
     public void testWithCharset() throws Exception {
         ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.ASCII, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
         contentType = contentType.withCharset(Charset.forName("UTF-8"));
         Assert.assertEquals("text/plain", contentType.getMimeType());
@@ -65,11 +65,11 @@ public class TestContentType {
     public void testWithCharsetString() throws Exception {
         ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.ASCII, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
-        contentType = contentType.withCharset(Consts.UTF_8);
+        contentType = contentType.withCharset(StandardCharsets.UTF_8);
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.UTF_8, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=UTF-8", contentType.toString());
     }
 
@@ -77,7 +77,7 @@ public class TestContentType {
     public void testLowCaseText() throws Exception {
         final ContentType contentType = ContentType.create("Text/Plain", "ascii");
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.ASCII, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
     }
 
     @Test
@@ -112,7 +112,7 @@ public class TestContentType {
     public void testParse() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"");
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.ASCII, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=ascii", contentType.toString());
     }
 
@@ -121,7 +121,7 @@ public class TestContentType {
         final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"; " +
                 "p0 ; p1 = \"blah-blah\"  ; p2 = \" yada yada \" ");
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.ASCII, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=ascii; p0; p1=blah-blah; p2=\" yada yada \"",
                 contentType.toString());
         Assert.assertEquals(null, contentType.getParameter("p0"));
@@ -165,7 +165,7 @@ public class TestContentType {
         final ContentType contentType = ContentType.get(httpentity);
         Assert.assertNotNull(contentType);
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.UTF_8, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
     }
 
     @Test
@@ -214,14 +214,14 @@ public class TestContentType {
                 new BasicNameValuePair("p", "this"),
                 new BasicNameValuePair("p", "that"));
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.UTF_8, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=UTF-8; p=this; p=that", contentType.toString());
 
         contentType = contentType.withParameters(
                 new BasicNameValuePair("charset", "ascii"),
                 new BasicNameValuePair("p", "this and that"));
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(Consts.ASCII, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=ascii; p=\"this and that\"", contentType.toString());
 
         contentType = ContentType.create("text/blah").withParameters(
@@ -230,10 +230,10 @@ public class TestContentType {
         Assert.assertEquals(null, contentType.getCharset());
         Assert.assertEquals("text/blah; p=blah", contentType.toString());
 
-        contentType = ContentType.create("text/blah", Consts.ISO_8859_1).withParameters(
+        contentType = ContentType.create("text/blah", StandardCharsets.ISO_8859_1).withParameters(
                 new BasicNameValuePair("p", "blah"));
         Assert.assertEquals("text/blah", contentType.getMimeType());
-        Assert.assertEquals(Consts.ISO_8859_1, contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.ISO_8859_1, contentType.getCharset());
         Assert.assertEquals("text/blah; charset=ISO-8859-1; p=blah", contentType.toString());
     }
 

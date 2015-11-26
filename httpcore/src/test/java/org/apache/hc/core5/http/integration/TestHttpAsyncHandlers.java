@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Queue;
@@ -36,7 +37,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -919,7 +919,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setStatusCode(HttpStatus.SC_OK);
-                response.setEntity(new NStringEntity("All is well", Consts.ASCII));
+                response.setEntity(new NStringEntity("All is well", StandardCharsets.US_ASCII));
             }
 
         }));

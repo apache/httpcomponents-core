@@ -31,10 +31,10 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
@@ -263,7 +263,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         final HttpResponse response = future.get();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
-        Assert.assertEquals(new String(GARBAGE, Consts.ISO_8859_1.name()),
+        Assert.assertEquals(new String(GARBAGE, StandardCharsets.ISO_8859_1.name()),
                 EntityUtils.toString(response.getEntity()));
     }
 

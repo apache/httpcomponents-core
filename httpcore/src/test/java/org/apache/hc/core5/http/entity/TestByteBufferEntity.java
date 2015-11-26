@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.entity;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class TestByteBufferEntity {
 
     @Test
     public void testBasics() throws Exception {
-        final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(Consts.ASCII));
+        final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(StandardCharsets.US_ASCII));
         final ByteBufferEntity httpentity = new ByteBufferEntity(bytes);
 
         Assert.assertEquals(bytes.capacity(), httpentity.getContentLength());
@@ -59,7 +59,7 @@ public class TestByteBufferEntity {
 
     @Test
     public void testWriteTo() throws Exception {
-        final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(Consts.ASCII));
+        final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(StandardCharsets.US_ASCII));
         final ByteBufferEntity httpentity = new ByteBufferEntity(bytes);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

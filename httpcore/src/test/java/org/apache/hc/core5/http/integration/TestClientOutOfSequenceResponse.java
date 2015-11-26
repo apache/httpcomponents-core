@@ -29,10 +29,10 @@ package org.apache.hc.core5.http.integration;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
@@ -89,7 +89,7 @@ public class TestClientOutOfSequenceResponse {
             socket.getOutputStream().write((
                     "HTTP/1.1 200 OK\r\n" +
                     "Content-Length: 0\r\n" +
-                    "Connection: keep-alive\r\n\r\n").getBytes(Consts.UTF_8));
+                    "Connection: keep-alive\r\n\r\n").getBytes(StandardCharsets.UTF_8));
             socket.getOutputStream().flush();
         }
 

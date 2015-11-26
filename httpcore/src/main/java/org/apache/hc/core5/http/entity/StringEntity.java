@@ -32,9 +32,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -64,7 +64,7 @@ public class StringEntity extends AbstractHttpEntity {
         Args.notNull(string, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {
-            charset = Consts.ISO_8859_1;
+            charset = StandardCharsets.ISO_8859_1;
         }
         this.content = string.getBytes(charset);
         if (contentType != null) {

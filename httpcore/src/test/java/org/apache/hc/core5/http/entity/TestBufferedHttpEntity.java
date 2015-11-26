@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.entity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +42,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testBufferingEntity() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
         Assert.assertEquals(bytes.length, bufentity.getContentLength());
@@ -57,7 +57,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWrappingEntity() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         httpentity.setChunked(true);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
@@ -83,7 +83,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWriteToBuffered() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 
@@ -115,7 +115,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testWriteToWrapped() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ASCII);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 

@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
@@ -60,7 +60,7 @@ public class TestChunkEncoder {
 
         outbuf.flush(channel);
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
@@ -78,7 +78,7 @@ public class TestChunkEncoder {
 
         outbuf.flush(channel);
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("4\r\n1234\r\n0\r\n\r\n", s);
@@ -113,7 +113,7 @@ public class TestChunkEncoder {
         Assert.assertEquals(0, encoder.write(src));
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
         Assert.assertEquals("4\r\n0123\r\n4\r\n4567\r\n2\r\n89\r\n4\r\nABCD\r\n2\r\nEF\r\n", s);
     }
 
@@ -131,7 +131,7 @@ public class TestChunkEncoder {
         Mockito.verify(channel, Mockito.never()).write(Matchers.<ByteBuffer>any());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
         Assert.assertEquals("10\r\n0123456789ABCDEF\r\n10\r\n0123456789ABCDEF\r\n" +
                 "10\r\n0123456789ABCDEF\r\n", s);
     }
@@ -149,7 +149,7 @@ public class TestChunkEncoder {
         Assert.assertEquals(0, src.remaining());
 
         outbuf.flush(channel);
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
         Assert.assertEquals("4\r\n0123\r\n4\r\n4567\r\n4\r\n89AB\r\n4\r\nCDEF\r\n", s);
 
     }
@@ -174,7 +174,7 @@ public class TestChunkEncoder {
 
         outbuf.flush(channel);
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
@@ -251,7 +251,7 @@ public class TestChunkEncoder {
 
         outbuf.flush(channel);
 
-        final String s = channel.dump(Consts.ASCII);
+        final String s = channel.dump(StandardCharsets.US_ASCII);
 
         Assert.assertTrue(encoder.isCompleted());
         Assert.assertEquals("1\r\n1\r\n2\r\n23\r\n0\r\nE: \r\nY: Z\r\n\r\n", s);

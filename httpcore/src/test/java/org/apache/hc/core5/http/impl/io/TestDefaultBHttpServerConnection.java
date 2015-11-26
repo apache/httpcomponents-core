@@ -30,8 +30,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -78,7 +78,7 @@ public class TestDefaultBHttpServerConnection {
     @Test
     public void testReadRequestHead() throws Exception {
         final String s = "GET / HTTP/1.1\r\nUser-Agent: test\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
 
         conn.bind(socket);
@@ -97,7 +97,7 @@ public class TestDefaultBHttpServerConnection {
     @Test
     public void testReadRequestEntityWithContentLength() throws Exception {
         final String s = "POST / HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
 
         conn.bind(socket);
@@ -129,7 +129,7 @@ public class TestDefaultBHttpServerConnection {
     public void testReadRequestEntityChunckCoded() throws Exception {
         final String s = "POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
 
         conn.bind(socket);
@@ -162,7 +162,7 @@ public class TestDefaultBHttpServerConnection {
     public void testReadRequestEntityIdentity() throws Exception {
         final String s = "POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
                 "identity\r\n\r\n123";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
 
         conn.bind(socket);
@@ -185,7 +185,7 @@ public class TestDefaultBHttpServerConnection {
     @Test
     public void testReadRequestNoEntity() throws Exception {
         final String s = "POST /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(instream);
 
         conn.bind(socket);

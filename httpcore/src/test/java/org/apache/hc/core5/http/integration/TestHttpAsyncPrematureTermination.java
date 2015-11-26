@@ -30,11 +30,11 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
@@ -145,7 +145,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
     public void testConnectionTerminatedHandlingRequest() throws Exception {
         final CountDownLatch responseStreamClosed = new CountDownLatch(1);
         final InputStream testInputStream = new ByteArrayInputStream(
-                "all is well".getBytes(Consts.ASCII)) {
+                "all is well".getBytes(StandardCharsets.US_ASCII)) {
             @Override
             public void close() throws IOException {
                 responseStreamClosed.countDown();

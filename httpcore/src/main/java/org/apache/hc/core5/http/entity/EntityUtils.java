@@ -33,9 +33,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ParseException;
@@ -187,7 +187,7 @@ public final class EntityUtils {
                 charset = defaultCharset;
             }
             if (charset == null) {
-                charset = Consts.ISO_8859_1;
+                charset = StandardCharsets.ISO_8859_1;
             }
             final Reader reader = new InputStreamReader(instream, charset);
             final CharArrayBuffer buffer = new CharArrayBuffer(i);

@@ -28,8 +28,8 @@
 package org.apache.hc.core5.http.entity;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -68,7 +68,7 @@ public class TestHttpEntityWrapper {
     @Test
     public void testWriteTo() throws Exception {
         final String s = "Message content";
-        final byte[] bytes = s.getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
         final StringEntity httpentity = new StringEntity(s);
         final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
 

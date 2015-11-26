@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.apache.hc.core5.http.Consts;
+import java.nio.charset.StandardCharsets;
+
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.entity.HttpEntityWithTrailers;
@@ -41,7 +42,7 @@ public class TestTrailerNameFormatter {
     @Test
     public void testTrailerFormatting() throws Exception {
         final HttpEntity entity = new HttpEntityWithTrailers(
-                new StringEntity("some stuff with trailers", Consts.ASCII),
+                new StringEntity("some stuff with trailers", StandardCharsets.US_ASCII),
                 new BasicHeader("z", "this"), new BasicHeader("b", "that"), new BasicHeader("a", "this and that"));
         final Header header = TrailerNameFormatter.format(entity);
         Assert.assertNotNull(header);
@@ -51,7 +52,7 @@ public class TestTrailerNameFormatter {
     @Test
     public void testTrailerFormattingSameName() throws Exception {
         final HttpEntity entity = new HttpEntityWithTrailers(
-                new StringEntity("some stuff with trailers", Consts.ASCII),
+                new StringEntity("some stuff with trailers", StandardCharsets.US_ASCII),
                 new BasicHeader("a", "this"), new BasicHeader("a", "that"), new BasicHeader("a", "this and that"));
         final Header header = TrailerNameFormatter.format(entity);
         Assert.assertNotNull(header);
@@ -61,14 +62,14 @@ public class TestTrailerNameFormatter {
     @Test
     public void testTrailerNoTrailers() throws Exception {
         final HttpEntity entity = new HttpEntityWithTrailers(
-                new StringEntity("some stuff and no trailers", Consts.ASCII));
+                new StringEntity("some stuff and no trailers", StandardCharsets.US_ASCII));
         final Header header = TrailerNameFormatter.format(entity);
         Assert.assertNull(header);
     }
 
     @Test
     public void testTrailerNullTrailers() throws Exception {
-        final HttpEntity entity = new StringEntity("some stuff and no trailers", Consts.ASCII);
+        final HttpEntity entity = new StringEntity("some stuff and no trailers", StandardCharsets.US_ASCII);
         final Header header = TrailerNameFormatter.format(entity);
         Assert.assertNull(header);
     }

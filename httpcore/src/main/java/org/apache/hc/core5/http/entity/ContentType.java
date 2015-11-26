@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.entity;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -37,7 +38,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.hc.core5.annotation.Immutable;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
@@ -65,27 +65,27 @@ public final class ContentType implements Serializable {
 
     // constants
     public static final ContentType APPLICATION_ATOM_XML = create(
-            "application/atom+xml", Consts.ISO_8859_1);
+            "application/atom+xml", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_FORM_URLENCODED = create(
-            "application/x-www-form-urlencoded", Consts.ISO_8859_1);
+            "application/x-www-form-urlencoded", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_JSON = create(
-            "application/json", Consts.UTF_8);
+            "application/json", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_OCTET_STREAM = create(
             "application/octet-stream", (Charset) null);
     public static final ContentType APPLICATION_SVG_XML = create(
-            "application/svg+xml", Consts.ISO_8859_1);
+            "application/svg+xml", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_XHTML_XML = create(
-            "application/xhtml+xml", Consts.ISO_8859_1);
+            "application/xhtml+xml", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_XML = create(
-            "application/xml", Consts.ISO_8859_1);
+            "application/xml", StandardCharsets.ISO_8859_1);
     public static final ContentType MULTIPART_FORM_DATA = create(
-            "multipart/form-data", Consts.ISO_8859_1);
+            "multipart/form-data", StandardCharsets.ISO_8859_1);
     public static final ContentType TEXT_HTML = create(
-            "text/html", Consts.ISO_8859_1);
+            "text/html", StandardCharsets.ISO_8859_1);
     public static final ContentType TEXT_PLAIN = create(
-            "text/plain", Consts.ISO_8859_1);
+            "text/plain", StandardCharsets.ISO_8859_1);
     public static final ContentType TEXT_XML = create(
-            "text/xml", Consts.ISO_8859_1);
+            "text/xml", StandardCharsets.ISO_8859_1);
     public static final ContentType WILDCARD = create(
             "*/*", (Charset) null);
 

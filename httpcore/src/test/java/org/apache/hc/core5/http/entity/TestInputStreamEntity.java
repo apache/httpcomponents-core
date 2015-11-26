@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.entity;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,7 +43,7 @@ public class TestInputStreamEntity {
 
     @Test
     public void testBasics() throws Exception {
-        final byte[] bytes = "Message content".getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
@@ -69,7 +69,7 @@ public class TestInputStreamEntity {
     @Test
     public void testWriteTo() throws Exception {
         final String message = "Message content";
-        final byte[] bytes = message.getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
 
@@ -79,14 +79,14 @@ public class TestInputStreamEntity {
         Assert.assertNotNull(writtenBytes);
         Assert.assertEquals(bytes.length, writtenBytes.length);
 
-        final String s = new String(writtenBytes, Consts.ISO_8859_1.name());
+        final String s = new String(writtenBytes, StandardCharsets.ISO_8859_1.name());
         Assert.assertEquals(message, s);
     }
 
     @Test
     public void testWriteToPartialContent() throws Exception {
         final String message = "Message content";
-        final byte[] bytes = message.getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final int contentLength = 7;
         final InputStreamEntity httpentity = new InputStreamEntity(instream, contentLength);
@@ -97,14 +97,14 @@ public class TestInputStreamEntity {
         Assert.assertNotNull(writtenBytes);
         Assert.assertEquals(contentLength, writtenBytes.length);
 
-        final String s = new String(writtenBytes, Consts.ISO_8859_1.name());
+        final String s = new String(writtenBytes, StandardCharsets.ISO_8859_1.name());
         Assert.assertEquals(message.substring(0, contentLength), s);
     }
 
     @Test
     public void testWriteToUnknownLength() throws Exception {
         final String message = "Message content";
-        final byte[] bytes = message.getBytes(Consts.ISO_8859_1);
+        final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
         final InputStream instream = new ByteArrayInputStream(bytes);
         final InputStreamEntity httpentity = new InputStreamEntity(instream);
 
@@ -114,7 +114,7 @@ public class TestInputStreamEntity {
         Assert.assertNotNull(writtenBytes);
         Assert.assertEquals(bytes.length, writtenBytes.length);
 
-        final String s = new String(writtenBytes, Consts.ISO_8859_1.name());
+        final String s = new String(writtenBytes, StandardCharsets.ISO_8859_1.name());
         Assert.assertEquals(message, s);
     }
 

@@ -33,8 +33,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -52,7 +52,7 @@ public class TestBuffers {
     @Test
     public void testInputBufferOperations() throws IOException {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
-                new String[] {"stuff;", "more stuff"}, Consts.ASCII);
+                new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
         final ContentDecoder decoder = new ContentDecoderMock(channel);
 
@@ -64,7 +64,7 @@ public class TestBuffers {
         final byte[] b1 = new byte[5];
 
         int len = buffer.read(b1);
-        Assert.assertEquals("stuff", new String(b1, 0, len, Consts.ASCII));
+        Assert.assertEquals("stuff", new String(b1, 0, len, StandardCharsets.US_ASCII));
 
         final int c = buffer.read();
         Assert.assertEquals(';', c);
@@ -72,7 +72,7 @@ public class TestBuffers {
         final byte[] b2 = new byte[1024];
 
         len = buffer.read(b2);
-        Assert.assertEquals("more stuff", new String(b2, 0, len, Consts.ASCII));
+        Assert.assertEquals("more stuff", new String(b2, 0, len, StandardCharsets.US_ASCII));
 
         Assert.assertEquals(-1, buffer.read());
         Assert.assertEquals(-1, buffer.read(b2));
@@ -87,23 +87,23 @@ public class TestBuffers {
     public void testOutputBufferOperations() throws IOException {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         final WritableByteChannel channel = Channels.newChannel(outstream);
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, StandardCharsets.US_ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
         final ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);
 
         final SimpleOutputBuffer buffer = new SimpleOutputBuffer(4, DirectByteBufferAllocator.INSTANCE);
 
-        buffer.write("stuff".getBytes(Consts.ASCII));
+        buffer.write("stuff".getBytes(StandardCharsets.US_ASCII));
         buffer.write(';');
         buffer.produceContent(encoder);
 
-        buffer.write("more ".getBytes(Consts.ASCII));
-        buffer.write("stuff".getBytes(Consts.ASCII));
+        buffer.write("more ".getBytes(StandardCharsets.US_ASCII));
+        buffer.write("stuff".getBytes(StandardCharsets.US_ASCII));
         buffer.produceContent(encoder);
 
         final byte[] content = outstream.toByteArray();
-        Assert.assertEquals("stuff;more stuff", new String(content, Consts.ASCII));
+        Assert.assertEquals("stuff;more stuff", new String(content, StandardCharsets.US_ASCII));
     }
 
     @Test
