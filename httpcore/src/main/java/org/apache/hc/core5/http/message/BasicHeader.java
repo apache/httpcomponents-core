@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
@@ -55,10 +56,10 @@ public class BasicHeader implements Header, Serializable {
      * @param name the header name
      * @param value the header value
      */
-    public BasicHeader(final String name, final String value) {
+    public BasicHeader(final String name, final Object value) {
         super();
         this.name = Args.notNull(name, "Name");
-        this.value = value;
+        this.value = Objects.toString(value, null);
     }
 
     @Override

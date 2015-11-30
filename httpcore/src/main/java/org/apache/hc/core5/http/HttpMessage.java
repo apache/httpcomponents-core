@@ -55,7 +55,7 @@ public interface HttpMessage<T> extends MessageHead {
      * @param name the name of the header.
      * @param value the value of the header.
      */
-    void addHeader(String name, String value);
+    void addHeader(String name, Object value);
 
     /**
      * Overwrites the first header with the same name. The new header will be appended to
@@ -72,7 +72,7 @@ public interface HttpMessage<T> extends MessageHead {
      * @param name the name of the header.
      * @param value the value of the header.
      */
-    void setHeader(String name, String value);
+    void setHeader(String name, Object value);
 
     /**
      * Overwrites all the headers in the message.

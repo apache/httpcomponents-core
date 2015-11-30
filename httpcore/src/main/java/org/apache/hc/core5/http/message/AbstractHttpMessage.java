@@ -43,13 +43,13 @@ public abstract class AbstractHttpMessage extends HeaderGroup implements HttpMes
     private HttpEntity entity;
 
     @Override
-    public void addHeader(final String name, final String value) {
+    public void addHeader(final String name, final Object value) {
         Args.notNull(name, "Header name");
         addHeader(new BasicHeader(name, value));
     }
 
     @Override
-    public void setHeader(final String name, final String value) {
+    public void setHeader(final String name, final Object value) {
         Args.notNull(name, "Header name");
         setHeader(new BasicHeader(name, value));
     }
