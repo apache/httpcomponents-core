@@ -99,7 +99,7 @@ public class TestClientOutOfSequenceResponse {
         try {
             final HttpResponse response2 = future2.get();
             Assert.assertEquals(200, response2.getStatusLine().getStatusCode());
-        } catch (ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof HttpException);
         }
     }

@@ -431,7 +431,7 @@ public class TestChunkDecoder {
         try {
             decoder2.read(dst);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 
@@ -468,7 +468,7 @@ public class TestChunkDecoder {
         try {
             decoder2.read(dst);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 
@@ -504,7 +504,7 @@ public class TestChunkDecoder {
         try {
             decoder2.read(dst);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 
@@ -541,7 +541,7 @@ public class TestChunkDecoder {
         try {
             decoder2.read(dst);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 

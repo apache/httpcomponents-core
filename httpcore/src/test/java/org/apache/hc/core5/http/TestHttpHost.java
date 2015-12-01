@@ -203,17 +203,17 @@ public class TestHttpHost {
         try {
             HttpHost.create(null);
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             HttpHost.create(" host ");
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
         try {
             HttpHost.create("host :8080");
             Assert.fail("IllegalArgumentException expected");
-        } catch (IllegalArgumentException expected) {
+        } catch (final IllegalArgumentException expected) {
         }
     }
 

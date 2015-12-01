@@ -67,12 +67,12 @@ class Worker implements Runnable {
                 localContext.clear();
             }
             this.conn.close();
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.exceptionLogger.log(ex);
         } finally {
             try {
                 this.conn.shutdown();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 this.exceptionLogger.log(ex);
             }
         }

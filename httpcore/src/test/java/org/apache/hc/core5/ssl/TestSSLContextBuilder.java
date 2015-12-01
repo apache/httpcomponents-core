@@ -320,7 +320,7 @@ public class TestSSLContextBuilder {
                     final SSLSession session = socket.getSession();
                     try {
                         clientPrincipal = session.getPeerPrincipal();
-                    } catch (SSLPeerUnverifiedException ignore) {
+                    } catch (final SSLPeerUnverifiedException ignore) {
                     }
                     final OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(new byte [] {'H', 'i'});
@@ -609,7 +609,7 @@ public class TestSSLContextBuilder {
             try {
                 clientSocket.startHandshake();
                 Assert.fail();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 Assert.assertEquals(expectedExceptionClass, e.getClass());
             }
         } finally {

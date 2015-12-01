@@ -153,7 +153,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 } else {
                     try {
                         channel.close();
-                    } catch (IOException ignore) {
+                    } catch (final IOException ignore) {
                     }
                 }
             }

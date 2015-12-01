@@ -213,7 +213,7 @@ class BHttpConnectionBase implements BHttpConnection {
             // force abortive close (RST)
             try {
                 socket.setSoLinger(true, 0);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
             } finally {
                 socket.close();
             }

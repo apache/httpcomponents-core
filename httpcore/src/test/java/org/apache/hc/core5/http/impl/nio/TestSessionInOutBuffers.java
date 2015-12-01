@@ -153,7 +153,7 @@ public class TestSessionInOutBuffers {
         try {
             inbuf2.readLine(line, false);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 
@@ -176,7 +176,7 @@ public class TestSessionInOutBuffers {
         try {
             inbuf2.readLine(line, false);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 

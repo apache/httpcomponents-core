@@ -167,7 +167,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             final List<HttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (HttpResponse response: responses) {
+            for (final HttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
                 Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
             }
@@ -201,7 +201,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             final List<HttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (HttpResponse response: responses) {
+            for (final HttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             }
         }
@@ -245,7 +245,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             final List<HttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (HttpResponse response: responses) {
+            for (final HttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
                 Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
             }
@@ -333,7 +333,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             final List<HttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (HttpResponse response: responses) {
+            for (final HttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
             }
             Assert.assertEquals(expectedPattern1, EntityUtils.toString(responses.get(0).getEntity()));
@@ -395,7 +395,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             final Future<List<HttpResponse>> future = this.client.executePipelined(target, requestProducers, responseConsumers, null, null);
             try {
                 future.get();
-            } catch (ExecutionException ex) {
+            } catch (final ExecutionException ex) {
                 final Throwable cause = ex.getCause();
                 Assert.assertTrue(cause instanceof ConnectionClosedException);
             }

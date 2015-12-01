@@ -357,7 +357,7 @@ public class ServerBootstrap {
         if (handlerMapperCopy == null) {
             final UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
             if (handlerMap != null) {
-                for (Map.Entry<String, HttpRequestHandler> entry: handlerMap.entrySet()) {
+                for (final Map.Entry<String, HttpRequestHandler> entry: handlerMap.entrySet()) {
                     reqistry.register(entry.getKey(), entry.getValue());
                 }
             }

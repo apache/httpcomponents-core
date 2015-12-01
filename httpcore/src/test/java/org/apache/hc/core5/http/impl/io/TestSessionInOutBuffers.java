@@ -399,7 +399,7 @@ public class TestSessionInOutBuffers {
             chbuffer.clear();
             inbuffer2.readLine(chbuffer);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 
@@ -422,7 +422,7 @@ public class TestSessionInOutBuffers {
             chbuffer.clear();
             inbuffer2.readLine(chbuffer);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         }
     }
 

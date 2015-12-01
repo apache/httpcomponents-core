@@ -118,7 +118,7 @@ public class TestHttpAsyncHandlersBrokenExpectContinue extends HttpCoreNIOTestBa
                     final HttpContext context) throws HttpException {
                 try {
                     Thread.sleep(1200);
-                } catch (InterruptedException ignore) {
+                } catch (final InterruptedException ignore) {
                 }
 
                 httpexchange.submitResponse();

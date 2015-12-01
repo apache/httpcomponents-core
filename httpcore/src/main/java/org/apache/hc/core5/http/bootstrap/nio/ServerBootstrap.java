@@ -352,7 +352,7 @@ public class ServerBootstrap {
         if (handlerMapperCopy == null) {
             final UriHttpAsyncRequestHandlerMapper reqistry = new UriHttpAsyncRequestHandlerMapper();
             if (handlerMap != null) {
-                for (Map.Entry<String, HttpAsyncRequestHandler<?>> entry: handlerMap.entrySet()) {
+                for (final Map.Entry<String, HttpAsyncRequestHandler<?>> entry: handlerMap.entrySet()) {
                     reqistry.register(entry.getKey(), entry.getValue());
                 }
             }

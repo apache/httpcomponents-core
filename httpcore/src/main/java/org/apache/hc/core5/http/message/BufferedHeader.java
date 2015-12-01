@@ -68,7 +68,7 @@ public class BufferedHeader implements FormattedHeader, Serializable {
     public static BufferedHeader create(final CharArrayBuffer buffer) {
         try {
             return new BufferedHeader(buffer);
-        } catch (ParseException ex) {
+        } catch (final ParseException ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
     }

@@ -228,7 +228,7 @@ public class ChunkedInputStream extends InputStream {
                 eof = true;
                 parseTrailerHeaders();
             }
-        } catch (MalformedChunkCodingException ex) {
+        } catch (final MalformedChunkCodingException ex) {
             state = CHUNK_INVALID;
             throw ex;
         }

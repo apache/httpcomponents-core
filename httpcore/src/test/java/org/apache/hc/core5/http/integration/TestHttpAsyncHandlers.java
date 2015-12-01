@@ -758,7 +758,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                                     if (count.incrementAndGet() < 3) {
                                         try {
                                             Thread.sleep(50);
-                                        } catch (InterruptedException ignore) {
+                                        } catch (final InterruptedException ignore) {
                                         }
                                     } else {
                                         super.produceContent(encoder, ioctrl);

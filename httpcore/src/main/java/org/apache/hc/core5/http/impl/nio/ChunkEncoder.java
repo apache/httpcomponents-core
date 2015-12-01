@@ -145,7 +145,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
     private void writeTrailers() throws IOException {
         final Header[] headers = this.trailers != null ? this.trailers.get() : null;
         if (headers != null) {
-            for (Header header: headers) {
+            for (final Header header: headers) {
                 if (header instanceof FormattedHeader) {
                     final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
                     buffer.writeLine(chbuffer);

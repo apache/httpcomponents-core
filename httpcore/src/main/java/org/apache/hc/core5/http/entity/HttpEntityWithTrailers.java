@@ -114,7 +114,7 @@ public class HttpEntityWithTrailers implements HttpEntity {
     @Override
     public Set<String> getTrailerNames() {
         final Set<String> names = new LinkedHashSet<>();
-        for (Header trailer: trailers) {
+        for (final Header trailer: trailers) {
             names.add(trailer.getName());
         }
         return names;

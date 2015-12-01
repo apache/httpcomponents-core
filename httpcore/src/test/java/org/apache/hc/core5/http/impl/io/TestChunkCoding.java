@@ -297,7 +297,7 @@ public class TestChunkCoding {
         try {
             in.read();
             Assert.fail("MalformedChunkCodingException expected");
-        } catch (MalformedChunkCodingException ex) {
+        } catch (final MalformedChunkCodingException ex) {
         }
         in.close();
     }
@@ -331,11 +331,11 @@ public class TestChunkCoding {
         try {
             in2.read(buffer);
             Assert.fail("MessageConstraintException expected");
-        } catch (MessageConstraintException ex) {
+        } catch (final MessageConstraintException ex) {
         } finally {
             try {
                 in2.close();
-            } catch (MessageConstraintException ex) {
+            } catch (final MessageConstraintException ex) {
             }
         }
     }

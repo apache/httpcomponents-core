@@ -224,7 +224,7 @@ public final class ContentType implements Serializable {
                     if (!TextUtils.isBlank(s)) {
                         try {
                             charset = Charset.forName(s);
-                        } catch (UnsupportedCharsetException ex) {
+                        } catch (final UnsupportedCharsetException ex) {
                             if (strict) {
                                 throw ex;
                             }
@@ -389,18 +389,18 @@ public final class ContentType implements Serializable {
         }
         final Map<String, String> paramMap = new LinkedHashMap<>();
         if (this.params != null) {
-            for (NameValuePair param: this.params) {
+            for (final NameValuePair param: this.params) {
                 paramMap.put(param.getName(), param.getValue());
             }
         }
-        for (NameValuePair param: params) {
+        for (final NameValuePair param: params) {
             paramMap.put(param.getName(), param.getValue());
         }
         final List<NameValuePair> newParams = new ArrayList<>(paramMap.size() + 1);
         if (this.charset != null && !paramMap.containsKey("charset")) {
             newParams.add(new BasicNameValuePair("charset", this.charset.name()));
         }
-        for (Map.Entry<String, String> entry: paramMap.entrySet()) {
+        for (final Map.Entry<String, String> entry: paramMap.entrySet()) {
             newParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
         return create(this.getMimeType(), newParams.toArray(new NameValuePair[newParams.size()]), true);

@@ -388,9 +388,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 conn.suspendOutput();
                 try {
                     handler.handle(requestResult, httpExchange, context);
-                } catch (RuntimeException ex) {
+                } catch (final RuntimeException ex) {
                     throw ex;
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     final HttpAsyncResponseProducer responseProducer = handleException(ex, context);
                     final HttpResponse error = responseProducer.generateResponse();
                     state.setOutgoing(new Outgoing(request, error, responseProducer, context));
