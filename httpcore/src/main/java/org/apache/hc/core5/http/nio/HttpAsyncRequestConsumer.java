@@ -44,11 +44,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 public interface HttpAsyncRequestConsumer<T> extends Closeable {
 
     /**
-     * Invoked when a HTTP request message is received. Please note
-     * that the {@link #consumeContent(ContentDecoder, IOControl)} method
-     * will be invoked only for if the request message implements
-     * {@link org.apache.hc.core5.http.HttpEntityEnclosingRequest} interface and
-     * has a content entity enclosed.
+     * Invoked when a HTTP request message is received.
      *
      * @param request HTTP request message.
      * @throws HttpException in case of HTTP protocol violation
