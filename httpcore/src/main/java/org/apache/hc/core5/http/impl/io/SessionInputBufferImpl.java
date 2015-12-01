@@ -35,7 +35,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.Consts;
+import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
@@ -247,7 +247,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
             // attempt to find end of line (LF)
             int pos = -1;
             for (int i = this.bufferpos; i < this.bufferlen; i++) {
-                if (this.buffer[i] == Consts.LF) {
+                if (this.buffer[i] == Chars.LF) {
                     pos = i;
                     break;
                 }
@@ -309,12 +309,12 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         // discard LF if found
         int len = this.linebuffer.length();
         if (len > 0) {
-            if (this.linebuffer.byteAt(len - 1) == Consts.LF) {
+            if (this.linebuffer.byteAt(len - 1) == Chars.LF) {
                 len--;
             }
             // discard CR if found
             if (len > 0) {
-                if (this.linebuffer.byteAt(len - 1) == Consts.CR) {
+                if (this.linebuffer.byteAt(len - 1) == Chars.CR) {
                     len--;
                 }
             }
@@ -335,7 +335,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         final int off = this.bufferpos;
         int len;
         this.bufferpos = pos + 1;
-        if (pos > off && this.buffer[pos - 1] == Consts.CR) {
+        if (pos > off && this.buffer[pos - 1] == Chars.CR) {
             // skip CR if found
             pos--;
         }

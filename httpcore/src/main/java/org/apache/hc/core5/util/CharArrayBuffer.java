@@ -31,7 +31,7 @@ import java.io.Serializable;
 import java.nio.CharBuffer;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.Consts;
+import org.apache.hc.core5.http.Chars;
 
 /**
  * A resizable char array.
@@ -432,7 +432,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
     }
 
     private static boolean isWhitespace(final char ch) {
-        return ch == Consts.SP || ch == Consts.HT || ch == Consts.CR || ch == Consts.LF;
+        return ch == Chars.SP || ch == Chars.HT || ch == Chars.CR || ch == Chars.LF;
     }
 
     /**

@@ -28,19 +28,18 @@
 package org.apache.hc.core5.http;
 
 /**
- * Commons constants.
+ * Commons chars used by HTTP/1.1 protocol.
  *
- * @since 4.2
- * @since 5.0 Removed Charset constants, reuse Java 7's {@link java.nio.charset.StandardCharsets} class instead.
+ * @since 5.0
  */
-public final class Consts {
+public final class Chars {
 
     public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
     public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
     public static final int SP = 32; // <US-ASCII SP, space (32)>
     public static final int HT = 9;  // <US-ASCII HT, horizontal-tab (9)>
 
-    private Consts() {
+    private Chars() {
     }
 
 }

@@ -37,7 +37,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.Consts;
+import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
@@ -230,7 +230,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         int pos = -1;
         for (int i = buffer().position(); i < buffer().limit(); i++) {
             final int b = buffer().get(i);
-            if (b == Consts.LF) {
+            if (b == Chars.LF) {
                 pos = i + 1;
                 break;
             }
@@ -317,13 +317,13 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         // discard LF if found
         int l = linebuffer.length();
         if (l > 0) {
-            if (linebuffer.charAt(l - 1) == Consts.LF) {
+            if (linebuffer.charAt(l - 1) == Chars.LF) {
                 l--;
                 linebuffer.setLength(l);
             }
             // discard CR if found
             if (l > 0) {
-                if (linebuffer.charAt(l - 1) == Consts.CR) {
+                if (linebuffer.charAt(l - 1) == Chars.CR) {
                     l--;
                     linebuffer.setLength(l);
                 }
