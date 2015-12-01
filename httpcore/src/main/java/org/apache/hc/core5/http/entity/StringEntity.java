@@ -78,7 +78,7 @@ public class StringEntity extends AbstractHttpEntity {
      *
      * @param string content to be used. Not {@code null}.
      * @param charset character set to be used. May be {@code null}, in which case the default
-     *   is {@link org.apache.hc.core5.http.Consts#ISO_8859_1} is assumed
+     *   is {@link StandardCharsets#ISO_8859_1} is assumed
      *
      * @throws IllegalArgumentException if the string parameter is null
      *

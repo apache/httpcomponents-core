@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.examples;
 
 import java.io.ByteArrayInputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.Consts;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
@@ -81,14 +81,14 @@ public class ElementalHttpPost {
             HttpEntity[] requestBodies = {
                     new StringEntity(
                             "This is the first test request",
-                            ContentType.create("text/plain", Consts.UTF_8)),
+                            ContentType.create("text/plain", StandardCharsets.UTF_8)),
                     new ByteArrayEntity(
-                            "This is the second test request".getBytes(Consts.UTF_8),
+                            "This is the second test request".getBytes(StandardCharsets.UTF_8),
                             ContentType.APPLICATION_OCTET_STREAM),
                     new InputStreamEntity(
                             new ByteArrayInputStream(
                                     "This is the third test request (will be chunked)"
-                                    .getBytes(Consts.UTF_8)),
+                                    .getBytes(StandardCharsets.UTF_8)),
                             ContentType.APPLICATION_OCTET_STREAM)
             };
 

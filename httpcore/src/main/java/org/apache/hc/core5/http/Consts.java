@@ -27,13 +27,11 @@
 
 package org.apache.hc.core5.http;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * Commons constants.
  *
  * @since 4.2
- * @since 5.0 Removed Charset constants, reuse Java 7's {@link StandardCharsets} class instead.
+ * @since 5.0 Removed Charset constants, reuse Java 7's {@link java.nio.charset.StandardCharsets} class instead.
  */
 public final class Consts {
 
