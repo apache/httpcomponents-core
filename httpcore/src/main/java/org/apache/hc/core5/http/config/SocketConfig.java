@@ -47,7 +47,7 @@ public class SocketConfig {
     private final boolean tcpNoDelay;
     private final int sndBufSize;
     private final int rcvBufSize;
-    private int backlogSize;
+    private final int backlogSize;
 
     SocketConfig(
             final int soTimeout,

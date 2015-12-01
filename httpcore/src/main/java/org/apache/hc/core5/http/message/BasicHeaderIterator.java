@@ -60,7 +60,7 @@ public class BasicHeaderIterator implements Iterator<Header> {
      * The header name to filter by.
      * {@code null} to iterate over all headers in the array.
      */
-    private String headerName;
+    private final String headerName;
 
     /**
      * Creates a new header iterator.
