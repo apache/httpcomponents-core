@@ -79,7 +79,7 @@ public interface HttpMessage<T> extends MessageHead {
      *
      * @param headers the array of headers to set.
      */
-    void setHeaders(Header[] headers);
+    void setHeaders(Header... headers);
 
     /**
      * Removes a header from this message.
