@@ -31,8 +31,9 @@
     <relativePath>../project/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>httpcomponents-core</artifactId>
-  <name>Apache HttpComponents Core</name>
+  <artifactId>httpcore-parent</artifactId>
+  <groupId>org.apache.httpcomponents.core5</groupId>
+  <name>Apache HttpComponents Core Parent</name>
   <version>5.0-alpha1-SNAPSHOT</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>

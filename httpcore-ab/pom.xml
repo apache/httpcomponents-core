@@ -26,12 +26,12 @@
  --><project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpcomponents-core</artifactId>
+    <groupId>org.apache.httpcomponents.core5</groupId>
+    <artifactId>httpcore-parent</artifactId>
     <version>5.0-alpha1-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore-ab</artifactId>
-  <name>Apache HttpCore Benchmarking Tool</name>
+  <name>Apache HttpComponents Core Benchmarking Tool</name>
   <description>
    Apache AB clone based on HttpCore
   </description>
