@@ -54,7 +54,7 @@ public class BasicHeader implements Header, Serializable {
      * Constructor with name and value
      *
      * @param name the header name
-     * @param value the header value
+     * @param value the header value, taken as the value's {@link #toString()}.
      */
     public BasicHeader(final String name, final Object value) {
         super();
