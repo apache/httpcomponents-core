@@ -51,6 +51,7 @@ public class ByteBufferEntity extends AbstractHttpEntity implements Cloneable {
             buffer.position(0);
         }
 
+        @Override
         public int read() throws IOException {
             if (!buffer.hasRemaining()) {
                 return -1;
@@ -58,6 +59,7 @@ public class ByteBufferEntity extends AbstractHttpEntity implements Cloneable {
             return buffer.get() & 0xFF;
         }
 
+        @Override
         public int read(final byte[] bytes, final int off, final int len) throws IOException {
             if (!buffer.hasRemaining()) {
                 return -1;
