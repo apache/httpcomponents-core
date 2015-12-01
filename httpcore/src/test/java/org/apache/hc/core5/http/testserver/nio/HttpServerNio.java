@@ -93,9 +93,8 @@ public class HttpServerNio {
         final HttpServer local = this.server;
         if (local != null) {
             return this.server.getEndpoint();
-        } else {
-            throw new IllegalStateException("Server not running");
         }
+        throw new IllegalStateException("Server not running");
     }
 
     public void start() throws IOException {
