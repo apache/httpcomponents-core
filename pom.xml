@@ -31,7 +31,7 @@
     <relativePath>../project/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>httpcore-parent</artifactId>
+  <artifactId>httpcore5-parent</artifactId>
   <groupId>org.apache.httpcomponents.core5</groupId>
   <name>Apache HttpComponents Core Parent</name>
   <version>5.0-alpha1-SNAPSHOT</version>

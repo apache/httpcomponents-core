@@ -27,10 +27,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>org.apache.httpcomponents.core5</groupId>
-    <artifactId>httpcore-parent</artifactId>
+    <artifactId>httpcore5-parent</artifactId>
     <version>5.0-alpha1-SNAPSHOT</version>
   </parent>
-  <artifactId>httpcore-osgi</artifactId>
+  <artifactId>httpcore5-osgi</artifactId>
   <name>Apache HttpComponents Core OSGi bundle</name>
   <inceptionYear>2005</inceptionYear>
   <description>
