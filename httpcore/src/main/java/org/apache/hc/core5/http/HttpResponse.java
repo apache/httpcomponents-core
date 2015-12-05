@@ -78,30 +78,21 @@ public interface HttpResponse extends HttpMessage<HttpEntity> {
      *
      * @param code the HTTP status code.
      *
-     * @throws IllegalStateException
-     *          if the status line has not be set
-     *
      * @see HttpStatus
      * @see #setStatusLine(StatusLine)
      * @see #setStatusLine(ProtocolVersion,int)
      */
-    void setStatusCode(int code)
-        throws IllegalStateException;
+    void setStatusCode(int code);
 
     /**
      * Updates the status line of this response with a new reason phrase.
      *
      * @param reason    the new reason phrase as a single-line string, or
      *                  {@code null} to unset the reason phrase
-     *
-     * @throws IllegalStateException
-     *          if the status line has not be set
-     *
      * @see #setStatusLine(StatusLine)
      * @see #setStatusLine(ProtocolVersion,int)
      */
-    void setReasonPhrase(String reason)
-        throws IllegalStateException;
+    void setReasonPhrase(String reason);
 
     /**
      * Obtains the locale of this response.
