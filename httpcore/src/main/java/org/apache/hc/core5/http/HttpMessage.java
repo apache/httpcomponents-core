@@ -53,7 +53,7 @@ public interface HttpMessage<T> extends MessageHead {
      * the list.
      *
      * @param name the name of the header.
-     * @param value the value of the header, taken as the value's {@link #toString()}.
+     * @param value the value of the header, taken as the value's {@link Object#toString()}.
      */
     void addHeader(String name, Object value);
 
@@ -70,7 +70,7 @@ public interface HttpMessage<T> extends MessageHead {
      * the end of the list, if no header with the given name can be found.
      *
      * @param name the name of the header.
-     * @param value the value of the header, taken as the value's {@link #toString()}.
+     * @param value the value of the header, taken as the value's {@link Object#toString()}.
      */
     void setHeader(String name, Object value);
 
