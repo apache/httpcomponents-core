@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.HttpMessageParser;
@@ -157,7 +158,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         ensureOpen();
         this.responseWriter.write(response, this.outbuffer);
         onResponseSubmitted(response);
-        if (response.getStatusLine().getStatusCode() >= 200) {
+        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
             incrementResponseCount();
         }
     }

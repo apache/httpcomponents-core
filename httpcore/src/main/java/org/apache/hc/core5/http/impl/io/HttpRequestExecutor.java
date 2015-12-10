@@ -143,7 +143,7 @@ public class HttpRequestExecutor {
                     if (conn.isDataAvailable(this.waitForContinue)) {
                         response = conn.receiveResponseHeader();
                         final int status = response.getStatusLine().getStatusCode();
-                        if (status < 200) {
+                        if (status < HttpStatus.SC_OK) {
                             if (status != HttpStatus.SC_CONTINUE) {
                                 throw new ProtocolException("Unexpected response: " + response.getStatusLine());
                             }

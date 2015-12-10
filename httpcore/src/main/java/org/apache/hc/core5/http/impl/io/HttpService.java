@@ -180,7 +180,7 @@ public class HttpService {
                     handleException(ex, response);
                 }
             }
-            if (response.getStatusLine().getStatusCode() < 200) {
+            if (response.getStatusLine().getStatusCode() < HttpStatus.SC_OK) {
                 // Send 1xx response indicating the server expectations
                 // have been met
                 conn.sendResponseHeader(response);

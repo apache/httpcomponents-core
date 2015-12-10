@@ -415,7 +415,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             }
             final HttpResponse response = outgoing.getResponse();
             final int status = response.getStatusLine().getStatusCode();
-            if (status >= 200) {
+            if (status >= HttpStatus.SC_OK) {
                 commitFinalResponse(conn, state);
             } else {
                 conn.submitResponse(response);
@@ -966,7 +966,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
                 // If there is an incoming request associated with the exchange
                 // the response will be sent early (out of sequence).
-                if (response.getStatusLine().getStatusCode() >= 200 && this.incoming != null) {
+                if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK && this.incoming != null) {
                     this.incoming.setEarlyResponse(true);
                 }
 

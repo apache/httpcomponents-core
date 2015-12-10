@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
@@ -265,7 +266,7 @@ public class DefaultNHttpServerConnection
         this.responseWriter.write(response, this.outbuf);
         this.hasBufferedOutput = this.outbuf.hasData();
 
-        if (response.getStatusLine().getStatusCode() >= 200) {
+        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
             this.connMetrics.incrementResponseCount();
             final HttpEntity entity = response.getEntity();
             if (entity != null) {

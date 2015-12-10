@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
@@ -175,7 +176,7 @@ public class DefaultNHttpClientConnection
                     this.response = this.responseParser.parse(this.inbuf, bytesRead == -1);
                 } while (bytesRead > 0 && this.response == null);
                 if (this.response != null) {
-                    if (this.response.getStatusLine().getStatusCode() >= 200) {
+                    if (this.response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
                         final long len = this.incomingContentStrategy.determineLength(this.response);
                         if (len != ContentLengthStrategy.UNDEFINED) {
                             this.contentDecoder = createContentDecoder(
