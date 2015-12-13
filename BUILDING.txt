@@ -27,8 +27,7 @@ mvn install
 
 The JAR packages can be found in the target folders of their respective modules
 
-httpcore/target/httpcore-<VERSION>.jar
-httpcore-nio/target/httpcore-nio-<VERSION>.jar
+httpcore/target/httpcore5-<VERSION>.jar
 httpcore-osgi/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
 
 where <VERSION> is the release version
@@ -48,8 +47,4 @@ mvn apache-rat:check
 Execute the following command in order to generate javadoc:
 
 mvn javadoc:aggregate
-
-Execute the following command in order to generate the tutorial in html and pdf formats
-
-mvn docbkx:generate-pdf docbkx:generate-html
 
