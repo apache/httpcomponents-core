@@ -47,24 +47,24 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     public static final DefaultHttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();
 
     private static final String[] RFC2616_COMMON_METHODS = {
-            "GET"
+        "GET"
     };
 
     private static final String[] RFC2616_ENTITY_ENC_METHODS = {
-            "POST",
-            "PUT"
+        "POST",
+        "PUT"
     };
 
     private static final String[] RFC2616_SPECIAL_METHODS = {
-            "HEAD",
-            "OPTIONS",
-            "DELETE",
-            "TRACE",
-            "CONNECT"
+        "HEAD",
+        "OPTIONS",
+        "DELETE",
+        "TRACE",
+        "CONNECT"
     };
 
     private static final String[] RFC5789_ENTITY_ENC_METHODS = {
-            "PATCH"
+        "PATCH"
     };
 
     public DefaultHttpRequestFactory() {
