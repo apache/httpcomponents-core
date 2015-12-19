@@ -1,5 +1,201 @@
-Release 4.4-BETA2
+Release 5.0-ALPHA1
 -------------------
+
+This is a major release that renders HttpCore API incompatible with the stable 4.x branch
+and upgrades HTTP/1.1 protocol conformance to the requirements and recommendations of the latest
+protocol specification. This release lays the foundation for transition to HTTP/2 as the primary
+transport protocol in the future releases.
+
+Notable changes and features included in the 5.0 series are:
+
+* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol 
+  specification (RFC 7230, RFC 7231)
+
+* Blocking I/O and NIO HTTP transport implementation has been folded into one module
+
+* Package name space changed to 'org.apache.hc.core5' 
+
+* Maven group id changed to 'org.apache.httpcomponents.core5' 
+
+HttpCore 5.0 releases can be co-located with earlier versions.
+
+Please note that as of 5.0 HttpCore requires Java 1.7 or newer.
+
+Please note that at this point 5.0 APIs are considered API experimental and unstable and are
+expected to change in the coming releases without providing a migration path.
+
+
+
+Changelog
+-------------------
+
+* PATCH method support
+  Contributed by Ömer Özkan <omer at ozkan.info>
+
+* HTTPCORE-412: Support for trailing headers in outgoing HTTP messages
+  Based on contribution by Daneel Yaitskov <rtfm.rtfm.rtfm at gmail.com>
+
+* HTTPCORE-411, RFC 7320, RFC 7321: Made Expect-Continue handshake compliant with the spec
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed handling of pipelined HEAD requests
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-409: NIO HttpServer does not shutdown listener ExecutorService
+  Contributed by Hiranya Jayathilaka <hiranya at apache.org>
+
+* HTTPCORE-406: PAX-EXAM tests with an embedded HTTP server
+  Contributed by Benson Margulies <benson at basistech.com>
+
+* RFC 7230: increased the default max number of concurrent connection for the same route from 2 to 5
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 7230: improved compliance of the default connection re-use strategy
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 7230: reject HTTP/1.1 requests with absent Host header or multiple Host headers
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 7230: permit some empty lines before message head
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 7230: disallow multiple Content-Length headers / header elements
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 7230: reject headers containing whitespaces between the header field name and colon in strict mode
+  (when parsing request messages on the server side)
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 7230: reject messages with incompatible major protocol version
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTP/2: added immutable MessageHead interface common for both HTTP/1.1 and HTTP/2 messages
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-396: PrivateKeyStrategy does not work with NIO SSL
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 7230: it is legal for any request method to enclose an entity; revised message delineation logic;
+  removed HttpEntityEnclosingRequest interface; fixes HTTPCORE-318, HTTPCORE-380
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Use CharSequence instead of CharArrayBuffer for header element parsing
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* TokenParser to use CharSequence instead of CharArrayBuffer
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
+
+Release 4.4.4
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.3.
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
+
+* [HTTPCORE-410] PoolStats made Serializable
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* BufferedHttpEntity to use HttpEntity#writeTo when buffering non-repeatable entities
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed race condition in request initialization code in async client protocol handlers
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed handling of pipelined HEAD requests
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-409] NIO HttpServer does not shutdown listener ExecutorService 
+  Contributed by Hiranya Jayathilaka <hiranya at apache.org>
+
+
+Release 4.4.3
+-------------------
+
+This is a maintenance release that fixes a regression introduced by release 4.4.2.
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
+
+* Fixed regression introduced by HTTPCORE-399. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+Release 4.4.2
+-------------------
+
+This maintenance release fixes a bug in HTTP request pipelining code discovered 
+after 4.4.1 release.
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
+
+* Throw ConnectionClosedException instead of IllegalStateException if an attempt is made to 
+  use a closed (not bound to a socket) blocking connection.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-399] Non-blocking client connections incorrectly suspend output causing 
+  sequential execution of requests. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+Release 4.4.1
+-------------------
+
+This maintenance release fixes a number of minor bugs found since 4.4.
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
+
+* [HTTPCORE-396]: PrivateKeyStrategy does not work with NIO SSL.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-395]: VersionInfo#getUserAgent reports incorrect Java version.
+  Contributed by Michael Osipov <michaelo at apache.org>
+
+* Non-blocking connection should not trigger end-of-stream callback as long as there is still
+  data in the session input buffer. This can cause a series of short pipelined requests to
+  fail prematurely in case of an unexpected connection termination by the opposite endpoint. 
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+Release 4.4
+-----------------
+
+This is the first stable (GA) release of HttpCore 4.4. Notable features included in 
+the 4.4 series are:
+
+* Support for pipelined request processing on the server side
+
+* Support for pipelined request execution on the client side
+
+* Simplified bootstrapping of blocking and non-blocking (NIO) HTTP server implementations   
+
+* Inclusion of SSL context initialization utilities from HttpClient
+
+Please note that as of 4.4 HttpCore requires Java 1.6 or newer.
+
+
+Changelog
+-------------------
+
+* Performance optimizations
+  Contributed by Dmitry Potapov <dpotapov at yandex-team.ru>
 
 * Update Apache Commons Logging version from 1.1.3 to 1.2. 
   Contributed by Gary Gregory <ggregory at apache.org>
