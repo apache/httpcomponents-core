@@ -39,6 +39,8 @@ package org.apache.hc.core5.http;
 public interface HttpStatus {
 
     // --- 1xx Informational ---
+    /** {@code 100 1xx Informational} (HTTP/1.1 - RFC 2616) */
+    public static final int SC_INFORMATIONAL = 100;
 
     /** {@code 100 Continue} (HTTP/1.1 - RFC 2616) */
     public static final int SC_CONTINUE = 100;
@@ -48,6 +50,8 @@ public interface HttpStatus {
     public static final int SC_PROCESSING = 102;
 
     // --- 2xx Success ---
+    /** {@code 2xx Success} (HTTP/1.0 - RFC 1945) */
+    public static final int SC_SUCCESS = 200;
 
     /** {@code 200 OK} (HTTP/1.0 - RFC 1945) */
     public static final int SC_OK = 200;
@@ -71,6 +75,8 @@ public interface HttpStatus {
     public static final int SC_MULTI_STATUS = 207;
 
     // --- 3xx Redirection ---
+    /** {@code 3xx Redirection} (HTTP/1.1 - RFC 2616) */
+    public static final int SC_REDIRECTION = 300;
 
     /** {@code 300 Mutliple Choices} (HTTP/1.1 - RFC 2616) */
     public static final int SC_MULTIPLE_CHOICES = 300;
@@ -88,6 +94,8 @@ public interface HttpStatus {
     public static final int SC_TEMPORARY_REDIRECT = 307;
 
     // --- 4xx Client Error ---
+    /** {@code 4xx Client Error} (HTTP/1.1 - RFC 2616) */
+    public static final int SC_CLIENT_ERROR = 400;
 
     /** {@code 400 Bad Request} (HTTP/1.1 - RFC 2616) */
     public static final int SC_BAD_REQUEST = 400;
@@ -156,8 +164,10 @@ public interface HttpStatus {
     public static final int SC_FAILED_DEPENDENCY = 424;
 
     // --- 5xx Server Error ---
-
     /** {@code 500 Server Error} (HTTP/1.0 - RFC 1945) */
+    public static final int SC_SERVER_ERROR = 500;
+
+    /** {@code 500 Internal Server Error} (HTTP/1.0 - RFC 1945) */
     public static final int SC_INTERNAL_SERVER_ERROR = 500;
     /** {@code 501 Not Implemented} (HTTP/1.0 - RFC 1945) */
     public static final int SC_NOT_IMPLEMENTED = 501;

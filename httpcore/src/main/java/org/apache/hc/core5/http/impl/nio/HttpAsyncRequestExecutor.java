@@ -521,10 +521,10 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         if (method.equalsIgnoreCase("HEAD")) {
             return false;
         }
-        if (method.equalsIgnoreCase("CONNECT") && status < 300) {
+        if (method.equalsIgnoreCase("CONNECT") && status < HttpStatus.SC_REDIRECTION) {
             return false;
         }
-        return status >= HttpStatus.SC_OK
+        return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED
             && status != HttpStatus.SC_RESET_CONTENT;

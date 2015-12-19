@@ -96,7 +96,7 @@ public class HttpRequestExecutor {
             return false;
         }
         final int status = response.getStatusLine().getStatusCode();
-        return status >= HttpStatus.SC_OK
+        return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED
             && status != HttpStatus.SC_RESET_CONTENT;
@@ -143,7 +143,7 @@ public class HttpRequestExecutor {
                     if (conn.isDataAvailable(this.waitForContinue)) {
                         response = conn.receiveResponseHeader();
                         final int status = response.getStatusLine().getStatusCode();
-                        if (status < HttpStatus.SC_OK) {
+                        if (status < HttpStatus.SC_SUCCESS) {
                             if (status != HttpStatus.SC_CONTINUE) {
                                 throw new ProtocolException("Unexpected response: " + response.getStatusLine());
                             }

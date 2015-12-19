@@ -188,7 +188,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         ensureOpen();
         final HttpResponse response = this.responseParser.parse(this.inbuffer);
         onResponseReceived(response);
-        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK) {
+        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();
         }
         return response;

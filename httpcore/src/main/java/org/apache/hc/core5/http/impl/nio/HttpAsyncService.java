@@ -604,7 +604,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             return false;
         }
         final int status = response.getStatusLine().getStatusCode();
-        return status >= HttpStatus.SC_OK
+        return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED
             && status != HttpStatus.SC_RESET_CONTENT;
@@ -966,7 +966,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
                 // If there is an incoming request associated with the exchange
                 // the response will be sent early (out of sequence).
-                if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_OK && this.incoming != null) {
+                if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_SUCCESS && this.incoming != null) {
                     this.incoming.setEarlyResponse(true);
                 }
 

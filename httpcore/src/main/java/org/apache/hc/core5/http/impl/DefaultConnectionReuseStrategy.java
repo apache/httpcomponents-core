@@ -141,7 +141,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
     private boolean canResponseHaveBody(final HttpResponse response) {
         final int status = response.getStatusLine().getStatusCode();
-        return status >= HttpStatus.SC_OK
+        return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED
             && status != HttpStatus.SC_RESET_CONTENT;
