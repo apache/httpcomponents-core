@@ -262,7 +262,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
         final HttpResponse response = future.get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         Assert.assertEquals(new String(GARBAGE, StandardCharsets.ISO_8859_1.name()),
                 EntityUtils.toString(response.getEntity()));
     }

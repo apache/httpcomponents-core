@@ -148,7 +148,7 @@ public class TestCustomSSL {
         final Future<HttpResponse> future = this.client.execute(target, request);
         final HttpResponse response = future.get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
     }
 
 }

@@ -61,7 +61,7 @@ public class TestErrorResponseProducer {
 
         Assert.assertEquals("keep-alive", res.getFirstHeader(HttpHeaders.CONNECTION).getValue());
         Assert.assertEquals(entity, res.getEntity());
-        Assert.assertEquals(200, res.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, res.getCode());
     }
 
     @Test
@@ -71,7 +71,7 @@ public class TestErrorResponseProducer {
 
         Assert.assertEquals("close", res.getFirstHeader(HttpHeaders.CONNECTION).getValue());
         Assert.assertEquals(entity, res.getEntity());
-        Assert.assertEquals(200, res.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, res.getCode());
     }
 
 }

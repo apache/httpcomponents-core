@@ -490,7 +490,7 @@ public class TestDefaultNHttpClientConnection {
         final HttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
         final HttpEntity entity = response.getEntity();
         Assert.assertNotNull(entity);
@@ -535,7 +535,7 @@ public class TestDefaultNHttpClientConnection {
         final HttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
         final HttpEntity entity = response.getEntity();
         Assert.assertNotNull(entity);
@@ -583,7 +583,7 @@ public class TestDefaultNHttpClientConnection {
         final HttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(100, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(100, response.getCode());
         final HttpEntity entity = response.getEntity();
         Assert.assertNull(entity);
     }

@@ -182,7 +182,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final Future<HttpResponse> future = queue.remove();
             final HttpResponse response = future.get();
             Assert.assertNotNull(response);
-            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         }
     }
 
@@ -304,7 +304,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final Future<HttpResponse> future = queue.remove();
             final HttpResponse response = future.get();
             Assert.assertNotNull(response);
-            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         }
     }
 
@@ -334,7 +334,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final HttpResponse response = future.get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
     }
 
     @Test
@@ -373,7 +373,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final HttpResponse response = future.get();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
     }
 
     @Test
@@ -459,15 +459,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Future<HttpResponse> future1 = queue.remove();
         final HttpResponse response1 = future1.get();
-        Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
         final Future<HttpResponse> future2 = queue.remove();
         final HttpResponse response2 = future2.get();
-        Assert.assertEquals(HttpStatus.SC_OK, response2.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_OK, response2.getCode());
 
         final Future<HttpResponse> future3 = queue.remove();
         final HttpResponse response3 = future3.get();
-        Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getCode());
     }
 
     @Test
@@ -537,7 +537,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final Future<HttpResponse> future = queue.remove();
             final HttpResponse response = future.get();
             Assert.assertNotNull(response);
-            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         }
     }
 
@@ -601,15 +601,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Future<HttpResponse> future1 = queue.remove();
         final HttpResponse response1 = future1.get();
-        Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
         final Future<HttpResponse> future2 = queue.remove();
         final HttpResponse response2 = future2.get();
-        Assert.assertEquals(HttpStatus.SC_OK, response2.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_OK, response2.getCode());
 
         final Future<HttpResponse> future3 = queue.remove();
         final HttpResponse response3 = future3.get();
-        Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getCode());
     }
 
     @Test
@@ -657,7 +657,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final HttpContext context = new BasicHttpContext();
             final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
             final HttpResponse response1 = future1.get();
-            Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
             final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final HttpEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 500));
@@ -665,7 +665,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
             final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
             final HttpResponse response2 = future2.get();
-            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getCode());
         }
     }
 
@@ -715,7 +715,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final HttpContext context = new BasicHttpContext();
             final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
             final HttpResponse response1 = future1.get();
-            Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
             final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 10));
@@ -724,7 +724,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
             final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
             final HttpResponse response2 = future2.get();
-            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getCode());
         }
     }
 
@@ -788,7 +788,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final HttpContext context = new BasicHttpContext();
             final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
             final HttpResponse response1 = future1.get();
-            Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
             final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 10));
@@ -797,7 +797,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
             final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
             final HttpResponse response2 = future2.get();
-            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getCode());
         }
     }
 
@@ -847,7 +847,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final Future<HttpResponse> future = queue.remove();
             final HttpResponse response = future.get();
             Assert.assertNotNull(response);
-            Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
         }
     }
 
@@ -872,7 +872,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final Future<HttpResponse> future = queue.remove();
             final HttpResponse response = future.get();
             Assert.assertNotNull(response);
-            Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
         }
     }
 
@@ -933,12 +933,12 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final Future<HttpResponse> future1 = this.client.execute(target, request1);
         final HttpResponse response1 = future1.get();
         Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response1.getCode());
         final BasicHttpRequest request2 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
         final Future<HttpResponse> future2 = this.client.execute(target, request2);
         final HttpResponse response2 = future2.get();
         Assert.assertNotNull(response2);
-        Assert.assertEquals(400, response2.getStatusLine().getStatusCode());
+        Assert.assertEquals(400, response2.getCode());
     }
 
 }

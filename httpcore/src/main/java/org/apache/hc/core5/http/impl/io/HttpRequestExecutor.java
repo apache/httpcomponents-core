@@ -95,7 +95,7 @@ public class HttpRequestExecutor {
         if ("HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
             return false;
         }
-        final int status = response.getStatusLine().getStatusCode();
+        final int status = response.getCode();
         return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT
             && status != HttpStatus.SC_NOT_MODIFIED
@@ -142,7 +142,7 @@ public class HttpRequestExecutor {
                     // Don't wait for a 100-continue response forever. On timeout, send the entity.
                     if (conn.isDataAvailable(this.waitForContinue)) {
                         response = conn.receiveResponseHeader();
-                        final int status = response.getStatusLine().getStatusCode();
+                        final int status = response.getCode();
                         if (status < HttpStatus.SC_SUCCESS) {
                             if (status != HttpStatus.SC_CONTINUE) {
                                 throw new ProtocolException("Unexpected response: " + response.getStatusLine());
@@ -165,7 +165,7 @@ public class HttpRequestExecutor {
             }
             conn.flush();
 
-            while (response == null || response.getStatusLine().getStatusCode() < HttpStatus.SC_OK) {
+            while (response == null || response.getCode() < HttpStatus.SC_OK) {
                 response = conn.receiveResponseHeader();
                 if (canResponseHaveBody(request, response)) {
                     conn.receiveResponseEntity(response);

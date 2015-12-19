@@ -38,6 +38,16 @@ import java.util.Locale;
 public interface HttpResponse extends HttpMessage<HttpEntity> {
 
     /**
+     * Obtains the code in the status line of this response.
+     * The status line can be set using one of the
+     * {@link #setStatusLine setStatusLine} methods,
+     * or it can be initialized in a constructor.
+     *
+     * @return  the status code, or {@code 0} if not yet set
+     */
+    int getCode();
+
+    /**
      * Obtains the status line of this response.
      * The status line can be set using one of the
      * {@link #setStatusLine setStatusLine} methods,

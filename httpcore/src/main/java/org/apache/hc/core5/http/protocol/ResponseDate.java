@@ -57,7 +57,7 @@ public class ResponseDate implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        final int status = response.getStatusLine().getStatusCode();
+        final int status = response.getCode();
         if ((status >= HttpStatus.SC_OK) &&
             !response.containsHeader(HttpHeaders.DATE)) {
             final String httpdate = DATE_GENERATOR.getCurrentDate();

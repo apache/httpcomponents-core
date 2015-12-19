@@ -95,7 +95,7 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
 
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
@@ -160,7 +160,7 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
 
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
@@ -205,7 +205,7 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
 
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
@@ -266,7 +266,7 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getCode());
 
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(httprocessor).process(response, context);
@@ -312,7 +312,7 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
 
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(httprocessor).process(response, context);
@@ -355,7 +355,7 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(error, context.getResponse());
 
-        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, error.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, error.getCode());
 
         Mockito.verify(conn).sendResponseHeader(error);
         Mockito.verify(httprocessor).process(error, context);
@@ -398,7 +398,7 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(error, context.getResponse());
 
-        Assert.assertEquals(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED, error.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED, error.getCode());
 
         Mockito.verify(conn).sendResponseHeader(error);
         Mockito.verify(httprocessor).process(error, context);
@@ -441,7 +441,7 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(error, context.getResponse());
 
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, error.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, error.getCode());
 
         Mockito.verify(conn).sendResponseHeader(error);
         Mockito.verify(httprocessor).process(error, context);
@@ -475,7 +475,7 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
 
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());

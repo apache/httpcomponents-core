@@ -180,7 +180,7 @@ public class HttpService {
                     handleException(ex, response);
                 }
             }
-            if (response.getStatusLine().getStatusCode() < HttpStatus.SC_SUCCESS) {
+            if (response.getCode() < HttpStatus.SC_SUCCESS) {
                 // Send 1xx response indicating the server expectations
                 // have been met
                 conn.sendResponseHeader(response);
@@ -238,7 +238,7 @@ public class HttpService {
         if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
             return false;
         }
-        final int status = response.getStatusLine().getStatusCode();
+        final int status = response.getCode();
         return status >= HttpStatus.SC_SUCCESS
                 && status != HttpStatus.SC_NO_CONTENT
                 && status != HttpStatus.SC_NOT_MODIFIED

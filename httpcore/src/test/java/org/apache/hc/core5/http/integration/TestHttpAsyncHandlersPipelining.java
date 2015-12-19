@@ -168,7 +168,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
-                Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
                 Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
             }
         }
@@ -202,7 +202,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
-                Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             }
         }
     }
@@ -246,7 +246,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
-                Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
                 Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
             }
         }
@@ -334,7 +334,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
-                Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             }
             Assert.assertEquals(expectedPattern1, EntityUtils.toString(responses.get(0).getEntity()));
             Assert.assertEquals(expectedPattern2, EntityUtils.toString(responses.get(1).getEntity()));

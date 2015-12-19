@@ -128,7 +128,7 @@ public class ResponseContent implements HttpResponseInterceptor {
                 response.addHeader(new BasicHeader(HttpHeaders.CONTENT_ENCODING, entity.getContentEncoding()));
             }
         } else {
-            final int status = response.getStatusLine().getStatusCode();
+            final int status = response.getCode();
             if (status != HttpStatus.SC_NO_CONTENT
                     && status != HttpStatus.SC_NOT_MODIFIED
                     && status != HttpStatus.SC_RESET_CONTENT) {

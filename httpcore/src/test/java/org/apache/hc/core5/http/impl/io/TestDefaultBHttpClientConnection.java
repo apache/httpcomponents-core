@@ -89,7 +89,7 @@ public class TestDefaultBHttpClientConnection {
         final HttpResponse response = conn.receiveResponseHeader();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("User-Agent"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
     }
@@ -108,7 +108,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
 
@@ -138,7 +138,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
 
@@ -168,7 +168,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
 
@@ -189,7 +189,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
 

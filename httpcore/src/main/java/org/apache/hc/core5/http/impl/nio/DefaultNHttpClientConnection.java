@@ -176,7 +176,7 @@ public class DefaultNHttpClientConnection
                     this.response = this.responseParser.parse(this.inbuf, bytesRead == -1);
                 } while (bytesRead > 0 && this.response == null);
                 if (this.response != null) {
-                    if (this.response.getStatusLine().getStatusCode() >= HttpStatus.SC_SUCCESS) {
+                    if (this.response.getCode() >= HttpStatus.SC_SUCCESS) {
                         final long len = this.incomingContentStrategy.determineLength(this.response);
                         if (len != ContentLengthStrategy.UNDEFINED) {
                             this.contentDecoder = createContentDecoder(

@@ -66,7 +66,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         final HttpCoreContext corecontext = HttpCoreContext.adapt(context);
 
         // Always drop connection after certain type of responses
-        final int status = response.getStatusLine().getStatusCode();
+        final int status = response.getCode();
         if (status == HttpStatus.SC_BAD_REQUEST ||
                 status == HttpStatus.SC_REQUEST_TIMEOUT ||
                 status == HttpStatus.SC_LENGTH_REQUIRED ||

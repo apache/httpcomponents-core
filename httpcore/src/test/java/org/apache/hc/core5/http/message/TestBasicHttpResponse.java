@@ -41,7 +41,7 @@ public class TestBasicHttpResponse {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
     }
 
@@ -49,27 +49,27 @@ public class TestBasicHttpResponse {
     public void testStatusLineMutation() {
         final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
         response.setReasonPhrase("Kind of OK");
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("Kind of OK", response.getStatusLine().getReasonPhrase());
         response.setStatusCode(299);
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(299, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(299, response.getCode());
         Assert.assertEquals(null, response.getStatusLine().getReasonPhrase());
         response.setStatusLine(HttpVersion.HTTP_1_0, 298);
         Assert.assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(298, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(298, response.getCode());
         Assert.assertEquals(null, response.getStatusLine().getReasonPhrase());
         response.setStatusLine(HttpVersion.HTTP_1_1, 200, "OK");
         Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(200, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
         response.setStatusLine(new BasicStatusLine(HttpVersion.HTTP_1_0, 500, "Boom"));
         Assert.assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(500, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(500, response.getCode());
         Assert.assertEquals("Boom", response.getStatusLine().getReasonPhrase());
     }
 

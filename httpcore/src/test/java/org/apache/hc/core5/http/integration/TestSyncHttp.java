@@ -575,9 +575,9 @@ public class TestSyncHttp {
                 EntityUtils.consume(responseEntity);
 
                 if (r >= 2) {
-                    Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getStatusLine().getStatusCode());
+                    Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response.getCode());
                 } else {
-                    Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+                    Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
                 }
 
                 if (!conn.isConsistent() || !this.client.keepAlive(post, response)) {
@@ -787,7 +787,7 @@ public class TestSyncHttp {
             post.setEntity(null);
 
             final HttpResponse response = this.client.execute(post, host, conn);
-            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assert.assertEquals(0, received.length);
         } finally {
@@ -836,7 +836,7 @@ public class TestSyncHttp {
                     new RequestExpectContinue()));
 
             final HttpResponse response = this.client.execute(post, host, conn);
-            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assert.assertEquals(0, received.length);
         } finally {
@@ -895,7 +895,7 @@ public class TestSyncHttp {
                     new RequestExpectContinue()));
 
             final HttpResponse response = this.client.execute(post, host, conn);
-            Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
         } finally {
             conn.close();
             this.server.shutdown();
@@ -977,11 +977,11 @@ public class TestSyncHttp {
         try {
             final BasicHttpRequest get1 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
             final HttpResponse response1 = this.client.execute(get1, host, conn);
-            Assert.assertEquals(200, response1.getStatusLine().getStatusCode());
+            Assert.assertEquals(200, response1.getCode());
             EntityUtils.consume(response1.getEntity());
             final BasicHttpRequest get2 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
             final HttpResponse response2 = this.client.execute(get2, host, conn);
-            Assert.assertEquals(400, response2.getStatusLine().getStatusCode());
+            Assert.assertEquals(400, response2.getCode());
             EntityUtils.consume(response2.getEntity());
 
         } finally {

@@ -266,7 +266,7 @@ public class DefaultNHttpServerConnection
         this.responseWriter.write(response, this.outbuf);
         this.hasBufferedOutput = this.outbuf.hasData();
 
-        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_SUCCESS) {
+        if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             this.connMetrics.incrementResponseCount();
             final HttpEntity entity = response.getEntity();
             if (entity != null) {

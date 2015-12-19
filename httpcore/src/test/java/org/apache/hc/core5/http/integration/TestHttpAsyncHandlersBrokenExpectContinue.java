@@ -142,7 +142,7 @@ public class TestHttpAsyncHandlersBrokenExpectContinue extends HttpCoreNIOTestBa
             final HttpContext context = new BasicHttpContext();
             final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
             final HttpResponse response1 = future1.get();
-            Assert.assertEquals(HttpStatus.SC_OK, response1.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
             final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 1000));
@@ -151,7 +151,7 @@ public class TestHttpAsyncHandlersBrokenExpectContinue extends HttpCoreNIOTestBa
 
             final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
             final HttpResponse response2 = future2.get();
-            Assert.assertEquals(HttpStatus.SC_OK, response2.getStatusLine().getStatusCode());
+            Assert.assertEquals(HttpStatus.SC_OK, response2.getCode());
         }
     }
 

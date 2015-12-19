@@ -296,7 +296,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
         final HttpResponse response = conn.getHttpResponse();
 
-        final int statusCode = response.getStatusLine().getStatusCode();
+        final int statusCode = response.getCode();
         if (statusCode < HttpStatus.SC_OK) {
             // 1xx intermediate response
             if (statusCode != HttpStatus.SC_CONTINUE) {
@@ -516,7 +516,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
 
         final String method = request.getRequestLine().getMethod();
-        final int status = response.getStatusLine().getStatusCode();
+        final int status = response.getCode();
 
         if (method.equalsIgnoreCase("HEAD")) {
             return false;

@@ -138,6 +138,12 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
 
     // non-javadoc, see interface HttpResponse
     @Override
+    public int getCode() {
+        return getStatusLine().getStatusCode();
+    }
+    
+    // non-javadoc, see interface HttpResponse
+    @Override
     public StatusLine getStatusLine() {
         if (this.statusline == null) {
             this.statusline = new BasicStatusLine(

@@ -175,7 +175,7 @@ public class TestHttpAsyncService {
         Assert.assertNotNull(outgoing);
         Assert.assertNotNull(outgoing.getProducer());
         Assert.assertNotNull(outgoing.getResponse());
-        Assert.assertEquals(500, outgoing.getResponse().getStatusLine().getStatusCode());
+        Assert.assertEquals(500, outgoing.getResponse().getCode());
 
         Mockito.verify(this.requestConsumer).failed(httpex);
         Mockito.verify(this.requestConsumer).close();
@@ -504,7 +504,7 @@ public class TestHttpAsyncService {
 
             @Override
             public boolean matches(final Object argument) {
-                final int status = ((HttpResponse) argument).getStatusLine().getStatusCode();
+                final int status = ((HttpResponse) argument).getCode();
                 return status == 100;
             }
 
@@ -723,7 +723,7 @@ public class TestHttpAsyncService {
         Assert.assertEquals(MessageState.ACK_EXPECTED, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
         final HttpResponse response = responseProducer.generateResponse();
-        Assert.assertEquals(HttpStatus.SC_CONTINUE, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(HttpStatus.SC_CONTINUE, response.getCode());
 
         Mockito.verify(this.conn).requestOutput();
 
@@ -1085,7 +1085,7 @@ public class TestHttpAsyncService {
 
             @Override
             public boolean matches(final Object argument) {
-                final int status = ((HttpResponse) argument).getStatusLine().getStatusCode();
+                final int status = ((HttpResponse) argument).getCode();
                 return status == 100;
             }
 
@@ -1167,7 +1167,7 @@ public class TestHttpAsyncService {
         Assert.assertNotNull(exchange);
         Assert.assertSame(request, exchange.getRequest());
         Assert.assertNotNull(exchange.getResponse());
-        Assert.assertEquals(200, exchange.getResponse().getStatusLine().getStatusCode());
+        Assert.assertEquals(200, exchange.getResponse().getCode());
     }
 
     @Test
@@ -1193,7 +1193,7 @@ public class TestHttpAsyncService {
         Assert.assertNotNull(outgoing.getProducer());
         final HttpResponse response = outgoing.getResponse();
         Assert.assertNotNull(response);
-        Assert.assertEquals(500, response.getStatusLine().getStatusCode());
+        Assert.assertEquals(500, response.getCode());
 
         Mockito.verify(this.requestHandler, Mockito.never()).handle(Matchers.<HttpRequest>any(),
                 Matchers.<HttpAsyncExchange>any(), Matchers.<HttpContext>any());

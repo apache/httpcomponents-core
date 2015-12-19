@@ -94,11 +94,11 @@ public class TestClientOutOfSequenceResponse {
         }
 
         final HttpResponse response1 = future1.get();
-        Assert.assertEquals(200, response1.getStatusLine().getStatusCode());
+        Assert.assertEquals(200, response1.getCode());
 
         try {
             final HttpResponse response2 = future2.get();
-            Assert.assertEquals(200, response2.getStatusLine().getStatusCode());
+            Assert.assertEquals(200, response2.getCode());
         } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof HttpException);
         }

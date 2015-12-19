@@ -158,7 +158,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
         ensureOpen();
         this.responseWriter.write(response, this.outbuffer);
         onResponseSubmitted(response);
-        if (response.getStatusLine().getStatusCode() >= HttpStatus.SC_SUCCESS) {
+        if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();
         }
     }
