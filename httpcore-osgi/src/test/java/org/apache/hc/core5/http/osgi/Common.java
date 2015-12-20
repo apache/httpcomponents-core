@@ -80,8 +80,8 @@ public class Common {
                 bundle(String.format("file:%s/org.apache.httpcomponents.httpcore_%s.jar",
                         buildDir,
                         projectVersion)),
-                wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents")
-                        .artifactId("httpcore")
+                wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents.core5")
+                        .artifactId("httpcore5")
                         .version(projectVersion)
                         .classifier("tests"))
                 .exports("org.apache.hc.core5.http.integration")
