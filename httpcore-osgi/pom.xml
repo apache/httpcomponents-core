@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents.core5</groupId>
     <artifactId>httpcore5-parent</artifactId>
-    <version>5.0-alpha1-SNAPSHOT</version>
+    <version>5.0-alpha1</version>
   </parent>
   <artifactId>httpcore5-osgi</artifactId>
   <name>Apache HttpComponents Core OSGi bundle</name>
@@ -46,13 +46,13 @@
   </properties>
   <dependencies>
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
+      <groupId>org.apache.httpcomponents.core5</groupId>
+      <artifactId>httpcore5</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
@@ -148,7 +148,7 @@
         <configuration>
           <instructions>
             <Bundle-Name>Apache ${project.name}</Bundle-Name>
-            <Bundle-SymbolicName>${project.groupId}.httpcore</Bundle-SymbolicName>
+            <Bundle-SymbolicName>${project.groupId}.httpcore5</Bundle-SymbolicName>
             <_exportcontents>org.apache.hc.core5.*;version=${project.version}</_exportcontents>
             <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
           </instructions>

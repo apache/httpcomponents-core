@@ -66,9 +66,7 @@
 
   <modules>
     <module>httpcore</module>
-    <!--
     <module>httpcore-osgi</module>
-    -->
     <module>httpcore-ab</module>
   </modules>
 
