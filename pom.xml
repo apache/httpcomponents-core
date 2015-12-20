@@ -34,7 +34,7 @@
   <artifactId>httpcore5-parent</artifactId>
   <groupId>org.apache.httpcomponents.core5</groupId>
   <name>Apache HttpComponents Core Parent</name>
-  <version>5.0-alpha1-SNAPSHOT</version>
+  <version>5.0-alpha1</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
@@ -59,9 +59,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</connection>
-    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</developerConnection>
-    <url>https://svn.apache.org/repos/asf/httpcomponents/httpcore/trunk</url>
+    <connection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/5.0-alpha1</connection>
+    <developerConnection>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/5.0-alpha1</developerConnection>
+    <url>https://svn.apache.org/repos/asf/httpcomponents/httpcore/tags/5.0-alpha1</url>
   </scm>
 
   <modules>
