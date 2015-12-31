@@ -30,6 +30,7 @@ package org.apache.http.impl;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
@@ -41,6 +42,7 @@ import org.apache.http.message.BasicHeaderIterator;
 import org.apache.http.message.BasicTokenIterator;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.util.Args;
 
 /**
@@ -77,6 +79,19 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
         Args.notNull(context, "HTTP context");
 
+        final HttpRequest request = (HttpRequest)context.getAttribute(HttpCoreContext.HTTP_REQUEST);
+        if (request != null) {
+            final Header[] connHeaders = request.getHeaders(HTTP.CONN_DIRECTIVE);
+            if (connHeaders.length != 0) {
+                final TokenIterator ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+                while (ti.hasNext()) {
+                    final String token = ti.nextToken();
+                    if (HTTP.CONN_CLOSE.equalsIgnoreCase(token)) {
+                        return false;
+                    }
+                }
+            }
+        }
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.
         final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
