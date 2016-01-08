@@ -229,7 +229,8 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             try {
                 socketChannel = SocketChannel.open();
             } catch (final IOException ex) {
-                throw new IOReactorException("Failure opening socket", ex);
+                request.failed(ex);
+                return;
             }
             try {
                 validateAddress(request.getLocalAddress());
