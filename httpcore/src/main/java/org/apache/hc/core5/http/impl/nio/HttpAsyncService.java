@@ -612,7 +612,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     private void completeRequest(
             final Incoming incoming,
-            final Queue<PipelineEntry> requestQueue) throws IOException, HttpException {
+            final Queue<PipelineEntry> requestQueue) throws IOException {
         final PipelineEntry pipelineEntry;
         try (final HttpAsyncRequestConsumer<?> consumer = incoming.getConsumer()) {
             final HttpContext context = incoming.getContext();
@@ -657,7 +657,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     private void completeResponse(
             final Outgoing outgoing,
             final NHttpServerConnection conn,
-            final State state) throws IOException, HttpException {
+            final State state) throws IOException {
         final HttpContext context = outgoing.getContext();
         final HttpRequest request = outgoing.getRequest();
         final HttpResponse response = outgoing.getResponse();

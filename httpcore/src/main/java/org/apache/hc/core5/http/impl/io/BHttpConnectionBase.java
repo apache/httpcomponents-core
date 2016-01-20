@@ -159,7 +159,7 @@ class BHttpConnectionBase implements BHttpConnection {
     HttpEntity createIncomingEntity(
             final HttpMessage message,
             final SessionInputBuffer inbuffer,
-            final long len) throws HttpException {
+            final long len) {
         return new IncomingHttpEntity(
                 createContentInputStream(len, inbuffer),
                 len >= 0 ? len : -1, len == ContentLengthStrategy.CHUNKED,

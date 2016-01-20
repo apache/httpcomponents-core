@@ -109,7 +109,7 @@ public class HttpServer {
         return this.endpoint;
     }
 
-    public void start() throws IOException {
+    public void start() {
         if (this.status.compareAndSet(Status.READY, Status.ACTIVE)) {
             this.endpoint = this.ioReactor.listen(new InetSocketAddress(this.ifAddress, this.port > 0 ? this.port : 0));
             final IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(

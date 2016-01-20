@@ -135,7 +135,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     /**
      * Shuts down the pool.
      */
-    public void shutdown() throws IOException {
+    public void shutdown() {
         if (this.isShutDown) {
             return ;
         }

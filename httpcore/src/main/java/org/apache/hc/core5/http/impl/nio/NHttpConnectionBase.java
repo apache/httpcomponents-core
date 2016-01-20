@@ -180,7 +180,7 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
 
     HttpEntity createIncomingEntity(
             final HttpMessage message,
-            final long len) throws HttpException {
+            final long len) {
         return new IncomingHttpEntity(
                 null,
                 len >= 0 ? len : -1, len == ContentLengthStrategy.CHUNKED,
