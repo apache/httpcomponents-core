@@ -39,7 +39,6 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpRequest;
