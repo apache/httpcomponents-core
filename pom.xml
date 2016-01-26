@@ -65,9 +65,9 @@
   </scm>
 
   <modules>
-    <module>httpcore</module>
-    <module>httpcore-osgi</module>
-    <module>httpcore-ab</module>
+    <module>httpcore5</module>
+    <module>httpcore5-osgi</module>
+    <module>httpcore5-ab</module>
   </modules>
 
   <properties>
