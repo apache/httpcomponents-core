@@ -40,6 +40,7 @@ import org.apache.hc.core5.util.Args;
 @NotThreadSafe
 public abstract class AbstractHttpMessage extends HeaderGroup implements HttpMessage<HttpEntity> {
 
+    private static final long serialVersionUID = 1L;
     private HttpEntity entity;
 
     @Override

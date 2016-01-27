@@ -41,6 +41,8 @@ public class TestDefaultContentLengthStrategy {
 
     static class TestHttpMessage extends AbstractHttpMessage {
 
+        private static final long serialVersionUID = 1L;
+
         @Override
         public ProtocolVersion getProtocolVersion() {
             return HttpVersion.HTTP_1_1;

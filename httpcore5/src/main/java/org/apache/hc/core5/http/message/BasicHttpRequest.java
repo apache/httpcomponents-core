@@ -42,6 +42,7 @@ import org.apache.hc.core5.util.Args;
 @NotThreadSafe
 public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
 
+    private static final long serialVersionUID = 1L;
     private final String method;
     private final String uri;
 

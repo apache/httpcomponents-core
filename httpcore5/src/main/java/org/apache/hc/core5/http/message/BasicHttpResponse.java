@@ -47,6 +47,7 @@ import org.apache.hc.core5.util.Args;
 @NotThreadSafe
 public class BasicHttpResponse extends AbstractHttpMessage implements HttpResponse {
 
+    private static final long serialVersionUID = 1L;
     private StatusLine          statusline;
     private ProtocolVersion     ver;
     private int                 code;
