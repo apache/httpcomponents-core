@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.testserver.nio;
 
-import java.io.IOException;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 
