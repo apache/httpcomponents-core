@@ -58,7 +58,7 @@ public class Common {
         final Properties depProps = new Properties();
         try {
             depProps.load(depPropsUrl.openStream());
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new RuntimeException(e);
         }
         String ver = (String) depProps.get(String.format("%s/%s/version", groupId, artifactId));
