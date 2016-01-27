@@ -58,7 +58,7 @@ public class HttpServerNio {
 
     private volatile HttpServer server;
 
-    public HttpServerNio() throws IOException {
+    public HttpServerNio() {
         super();
         this.reqistry = new UriHttpAsyncRequestHandlerMapper();
     }
