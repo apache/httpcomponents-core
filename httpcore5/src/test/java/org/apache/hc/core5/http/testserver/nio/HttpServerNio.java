@@ -97,7 +97,7 @@ public class HttpServerNio {
         throw new IllegalStateException("Server not running");
     }
 
-    public void start() throws IOException {
+    public void start() {
         Asserts.check(this.server == null, "Server already running");
         this.server = ServerBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
