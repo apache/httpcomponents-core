@@ -32,6 +32,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 
 import javax.net.ssl.SSLContext;
@@ -563,10 +564,10 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         return this.sslEngine.isOutboundDone();
     }
 
-    private synchronized int writePlain(final ByteBuffer src) throws SSLException {
+    private synchronized int writePlain(final ByteBuffer src) throws IOException {
         Args.notNull(src, "Byte buffer");
         if (this.status != ACTIVE) {
-            return -1;
+            throw new ClosedChannelException();
         }
         if (this.outPlain.hasData()) {
             // Acquire buffers
