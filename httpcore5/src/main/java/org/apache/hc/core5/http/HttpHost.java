@@ -99,6 +99,18 @@ public final class HttpHost implements Serializable {
     }
 
     /**
+     * Creates {@code HttpHost} instance with the given hostname and scheme and the default port for that scheme.
+     *
+     * @param hostname  the hostname (IP or DNS name)
+     * @param scheme    the name of the scheme.
+     *                  {@code null} indicates the
+     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     */
+    public HttpHost(final String hostname, final String scheme) {
+        this(hostname, -1, scheme);
+    }
+
+    /**
      * Creates {@code HttpHost} instance from string. Text may not contain any blanks.
      *
      * @since 4.4
