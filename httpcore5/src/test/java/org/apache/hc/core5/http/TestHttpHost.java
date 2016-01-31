@@ -60,6 +60,10 @@ public class TestHttpHost {
         Assert.assertEquals("somehost", host4.getHostName());
         Assert.assertEquals(443, host4.getPort());
         Assert.assertEquals("https", host4.getSchemeName());
+        final HttpHost host5 = new HttpHost("somehost", "https");
+        Assert.assertEquals("somehost", host5.getHostName());
+        Assert.assertEquals(-1, host5.getPort());
+        Assert.assertEquals("https", host5.getSchemeName());
         try {
             new HttpHost((String) null, -1, null);
             Assert.fail("IllegalArgumentException should have been thrown");
