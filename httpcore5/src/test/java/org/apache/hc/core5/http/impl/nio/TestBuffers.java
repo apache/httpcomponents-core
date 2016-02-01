@@ -35,7 +35,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
@@ -88,7 +88,7 @@ public class TestBuffers {
         final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
         final WritableByteChannel channel = Channels.newChannel(outstream);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final ContentEncoder encoder = new ContentEncoderMock(channel, outbuf, metrics);
 

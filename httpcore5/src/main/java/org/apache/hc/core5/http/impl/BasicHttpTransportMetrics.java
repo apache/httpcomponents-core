@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.io;
+package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
@@ -36,21 +36,17 @@ import org.apache.hc.core5.http.io.HttpTransportMetrics;
  * @since 4.0
  */
 @NotThreadSafe
-public class HttpTransportMetricsImpl implements HttpTransportMetrics {
+public class BasicHttpTransportMetrics implements HttpTransportMetrics {
 
     private long bytesTransferred = 0;
 
-    public HttpTransportMetricsImpl() {
+    public BasicHttpTransportMetrics() {
         super();
     }
 
     @Override
     public long getBytesTransferred() {
         return this.bytesTransferred;
-    }
-
-    public void setBytesTransferred(final long count) {
-        this.bytesTransferred = count;
     }
 
     public void incrementBytesTransferred(final long count) {

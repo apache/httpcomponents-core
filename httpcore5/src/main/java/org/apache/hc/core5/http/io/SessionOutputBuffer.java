@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -76,7 +77,7 @@ public interface SessionOutputBuffer {
      * @param      len   the number of bytes to write.
      * @exception  IOException  if an I/O error occurs.
      */
-    void write(byte[] b, int off, int len) throws IOException;
+    void write(byte[] b, int off, int len, OutputStream outputStream) throws IOException;
 
     /**
      * Writes {@code b.length} bytes from the specified byte array
@@ -85,7 +86,7 @@ public interface SessionOutputBuffer {
      * @param      b   the data.
      * @exception  IOException  if an I/O error occurs.
      */
-    void write(byte[] b) throws IOException;
+    void write(byte[] b, OutputStream outputStream) throws IOException;
 
     /**
      * Writes the specified byte to this session buffer.
@@ -93,7 +94,7 @@ public interface SessionOutputBuffer {
      * @param      b   the {@code byte}.
      * @exception  IOException  if an I/O error occurs.
      */
-    void write(int b) throws IOException;
+    void write(int b, OutputStream outputStream) throws IOException;
 
     /**
      * Writes characters from the specified char array followed by a line
@@ -105,7 +106,7 @@ public interface SessionOutputBuffer {
      * @param      buffer   the buffer containing chars of the line.
      * @exception  IOException  if an I/O error occurs.
      */
-    void writeLine(CharArrayBuffer buffer) throws IOException;
+    void writeLine(CharArrayBuffer buffer, OutputStream outputStream) throws IOException;
 
     /**
      * Flushes this session buffer and forces any buffered output bytes
@@ -117,7 +118,7 @@ public interface SessionOutputBuffer {
      *
      * @exception  IOException  if an I/O error occurs.
      */
-    void flush() throws IOException;
+    void flush(OutputStream outputStream) throws IOException;
 
     /**
      * Returns {@link HttpTransportMetrics} for this session buffer.

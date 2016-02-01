@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class TestChunkDecoder {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -80,7 +80,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -117,7 +117,7 @@ public class TestChunkDecoder {
                 new String[] {s1, s2}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -153,7 +153,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(32, 32, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -183,7 +183,7 @@ public class TestChunkDecoder {
                 chunks, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
@@ -220,7 +220,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -234,7 +234,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -248,7 +248,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -264,7 +264,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -287,7 +287,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -302,7 +302,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -320,7 +320,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -350,7 +350,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -382,7 +382,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -408,7 +408,7 @@ public class TestChunkDecoder {
 
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.DEFAULT, null, null);
-        final HttpTransportMetricsImpl metrics1 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -424,7 +424,7 @@ public class TestChunkDecoder {
 
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.lineLen(10), null, null);
-        final HttpTransportMetricsImpl metrics2 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
         dst.clear();
@@ -445,7 +445,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics1 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -461,7 +461,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.lineLen(25), StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics2 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
         dst.clear();
@@ -480,7 +480,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics1 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -497,7 +497,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
                 constraints, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics2 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, constraints, metrics2);
 
         dst.clear();
@@ -516,7 +516,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
                 MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics1 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -534,7 +534,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
                 constraints, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics2 = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, constraints, metrics2);
 
         dst.clear();
@@ -579,7 +579,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
         decoder.read(null);
     }

@@ -27,7 +27,9 @@
 
 package org.apache.hc.core5.http.impl.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -36,7 +38,10 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
+import org.apache.hc.core5.http.io.SessionInputBuffer;
+import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,20 +51,22 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testBasicBufferProperties() throws Exception {
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(new byte[] { 1, 2 , 3});
-        Assert.assertEquals(SessionInputBufferMock.BUFFER_SIZE, inbuffer.capacity());
-        Assert.assertEquals(SessionInputBufferMock.BUFFER_SIZE, inbuffer.available());
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] { 1, 2 , 3});
+        Assert.assertEquals(16, inbuffer.capacity());
+        Assert.assertEquals(16, inbuffer.available());
         Assert.assertEquals(0, inbuffer.length());
-        inbuffer.read();
-        Assert.assertEquals(SessionInputBufferMock.BUFFER_SIZE - 2, inbuffer.available());
+        inbuffer.read(inputStream);
+        Assert.assertEquals(14, inbuffer.available());
         Assert.assertEquals(2, inbuffer.length());
 
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
-        Assert.assertEquals(SessionOutputBufferMock.BUFFER_SIZE, outbuffer.capacity());
-        Assert.assertEquals(SessionOutputBufferMock.BUFFER_SIZE, outbuffer.available());
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Assert.assertEquals(16, outbuffer.capacity());
+        Assert.assertEquals(16, outbuffer.available());
         Assert.assertEquals(0, outbuffer.length());
-        outbuffer.write(new byte[] {1, 2, 3});
-        Assert.assertEquals(SessionOutputBufferMock.BUFFER_SIZE - 3, outbuffer.available());
+        outbuffer.write(new byte[] {1, 2, 3}, outputStream);
+        Assert.assertEquals(13, outbuffer.available());
         Assert.assertEquals(3, outbuffer.length());
     }
 
@@ -80,15 +87,16 @@ public class TestSessionInOutBuffers {
         teststrs[4] = "And goodbye";
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (final String teststr : teststrs) {
             chbuffer.clear();
             chbuffer.append(teststr);
-            outbuffer.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer, outputStream);
         }
         //these write operations should have no effect
-        outbuffer.writeLine(null);
-        outbuffer.flush();
+        outbuffer.writeLine(null, outputStream);
+        outbuffer.flush(outputStream);
 
         HttpTransportMetrics tmetrics = outbuffer.getMetrics();
         final long bytesWritten = tmetrics.getBytesTransferred();
@@ -98,19 +106,19 @@ public class TestSessionInOutBuffers {
         }
         Assert.assertEquals(expected, bytesWritten);
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData());
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
         for (final String teststr : teststrs) {
             chbuffer.clear();
-            inbuffer.readLine(chbuffer);
+            inbuffer.readLine(chbuffer, inputStream);
             Assert.assertEquals(teststr, chbuffer.toString());
         }
 
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         tmetrics = inbuffer.getMetrics();
         final long bytesRead = tmetrics.getBytesTransferred();
         Assert.assertEquals(expected, bytesRead);
@@ -118,16 +126,17 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testComplexReadWriteLine() throws Exception {
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
-        outbuffer.write(new byte[] {'a', '\n'});
-        outbuffer.write(new byte[] {'\r', '\n'});
-        outbuffer.write(new byte[] {'\r', '\r', '\n'});
-        outbuffer.write(new byte[] {'\n'});
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        outbuffer.write(new byte[] {'a', '\n'}, outputStream);
+        outbuffer.write(new byte[] {'\r', '\n'}, outputStream);
+        outbuffer.write(new byte[] {'\r', '\r', '\n'}, outputStream);
+        outbuffer.write(new byte[] {'\n'},outputStream);
         //these write operations should have no effect
-        outbuffer.write(null);
-        outbuffer.write(null, 0, 12);
+        outbuffer.write(null, outputStream);
+        outbuffer.write(null, 0, 12, outputStream);
 
-        outbuffer.flush();
+        outbuffer.flush(outputStream);
 
         long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8, bytesWritten);
@@ -138,8 +147,8 @@ public class TestSessionInOutBuffers {
         }
         final String s1 = buffer.toString();
         buffer.append("\r\n");
-        outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII));
-        outbuffer.flush();
+        outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII), outputStream);
+        outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 +2, bytesWritten);
 
@@ -149,8 +158,8 @@ public class TestSessionInOutBuffers {
         }
         final String s2 = buffer.toString();
         buffer.append("\r\n");
-        outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII));
-        outbuffer.flush();
+        outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII), outputStream);
+        outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 + 2 + 15 + 2 , bytesWritten);
 
@@ -160,49 +169,50 @@ public class TestSessionInOutBuffers {
         }
         final String s3 = buffer.toString();
         buffer.append("\r\n");
-        outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII));
-        outbuffer.flush();
+        outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII), outputStream);
+        outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2, bytesWritten);
 
-        outbuffer.write(new byte[] {'a'});
-        outbuffer.flush();
+        outbuffer.write(new byte[] {'a'}, outputStream);
+        outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(8 + 14 + 2 + 15 + 2 + 16 + 2 + 1, bytesWritten);
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(outbuffer.getData());
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals("a", chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals("", chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals("\r", chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals("", chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals(s1, chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals(s2, chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals(s3, chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals("a", chbuffer.toString());
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        inbuffer.readLine(chbuffer, inputStream);
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        inbuffer.readLine(chbuffer, inputStream);
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         final long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(bytesWritten, bytesRead);
     }
@@ -224,15 +234,16 @@ public class TestSessionInOutBuffers {
         teststrs[4] = "And goodbye";
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (final String teststr : teststrs) {
             chbuffer.clear();
             chbuffer.append(teststr);
-            outbuffer.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer, outputStream);
         }
         //these write operations should have no effect
-        outbuffer.writeLine(null);
-        outbuffer.flush();
+        outbuffer.writeLine(null, outputStream);
+        outbuffer.flush(outputStream);
 
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         long expected = 0;
@@ -241,18 +252,18 @@ public class TestSessionInOutBuffers {
         }
         Assert.assertEquals(expected, bytesWritten);
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData(), 1024);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(1024);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
         for (final String teststr : teststrs) {
             chbuffer.clear();
-            inbuffer.readLine(chbuffer);
+            inbuffer.readLine(chbuffer, inputStream);
             Assert.assertEquals(teststr, chbuffer.toString());
         }
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         final long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(expected, bytesRead);
     }
@@ -264,7 +275,8 @@ public class TestSessionInOutBuffers {
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)('0' + i);
         }
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         int off = 0;
         int remaining = out.length;
         while (remaining > 0) {
@@ -272,25 +284,26 @@ public class TestSessionInOutBuffers {
             if (chunk > remaining) {
                 chunk = remaining;
             }
-            outbuffer.write(out, off, chunk);
+            outbuffer.write(out, off, chunk, outputStream);
             off += chunk;
             remaining -= chunk;
         }
-        outbuffer.flush();
+        outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(out.length, bytesWritten);
 
-        final byte[] tmp = outbuffer.getData();
+        final byte[] tmp = outputStream.toByteArray();
         Assert.assertEquals(out.length, tmp.length);
         for (int i = 0; i < out.length; i++) {
             Assert.assertEquals(out[i], tmp[i]);
         }
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
 
         // these read operations will have no effect
-        Assert.assertEquals(0, inbuffer.read(null, 0, 10));
-        Assert.assertEquals(0, inbuffer.read(null));
+        Assert.assertEquals(0, inbuffer.read(null, 0, 10, inputStream));
+        Assert.assertEquals(0, inbuffer.read(null, inputStream));
         long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(0, bytesRead);
 
@@ -302,7 +315,7 @@ public class TestSessionInOutBuffers {
             if (chunk > remaining) {
                 chunk = remaining;
             }
-            final int l = inbuffer.read(in, off, chunk);
+            final int l = inbuffer.read(in, off, chunk, inputStream);
             if (l == -1) {
                 break;
             }
@@ -312,8 +325,8 @@ public class TestSessionInOutBuffers {
         for (int i = 0; i < out.length; i++) {
             Assert.assertEquals(out[i], in[i]);
         }
-        Assert.assertEquals(-1, inbuffer.read(tmp));
-        Assert.assertEquals(-1, inbuffer.read(tmp));
+        Assert.assertEquals(-1, inbuffer.read(tmp, inputStream));
+        Assert.assertEquals(-1, inbuffer.read(tmp, inputStream));
         bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(out.length, bytesRead);
     }
@@ -325,59 +338,59 @@ public class TestSessionInOutBuffers {
         for (int i = 0; i < out.length; i++) {
             out[i] = (byte)(120 + i);
         }
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (final byte element : out) {
-            outbuffer.write(element);
+            outbuffer.write(element, outputStream);
         }
-        outbuffer.flush();
+        outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(out.length, bytesWritten);
 
-        final byte[] tmp = outbuffer.getData();
+        final byte[] tmp = outputStream.toByteArray();
         Assert.assertEquals(out.length, tmp.length);
         for (int i = 0; i < out.length; i++) {
             Assert.assertEquals(out[i], tmp[i]);
         }
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final byte[] in = new byte[40];
         for (int i = 0; i < in.length; i++) {
-            in[i] = (byte)inbuffer.read();
+            in[i] = (byte)inbuffer.read(inputStream);
         }
         for (int i = 0; i < out.length; i++) {
             Assert.assertEquals(out[i], in[i]);
         }
-        Assert.assertEquals(-1, inbuffer.read());
-        Assert.assertEquals(-1, inbuffer.read());
+        Assert.assertEquals(-1, inbuffer.read(inputStream));
+        Assert.assertEquals(-1, inbuffer.read(inputStream));
         final long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(out.length, bytesRead);
     }
 
     @Test
     public void testWriteSmallFragmentBuffering() throws Exception {
-        final ByteArrayOutputStream outstream = Mockito.spy(new ByteArrayOutputStream());
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(outstream, 16, 16, null);
-        outbuffer.write(1);
-        outbuffer.write(2);
-        outbuffer.write(new byte[] {1, 2});
-        outbuffer.write(new byte[]{3, 4});
-        outbuffer.flush();
-        Mockito.verify(outstream, Mockito.times(1)).write(
-                Mockito.<byte[]>any(), Mockito.anyInt(), Mockito.anyInt());
-        Mockito.verify(outstream, Mockito.never()).write(Mockito.anyInt());
+        final ByteArrayOutputStream outputStream = Mockito.spy(new ByteArrayOutputStream());
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, null);
+        outbuffer.write(1, outputStream);
+        outbuffer.write(2, outputStream);
+        outbuffer.write(new byte[] {1, 2}, outputStream);
+        outbuffer.write(new byte[]{3, 4}, outputStream);
+        outbuffer.flush(outputStream);
+        Mockito.verify(outputStream, Mockito.times(1)).write(Mockito.<byte[]>any(), Mockito.anyInt(), Mockito.anyInt());
+        Mockito.verify(outputStream, Mockito.never()).write(Mockito.anyInt());
     }
 
     @Test
     public void testWriteSmallFragmentNoBuffering() throws Exception {
-        final ByteArrayOutputStream outstream = Mockito.spy(new ByteArrayOutputStream());
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(outstream, 16, 0, null);
-        outbuffer.write(1);
-        outbuffer.write(2);
-        outbuffer.write(new byte[] {1, 2});
-        outbuffer.write(new byte[]{3, 4});
-        Mockito.verify(outstream, Mockito.times(2)).write(
-                Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
-        Mockito.verify(outstream, Mockito.times(2)).write(Mockito.anyInt());
+        final ByteArrayOutputStream outputStream = Mockito.spy(new ByteArrayOutputStream());
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, null);
+        outbuffer.write(1, outputStream);
+        outbuffer.write(2, outputStream);
+        outbuffer.write(new byte[] {1, 2}, outputStream);
+        outbuffer.write(new byte[]{3, 4}, outputStream);
+        Mockito.verify(outputStream, Mockito.times(2)).write(Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
+        Mockito.verify(outputStream, Mockito.times(2)).write(Mockito.anyInt());
     }
 
     @Test
@@ -385,19 +398,19 @@ public class TestSessionInOutBuffers {
         final String s = "a very looooooooooooooooooooooooooooooooooooooooooong line\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         // no limit
-        final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 5,
-                MessageConstraints.DEFAULT);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(5, MessageConstraints.DEFAULT);
+        final InputStream inputStream1 = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        inbuffer1.readLine(chbuffer);
+        inbuffer1.readLine(chbuffer, inputStream1);
         final long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(60, bytesRead);
 
         // 15 char limit
-        final SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 5,
-                MessageConstraints.lineLen(15));
+        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(5, MessageConstraints.lineLen(15));
+        final InputStream inputStream2 = new ByteArrayInputStream(tmp);
         try {
             chbuffer.clear();
-            inbuffer2.readLine(chbuffer);
+            inbuffer2.readLine(chbuffer, inputStream2);
             Assert.fail("MessageConstraintException expected");
         } catch (final MessageConstraintException ex) {
         }
@@ -408,19 +421,19 @@ public class TestSessionInOutBuffers {
         final String s = "just a line\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         // no limit
-        final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 25,
-                MessageConstraints.DEFAULT);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(25, MessageConstraints.DEFAULT);
+        final InputStream inputStream1 = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        inbuffer1.readLine(chbuffer);
+        inbuffer1.readLine(chbuffer, inputStream1);
         final long bytesRead = inbuffer1.getMetrics().getBytesTransferred();
         Assert.assertEquals(13, bytesRead);
 
         // 10 char limit
-        final SessionInputBufferMock inbuffer2 = new SessionInputBufferMock(tmp, 25,
-                MessageConstraints.lineLen(10));
+        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(25, MessageConstraints.lineLen(10));
+        final InputStream inputStream2 = new ByteArrayInputStream(tmp);
         try {
             chbuffer.clear();
-            inbuffer2.readLine(chbuffer);
+            inbuffer2.readLine(chbuffer, inputStream2);
             Assert.fail("MessageConstraintException expected");
         } catch (final MessageConstraintException ex) {
         }
@@ -430,13 +443,14 @@ public class TestSessionInOutBuffers {
     public void testReadLineFringeCase1() throws Exception {
         final String s = "abc\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
-        final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 128);
-        Assert.assertEquals('a', inbuffer1.read());
-        Assert.assertEquals('b', inbuffer1.read());
-        Assert.assertEquals('c', inbuffer1.read());
-        Assert.assertEquals('\r', inbuffer1.read());
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(128);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
+        Assert.assertEquals('a', inbuffer1.read(inputStream));
+        Assert.assertEquals('b', inbuffer1.read(inputStream));
+        Assert.assertEquals('c', inbuffer1.read(inputStream));
+        Assert.assertEquals('\r', inbuffer1.read(inputStream));
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        Assert.assertEquals(0, inbuffer1.readLine(chbuffer));
+        Assert.assertEquals(0, inbuffer1.readLine(chbuffer, inputStream));
     }
 
     static final int SWISS_GERMAN_HELLO [] = {
@@ -464,45 +478,46 @@ public class TestSessionInOutBuffers {
         final String s2 = constructString(RUSSIAN_HELLO);
         final String s3 = "Like hello and stuff";
 
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(StandardCharsets.UTF_8);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, StandardCharsets.UTF_8.newEncoder());
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
             chbuffer.append(s1);
-            outbuffer.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer, outputStream);
             chbuffer.clear();
             chbuffer.append(s2);
-            outbuffer.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer, outputStream);
             chbuffer.clear();
             chbuffer.append(s3);
-            outbuffer.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer, outputStream);
         }
-        outbuffer.flush();
+        outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2)+
                 (s2.getBytes(StandardCharsets.UTF_8).length + 2) +
                 (s3.getBytes(StandardCharsets.UTF_8).length + 2)) * 10;
         Assert.assertEquals(expected, bytesWritten);
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData(), StandardCharsets.UTF_8);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
-            inbuffer.readLine(chbuffer);
+            inbuffer.readLine(chbuffer, inputStream);
             Assert.assertEquals(s1, chbuffer.toString());
             chbuffer.clear();
-            inbuffer.readLine(chbuffer);
+            inbuffer.readLine(chbuffer, inputStream);
             Assert.assertEquals(s2, chbuffer.toString());
             chbuffer.clear();
-            inbuffer.readLine(chbuffer);
+            inbuffer.readLine(chbuffer, inputStream);
             Assert.assertEquals(s3, chbuffer.toString());
         }
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         final long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(expected, bytesRead);
     }
@@ -518,18 +533,19 @@ public class TestSessionInOutBuffers {
         }
         final String s = buf.toString();
 
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(StandardCharsets.UTF_8);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, StandardCharsets.UTF_8.newEncoder());
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s);
-        outbuffer.writeLine(chbuffer);
-        outbuffer.flush();
+        outbuffer.writeLine(chbuffer, outputStream);
+        outbuffer.flush(outputStream);
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData(), StandardCharsets.UTF_8);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
         chbuffer.clear();
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals(s, chbuffer.toString());
     }
 
@@ -537,36 +553,37 @@ public class TestSessionInOutBuffers {
     public void testNonAsciiReadWriteLine() throws Exception {
         final String s1 = constructString(SWISS_GERMAN_HELLO);
 
-        final SessionOutputBufferMock outbuffer = new SessionOutputBufferMock(StandardCharsets.ISO_8859_1);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, StandardCharsets.ISO_8859_1.newEncoder());
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
             chbuffer.append(s1);
-            outbuffer.writeLine(chbuffer);
+            outbuffer.writeLine(chbuffer, outputStream);
         }
         chbuffer.clear();
-        outbuffer.writeLine(chbuffer);
-        outbuffer.flush();
+        outbuffer.writeLine(chbuffer, outputStream);
+        outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         final long expected = ((s1.getBytes(StandardCharsets.ISO_8859_1).length + 2)) * 10 + 2;
         Assert.assertEquals(expected, bytesWritten);
 
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(
-                outbuffer.getData(), StandardCharsets.ISO_8859_1);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.ISO_8859_1.newDecoder());
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
-            final int len = inbuffer.readLine(chbuffer);
+            final int len = inbuffer.readLine(chbuffer, inputStream);
             Assert.assertEquals(len, SWISS_GERMAN_HELLO.length);
             Assert.assertEquals(s1, chbuffer.toString());
         }
         chbuffer.clear();
-        Assert.assertEquals(0, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(0, inbuffer.readLine(chbuffer, inputStream));
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         chbuffer.clear();
-        Assert.assertEquals(-1, inbuffer.readLine(chbuffer));
+        Assert.assertEquals(-1, inbuffer.readLine(chbuffer, inputStream));
         final long bytesRead = inbuffer.getMetrics().getBytesTransferred();
         Assert.assertEquals(expected, bytesRead);
     }
@@ -577,10 +594,11 @@ public class TestSessionInOutBuffers {
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-        final SessionOutputBufferMock outbuf = new SessionOutputBufferMock(encoder);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, encoder);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         chbuffer.append(s);
-        outbuf.writeLine(chbuffer);
+        outbuffer.writeLine(chbuffer, outputStream);
     }
 
     @Test
@@ -589,12 +607,13 @@ public class TestSessionInOutBuffers {
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
-        final SessionOutputBufferMock outbuf = new SessionOutputBufferMock(encoder);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, encoder);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         chbuffer.append(s);
-        outbuf.writeLine(chbuffer);
-        outbuf.flush();
-        final String result = new String(outbuf.getData(), "ISO-8859-1");
+        outbuffer.writeLine(chbuffer, outputStream);
+        outbuffer.flush(outputStream);
+        final String result = new String(outputStream.toByteArray(), "ISO-8859-1");
         Assert.assertEquals("This text contains a circumflex ? !!!\r\n", result);
     }
 
@@ -604,12 +623,13 @@ public class TestSessionInOutBuffers {
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionOutputBufferMock outbuf = new SessionOutputBufferMock(encoder);
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, encoder);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         chbuffer.append(s);
-        outbuf.writeLine(chbuffer);
-        outbuf.flush();
-        final String result = new String(outbuf.getData(), "ISO-8859-1");
+        outbuffer.writeLine(chbuffer, outputStream);
+        outbuffer.flush(outputStream);
+        final String result = new String(outputStream.toByteArray(), "ISO-8859-1");
         Assert.assertEquals("This text contains a circumflex  !!!\r\n", result);
     }
 
@@ -619,9 +639,10 @@ public class TestSessionInOutBuffers {
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, decoder);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, decoder);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
     }
 
     @Test
@@ -630,9 +651,10 @@ public class TestSessionInOutBuffers {
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, decoder);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, decoder);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", chbuffer.toString());
     }
 
@@ -642,23 +664,11 @@ public class TestSessionInOutBuffers {
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.IGNORE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(tmp, decoder);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, decoder);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
-        inbuffer.readLine(chbuffer);
+        inbuffer.readLine(chbuffer, inputStream);
         Assert.assertEquals("Grezi_zm", chbuffer.toString());
-    }
-
-    @Test
-    public void testInvalidCharArrayBuffer() throws Exception {
-        final SessionInputBufferMock inbuffer = new SessionInputBufferMock(new byte[] {});
-        try {
-            inbuffer.readLine(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            //expected
-            final long bytesRead = inbuffer.getMetrics().getBytesTransferred();
-            Assert.assertEquals(0, bytesRead);
-        }
     }
 
 }

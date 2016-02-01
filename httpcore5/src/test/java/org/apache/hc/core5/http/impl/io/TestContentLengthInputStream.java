@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.impl.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,72 +41,64 @@ import org.junit.Test;
 public class TestContentLengthInputStream {
 
     @Test
-    public void testConstructors() throws Exception {
-        final ContentLengthInputStream in = new ContentLengthInputStream(
-                new SessionInputBufferMock(new byte[] {}), 0);
-        in.close();
-        try {
-            new ContentLengthInputStream(null, 10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            new ContentLengthInputStream(new SessionInputBufferMock(new byte[] {}), -10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
-    @Test
     public void testBasics() throws IOException {
-        final String correct = "1234567890123456";
-        final InputStream in = new ContentLengthInputStream(
-                new SessionInputBufferMock(correct, StandardCharsets.ISO_8859_1), 10L);
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final String s = "1234567890123456";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 10L);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final byte[] buffer = new byte[50];
         int len = in.read(buffer, 0, 2);
-        out.write(buffer, 0, len);
+        outputStream.write(buffer, 0, len);
         len = in.read(buffer);
-        out.write(buffer, 0, len);
+        outputStream.write(buffer, 0, len);
 
-        final String result = new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
+        final String result = new String(outputStream.toByteArray(), StandardCharsets.ISO_8859_1);
         Assert.assertEquals(result, "1234567890");
         in.close();
     }
 
     @Test
     public void testSkip() throws IOException {
-        InputStream in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 10L);
-        Assert.assertEquals(10, in.skip(10));
-        Assert.assertTrue(in.read() == -1);
+        final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(new byte[20]);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16);
+        final InputStream in1 = new ContentLengthInputStream(inbuffer1, inputStream1, 10L);
+        Assert.assertEquals(10, in1.skip(10));
+        Assert.assertTrue(in1.read() == -1);
+        in1.close();
 
-        in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 10L);
-        in.read();
-        Assert.assertEquals(9, in.skip(10));
-        Assert.assertTrue(in.read() == -1);
-        in.close();
+        final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(new byte[20]);
+        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16);
+        final InputStream in2 = new ContentLengthInputStream(inbuffer2, inputStream2, 10L);
+        in2.read();
+        Assert.assertEquals(9, in2.skip(10));
+        Assert.assertTrue(in2.read() == -1);
+        in2.close();
 
-        in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 2L);
-        in.read();
-        in.read();
-        Assert.assertTrue(in.skip(10) <= 0);
-        Assert.assertTrue(in.skip(-1) == 0);
-        Assert.assertTrue(in.read() == -1);
-        in.close();
+        final ByteArrayInputStream inputStream3 = new ByteArrayInputStream(new byte[20]);
+        final SessionInputBuffer inbuffer3 = new SessionInputBufferImpl(16);
+        final InputStream in3 = new ContentLengthInputStream(inbuffer3, inputStream3, 2L);
+        in3.read();
+        in3.read();
+        Assert.assertTrue(in3.skip(10) <= 0);
+        Assert.assertTrue(in3.skip(-1) == 0);
+        Assert.assertTrue(in3.read() == -1);
+        in3.close();
 
-        in = new ContentLengthInputStream(new SessionInputBufferMock(new byte[20]), 10L);
-        Assert.assertEquals(5,in.skip(5));
-        Assert.assertEquals(5, in.read(new byte[20]));
-        in.close();
+        final ByteArrayInputStream inputStream4 = new ByteArrayInputStream(new byte[20]);
+        final SessionInputBuffer inbuffer4 = new SessionInputBufferImpl(16);
+        final InputStream in4 = new ContentLengthInputStream(inbuffer4, inputStream4, 10L);
+        Assert.assertEquals(5,in4.skip(5));
+        Assert.assertEquals(5, in4.read(new byte[20]));
+        in4.close();
     }
 
     @Test
     public void testAvailable() throws IOException {
-        final InputStream in = new ContentLengthInputStream(
-                new SessionInputBufferMock(new byte[] {1, 2, 3}), 3L);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {1, 2, 3});
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 3L);
         Assert.assertEquals(0, in.available());
         in.read();
         Assert.assertEquals(2, in.available());
@@ -114,9 +107,11 @@ public class TestContentLengthInputStream {
 
     @Test
     public void testClose() throws IOException {
-        final String correct = "1234567890123456-";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(correct, StandardCharsets.ISO_8859_1);
-        final InputStream in = new ContentLengthInputStream(inbuffer, 16L);
+        final String s = "1234567890123456-";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 16L);
+
         in.close();
         in.close();
         try {
@@ -138,14 +133,16 @@ public class TestContentLengthInputStream {
         } catch (final IOException ex) {
             // expected
         }
-        Assert.assertEquals('-', inbuffer.read());
+        Assert.assertEquals('-', inbuffer.read(inputStream));
     }
 
     @Test
     public void testTruncatedContent() throws IOException {
-        final String correct = "1234567890123456";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(correct, StandardCharsets.ISO_8859_1);
-        final InputStream in = new ContentLengthInputStream(inbuffer, 32L);
+        final String s = "1234567890123456";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 32L);
+
         final byte[] tmp = new byte[32];
         final int byteRead = in.read(tmp);
         Assert.assertEquals(16, byteRead);

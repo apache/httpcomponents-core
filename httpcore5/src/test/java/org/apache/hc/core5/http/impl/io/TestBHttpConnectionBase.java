@@ -104,7 +104,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.outbuffer.write(0);
+        conn.outbuffer.write(0, outstream);
 
         Assert.assertTrue(conn.isOpen());
 
@@ -133,7 +133,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.outbuffer.write(0);
+        conn.outbuffer.write(0, outstream);
 
         Assert.assertTrue(conn.isOpen());
 
@@ -156,45 +156,46 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testCreateEntityLengthDelimited() throws Exception {
+        final InputStream instream = Mockito.mock(InputStream.class);
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         message.addHeader("Content-Length", "10");
         message.addHeader("Content-Type", "stuff");
         message.addHeader("Content-Encoding", "chunked");
-        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, 10);
+        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, instream, 10);
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals(10, entity.getContentLength());
         Assert.assertEquals("stuff", entity.getContentType());
         Assert.assertEquals("chunked", entity.getContentEncoding());
-        final InputStream instream = entity.getContent();
-        Assert.assertNotNull(instream);
-        Assert.assertTrue((instream instanceof ContentLengthInputStream));
+        final InputStream content = entity.getContent();
+        Assert.assertNotNull(content);
+        Assert.assertTrue((content instanceof ContentLengthInputStream));
     }
 
     @Test
     public void testCreateEntityInputChunked() throws Exception {
+        final InputStream instream = Mockito.mock(InputStream.class);
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer,
-                ContentLengthStrategy.CHUNKED);
+        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, instream, ContentLengthStrategy.CHUNKED);
         Assert.assertNotNull(entity);
         Assert.assertTrue(entity.isChunked());
         Assert.assertEquals(-1, entity.getContentLength());
-        final InputStream instream = entity.getContent();
-        Assert.assertNotNull(instream);
-        Assert.assertTrue((instream instanceof ChunkedInputStream));
+        final InputStream content = entity.getContent();
+        Assert.assertNotNull(content);
+        Assert.assertTrue((content instanceof ChunkedInputStream));
     }
 
     @Test
     public void testCreateEntityInputUndefined() throws Exception {
+        final InputStream instream = Mockito.mock(InputStream.class);
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer,
-                ContentLengthStrategy.UNDEFINED);
+        final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, instream, ContentLengthStrategy.UNDEFINED);
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals(-1, entity.getContentLength());
-        final InputStream instream = entity.getContent();
-        Assert.assertNotNull(instream);
-        Assert.assertTrue((instream instanceof IdentityInputStream));
+        final InputStream content = entity.getContent();
+        Assert.assertNotNull(content);
+        Assert.assertTrue((content instanceof IdentityInputStream));
     }
 
     @Test
@@ -245,7 +246,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.inbuffer.read();
+        conn.inbuffer.read(instream);
 
         Assert.assertTrue(conn.awaitInput(432));
 
@@ -287,6 +288,10 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testStaleWhenClosed() throws Exception {
+        final OutputStream outstream = Mockito.mock(OutputStream.class);
+
+        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+
         conn.bind(socket);
         conn.ensureOpen();
         conn.close();

@@ -38,10 +38,10 @@ import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -50,7 +50,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * an arbitrary {@link InputStream}. This class buffers input data in
  * an internal byte array for optimal input performance.
  * <p>
- * {@link #readLine(CharArrayBuffer)} method of this class treat a lone
+ * {@link #readLine(CharArrayBuffer, InputStream)} method of this class treat a lone
  * LF as valid line delimiters in addition to CR-LF required
  * by the HTTP specification.
  *
@@ -59,14 +59,13 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 @NotThreadSafe
 public class SessionInputBufferImpl implements SessionInputBuffer {
 
-    private final HttpTransportMetricsImpl metrics;
+    private final BasicHttpTransportMetrics metrics;
     private final byte[] buffer;
     private final ByteArrayBuffer linebuffer;
     private final int minChunkLimit;
     private final MessageConstraints constraints;
     private final CharsetDecoder decoder;
 
-    private InputStream instream;
     private int bufferpos;
     private int bufferlen;
     private CharBuffer cbuf;
@@ -87,7 +86,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      *   If {@code null} simple type cast will be used for byte to char conversion.
      */
     public SessionInputBufferImpl(
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final int buffersize,
             final int minChunkLimit,
             final MessageConstraints constraints,
@@ -105,17 +104,21 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     }
 
     public SessionInputBufferImpl(
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final int buffersize) {
         this(metrics, buffersize, buffersize, null, null);
     }
 
-    public void bind(final InputStream instream) {
-        this.instream = instream;
+    public SessionInputBufferImpl(final int buffersize, final MessageConstraints constraints) {
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, constraints, null);
     }
 
-    public boolean isBound() {
-        return this.instream != null;
+    public SessionInputBufferImpl(final int buffersize, final CharsetDecoder decoder) {
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, null, decoder);
+    }
+
+    public SessionInputBufferImpl(final int buffersize) {
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, null, null);
     }
 
     @Override
@@ -133,12 +136,8 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         return capacity() - length();
     }
 
-    private int streamRead(final byte[] b, final int off, final int len) throws IOException {
-        Asserts.notNull(this.instream, "Input stream");
-        return this.instream.read(b, off, len);
-    }
-
-    public int fillBuffer() throws IOException {
+    public int fillBuffer(final InputStream inputStream) throws IOException {
+        Args.notNull(inputStream, "Input stream");
         // compact the buffer if necessary
         if (this.bufferpos > 0) {
             final int len = this.bufferlen - this.bufferpos;
@@ -151,7 +150,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         final int l;
         final int off = this.bufferlen;
         final int len = this.buffer.length - off;
-        l = streamRead(this.buffer, off, len);
+        l = inputStream.read(this.buffer, off, len);
         if (l == -1) {
             return -1;
         }
@@ -170,10 +169,11 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     }
 
     @Override
-    public int read() throws IOException {
+    public int read(final InputStream inputStream) throws IOException {
+        Args.notNull(inputStream, "Input stream");
         int noRead;
         while (!hasBufferedData()) {
-            noRead = fillBuffer();
+            noRead = fillBuffer(inputStream);
             if (noRead == -1) {
                 return -1;
             }
@@ -182,7 +182,8 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     }
 
     @Override
-    public int read(final byte[] b, final int off, final int len) throws IOException {
+    public int read(final byte[] b, final int off, final int len, final InputStream inputStream) throws IOException {
+        Args.notNull(inputStream, "Input stream");
         if (b == null) {
             return 0;
         }
@@ -195,7 +196,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         // If the remaining capacity is big enough, read directly from the
         // underlying input stream bypassing the buffer.
         if (len > this.minChunkLimit) {
-            final int read = streamRead(b, off, len);
+            final int read = inputStream.read(b, off, len);
             if (read > 0) {
                 this.metrics.incrementBytesTransferred(read);
             }
@@ -203,7 +204,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         }
         // otherwise read to the buffer first
         while (!hasBufferedData()) {
-            final int noRead = fillBuffer();
+            final int noRead = fillBuffer(inputStream);
             if (noRead == -1) {
                 return -1;
             }
@@ -215,11 +216,11 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     }
 
     @Override
-    public int read(final byte[] b) throws IOException {
+    public int read(final byte[] b, final InputStream inputStream) throws IOException {
         if (b == null) {
             return 0;
         }
-        return read(b, 0, b.length);
+        return read(b, 0, b.length, inputStream);
     }
 
     /**
@@ -238,8 +239,9 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      * @exception  IOException  if an I/O error occurs.
      */
     @Override
-    public int readLine(final CharArrayBuffer charbuffer) throws IOException {
+    public int readLine(final CharArrayBuffer charbuffer, final InputStream inputStream) throws IOException {
         Args.notNull(charbuffer, "Char array buffer");
+        Args.notNull(inputStream, "Input stream");
         final int maxLineLen = this.constraints.getMaxLineLength();
         int noRead = 0;
         boolean retry = true;
@@ -278,7 +280,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
                     this.linebuffer.append(this.buffer, this.bufferpos, len);
                     this.bufferpos = this.bufferlen;
                 }
-                noRead = fillBuffer();
+                noRead = fillBuffer(inputStream);
                 if (noRead == -1) {
                     retry = false;
                 }

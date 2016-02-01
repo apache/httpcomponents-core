@@ -34,7 +34,7 @@ import java.nio.channels.ReadableByteChannel;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.FileContentDecoder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
@@ -62,7 +62,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
     public LengthDelimitedDecoder(
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final long contentLength) {
         super(channel, buffer, metrics);
         Args.notNegative(contentLength, "Content length");

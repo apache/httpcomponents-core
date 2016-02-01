@@ -31,27 +31,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
+/**
+ * Unit tests for {@link IdentityOutputStream}.
+ */
 public class TestIdentityOutputStream {
 
     @Test
-    public void testConstructors() throws Exception {
-        new IdentityOutputStream(new SessionOutputBufferMock()).close();
-        try {
-            new IdentityOutputStream(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
-    @Test
     public void testBasics() throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
-        final OutputStream out = new IdentityOutputStream(datatransmitter);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
 
         final byte[] tmp = new byte[10];
         out.write(tmp, 0, 10);
@@ -59,15 +52,15 @@ public class TestIdentityOutputStream {
         out.write(1);
         out.flush();
         out.close();
-        final byte[] data = datatransmitter.getData();
+        final byte[] data = outputStream.toByteArray();
         Assert.assertEquals(21, data.length);
     }
 
     @Test
     public void testClose() throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
-        final OutputStream out = new IdentityOutputStream(datatransmitter);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
         out.close();
         out.close();
         final byte[] tmp = new byte[10];
@@ -86,26 +79,15 @@ public class TestIdentityOutputStream {
     }
 
     @Test
-    public void testConstructor() throws Exception {
-        final SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
-        new IdentityOutputStream(transmitter).close();
-        try {
-            new IdentityOutputStream(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            //expected
-        }
-    }
-
-    @Test
     public void testBasicWrite() throws Exception {
-        final SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
-        final IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
-        outstream.write(new byte[] {'a', 'b'}, 0, 2);
-        outstream.write('c');
-        outstream.flush();
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
+        out.write(new byte[] {'a', 'b'}, 0, 2);
+        out.write('c');
+        out.flush();
 
-        final byte[] input = transmitter.getData();
+        final byte[] input = outputStream.toByteArray();
 
         Assert.assertNotNull(input);
         final byte[] expected = new byte[] {'a', 'b', 'c'};
@@ -113,31 +95,31 @@ public class TestIdentityOutputStream {
         for (int i = 0; i < expected.length; i++) {
             Assert.assertEquals(expected[i], input[i]);
         }
-        outstream.close();
+        out.close();
     }
 
     @Test
     public void testClosedCondition() throws Exception {
-        final SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
-        final IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
-        outstream.close();
-        outstream.close();
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
+        out.close();
+        out.close();
 
         try {
             final byte[] tmp = new byte[2];
-            outstream.write(tmp, 0, tmp.length);
+            out.write(tmp, 0, tmp.length);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException e) {
             //expected
         }
         try {
-            outstream.write('a');
+            out.write('a');
             Assert.fail("IOException should have been thrown");
         } catch (final IOException e) {
             //expected
         }
     }
-
 
 }
 

@@ -33,7 +33,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.FileContentEncoder;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 
@@ -67,7 +67,7 @@ public class IdentityEncoder extends AbstractContentEncoder implements FileConte
     public IdentityEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final int fragementSizeHint) {
         super(channel, buffer, metrics);
         this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
@@ -76,7 +76,7 @@ public class IdentityEncoder extends AbstractContentEncoder implements FileConte
     public IdentityEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         this(channel, buffer, metrics, 0);
     }
 

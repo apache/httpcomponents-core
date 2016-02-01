@@ -33,7 +33,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.FileContentDecoder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
@@ -56,7 +56,7 @@ public class IdentityDecoder extends AbstractContentDecoder implements FileConte
     public IdentityDecoder(
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         super(channel, buffer, metrics);
     }
 

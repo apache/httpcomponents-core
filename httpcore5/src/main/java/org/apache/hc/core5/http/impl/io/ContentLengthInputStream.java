@@ -55,6 +55,10 @@ import org.apache.hc.core5.util.Args;
 public class ContentLengthInputStream extends InputStream {
 
     private static final int BUFFER_SIZE = 2048;
+
+    private final SessionInputBuffer buffer;
+    private final InputStream inputStream;
+
     /**
      * The maximum number of bytes that can be read from the stream. Subsequent
      * read operations will return -1.
@@ -68,21 +72,17 @@ public class ContentLengthInputStream extends InputStream {
     private boolean closed = false;
 
     /**
-     * Wrapped input stream that all calls are delegated to.
-     */
-    private SessionInputBuffer in = null;
-
-    /**
-     * Wraps a session input buffer and cuts off output after a defined number
-     * of bytes.
+     * Default constructor.
      *
-     * @param in The session input buffer
+     * @param buffer Session input buffer
+     * @param inputStream Input stream
      * @param contentLength The maximum number of bytes that can be read from
      * the stream. Subsequent read operations will return -1.
      */
-    public ContentLengthInputStream(final SessionInputBuffer in, final long contentLength) {
+    public ContentLengthInputStream(final SessionInputBuffer buffer, final InputStream inputStream, final long contentLength) {
         super();
-        this.in = Args.notNull(in, "Session input buffer");
+        this.buffer = Args.notNull(buffer, "Session input buffer");
+        this.inputStream = Args.notNull(inputStream, "Input stream");
         this.contentLength = Args.notNegative(contentLength, "Content length");
     }
 
@@ -112,7 +112,7 @@ public class ContentLengthInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        final int len = this.in.length();
+        final int len = this.buffer.length();
         return Math.min(len, (int) (this.contentLength - this.pos));
     }
 
@@ -131,7 +131,7 @@ public class ContentLengthInputStream extends InputStream {
         if (pos >= contentLength) {
             return -1;
         }
-        final int b = this.in.read();
+        final int b = this.buffer.read(this.inputStream);
         if (b == -1) {
             if (pos < contentLength) {
                 throw new ConnectionClosedException(
@@ -170,7 +170,7 @@ public class ContentLengthInputStream extends InputStream {
         if (pos + len > contentLength) {
             chunk = (int) (contentLength - pos);
         }
-        final int count = this.in.read(b, off, chunk);
+        final int count = this.buffer.read(b, off, chunk, this.inputStream);
         if (count == -1 && pos < contentLength) {
             throw new ConnectionClosedException(
                     "Premature end of Content-Length delimited message body (expected: "

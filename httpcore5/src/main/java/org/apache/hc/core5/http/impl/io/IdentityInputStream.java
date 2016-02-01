@@ -49,23 +49,26 @@ import org.apache.hc.core5.util.Args;
 @NotThreadSafe
 public class IdentityInputStream extends InputStream {
 
-    private final SessionInputBuffer in;
+    private final SessionInputBuffer buffer;
+    private final InputStream inputStream;
 
     private boolean closed = false;
 
     /**
-     * Wraps session input stream and reads input until the the end of stream.
+     * Default constructor.
      *
-     * @param in The session input buffer
+     * @param buffer Session input buffer
+     * @param inputStream Input stream
      */
-    public IdentityInputStream(final SessionInputBuffer in) {
+    public IdentityInputStream(final SessionInputBuffer buffer, final InputStream inputStream) {
         super();
-        this.in = Args.notNull(in, "Session input buffer");
+        this.buffer = Args.notNull(buffer, "Session input buffer");
+        this.inputStream = Args.notNull(inputStream, "Input stream");
     }
 
     @Override
     public int available() throws IOException {
-        return this.in.length();
+        return this.buffer.length();
     }
 
     @Override
@@ -78,7 +81,7 @@ public class IdentityInputStream extends InputStream {
         if (this.closed) {
             return -1;
         }
-        return this.in.read();
+        return this.buffer.read(this.inputStream);
     }
 
     @Override
@@ -86,7 +89,7 @@ public class IdentityInputStream extends InputStream {
         if (this.closed) {
             return -1;
         }
-        return this.in.read(b, off, len);
+        return this.buffer.read(b, off, len, this.inputStream);
     }
 
 }

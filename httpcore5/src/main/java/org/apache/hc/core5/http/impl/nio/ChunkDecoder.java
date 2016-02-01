@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BufferedHeader;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
@@ -80,7 +80,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
             final MessageConstraints constraints,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         super(channel, buffer, metrics);
         this.state = READ_CONTENT;
         this.chunkSize = -1;
@@ -94,7 +94,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     public ChunkDecoder(
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         this(channel, buffer, null, metrics);
     }
 

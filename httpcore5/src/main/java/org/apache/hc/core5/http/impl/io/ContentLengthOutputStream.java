@@ -50,10 +50,8 @@ import org.apache.hc.core5.util.Args;
 @NotThreadSafe
 public class ContentLengthOutputStream extends OutputStream {
 
-    /**
-     * Wrapped session output buffer.
-     */
-    private final SessionOutputBuffer out;
+    private final SessionOutputBuffer buffer;
+    private final OutputStream outputStream;
 
     /**
      * The maximum number of bytes that can be written the stream. Subsequent
@@ -68,18 +66,19 @@ public class ContentLengthOutputStream extends OutputStream {
     private boolean closed = false;
 
     /**
-     * Wraps a session output buffer and cuts off output after a defined number
-     * of bytes.
+     * Default constructor.
      *
-     * @param out The session output buffer
+     * @param buffer Session output buffer
+     * @param outputStream Output stream
      * @param contentLength The maximum number of bytes that can be written to
      * the stream. Subsequent write operations will be ignored.
      *
      * @since 4.0
      */
-    public ContentLengthOutputStream(final SessionOutputBuffer out, final long contentLength) {
+    public ContentLengthOutputStream(final SessionOutputBuffer buffer, final OutputStream outputStream, final long contentLength) {
         super();
-        this.out = Args.notNull(out, "Session output buffer");
+        this.buffer = Args.notNull(buffer, "Session output buffer");
+        this.outputStream = Args.notNull(outputStream, "Output stream");
         this.contentLength = Args.notNegative(contentLength, "Content length");
     }
 
@@ -92,13 +91,13 @@ public class ContentLengthOutputStream extends OutputStream {
     public void close() throws IOException {
         if (!this.closed) {
             this.closed = true;
-            this.out.flush();
+            this.buffer.flush(this.outputStream);
         }
     }
 
     @Override
     public void flush() throws IOException {
-        this.out.flush();
+        this.buffer.flush(this.outputStream);
     }
 
     @Override
@@ -112,7 +111,7 @@ public class ContentLengthOutputStream extends OutputStream {
             if (chunk > max) {
                 chunk = (int) max;
             }
-            this.out.write(b, off, chunk);
+            this.buffer.write(b, off, chunk, this.outputStream);
             this.total += chunk;
         }
     }
@@ -128,7 +127,7 @@ public class ContentLengthOutputStream extends OutputStream {
             throw new IOException("Attempted write to closed stream.");
         }
         if (this.total < this.contentLength) {
-            this.out.write(b);
+            this.buffer.write(b, this.outputStream);
             this.total++;
         }
     }

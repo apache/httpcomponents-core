@@ -45,9 +45,9 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.HttpConnectionMetricsImpl;
 import org.apache.hc.core5.http.impl.IncomingHttpEntity;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.NHttpConnection;
@@ -69,8 +69,8 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     final int fragmentSizeHint;
     final MessageConstraints constraints;
 
-    final HttpTransportMetricsImpl inTransportMetrics;
-    final HttpTransportMetricsImpl outTransportMetrics;
+    final BasicHttpTransportMetrics inTransportMetrics;
+    final BasicHttpTransportMetrics outTransportMetrics;
     final HttpConnectionMetricsImpl connMetrics;
 
     volatile HttpContext context;
@@ -101,8 +101,8 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
         this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, chardecoder, allocator);
         this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, charencoder, allocator);
         this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : buffersize;
-        this.inTransportMetrics = new HttpTransportMetricsImpl();
-        this.outTransportMetrics = new HttpTransportMetricsImpl();
+        this.inTransportMetrics = new BasicHttpTransportMetrics();
+        this.outTransportMetrics = new BasicHttpTransportMetrics();
         this.connMetrics = new HttpConnectionMetricsImpl(this.inTransportMetrics, this.outTransportMetrics);
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
 
@@ -204,7 +204,7 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
             final long len,
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         if (len >= 0) {
             return new LengthDelimitedDecoder(channel, buffer, metrics, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
@@ -232,7 +232,7 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
             final long len,
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final TrailerSupplier trailers) {
         if (len >= 0) {
             return new LengthDelimitedEncoder(channel, buffer, metrics, len, this.fragmentSizeHint);

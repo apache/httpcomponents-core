@@ -36,10 +36,10 @@ import java.nio.charset.CoderResult;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Chars;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -48,7 +48,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * an arbitrary {@link OutputStream}. This class buffers small chunks of
  * output data in an internal byte array for optimal output performance.
  * <p>
- * {@link #writeLine(CharArrayBuffer)} method of this class uses CR-LF
+ * {@link #writeLine(CharArrayBuffer, OutputStream)} method of this class uses CR-LF
  * as a line delimiter.
  *
  * @since 4.3
@@ -58,12 +58,11 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};
 
-    private final HttpTransportMetricsImpl metrics;
+    private final BasicHttpTransportMetrics metrics;
     private final ByteArrayBuffer buffer;
     private final int fragementSizeHint;
     private final CharsetEncoder encoder;
 
-    private OutputStream outstream;
     private ByteBuffer bbuf;
 
     /**
@@ -78,7 +77,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
      *   If {@code null} simple type cast will be used for char to byte conversion.
      */
     public SessionOutputBufferImpl(
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final int buffersize,
             final int fragementSizeHint,
             final CharsetEncoder charencoder) {
@@ -91,18 +90,12 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         this.encoder = charencoder;
     }
 
-    public SessionOutputBufferImpl(
-            final HttpTransportMetricsImpl metrics,
-            final int buffersize) {
-        this(metrics, buffersize, buffersize, null);
+    public SessionOutputBufferImpl(final int buffersize) {
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, null);
     }
 
-    public void bind(final OutputStream outstream) {
-        this.outstream = outstream;
-    }
-
-    public boolean isBound() {
-        return this.outstream != null;
+    public SessionOutputBufferImpl(final int buffersize, final CharsetEncoder encoder) {
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, encoder);
     }
 
     @Override
@@ -120,52 +113,43 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         return capacity() - length();
     }
 
-    private void streamWrite(final byte[] b, final int off, final int len) throws IOException {
-        Asserts.notNull(outstream, "Output stream");
-        this.outstream.write(b, off, len);
-    }
-
-    private void flushStream() throws IOException {
-        if (this.outstream != null) {
-            this.outstream.flush();
-        }
-    }
-
-    private void flushBuffer() throws IOException {
+    private void flushBuffer(final OutputStream outputStream) throws IOException {
         final int len = this.buffer.length();
         if (len > 0) {
-            streamWrite(this.buffer.buffer(), 0, len);
+            outputStream.write(this.buffer.buffer(), 0, len);
             this.buffer.clear();
             this.metrics.incrementBytesTransferred(len);
         }
     }
 
     @Override
-    public void flush() throws IOException {
-        flushBuffer();
-        flushStream();
+    public void flush(final OutputStream outputStream) throws IOException {
+        Args.notNull(outputStream, "Output stream");
+        flushBuffer(outputStream);
+        outputStream.flush();
     }
 
     @Override
-    public void write(final byte[] b, final int off, final int len) throws IOException {
+    public void write(final byte[] b, final int off, final int len, final OutputStream outputStream) throws IOException {
         if (b == null) {
             return;
         }
+        Args.notNull(outputStream, "Output stream");
         // Do not want to buffer large-ish chunks
         // if the byte array is larger then MIN_CHUNK_LIMIT
         // write it directly to the output stream
         if (len > this.fragementSizeHint || len > this.buffer.capacity()) {
             // flush the buffer
-            flushBuffer();
+            flushBuffer(outputStream);
             // write directly to the out stream
-            streamWrite(b, off, len);
+            outputStream.write(b, off, len);
             this.metrics.incrementBytesTransferred(len);
         } else {
             // Do not let the buffer grow unnecessarily
             final int freecapacity = this.buffer.capacity() - this.buffer.length();
             if (len > freecapacity) {
                 // flush the buffer
-                flushBuffer();
+                flushBuffer(outputStream);
             }
             // buffer
             this.buffer.append(b, off, len);
@@ -173,23 +157,24 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
     }
 
     @Override
-    public void write(final byte[] b) throws IOException {
+    public void write(final byte[] b, final OutputStream outputStream) throws IOException {
         if (b == null) {
             return;
         }
-        write(b, 0, b.length);
+        write(b, 0, b.length, outputStream);
     }
 
     @Override
-    public void write(final int b) throws IOException {
+    public void write(final int b, final OutputStream outputStream) throws IOException {
+        Args.notNull(outputStream, "Output stream");
         if (this.fragementSizeHint > 0) {
             if (this.buffer.isFull()) {
-                flushBuffer();
+                flushBuffer(outputStream);
             }
             this.buffer.append(b);
         } else {
-            flushBuffer();
-            this.outstream.write(b);
+            flushBuffer(outputStream);
+            outputStream.write(b);
         }
     }
 
@@ -203,10 +188,11 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
      * @exception  IOException  if an I/O error occurs.
      */
     @Override
-    public void writeLine(final CharArrayBuffer charbuffer) throws IOException {
+    public void writeLine(final CharArrayBuffer charbuffer, final OutputStream outputStream) throws IOException {
         if (charbuffer == null) {
             return;
         }
+        Args.notNull(outputStream, "Output stream");
         if (this.encoder == null) {
             int off = 0;
             int remaining = charbuffer.length();
@@ -217,19 +203,19 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
                     this.buffer.append(charbuffer, off, chunk);
                 }
                 if (this.buffer.isFull()) {
-                    flushBuffer();
+                    flushBuffer(outputStream);
                 }
                 off += chunk;
                 remaining -= chunk;
             }
         } else {
             final CharBuffer cbuf = CharBuffer.wrap(charbuffer.buffer(), 0, charbuffer.length());
-            writeEncoded(cbuf);
+            writeEncoded(cbuf, outputStream);
         }
-        write(CRLF);
+        write(CRLF, outputStream);
     }
 
-    private void writeEncoded(final CharBuffer cbuf) throws IOException {
+    private void writeEncoded(final CharBuffer cbuf, final OutputStream outputStream) throws IOException {
         if (!cbuf.hasRemaining()) {
             return;
         }
@@ -239,20 +225,20 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         this.encoder.reset();
         while (cbuf.hasRemaining()) {
             final CoderResult result = this.encoder.encode(cbuf, this.bbuf, true);
-            handleEncodingResult(result);
+            handleEncodingResult(result, outputStream);
         }
         final CoderResult result = this.encoder.flush(this.bbuf);
-        handleEncodingResult(result);
+        handleEncodingResult(result, outputStream);
         this.bbuf.clear();
     }
 
-    private void handleEncodingResult(final CoderResult result) throws IOException {
+    private void handleEncodingResult(final CoderResult result, final OutputStream outputStream) throws IOException {
         if (result.isError()) {
             result.throwException();
         }
         this.bbuf.flip();
         while (this.bbuf.hasRemaining()) {
-            write(this.bbuf.get());
+            write(this.bbuf.get(), outputStream);
         }
         this.bbuf.compact();
     }

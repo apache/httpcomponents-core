@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -81,12 +82,13 @@ public interface SessionInputBuffer {
      * @param      off   the start offset in array {@code b}
      *                   at which the data is written.
      * @param      len   the maximum number of bytes to read.
+     * @param      inputStream Input stream
      * @return     the total number of bytes read into the buffer, or
      *             {@code -1} if there is no more data because the end of
      *             the stream has been reached.
      * @exception  IOException  if an I/O error occurs.
      */
-    int read(byte[] b, int off, int len) throws IOException;
+    int read(byte[] b, int off, int len, InputStream inputStream) throws IOException;
 
     /**
      * Reads some number of bytes from the session buffer and stores them into
@@ -95,12 +97,13 @@ public interface SessionInputBuffer {
      * available, end of file is detected, or an exception is thrown.
      *
      * @param      b   the buffer into which the data is read.
+     * @param      inputStream Input stream
      * @return     the total number of bytes read into the buffer, or
      *             {@code -1} is there is no more data because the end of
      *             the stream has been reached.
      * @exception  IOException  if an I/O error occurs.
      */
-    int read(byte[] b) throws IOException;
+    int read(byte[] b, InputStream inputStream) throws IOException;
 
     /**
      * Reads the next byte of data from this session buffer. The value byte is
@@ -110,11 +113,12 @@ public interface SessionInputBuffer {
      * blocks until input data is available, the end of the stream is detected,
      * or an exception is thrown.
      *
+     * @param      inputStream Input stream
      * @return     the next byte of data, or {@code -1} if the end of the
      *             stream is reached.
      * @exception  IOException  if an I/O error occurs.
      */
-    int read() throws IOException;
+    int read(InputStream inputStream) throws IOException;
 
     /**
      * Reads a complete line of characters up to a line delimiter from this
@@ -128,10 +132,11 @@ public interface SessionInputBuffer {
      * specific implementations of this interface.
      *
      * @param      buffer   the line buffer.
+     * @param      inputStream Input stream
      * @return     one line of characters
      * @exception  IOException  if an I/O error occurs.
      */
-    int readLine(CharArrayBuffer buffer) throws IOException;
+    int readLine(CharArrayBuffer buffer, InputStream inputStream) throws IOException;
 
     /**
      * Returns {@link HttpTransportMetrics} for this session buffer.

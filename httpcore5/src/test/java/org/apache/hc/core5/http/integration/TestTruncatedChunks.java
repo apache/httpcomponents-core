@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.entity.InputStreamEntity;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.nio.AbstractAsyncResponseConsumer;
 import org.apache.hc.core5.http.impl.nio.AbstractContentEncoder;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
@@ -104,7 +104,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         public BrokenChunkEncoder(
                 final WritableByteChannel channel,
                 final SessionOutputBuffer buffer,
-                final HttpTransportMetricsImpl metrics) {
+                final BasicHttpTransportMetrics metrics) {
             super(channel, buffer, metrics);
             this.lineBuffer = new CharArrayBuffer(16);
         }
@@ -154,7 +154,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
                         final long len,
                         final WritableByteChannel channel,
                         final SessionOutputBuffer buffer,
-                        final HttpTransportMetricsImpl metrics,
+                        final BasicHttpTransportMetrics metrics,
                         final TrailerSupplier trailers) {
                     if (len == ContentLengthStrategy.CHUNKED) {
                         return new BrokenChunkEncoder(channel, buffer, metrics);

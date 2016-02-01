@@ -68,8 +68,9 @@ public class ChunkedInputStream extends InputStream {
     private static final int BUFFER_SIZE = 2048;
 
     /** The session input buffer */
-    private final SessionInputBuffer in;
-    private final CharArrayBuffer buffer;
+    private final SessionInputBuffer buffer;
+    private final InputStream inputStream;
+    private final CharArrayBuffer lineBuffer;
     private final MessageConstraints constraints;
 
     private int state;
@@ -89,19 +90,20 @@ public class ChunkedInputStream extends InputStream {
     private Header[] footers = new Header[] {};
 
     /**
-     * Wraps session input stream and reads chunk coded input.
+     * Default constructor.
      *
-     * @param in The session input buffer
-     * @param constraints Message constraints. If {@code null}
-     *   {@link MessageConstraints#DEFAULT} will be used.
+     * @param buffer Session input buffer
+     * @param inputStream Input stream
+     * @param constraints Message constraints. If {@code null} {@link MessageConstraints#DEFAULT} will be used.
      *
      * @since 4.4
      */
-    public ChunkedInputStream(final SessionInputBuffer in, final MessageConstraints constraints) {
+    public ChunkedInputStream(final SessionInputBuffer buffer, final InputStream inputStream, final MessageConstraints constraints) {
         super();
-        this.in = Args.notNull(in, "Session input buffer");
+        this.buffer = Args.notNull(buffer, "Session input buffer");
+        this.inputStream = Args.notNull(inputStream, "Input stream");
         this.pos = 0;
-        this.buffer = new CharArrayBuffer(16);
+        this.lineBuffer = new CharArrayBuffer(16);
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.state = CHUNK_LEN;
     }
@@ -109,15 +111,16 @@ public class ChunkedInputStream extends InputStream {
     /**
      * Wraps session input stream and reads chunk coded input.
      *
-     * @param in The session input buffer
+     * @param buffer Session input buffer
+     * @param inputStream Input stream
      */
-    public ChunkedInputStream(final SessionInputBuffer in) {
-        this(in, null);
+    public ChunkedInputStream(final SessionInputBuffer buffer, final InputStream inputStream) {
+        this(buffer, inputStream, null);
     }
 
     @Override
     public int available() throws IOException {
-        final int len = this.in.length();
+        final int len = this.buffer.length();
         return Math.min(len, this.chunkSize - this.pos);
     }
 
@@ -147,7 +150,7 @@ public class ChunkedInputStream extends InputStream {
                 return -1;
             }
         }
-        final int b = in.read();
+        final int b = buffer.read(inputStream);
         if (b != -1) {
             pos++;
             if (pos >= chunkSize) {
@@ -183,7 +186,7 @@ public class ChunkedInputStream extends InputStream {
                 return -1;
             }
         }
-        final int bytesRead = in.read(b, off, Math.min(len, chunkSize - pos));
+        final int bytesRead = buffer.read(b, off, Math.min(len, chunkSize - pos), inputStream);
         if (bytesRead != -1) {
             pos += bytesRead;
             if (pos >= chunkSize) {
@@ -243,31 +246,31 @@ public class ChunkedInputStream extends InputStream {
         final int st = this.state;
         switch (st) {
         case CHUNK_CRLF:
-            this.buffer.clear();
-            final int bytesRead1 = this.in.readLine(this.buffer);
+            lineBuffer.clear();
+            final int bytesRead1 = this.buffer.readLine(lineBuffer, inputStream);
             if (bytesRead1 == -1) {
                 throw new MalformedChunkCodingException(
                     "CRLF expected at end of chunk");
             }
-            if (!this.buffer.isEmpty()) {
+            if (!lineBuffer.isEmpty()) {
                 throw new MalformedChunkCodingException(
                     "Unexpected content at the end of chunk");
             }
             state = CHUNK_LEN;
             //$FALL-THROUGH$
         case CHUNK_LEN:
-            this.buffer.clear();
-            final int bytesRead2 = this.in.readLine(this.buffer);
+            lineBuffer.clear();
+            final int bytesRead2 = this.buffer.readLine(lineBuffer, inputStream);
             if (bytesRead2 == -1) {
                 throw new ConnectionClosedException("Premature end of chunk coded message body: " +
                         "closing chunk expected");
             }
-            int separator = this.buffer.indexOf(';');
+            int separator = lineBuffer.indexOf(';');
             if (separator < 0) {
-                separator = this.buffer.length();
+                separator = lineBuffer.length();
             }
             try {
-                return Integer.parseInt(this.buffer.substringTrimmed(0, separator), 16);
+                return Integer.parseInt(lineBuffer.substringTrimmed(0, separator), 16);
             } catch (final NumberFormatException e) {
                 throw new MalformedChunkCodingException("Bad chunk header");
             }
@@ -282,7 +285,7 @@ public class ChunkedInputStream extends InputStream {
      */
     private void parseTrailerHeaders() throws IOException {
         try {
-            this.footers = AbstractMessageParser.parseHeaders(in,
+            this.footers = AbstractMessageParser.parseHeaders(buffer, inputStream,
                     constraints.getMaxHeaderCount(),
                     constraints.getMaxLineLength(),
                     null);

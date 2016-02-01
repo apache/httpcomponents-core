@@ -35,7 +35,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.junit.After;
 import org.junit.Assert;
@@ -66,7 +66,7 @@ public class TestIdentityDecoder {
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
@@ -105,7 +105,7 @@ public class TestIdentityDecoder {
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         inbuf.fill(channel);
 
@@ -148,7 +148,7 @@ public class TestIdentityDecoder {
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
 
@@ -178,7 +178,7 @@ public class TestIdentityDecoder {
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
 
@@ -212,7 +212,7 @@ public class TestIdentityDecoder {
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
 
@@ -259,7 +259,7 @@ public class TestIdentityDecoder {
                 new String[] {"a"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(
                 channel, inbuf, metrics);
 
@@ -310,7 +310,7 @@ public class TestIdentityDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 
         try {

@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.After;
@@ -66,7 +66,7 @@ public class TestIdentityEncoder {
     public void testBasicCoding() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -86,7 +86,7 @@ public class TestIdentityEncoder {
     public void testCodingEmptySrcBuffer() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(CodecTestUtils.wrap("stuff"));
@@ -108,7 +108,7 @@ public class TestIdentityEncoder {
     public void testCodingCompleted() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(CodecTestUtils.wrap("stuff"));
@@ -151,7 +151,7 @@ public class TestIdentityEncoder {
     public void testCodingFromFile() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
 
@@ -182,7 +182,7 @@ public class TestIdentityEncoder {
     public void testCodingEmptyFile() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
         encoder.write(CodecTestUtils.wrap("stuff;"));
@@ -211,7 +211,7 @@ public class TestIdentityEncoder {
     public void testCodingFromFileSmaller() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
 
@@ -241,7 +241,7 @@ public class TestIdentityEncoder {
     public void testCodingFromFileFlushBuffer() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
 
@@ -275,7 +275,7 @@ public class TestIdentityEncoder {
     public void testCodingFromFileChannelSaturated() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64, 4);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
 
@@ -309,7 +309,7 @@ public class TestIdentityEncoder {
     public void testCodingNoFragmentBuffering() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append("header");
@@ -333,7 +333,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBuffering() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append("header");
@@ -357,7 +357,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingMultipleFragments() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 32);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -380,7 +380,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingLargeFragment() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append("header");
@@ -403,7 +403,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingTinyFragments() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 1);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -428,7 +428,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingTinyFragments2() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 2);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -453,7 +453,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingTinyFragments3() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 3);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -480,7 +480,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingBufferFlush() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 8);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -503,7 +503,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingBufferFlush2() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 8);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -526,7 +526,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingChannelSaturated() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64, 8));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 3);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
@@ -556,7 +556,7 @@ public class TestIdentityEncoder {
     public void testCodingFragmentBufferingChannelSaturated2() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64, 8));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 8);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));

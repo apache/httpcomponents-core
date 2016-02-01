@@ -35,7 +35,7 @@ import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -65,7 +65,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final int fragementSizeHint,
             final TrailerSupplier trailers) {
         super(channel, buffer, metrics);
@@ -77,7 +77,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         this(channel, buffer, metrics, 0, null);
     }
 

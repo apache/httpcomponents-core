@@ -27,71 +27,62 @@
 
 package org.apache.hc.core5.http.impl.io;
 
+import java.io.ByteArrayInputStream;
+
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Simple tests for {@link IdentityInputStream}.
- *
+ * Unit tests for {@link IdentityInputStream}.
  */
 public class TestIdentityInputStream {
 
     @Test
-    public void testConstructor() throws Exception {
-        final SessionInputBuffer receiver = new SessionInputBufferMock(new byte[] {});
-        final IdentityInputStream in = new IdentityInputStream(receiver);
-        in.close();
-        try {
-            new IdentityInputStream(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            //expected
-        }
-    }
-
-    @Test
     public void testBasicRead() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
-        final SessionInputBufferMock receiver = new SessionInputBufferMock(input);
-        final IdentityInputStream instream = new IdentityInputStream(receiver);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
         final byte[] tmp = new byte[2];
-        Assert.assertEquals(2, instream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(2, in.read(tmp, 0, tmp.length));
         Assert.assertEquals('a', tmp[0]);
         Assert.assertEquals('b', tmp[1]);
-        Assert.assertEquals('c', instream.read());
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
-        instream.close();
+        Assert.assertEquals('c', in.read());
+        Assert.assertEquals(-1, in.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, in.read());
+        Assert.assertEquals(-1, in.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, in.read());
+        in.close();
     }
 
     @Test
     public void testClosedCondition() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
-        final SessionInputBufferMock receiver = new SessionInputBufferMock(input);
-        final IdentityInputStream instream = new IdentityInputStream(receiver);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
 
-        instream.close();
-        instream.close();
+        in.close();
+        in.close();
 
-        Assert.assertEquals(0, instream.available());
+        Assert.assertEquals(0, in.available());
         final byte[] tmp = new byte[2];
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
+        Assert.assertEquals(-1, in.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, in.read());
+        Assert.assertEquals(-1, in.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, in.read());
     }
 
     @Test
     public void testAvailable() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
-        final SessionInputBufferMock receiver = new SessionInputBufferMock(input);
-        final IdentityInputStream instream = new IdentityInputStream(receiver);
-        instream.read();
-        Assert.assertEquals(2, instream.available());
-        instream.close();
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
+        in.read();
+        Assert.assertEquals(2, in.available());
+        in.close();
     }
 
 }

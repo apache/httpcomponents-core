@@ -49,17 +49,22 @@ import org.apache.hc.core5.util.Args;
 @NotThreadSafe
 public class IdentityOutputStream extends OutputStream {
 
-    /**
-     * Wrapped session output buffer.
-     */
-    private final SessionOutputBuffer out;
+    private final SessionOutputBuffer buffer;
+    private final OutputStream outputStream;
 
     /** True if the stream is closed. */
     private boolean closed = false;
 
-    public IdentityOutputStream(final SessionOutputBuffer out) {
+    /**
+     * Default constructor.
+     *
+     * @param buffer Session output buffer
+     * @param outputStream Output stream
+     */
+    public IdentityOutputStream(final SessionOutputBuffer buffer, final OutputStream outputStream) {
         super();
-        this.out = Args.notNull(out, "Session output buffer");
+        this.buffer = Args.notNull(buffer, "Session output buffer");
+        this.outputStream = Args.notNull(outputStream, "Output stream");
     }
 
     /**
@@ -71,13 +76,13 @@ public class IdentityOutputStream extends OutputStream {
     public void close() throws IOException {
         if (!this.closed) {
             this.closed = true;
-            this.out.flush();
+            this.buffer.flush(this.outputStream);
         }
     }
 
     @Override
     public void flush() throws IOException {
-        this.out.flush();
+        this.buffer.flush(this.outputStream);
     }
 
     @Override
@@ -85,7 +90,7 @@ public class IdentityOutputStream extends OutputStream {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        this.out.write(b, off, len);
+        this.buffer.write(b, off, len, this.outputStream);
     }
 
     @Override
@@ -98,7 +103,7 @@ public class IdentityOutputStream extends OutputStream {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }
-        this.out.write(b);
+        this.buffer.write(b, this.outputStream);
     }
 
 }

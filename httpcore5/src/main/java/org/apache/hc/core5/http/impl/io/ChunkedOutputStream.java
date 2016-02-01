@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
+import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -53,59 +54,57 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 @NotThreadSafe
 public class ChunkedOutputStream extends OutputStream {
 
-    // ----------------------------------------------------- Instance Variables
-    private final SessionOutputBuffer out;
+    private final SessionOutputBuffer buffer;
+    private final OutputStream outputStream;
 
     private final byte[] cache;
-
     private int cachePosition = 0;
-
     private boolean wroteLastChunk = false;
-
-    /** True if the stream is closed. */
     private boolean closed = false;
-
-    private final CharArrayBuffer linebuffer;
-
+    private final CharArrayBuffer lineBuffer;
     private final TrailerSupplier trailers;
 
     /**
-     * Wraps a session output buffer and chunk-encodes the output.
+     * Default constructor.
      *
-     * @param bufferSize The minimum chunk size (excluding last chunk)
-     * @param out The session output buffer
+     * @param minChunkSize The minimum chunk size (excluding last chunk)
+     * @param buffer Session output buffer
+     * @param outputStream Output stream
+     * @param trailers Trailer supplier. May be {@code null}
      *
      * @since 5.0
      */
-    public ChunkedOutputStream(final int bufferSize, final SessionOutputBuffer out, final TrailerSupplier trailers) {
+    public ChunkedOutputStream(final int minChunkSize, final SessionOutputBuffer buffer, final OutputStream outputStream, final TrailerSupplier trailers) {
         super();
-        this.cache = new byte[bufferSize];
-        this.out = out;
-        this.linebuffer = new CharArrayBuffer(32);
+        this.buffer = Args.notNull(buffer, "Session output buffer");
+        this.outputStream = Args.notNull(outputStream, "Output stream");
+        this.cache = new byte[minChunkSize];
+        this.lineBuffer = new CharArrayBuffer(32);
         this.trailers = trailers;
     }
 
     /**
-     * Wraps a session output buffer and chunk-encodes the output.
+     * Constructor with no trailers.
      *
-     * @param bufferSize The minimum chunk size (excluding last chunk)
-     * @param out The session output buffer
+     * @param minChunkSize The minimum chunk size (excluding last chunk)
+     * @param buffer Session output buffer
+     * @param outputStream Output stream
      */
-    public ChunkedOutputStream(final int bufferSize, final SessionOutputBuffer out) {
-        this(bufferSize, out, null);
+    public ChunkedOutputStream(final int minChunkSize, final SessionOutputBuffer buffer, final OutputStream outputStream) {
+        this(minChunkSize, buffer, outputStream, null);
     }
 
     /**
      * Writes the cache out onto the underlying stream
      */
-    protected void flushCache() throws IOException {
+    private void flushCache() throws IOException {
         if (this.cachePosition > 0) {
-            this.linebuffer.clear();
-            this.linebuffer.append(Integer.toHexString(this.cachePosition));
-            this.out.writeLine(this.linebuffer);
-            this.out.write(this.cache, 0, this.cachePosition);
-            this.linebuffer.clear();
-            this.out.writeLine(this.linebuffer);
+            this.lineBuffer.clear();
+            this.lineBuffer.append(Integer.toHexString(this.cachePosition));
+            this.buffer.writeLine(this.lineBuffer, this.outputStream);
+            this.buffer.write(this.cache, 0, this.cachePosition, this.outputStream);
+            this.lineBuffer.clear();
+            this.buffer.writeLine(this.lineBuffer, this.outputStream);
             this.cachePosition = 0;
         }
     }
@@ -114,25 +113,25 @@ public class ChunkedOutputStream extends OutputStream {
      * Writes the cache and bufferToAppend to the underlying stream
      * as one large chunk
      */
-    protected void flushCacheWithAppend(final byte bufferToAppend[], final int off, final int len) throws IOException {
-        this.linebuffer.clear();
-        this.linebuffer.append(Integer.toHexString(this.cachePosition + len));
-        this.out.writeLine(this.linebuffer);
-        this.out.write(this.cache, 0, this.cachePosition);
-        this.out.write(bufferToAppend, off, len);
-        this.linebuffer.clear();
-        this.out.writeLine(this.linebuffer);
+    private void flushCacheWithAppend(final byte bufferToAppend[], final int off, final int len) throws IOException {
+        this.lineBuffer.clear();
+        this.lineBuffer.append(Integer.toHexString(this.cachePosition + len));
+        this.buffer.writeLine(this.lineBuffer, this.outputStream);
+        this.buffer.write(this.cache, 0, this.cachePosition, this.outputStream);
+        this.buffer.write(bufferToAppend, off, len, this.outputStream);
+        this.lineBuffer.clear();
+        this.buffer.writeLine(this.lineBuffer, this.outputStream);
         this.cachePosition = 0;
     }
 
-    protected void writeClosingChunk() throws IOException {
+    private void writeClosingChunk() throws IOException {
         // Write the final chunk.
-        this.linebuffer.clear();
-        this.linebuffer.append('0');
-        this.out.writeLine(this.linebuffer);
+        this.lineBuffer.clear();
+        this.lineBuffer.append('0');
+        this.buffer.writeLine(this.lineBuffer, this.outputStream);
         writeTrailers();
-        this.linebuffer.clear();
-        this.out.writeLine(this.linebuffer);
+        this.lineBuffer.clear();
+        this.buffer.writeLine(this.lineBuffer, this.outputStream);
     }
 
     private void writeTrailers() throws IOException {
@@ -141,11 +140,11 @@ public class ChunkedOutputStream extends OutputStream {
             for (final Header header: headers) {
                 if (header instanceof FormattedHeader) {
                     final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
-                    this.out.writeLine(chbuffer);
+                    this.buffer.writeLine(chbuffer, this.outputStream);
                 } else {
-                    this.linebuffer.clear();
-                    BasicLineFormatter.INSTANCE.formatHeader(this.linebuffer, header);
-                    this.out.writeLine(this.linebuffer);
+                    this.lineBuffer.clear();
+                    BasicLineFormatter.INSTANCE.formatHeader(this.lineBuffer, header);
+                    this.buffer.writeLine(this.lineBuffer, this.outputStream);
                 }
             }
         }
@@ -210,7 +209,7 @@ public class ChunkedOutputStream extends OutputStream {
     @Override
     public void flush() throws IOException {
         flushCache();
-        this.out.flush();
+        this.buffer.flush(this.outputStream);
     }
 
     /**
@@ -221,7 +220,7 @@ public class ChunkedOutputStream extends OutputStream {
         if (!this.closed) {
             this.closed = true;
             finish();
-            this.out.flush();
+            this.buffer.flush(this.outputStream);
         }
     }
 }

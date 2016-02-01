@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.HttpConnectionMetricsImpl;
 import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.io.BHttpConnection;
@@ -70,8 +71,8 @@ class BHttpConnectionBase implements BHttpConnection {
             final MessageConstraints messageConstraints) {
         super();
         Args.positive(buffersize, "Buffer size");
-        final HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
-        final HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics inTransportMetrics = new BasicHttpTransportMetrics();
+        final BasicHttpTransportMetrics outTransportMetrics = new BasicHttpTransportMetrics();
         this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
                 messageConstraints != null ? messageConstraints : MessageConstraints.DEFAULT, chardecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, fragmentSizeHint,
@@ -81,17 +82,12 @@ class BHttpConnectionBase implements BHttpConnection {
         this.socketHolder = new AtomicReference<>();
     }
 
-    protected void ensureOpen() throws IOException {
+    protected Socket ensureOpen() throws IOException {
         final Socket socket = this.socketHolder.get();
         if (socket == null) {
             throw new ConnectionClosedException("Connection is closed");
         }
-        if (!this.inbuffer.isBound()) {
-            this.inbuffer.bind(getSocketInputStream(socket));
-        }
-        if (!this.outbuffer.isBound()) {
-            this.outbuffer.bind(getSocketOutputStream(socket));
-        }
+        return socket;
     }
 
     protected InputStream getSocketInputStream(final Socket socket) throws IOException {
@@ -115,8 +111,6 @@ class BHttpConnectionBase implements BHttpConnection {
     protected void bind(final Socket socket) throws IOException {
         Args.notNull(socket, "Socket");
         this.socketHolder.set(socket);
-        this.inbuffer.bind(null);
-        this.outbuffer.bind(null);
     }
 
     @Override
@@ -130,37 +124,40 @@ class BHttpConnectionBase implements BHttpConnection {
 
     protected OutputStream createContentOutputStream(
             final long len,
-            final SessionOutputBuffer outbuffer,
+            final SessionOutputBuffer buffer,
+            final OutputStream outputStream,
             final TrailerSupplier trailers) {
         if (len >= 0) {
-            return new ContentLengthOutputStream(outbuffer, len);
+            return new ContentLengthOutputStream(buffer, outputStream, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedOutputStream(2048, outbuffer, trailers);
+            return new ChunkedOutputStream(2048, buffer, outputStream, trailers);
         } else {
-            return new IdentityOutputStream(outbuffer);
+            return new IdentityOutputStream(buffer, outputStream);
         }
     }
 
     protected InputStream createContentInputStream(
             final long len,
-            final SessionInputBuffer inbuffer) {
+            final SessionInputBuffer buffer,
+            final InputStream inputStream) {
         if (len > 0) {
-            return new ContentLengthInputStream(inbuffer, len);
+            return new ContentLengthInputStream(buffer, inputStream, len);
         } else if (len == 0) {
             return EmptyInputStream.INSTANCE;
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedInputStream(inbuffer, this.messageConstraints);
+            return new ChunkedInputStream(buffer, inputStream, this.messageConstraints);
         } else {
-            return new IdentityInputStream(inbuffer);
+            return new IdentityInputStream(buffer, inputStream);
         }
     }
 
     HttpEntity createIncomingEntity(
             final HttpMessage message,
             final SessionInputBuffer inbuffer,
+            final InputStream inputStream,
             final long len) {
         return new IncomingHttpEntity(
-                createContentInputStream(len, inbuffer),
+                createContentInputStream(len, inbuffer, inputStream),
                 len >= 0 ? len : -1, len == ContentLengthStrategy.CHUNKED,
                 message.getFirstHeader(HttpHeaders.CONTENT_TYPE),
                 message.getFirstHeader(HttpHeaders.CONTENT_ENCODING));
@@ -225,7 +222,7 @@ class BHttpConnectionBase implements BHttpConnection {
         if (socket != null) {
             try {
                 this.inbuffer.clear();
-                this.outbuffer.flush();
+                this.outbuffer.flush(socket.getOutputStream());
                 try {
                     try {
                         socket.shutdownOutput();
@@ -249,7 +246,7 @@ class BHttpConnectionBase implements BHttpConnection {
         final int oldtimeout = socket.getSoTimeout();
         try {
             socket.setSoTimeout(timeout);
-            return this.inbuffer.fillBuffer();
+            return this.inbuffer.fillBuffer(socket.getInputStream());
         } finally {
             socket.setSoTimeout(oldtimeout);
         }
@@ -290,8 +287,8 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public void flush() throws IOException {
-        ensureOpen();
-        this.outbuffer.flush();
+        final Socket socket = ensureOpen();
+        this.outbuffer.flush(socket.getOutputStream());
     }
 
     protected void incrementRequestCount() {

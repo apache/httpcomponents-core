@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
@@ -48,7 +48,7 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
 
     final ReadableByteChannel channel;
     final SessionInputBuffer buffer;
-    final HttpTransportMetricsImpl metrics;
+    final BasicHttpTransportMetrics metrics;
 
     boolean completed;
 
@@ -63,7 +63,7 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
     public AbstractContentDecoder(
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         super();
         Args.notNull(channel, "Channel");
         Args.notNull(buffer, "Session input buffer");
@@ -81,7 +81,7 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
         return this.buffer;
     }
 
-    protected HttpTransportMetricsImpl metrics() {
+    protected BasicHttpTransportMetrics metrics() {
         return this.metrics;
     }
 

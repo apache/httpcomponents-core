@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Asserts;
 
@@ -40,7 +40,7 @@ public class ContentEncoderMock extends AbstractContentEncoder {
     public ContentEncoderMock(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics) {
+            final BasicHttpTransportMetrics metrics) {
         super(channel, buffer, metrics);
     }
 

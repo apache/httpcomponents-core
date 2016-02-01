@@ -128,10 +128,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     }
 
     @Override
-    public HttpRequest receiveRequestHeader()
-            throws HttpException, IOException {
-        ensureOpen();
-        final HttpRequest request = this.requestParser.parse(this.inbuffer);
+    public HttpRequest receiveRequestHeader() throws HttpException, IOException {
+        final Socket socket = ensureOpen();
+        final HttpRequest request = this.requestParser.parse(this.inbuffer, socket.getInputStream());
         onRequestReceived(request);
         incrementRequestCount();
         return request;
@@ -141,13 +140,13 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public void receiveRequestEntity(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        ensureOpen();
+        final Socket socket = ensureOpen();
 
         final long len = this.incomingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.UNDEFINED) {
             return;
         }
-        final HttpEntity entity = createIncomingEntity(request, this.inbuffer, len);
+        final HttpEntity entity = createIncomingEntity(request, this.inbuffer, socket.getInputStream(), len);
         request.setEntity(entity);
     }
 
@@ -155,8 +154,8 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public void sendResponseHeader(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        ensureOpen();
-        this.responseWriter.write(response, this.outbuffer);
+        final Socket socket = ensureOpen();
+        this.responseWriter.write(response, this.outbuffer, socket.getOutputStream());
         onResponseSubmitted(response);
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();
@@ -167,13 +166,13 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public void sendResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        ensureOpen();
+        final Socket socket = ensureOpen();
         final HttpEntity entity = response.getEntity();
         if (entity == null) {
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, entity.getTrailers());
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socket.getOutputStream(), entity.getTrailers());
         entity.writeTo(outstream);
         outstream.close();
     }

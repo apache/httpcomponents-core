@@ -31,35 +31,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestContentLengthOutputStream {
 
     @Test
-    public void testConstructors() throws Exception {
-        final ContentLengthOutputStream in = new ContentLengthOutputStream(
-                new SessionOutputBufferMock(), 10L);
-        in.close();
-        try {
-            new ContentLengthOutputStream(null, 10L);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            new ContentLengthOutputStream(new SessionOutputBufferMock(), -10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
-    @Test
     public void testBasics() throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
-        final OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final OutputStream out = new ContentLengthOutputStream(outbuffer, outputStream, 15L);
 
         final byte[] tmp = new byte[10];
         out.write(tmp, 0, 10);
@@ -71,15 +53,15 @@ public class TestContentLengthOutputStream {
         out.write(2);
         out.flush();
         out.close();
-        final byte[] data = datatransmitter.getData();
+        final byte[] data = outputStream.toByteArray();
         Assert.assertEquals(15, data.length);
     }
 
     @Test
     public void testClose() throws Exception {
-        final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        final SessionOutputBufferMock datatransmitter = new SessionOutputBufferMock(buffer);
-        final OutputStream out = new ContentLengthOutputStream(datatransmitter, 15L);
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
+        final OutputStream out = new ContentLengthOutputStream(outbuffer, outputStream, 15L);
         out.close();
         out.close();
         final byte[] tmp = new byte[10];

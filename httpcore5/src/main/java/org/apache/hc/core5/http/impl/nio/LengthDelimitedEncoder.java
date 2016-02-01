@@ -33,7 +33,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.FileContentEncoder;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
@@ -73,7 +73,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder implements Fi
     public LengthDelimitedEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final long contentLength,
             final int fragementSizeHint) {
         super(channel, buffer, metrics);
@@ -86,7 +86,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder implements Fi
     public LengthDelimitedEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
-            final HttpTransportMetricsImpl metrics,
+            final BasicHttpTransportMetrics metrics,
             final long contentLength) {
         this(channel, buffer, metrics, contentLength, 0);
     }

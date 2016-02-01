@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Iterator;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
@@ -77,29 +78,31 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
      * based on the {@link HttpMessage} passed as a parameter.
      *
      * @param message the message whose first line is to be written out.
+     * @param lineBuf line buffer
      * @throws IOException in case of an I/O error.
      */
     protected abstract void writeHeadLine(T message, CharArrayBuffer lineBuf) throws IOException;
 
     @Override
-    public void write(final T message, final SessionOutputBuffer buffer) throws IOException, HttpException {
+    public void write(final T message, final SessionOutputBuffer buffer, final OutputStream outputStream) throws IOException, HttpException {
         Args.notNull(message, "HTTP message");
         Args.notNull(buffer, "Session output buffer");
+        Args.notNull(outputStream, "Output stream");
         writeHeadLine(message, this.lineBuf);
-        buffer.writeLine(this.lineBuf);
+        buffer.writeLine(this.lineBuf, outputStream);
         for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {
             final Header header = it.next();
             if (header instanceof FormattedHeader) {
                 final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
-                buffer.writeLine(chbuffer);
+                buffer.writeLine(chbuffer, outputStream);
             } else {
                 this.lineBuf.clear();
                 lineFormatter.formatHeader(this.lineBuf, header);
-                buffer.writeLine(this.lineBuf);
+                buffer.writeLine(this.lineBuf, outputStream);
             }
         }
         this.lineBuf.clear();
-        buffer.writeLine(this.lineBuf);
+        buffer.writeLine(this.lineBuf, outputStream);
     }
 
 }

@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io;
 
 import java.io.IOException;
+import java.io.OutputStream;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
@@ -48,7 +49,6 @@ public interface HttpMessageWriter<T extends HttpMessage> {
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */
-    void write(T message, SessionOutputBuffer buffer)
-        throws IOException, HttpException;
+    void write(T message, SessionOutputBuffer buffer, OutputStream outputStream) throws IOException, HttpException;
 
 }

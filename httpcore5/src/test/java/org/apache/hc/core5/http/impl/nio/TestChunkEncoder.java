@@ -33,7 +33,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.junit.Assert;
@@ -50,7 +50,7 @@ public class TestChunkEncoder {
     public void testBasicCoding() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
         encoder.write(CodecTestUtils.wrap("12345"));
@@ -71,7 +71,7 @@ public class TestChunkEncoder {
     public void testChunkNoExceed() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
         encoder.write(CodecTestUtils.wrap("1234"));
         encoder.complete();
@@ -88,7 +88,7 @@ public class TestChunkEncoder {
     public void testLimitedChannel() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(16, 16);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
         // fill up the channel
@@ -121,7 +121,7 @@ public class TestChunkEncoder {
     public void testBufferFragments() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(1024));
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 1024);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 1024, null);
 
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
@@ -140,7 +140,7 @@ public class TestChunkEncoder {
     public void testChunkExceed() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
         final ByteBuffer src = CodecTestUtils.wrap("0123456789ABCDEF");
@@ -158,7 +158,7 @@ public class TestChunkEncoder {
     public void testCodingEmptyBuffer() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
         encoder.write(CodecTestUtils.wrap("12345"));
@@ -184,7 +184,7 @@ public class TestChunkEncoder {
     public void testCodingCompleted() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics);
 
         encoder.write(CodecTestUtils.wrap("12345"));
@@ -235,7 +235,7 @@ public class TestChunkEncoder {
     public void testTrailers() throws IOException {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 0,
                 new TrailerSupplier() {
                     @Override

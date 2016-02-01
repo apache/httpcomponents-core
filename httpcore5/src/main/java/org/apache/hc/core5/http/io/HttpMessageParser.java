@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
@@ -45,12 +46,12 @@ public interface HttpMessageParser<T extends HttpMessage> {
     /**
      * Generates an instance of {@link HttpMessage} from an input buffer.
      *
-     * @param buffer session input buffer
+     * @param buffer Session input buffer
+     * @param inputStream Input stream
      * @return HTTP message
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */
-    T parse(SessionInputBuffer buffer)
-        throws IOException, HttpException;
+    T parse(SessionInputBuffer buffer, InputStream inputStream) throws IOException, HttpException;
 
 }

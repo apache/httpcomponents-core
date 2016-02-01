@@ -134,8 +134,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        ensureOpen();
-        this.requestWriter.write(request, this.outbuffer);
+        final Socket socket = ensureOpen();
+        this.requestWriter.write(request, this.outbuffer, socket.getOutputStream());
         onRequestSubmitted(request);
         incrementRequestCount();
     }
@@ -143,7 +143,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public void sendRequestEntity(final HttpRequest request) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        ensureOpen();
+        final Socket socket = ensureOpen();
         final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
@@ -152,7 +152,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException("Length required");
         }
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, entity.getTrailers());
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socket.getOutputStream(), entity.getTrailers());
         entity.writeTo(outstream);
         outstream.close();
     }
@@ -165,17 +165,17 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public void terminateRequest(final HttpRequest request) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        ensureOpen();
+        final Socket socket = ensureOpen();
         final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.CHUNKED) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, entity.getTrailers());
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socket.getOutputStream(), entity.getTrailers());
             outstream.close();
         } else if (len >= 0 && len <= 1024) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, null);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socket.getOutputStream(), null);
             entity.writeTo(outstream);
             outstream.close();
         } else {
@@ -185,8 +185,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
     @Override
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
-        ensureOpen();
-        final HttpResponse response = this.responseParser.parse(this.inbuffer);
+        final Socket socket = ensureOpen();
+        final HttpResponse response = this.responseParser.parse(this.inbuffer, socket.getInputStream());
         onResponseReceived(response);
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();
@@ -195,14 +195,13 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     @Override
-    public void receiveResponseEntity(
-            final HttpResponse response) throws HttpException, IOException {
+    public void receiveResponseEntity( final HttpResponse response) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        ensureOpen();
+        final Socket socket = ensureOpen();
         final long len = this.incomingContentStrategy.determineLength(response);
         if (len == ContentLengthStrategy.UNDEFINED) {
             return;
         }
-        response.setEntity(createIncomingEntity(response, this.inbuffer, len));
+        response.setEntity(createIncomingEntity(response, this.inbuffer, socket.getInputStream(), len));
     }
 }

@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.impl.io.HttpTransportMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.After;
@@ -66,7 +66,7 @@ public class TestLengthDelimitedEncoder {
     public void testBasicCoding() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -84,7 +84,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingBeyondContentLimit() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -101,7 +101,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingEmptyBuffer() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -124,7 +124,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingCompleted() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 5);
@@ -142,7 +142,7 @@ public class TestLengthDelimitedEncoder {
     public void testInvalidConstructor() {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         try {
             new LengthDelimitedEncoder(null, null, null, 10);
@@ -174,7 +174,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingBeyondContentLimitFromFile() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -206,7 +206,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingEmptyFile() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -236,7 +236,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingCompletedFromFile() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 5);
@@ -266,7 +266,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFromFileSmaller() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -297,7 +297,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFromFileFlushBuffer() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -332,7 +332,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFromFileChannelSaturated() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64, 4);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(
                 channel, outbuf, metrics, 16);
@@ -367,7 +367,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingNoFragmentBuffering() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append("header");
@@ -392,7 +392,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBuffering() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append("header");
@@ -417,7 +417,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingMultipleFragments() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 32);
@@ -441,7 +441,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingMultipleFragmentsBeyondContentLimit() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             16, 32);
@@ -465,7 +465,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingLargeFragment() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append("header");
@@ -489,7 +489,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingTinyFragments() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 1);
@@ -515,7 +515,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingTinyFragments2() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 2);
@@ -541,7 +541,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingTinyFragments3() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 3);
@@ -569,7 +569,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingBufferFlush() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 8);
@@ -593,7 +593,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingBufferFlush2() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 8);
@@ -617,7 +617,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingChannelSaturated() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64, 8));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 3);
@@ -648,7 +648,7 @@ public class TestLengthDelimitedEncoder {
     public void testCodingFragmentBufferingChannelSaturated2() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(64, 8));
         final SessionOutputBuffer outbuf = Mockito.spy(new SessionOutputBufferImpl(1024, 128));
-        final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 8);
