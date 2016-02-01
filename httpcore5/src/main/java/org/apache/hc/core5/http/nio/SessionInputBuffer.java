@@ -35,11 +35,10 @@ import java.nio.channels.WritableByteChannel;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Session input buffer for non-blocking connections. This interface facilitates
- * intermediate buffering of input data streamed from a source channel and
- * reading buffered data to a destination, usually {@link ByteBuffer} or
- * {@link WritableByteChannel}. This interface also provides methods for reading
- * lines of text.
+ * Session input buffer for HTTP/1.1 non-blocking connections.
+ * <p>
+ * This interface facilitates intermediate buffering of input data streamed from
+ * a source channel and provides methods for reading lines of text.
  *
  * @since 4.0
  */

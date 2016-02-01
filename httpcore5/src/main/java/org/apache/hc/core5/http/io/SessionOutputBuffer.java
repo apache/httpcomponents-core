@@ -33,11 +33,10 @@ import java.io.OutputStream;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Session output buffer for blocking connections. This interface is similar to
- * OutputStream class, but it also provides methods for writing lines of text.
+ * Session output buffer for blocking HTTP/1.1 connections.
  * <p>
- * Implementing classes are also expected to manage intermediate data buffering
- * for optimal output performance.
+ * This interface facilitates intermediate buffering of output data streamed out
+ * to an output stream and provides provides methods for writing lines of text.
  *
  * @since 4.0
  */

@@ -36,11 +36,10 @@ import java.nio.charset.CharacterCodingException;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Session output buffer for non-blocking connections. This interface
- * facilitates intermediate buffering of output data streamed out to
- * a destination channel and writing data to the buffer from a source, usually
- * {@link ByteBuffer} or {@link ReadableByteChannel}. This interface also
- * provides methods for writing lines of text.
+ * Session output buffer for non-blocking HTTP/1.1 connections.
+ * <p>
+ * This interface facilitates intermediate buffering of output data streamed out
+ * to a destination channel and provides provides methods for writing lines of text.
  *
  * @since 4.0
  */

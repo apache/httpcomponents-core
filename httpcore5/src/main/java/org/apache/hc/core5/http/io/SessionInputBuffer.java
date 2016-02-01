@@ -33,11 +33,10 @@ import java.io.InputStream;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Session input buffer for blocking connections. This interface is similar to
- * InputStream class, but it also provides methods for reading lines of text.
+ * Session input buffer for HTTP/1.1 blocking connections.
  * <p>
- * Implementing classes are also expected to manage intermediate data buffering
- * for optimal input performance.
+ * This interface facilitates intermediate buffering of input data streamed from
+ * an input stream and provides methods for reading lines of text.
  *
  * @since 4.0
  */
