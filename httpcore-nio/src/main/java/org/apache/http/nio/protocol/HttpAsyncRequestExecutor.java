@@ -326,8 +326,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
-    @Override
-    public void endOfInput(final NHttpClientConnection conn) throws IOException {
+    private static boolean notifyHandler(final NHttpClientConnection conn) {
         final State state = getState(conn);
         if (state != null) {
             if (state.getRequestState().compareTo(MessageState.READY) != 0) {
@@ -340,8 +339,15 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 } else {
                     handler.failed(new ConnectionClosedException("Connection closed"));
                 }
+                return true;
             }
         }
+        return false;
+    }
+
+    @Override
+    public void endOfInput(final NHttpClientConnection conn) throws IOException {
+        final boolean handlerNotified = notifyHandler(conn);
         // Closing connection in an orderly manner and
         // waiting for output buffer to get flushed.
         // Do not want to wait indefinitely, though, in case
@@ -350,6 +356,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             conn.setSocketTimeout(1000);
         }
         conn.close();
+        if (!handlerNotified) {
+            notifyHandler(conn);
+        }
     }
 
     @Override
@@ -396,11 +405,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         this.exceptionLogger.log(ex);
     }
 
-    private State getState(final NHttpConnection conn) {
+    private static State getState(final NHttpConnection conn) {
         return (State) conn.getContext().getAttribute(HTTP_EXCHANGE_STATE);
     }
 
-    private HttpAsyncClientExchangeHandler getHandler(final NHttpConnection conn) {
+    private static HttpAsyncClientExchangeHandler getHandler(final NHttpConnection conn) {
         return (HttpAsyncClientExchangeHandler) conn.getContext().getAttribute(HTTP_HANDLER);
     }
 
