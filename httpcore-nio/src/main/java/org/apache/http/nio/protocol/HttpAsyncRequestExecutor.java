@@ -396,11 +396,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         this.exceptionLogger.log(ex);
     }
 
-    private State getState(final NHttpConnection conn) {
+    private static State getState(final NHttpConnection conn) {
         return (State) conn.getContext().getAttribute(HTTP_EXCHANGE_STATE);
     }
 
-    private HttpAsyncClientExchangeHandler getHandler(final NHttpConnection conn) {
+    private static HttpAsyncClientExchangeHandler getHandler(final NHttpConnection conn) {
         return (HttpAsyncClientExchangeHandler) conn.getContext().getAttribute(HTTP_HANDLER);
     }
 
