@@ -32,7 +32,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
@@ -53,23 +52,6 @@ public class TestBufferedHeader {
         Assert.assertEquals("value", header.getValue());
         Assert.assertSame(buf, header.getBuffer());
         Assert.assertEquals(5, header.getValuePos());
-    }
-
-    @Test
-    public void testHeaderElements()  throws Exception {
-        final CharArrayBuffer buf = new CharArrayBuffer(32);
-        buf.append("name: element1 = value1, element2; param1 = value1, element3");
-        final BufferedHeader header = new BufferedHeader(buf, false);
-        final HeaderElement[] elements = header.getElements();
-        Assert.assertNotNull(elements);
-        Assert.assertEquals(3, elements.length);
-        Assert.assertEquals("element1", elements[0].getName());
-        Assert.assertEquals("value1", elements[0].getValue());
-        Assert.assertEquals("element2", elements[1].getName());
-        Assert.assertEquals(null, elements[1].getValue());
-        Assert.assertEquals("element3", elements[2].getName());
-        Assert.assertEquals(null, elements[2].getValue());
-        Assert.assertEquals(1, elements[1].getParameters().length);
     }
 
     @Test

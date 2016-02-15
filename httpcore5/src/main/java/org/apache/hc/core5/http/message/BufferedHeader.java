@@ -31,7 +31,6 @@ import java.io.Serializable;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
-import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -113,13 +112,6 @@ public class BufferedHeader implements FormattedHeader, Serializable {
     @Override
     public String getValue() {
         return this.buffer.substringTrimmed(this.valuePos, this.buffer.length());
-    }
-
-    @Override
-    public HeaderElement[] getElements() {
-        final ParserCursor cursor = new ParserCursor(0, this.buffer.length());
-        cursor.updatePos(this.valuePos);
-        return BasicHeaderValueParser.INSTANCE.parseElements(this.buffer, cursor);
     }
 
     @Override

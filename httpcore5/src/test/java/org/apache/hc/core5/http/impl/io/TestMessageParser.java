@@ -32,8 +32,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HeaderElement;
-import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -77,18 +75,6 @@ public class TestMessageParser {
         Assert.assertNotNull(headers);
         Assert.assertEquals(1, headers.length);
         Assert.assertEquals("header1: stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
-        final HeaderElement[] elements = headers[0].getElements();
-        Assert.assertNotNull(elements);
-        Assert.assertEquals(1, elements.length);
-        Assert.assertEquals("stuff", elements[0].getName());
-        Assert.assertEquals(null, elements[0].getValue());
-        final NameValuePair[] params = elements[0].getParameters();
-        Assert.assertNotNull(params);
-        Assert.assertEquals(2, params.length);
-        Assert.assertEquals("param1", params[0].getName());
-        Assert.assertEquals("value1", params[0].getValue());
-        Assert.assertEquals("param2", params[1].getName());
-        Assert.assertEquals("value 2", params[1].getValue());
     }
 
     @Test

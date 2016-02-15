@@ -32,18 +32,15 @@ import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Basic implementation of {@link Header}.
+ * Immutable {@link Header}.
  *
  * @since 4.0
  */
 @Immutable
 public class BasicHeader implements Header, Serializable {
-
-    private static final HeaderElement[] EMPTY_HEADER_ELEMENT_ARRAY = new HeaderElement[0];
 
     private static final long serialVersionUID = -5427236326487562174L;
 
@@ -80,15 +77,6 @@ public class BasicHeader implements Header, Serializable {
             buf.append(this.value);
         }
         return buf.toString();
-    }
-
-    @Override
-    public HeaderElement[] getElements() {
-        if (this.value != null) {
-            final ParserCursor cursor = new ParserCursor(0, this.value.length());
-            return BasicHeaderValueParser.INSTANCE.parseElements(this.value, cursor);
-        }
-        return EMPTY_HEADER_ELEMENT_ARRAY;
     }
 
 }

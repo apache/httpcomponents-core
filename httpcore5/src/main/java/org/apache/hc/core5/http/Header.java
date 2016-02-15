@@ -48,11 +48,4 @@ public interface Header {
      */
     String getValue();
 
-    /**
-     * Parses the value.
-     *
-     * @return an array of {@link HeaderElement} entries, may be empty, but is never {@code null}
-     */
-    HeaderElement[] getElements();
-
 }
