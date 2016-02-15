@@ -6,3 +6,6 @@ The Apache Software Foundation (http://www.apache.org/).
 
 This project contains annotations derived from JCIP-ANNOTATIONS
 Copyright (c) 2005 Brian Goetz and Tim Peierls. See http://www.jcip.net
+
+This project contains Huffman coding algorithm implementation derived
+from Twitter HPack project (https://github.com/twitter/hpack)

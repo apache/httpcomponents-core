@@ -363,18 +363,17 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         int len = 0;
         while (bbuf.hasRemaining()) {
             final CoderResult result = this.decoder.decode(bbuf, this.cbuf, true);
-            len += handleDecodingResult(result, charbuffer, bbuf);
+            len += handleDecodingResult(result, charbuffer);
         }
         final CoderResult result = this.decoder.flush(this.cbuf);
-        len += handleDecodingResult(result, charbuffer, bbuf);
+        len += handleDecodingResult(result, charbuffer);
         this.cbuf.clear();
         return len;
     }
 
     private int handleDecodingResult(
             final CoderResult result,
-            final CharArrayBuffer charbuffer,
-            final ByteBuffer bbuf) throws IOException {
+            final CharArrayBuffer charbuffer) throws IOException {
         if (result.isError()) {
             result.throwException();
         }
