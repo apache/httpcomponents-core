@@ -329,27 +329,30 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     @Override
     public void endOfInput(final NHttpClientConnection conn) throws IOException {
         final State state = getState(conn);
-        if (state != null) {
-            if (state.getRequestState().compareTo(MessageState.READY) != 0) {
-                state.invalidate();
-            }
-            final HttpAsyncClientExchangeHandler handler = getHandler(conn);
-            if (handler != null) {
-                if (state.isValid()) {
-                    handler.inputTerminated();
-                } else {
-                    handler.failed(new ConnectionClosedException("Connection closed"));
+        final HttpContext context = conn.getContext();
+        synchronized (context) {
+            if (state != null) {
+                if (state.getRequestState().compareTo(MessageState.READY) != 0) {
+                    state.invalidate();
+                }
+                final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+                if (handler != null) {
+                    if (state.isValid()) {
+                        handler.inputTerminated();
+                    } else {
+                        handler.failed(new ConnectionClosedException("Connection closed"));
+                    }
                 }
             }
+            // Closing connection in an orderly manner and
+            // waiting for output buffer to get flushed.
+            // Do not want to wait indefinitely, though, in case
+            // the opposite end is not reading
+            if (conn.getSocketTimeout() <= 0) {
+                conn.setSocketTimeout(1000);
+            }
+            conn.close();
         }
-        // Closing connection in an orderly manner and
-        // waiting for output buffer to get flushed.
-        // Do not want to wait indefinitely, though, in case
-        // the opposite end is not reading
-        if (conn.getSocketTimeout() <= 0) {
-            conn.setSocketTimeout(1000);
-        }
-        conn.close();
     }
 
     @Override
@@ -396,11 +399,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         this.exceptionLogger.log(ex);
     }
 
-    private State getState(final NHttpConnection conn) {
+    private static State getState(final NHttpConnection conn) {
         return (State) conn.getContext().getAttribute(HTTP_EXCHANGE_STATE);
     }
 
-    private HttpAsyncClientExchangeHandler getHandler(final NHttpConnection conn) {
+    private static HttpAsyncClientExchangeHandler getHandler(final NHttpConnection conn) {
         return (HttpAsyncClientExchangeHandler) conn.getContext().getAttribute(HTTP_HANDLER);
     }
 
