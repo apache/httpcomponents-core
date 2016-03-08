@@ -25,68 +25,71 @@
  *
  */
 
-package org.apache.hc.core5.http.message;
-
-import java.io.Serializable;
-import java.util.Objects;
+package org.apache.hc.core5.http2.hpack;
 
 import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.util.Args;
 
 /**
- * Immutable {@link Header}.
- *
- * @since 4.0
+ * Internal HPack header representation that also contains binary length of
+ * header name and header value.
  */
 @Immutable
-public class BasicHeader implements Header, Serializable {
+final class HPackHeader implements Header {
 
-    private static final long serialVersionUID = -5427236326487562174L;
+    static private final int ENTRY_SIZE_OVERHEAD = 32;
 
     private final String name;
+    private final int nameLen;
     private final String value;
+    private final int valueLen;
     private final boolean sensitive;
 
-    /**
-     * Constructor with sensitivity flag
-     *
-     * @param name the header name
-     * @param value the header value, taken as the value's {@link #toString()}.
-     * @param sensitive sensitive flag
-     *
-     * @since 5.0
-     */
-    public BasicHeader(final String name, final Object value, final boolean sensitive) {
-        super();
-        this.name = Args.notNull(name, "Name");
-        this.value = Objects.toString(value, null);
+    HPackHeader(final String name, final int nameLen, final String value, final int valueLen, final boolean sensitive) {
+        this.name = name;
+        this.nameLen = nameLen;
+        this.value = value;
+        this.valueLen = valueLen;
         this.sensitive = sensitive;
     }
 
-    /**
-     * Default constructor
-     *
-     * @param name the header name
-     * @param value the header value, taken as the value's {@link #toString()}.
-     */
-    public BasicHeader(final String name, final Object value) {
+    HPackHeader(final String name, final String value, final boolean sensitive) {
+        this(name, name.length(), value, value.length(), sensitive);
+    }
+
+    HPackHeader(final String name, final String value) {
         this(name, value, false);
+    }
+
+    HPackHeader(final Header header) {
+        this(header.getName(), header.getValue(), header.isSensitive());
     }
 
     @Override
     public String getName() {
-        return this.name;
+        return name;
+    }
+
+    public int getNameLen() {
+        return nameLen;
     }
 
     @Override
     public String getValue() {
-        return this.value;
+        return value;
+    }
+
+    public int getValueLen() {
+        return valueLen;
     }
 
     @Override
     public boolean isSensitive() {
-        return this.sensitive;
+        return sensitive;
+    }
+
+    public int getTotalSize() {
+        return nameLen + valueLen + ENTRY_SIZE_OVERHEAD;
     }
 
     @Override

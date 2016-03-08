@@ -25,37 +25,6 @@
  *
  */
 
-package org.apache.hc.core5.http;
+package org.apache.hc.core5.http2.hpack;
 
-/**
- * Represents an HTTP header field consisting of a field name and a field value..
- *
- * @since 4.0
- */
-public interface Header {
-
-    /**
-     * Get the name of the Header.
-     *
-     * @return the name of the Header,  never {@code null}
-     */
-    String getName();
-
-    /**
-     * Get the value of the Header.
-     *
-     * @return the value of the Header,  may be {@code null}
-     */
-    String getValue();
-
-    /**
-     * Returns {@code true} if the header should be considered sensitive.
-     * <p>
-     * Some encoding schemes such as HPACK impose restrictions on encoded
-     * representation of sensitive headers.
-     *
-     * @since 5.0
-     */
-    boolean isSensitive();
-
-}
+enum HPackRepresentation { WITH_INDEXING, WITHOUT_INDEXING, NEVER_INDEXED }

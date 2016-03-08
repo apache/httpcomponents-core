@@ -115,6 +115,11 @@ public class BufferedHeader implements FormattedHeader, Serializable {
     }
 
     @Override
+    public boolean isSensitive() {
+        return false;
+    }
+
+    @Override
     public int getValuePos() {
         return this.valuePos;
     }

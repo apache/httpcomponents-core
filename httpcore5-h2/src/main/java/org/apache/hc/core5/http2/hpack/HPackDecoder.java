@@ -34,23 +34,36 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 
+@NotThreadSafe
 public final class HPackDecoder {
 
     private static final String UNEXPECTED_EOS = "Unexpected end of HPACK data";
     private static final String MAX_LIMIT_EXCEEDED = "Max integer exceeded";
 
+    private final InboundDynamicTable dynamicTable;
     private final ByteArrayBuffer contentBuf;
     private final CharsetDecoder charsetDecoder;
     private CharBuffer tmpBuf;
+    private int maxTableSize;
 
-    public HPackDecoder(final Charset charset) {
+    HPackDecoder(final InboundDynamicTable dynamicTable, final Charset charset) {
         Args.notNull(charset, "Charset");
+        this.dynamicTable = dynamicTable != null ? dynamicTable : new InboundDynamicTable();
         this.contentBuf = new ByteArrayBuffer(256);
         this.charsetDecoder = charset.equals(StandardCharsets.US_ASCII) || charset.equals(StandardCharsets.ISO_8859_1) ? null : charset.newDecoder();
+    }
+
+    public HPackDecoder(final Charset charset) {
+        this(new InboundDynamicTable(), charset);
     }
 
     static int readByte(final ByteBuffer src) throws HPackException {
@@ -58,7 +71,7 @@ public final class HPackDecoder {
         if (!src.hasRemaining()) {
             throw new HPackException(UNEXPECTED_EOS);
         }
-        return src.get() & 0xFF;
+        return src.get() & 0xff;
     }
 
     static int peekByte(final ByteBuffer src) throws HPackException {
@@ -67,14 +80,14 @@ public final class HPackDecoder {
             throw new HPackException(UNEXPECTED_EOS);
         }
         final int pos = src.position();
-        final int b = src.get() & 0xFF;
+        final int b = src.get() & 0xff;
         src.position(pos);
         return b;
     }
 
     static int decodeInt(final ByteBuffer src, final int n) throws HPackException {
 
-        final int nbits = 0xFF >>> (8 - n);
+        final int nbits = 0xff >>> (8 - n);
         int value = readByte(src) & nbits;
         if (value < nbits) {
             return value;
@@ -167,18 +180,18 @@ public final class HPackDecoder {
         }
     }
 
-    String decodeString(final ByteBuffer src) throws HPackException, CharacterCodingException {
+    int decodeString(final ByteBuffer src, final StringBuilder buf) throws HPackException, CharacterCodingException {
 
         clearState();
         decodeString(this.contentBuf, src);
+        final int binaryLen = this.contentBuf.length();
         if (this.charsetDecoder == null) {
-            final StringBuilder buf = new StringBuilder(this.contentBuf.length());
-            for (int i = 0; i < this.contentBuf.length(); i++) {
-                buf.append((char) (this.contentBuf.byteAt(i) & 0xFF));
+            buf.ensureCapacity(binaryLen);
+            for (int i = 0; i < binaryLen; i++) {
+                buf.append((char) (this.contentBuf.byteAt(i) & 0xff));
             }
-            return buf.toString();
         } else {
-            final ByteBuffer in = ByteBuffer.wrap(this.contentBuf.buffer(), 0, this.contentBuf.length());
+            final ByteBuffer in = ByteBuffer.wrap(this.contentBuf.buffer(), 0, binaryLen);
             while (in.hasRemaining()) {
                 ensureCapacity(in.remaining());
                 final CoderResult result = this.charsetDecoder.decode(in, this.tmpBuf, true);
@@ -192,8 +205,95 @@ public final class HPackDecoder {
                 result.throwException();
             }
             this.tmpBuf.flip();
-            return this.tmpBuf.toString();
+            buf.append(this.tmpBuf);
         }
+        return binaryLen;
+    }
+
+    Header decodeLiteralHeader(
+            final ByteBuffer src,
+            final HPackRepresentation representation) throws HPackException, CharacterCodingException {
+
+        final int n = representation == HPackRepresentation.WITH_INDEXING ? 6 : 4;
+        final int index = decodeInt(src, n);
+        final String name;
+        final int nameLen;
+        if (index == 0) {
+            final StringBuilder buf = new StringBuilder();
+            nameLen = decodeString(src, buf);
+            name = buf.toString();
+        } else {
+            final HPackHeader existing =  this.dynamicTable.getHeader(index);
+            if (existing == null) {
+                throw new HPackException("Invalid header index");
+            }
+            name = existing.getName();
+            nameLen = existing.getNameLen();
+        }
+        final StringBuilder buf = new StringBuilder();
+        final int valueLen = decodeString(src, buf);
+        final String value = buf.toString();
+        final HPackHeader header = new HPackHeader(name, nameLen, value, valueLen, representation == HPackRepresentation.NEVER_INDEXED);
+        if (representation == HPackRepresentation.WITH_INDEXING) {
+            this.dynamicTable.add(header);
+        }
+        return new BasicHeader(header.getName(), header.getValue(), header.isSensitive());
+    }
+
+    Header decodeIndexedHeader(final ByteBuffer src) throws HPackException, CharacterCodingException {
+
+        final int index = decodeInt(src, 7);
+        final Header existing =  this.dynamicTable.getHeader(index);
+        if (existing == null) {
+            throw new HPackException("Invalid header index");
+        }
+        return existing;
+    }
+
+    public Header decodeHeader(final ByteBuffer src) throws HPackException, CharacterCodingException {
+
+        while (src.hasRemaining()) {
+            final int b = peekByte(src);
+            if ((b & 0x80) == 0x80) {
+                return decodeIndexedHeader(src);
+            } else if ((b & 0xc0) == 0x40) {
+                return decodeLiteralHeader(src, HPackRepresentation.WITH_INDEXING);
+            } else if ((b & 0xf0) == 0x00) {
+                return decodeLiteralHeader(src, HPackRepresentation.WITHOUT_INDEXING);
+            } else if ((b & 0xf0) == 0x10) {
+                return decodeLiteralHeader(src, HPackRepresentation.NEVER_INDEXED);
+            } else if ((b & 0xe0) == 0x20) {
+                final int maxSize = decodeInt(src, 5);
+                this.dynamicTable.setMaxSize(Math.min(this.maxTableSize, maxSize));
+            } else {
+                throw new HPackException("Unexpected header first byte: 0x" + Integer.toHexString(b));
+            }
+        }
+        return null;
+    }
+
+    public List<Header> decodeHeaders(final ByteBuffer src) throws HPackException, CharacterCodingException {
+
+        final List<Header> list = new ArrayList<>();
+        while (src.hasRemaining()) {
+            final Header header = decodeHeader(src);
+            if (header == null) {
+                break;
+            } else {
+                list.add(header);
+            }
+        }
+        return list;
+    }
+
+    public int getMaxTableSize() {
+        return this.maxTableSize;
+    }
+
+    public void setMaxTableSize(final int maxTableSize) {
+        Args.notNegative(maxTableSize, "Max table size");
+        this.maxTableSize = maxTableSize;
+        this.dynamicTable.setMaxSize(maxTableSize);
     }
 
 }
