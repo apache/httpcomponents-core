@@ -322,7 +322,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
 
     private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
         if (socketAddress instanceof InetSocketAddress) {
-            final InetSocketAddress addr = ((InetSocketAddress) socketAddress);
+            final InetSocketAddress addr = (InetSocketAddress) socketAddress;
             buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
                 addr.getAddress())
             .append(':')

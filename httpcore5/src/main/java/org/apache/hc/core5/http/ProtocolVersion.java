@@ -161,9 +161,9 @@ public class ProtocolVersion implements Serializable {
         }
         final ProtocolVersion that = (ProtocolVersion) obj;
 
-        return ((this.protocol.equals(that.protocol)) &&
-                (this.major == that.major) &&
-                (this.minor == that.minor));
+        return (this.protocol.equals(that.protocol) &&
+               (this.major == that.major) &&
+               (this.minor == that.minor));
     }
 
 

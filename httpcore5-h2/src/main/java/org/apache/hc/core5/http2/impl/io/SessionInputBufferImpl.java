@@ -116,7 +116,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         } else {
             fillBuffer(instream, FrameConsts.HEAD_LEN + 1);
             payloadOff = FrameConsts.HEAD_LEN + 1;
-            padding = (buffer[off + 9] & 0xff);
+            padding = buffer[off + 9] & 0xff;
         }
 
         final int frameLen = payloadOff + payloadLen + padding;
