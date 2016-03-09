@@ -63,10 +63,8 @@ public class ResponseServer implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        if (!response.containsHeader(HttpHeaders.SERVER)) {
-            if (this.originServer != null) {
-                response.addHeader(HttpHeaders.SERVER, this.originServer);
-            }
+        if (!response.containsHeader(HttpHeaders.SERVER) && this.originServer != null) {
+            response.addHeader(HttpHeaders.SERVER, this.originServer);
         }
     }
 

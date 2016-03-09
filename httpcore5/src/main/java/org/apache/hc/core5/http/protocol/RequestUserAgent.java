@@ -60,10 +60,8 @@ public class RequestUserAgent implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
         throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        if (!request.containsHeader(HttpHeaders.USER_AGENT)) {
-            if (this.userAgent != null) {
-                request.addHeader(HttpHeaders.USER_AGENT, this.userAgent);
-            }
+        if (!request.containsHeader(HttpHeaders.USER_AGENT) && this.userAgent != null) {
+            request.addHeader(HttpHeaders.USER_AGENT, this.userAgent);
         }
     }
 

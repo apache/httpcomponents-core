@@ -162,11 +162,9 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 if (this.endOfStream && !encoder.isCompleted()) {
                     encoder.complete();
                 }
-                if (!this.endOfStream) {
+                if (!this.endOfStream && this.ioctrl != null) {
                     // suspend output events
-                    if (this.ioctrl != null) {
-                        this.ioctrl.suspendOutput();
-                    }
+                    this.ioctrl.suspendOutput();
                 }
             }
             this.condition.signalAll();
