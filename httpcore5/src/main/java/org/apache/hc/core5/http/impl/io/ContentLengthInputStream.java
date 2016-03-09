@@ -98,7 +98,7 @@ public class ContentLengthInputStream extends InputStream {
         if (!closed) {
             try {
                 if (pos < contentLength) {
-                    final byte buffer[] = new byte[BUFFER_SIZE];
+                    final byte[] buffer = new byte[BUFFER_SIZE];
                     while (read(buffer) >= 0) {
                     }
                 }

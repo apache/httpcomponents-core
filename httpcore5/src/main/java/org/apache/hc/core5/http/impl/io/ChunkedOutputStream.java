@@ -113,7 +113,7 @@ public class ChunkedOutputStream extends OutputStream {
      * Writes the cache and bufferToAppend to the underlying stream
      * as one large chunk
      */
-    private void flushCacheWithAppend(final byte bufferToAppend[], final int off, final int len) throws IOException {
+    private void flushCacheWithAppend(final byte[] bufferToAppend, final int off, final int len) throws IOException {
         this.lineBuffer.clear();
         this.lineBuffer.append(Integer.toHexString(this.cachePosition + len));
         this.buffer.writeLine(this.lineBuffer, this.outputStream);
@@ -182,7 +182,7 @@ public class ChunkedOutputStream extends OutputStream {
      * not split, but rather written out as one large chunk.
      */
     @Override
-    public void write(final byte b[]) throws IOException {
+    public void write(final byte[] b) throws IOException {
         write(b, 0, b.length);
     }
 
@@ -191,7 +191,7 @@ public class ChunkedOutputStream extends OutputStream {
      * not split, but rather written out as one large chunk.
      */
     @Override
-    public void write(final byte src[], final int off, final int len) throws IOException {
+    public void write(final byte[] src, final int off, final int len) throws IOException {
         if (this.closed) {
             throw new IOException("Attempted write to closed stream.");
         }

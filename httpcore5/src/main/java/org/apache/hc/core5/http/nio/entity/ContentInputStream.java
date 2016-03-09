@@ -76,7 +76,7 @@ public class ContentInputStream extends InputStream {
     @Override
     public void close() throws IOException {
         // read and discard the remainder of the message
-        final byte tmp[] = new byte[1024];
+        final byte[] tmp = new byte[1024];
         while (this.buffer.read(tmp, 0, tmp.length) >= 0) {
         }
         super.close();
