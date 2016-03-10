@@ -315,10 +315,8 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
                 len--;
             }
             // discard CR if found
-            if (len > 0) {
-                if (this.linebuffer.byteAt(len - 1) == Chars.CR) {
-                    len--;
-                }
+            if (len > 0 && this.linebuffer.byteAt(len - 1) == Chars.CR) {
+                len--;
             }
         }
         if (this.decoder == null) {
