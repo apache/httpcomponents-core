@@ -243,10 +243,8 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
                 this.future.failed(ex);
                 this.conn.shutdown();
             }
-            if (!conn.isOpen()) {
-                if (this.closed.compareAndSet(false, true)) {
-                    releaseResources();
-                }
+            if (!conn.isOpen() && this.closed.compareAndSet(false, true)) {
+                releaseResources();
             }
             if (!this.future.isDone() && this.responseConsumerQueue.isEmpty()) {
                 this.future.completed(new ArrayList<>(this.resultQueue));

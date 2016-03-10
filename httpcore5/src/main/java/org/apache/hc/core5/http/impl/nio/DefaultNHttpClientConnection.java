@@ -239,12 +239,10 @@ public class DefaultNHttpClientConnection
                     this.outTransportMetrics.incrementBytesTransferred(bytesWritten);
                 }
             }
-            if (!this.outbuf.hasData()) {
-                if (this.status == CLOSING) {
-                    this.session.close();
-                    this.status = CLOSED;
-                    resetOutput();
-                }
+            if (!this.outbuf.hasData() && this.status == CLOSING) {
+                this.session.close();
+                this.status = CLOSED;
+                resetOutput();                
             }
         } catch (final Exception ex) {
             handler.exception(this, ex);

@@ -101,10 +101,8 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 return false;
             }
         } else {
-            if (canResponseHaveBody(response)) {
-                if (response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
-                    return false;
-                }
+            if (canResponseHaveBody(response) && response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
+                return false;
             }
         }
 

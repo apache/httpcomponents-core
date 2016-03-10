@@ -322,11 +322,9 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
                 linebuffer.setLength(l);
             }
             // discard CR if found
-            if (l > 0) {
-                if (linebuffer.charAt(l - 1) == Chars.CR) {
-                    l--;
-                    linebuffer.setLength(l);
-                }
+            if (l > 0 && linebuffer.charAt(l - 1) == Chars.CR) {
+                l--;
+                linebuffer.setLength(l);
             }
         }
         return true;
