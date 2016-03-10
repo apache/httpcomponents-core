@@ -309,7 +309,7 @@ public class ChunkedInputStream extends InputStream {
             try {
                 if (!eof && state != CHUNK_INVALID) {
                     // read and discard the remainder of the message
-                    final byte buff[] = new byte[BUFFER_SIZE];
+                    final byte[] buff = new byte[BUFFER_SIZE];
                     while (read(buff) >= 0) {
                     }
                 }

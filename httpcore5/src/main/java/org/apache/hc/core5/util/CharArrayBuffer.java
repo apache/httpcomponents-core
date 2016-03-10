@@ -59,7 +59,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
     }
 
     private void expand(final int newlen) {
-        final char newbuffer[] = new char[Math.max(this.buffer.length << 1, newlen)];
+        final char[] newbuffer = new char[Math.max(this.buffer.length << 1, newlen)];
         System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
         this.buffer = newbuffer;
     }
