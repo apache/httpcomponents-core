@@ -308,10 +308,10 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                 pool.free(entry, reusable);
                 if (reusable && !this.isShutDown) {
                     this.available.addFirst(entry);
-                    onRelease(entry);
                 } else {
                     entry.close();
                 }
+                onRelease(entry);
                 PoolEntryFuture<E> future = pool.nextPending();
                 if (future != null) {
                     this.pending.remove(future);
