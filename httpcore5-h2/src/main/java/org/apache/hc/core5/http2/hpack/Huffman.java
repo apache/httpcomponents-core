@@ -33,6 +33,9 @@ package org.apache.hc.core5.http2.hpack;
  */
 public final class Huffman {
 
+    private Huffman() {
+        // Do not allow utility class to be instantiated.
+    }
     static final int[] CODES = {
             0x1ff8,
             0x7fffd8,

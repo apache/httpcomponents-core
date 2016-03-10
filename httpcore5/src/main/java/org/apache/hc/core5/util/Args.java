@@ -31,6 +31,9 @@ import java.util.Collection;
 
 public class Args {
 
+    private Args() {
+        // Do not allow utility class to be instantiated.
+    }
     public static void check(final boolean expression, final String message) {
         if (!expression) {
             throw new IllegalArgumentException(message);

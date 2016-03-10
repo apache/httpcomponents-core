@@ -40,6 +40,9 @@ import org.apache.hc.core5.http.config.ConnectionConfig;
  */
 public final class ConnSupport {
 
+    private ConnSupport() {
+        // Do not allow utility class to be instantiated.
+    }
     public static CharsetDecoder createDecoder(final ConnectionConfig cconfig) {
         if (cconfig == null) {
             return null;

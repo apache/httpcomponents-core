@@ -36,6 +36,9 @@ import java.net.SocketAddress;
  */
 public final class NetUtils {
 
+    private NetUtils() {
+        // Do not allow utility class to be instantiated.
+    }
     public static void formatAddress(
             final StringBuilder buffer,
             final SocketAddress socketAddress) {

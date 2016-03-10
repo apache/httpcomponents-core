@@ -29,6 +29,9 @@ package org.apache.hc.core5.util;
 
 public class Asserts {
 
+    private Asserts() {
+        // Do not allow utility class to be instantiated.
+    }
     public static void check(final boolean expression, final String message) {
         if (!expression) {
             throw new IllegalStateException(message);

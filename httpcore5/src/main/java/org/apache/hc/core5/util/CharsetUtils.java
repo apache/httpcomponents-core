@@ -33,6 +33,9 @@ import java.nio.charset.UnsupportedCharsetException;
 
 public class CharsetUtils {
 
+    private CharsetUtils() {
+        // Do not allow utility class to be instantiated.
+    }
     public static Charset lookup(final String name) {
         if (name == null) {
             return null;
