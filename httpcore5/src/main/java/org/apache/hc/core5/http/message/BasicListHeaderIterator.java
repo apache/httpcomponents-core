@@ -128,7 +128,7 @@ class BasicListHeaderIterator implements Iterator<Header> {
 
     @Override
     public boolean hasNext() {
-        return (this.currentIndex >= 0);
+        return this.currentIndex >= 0;
     }
 
     /**

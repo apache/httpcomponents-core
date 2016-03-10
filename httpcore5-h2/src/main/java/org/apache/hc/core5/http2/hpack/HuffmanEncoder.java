@@ -61,7 +61,7 @@ final class HuffmanEncoder {
 
             while (n >= 8) {
                 n -= 8;
-                out.append(((int)(current >> n)));
+                out.append((int)(current >> n));
             }
         }
 
@@ -88,7 +88,7 @@ final class HuffmanEncoder {
 
             while (n >= 8) {
                 n -= 8;
-                out.append(((int)(current >> n)));
+                out.append((int)(current >> n));
             }
         }
 
