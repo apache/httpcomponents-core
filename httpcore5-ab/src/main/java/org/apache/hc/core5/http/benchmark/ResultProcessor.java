@@ -32,6 +32,10 @@ import org.apache.hc.core5.http.HttpHost;
 
 public class ResultProcessor {
 
+    private ResultProcessor() {
+        // Do not allow utility class to be instantiated.
+    }
+    
     static NumberFormat nf2 = NumberFormat.getInstance();
     static NumberFormat nf3 = NumberFormat.getInstance();
     static NumberFormat nf6 = NumberFormat.getInstance();

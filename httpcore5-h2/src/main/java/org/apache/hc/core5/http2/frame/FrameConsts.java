@@ -28,6 +28,10 @@ package org.apache.hc.core5.http2.frame;
 
 public final class FrameConsts {
 
+    private FrameConsts() {
+        // Do not allow utility class to be instantiated.
+    }
+    
     public final static int HEAD_LEN = 9;
     public final static int MAX_PADDING = 255;
 

@@ -32,6 +32,10 @@ package org.apache.hc.core5.util;
  */
 public final class TextUtils {
 
+    private TextUtils() {
+        // Do not allow utility class to be instantiated.
+    }
+    
     /**
      * Returns true if the parameter is null or of zero length
      */
