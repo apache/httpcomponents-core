@@ -48,7 +48,7 @@ public class TrailerNameFormatter {
     private TrailerNameFormatter() {
         // Do not allow utility class to be instantiated.
     }
-    
+
     public static Header format(final HttpEntity entity) {
         if (entity == null) {
             return null;

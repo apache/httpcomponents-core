@@ -54,7 +54,7 @@ public class SSLContexts {
     private SSLContexts() {
         // Do not allow utility class to be instantiated.
     }
-    
+
     /**
      * Creates default factory based on the standard JSSE trust material
      * ({@code cacerts} file in the security properties directory). System properties
