@@ -40,7 +40,7 @@ public class CommandLineUtils {
     private CommandLineUtils() {
         // Do not allow utility class to be instantiated.
     }
-    
+
     public static Options getOptions() {
         final Option iopt = new Option("i", false, "Do HEAD requests instead of GET (deprecated)");
         iopt.setRequired(false);
