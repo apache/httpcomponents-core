@@ -146,9 +146,7 @@ public class SSLNHttpClientConnectionFactory
             final IOSession iosession,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler) {
-        final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.CLIENT,
-                sslcontext, sslHandler);
-        return ssliosession;
+        return new SSLIOSession(iosession, SSLMode.CLIENT, sslcontext, sslHandler);
     }
 
     @Override

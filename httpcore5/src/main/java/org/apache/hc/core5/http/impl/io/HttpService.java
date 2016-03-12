@@ -168,7 +168,7 @@ public class HttpService {
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
         final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
 
-        HttpResponse response = null;
+        HttpResponse response;
 
         if (expectContinue) {
             response = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE, context);
