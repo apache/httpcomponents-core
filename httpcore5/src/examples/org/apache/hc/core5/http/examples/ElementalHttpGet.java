@@ -81,13 +81,13 @@ public class ElementalHttpGet {
                     conn.bind(socket);
                 }
                 BasicHttpRequest request = new BasicHttpRequest("GET", targets[i]);
-                System.out.println(">> Request URI: " + request.getRequestLine().getUri());
+                System.out.println(">> Request URI: " + request.getUri());
 
                 httpexecutor.preProcess(request, httpproc, coreContext);
                 HttpResponse response = httpexecutor.execute(request, conn, coreContext);
                 httpexecutor.postProcess(response, httpproc, coreContext);
 
-                System.out.println("<< Response: " + response.getStatusLine());
+                System.out.println("<< Response: " + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
                 if (!connStrategy.keepAlive(request, response, coreContext)) {

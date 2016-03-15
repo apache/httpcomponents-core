@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -47,19 +48,19 @@ public class HttpCoreContext implements HttpContext {
      * Attribute name of a {@link org.apache.hc.core5.http.HttpConnection} object that
      * represents the actual HTTP connection.
      */
-    public static final String HTTP_CONNECTION  = "http.connection";
+    public static final String HTTP_CONNECTION  = HttpContext.RESERVED_PREFIX + "connection";
 
     /**
      * Attribute name of a {@link org.apache.hc.core5.http.HttpRequest} object that
      * represents the actual HTTP request.
      */
-    public static final String HTTP_REQUEST     = "http.request";
+    public static final String HTTP_REQUEST     = HttpContext.RESERVED_PREFIX + "request";
 
     /**
      * Attribute name of a {@link org.apache.hc.core5.http.HttpResponse} object that
      * represents the actual HTTP response.
      */
-    public static final String HTTP_RESPONSE    = "http.response";
+    public static final String HTTP_RESPONSE    = HttpContext.RESERVED_PREFIX + "response";
 
     /**
      * Attribute name of a {@link org.apache.hc.core5.http.HttpHost} object that
@@ -89,6 +90,22 @@ public class HttpCoreContext implements HttpContext {
     public HttpCoreContext() {
         super();
         this.context = new BasicHttpContext();
+    }
+
+    /**
+     * @since 5.0
+     */
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        return this.context.getProtocolVersion();
+    }
+
+    /**
+     * @since 5.0
+     */
+    @Override
+    public void setProtocolVersion(final ProtocolVersion version) {
+        this.context.setProtocolVersion(version);
     }
 
     @Override

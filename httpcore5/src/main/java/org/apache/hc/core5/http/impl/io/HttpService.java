@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
@@ -164,19 +165,22 @@ public class HttpService {
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
         final HttpRequest request = conn.receiveRequestHeader();
+        final ProtocolVersion transportVersion = request.getVersion();
+        if (transportVersion != null) {
+            context.setProtocolVersion(transportVersion);
+        }
 
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
         final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
 
-        HttpResponse response = null;
-
+        HttpResponse response;
         if (expectContinue) {
-            response = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE, context);
+            response = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
             if (this.expectationVerifier != null) {
                 try {
                     this.expectationVerifier.verify(request, response, context);
                 } catch (final HttpException ex) {
-                    response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+                    response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                     handleException(ex, response);
                 }
             }
@@ -185,7 +189,6 @@ public class HttpService {
                 // have been met
                 conn.sendResponseHeader(response);
                 conn.flush();
-                response = null;
             } else {
                 context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
                 context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
@@ -206,14 +209,14 @@ public class HttpService {
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
             this.processor.process(request, context);
 
-            response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK, context);
+            response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
             doService(request, response, context);
 
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             this.processor.process(response, context);
 
         } catch (final HttpException ex) {
-            response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, context);
+            response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             handleException(ex, response);
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             this.processor.process(response, context);
@@ -235,7 +238,7 @@ public class HttpService {
     }
 
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
-        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+        if (request != null && "HEAD".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
         final int status = response.getCode();
@@ -255,15 +258,15 @@ public class HttpService {
      */
     protected void handleException(final HttpException ex, final HttpResponse response) {
         if (ex instanceof MethodNotSupportedException) {
-            response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
         } else if (ex instanceof UnsupportedHttpVersionException) {
-            response.setStatusCode(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED);
+            response.setCode(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED);
         } else if (ex instanceof NotImplementedException) {
-            response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
         } else if (ex instanceof ProtocolException) {
-            response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+            response.setCode(HttpStatus.SC_BAD_REQUEST);
         } else {
-            response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            response.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
         String message = ex.getMessage();
         if (message == null) {
@@ -301,7 +304,7 @@ public class HttpService {
         if (handler != null) {
             handler.handle(request, response, context);
         } else {
-            response.setStatusCode(HttpStatus.SC_NOT_IMPLEMENTED);
+            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
         }
     }
 

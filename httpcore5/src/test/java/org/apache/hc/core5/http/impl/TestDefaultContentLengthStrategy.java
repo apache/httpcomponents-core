@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -44,8 +43,12 @@ public class TestDefaultContentLengthStrategy {
         private static final long serialVersionUID = 1L;
 
         @Override
-        public ProtocolVersion getProtocolVersion() {
-            return HttpVersion.HTTP_1_1;
+        public ProtocolVersion getVersion() {
+            return null;
+        }
+
+        @Override
+        public void setVersion(final ProtocolVersion version) {
         }
 
     }

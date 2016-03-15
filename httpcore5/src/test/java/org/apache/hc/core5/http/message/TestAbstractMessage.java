@@ -28,7 +28,6 @@ package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,8 +43,12 @@ public class TestAbstractMessage {
         private static final long serialVersionUID = 1L;
 
         @Override
-        public ProtocolVersion getProtocolVersion() {
-            return HttpVersion.HTTP_1_1;
+        public ProtocolVersion getVersion() {
+            return null;
+        }
+
+        @Override
+        public void setVersion(final ProtocolVersion version) {
         }
 
     }

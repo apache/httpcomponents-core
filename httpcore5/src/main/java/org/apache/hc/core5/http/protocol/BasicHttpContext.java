@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,6 +48,8 @@ public class BasicHttpContext implements HttpContext {
 
     private final HttpContext parentContext;
     private final Map<String, Object> map;
+
+    private ProtocolVersion version;
 
     public BasicHttpContext() {
         this(null);
@@ -81,6 +85,21 @@ public class BasicHttpContext implements HttpContext {
     public Object removeAttribute(final String id) {
         Args.notNull(id, "Id");
         return this.map.remove(id);
+    }
+
+    /**
+     * @since 5.0
+     */
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        return this.version != null ? this.version : HttpVersion.DEFAULT;
+    }
+
+    /**
+     * @since 5.0
+     */
+    public void setProtocolVersion(final ProtocolVersion version) {
+        this.version = version;
     }
 
     /**

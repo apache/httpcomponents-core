@@ -132,7 +132,7 @@ public class PipeliningHttpClient {
                     public void completed(final List<HttpResponse> result) {
                         latch.countDown();
                         for (HttpResponse response: result) {
-                            System.out.println(target + "->" + response.getStatusLine());
+                            System.out.println(target + "->" + response.getCode());
                         }
                     }
 

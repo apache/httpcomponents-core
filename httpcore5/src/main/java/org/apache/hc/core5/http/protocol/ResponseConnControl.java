@@ -85,8 +85,8 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         // Always drop connection for HTTP/1.0 responses and below
         // if the content body cannot be correctly delimited
         final HttpEntity entity = response.getEntity();
+        final ProtocolVersion ver = context.getProtocolVersion();
         if (entity != null) {
-            final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
             if (entity.getContentLength() < 0 &&
                     (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
                 response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
@@ -99,7 +99,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
             if (header != null) {
                 response.setHeader(HttpHeaders.CONNECTION, header.getValue());
-            } else if (request.getProtocolVersion().lessEquals(HttpVersion.HTTP_1_0)) {
+            } else if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
                 response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
             }
         }

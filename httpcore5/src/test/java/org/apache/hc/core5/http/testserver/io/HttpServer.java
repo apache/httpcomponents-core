@@ -117,7 +117,7 @@ public class HttpServer {
         }
     }
 
-    static class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
+    class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
 
         @Override
         public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {

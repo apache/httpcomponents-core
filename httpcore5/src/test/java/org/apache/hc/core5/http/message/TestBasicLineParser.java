@@ -30,8 +30,6 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.RequestLine;
-import org.apache.hc.core5.http.StatusLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;

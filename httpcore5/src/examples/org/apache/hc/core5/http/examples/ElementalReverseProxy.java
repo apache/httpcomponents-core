@@ -121,7 +121,7 @@ public class ElementalReverseProxy {
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
             context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, this.target);
 
-            System.out.println(">> Request URI: " + request.getRequestLine().getUri());
+            System.out.println(">> Request URI: " + request.getUri());
 
             // Remove hop-by-hop headers
             request.removeHeaders(HttpHeaders.CONTENT_LENGTH);
@@ -146,11 +146,11 @@ public class ElementalReverseProxy {
             targetResponse.removeHeaders("Trailers");
             targetResponse.removeHeaders("Upgrade");
 
-            response.setStatusLine(targetResponse.getStatusLine());
+            response.setCode(targetResponse.getCode());
             response.setHeaders(targetResponse.getAllHeaders());
             response.setEntity(targetResponse.getEntity());
 
-            System.out.println("<< Response: " + response.getStatusLine());
+            System.out.println("<< Response: " + response.getCode());
 
             final boolean keepalive = this.connStrategy.keepAlive(request, response, context);
             context.setAttribute(HTTP_CONN_KEEPALIVE, new Boolean(keepalive));

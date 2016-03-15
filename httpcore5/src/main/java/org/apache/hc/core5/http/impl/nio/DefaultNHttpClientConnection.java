@@ -191,6 +191,7 @@ public class DefaultNHttpClientConnection
                         this.connMetrics.incrementResponseCount();
                     }
                     this.hasBufferedInput = this.inbuf.hasData();
+                    this.version = this.response.getVersion();
                     onResponseReceived(this.response);
                     handler.responseReceived(this);
                     if (this.contentDecoder == null) {

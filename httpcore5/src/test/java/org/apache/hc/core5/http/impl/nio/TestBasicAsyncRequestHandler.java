@@ -29,9 +29,7 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.message.BasicRequestLine;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
@@ -87,7 +85,8 @@ public class TestBasicAsyncRequestHandler {
 
     @Test
     public void testHandleRequest() throws Exception {
-        Mockito.when(this.request.getRequestLine()).thenReturn(new BasicRequestLine("GET", "/", HttpVersion.HTTP_1_0));
+        Mockito.when(this.request.getMethod()).thenReturn("GET");
+        Mockito.when(this.request.getMethod()).thenReturn("/");
 
         this.asyncRequestHandler.handle(this.request, this.httpexchange, this.context);
 

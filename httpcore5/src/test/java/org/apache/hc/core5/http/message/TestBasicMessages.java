@@ -31,7 +31,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.BasicHttpEntity;
 import org.junit.Assert;
 import org.junit.Test;
@@ -44,48 +43,30 @@ public class TestBasicMessages {
 
     @Test
     public void testDefaultResponseConstructors() {
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        Assert.assertNotNull(response.getProtocolVersion());
-        Assert.assertEquals(HttpVersion.HTTP_1_0, response.getProtocolVersion());
+        HttpResponse response = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getCode());
 
-        response = new BasicHttpResponse(new BasicStatusLine(
-                HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
-        Assert.assertNotNull(response.getProtocolVersion());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
+        response = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
-        Assert.assertEquals("whatever", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals("whatever", response.getReasonPhrase());
     }
 
     @Test
     public void testSetResponseStatus() {
-        HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        Assert.assertNotNull(response.getProtocolVersion());
-        Assert.assertNotNull(response.getStatusLine());
+        HttpResponse response = new BasicHttpResponse(200, "OK");
+        Assert.assertNotNull(response.getCode());
         Assert.assertEquals(200, response.getCode());
 
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_0, HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        Assert.assertNotNull(response.getProtocolVersion());
-        Assert.assertEquals(HttpVersion.HTTP_1_0, response.getProtocolVersion());
+        response = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getCode());
 
-        response = new BasicHttpResponse(new BasicStatusLine(
-                HttpVersion.HTTP_1_1, HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever"));
-        Assert.assertNotNull(response.getProtocolVersion());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
+        response = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
-        Assert.assertEquals("whatever", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals("whatever", response.getReasonPhrase());
 
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
         try {
-            response.setStatusCode(-23);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        try {
-            response.setStatusLine(null);
+            response.setCode(-23);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -94,7 +75,7 @@ public class TestBasicMessages {
 
     @Test
     public void testSetResponseEntity() {
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
         Assert.assertNull(response.getEntity());
 
         final HttpEntity entity = new BasicHttpEntity();
@@ -105,14 +86,12 @@ public class TestBasicMessages {
     @Test
     public void testDefaultRequestConstructors() {
         HttpRequest request = new BasicHttpRequest("WHATEVER", "/");
-        Assert.assertNotNull(request.getProtocolVersion());
-        Assert.assertEquals("WHATEVER", request.getRequestLine().getMethod());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
+        Assert.assertEquals("WHATEVER", request.getMethod());
+        Assert.assertEquals("/", request.getUri());
 
-        request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
-        Assert.assertEquals(HttpVersion.HTTP_1_0, request.getProtocolVersion());
-        Assert.assertEquals("GET", request.getRequestLine().getMethod());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
+        request = new BasicHttpRequest("GET", "/");
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/", request.getUri());
 
         try {
             new BasicHttpRequest(null, null);
@@ -122,12 +101,6 @@ public class TestBasicMessages {
         }
         try {
             new BasicHttpRequest("GET", null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            new BasicHttpRequest(null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected

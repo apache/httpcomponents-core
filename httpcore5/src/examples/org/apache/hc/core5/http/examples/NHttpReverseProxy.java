@@ -31,7 +31,6 @@ import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
@@ -41,11 +40,9 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseProducer;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIODispatch;
@@ -374,8 +371,7 @@ public class NHttpReverseProxy {
                 if (ex != null) {
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " " + ex);
                     int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
-                            EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
+                    HttpResponse response = new BasicHttpResponse(status);
                     String message = ex.getMessage();
                     if (message == null) {
                         message = "Unexpected error";
@@ -421,7 +417,7 @@ public class NHttpReverseProxy {
         @Override
         public void requestReceived(final HttpRequest request) {
             synchronized (this.httpExchange) {
-                System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + request.getRequestLine());
+                System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getUri());
                 this.httpExchange.setRequest(request);
                 this.executor.execute(
                         new ProxyRequestProducer(this.httpExchange),
@@ -518,9 +514,9 @@ public class NHttpReverseProxy {
         public HttpRequest generateRequest() {
             synchronized (this.httpExchange) {
                 HttpRequest request = this.httpExchange.getRequest();
-                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getRequestLine());
+                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getUri());
                 // Rewrite request!!!!
-                BasicHttpRequest newREquest = new BasicHttpRequest(request.getRequestLine());
+                BasicHttpRequest newREquest = new BasicHttpRequest(request.getMethod(), request.getUri());
                 newREquest.setEntity(request.getEntity());
                 return newREquest;
             }
@@ -600,7 +596,7 @@ public class NHttpReverseProxy {
         @Override
         public void responseReceived(final HttpResponse response) {
             synchronized (this.httpExchange) {
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getStatusLine());
+                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getCode());
                 this.httpExchange.setResponse(response);
                 HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
@@ -667,8 +663,7 @@ public class NHttpReverseProxy {
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
                     int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
-                            EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
+                    HttpResponse response = new BasicHttpResponse(status);
                     String message = ex.getMessage();
                     if (message == null) {
                         message = "Unexpected error";
@@ -725,9 +720,9 @@ public class NHttpReverseProxy {
         public HttpResponse generateResponse() {
             synchronized (this.httpExchange) {
                 HttpResponse response = this.httpExchange.getResponse();
-                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + response.getStatusLine());
+                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + response.getCode());
                 // Rewrite response!!!!
-                BasicHttpResponse r = new BasicHttpResponse(response.getStatusLine());
+                BasicHttpResponse r = new BasicHttpResponse(response.getCode());
                 r.setEntity(response.getEntity());
                 return r;
             }

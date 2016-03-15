@@ -37,7 +37,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.ContentDecoder;
@@ -489,9 +488,8 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertFalse(responses.isEmpty());
         final HttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
-        Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals("OK", response.getReasonPhrase());
         final HttpEntity entity = response.getEntity();
         Assert.assertNotNull(entity);
         Assert.assertEquals(5, entity.getContentLength());
@@ -534,9 +532,8 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertFalse(responses.isEmpty());
         final HttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
-        Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals("OK", response.getReasonPhrase());
         final HttpEntity entity = response.getEntity();
         Assert.assertNotNull(entity);
         Assert.assertEquals(100, entity.getContentLength());
@@ -582,7 +579,6 @@ public class TestDefaultNHttpClientConnection {
         Assert.assertFalse(responses.isEmpty());
         final HttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(100, response.getCode());
         final HttpEntity entity = response.getEntity();
         Assert.assertNull(entity);

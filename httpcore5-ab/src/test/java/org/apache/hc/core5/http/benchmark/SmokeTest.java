@@ -35,8 +35,8 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.StringEntity;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -55,7 +55,7 @@ public class SmokeTest {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                response.setStatusCode(HttpStatus.SC_OK);
+                response.setCode(HttpStatus.SC_OK);
                 response.setEntity(new StringEntity("0123456789ABCDEF", ContentType.TEXT_PLAIN));
             }
         });

@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncClientExchangeHandler;
@@ -216,6 +217,10 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
 
         this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+        final ProtocolVersion transportVersion = response.getVersion();
+        if (transportVersion != null) {
+            this.localContext.setProtocolVersion(transportVersion);
+        }
         this.httppocessor.process(response, this.localContext);
 
         responseConsumer.responseReceived(response);

@@ -89,7 +89,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
      * Extracts request path from the given {@link HttpRequest}
      */
     protected String getRequestPath(final HttpRequest request) {
-        String uriPath = request.getRequestLine().getUri();
+        String uriPath = request.getUri();
         int index = uriPath.indexOf("?");
         if (index != -1) {
             uriPath = uriPath.substring(0, index);

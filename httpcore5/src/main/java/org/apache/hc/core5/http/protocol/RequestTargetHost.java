@@ -62,8 +62,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
 
         final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
 
-        final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-        final String method = request.getRequestLine().getMethod();
+        final ProtocolVersion ver = coreContext.getProtocolVersion();
+        final String method = request.getMethod();
         if (method.equalsIgnoreCase("CONNECT") && ver.lessEquals(HttpVersion.HTTP_1_0)) {
             extracted();
             return;

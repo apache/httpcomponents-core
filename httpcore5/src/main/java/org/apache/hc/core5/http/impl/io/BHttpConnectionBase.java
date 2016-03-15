@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -62,6 +63,8 @@ class BHttpConnectionBase implements BHttpConnection {
     final MessageConstraints messageConstraints;
     final HttpConnectionMetricsImpl connMetrics;
     final AtomicReference<Socket> socketHolder;
+
+    volatile ProtocolVersion version;
 
     BHttpConnectionBase(
             final int buffersize,
@@ -116,6 +119,14 @@ class BHttpConnectionBase implements BHttpConnection {
     @Override
     public boolean isOpen() {
         return this.socketHolder.get() != null;
+    }
+
+    /**
+     * @since 5.0
+     */
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        return this.version;
     }
 
     Socket getSocket() {

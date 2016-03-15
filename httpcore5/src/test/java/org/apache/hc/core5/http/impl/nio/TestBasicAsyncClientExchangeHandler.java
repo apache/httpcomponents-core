@@ -31,7 +31,6 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentDecoder;
@@ -154,7 +153,7 @@ public class TestBasicAsyncClientExchangeHandler {
 
     @Test
     public void testGenerateRequest() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(this.requestProducer.generateRequest()).thenReturn(request);
 
         final HttpRequest result = this.exchangeHandler.generateRequest();
@@ -194,7 +193,7 @@ public class TestBasicAsyncClientExchangeHandler {
 
     @Test
     public void testResponseReceived() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
 
         this.exchangeHandler.responseReceived(response);
 

@@ -100,13 +100,13 @@ public class ElementalPoolingHttpGet {
                         coreContext.setTargetHost(this.target);
 
                         BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-                        System.out.println(">> Request URI: " + request.getRequestLine().getUri());
+                        System.out.println(">> Request URI: " + request.getUri());
 
                         httpexecutor.preProcess(request, httpproc, coreContext);
                         HttpResponse response = httpexecutor.execute(request, conn, coreContext);
                         httpexecutor.postProcess(response, httpproc, coreContext);
 
-                        System.out.println("<< Response: " + response.getStatusLine());
+                        System.out.println("<< Response: " + response.getCode());
                         System.out.println(EntityUtils.toString(response.getEntity()));
 
                         reusable = connStrategy.keepAlive(request, response, coreContext);

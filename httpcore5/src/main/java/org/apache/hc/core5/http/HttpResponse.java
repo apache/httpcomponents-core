@@ -38,76 +38,40 @@ import java.util.Locale;
 public interface HttpResponse extends HttpMessage<HttpEntity> {
 
     /**
-     * Obtains the code in the status line of this response.
-     * The status line can be set using one of the
-     * {@link #setStatusLine setStatusLine} methods,
-     * or it can be initialized in a constructor.
+     * Obtains the code of this response message.
      *
-     * @return  the status code, or {@code 0} if not yet set
+     * @return  the status code.
      */
     int getCode();
 
     /**
-     * Obtains the status line of this response.
-     * The status line can be set using one of the
-     * {@link #setStatusLine setStatusLine} methods,
-     * or it can be initialized in a constructor.
-     *
-     * @return  the status line, or {@code null} if not yet set
-     */
-    StatusLine getStatusLine();
-
-    /**
-     * Sets the status line of this response.
-     *
-     * @param statusline the status line of this response
-     */
-    void setStatusLine(StatusLine statusline);
-
-    /**
-     * Sets the status line of this response.
-     * The reason phrase will be determined based on the current
-     * {@link #getLocale locale}.
-     *
-     * @param ver       the HTTP version
-     * @param code      the status code
-     */
-    void setStatusLine(ProtocolVersion ver, int code);
-
-    /**
-     * Sets the status line of this response with a reason phrase.
-     *
-     * @param ver       the HTTP version
-     * @param code      the status code
-     * @param reason    the reason phrase, or {@code null} to omit
-     */
-    void setStatusLine(ProtocolVersion ver, int code, String reason);
-
-    /**
-     * Updates the status line of this response with a new status code.
+     * Updates status code of this response message.
      *
      * @param code the HTTP status code.
      *
      * @see HttpStatus
-     * @see #setStatusLine(StatusLine)
-     * @see #setStatusLine(ProtocolVersion,int)
      */
-    void setStatusCode(int code);
+    void setCode(int code);
+
+    /**
+     * Obtains the reason phrase of this response if available.
+     *
+     * @return  the reason phrase.
+     */
+    String getReasonPhrase();
 
     /**
      * Updates the status line of this response with a new reason phrase.
      *
      * @param reason    the new reason phrase as a single-line string, or
      *                  {@code null} to unset the reason phrase
-     * @see #setStatusLine(StatusLine)
-     * @see #setStatusLine(ProtocolVersion,int)
      */
     void setReasonPhrase(String reason);
 
     /**
      * Obtains the locale of this response.
      * The locale is used to determine the reason phrase
-     * for the {@link #setStatusCode status code}.
+     * for the {@link #setCode status code}.
      * It can be changed using {@link #setLocale setLocale}.
      *
      * @return  the locale of this response, never {@code null}

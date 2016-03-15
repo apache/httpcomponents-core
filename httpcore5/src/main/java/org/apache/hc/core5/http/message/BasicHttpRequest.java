@@ -29,9 +29,7 @@ package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.RequestLine;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -43,10 +41,10 @@ import org.apache.hc.core5.util.Args;
 public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
 
     private static final long serialVersionUID = 1L;
-    private final String method;
-    private final String uri;
 
-    private RequestLine requestline;
+    private final String method;
+    private String uri;
+    private ProtocolVersion version;
 
     /**
      * Creates an instance of this class using the given request method
@@ -59,54 +57,26 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         super();
         this.method = Args.notNull(method, "Method name");
         this.uri = Args.notNull(uri, "Request URI");
-        this.requestline = null;
     }
 
-    /**
-     * Creates an instance of this class using the given request method, URI
-     * and the HTTP protocol version.
-     *
-     * @param method request method.
-     * @param uri request URI.
-     * @param ver HTTP protocol version.
-     */
-    public BasicHttpRequest(final String method, final String uri, final ProtocolVersion ver) {
-        this(new BasicRequestLine(method, uri, ver));
-    }
-
-    /**
-     * Creates an instance of this class using the given request line.
-     *
-     * @param requestline request line.
-     */
-    public BasicHttpRequest(final RequestLine requestline) {
-        super();
-        this.requestline = Args.notNull(requestline, "Request line");
-        this.method = requestline.getMethod();
-        this.uri = requestline.getUri();
-    }
-
-    /**
-     * Returns the HTTP protocol version to be used for this request.
-     *
-     * @see #BasicHttpRequest(String, String)
-     */
     @Override
-    public ProtocolVersion getProtocolVersion() {
-        return getRequestLine().getProtocolVersion();
+    public void setVersion(final ProtocolVersion version) {
+        this.version = version;
     }
 
-    /**
-     * Returns the request line of this request.
-     *
-     * @see #BasicHttpRequest(String, String)
-     */
     @Override
-    public RequestLine getRequestLine() {
-        if (this.requestline == null) {
-            this.requestline = new BasicRequestLine(this.method, this.uri, HttpVersion.HTTP_1_1);
-        }
-        return this.requestline;
+    public ProtocolVersion getVersion() {
+        return this.version;
+    }
+
+    @Override
+    public String getMethod() {
+        return this.method;
+    }
+
+    @Override
+    public String getUri() {
+        return this.uri;
     }
 
     @Override

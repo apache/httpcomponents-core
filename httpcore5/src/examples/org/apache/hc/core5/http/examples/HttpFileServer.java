@@ -144,11 +144,11 @@ public class HttpFileServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ROOT);
+            String method = request.getMethod().toUpperCase(Locale.ROOT);
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
-            String target = request.getRequestLine().getUri();
+            String target = request.getUri();
 
             HttpEntity incomingEntity = request.getEntity();
             if (incomingEntity != null) {
@@ -159,7 +159,7 @@ public class HttpFileServer {
             final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists()) {
 
-                response.setStatusCode(HttpStatus.SC_NOT_FOUND);
+                response.setCode(HttpStatus.SC_NOT_FOUND);
                 StringEntity outgoingEntity = new StringEntity(
                         "<html><body><h1>File" + file.getPath() +
                         " not found</h1></body></html>",
@@ -169,7 +169,7 @@ public class HttpFileServer {
 
             } else if (!file.canRead() || file.isDirectory()) {
 
-                response.setStatusCode(HttpStatus.SC_FORBIDDEN);
+                response.setCode(HttpStatus.SC_FORBIDDEN);
                 StringEntity outgoingEntity = new StringEntity(
                         "<html><body><h1>Access denied</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
@@ -179,7 +179,7 @@ public class HttpFileServer {
             } else {
                 HttpCoreContext coreContext = HttpCoreContext.adapt(context);
                 HttpConnection conn = coreContext.getConnection(HttpConnection.class);
-                response.setStatusCode(HttpStatus.SC_OK);
+                response.setCode(HttpStatus.SC_OK);
                 FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);
                 System.out.println(conn + ": serving file " + file.getPath());

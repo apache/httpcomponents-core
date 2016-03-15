@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -281,6 +282,10 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
+        final ProtocolVersion transportVersion = request.getVersion();
+        if (transportVersion != null) {
+            context.setProtocolVersion(transportVersion);
+        }
         this.httpProcessor.process(request, context);
 
         final HttpAsyncRequestHandler<Object> requestHandler = getRequestHandler(request, context);
@@ -300,7 +305,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                         && state.getRequestQueue().isEmpty()
                         && !conn.isDataAvailable()) {
 
-                final HttpResponse ack = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE, context);
+                final HttpResponse ack = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
                 if (this.expectationVerifier != null) {
                     final HttpAsyncExchange httpAsyncExchange = new HttpAsyncExchangeImpl(
                             incoming, request, ack, state, conn, context);
@@ -382,7 +387,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             state.setResponseState(MessageState.INIT);
             if (requestResult != null) {
                 final HttpAsyncRequestHandler<Object> handler = pipelineEntry.getHandler();
-                final HttpResponse response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK, context);
+                final HttpResponse response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
                 final HttpAsyncExchangeImpl httpExchange = new HttpAsyncExchangeImpl(
                         null, request, response, state, conn, context);
                 conn.suspendOutput();
@@ -566,7 +571,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         if (message == null) {
             message = ex.toString();
         }
-        final HttpResponse response = this.responseFactory.newHttpResponse(code, context);
+        final HttpResponse response = this.responseFactory.newHttpResponse(code);
         return new ErrorResponseProducer(response,
                 new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
     }
@@ -600,7 +605,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
-        if (request != null && "HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+        if (request != null && "HEAD".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
         final int status = response.getCode();
@@ -885,13 +890,15 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             buf.append(this.requestState);
             if (this.incoming != null) {
                 buf.append(" ");
-                buf.append(this.incoming.getRequest().getRequestLine());
+                buf.append(this.incoming.getRequest().getMethod());
+                buf.append(" ");
+                buf.append(this.incoming.getRequest().getUri());
             }
             buf.append("; outgoing ");
             buf.append(this.responseState);
             if (this.outgoing != null) {
                 buf.append(" ");
-                buf.append(this.outgoing.getResponse().getStatusLine());
+                buf.append(this.outgoing.getResponse().getCode());
             }
             buf.append("]");
             return buf.toString();

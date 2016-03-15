@@ -187,6 +187,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
         final Socket socket = ensureOpen();
         final HttpResponse response = this.responseParser.parse(this.inbuffer, socket.getInputStream());
+        this.version = response.getVersion();
         onResponseReceived(response);
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();

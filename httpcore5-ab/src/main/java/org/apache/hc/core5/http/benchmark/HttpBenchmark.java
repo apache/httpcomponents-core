@@ -110,16 +110,13 @@ public class HttpBenchmark {
             se.setChunked(config.isUseChunking());
             entity = se;
         }
-        final HttpVersion ver = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
         final HttpRequest request;
         if ("POST".equals(config.getMethod())) {
-            final BasicHttpRequest httppost =
-                    new BasicHttpRequest("POST", url.getPath(), ver);
+            final HttpRequest httppost = new BasicHttpRequest("POST", url.getPath());
             httppost.setEntity(entity);
             request = httppost;
         } else if ("PUT".equals(config.getMethod())) {
-            final BasicHttpRequest httpput =
-                    new BasicHttpRequest("PUT", url.getPath(), ver);
+            final HttpRequest httpput = new BasicHttpRequest("PUT", url.getPath());
             httpput.setEntity(entity);
             request = httpput;
         } else {
@@ -129,8 +126,9 @@ public class HttpBenchmark {
             } else if (path.trim().length() == 0) {
                 path = "/";
             }
-            request = new BasicHttpRequest(config.getMethod(), path, ver);
+            request = new BasicHttpRequest(config.getMethod(), path);
         }
+        request.setVersion(config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1);
 
         if (!config.isKeepAlive()) {
             request.addHeader(new DefaultHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE));

@@ -31,7 +31,10 @@ import java.io.IOException;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.LineFormatter;
+import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -61,7 +64,12 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
     @Override
     protected void writeHeadLine(
             final HttpRequest message, final CharArrayBuffer lineBuf) throws IOException {
-        getLineFormatter().formatRequestLine(lineBuf, message.getRequestLine());
+        ProtocolVersion transportVersion = message.getVersion();
+        if (transportVersion == null || transportVersion.greaterEquals(HttpVersion.HTTP_2_0)) {
+            transportVersion = HttpVersion.HTTP_1_1;
+        }
+        getLineFormatter().formatRequestLine(lineBuf,
+                new RequestLine(message.getMethod(), message.getUri(), transportVersion));
     }
 
 }

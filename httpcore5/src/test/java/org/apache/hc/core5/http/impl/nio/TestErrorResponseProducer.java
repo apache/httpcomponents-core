@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl.nio;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.junit.After;
@@ -46,7 +45,7 @@ public class TestErrorResponseProducer {
 
     @Before
     public void setUp() throws Exception {
-        response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response = new BasicHttpResponse(200, "OK");
         entity = new StringEntity("stuff");
     }
 

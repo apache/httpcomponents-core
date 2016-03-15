@@ -44,12 +44,13 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
-import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
@@ -104,6 +105,7 @@ class BenchmarkWorker implements Runnable {
     @Override
     public void run() {
         HttpResponse response = null;
+        final HttpVersion version = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
         final BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);
 
         final String scheme = targetHost.getSchemeName();
@@ -118,7 +120,8 @@ class BenchmarkWorker implements Runnable {
         }
 
         // Populate the execution context
-        this.context.setTargetHost(this.targetHost);
+        context.setTargetHost(this.targetHost);
+        context.setProtocolVersion(version);
 
         stats.start();
         final int count = config.getRequests();
@@ -161,7 +164,7 @@ class BenchmarkWorker implements Runnable {
 
                 verboseOutput(response);
 
-                if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                if (response.getCode() == HttpStatus.SC_OK) {
                     stats.incSuccessCount();
                 } else {
                     stats.incFailureCount();
@@ -233,7 +236,7 @@ class BenchmarkWorker implements Runnable {
 
     private void verboseOutput(final HttpResponse response) {
         if (config.getVerbosity() >= 3) {
-            System.out.println(">> " + request.getRequestLine().toString());
+            System.out.println(">> " + request.getMethod() + " " + request.getUri());
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {
                 System.out.println(">> " + header.toString());
@@ -241,10 +244,10 @@ class BenchmarkWorker implements Runnable {
             System.out.println();
         }
         if (config.getVerbosity() >= 2) {
-            System.out.println(response.getStatusLine().getStatusCode());
+            System.out.println(response.getCode());
         }
         if (config.getVerbosity() >= 3) {
-            System.out.println("<< " + response.getStatusLine().toString());
+            System.out.println("<< " + response.getCode() + " " + response.getReasonPhrase());
             final Header[] headers = response.getAllHeaders();
             for (final Header header : headers) {
                 System.out.println("<< " + header.toString());

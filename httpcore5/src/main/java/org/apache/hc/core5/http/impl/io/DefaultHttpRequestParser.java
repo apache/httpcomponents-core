@@ -36,11 +36,11 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.RequestLine;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.DefaultHttpRequestFactory;
 import org.apache.hc.core5.http.message.LineParser;
+import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -96,11 +96,11 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
     @Override
     protected HttpRequest createMessage(final CharArrayBuffer buffer) throws IOException, HttpException {
         final RequestLine requestLine = getLineParser().parseRequestLine(buffer);
-        final ProtocolVersion version = requestLine.getProtocolVersion();
-        if (version.greaterEquals(HttpVersion.HTTP_2)) {
-            throw new UnsupportedHttpVersionException("Unsupported version: " + version);
+        final ProtocolVersion transportVersion = requestLine.getProtocolVersion();
+        if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+            throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
         }
-        return this.requestFactory.newHttpRequest(requestLine);
+        return this.requestFactory.newHttpRequest(requestLine.getProtocolVersion(), requestLine.getMethod(), requestLine.getUri());
     }
 
 }

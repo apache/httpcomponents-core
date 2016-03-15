@@ -31,9 +31,8 @@ import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.MethodNotSupportedException;
-import org.apache.hc.core5.http.RequestLine;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Default factory for creating {@link HttpRequest} objects.
@@ -57,10 +56,6 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
             "CONNECT"
     };
 
-    public DefaultHttpRequestFactory() {
-        super();
-    }
-
     private static boolean isOneOf(final String[] methods, final String method) {
         for (final String method2 : methods) {
             if (method2.equalsIgnoreCase(method)) {
@@ -71,24 +66,18 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     }
 
     @Override
-    public HttpRequest newHttpRequest(final RequestLine requestline)
-            throws MethodNotSupportedException {
-        Args.notNull(requestline, "Request line");
-        final String method = requestline.getMethod();
+    public HttpRequest newHttpRequest(final ProtocolVersion transportVersion, final String method, final String uri) throws MethodNotSupportedException {
         if (isOneOf(SUPPORTED_METHODS, method)) {
-            return new BasicHttpRequest(requestline);
+            final HttpRequest request = new BasicHttpRequest(method, uri);
+            request.setVersion(transportVersion);
+            return request;
         }
-        throw new MethodNotSupportedException(method +  " method not supported");
+        throw new MethodNotSupportedException(method + " method not supported");
     }
 
     @Override
-    public HttpRequest newHttpRequest(final String method, final String uri)
-            throws MethodNotSupportedException {
-        if (isOneOf(SUPPORTED_METHODS, method)) {
-            return new BasicHttpRequest(method, uri);
-        }
-        throw new MethodNotSupportedException(method
-                + " method not supported");
+    public HttpRequest newHttpRequest(final String method, final String uri) throws MethodNotSupportedException {
+        return new BasicHttpRequest(method, uri);
     }
 
 }

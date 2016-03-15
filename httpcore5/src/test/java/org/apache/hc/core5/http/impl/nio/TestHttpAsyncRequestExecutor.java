@@ -97,7 +97,7 @@ public class TestHttpAsyncRequestExecutor {
         Mockito.verify(this.conn).submitRequest(request);
         Mockito.verify(this.exchangeHandler).requestCompleted();
         Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());
-        Assert.assertEquals("[outgoing COMPLETED GET / HTTP/1.1; incoming READY]", state.toString());
+        Assert.assertEquals("[outgoing COMPLETED GET /; incoming READY]", state.toString());
     }
 
     @Test
@@ -1032,7 +1032,7 @@ public class TestHttpAsyncRequestExecutor {
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
         Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.TRUE);
 
-        Assert.assertEquals("[outgoing READY GET / HTTP/1.1; incoming READY HTTP/1.1 200 OK]", state.toString());
+        Assert.assertEquals("[outgoing READY GET /; incoming READY 200]", state.toString());
 
         this.protocolHandler.requestReady(this.conn);
 

@@ -75,7 +75,7 @@ public class ElementalHttpPostTrailers {
         HttpResponse response = httpexecutor.execute(request, conn, coreContext);
         httpexecutor.postProcess(response, httpproc, coreContext);
 
-        System.out.println("<< Response: " + response.getStatusLine());
+        System.out.println("<< Response: " + response.getCode());
         System.out.println(EntityUtils.toString(response.getEntity()));
         System.out.println("==============");
         conn.close();

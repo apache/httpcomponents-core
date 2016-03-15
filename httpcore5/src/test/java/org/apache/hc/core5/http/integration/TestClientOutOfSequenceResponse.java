@@ -37,7 +37,6 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.pool.nio.BasicNIOConnFactory;
@@ -78,9 +77,9 @@ public class TestClientOutOfSequenceResponse {
 
         client.start();
         final HttpHost target = new HttpHost("localhost", server.getLocalPort());
-        final HttpRequest get1 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest get1 = new BasicHttpRequest("GET", "/");
         final Future<HttpResponse> future1 = client.execute(target, get1);
-        final HttpRequest get2 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final HttpRequest get2 = new BasicHttpRequest("GET", "/");
         final Future<HttpResponse> future2 = client.execute(target, get2);
 
         final Socket socket = server.accept();

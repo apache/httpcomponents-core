@@ -126,7 +126,7 @@ public class NHttpClient {
                 @Override
                 public void completed(final HttpResponse response) {
                     latch.countDown();
-                    System.out.println(target + "->" + response.getStatusLine());
+                    System.out.println(target + "->" + response.getCode());
                 }
 
                 @Override

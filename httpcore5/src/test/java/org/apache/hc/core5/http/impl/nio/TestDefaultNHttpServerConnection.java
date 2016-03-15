@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentDecoder;
@@ -77,7 +76,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testSubmitRequest() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         conn.submitResponse(response);
 
         Assert.assertNull(conn.getHttpResponse());
@@ -88,7 +87,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testSubmitEntityEnclosingRequest() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         response.setEntity(new StringEntity("stuff"));
 
         Mockito.when(session.channel()).thenReturn(byteChan);
@@ -107,7 +106,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testOutputReset() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         response.setEntity(new StringEntity("stuff"));
 
         Mockito.when(session.channel()).thenReturn(byteChan);
@@ -162,7 +161,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testProduceOutputShortMessageAfterSubmit() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         final NStringEntity entity = new NStringEntity("stuff");
         response.setEntity(entity);
 
@@ -187,7 +186,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testProduceOutputLongMessageAfterSubmit() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         response.setEntity(entity);
 
@@ -212,7 +211,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testProduceOutputShortMessage() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         final NStringEntity entity = new NStringEntity("stuff");
         response.setEntity(entity);
 
@@ -237,7 +236,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testProduceOutputLongMessage() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         response.setEntity(entity);
 
@@ -262,7 +261,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testProduceOutputLongMessageSaturatedChannel() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         response.setEntity(entity);
 
@@ -290,7 +289,7 @@ public class TestDefaultNHttpServerConnection {
     @Test
     public void testProduceOutputLongMessageSaturatedChannel2() throws Exception {
         conn = new DefaultNHttpServerConnection(session, 24);
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         final NStringEntity entity = new NStringEntity("a loooooooooooooooooooooooot of various stuff");
         response.setEntity(entity);
 
@@ -318,7 +317,7 @@ public class TestDefaultNHttpServerConnection {
     public void testProduceOutputLongChunkedMessage() throws Exception {
         conn = new DefaultNHttpServerConnection(session, 64);
 
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         response.setHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
@@ -348,7 +347,7 @@ public class TestDefaultNHttpServerConnection {
     public void testProduceOutputLongChunkedMessageSaturatedChannel() throws Exception {
         conn = new DefaultNHttpServerConnection(session, 64);
 
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         response.setHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
@@ -378,7 +377,7 @@ public class TestDefaultNHttpServerConnection {
 
     @Test
     public void testProduceOutputClosingConnection() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
 
         final WritableByteChannelMock wchannel = Mockito.spy(new WritableByteChannelMock(64));
         final ByteChannelMock channel = new ByteChannelMock(null, wchannel);
@@ -480,11 +479,10 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertFalse(requests.isEmpty());
         final HttpRequest request = requests.getFirst();
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getRequestLine().getProtocolVersion());
-        Assert.assertEquals("POST", request.getRequestLine().getMethod());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
+        Assert.assertEquals("POST", request.getMethod());
+        Assert.assertEquals("/", request.getUri());
         Assert.assertTrue(request instanceof HttpRequest);
-        final HttpEntity entity = ((HttpRequest) request).getEntity();
+        final HttpEntity entity = request.getEntity();
         Assert.assertNotNull(entity);
         Assert.assertEquals(5, entity.getContentLength());
     }
@@ -526,11 +524,10 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertFalse(requests.isEmpty());
         final HttpRequest request = requests.getFirst();
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getRequestLine().getProtocolVersion());
-        Assert.assertEquals("POST", request.getRequestLine().getMethod());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
+        Assert.assertEquals("POST", request.getMethod());
+        Assert.assertEquals("/", request.getUri());
         Assert.assertTrue(request instanceof HttpRequest);
-        final HttpEntity entity = ((HttpRequest) request).getEntity();
+        final HttpEntity entity = request.getEntity();
         Assert.assertNotNull(entity);
         Assert.assertEquals(100, entity.getContentLength());
 
@@ -575,9 +572,8 @@ public class TestDefaultNHttpServerConnection {
         Assert.assertFalse(requests.isEmpty());
         final HttpRequest request = requests.getFirst();
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getRequestLine().getProtocolVersion());
-        Assert.assertEquals("GET", request.getRequestLine().getMethod());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/", request.getUri());
     }
 
     @Test

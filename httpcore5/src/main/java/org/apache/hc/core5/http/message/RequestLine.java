@@ -31,16 +31,15 @@ import java.io.Serializable;
 
 import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.RequestLine;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Basic implementation of {@link RequestLine}.
+ * HTTP/1.1 request line.
  *
  * @since 4.0
  */
 @Immutable
-public class BasicRequestLine implements RequestLine, Serializable {
+public final class RequestLine implements Serializable {
 
     private static final long serialVersionUID = 2810581718468737193L;
 
@@ -48,26 +47,23 @@ public class BasicRequestLine implements RequestLine, Serializable {
     private final String method;
     private final String uri;
 
-    public BasicRequestLine(final String method,
-                            final String uri,
-                            final ProtocolVersion version) {
+    public RequestLine(final String method,
+                       final String uri,
+                       final ProtocolVersion version) {
         super();
         this.method = Args.notNull(method, "Method");
         this.uri = Args.notNull(uri, "URI");
         this.protoversion = Args.notNull(version, "Version");
     }
 
-    @Override
     public String getMethod() {
         return this.method;
     }
 
-    @Override
     public ProtocolVersion getProtocolVersion() {
         return this.protoversion;
     }
 
-    @Override
     public String getUri() {
         return this.uri;
     }

@@ -41,10 +41,13 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
+import org.apache.hc.core5.http.message.RequestLine;
+import org.apache.hc.core5.http.message.StatusLine;
 
 public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
 
@@ -115,7 +118,8 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     @Override
     protected void onRequestReceived(final HttpRequest request) {
         if (request != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(this.id + " >> " + request.getRequestLine().toString());
+            this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getUri(),
+                    request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {
                 this.headerlog.debug(this.id + " >> " + header.toString());
@@ -126,7 +130,9 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     @Override
     protected void onResponseSubmitted(final HttpResponse response) {
         if (response != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(this.id + " << " + response.getStatusLine().toString());
+            this.headerlog.debug(this.id + " << " + new StatusLine(
+                    response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1,
+                    response.getCode(), response.getReasonPhrase()));
             final Header[] headers = response.getAllHeaders();
             for (final Header header : headers) {
                 this.headerlog.debug(this.id + " << " + header.toString());

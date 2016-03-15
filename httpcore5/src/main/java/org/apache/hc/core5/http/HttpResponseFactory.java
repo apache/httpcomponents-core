@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.http;
 
-import org.apache.hc.core5.http.protocol.HttpContext;
-
 /**
  * A factory for {@link HttpResponse HttpResponse} objects.
  *
@@ -37,28 +35,25 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 public interface HttpResponseFactory {
 
     /**
-     * Creates a new response from status line elements.
+     * Creates response message with the given code and reason phrase.
      *
+     * @param transportVersion protocol version this message was transmitted with.
      * @param status    the status code
-     * @param context   the context from which to determine the locale
-     *                  for looking up a reason phrase to the status code, or
-     *                  {@code null} to use the default locale
+     * @param reasonPhrase the reason phrase
      *
-     * @return  the new response with an initialized status line
+     * @return  response message
+     *
+     * @since 5.0
      */
-    HttpResponse newHttpResponse(int status, HttpContext context);
+    HttpResponse newHttpResponse(ProtocolVersion transportVersion, int status, String reasonPhrase);
 
     /**
-     * Creates a new response from a status line.
+     * Creates a new response with the given code.
      *
-     * @param statusline the status line
-     * @param context    the context from which to determine the locale
-     *                   for looking up a reason phrase if the status code
-     *                   is updated, or
-     *                   {@code null} to use the default locale
+     * @param status    the status code
      *
-     * @return  the new response with the argument status line
+     * @return  response message
      */
-    HttpResponse newHttpResponse(StatusLine statusline, HttpContext context);
+    HttpResponse newHttpResponse(int status);
 
 }

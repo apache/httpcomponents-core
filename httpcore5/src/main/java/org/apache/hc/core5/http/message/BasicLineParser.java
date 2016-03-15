@@ -34,8 +34,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.RequestLine;
-import org.apache.hc.core5.http.StatusLine;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
@@ -161,7 +159,7 @@ public class BasicLineParser implements LineParser {
         if (!cursor.atEnd()) {
             throw new ParseException("Invalid request line: " + buffer.toString());
         }
-        return new BasicRequestLine(method, uri, ver);
+        return new RequestLine(method, uri, ver);
     }
 
     @Override
@@ -185,7 +183,7 @@ public class BasicLineParser implements LineParser {
             throw new ParseException("Status line contains invalid status code: " + buffer.toString());
         }
         final String text = buffer.substringTrimmed(cursor.getPos(), cursor.getUpperBound());
-        return new BasicStatusLine(ver, statusCode, text);
+        return new StatusLine(ver, statusCode, text);
     }
 
     @Override

@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -83,6 +84,7 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     volatile HttpResponse response;
 
     volatile int status;
+    volatile ProtocolVersion version;
 
     NHttpConnectionBase(
             final IOSession session,
@@ -145,6 +147,14 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     @Override
     public HttpContext getContext() {
         return this.context;
+    }
+
+    /**
+     * @since 5.0
+     */
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        return this.version;
     }
 
     @Override

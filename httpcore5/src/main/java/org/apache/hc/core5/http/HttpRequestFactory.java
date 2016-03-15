@@ -34,10 +34,27 @@ package org.apache.hc.core5.http;
  */
 public interface HttpRequestFactory {
 
-    HttpRequest newHttpRequest(RequestLine requestline)
-        throws MethodNotSupportedException;
+    /**
+     * Creates request message with the given request method and request URI.
+     *
+     * @param transportVersion protocol version this message was transmitted with.
+     * @param method  the request method
+     * @param uri the request URI
+     *
+     * @return  request message
+     *
+     * @since 5.0
+     */
+    HttpRequest newHttpRequest(ProtocolVersion transportVersion, String method, String uri) throws MethodNotSupportedException;
 
-    HttpRequest newHttpRequest(String method, String uri)
-            throws MethodNotSupportedException;
+    /**
+     * Creates request message with the given request method and request URI.
+     *
+     * @param method  the request method
+     * @param uri the request URI
+     *
+     * @return  request message
+     */
+    HttpRequest newHttpRequest(String method, String uri) throws MethodNotSupportedException;
 
 }

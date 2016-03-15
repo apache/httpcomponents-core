@@ -106,7 +106,7 @@ public class ResponseContent implements HttpResponseInterceptor {
                 throw new ProtocolException("Content-Length header already present");
             }
         }
-        final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
+        final ProtocolVersion ver = context.getProtocolVersion();
         final HttpEntity entity = response.getEntity();
         if (entity != null) {
             final long len = entity.getContentLength();

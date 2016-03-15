@@ -56,7 +56,7 @@ public class RequestValidateHost implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        final ProtocolVersion version = request.getProtocolVersion();
+        final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
         if (version.greaterEquals(HttpVersion.HTTP_1_1)) {
             final int n = request.containsHeaders(HttpHeaders.HOST);
             if (n == 0) {

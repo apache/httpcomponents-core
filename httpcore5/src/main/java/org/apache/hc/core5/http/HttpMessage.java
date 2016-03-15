@@ -36,9 +36,26 @@ package org.apache.hc.core5.http;
 public interface HttpMessage<T> extends MessageHead {
 
     /**
-     * Returns the protocol version this message is compatible with.
+     * Sets protocol version.
+     * <p>
+     * For incoming messages it represents protocol version this message was transmitted with.
+     * For outgoing messages it represents a hint what protocol version should be used to transmit
+     * the message.
+     *
+     * @since 5.0
      */
-    ProtocolVersion getProtocolVersion();
+    void setVersion(ProtocolVersion version);
+
+    /**
+     * Returns protocol version or {@code null} when not available.
+     * <p>
+     * For incoming messages it represents protocol version this message was transmitted with.
+     * For outgoing messages it represents a hint what protocol version should be used to transmit
+     * the message.
+     *
+     * @since 5.0
+     */
+    ProtocolVersion getVersion();
 
     /**
      * Adds a header to this message. The header will be appended to the end of

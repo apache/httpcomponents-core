@@ -58,7 +58,7 @@ final class SimpleRequestHandler implements HttpRequestHandler {
             final HttpResponse response,
             final HttpContext context) throws HttpException, IOException {
 
-        final String s = request.getRequestLine().getUri();
+        final String s = request.getUri();
         final int idx = s.indexOf('x');
         if (idx == -1) {
             throw new HttpException("Unexpected request-URI format");

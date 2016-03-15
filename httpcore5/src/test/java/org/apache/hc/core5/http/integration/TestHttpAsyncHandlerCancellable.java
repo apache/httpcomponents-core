@@ -40,7 +40,6 @@ import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.BasicHttpEntity;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestConsumer;
@@ -79,7 +78,7 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
 
             @Override
             public HttpResponse generateResponse() {
-                final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+                final HttpResponse response = new BasicHttpResponse(200, "OK");
                 final BasicHttpEntity entity = new BasicHttpEntity();
                 entity.setContentType(ContentType.DEFAULT_BINARY.toString());
                 entity.setChunked(true);

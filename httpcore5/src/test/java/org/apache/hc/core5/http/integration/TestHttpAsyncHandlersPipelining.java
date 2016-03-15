@@ -45,7 +45,6 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.entity.StringEntity;
@@ -276,7 +275,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
-                final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+                final BasicHttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
                 new Thread() {
                     @Override
                     public void run() {
@@ -286,7 +285,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
                         try {
                             requestHandler.handle(request, response, context);
                         } catch (final Exception ex) {
-                            response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                            response.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                         }
                         httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                     }
@@ -351,7 +350,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                response.setStatusCode(HttpStatus.SC_OK);
+                response.setCode(HttpStatus.SC_OK);
                 response.setEntity(new StringEntity("all is well", ContentType.TEXT_PLAIN));
             }
 
@@ -363,7 +362,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                response.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                 response.setHeader(HttpHeaders.CONNECTION, "Close");
                 response.setEntity(new StringEntity("boooooom!!!!!", ContentType.TEXT_PLAIN));
             }

@@ -37,9 +37,17 @@ package org.apache.hc.core5.http;
 public interface HttpRequest extends HttpMessage<HttpEntity> {
 
     /**
-     * Returns the request line of this request.
-     * @return the request line.
+     * Obtains the method of this request message.
+     *
+     * @return  the request method.
      */
-    RequestLine getRequestLine();
+    String getMethod();
+
+    /**
+     * Obtains the URI of this request message.
+     *
+     * @return  the request URI.
+     */
+    String getUri();
 
 }

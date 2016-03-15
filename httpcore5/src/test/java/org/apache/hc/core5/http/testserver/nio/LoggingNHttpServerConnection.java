@@ -36,7 +36,10 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.impl.nio.DefaultNHttpServerConnection;
+import org.apache.hc.core5.http.message.RequestLine;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.NHttpServerEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 
@@ -81,7 +84,7 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     @Override
     public void submitResponse(final HttpResponse response) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + ": "  + response.getStatusLine().toString());
+            this.log.debug(this.id + ": "  + response.getCode() + " " + response.getReasonPhrase());
         }
         super.submitResponse(response);
     }
@@ -105,7 +108,8 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     @Override
     protected void onRequestReceived(final HttpRequest request) {
         if (request != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(this.id + " >> " + request.getRequestLine().toString());
+            this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getUri(),
+                    request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {
                 this.headerlog.debug(this.id + " >> " + header.toString());
@@ -116,7 +120,9 @@ public class LoggingNHttpServerConnection extends DefaultNHttpServerConnection {
     @Override
     protected void onResponseSubmitted(final HttpResponse response) {
         if (response != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(this.id + " << " + response.getStatusLine().toString());
+            this.headerlog.debug(this.id + " << " + new StatusLine(
+                    response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1,
+                    response.getCode(), response.getReasonPhrase()));
             final Header[] headers = response.getAllHeaders();
             for (final Header header : headers) {
                 this.headerlog.debug(this.id + " << " + header.toString());

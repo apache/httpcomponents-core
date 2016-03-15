@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -92,7 +93,7 @@ public class HttpRequestExecutor {
     protected boolean canResponseHaveBody(final HttpRequest request,
                                           final HttpResponse response) {
 
-        if ("HEAD".equalsIgnoreCase(request.getRequestLine().getMethod())) {
+        if ("HEAD".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
         final int status = response.getCode();
@@ -145,7 +146,7 @@ public class HttpRequestExecutor {
                         final int status = response.getCode();
                         if (status < HttpStatus.SC_SUCCESS) {
                             if (status != HttpStatus.SC_CONTINUE) {
-                                throw new ProtocolException("Unexpected response: " + response.getStatusLine());
+                                throw new ProtocolException("Unexpected response: " + response.getCode());
                             }
                             // discard 100-continue
                             response = null;
@@ -233,6 +234,10 @@ public class HttpRequestExecutor {
         Args.notNull(response, "HTTP response");
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
+        final ProtocolVersion transportVersion = response.getVersion();
+        if (transportVersion != null) {
+            context.setProtocolVersion(transportVersion);
+        }
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         processor.process(response, context);
     }

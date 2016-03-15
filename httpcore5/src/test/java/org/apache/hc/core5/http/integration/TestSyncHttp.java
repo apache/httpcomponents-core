@@ -124,7 +124,7 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                String s = request.getRequestLine().getUri();
+                String s = request.getUri();
                 if (s.startsWith("/?")) {
                     s = s.substring(2);
                 }
@@ -362,10 +362,12 @@ public class TestSyncHttp {
                 final HttpEntity incoming = request.getEntity();
                 if (incoming != null) {
                     final byte[] data = EntityUtils.toByteArray(incoming);
-
                     final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                     outgoing.setChunked(false);
                     response.setEntity(outgoing);
+                }
+                if (HttpVersion.HTTP_1_0.equals(request.getVersion())) {
+                    response.addHeader("Version", "1.0");
                 }
             }
 
@@ -383,14 +385,17 @@ public class TestSyncHttp {
                 }
 
                 // Set protocol level to HTTP/1.0
-                final BasicHttpRequest post = new BasicHttpRequest(
-                        "POST", "/", HttpVersion.HTTP_1_0);
+                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+                post.setVersion(HttpVersion.HTTP_1_0);
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
 
                 final HttpResponse response = this.client.execute(post, host, conn);
-                Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
+                Assert.assertEquals(HttpVersion.HTTP_1_1, response.getVersion());
+                final Header h1 = response.getFirstHeader("Version");
+                Assert.assertNotNull(h1);
+                Assert.assertEquals("1.0", h1.getValue());
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -533,11 +538,11 @@ public class TestSyncHttp {
                     try {
                         secretNumber = Integer.parseInt(someheader.getValue());
                     } catch (final NumberFormatException ex) {
-                        response.setStatusCode(HttpStatus.SC_BAD_REQUEST);
+                        response.setCode(HttpStatus.SC_BAD_REQUEST);
                         return;
                     }
                     if (secretNumber >= 2) {
-                        response.setStatusCode(HttpStatus.SC_EXPECTATION_FAILED);
+                        response.setCode(HttpStatus.SC_EXPECTATION_FAILED);
                         response.setEntity(
                                 new StringEntity("Wrong secret number", ContentType.TEXT_PLAIN));
                     }
@@ -672,7 +677,7 @@ public class TestSyncHttp {
 
                 if (request instanceof HttpRequest) {
                     int n = 1;
-                    String s = request.getRequestLine().getUri();
+                    String s = request.getUri();
                     if (s.startsWith("/?n=")) {
                         s = s.substring(4);
                         try {
@@ -915,7 +920,7 @@ public class TestSyncHttp {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                response.setStatusCode(HttpStatus.SC_NO_CONTENT);
+                response.setCode(HttpStatus.SC_NO_CONTENT);
             }
 
         });
@@ -975,11 +980,12 @@ public class TestSyncHttp {
         client.connect(host, conn);
 
         try {
-            final BasicHttpRequest get1 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
+            final BasicHttpRequest get1 = new BasicHttpRequest("GET", "/");
+            get1.setVersion(HttpVersion.HTTP_1_0);
             final HttpResponse response1 = this.client.execute(get1, host, conn);
             Assert.assertEquals(200, response1.getCode());
             EntityUtils.consume(response1.getEntity());
-            final BasicHttpRequest get2 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+            final BasicHttpRequest get2 = new BasicHttpRequest("GET", "/");
             final HttpResponse response2 = this.client.execute(get2, host, conn);
             Assert.assertEquals(400, response2.getCode());
             EntityUtils.consume(response2.getEntity());

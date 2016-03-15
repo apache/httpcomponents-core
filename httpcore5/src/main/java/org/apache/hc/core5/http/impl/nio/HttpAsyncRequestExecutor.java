@@ -197,7 +197,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         if (request == null) {
             return;
         }
-        final ProtocolVersion version = request.getRequestLine().getProtocolVersion();
+        final ProtocolVersion version = context.getProtocolVersion();
         if (pipelined && version.lessEquals(HttpVersion.HTTP_1_0)) {
             throw new ProtocolException(version + " cannot be used with request pipelining");
         }
@@ -300,8 +300,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         if (statusCode < HttpStatus.SC_OK) {
             // 1xx intermediate response
             if (statusCode != HttpStatus.SC_CONTINUE) {
-                throw new ProtocolException(
-                        "Unexpected response: " + response.getStatusLine());
+                throw new ProtocolException("Unexpected response " + response.getCode());
             }
             if (state.getRequestState() == MessageState.ACK_EXPECTED) {
                 final int timeout = state.getTimeout();
@@ -518,7 +517,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
 
-        final String method = request.getRequestLine().getMethod();
+        final String method = request.getMethod();
         final int status = response.getCode();
 
         if (method.equalsIgnoreCase("HEAD")) {
@@ -621,13 +620,15 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             buf.append(this.requestState);
             if (this.request != null) {
                 buf.append(" ");
-                buf.append(this.request.getRequestLine());
+                buf.append(this.request.getMethod());
+                buf.append(" ");
+                buf.append(this.request.getUri());
             }
             buf.append("; incoming ");
             buf.append(this.responseState);
             if (this.response != null) {
                 buf.append(" ");
-                buf.append(this.response.getStatusLine());
+                buf.append(this.response.getCode());
             }
             if (this.earlyResponse) {
                 buf.append(" (early response)");

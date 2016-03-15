@@ -33,10 +33,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.NoHttpResponseException;
-import org.apache.hc.core5.http.StatusLine;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -62,11 +60,8 @@ public class TestResponseParser {
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
         final HttpResponse httpresponse = parser.parse(inbuffer, inputStream);
 
-        final StatusLine statusline = httpresponse.getStatusLine();
-        Assert.assertNotNull(statusline);
-        Assert.assertEquals(200, statusline.getStatusCode());
-        Assert.assertEquals("OK", statusline.getReasonPhrase());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
+        Assert.assertEquals(200, httpresponse.getCode());
+        Assert.assertEquals("OK", httpresponse.getReasonPhrase());
         final Header[] headers = httpresponse.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }
@@ -95,11 +90,8 @@ public class TestResponseParser {
                 MessageConstraints.custom().setMaxEmptyLineCount(3).build());
         final HttpResponse httpresponse = parser.parse(inbuffer, inputStream);
 
-        final StatusLine statusline = httpresponse.getStatusLine();
-        Assert.assertNotNull(statusline);
-        Assert.assertEquals(200, statusline.getStatusCode());
-        Assert.assertEquals("OK", statusline.getReasonPhrase());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
+        Assert.assertEquals(200, httpresponse.getCode());
+        Assert.assertEquals("OK", httpresponse.getReasonPhrase());
         final Header[] headers = httpresponse.getAllHeaders();
         Assert.assertEquals(1, headers.length);
     }
@@ -148,12 +140,8 @@ public class TestResponseParser {
         Assert.assertNotNull(httpresponse);
         Assert.assertEquals(5, timeoutCount);
 
-        @SuppressWarnings("null") // httpresponse cannot be null here
-        final StatusLine statusline = httpresponse.getStatusLine();
-        Assert.assertNotNull(statusline);
-        Assert.assertEquals(200, statusline.getStatusCode());
-        Assert.assertEquals("OK", statusline.getReasonPhrase());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, statusline.getProtocolVersion());
+        Assert.assertEquals(200, httpresponse.getCode());
+        Assert.assertEquals("OK", httpresponse.getReasonPhrase());
         final Header[] headers = httpresponse.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }

@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.reactor.IOSession;
 
@@ -37,6 +39,15 @@ class SessionHttpContext implements HttpContext {
     public SessionHttpContext(final IOSession iosession) {
         super();
         this.iosession = iosession;
+    }
+
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        return HttpVersion.DEFAULT;
+    }
+
+    @Override
+    public void setProtocolVersion(final ProtocolVersion version) {
     }
 
     @Override

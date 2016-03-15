@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.http.HttpVersion;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -38,61 +37,34 @@ public class TestBasicHttpResponse {
 
     @Test
     public void testBasics() {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         Assert.assertEquals(200, response.getCode());
-        Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals("OK", response.getReasonPhrase());
     }
 
     @Test
     public void testStatusLineMutation() {
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         Assert.assertEquals(200, response.getCode());
-        Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals("OK", response.getReasonPhrase());
         response.setReasonPhrase("Kind of OK");
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
-        Assert.assertEquals("Kind of OK", response.getStatusLine().getReasonPhrase());
-        response.setStatusCode(299);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
+        Assert.assertEquals("Kind of OK", response.getReasonPhrase());
+        response.setCode(299);
         Assert.assertEquals(299, response.getCode());
-        Assert.assertEquals(null, response.getStatusLine().getReasonPhrase());
-        response.setStatusLine(HttpVersion.HTTP_1_0, 298);
-        Assert.assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(298, response.getCode());
-        Assert.assertEquals(null, response.getStatusLine().getReasonPhrase());
-        response.setStatusLine(HttpVersion.HTTP_1_1, 200, "OK");
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(200, response.getCode());
-        Assert.assertEquals("OK", response.getStatusLine().getReasonPhrase());
-        response.setStatusLine(new BasicStatusLine(HttpVersion.HTTP_1_0, 500, "Boom"));
-        Assert.assertEquals(HttpVersion.HTTP_1_0, response.getStatusLine().getProtocolVersion());
-        Assert.assertEquals(500, response.getCode());
-        Assert.assertEquals("Boom", response.getStatusLine().getReasonPhrase());
+        Assert.assertEquals(null, response.getReasonPhrase());
     }
 
     @Test
     public void testInvalidStatusCode() {
         try {
-            new BasicHttpResponse(HttpVersion.HTTP_1_1, -200, "OK");
+            new BasicHttpResponse(-200, "OK");
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException expected) {
         }
-        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         try {
-            response.setStatusCode(-1);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            response.setStatusLine(HttpVersion.HTTP_1_1, -1);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            response.setStatusLine(HttpVersion.HTTP_1_1, -1, "not ok");
+            response.setCode(-1);
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException expected) {
         }

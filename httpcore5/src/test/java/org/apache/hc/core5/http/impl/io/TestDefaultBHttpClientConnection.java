@@ -35,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -88,7 +87,6 @@ public class TestDefaultBHttpClientConnection {
 
         final HttpResponse response = conn.receiveResponseHeader();
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("User-Agent"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
@@ -107,7 +105,6 @@ public class TestDefaultBHttpClientConnection {
         final HttpResponse response = conn.receiveResponseHeader();
 
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
@@ -137,7 +134,6 @@ public class TestDefaultBHttpClientConnection {
         final HttpResponse response = conn.receiveResponseHeader();
 
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
@@ -167,7 +163,6 @@ public class TestDefaultBHttpClientConnection {
         final HttpResponse response = conn.receiveResponseHeader();
 
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
@@ -188,7 +183,6 @@ public class TestDefaultBHttpClientConnection {
         final HttpResponse response = conn.receiveResponseHeader();
 
         Assert.assertNotNull(response);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, response.getProtocolVersion());
         Assert.assertEquals(200, response.getCode());
         Assert.assertTrue(response.containsHeader("Server"));
         Assert.assertEquals(1, conn.getMetrics().getResponseCount());
@@ -208,7 +202,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("GET", "/stuff");
         request.addHeader("User-Agent", "test");
 
         conn.sendRequestHeader(request);
@@ -228,7 +222,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Content-Length", "3");
         request.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
@@ -251,7 +245,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Transfer-Encoding", "chunked");
         request.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
@@ -275,7 +269,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
 
@@ -292,7 +286,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
 
         conn.sendRequestHeader(request);
@@ -313,7 +307,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Transfer-Encoding", "chunked");
         final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN);
@@ -340,7 +334,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Content-Length", "3");
         final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN);
@@ -367,7 +361,7 @@ public class TestDefaultBHttpClientConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getRequestCount());
 
-        final HttpRequest request = new BasicHttpRequest("POST", "/stuff", HttpVersion.HTTP_1_1);
+        final HttpRequest request = new BasicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Content-Length", "3000");
         final ByteArrayEntity entity = new ByteArrayEntity(new byte[3000], ContentType.TEXT_PLAIN);

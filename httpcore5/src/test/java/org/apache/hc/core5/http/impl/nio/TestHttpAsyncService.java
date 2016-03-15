@@ -992,7 +992,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.COMPLETED, state.getRequestState());
         Assert.assertEquals(MessageState.BODY_STREAM, state.getResponseState());
-        Assert.assertEquals("[incoming COMPLETED GET / HTTP/1.1; outgoing BODY_STREAM HTTP/1.1 200 OK]",
+        Assert.assertEquals("[incoming COMPLETED GET /; outgoing BODY_STREAM 200]",
                 state.toString());
 
         Mockito.verify(this.httpProcessor).process(response, exchangeContext);

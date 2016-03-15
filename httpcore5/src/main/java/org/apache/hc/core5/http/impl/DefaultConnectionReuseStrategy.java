@@ -94,7 +94,6 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.
-        final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
         final Header teh = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         if (teh != null) {
             if (!HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(teh.getValue())) {
@@ -114,6 +113,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             connHeaders = response.getHeaders("Proxy-Connection");
         }
 
+        final ProtocolVersion ver = context.getProtocolVersion();
         if (connHeaders.length != 0) {
             if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
                 final Iterator<String> it = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));

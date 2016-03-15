@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class TestBasicRequest {
     @Test
     public void testConstructor() throws Exception {
         new BasicHttpRequest("GET", "/stuff");
-        new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_1);
+        new BasicHttpRequest("GET", "/stuff");
         try {
             new BasicHttpRequest(null, "/stuff");
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -54,11 +53,10 @@ public class TestBasicRequest {
     }
 
     @Test
-    public void testRequestLine() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "/stuff", HttpVersion.HTTP_1_0);
-        Assert.assertEquals("GET", request.getRequestLine().getMethod());
-        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
-        Assert.assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
+    public void testBasics() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/stuff");
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/stuff", request.getUri());
     }
 
 }

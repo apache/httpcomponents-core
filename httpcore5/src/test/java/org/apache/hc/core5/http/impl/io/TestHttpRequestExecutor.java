@@ -34,7 +34,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -51,7 +50,7 @@ public class TestHttpRequestExecutor {
     public void testInvalidInput() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpRequest request = new BasicHttpRequest("GET", "/");
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         try {
@@ -125,7 +124,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
+                new BasicHttpResponse(200, "OK"));
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -154,10 +153,10 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "OK"),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 101, "OK"),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 102, "OK"),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
+                new BasicHttpResponse(100, "OK"),
+                new BasicHttpResponse(101, "OK"),
+                new BasicHttpResponse(102, "OK"),
+                new BasicHttpResponse(200, "OK"));
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -186,7 +185,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK"));
+                new BasicHttpResponse(204, "OK"));
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -211,7 +210,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
+                new BasicHttpResponse(200, "OK"));
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -238,7 +237,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
+                new BasicHttpResponse(200, "OK"));
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -267,8 +266,8 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue"),
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
+                new BasicHttpResponse(100, "Continue"),
+                new BasicHttpResponse(200, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
         final HttpResponse response = executor.execute(request, conn, context);
@@ -299,7 +298,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 402, "OK"));
+                new BasicHttpResponse(402, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
         final HttpResponse response = executor.execute(request, conn, context);
@@ -331,7 +330,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 101, "OK"));
+                new BasicHttpResponse(101, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
         try {
@@ -358,7 +357,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
+                new BasicHttpResponse(200, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.FALSE);
 
         final HttpResponse response = executor.execute(request, conn, context);

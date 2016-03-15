@@ -60,6 +60,9 @@ public final class HttpVersion extends ProtocolVersion {
     public static final HttpVersion HTTP_2_0 = new HttpVersion(2, 0);
     public static final HttpVersion HTTP_2   = HTTP_2_0;
 
+    /** HTTP/1.1 is default */
+    public static final HttpVersion DEFAULT  = HTTP_1_1;
+
     /**
      * Create an HTTP protocol version designator.
      *

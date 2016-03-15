@@ -30,8 +30,6 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.RequestLine;
-import org.apache.hc.core5.http.StatusLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -58,7 +56,7 @@ public class TestBasicLineFormatter {
 
     @Test
     public void testRLFormatting() throws Exception {
-        final RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final RequestLine requestline = new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         this.formatter.formatRequestLine(buf, requestline);
         Assert.assertEquals("GET /stuff HTTP/1.1", buf.toString());
@@ -67,7 +65,7 @@ public class TestBasicLineFormatter {
     @Test
     public void testRLFormattingInvalidInput() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
-        final RequestLine requestline = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final RequestLine requestline = new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         try {
             this.formatter.formatRequestLine(null, requestline);
             Assert.fail("IllegalArgumentException should habe been thrown");
@@ -85,12 +83,12 @@ public class TestBasicLineFormatter {
     @Test
     public void testSLFormatting() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
-        final StatusLine statusline1 = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final StatusLine statusline1 = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         this.formatter.formatStatusLine(buf, statusline1);
         Assert.assertEquals("HTTP/1.1 200 OK", buf.toString());
 
         buf.clear();
-        final StatusLine statusline2 = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
+        final StatusLine statusline2 = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, null);
         this.formatter.formatStatusLine(buf, statusline2);
         Assert.assertEquals("HTTP/1.1 200 ", buf.toString());
         // see "testSLParseSuccess" in TestBasicLineParser:
@@ -100,7 +98,7 @@ public class TestBasicLineFormatter {
     @Test
     public void testSLFormattingInvalidInput() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
-        final StatusLine statusline = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
+        final StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
             this.formatter.formatStatusLine(null, statusline);
             Assert.fail("IllegalArgumentException should habe been thrown");

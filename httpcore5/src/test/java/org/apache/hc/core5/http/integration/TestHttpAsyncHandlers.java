@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -46,7 +47,7 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestConsumer;
@@ -251,7 +252,27 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsHTTP10() throws Exception {
-        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final HttpRequest request,
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+
+                final HttpEntity incoming = request.getEntity();
+                if (incoming != null) {
+                    final byte[] data = EntityUtils.toByteArray(incoming);
+                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
+                    outgoing.setChunked(false);
+                    response.setEntity(outgoing);
+                }
+                if (HttpVersion.HTTP_1_0.equals(request.getVersion())) {
+                    response.addHeader("Version", "1.0");
+                }
+            }
+
+        }));
         final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);
@@ -264,8 +285,8 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest(
-                    "POST", createRequestUri(pattern, count), HttpVersion.HTTP_1_0);
+            final BasicHttpRequest request = new BasicHttpRequest("POST", createRequestUri(pattern, count));
+            request.setVersion(HttpVersion.HTTP_1_0);
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
             final Future<HttpResponse> future = this.client.execute(target, request);
@@ -276,6 +297,10 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final Future<HttpResponse> future = queue.remove();
             final HttpResponse response = future.get();
             Assert.assertNotNull(response);
+            Assert.assertEquals(HttpVersion.HTTP_1_1, response.getVersion());
+            final Header h1 = response.getFirstHeader("Version");
+            Assert.assertNotNull(h1);
+            Assert.assertEquals("1.0", h1.getValue());
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
     }
@@ -419,14 +444,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException {
                 final HttpRequest request = httpexchange.getRequest();
-                ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                final String s = request.getRequestLine().getUri();
+                final String s = request.getUri();
                 if (!s.equals("AAAAAx10")) {
-                    if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                        ver = HttpVersion.HTTP_1_1;
-                    }
-                    final BasicHttpResponse response = new BasicHttpResponse(ver,
-                            HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                    final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                     response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                     httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                 } else {
@@ -494,11 +514,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
-                ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                    ver = HttpVersion.HTTP_1_1;
-                }
-                final BasicHttpResponse response = new BasicHttpResponse(ver, HttpStatus.SC_OK, "OK");
+                final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
                 new Thread() {
                     @Override
                     public void run() {
@@ -508,7 +524,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                         try {
                             requestHandler.handle(request, response, context);
                         } catch (final Exception ex) {
-                            response.setStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                            response.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                         }
                         httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                     }
@@ -560,14 +576,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                         }
                         // Set the entity after delaying...
                         final HttpRequest request = httpexchange.getRequest();
-                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                        final String s = request.getRequestLine().getUri();
+                        final String s = request.getUri();
                         if (!s.equals("AAAAAx10")) {
-                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                                ver = HttpVersion.HTTP_1_1;
-                            }
-                            final BasicHttpResponse response = new BasicHttpResponse(ver,
-                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                         } else {
@@ -625,14 +636,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     @Override
                     public void run() {
                         final HttpRequest request = httpexchange.getRequest();
-                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                        final String s = request.getRequestLine().getUri();
+                        final String s = request.getUri();
                         if (!s.equals("AAAAAx10")) {
-                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                                ver = HttpVersion.HTTP_1_1;
-                            }
-                            final BasicHttpResponse response = new BasicHttpResponse(ver,
-                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                         } else {
@@ -682,14 +688,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     @Override
                     public void run() {
                         final HttpRequest request = httpexchange.getRequest();
-                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                        final String s = request.getRequestLine().getUri();
+                        final String s = request.getUri();
                         if (!s.equals("AAAAAx10")) {
-                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                                ver = HttpVersion.HTTP_1_1;
-                            }
-                            final BasicHttpResponse response = new BasicHttpResponse(ver,
-                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                         } else {
@@ -741,14 +742,9 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     @Override
                     public void run() {
                         final HttpRequest request = httpexchange.getRequest();
-                        ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
-                        final String s = request.getRequestLine().getUri();
+                        final String s = request.getUri();
                         if (!s.equals("AAAAAx10")) {
-                            if (!ver.lessEquals(HttpVersion.HTTP_1_1)) {
-                                ver = HttpVersion.HTTP_1_1;
-                            }
-                            final BasicHttpResponse response = new BasicHttpResponse(ver,
-                                    HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
 
                             final AtomicInteger count = new AtomicInteger(0);
@@ -885,7 +881,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                response.setStatusCode(HttpStatus.SC_NO_CONTENT);
+                response.setCode(HttpStatus.SC_NO_CONTENT);
             }
 
         }));
@@ -918,7 +914,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
-                response.setStatusCode(HttpStatus.SC_OK);
+                response.setCode(HttpStatus.SC_OK);
                 response.setEntity(new NStringEntity("All is well", StandardCharsets.US_ASCII));
             }
 
@@ -929,12 +925,13 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
-        final BasicHttpRequest request1 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_0);
+        final BasicHttpRequest request1 = new BasicHttpRequest("GET", "/");
+        request1.setVersion(HttpVersion.HTTP_1_0);
         final Future<HttpResponse> future1 = this.client.execute(target, request1);
         final HttpResponse response1 = future1.get();
         Assert.assertNotNull(response1);
         Assert.assertEquals(200, response1.getCode());
-        final BasicHttpRequest request2 = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final BasicHttpRequest request2 = new BasicHttpRequest("GET", "/");
         final Future<HttpResponse> future2 = this.client.execute(target, request2);
         final HttpResponse response2 = future2.get();
         Assert.assertNotNull(response2);

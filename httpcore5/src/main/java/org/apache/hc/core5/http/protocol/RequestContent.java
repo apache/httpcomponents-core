@@ -100,7 +100,7 @@ public class RequestContent implements HttpRequestInterceptor {
         }
         final HttpEntity entity = request.getEntity();
         if (entity != null) {
-            final ProtocolVersion ver = request.getRequestLine().getProtocolVersion();
+            final ProtocolVersion ver = context.getProtocolVersion();
             // Must specify a transfer encoding or a content length
             if (entity.isChunked() || entity.getContentLength() < 0) {
                 if (ver.lessEquals(HttpVersion.HTTP_1_0)) {

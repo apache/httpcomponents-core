@@ -31,20 +31,17 @@ import java.io.Serializable;
 
 import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.StatusLine;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Basic implementation of {@link StatusLine}
+ * HTTP/1.1 status line.
  *
  * @since 4.0
  */
 @Immutable
-public class BasicStatusLine implements StatusLine, Serializable {
+public final class StatusLine implements Serializable {
 
     private static final long serialVersionUID = -2443303766890459269L;
-
-    // ----------------------------------------------------- Instance Variables
 
     /** The protocol version. */
     private final ProtocolVersion protoVersion;
@@ -55,7 +52,6 @@ public class BasicStatusLine implements StatusLine, Serializable {
     /** The reason phrase. */
     private final String reasonPhrase;
 
-    // ----------------------------------------------------------- Constructors
     /**
      * Creates a new status line with the given version, status, and reason.
      *
@@ -64,27 +60,22 @@ public class BasicStatusLine implements StatusLine, Serializable {
      * @param reasonPhrase      the reason phrase to the status code, or
      *                          {@code null}
      */
-    public BasicStatusLine(final ProtocolVersion version, final int statusCode,
-                           final String reasonPhrase) {
+    public StatusLine(final ProtocolVersion version, final int statusCode,
+                      final String reasonPhrase) {
         super();
         this.protoVersion = Args.notNull(version, "Version");
         this.statusCode = Args.notNegative(statusCode, "Status code");
         this.reasonPhrase = reasonPhrase;
     }
 
-    // --------------------------------------------------------- Public Methods
-
-    @Override
     public int getStatusCode() {
         return this.statusCode;
     }
 
-    @Override
     public ProtocolVersion getProtocolVersion() {
         return this.protoVersion;
     }
 
-    @Override
     public String getReasonPhrase() {
         return this.reasonPhrase;
     }

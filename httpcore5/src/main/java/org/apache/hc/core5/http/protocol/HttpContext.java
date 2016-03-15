@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.protocol;
 
+import org.apache.hc.core5.http.ProtocolVersion;
+
 /**
  * HttpContext represents execution state of an HTTP process. It is a structure
  * that can be used to map an attribute name to an attribute value.
@@ -47,6 +49,20 @@ public interface HttpContext {
 
     /** The prefix reserved for use by HTTP components. "http." */
     public static final String RESERVED_PREFIX  = "http.";
+
+    /**
+     * Returns protocol version used in this context.
+     *
+     * @since 5.0
+     */
+    ProtocolVersion getProtocolVersion();
+
+    /**
+     * Sets protocol version used in this context.
+     *
+     * @since 5.0
+     */
+    void setProtocolVersion(ProtocolVersion version);
 
     /**
      * Obtains attribute with the given name.

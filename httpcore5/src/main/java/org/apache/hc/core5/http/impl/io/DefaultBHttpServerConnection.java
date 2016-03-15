@@ -131,6 +131,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase
     public HttpRequest receiveRequestHeader() throws HttpException, IOException {
         final Socket socket = ensureOpen();
         final HttpRequest request = this.requestParser.parse(this.inbuffer, socket.getInputStream());
+        this.version = request.getVersion();
         onRequestReceived(request);
         incrementRequestCount();
         return request;

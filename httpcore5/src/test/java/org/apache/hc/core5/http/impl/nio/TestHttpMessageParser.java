@@ -38,7 +38,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -69,7 +68,7 @@ public class TestHttpMessageParser {
         inbuf.fill(newChannel("GET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
         final HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getRequestLine().getUri());
+        Assert.assertEquals("/whatever", request.getUri());
         Assert.assertEquals(1, request.getAllHeaders().length);
     }
 
@@ -88,7 +87,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getRequestLine().getUri());
+        Assert.assertEquals("/whatever", request.getUri());
         Assert.assertEquals(1, request.getAllHeaders().length);
 
     }
@@ -117,7 +116,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getRequestLine().getUri());
+        Assert.assertEquals("/whatever", request.getUri());
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("stuff more stuff", request.getFirstHeader("Some header").getValue());
     }
@@ -143,7 +142,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getRequestLine().getUri());
+        Assert.assertEquals("/whatever", request.getUri());
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("stuff more stuff", request.getFirstHeader("Some header").getValue());
     }
@@ -172,7 +171,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getRequestLine().getUri());
+        Assert.assertEquals("/whatever", request.getUri());
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("stuff  more stuff", request.getFirstHeader("Some header").getValue());
     }
@@ -186,7 +185,6 @@ public class TestHttpMessageParser {
         inbuf.fill(channel);
         final HttpRequest request = requestParser.parse(inbuf, true);
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_0, request.getRequestLine().getProtocolVersion());
     }
 
     @Test
@@ -316,7 +314,7 @@ public class TestHttpMessageParser {
         inbuf.fill(newChannel("\r\n\r\nGET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
         final HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getRequestLine().getUri());
+        Assert.assertEquals("/whatever", request.getUri());
         Assert.assertEquals(1, request.getAllHeaders().length);
     }
 

@@ -37,7 +37,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
@@ -90,7 +89,7 @@ public class TestHttpService {
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
@@ -107,31 +106,6 @@ public class TestHttpService {
         Mockito.verify(conn).sendResponseEntity(response);
         Mockito.verify(conn).flush();
         Mockito.verify(conn).close();
-    }
-
-    @Test
-    public void testBasicProtocolDowngrade() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
-        final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
-        final HttpRequest request = new BasicHttpRequest("GET", "/", new HttpVersion(20, 45));
-        Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
-        final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.FALSE);
-
-        httpservice.handleRequest(conn, context);
-
-        Mockito.verify(responseFactory).newHttpResponse(200, context);
     }
 
     @Test
@@ -155,7 +129,7 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
@@ -198,9 +172,9 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse resp100 = new BasicHttpResponse(100, "Continue");
-        Mockito.when(responseFactory.newHttpResponse(100, context)).thenReturn(resp100);
+        Mockito.when(responseFactory.newHttpResponse(100)).thenReturn(resp100);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
@@ -236,7 +210,7 @@ public class TestHttpService {
                     final HttpRequest request,
                     final HttpResponse response,
                     final HttpContext context) throws HttpException {
-                response.setStatusCode(HttpStatus.SC_UNAUTHORIZED);
+                response.setCode(HttpStatus.SC_UNAUTHORIZED);
             }
 
         };
@@ -257,7 +231,7 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(100, "Continue");
-        Mockito.when(responseFactory.newHttpResponse(100, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(100)).thenReturn(response);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.FALSE);
 
         httpservice.handleRequest(conn, context);
@@ -300,9 +274,9 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse resp100 = new BasicHttpResponse(100, "Continue");
-        Mockito.when(responseFactory.newHttpResponse(100, context)).thenReturn(resp100);
+        Mockito.when(responseFactory.newHttpResponse(100)).thenReturn(resp100);
         final HttpResponse response = new BasicHttpResponse(500, "Oppsie");
-        Mockito.when(responseFactory.newHttpResponse(500, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(500)).thenReturn(response);
         Mockito.doThrow(new HttpException("Oopsie")).when(expectationVerifier).verify(request, resp100, context);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.FALSE);
 
@@ -341,9 +315,9 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         final HttpResponse error = new BasicHttpResponse(500, "Oppsie");
-        Mockito.when(responseFactory.newHttpResponse(500, context)).thenReturn(error);
+        Mockito.when(responseFactory.newHttpResponse(500)).thenReturn(error);
         Mockito.when(handlerResolver.lookup(request, context)).thenReturn(requestHandler);
         Mockito.doThrow(new MethodNotSupportedException("whatever")).when(
                 requestHandler).handle(request, response, context);
@@ -384,9 +358,9 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         final HttpResponse error = new BasicHttpResponse(500, "Oppsie");
-        Mockito.when(responseFactory.newHttpResponse(500, context)).thenReturn(error);
+        Mockito.when(responseFactory.newHttpResponse(500)).thenReturn(error);
         Mockito.when(handlerResolver.lookup(request, context)).thenReturn(requestHandler);
         Mockito.doThrow(new UnsupportedHttpVersionException()).when(
                 requestHandler).handle(request, response, context);
@@ -427,9 +401,9 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         final HttpResponse error = new BasicHttpResponse(500, "Oppsie");
-        Mockito.when(responseFactory.newHttpResponse(500, context)).thenReturn(error);
+        Mockito.when(responseFactory.newHttpResponse(500)).thenReturn(error);
         Mockito.when(handlerResolver.lookup(request, context)).thenReturn(requestHandler);
         Mockito.doThrow(new ProtocolException("oh, this world is wrong")).when(
                 requestHandler).handle(request, response, context);
@@ -469,7 +443,7 @@ public class TestHttpService {
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         Mockito.when(handlerResolver.lookup(request, context)).thenReturn(requestHandler);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.TRUE);
 
@@ -508,7 +482,7 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         Mockito.when(handlerResolver.lookup(request, context)).thenReturn(requestHandler);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.TRUE);
 
@@ -545,7 +519,7 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
-        Mockito.when(responseFactory.newHttpResponse(200, context)).thenReturn(response);
+        Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
         Mockito.when(handlerResolver.lookup(request, context)).thenReturn(requestHandler);
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.TRUE);
 

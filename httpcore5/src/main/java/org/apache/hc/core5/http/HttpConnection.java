@@ -80,6 +80,13 @@ public interface HttpConnection extends Closeable {
     void shutdown() throws IOException;
 
     /**
+     * Returns protocol version used by this connection or {@code null} if unknown.
+     *
+     * @since 5.0
+     */
+    ProtocolVersion getProtocolVersion();
+
+    /**
      * Returns a collection of connection metrics.
      *
      * @return HttpConnectionMetrics

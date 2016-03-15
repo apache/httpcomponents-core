@@ -35,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -87,9 +86,8 @@ public class TestDefaultBHttpServerConnection {
 
         final HttpRequest request = conn.receiveRequestHeader();
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
-        Assert.assertEquals("GET", request.getRequestLine().getMethod());
+        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals("GET", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
     }
@@ -107,9 +105,8 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
-        Assert.assertEquals("/", request.getRequestLine().getUri());
-        Assert.assertEquals("POST", request.getRequestLine().getMethod());
+        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
@@ -139,9 +136,8 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
-        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
-        Assert.assertEquals("POST", request.getRequestLine().getMethod());
+        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
@@ -172,9 +168,8 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
-        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
-        Assert.assertEquals("POST", request.getRequestLine().getMethod());
+        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
@@ -195,9 +190,8 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals(HttpVersion.HTTP_1_1, request.getProtocolVersion());
-        Assert.assertEquals("/stuff", request.getRequestLine().getUri());
-        Assert.assertEquals("POST", request.getRequestLine().getMethod());
+        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
@@ -217,7 +211,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("User-Agent", "test");
 
         conn.sendResponseHeader(response);
@@ -237,7 +231,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Go on");
+        final HttpResponse response = new BasicHttpResponse(100, "Go on");
 
         conn.sendResponseHeader(response);
         conn.flush();
@@ -256,7 +250,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
         response.addHeader("Content-Length", "3");
         response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
@@ -279,7 +273,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
         response.addHeader("Transfer-Encoding", "chunked");
         response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
@@ -303,7 +297,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
         response.addHeader("Transfer-Encoding", "identity");
         response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
@@ -322,7 +316,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertEquals(0, conn.getMetrics().getResponseCount());
 
-        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Server", "test");
 
         conn.sendResponseHeader(response);

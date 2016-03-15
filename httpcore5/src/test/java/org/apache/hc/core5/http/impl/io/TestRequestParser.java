@@ -33,9 +33,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.RequestLine;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -61,11 +59,8 @@ public class TestRequestParser {
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
         final HttpRequest httprequest = parser.parse(inbuffer, inputStream);
 
-        final RequestLine reqline = httprequest.getRequestLine();
-        Assert.assertNotNull(reqline);
-        Assert.assertEquals("GET", reqline.getMethod());
-        Assert.assertEquals("/", reqline.getUri());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, reqline.getProtocolVersion());
+        Assert.assertEquals("GET", httprequest.getMethod());
+        Assert.assertEquals("/", httprequest.getUri());
         final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }
@@ -94,11 +89,8 @@ public class TestRequestParser {
                 MessageConstraints.custom().setMaxEmptyLineCount(3).build());
         final HttpRequest httprequest = parser.parse(inbuffer, inputStream);
 
-        final RequestLine reqline = httprequest.getRequestLine();
-        Assert.assertNotNull(reqline);
-        Assert.assertEquals("GET", reqline.getMethod());
-        Assert.assertEquals("/", reqline.getUri());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, reqline.getProtocolVersion());
+        Assert.assertEquals("GET", httprequest.getMethod());
+        Assert.assertEquals("/", httprequest.getUri());
         final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(1, headers.length);
     }
@@ -148,12 +140,8 @@ public class TestRequestParser {
         Assert.assertNotNull(httprequest);
         Assert.assertEquals(5, timeoutCount);
 
-        @SuppressWarnings("null") // httprequest cannot be null here
-        final RequestLine reqline = httprequest.getRequestLine();
-        Assert.assertNotNull(reqline);
-        Assert.assertEquals("GET", reqline.getMethod());
-        Assert.assertEquals("/", reqline.getUri());
-        Assert.assertEquals(HttpVersion.HTTP_1_1, reqline.getProtocolVersion());
+        Assert.assertEquals("GET", httprequest.getMethod());
+        Assert.assertEquals("/", httprequest.getUri());
         final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }

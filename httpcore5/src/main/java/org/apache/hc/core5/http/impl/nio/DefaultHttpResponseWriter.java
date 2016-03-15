@@ -31,7 +31,10 @@ import java.io.IOException;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.LineFormatter;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -65,7 +68,12 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpRespons
     @Override
     protected void writeHeadLine(final HttpResponse message, final CharArrayBuffer lineBuf) throws IOException {
         lineBuf.clear();
-        getLineFormatter().formatStatusLine(lineBuf, message.getStatusLine());
+        ProtocolVersion transportVersion = message.getVersion();
+        if (transportVersion == null || transportVersion.greaterEquals(HttpVersion.HTTP_2_0)) {
+            transportVersion = HttpVersion.HTTP_1_1;
+        }
+        getLineFormatter().formatStatusLine(lineBuf,
+                new StatusLine(transportVersion, message.getCode(), message.getReasonPhrase()));
     }
 
 }
