@@ -27,10 +27,14 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.net.URI;
+
 import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Basic implementation of {@link HttpRequest}.
@@ -43,20 +47,65 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     private static final long serialVersionUID = 1L;
 
     private final String method;
-    private String uri;
+    private HttpHost host;
+    private String requestUri;
     private ProtocolVersion version;
 
     /**
-     * Creates an instance of this class using the given request method
-     * and URI.
+     * Creates request message with the given method and request URI.
      *
      * @param method request method.
-     * @param uri request URI.
+     * @param requestUri request URI.
      */
-    public BasicHttpRequest(final String method, final String uri) {
+    public BasicHttpRequest(final String method, final String requestUri) {
+        this(method, null, requestUri);
+    }
+
+    /**
+     * Creates request message with the given method, host and request URI.
+     *
+     * @param method request method.
+     * @param host request host.
+     * @param requestUri request URI.
+     *
+     * @since 5.0
+     */
+    public BasicHttpRequest(final String method, final HttpHost host, final String requestUri) {
         super();
         this.method = Args.notNull(method, "Method name");
-        this.uri = Args.notNull(uri, "Request URI");
+        this.host = host;
+        this.requestUri = Args.notNull(requestUri, "Request URI");
+    }
+
+    /**
+     * Creates request message with the given method, request URI.
+     *
+     * @param method request method.
+     * @param requestUri request URI.
+     *
+     * @since 5.0
+     */
+    public BasicHttpRequest(final String method, final URI requestUri) {
+        super();
+        this.method = Args.notNull(method, "Method name");
+        Args.notNull(requestUri, "Request URI");
+        if (requestUri.isAbsolute()) {
+            this.host = new HttpHost(requestUri.getHost(), requestUri.getPort(), requestUri.getScheme());
+        } else {
+            this.host = null;
+        }
+        final StringBuilder buf = new StringBuilder();
+        final String path = requestUri.getRawPath();
+        if (!TextUtils.isBlank(path)) {
+            buf.append(path);
+        } else {
+            buf.append("/");
+        }
+        final String query = requestUri.getRawQuery();
+        if (query != null) {
+            buf.append('?').append(query);
+        }
+        this.requestUri = buf.toString();
     }
 
     @Override
@@ -74,15 +123,32 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         return this.method;
     }
 
+    /**
+     * @since 5.0
+     */
+    @Override
+    public HttpHost getHost() {
+        return this.host;
+    }
+
+    /**
+     * @since 5.0
+     */
+    @Override
+    public void setHost(final HttpHost host) {
+        this.host = host;
+    }
+
     @Override
     public String getUri() {
-        return this.uri;
+        return this.requestUri;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(this.method).append(" ").append(this.uri).append(" ").append(super.toString());
+        sb.append(this.method).append(" ").append(this.host).append(" ").append(this.requestUri).append(" ")
+                .append(super.toString());
         return sb.toString();
     }
 

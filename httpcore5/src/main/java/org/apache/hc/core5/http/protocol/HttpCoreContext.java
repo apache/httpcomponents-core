@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.protocol;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -61,12 +60,6 @@ public class HttpCoreContext implements HttpContext {
      * represents the actual HTTP response.
      */
     public static final String HTTP_RESPONSE    = HttpContext.RESERVED_PREFIX + "response";
-
-    /**
-     * Attribute name of a {@link org.apache.hc.core5.http.HttpHost} object that
-     * represents the connection target.
-     */
-    public static final String HTTP_TARGET_HOST = "http.target_host";
 
     public static HttpCoreContext create() {
         return new HttpCoreContext(new BasicHttpContext());
@@ -146,14 +139,6 @@ public class HttpCoreContext implements HttpContext {
 
     public HttpResponse getResponse() {
         return getAttribute(HTTP_RESPONSE, HttpResponse.class);
-    }
-
-    public void setTargetHost(final HttpHost host) {
-        setAttribute(HTTP_TARGET_HOST, host);
-    }
-
-    public HttpHost getTargetHost() {
-        return getAttribute(HTTP_TARGET_HOST, HttpHost.class);
     }
 
 }

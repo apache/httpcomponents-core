@@ -103,7 +103,9 @@ public class HttpClient {
             final HttpRequest request,
             final HttpHost targetHost,
             final HttpClientConnection conn) throws HttpException, IOException {
-        this.context.setTargetHost(targetHost);
+        if (request.getHost() == null) {
+            request.setHost(targetHost);
+        }
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
         final HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
         this.httpexecutor.postProcess(response, this.httpproc, this.context);

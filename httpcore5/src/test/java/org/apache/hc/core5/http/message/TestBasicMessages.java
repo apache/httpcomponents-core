@@ -27,7 +27,10 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.net.URI;
+
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -94,17 +97,49 @@ public class TestBasicMessages {
         Assert.assertEquals("/", request.getUri());
 
         try {
-            new BasicHttpRequest(null, null);
+            new BasicHttpRequest("GET", (String) null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
-            new BasicHttpRequest("GET", null);
+            new BasicHttpRequest("GET", (URI) null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
         }
+    }
+
+    @Test
+    public void testRequestBasics() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/stuff");
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals(null, request.getHost());
+    }
+
+    @Test
+    public void testRequestWithRelativeURI() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new URI("/stuff"));
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals(null, request.getHost());
+    }
+
+    @Test
+    public void testRequestWithAbsoluteURI() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new URI("https://host:9443/stuff?param=value"));
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/stuff?param=value", request.getUri());
+        Assert.assertEquals(new HttpHost("host", 9443, "https"), request.getHost());
+    }
+
+    @Test
+    public void testRequestWithNoPath() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new URI("http://host"));
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals(new HttpHost("host", -1, "http"), request.getHost());
     }
 
     @Test

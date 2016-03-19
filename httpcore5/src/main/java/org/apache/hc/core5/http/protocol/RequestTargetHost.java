@@ -43,8 +43,8 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
 /**
- * RequestTargetHost is responsible for adding {@code Host} header. This
- * interceptor is required for client side protocol processors.
+ * RequestHostOutgoing is responsible for adding {@code Host} header to the outgoing message.
+ * This interceptor is required for client side protocol processors.
  *
  * @since 4.0
  */
@@ -59,21 +59,20 @@ public class RequestTargetHost implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
+        Args.notNull(context, "HTTP context");
 
-        final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-
-        final ProtocolVersion ver = coreContext.getProtocolVersion();
+        final ProtocolVersion ver = context.getProtocolVersion();
         final String method = request.getMethod();
         if (method.equalsIgnoreCase("CONNECT") && ver.lessEquals(HttpVersion.HTTP_1_0)) {
-            extracted();
             return;
         }
 
         if (!request.containsHeader(HttpHeaders.HOST)) {
-            HttpHost targethost = coreContext.getTargetHost();
+            HttpHost targethost = request.getHost();
             if (targethost == null) {
                 // Populate the context with a default HTTP host based on the
                 // inet address of the target host
+                final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
                 final HttpConnection conn = coreContext.getConnection();
                 if (conn != null) {
                     final InetSocketAddress remoteAddress = (InetSocketAddress) conn.getRemoteAddress();
@@ -83,18 +82,13 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                 }
                 if (targethost == null) {
                     if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                        extracted();
                         return;
                     }
-                    throw new ProtocolException("Target host missing");
+                    throw new ProtocolException("Target host is unknown");
                 }
             }
             request.addHeader(HttpHeaders.HOST, targethost.toHostString());
         }
-    }
-
-    private void extracted() {
-        return;
     }
 
 }

@@ -30,17 +30,21 @@ package org.apache.hc.core5.http.protocol;
 import java.io.IOException;
 
 import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
- * RequestValidateHost is responsible for validating {@code Host} header in HTTP/1.1 messages.
+ * RequestTargetHost is responsible for copying {@code Host} header value to
+ * {@link HttpRequest#setHost(HttpHost)} of the incoming message.
  * This interceptor is required for server side protocol processors.
  *
  * @since 5.0
@@ -56,6 +60,7 @@ public class RequestValidateHost implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
+
         final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
         if (version.greaterEquals(HttpVersion.HTTP_1_1)) {
             final int n = request.containsHeaders(HttpHeaders.HOST);
@@ -64,6 +69,24 @@ public class RequestValidateHost implements HttpRequestInterceptor {
             } else if (n > 1) {
                 throw new ProtocolException("Multiple Host headers found");
             }
+        }
+        final Header header = request.getFirstHeader(HttpHeaders.HOST);
+        if (header != null) {
+            String text = header.getValue();
+            if (TextUtils.isBlank(text)) {
+                throw new ProtocolException("Empty host header");
+            }
+            int port = -1;
+            final int portIdx = text.lastIndexOf(":");
+            if (portIdx > 0) {
+                try {
+                    port = Integer.parseInt(text.substring(portIdx + 1));
+                } catch (final NumberFormatException ex) {
+                    throw new ProtocolException("Invalid HTTP host: " + text);
+                }
+                text = text.substring(0, portIdx);
+            }
+            request.setHost(new HttpHost(text, port, null));
         }
     }
 

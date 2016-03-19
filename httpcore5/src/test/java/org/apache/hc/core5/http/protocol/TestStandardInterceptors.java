@@ -384,8 +384,8 @@ public class TestStandardInterceptors {
     public void testRequestTargetHostGenerated() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
-        context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, host);
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setHost(host);
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -401,7 +401,6 @@ public class TestStandardInterceptors {
         Mockito.when(address.getHostName()).thenReturn("somehost");
         final HttpConnection conn = Mockito.mock(HttpConnection.class);
         Mockito.when(conn.getRemoteAddress()).thenReturn(new InetSocketAddress(address, 1234));
-        context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, null);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
@@ -416,7 +415,6 @@ public class TestStandardInterceptors {
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         final HttpConnection conn = Mockito.mock(HttpConnection.class);
         Mockito.when(conn.getRemoteAddress()).thenReturn(null);
-        context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, null);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
@@ -426,8 +424,8 @@ public class TestStandardInterceptors {
     public void testRequestTargetHostNotGenerated() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
-        context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, host);
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setHost(host);
         request.addHeader(new BasicHeader(HttpHeaders.HOST, "whatever"));
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
@@ -481,8 +479,8 @@ public class TestStandardInterceptors {
     public void testRequestTargetHostConnectHttp11() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
-        context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, host);
         final BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
+        request.setHost(host);
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -495,8 +493,8 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
-        context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, host);
         final BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
+        request.setHost(host);
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -1061,6 +1059,28 @@ public class TestStandardInterceptors {
         request.setVersion(HttpVersion.HTTP_1_0);
         final RequestValidateHost interceptor = new RequestValidateHost();
         interceptor.process(request, context);
+    }
+
+    @Test
+    public void testRequestHttpHostHeader() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setVersion(HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.HOST, "host:8888");
+        final RequestValidateHost interceptor = new RequestValidateHost();
+        interceptor.process(request, context);
+        Assert.assertEquals(new HttpHost("host", 8888), request.getHost());
+    }
+
+    @Test
+    public void testRequestHttpHostHeaderNoPort() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        request.setVersion(HttpVersion.HTTP_1_1);
+        request.setHeader(HttpHeaders.HOST, "host");
+        final RequestValidateHost interceptor = new RequestValidateHost();
+        interceptor.process(request, context);
+        Assert.assertEquals(new HttpHost("host", -1), request.getHost());
     }
 
     @Test

@@ -50,4 +50,20 @@ public interface HttpRequest extends HttpMessage<HttpEntity> {
      */
     String getUri();
 
+    /**
+     * Obtains target host of this request message if available.
+     *
+     * @return  the target host or {@code null}.
+     *
+     * @since 5.0
+     */
+    HttpHost getHost();
+
+    /**
+     * Sets target host of this request message.
+     *
+     * @since 5.0
+     */
+    void setHost(HttpHost host);
+
 }
