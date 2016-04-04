@@ -506,5 +506,19 @@ public class TestChunkCoding {
         in.close();
 }
 
+    // Test for when buffer is larger than chunk size
+    @Test
+    public void testHugeChunk() throws IOException {
+        final ChunkedInputStream in = new ChunkedInputStream(
+                new SessionInputBufferMock("1234567890abcdef\r\n01234567", Consts.ISO_8859_1));
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        for (int i = 0; i < 8; ++i) {
+            out.write(in.read());
+        }
+
+        final String result = new String(out.toByteArray(), Consts.ISO_8859_1);
+        Assert.assertEquals("01234567", result);
+    }
+
 }
 
