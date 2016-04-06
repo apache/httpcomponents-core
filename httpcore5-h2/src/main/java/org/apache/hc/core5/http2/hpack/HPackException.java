@@ -26,12 +26,16 @@
  */
 package org.apache.hc.core5.http2.hpack;
 
-import java.io.IOException;
+import org.apache.hc.core5.http.HttpException;
 
-public class HPackException extends IOException {
+public class HPackException extends HttpException {
 
     public HPackException(final String message) {
         super(message);
+    }
+
+    public HPackException(final String message, final Exception cause) {
+        super(message, cause);
     }
 
 };

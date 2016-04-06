@@ -31,24 +31,24 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.MessageHead;
 
 /**
- * Abstract message parser intended to build HTTP messages from an arbitrary data source.
+ * Message parser intended to build HTTP message head from an input stream..
  *
  * @param <T>
- *            {@link HttpMessage} or a subclass
+ *            {@link MessageHead} or a subclass
  *
  * @since 4.0
  */
-public interface HttpMessageParser<T extends HttpMessage> {
+public interface HttpMessageParser<T extends MessageHead> {
 
     /**
-     * Generates an instance of {@link HttpMessage} from an input buffer.
+     * Generates an instance of {@link MessageHead} from the given input stream..
      *
      * @param buffer Session input buffer
      * @param inputStream Input stream
-     * @return HTTP message
+     * @return HTTP message head
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */

@@ -70,17 +70,20 @@ class BenchmarkWorker implements Runnable {
     private final HttpProcessor httpProcessor;
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
+    private final HttpHost host;
     private final HttpRequest request;
     private final Config config;
     private final SocketFactory socketFactory;
     private final Stats stats = new Stats();
 
     public BenchmarkWorker(
+            final HttpHost host,
             final HttpRequest request,
             final SocketFactory socketFactory,
             final Config config) {
         super();
         this.context = new HttpCoreContext();
+        this.host = host;
         this.request = request;
         this.config = config;
         final HttpProcessorBuilder builder = HttpProcessorBuilder.create()
@@ -105,10 +108,9 @@ class BenchmarkWorker implements Runnable {
         final HttpVersion version = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
         final BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);
 
-        final HttpHost targetHost = this.request.getHost();
-        final String scheme = targetHost.getSchemeName();
-        final String hostname = targetHost.getHostName();
-        int port = targetHost.getPort();
+        final String scheme = this.host.getSchemeName();
+        final String hostname = this.host.getHostName();
+        int port = this.host.getPort();
         if (port == -1) {
             if (scheme.equalsIgnoreCase("https")) {
                 port = 443;
@@ -233,7 +235,7 @@ class BenchmarkWorker implements Runnable {
 
     private void verboseOutput(final HttpResponse response) {
         if (config.getVerbosity() >= 3) {
-            System.out.println(">> " + request.getMethod() + " " + request.getUri());
+            System.out.println(">> " + request.getMethod() + " " + request.getPath());
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {
                 System.out.println(">> " + header.toString());

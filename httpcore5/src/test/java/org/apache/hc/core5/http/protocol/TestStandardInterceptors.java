@@ -385,7 +385,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        request.setHost(host);
+        request.setAuthority(host.toHostString());
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -425,7 +425,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        request.setHost(host);
+        request.setAuthority(host.toHostString());
         request.addHeader(new BasicHeader(HttpHeaders.HOST, "whatever"));
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
@@ -480,7 +480,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
-        request.setHost(host);
+        request.setAuthority(host.toHostString());
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -494,7 +494,7 @@ public class TestStandardInterceptors {
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicHttpRequest request = new BasicHttpRequest("CONNECT", "/");
-        request.setHost(host);
+        request.setAuthority(host.toHostString());
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -1069,7 +1069,7 @@ public class TestStandardInterceptors {
         request.setHeader(HttpHeaders.HOST, "host:8888");
         final RequestValidateHost interceptor = new RequestValidateHost();
         interceptor.process(request, context);
-        Assert.assertEquals(new HttpHost("host", 8888), request.getHost());
+        Assert.assertEquals("host:8888", request.getAuthority());
     }
 
     @Test
@@ -1080,7 +1080,7 @@ public class TestStandardInterceptors {
         request.setHeader(HttpHeaders.HOST, "host");
         final RequestValidateHost interceptor = new RequestValidateHost();
         interceptor.process(request, context);
-        Assert.assertEquals(new HttpHost("host", -1), request.getHost());
+        Assert.assertEquals("host", request.getAuthority());
     }
 
     @Test

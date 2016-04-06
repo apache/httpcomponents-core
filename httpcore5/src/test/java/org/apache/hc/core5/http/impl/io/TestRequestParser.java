@@ -60,7 +60,7 @@ public class TestRequestParser {
         final HttpRequest httprequest = parser.parse(inbuffer, inputStream);
 
         Assert.assertEquals("GET", httprequest.getMethod());
-        Assert.assertEquals("/", httprequest.getUri());
+        Assert.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }
@@ -90,7 +90,7 @@ public class TestRequestParser {
         final HttpRequest httprequest = parser.parse(inbuffer, inputStream);
 
         Assert.assertEquals("GET", httprequest.getMethod());
-        Assert.assertEquals("/", httprequest.getUri());
+        Assert.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(1, headers.length);
     }
@@ -141,7 +141,7 @@ public class TestRequestParser {
         Assert.assertEquals(5, timeoutCount);
 
         Assert.assertEquals("GET", httprequest.getMethod());
-        Assert.assertEquals("/", httprequest.getUri());
+        Assert.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getAllHeaders();
         Assert.assertEquals(3, headers.length);
     }

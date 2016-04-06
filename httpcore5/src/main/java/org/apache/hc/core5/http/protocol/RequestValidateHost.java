@@ -33,7 +33,6 @@ import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
@@ -44,7 +43,7 @@ import org.apache.hc.core5.util.TextUtils;
 
 /**
  * RequestTargetHost is responsible for copying {@code Host} header value to
- * {@link HttpRequest#setHost(HttpHost)} of the incoming message.
+ * {@link HttpRequest#setAuthority(String)} of the incoming message.
  * This interceptor is required for server side protocol processors.
  *
  * @since 5.0
@@ -61,32 +60,17 @@ public class RequestValidateHost implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
-        final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
-        if (version.greaterEquals(HttpVersion.HTTP_1_1)) {
-            final int n = request.containsHeaders(HttpHeaders.HOST);
-            if (n == 0) {
-                throw new ProtocolException("Host header is absent");
-            } else if (n > 1) {
-                throw new ProtocolException("Multiple Host headers found");
-            }
-        }
-        final Header header = request.getFirstHeader(HttpHeaders.HOST);
+        final Header header = request.getSingleHeader(HttpHeaders.HOST);
         if (header != null) {
-            String text = header.getValue();
-            if (TextUtils.isBlank(text)) {
-                throw new ProtocolException("Empty host header");
+            final String authority = header.getValue();
+            if (!TextUtils.isBlank(authority)) {
+                request.setAuthority(authority);
             }
-            int port = -1;
-            final int portIdx = text.lastIndexOf(":");
-            if (portIdx > 0) {
-                try {
-                    port = Integer.parseInt(text.substring(portIdx + 1));
-                } catch (final NumberFormatException ex) {
-                    throw new ProtocolException("Invalid HTTP host: " + text);
-                }
-                text = text.substring(0, portIdx);
+        } else {
+            final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
+            if (version.greaterEquals(HttpVersion.HTTP_1_1)) {
+                throw new ProtocolException("Host header is absent");
             }
-            request.setHost(new HttpHost(text, port, null));
         }
     }
 

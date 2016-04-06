@@ -36,6 +36,7 @@ import java.util.Locale;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -48,6 +49,10 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 @NotThreadSafe
 public class HeaderGroup implements Serializable {
+
+
+    // HTTPCORE-361 : we don't use the for-each syntax, when iterating headers
+    // as that creates an Iterator that needs to be garbage-collected
 
     private static final long serialVersionUID = 2608834160639271617L;
 
@@ -108,9 +113,6 @@ public class HeaderGroup implements Serializable {
         if (header == null) {
             return;
         }
-        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
-        //     for (Header header : headers)
-        // as that creates an Iterator that needs to be garbage-collected
         for (int i = 0; i < this.headers.size(); i++) {
             final Header current = this.headers.get(i);
             if (current.getName().equalsIgnoreCase(header.getName())) {
@@ -178,9 +180,6 @@ public class HeaderGroup implements Serializable {
      */
     public Header[] getHeaders(final String name) {
         List<Header> headersFound = null;
-        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
-        //     for (Header header : headers)
-        // as that creates an Iterator that needs to be garbage-collected
         for (int i = 0; i < this.headers.size(); i++) {
             final Header header = this.headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
@@ -202,9 +201,6 @@ public class HeaderGroup implements Serializable {
      * @return the first header or {@code null}
      */
     public Header getFirstHeader(final String name) {
-        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
-        //     for (Header header : headers)
-        // as that creates an Iterator that needs to be garbage-collected
         for (int i = 0; i < this.headers.size(); i++) {
             final Header header = this.headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
@@ -212,6 +208,31 @@ public class HeaderGroup implements Serializable {
             }
         }
         return null;
+    }
+
+    /**
+     * Gets single first header with the given name.
+     *
+     * <p>Header name comparison is case insensitive.
+     *
+     * @param name the name of the header to get
+     * @return the first header or {@code null}
+     * @throws ProtocolException in case multiple headers with the given name are found.
+     */
+    public Header getSingleHeader(final String name) throws ProtocolException {
+        int count = 0;
+        Header singleHeader = null;
+        for (int i = 0; i < this.headers.size(); i++) {
+            final Header header = this.headers.get(i);
+            if (header.getName().equalsIgnoreCase(name)) {
+                singleHeader = header;
+                count++;
+            }
+        }
+        if (count > 1) {
+            throw new ProtocolException("Multiple headers '" + name + "' found");
+        }
+        return singleHeader;
     }
 
     /**

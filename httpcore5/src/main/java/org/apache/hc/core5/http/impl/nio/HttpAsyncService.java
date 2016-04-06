@@ -892,7 +892,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 buf.append(" ");
                 buf.append(this.incoming.getRequest().getMethod());
                 buf.append(" ");
-                buf.append(this.incoming.getRequest().getUri());
+                buf.append(this.incoming.getRequest().getPath());
             }
             buf.append("; outgoing ");
             buf.append(this.responseState);

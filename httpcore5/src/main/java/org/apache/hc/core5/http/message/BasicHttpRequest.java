@@ -47,34 +47,36 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     private static final long serialVersionUID = 1L;
 
     private final String method;
-    private HttpHost host;
-    private String requestUri;
+    private String path;
+    private String scheme;
+    private String authority;
     private ProtocolVersion version;
 
     /**
-     * Creates request message with the given method and request URI.
+     * Creates request message with the given method and request path.
      *
      * @param method request method.
-     * @param requestUri request URI.
+     * @param path request path.
      */
-    public BasicHttpRequest(final String method, final String requestUri) {
-        this(method, null, requestUri);
+    public BasicHttpRequest(final String method, final String path) {
+        this(method, null, path);
     }
 
     /**
-     * Creates request message with the given method, host and request URI.
+     * Creates request message with the given method, host and request path.
      *
      * @param method request method.
      * @param host request host.
-     * @param requestUri request URI.
+     * @param path request path.
      *
      * @since 5.0
      */
-    public BasicHttpRequest(final String method, final HttpHost host, final String requestUri) {
+    public BasicHttpRequest(final String method, final HttpHost host, final String path) {
         super();
         this.method = Args.notNull(method, "Method name");
-        this.host = host;
-        this.requestUri = Args.notNull(requestUri, "Request URI");
+        this.scheme = host != null ? host.getSchemeName() : null;
+        this.authority = host != null ? host.toHostString() : null;
+        this.path = path;
     }
 
     /**
@@ -89,11 +91,8 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         super();
         this.method = Args.notNull(method, "Method name");
         Args.notNull(requestUri, "Request URI");
-        if (requestUri.isAbsolute()) {
-            this.host = new HttpHost(requestUri.getHost(), requestUri.getPort(), requestUri.getScheme());
-        } else {
-            this.host = null;
-        }
+        this.scheme = requestUri.getScheme();
+        this.authority = requestUri.getAuthority();
         final StringBuilder buf = new StringBuilder();
         final String path = requestUri.getRawPath();
         if (!TextUtils.isBlank(path)) {
@@ -105,7 +104,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         if (query != null) {
             buf.append('?').append(query);
         }
-        this.requestUri = buf.toString();
+        this.path = buf.toString();
     }
 
     @Override
@@ -123,31 +122,40 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         return this.method;
     }
 
-    /**
-     * @since 5.0
-     */
     @Override
-    public HttpHost getHost() {
-        return this.host;
-    }
-
-    /**
-     * @since 5.0
-     */
-    @Override
-    public void setHost(final HttpHost host) {
-        this.host = host;
+    public String getPath() {
+        return this.path;
     }
 
     @Override
-    public String getUri() {
-        return this.requestUri;
+    public void setPath(final String requestUri) {
+        this.path = requestUri;
+    }
+
+    @Override
+    public String getScheme() {
+        return this.scheme;
+    }
+
+    @Override
+    public void setScheme(final String scheme) {
+        this.scheme = scheme;
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.authority;
+    }
+
+    @Override
+    public void setAuthority(final String authority) {
+        this.authority = authority;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(this.method).append(" ").append(this.host).append(" ").append(this.requestUri).append(" ")
+        sb.append(this.method).append(" ").append(this.scheme).append("://").append(this.authority).append("/").append(this.path).append(" ")
                 .append(super.toString());
         return sb.toString();
     }

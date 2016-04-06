@@ -124,7 +124,7 @@ public class TestSyncHttp {
                     final HttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                String s = request.getUri();
+                String s = request.getPath();
                 if (s.startsWith("/?")) {
                     s = s.substring(2);
                 }
@@ -677,7 +677,7 @@ public class TestSyncHttp {
 
                 if (request instanceof HttpRequest) {
                     int n = 1;
-                    String s = request.getUri();
+                    String s = request.getPath();
                     if (s.startsWith("/?n=")) {
                         s = s.substring(4);
                         try {

@@ -34,7 +34,6 @@ import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
@@ -68,8 +67,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         }
 
         if (!request.containsHeader(HttpHeaders.HOST)) {
-            HttpHost targethost = request.getHost();
-            if (targethost == null) {
+            String authority = request.getAuthority();
+            if (authority == null) {
                 // Populate the context with a default HTTP host based on the
                 // inet address of the target host
                 final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
@@ -77,17 +76,17 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                 if (conn != null) {
                     final InetSocketAddress remoteAddress = (InetSocketAddress) conn.getRemoteAddress();
                     if (remoteAddress != null) {
-                        targethost = new HttpHost(remoteAddress.getHostName(), remoteAddress.getPort());
+                        authority = remoteAddress.getHostName() + ":" +  remoteAddress.getPort();
                     }
                 }
-                if (targethost == null) {
+                if (authority == null) {
                     if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
                         return;
                     }
                     throw new ProtocolException("Target host is unknown");
                 }
             }
-            request.addHeader(HttpHeaders.HOST, targethost.toHostString());
+            request.addHeader(HttpHeaders.HOST, authority);
         }
     }
 

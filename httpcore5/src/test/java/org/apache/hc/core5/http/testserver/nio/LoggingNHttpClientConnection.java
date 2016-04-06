@@ -84,7 +84,7 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
     @Override
     public void submitRequest(final HttpRequest request) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + ": "  + request.getMethod() + " " + request.getUri());
+            this.log.debug(this.id + ": "  + request.getMethod() + " " + request.getPath());
         }
         super.submitRequest(request);
     }
@@ -121,7 +121,7 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
     @Override
     protected void onRequestSubmitted(final HttpRequest request) {
         if (request != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getUri(),
+            this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getPath(),
                     request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {

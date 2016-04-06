@@ -31,20 +31,19 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.MessageHead;
 
 /**
- * Abstract message writer intended to serialize HTTP messages to an arbitrary
- * data sink.
+ * Message writer intended to serialize HTTP message head to an output stream.
  *
  * @since 4.0
  */
-public interface HttpMessageWriter<T extends HttpMessage> {
+public interface HttpMessageWriter<T extends MessageHead> {
 
     /**
-     * Serializes an instance of {@link HttpMessage} to an output buffer.
+     * Serializes an instance of {@link MessageHead} to the given output stream.
      *
-     * @param message HTTP message
+     * @param message HTTP message head
      * @param buffer session output buffer
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation

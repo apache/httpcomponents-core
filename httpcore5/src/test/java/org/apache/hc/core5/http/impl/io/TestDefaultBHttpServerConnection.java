@@ -86,7 +86,7 @@ public class TestDefaultBHttpServerConnection {
 
         final HttpRequest request = conn.receiveRequestHeader();
         Assert.assertNotNull(request);
-        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals("/", request.getPath());
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
@@ -105,7 +105,7 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals("/", request.getPath());
         Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
@@ -136,7 +136,7 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
@@ -168,7 +168,7 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
@@ -190,7 +190,7 @@ public class TestDefaultBHttpServerConnection {
         final HttpRequest request = conn.receiveRequestHeader();
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/stuff", request.getUri());
+        Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals("POST", request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());

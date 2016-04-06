@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.io;
 
-import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.MessageHead;
 import org.apache.hc.core5.http.config.MessageConstraints;
 
 /**
@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.config.MessageConstraints;
  *
  * @since 4.3
  */
-public interface HttpMessageParserFactory<T extends HttpMessage> {
+public interface HttpMessageParserFactory<T extends MessageHead> {
 
     HttpMessageParser<T> create(MessageConstraints constraints);
 

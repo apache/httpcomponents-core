@@ -480,7 +480,7 @@ public class TestDefaultNHttpServerConnection {
         final HttpRequest request = requests.getFirst();
         Assert.assertNotNull(request);
         Assert.assertEquals("POST", request.getMethod());
-        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals("/", request.getPath());
         Assert.assertTrue(request instanceof HttpRequest);
         final HttpEntity entity = request.getEntity();
         Assert.assertNotNull(entity);
@@ -525,7 +525,7 @@ public class TestDefaultNHttpServerConnection {
         final HttpRequest request = requests.getFirst();
         Assert.assertNotNull(request);
         Assert.assertEquals("POST", request.getMethod());
-        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals("/", request.getPath());
         Assert.assertTrue(request instanceof HttpRequest);
         final HttpEntity entity = request.getEntity();
         Assert.assertNotNull(entity);
@@ -573,7 +573,7 @@ public class TestDefaultNHttpServerConnection {
         final HttpRequest request = requests.getFirst();
         Assert.assertNotNull(request);
         Assert.assertEquals("GET", request.getMethod());
-        Assert.assertEquals("/", request.getUri());
+        Assert.assertEquals("/", request.getPath());
     }
 
     @Test

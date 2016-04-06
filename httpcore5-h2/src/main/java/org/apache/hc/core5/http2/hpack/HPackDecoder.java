@@ -250,29 +250,32 @@ public final class HPackDecoder {
         return existing;
     }
 
-    public Header decodeHeader(final ByteBuffer src) throws HPackException, CharacterCodingException {
-
-        while (src.hasRemaining()) {
-            final int b = peekByte(src);
-            if ((b & 0x80) == 0x80) {
-                return decodeIndexedHeader(src);
-            } else if ((b & 0xc0) == 0x40) {
-                return decodeLiteralHeader(src, HPackRepresentation.WITH_INDEXING);
-            } else if ((b & 0xf0) == 0x00) {
-                return decodeLiteralHeader(src, HPackRepresentation.WITHOUT_INDEXING);
-            } else if ((b & 0xf0) == 0x10) {
-                return decodeLiteralHeader(src, HPackRepresentation.NEVER_INDEXED);
-            } else if ((b & 0xe0) == 0x20) {
-                final int maxSize = decodeInt(src, 5);
-                this.dynamicTable.setMaxSize(Math.min(this.maxTableSize, maxSize));
-            } else {
-                throw new HPackException("Unexpected header first byte: 0x" + Integer.toHexString(b));
+    public Header decodeHeader(final ByteBuffer src) throws HPackException {
+        try {
+            while (src.hasRemaining()) {
+                final int b = peekByte(src);
+                if ((b & 0x80) == 0x80) {
+                    return decodeIndexedHeader(src);
+                } else if ((b & 0xc0) == 0x40) {
+                    return decodeLiteralHeader(src, HPackRepresentation.WITH_INDEXING);
+                } else if ((b & 0xf0) == 0x00) {
+                    return decodeLiteralHeader(src, HPackRepresentation.WITHOUT_INDEXING);
+                } else if ((b & 0xf0) == 0x10) {
+                    return decodeLiteralHeader(src, HPackRepresentation.NEVER_INDEXED);
+                } else if ((b & 0xe0) == 0x20) {
+                    final int maxSize = decodeInt(src, 5);
+                    this.dynamicTable.setMaxSize(Math.min(this.maxTableSize, maxSize));
+                } else {
+                    throw new HPackException("Unexpected header first byte: 0x" + Integer.toHexString(b));
+                }
             }
+            return null;
+        } catch (CharacterCodingException ex) {
+            throw new HPackException(ex.getMessage(), ex);
         }
-        return null;
     }
 
-    public List<Header> decodeHeaders(final ByteBuffer src) throws HPackException, CharacterCodingException {
+    public List<Header> decodeHeaders(final ByteBuffer src) throws HPackException {
 
         final List<Header> list = new ArrayList<>();
         while (src.hasRemaining()) {

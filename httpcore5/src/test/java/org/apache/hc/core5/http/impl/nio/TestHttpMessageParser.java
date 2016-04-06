@@ -68,7 +68,7 @@ public class TestHttpMessageParser {
         inbuf.fill(newChannel("GET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
         final HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getUri());
+        Assert.assertEquals("/whatever", request.getPath());
         Assert.assertEquals(1, request.getAllHeaders().length);
     }
 
@@ -87,7 +87,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getUri());
+        Assert.assertEquals("/whatever", request.getPath());
         Assert.assertEquals(1, request.getAllHeaders().length);
 
     }
@@ -116,7 +116,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getUri());
+        Assert.assertEquals("/whatever", request.getPath());
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("stuff more stuff", request.getFirstHeader("Some header").getValue());
     }
@@ -142,7 +142,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getUri());
+        Assert.assertEquals("/whatever", request.getPath());
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("stuff more stuff", request.getFirstHeader("Some header").getValue());
     }
@@ -171,7 +171,7 @@ public class TestHttpMessageParser {
         request = requestParser.parse(inbuf, false);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getUri());
+        Assert.assertEquals("/whatever", request.getPath());
         Assert.assertEquals(1, request.getAllHeaders().length);
         Assert.assertEquals("stuff  more stuff", request.getFirstHeader("Some header").getValue());
     }
@@ -314,7 +314,7 @@ public class TestHttpMessageParser {
         inbuf.fill(newChannel("\r\n\r\nGET /whatever HTTP/1.1\r\nSome header: stuff\r\n\r\n"));
         final HttpRequest request = requestParser.parse(inbuf, false);
         Assert.assertNotNull(request);
-        Assert.assertEquals("/whatever", request.getUri());
+        Assert.assertEquals("/whatever", request.getPath());
         Assert.assertEquals(1, request.getAllHeaders().length);
     }
 

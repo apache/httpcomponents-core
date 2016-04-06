@@ -37,33 +37,56 @@ package org.apache.hc.core5.http;
 public interface HttpRequest extends HttpMessage<HttpEntity> {
 
     /**
-     * Obtains the method of this request message.
+     * Returns method of this request message.
      *
      * @return  the request method.
      */
     String getMethod();
 
     /**
-     * Obtains the URI of this request message.
+     * Returns URI path of this request message or {@code null} if not set.
      *
-     * @return  the request URI.
+     * @return  the request URI or {@code null}.
      */
-    String getUri();
+    String getPath();
 
     /**
-     * Obtains target host of this request message if available.
-     *
-     * @return  the target host or {@code null}.
+     * Sets URI path of this request message.
      *
      * @since 5.0
      */
-    HttpHost getHost();
+    void setPath(String path);
 
     /**
-     * Sets target host of this request message.
+     * Returns scheme of this request message.
+     *
+     * @return  the scheme or {@code null}.
      *
      * @since 5.0
      */
-    void setHost(HttpHost host);
+    String getScheme();
+
+    /**
+     * Sets scheme of this request message.
+     *
+     * @since 5.0
+     */
+    void setScheme(String scheme);
+
+    /**
+     * Returns authority of this request message.
+     *
+     * @return  the authority or {@code null}.
+     *
+     * @since 5.0
+     */
+    String getAuthority();
+
+    /**
+     * Sets authority of this request message.
+     *
+     * @since 5.0
+     */
+    void setAuthority(String authority);
 
 }

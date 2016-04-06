@@ -444,7 +444,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException {
                 final HttpRequest request = httpexchange.getRequest();
-                final String s = request.getUri();
+                final String s = request.getPath();
                 if (!s.equals("AAAAAx10")) {
                     final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                     response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
@@ -576,7 +576,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                         }
                         // Set the entity after delaying...
                         final HttpRequest request = httpexchange.getRequest();
-                        final String s = request.getUri();
+                        final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
                             final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
@@ -636,7 +636,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     @Override
                     public void run() {
                         final HttpRequest request = httpexchange.getRequest();
-                        final String s = request.getUri();
+                        final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
                             final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
@@ -688,7 +688,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     @Override
                     public void run() {
                         final HttpRequest request = httpexchange.getRequest();
-                        final String s = request.getUri();
+                        final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
                             final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
@@ -742,7 +742,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                     @Override
                     public void run() {
                         final HttpRequest request = httpexchange.getRequest();
-                        final String s = request.getUri();
+                        final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
                             final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));

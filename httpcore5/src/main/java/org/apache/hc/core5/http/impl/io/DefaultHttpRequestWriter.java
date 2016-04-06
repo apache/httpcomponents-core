@@ -69,7 +69,7 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
             transportVersion = HttpVersion.HTTP_1_1;
         }
         getLineFormatter().formatRequestLine(lineBuf,
-                new RequestLine(message.getMethod(), message.getUri(), transportVersion));
+                new RequestLine(message.getMethod(), message.getPath(), transportVersion));
     }
 
 }

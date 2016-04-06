@@ -64,6 +64,17 @@ public interface MessageHead {
     Header[] getHeaders(String name);
 
     /**
+     * Gets single first header with the given name.
+     *
+     * <p>Header name comparison is case insensitive.
+     *
+     * @param name the name of the header to get
+     * @return the first header or {@code null}
+     * @throws ProtocolException in case multiple headers with the given name are found.
+     */
+    Header getSingleHeader(String name) throws ProtocolException;
+
+    /**
      * Returns the first header with a specified name of this message. Header
      * values are ignored. If there is more than one matching header in the
      * message the first element of {@link #getHeaders(String)} is returned.

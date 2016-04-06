@@ -25,35 +25,30 @@
  *
  */
 
-package org.apache.hc.core5.http.nio;
+package org.apache.hc.core5.http2.io;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.MessageHead;
 
 /**
- * Message writer intended to serialize HTTP message head to a session buffer.
+ * Abstract message parser intended to build HTTP message head from an arbitrary data source.
  *
- * @since 4.0
+ * @param <T>
+ *            {@link MessageHead} or a subclass
+ *
+ * @since 5.0
  */
-public interface NHttpMessageWriter<T extends MessageHead> {
+public interface Http2MessageParser<T extends MessageHead> {
 
     /**
-     * Resets the writer. The writer will be ready to start serializing another
-     * HTTP message.
-     */
-    void reset();
-
-    /**
-     * Writes out the HTTP message head.
+     * Generates an instance of {@link MessageHead} from the given input buffer.
      *
-     * @param message HTTP message.
-     * @param buffer session output buffer.
-     * @throws IOException in case of an I/O error.
-     * @throws HttpException in case the HTTP message is malformed or
-     *  violates the HTTP protocol.
+     * @param buffer input buffer
+     * @return HTTP message head
+     * @throws HttpException in case of HTTP protocol violation
      */
-    void write(T message, SessionOutputBuffer buffer) throws IOException, HttpException;
+    T parse(ByteBuffer buffer) throws HttpException;
 
 }

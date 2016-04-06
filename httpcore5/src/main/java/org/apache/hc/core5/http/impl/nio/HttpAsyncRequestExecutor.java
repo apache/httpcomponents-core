@@ -622,7 +622,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 buf.append(" ");
                 buf.append(this.request.getMethod());
                 buf.append(" ");
-                buf.append(this.request.getUri());
+                buf.append(this.request.getPath());
             }
             buf.append("; incoming ");
             buf.append(this.responseState);

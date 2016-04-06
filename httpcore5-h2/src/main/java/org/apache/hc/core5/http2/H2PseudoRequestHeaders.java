@@ -25,35 +25,16 @@
  *
  */
 
-package org.apache.hc.core5.http.nio;
-
-import java.io.IOException;
-
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHead;
+package org.apache.hc.core5.http2;
 
 /**
- * Message writer intended to serialize HTTP message head to a session buffer.
- *
- * @since 4.0
+ * @since 5.0
  */
-public interface NHttpMessageWriter<T extends MessageHead> {
+public final class H2PseudoRequestHeaders {
 
-    /**
-     * Resets the writer. The writer will be ready to start serializing another
-     * HTTP message.
-     */
-    void reset();
-
-    /**
-     * Writes out the HTTP message head.
-     *
-     * @param message HTTP message.
-     * @param buffer session output buffer.
-     * @throws IOException in case of an I/O error.
-     * @throws HttpException in case the HTTP message is malformed or
-     *  violates the HTTP protocol.
-     */
-    void write(T message, SessionOutputBuffer buffer) throws IOException, HttpException;
+    public static final String METHOD    = ":method";
+    public static final String SCHEME    = ":scheme";
+    public static final String AUTHORITY = ":authority";
+    public static final String PATH      = ":path";
 
 }

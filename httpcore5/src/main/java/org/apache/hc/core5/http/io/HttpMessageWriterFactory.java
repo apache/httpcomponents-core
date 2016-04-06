@@ -27,14 +27,14 @@
 
 package org.apache.hc.core5.http.io;
 
-import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.MessageHead;
 
 /**
  * Factory for {@link HttpMessageWriter} instances.
  *
  * @since 4.3
  */
-public interface HttpMessageWriterFactory<T extends HttpMessage> {
+public interface HttpMessageWriterFactory<T extends MessageHead> {
 
     HttpMessageWriter<T> create();
 

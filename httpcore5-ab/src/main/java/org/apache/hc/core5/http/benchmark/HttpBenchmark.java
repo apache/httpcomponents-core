@@ -152,7 +152,8 @@ public class HttpBenchmark {
         if (config.getSoapAction() != null && config.getSoapAction().length() > 0) {
             request.addHeader(new DefaultHeader("SOAPAction", config.getSoapAction()));
         }
-        request.setHost(host);
+        request.setScheme(host.getSchemeName());
+        request.setAuthority(host.toHostString());
         return request;
     }
 
@@ -212,6 +213,7 @@ public class HttpBenchmark {
         final BenchmarkWorker[] workers = new BenchmarkWorker[config.getThreads()];
         for (int i = 0; i < workers.length; i++) {
             workers[i] = new BenchmarkWorker(
+                    host,
                     createRequest(host),
                     socketFactory,
                     config);

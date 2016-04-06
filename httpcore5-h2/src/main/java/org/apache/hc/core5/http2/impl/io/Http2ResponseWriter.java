@@ -25,35 +25,38 @@
  *
  */
 
-package org.apache.hc.core5.http.nio;
+package org.apache.hc.core5.http2.impl.io;
 
-import java.io.IOException;
+import java.nio.charset.Charset;
 
+import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHead;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
+import org.apache.hc.core5.http2.hpack.HPackEncoder;
+import org.apache.hc.core5.util.ByteArrayBuffer;
 
 /**
- * Message writer intended to serialize HTTP message head to a session buffer.
+ * HTTP/2 response writer.
  *
- * @since 4.0
+ * @since 5.0
  */
-public interface NHttpMessageWriter<T extends MessageHead> {
+@NotThreadSafe
+public class Http2ResponseWriter extends AbstractHttp2MessageWriter<HttpResponse> {
 
-    /**
-     * Resets the writer. The writer will be ready to start serializing another
-     * HTTP message.
-     */
-    void reset();
+    public Http2ResponseWriter(final Charset charset) {
+        super(charset);
+    }
 
-    /**
-     * Writes out the HTTP message head.
-     *
-     * @param message HTTP message.
-     * @param buffer session output buffer.
-     * @throws IOException in case of an I/O error.
-     * @throws HttpException in case the HTTP message is malformed or
-     *  violates the HTTP protocol.
-     */
-    void write(T message, SessionOutputBuffer buffer) throws IOException, HttpException;
+    @Override
+    protected void writePseudoHeaders(final HttpResponse message, final ByteArrayBuffer buffer) throws HttpException {
+        final int code = message.getCode();
+        if (code < 100 || code >= 600) {
+            throw new ProtocolException("Response status " + code + " is invalid");
+        }
+        final HPackEncoder encoder = getEncoder();
+        encoder.encodeHeader(buffer, H2PseudoResponseHeaders.STATUS, Integer.toString(code), false);
+    }
 
 }
