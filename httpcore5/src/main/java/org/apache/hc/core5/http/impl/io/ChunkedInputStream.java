@@ -76,10 +76,10 @@ public class ChunkedInputStream extends InputStream {
     private int state;
 
     /** The chunk size */
-    private int chunkSize;
+    private long chunkSize;
 
     /** The current position within the current chunk */
-    private int pos;
+    private long pos;
 
     /** True if we've reached the end of stream */
     private boolean eof = false;
@@ -102,7 +102,7 @@ public class ChunkedInputStream extends InputStream {
         super();
         this.buffer = Args.notNull(buffer, "Session input buffer");
         this.inputStream = Args.notNull(inputStream, "Input stream");
-        this.pos = 0;
+        this.pos = 0L;
         this.lineBuffer = new CharArrayBuffer(16);
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
         this.state = CHUNK_LEN;
@@ -121,7 +121,7 @@ public class ChunkedInputStream extends InputStream {
     @Override
     public int available() throws IOException {
         final int len = this.buffer.length();
-        return Math.min(len, this.chunkSize - this.pos);
+        return (int) Math.min(len, this.chunkSize - this.pos);
     }
 
     /**
@@ -186,7 +186,7 @@ public class ChunkedInputStream extends InputStream {
                 return -1;
             }
         }
-        final int bytesRead = buffer.read(b, off, Math.min(len, chunkSize - pos), inputStream);
+        final int bytesRead = buffer.read(b, off, (int) Math.min(len, chunkSize - pos), inputStream);
         if (bytesRead != -1) {
             pos += bytesRead;
             if (pos >= chunkSize) {
@@ -222,12 +222,12 @@ public class ChunkedInputStream extends InputStream {
         }
         try {
             chunkSize = getChunkSize();
-            if (chunkSize < 0) {
+            if (chunkSize < 0L) {
                 throw new MalformedChunkCodingException("Negative chunk size");
             }
             state = CHUNK_DATA;
-            pos = 0;
-            if (chunkSize == 0) {
+            pos = 0L;
+            if (chunkSize == 0L) {
                 eof = true;
                 parseTrailerHeaders();
             }
@@ -242,7 +242,7 @@ public class ChunkedInputStream extends InputStream {
      * comments after a semicolon. The line must end with a CRLF: "a3; some
      * comment\r\n" Positions the stream at the start of the next line.
      */
-    private int getChunkSize() throws IOException {
+    private long getChunkSize() throws IOException {
         final int st = this.state;
         switch (st) {
         case CHUNK_CRLF:
@@ -269,10 +269,11 @@ public class ChunkedInputStream extends InputStream {
             if (separator < 0) {
                 separator = lineBuffer.length();
             }
+            final String s = this.lineBuffer.substringTrimmed(0, separator);
             try {
-                return Integer.parseInt(lineBuffer.substringTrimmed(0, separator), 16);
+                return Long.parseLong(s, 16);
             } catch (final NumberFormatException e) {
-                throw new MalformedChunkCodingException("Bad chunk header");
+                throw new MalformedChunkCodingException("Bad chunk header: " + s);
             }
         default:
             throw new IllegalStateException("Inconsistent codec state");

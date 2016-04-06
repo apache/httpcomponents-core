@@ -584,4 +584,23 @@ public class TestChunkDecoder {
         decoder.read(null);
     }
 
+    @Test
+    public void testHugeChunk() throws Exception {
+        final String s = "1234567890abcdef\r\n0123456789abcdef";
+        final ReadableByteChannel channel = new ReadableByteChannelMock(new String[] {s}, StandardCharsets.US_ASCII);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, StandardCharsets.US_ASCII);
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
+        final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
+
+        final ByteBuffer dst = ByteBuffer.allocate(4);
+
+        int bytesRead = decoder.read(dst);
+        Assert.assertEquals(4, bytesRead);
+        Assert.assertEquals("0123", CodecTestUtils.convert(dst));
+        dst.clear();
+        bytesRead = decoder.read(dst);
+        Assert.assertEquals(4, bytesRead);
+        Assert.assertEquals("4567", CodecTestUtils.convert(dst));
+    }
+
 }

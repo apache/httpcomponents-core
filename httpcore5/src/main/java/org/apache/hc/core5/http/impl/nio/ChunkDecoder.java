@@ -65,8 +65,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private boolean endOfStream;
 
     private CharArrayBuffer lineBuf;
-    private int chunkSize;
-    private int pos;
+    private long chunkSize;
+    private long pos;
 
     private final MessageConstraints constraints;
     private final List<CharArrayBuffer> trailerBufs;
@@ -83,8 +83,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
             final BasicHttpTransportMetrics metrics) {
         super(channel, buffer, metrics);
         this.state = READ_CONTENT;
-        this.chunkSize = -1;
-        this.pos = 0;
+        this.chunkSize = -1L;
+        this.pos = 0L;
         this.endOfChunk = false;
         this.endOfStream = false;
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
@@ -129,13 +129,13 @@ public class ChunkDecoder extends AbstractContentDecoder {
             if (separator < 0) {
                 separator = this.lineBuf.length();
             }
+            final String s = this.lineBuf.substringTrimmed(0, separator);
             try {
-                final String s = this.lineBuf.substringTrimmed(0, separator);
-                this.chunkSize = Integer.parseInt(s, 16);
+                this.chunkSize = Long.parseLong(s, 16);
             } catch (final NumberFormatException e) {
-                throw new MalformedChunkCodingException("Bad chunk header");
+                throw new MalformedChunkCodingException("Bad chunk header: " + s);
             }
-            this.pos = 0;
+            this.pos = 0L;
         } else if (this.endOfStream) {
             throw new ConnectionClosedException("Premature end of chunk coded message body: " +
                     "closing chunk expected");
@@ -193,7 +193,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         int totalRead = 0;
         while (this.state != COMPLETED) {
 
-            if (!this.buffer.hasData() || this.chunkSize == -1) {
+            if (!this.buffer.hasData() || this.chunkSize == -1L) {
                 final int bytesRead = fillBufferFromChannel();
                 if (bytesRead == -1) {
                     this.endOfStream = true;
@@ -203,21 +203,21 @@ public class ChunkDecoder extends AbstractContentDecoder {
             switch (this.state) {
             case READ_CONTENT:
 
-                if (this.chunkSize == -1) {
+                if (this.chunkSize == -1L) {
                     readChunkHead();
-                    if (this.chunkSize == -1) {
+                    if (this.chunkSize == -1L) {
                         // Unable to read a chunk head
                         return totalRead;
                     }
-                    if (this.chunkSize == 0) {
+                    if (this.chunkSize == 0L) {
                         // Last chunk. Read footers
-                        this.chunkSize = -1;
+                        this.chunkSize = -1L;
                         this.state = READ_FOOTERS;
                         break;
                     }
                 }
-                final int maxLen = this.chunkSize - this.pos;
-                final int len = this.buffer.read(dst, maxLen);
+                final long maxLen = this.chunkSize - this.pos;
+                final int len = this.buffer.read(dst, (int) Math.min(maxLen, Integer.MAX_VALUE));
                 if (len > 0) {
                     this.pos += len;
                     totalRead += len;
@@ -233,8 +233,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
 
                 if (this.pos == this.chunkSize) {
                     // At the end of the chunk
-                    this.chunkSize = -1;
-                    this.pos = 0;
+                    this.chunkSize = -1L;
+                    this.pos = 0L;
                     this.endOfChunk = true;
                     break;
                 }
