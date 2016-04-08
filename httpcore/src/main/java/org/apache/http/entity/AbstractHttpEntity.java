@@ -109,7 +109,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * The default implementation sets the value of the
      * {@link #contentType contentType} attribute.
      *
-     * @param contentType       the new Content-Encoding header, or
+     * @param contentType       the new Content-Type header, or
      *                          {@code null} to unset
      */
     public void setContentType(final Header contentType) {
