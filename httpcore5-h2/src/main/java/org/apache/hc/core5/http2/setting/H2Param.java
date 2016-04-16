@@ -26,7 +26,10 @@
  */
 package org.apache.hc.core5.http2.setting;
 
-public enum H2Settings {
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+public enum H2Param {
 
     HEADER_TABLE_SIZE      (0x1,   4096),
     ENABLE_PUSH            (0x2,   1),
@@ -39,7 +42,7 @@ public enum H2Settings {
 
     long initialValue;
 
-    H2Settings(final int code, final long initialValue) {
+    H2Param(final int code, final long initialValue) {
         this.code = code;
         this.initialValue = initialValue;
     }
@@ -50,6 +53,18 @@ public enum H2Settings {
 
     public long getInitialValue() {
         return initialValue;
+    }
+
+    private static final ConcurrentMap<Integer, H2Param> MAP_BY_CODE;
+    static {
+        MAP_BY_CODE = new ConcurrentHashMap<>();
+        for (H2Param param: values()) {
+            MAP_BY_CODE.putIfAbsent(param.code, param);
+        }
+    }
+
+    public static H2Param getByCode(final int code) {
+        return MAP_BY_CODE.get(code);
     }
 
 };

@@ -31,18 +31,24 @@ import org.apache.hc.core5.util.LangUtils;
 
 public final class H2Setting {
 
-    private final int code;
+    private final H2Param param;
     private final long value;
 
-    public H2Setting(final int code, final long value) {
-        Args.positive(code, "Setting code must be a positive value");
+    public H2Setting(final H2Param param, final long value) {
+        Args.notNull(param, "Setting parameter");
         Args.notNegative(value, "Setting value must be a non-negative value");
-        this.code = code;
+        this.param = param;
         this.value = value;
     }
 
+    public H2Setting(final H2Param param) {
+        Args.notNull(param, "Setting parameter");
+        this.param = param;
+        this.value = param.initialValue;
+    }
+
     public int getCode() {
-        return code;
+        return param.code;
     }
 
     public long getValue() {
@@ -56,7 +62,7 @@ public final class H2Setting {
         }
         if (obj instanceof H2Setting) {
             final H2Setting that = (H2Setting) obj;
-            return this.code == that.code;
+            return this.param.equals(that.param);
         } else {
             return false;
         }
@@ -65,14 +71,14 @@ public final class H2Setting {
     @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.code);
+        hash = LangUtils.hashCode(hash, this.param);
         return hash;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder()
-                .append("[").append(code).append(":").append(value).append(']');
+                .append("[").append(param).append(":").append(value).append(']');
         return sb.toString();
     }
 };

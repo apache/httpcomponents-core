@@ -26,6 +26,9 @@
  */
 package org.apache.hc.core5.http2;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
 public enum H2Error {
 
     /**
@@ -136,6 +139,18 @@ public enum H2Error {
 
     public int getCode() {
         return code;
+    }
+
+    private static final ConcurrentMap<Integer, H2Error> MAP_BY_CODE;
+    static {
+        MAP_BY_CODE = new ConcurrentHashMap<>();
+        for (H2Error error: values()) {
+            MAP_BY_CODE.putIfAbsent(error.code, error);
+        }
+    }
+
+    public static H2Error getByCode(final int code) {
+        return MAP_BY_CODE.get(code);
     }
 
 };
