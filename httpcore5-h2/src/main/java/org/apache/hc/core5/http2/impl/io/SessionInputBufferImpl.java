@@ -105,7 +105,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         final int payloadLen = (buffer[off] & 0xff) << 16 | (buffer[off + 1] & 0xff) << 8 | (buffer[off + 2] & 0xff);
         final int type = buffer[off + 3] & 0xff;
         final int flags = buffer[off + 4] & 0xff;
-        final long streamId = (buffer[off + 5] & 0xff) << 24 | (buffer[off + 6] & 0xff << 16) | (buffer[off + 7] & 0xff) << 8 | (buffer[off + 8] & 0xff);
+        final int streamId = (buffer[off + 5] & 0xff) << 24 | (buffer[off + 6] & 0xff << 16) | (buffer[off + 7] & 0xff) << 8 | (buffer[off + 8] & 0xff);
         if (payloadLen > maxFramePayloadSize) {
             throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, streamId, "Frame size exceeds maximum");
         }

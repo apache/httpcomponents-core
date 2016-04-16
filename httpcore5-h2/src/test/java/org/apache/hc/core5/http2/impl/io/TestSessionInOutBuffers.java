@@ -52,7 +52,7 @@ public class TestSessionInOutBuffers {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16 * 1024);
 
-        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), 0, 1L,
+        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[]{1,2,3,4,5}));
         outbuffer.write(frame, outputStream);
 
@@ -87,7 +87,8 @@ public class TestSessionInOutBuffers {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16 * 1024);
 
-        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), FrameFlag.of(FrameFlag.PADDED), 1L, ByteBuffer.wrap(new byte[]{1,2,3,4,5}));
+        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), FrameFlag.of(FrameFlag.PADDED), 1,
+                ByteBuffer.wrap(new byte[]{1,2,3,4,5}));
         outbuffer.write(frame, outputStream);
 
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16 * 1024);
@@ -267,7 +268,7 @@ public class TestSessionInOutBuffers {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(1024);
 
-        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), 0, 1L,
+        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[2048]));
         outbuffer.write(frame, outputStream);
     }

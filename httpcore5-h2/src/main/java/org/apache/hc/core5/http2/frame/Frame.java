@@ -30,9 +30,9 @@ public abstract class Frame<T> {
 
     private final int type;
     private final int flags;
-    private final long streamId;
+    private final int streamId;
 
-    public Frame(final int type, final int flags, final long streamId) {
+    public Frame(final int type, final int flags, final int streamId) {
         this.type = type;
         this.flags = flags;
         this.streamId = streamId;
@@ -54,7 +54,7 @@ public abstract class Frame<T> {
         return flags;
     }
 
-    public long getStreamId() {
+    public int getStreamId() {
         return streamId;
     }
 

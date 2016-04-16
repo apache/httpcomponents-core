@@ -32,7 +32,7 @@ public final class ByteBufferFrame extends Frame<ByteBuffer> {
 
     private final ByteBuffer payload;
 
-    public ByteBufferFrame(final int type, final int flags, final long streamId, final ByteBuffer payload) {
+    public ByteBufferFrame(final int type, final int flags, final int streamId, final ByteBuffer payload) {
         super(type, flags, streamId);
         this.payload = payload;
     }
