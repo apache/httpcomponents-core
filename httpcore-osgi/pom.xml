@@ -68,7 +68,7 @@
           <version>${pax.exam.version}</version>
           <exclusions>
               <exclusion>
-                  <groupId> org.osgi</groupId>
+                  <groupId>org.osgi</groupId>
                   <artifactId>org.osgi.core</artifactId>
               </exclusion>
           </exclusions>
