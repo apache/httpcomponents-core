@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.bootstrap.io;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.Set;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -60,9 +60,9 @@ public class HttpServer {
     private final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private final SSLServerSetupHandler sslSetupHandler;
     private final ExceptionLogger exceptionLogger;
-    private final ExecutorService listenerExecutorService;
+    private final ThreadPoolExecutor listenerExecutorService;
     private final ThreadGroup workerThreads;
-    private final ExecutorService workerExecutorService;
+    private final WorkerPoolExecutor workerExecutorService;
     private final AtomicReference<Status> status;
 
     private volatile ServerSocket serverSocket;
@@ -85,10 +85,14 @@ public class HttpServer {
         this.connectionFactory = connectionFactory;
         this.sslSetupHandler = sslSetupHandler;
         this.exceptionLogger = exceptionLogger;
-        this.listenerExecutorService = Executors.newSingleThreadExecutor(
+        this.listenerExecutorService = new ThreadPoolExecutor(
+                1, 1, 0L, TimeUnit.MILLISECONDS,
+                new SynchronousQueue<Runnable>(),
                 new ThreadFactoryImpl("HTTP-listener-" + this.port));
         this.workerThreads = new ThreadGroup("HTTP-workers");
-        this.workerExecutorService = Executors.newCachedThreadPool(
+        this.workerExecutorService = new WorkerPoolExecutor(
+                0, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS,
+                new SynchronousQueue<Runnable>(),
                 new ThreadFactoryImpl("HTTP-worker", this.workerThreads));
         this.status = new AtomicReference<>(Status.READY);
     }
@@ -133,6 +137,8 @@ public class HttpServer {
 
     public void stop() {
         if (this.status.compareAndSet(Status.ACTIVE, Status.STOPPING)) {
+            this.listenerExecutorService.shutdown();
+            this.workerExecutorService.shutdown();
             final RequestListener local = this.requestListener;
             if (local != null) {
                 try {
@@ -142,8 +148,6 @@ public class HttpServer {
                 }
             }
             this.workerThreads.interrupt();
-            this.listenerExecutorService.shutdown();
-            this.workerExecutorService.shutdown();
         }
     }
 
@@ -160,16 +164,13 @@ public class HttpServer {
                 Thread.currentThread().interrupt();
             }
         }
-        final List<Runnable> runnables = this.workerExecutorService.shutdownNow();
-        for (final Runnable runnable: runnables) {
-            if (runnable instanceof Worker) {
-                final Worker worker = (Worker) runnable;
-                final HttpServerConnection conn = worker.getConnection();
-                try {
-                    conn.shutdown();
-                } catch (final IOException ex) {
-                    this.exceptionLogger.log(ex);
-                }
+        final Set<Worker> workers = this.workerExecutorService.getWorkers();
+        for (Worker worker: workers) {
+            final HttpServerConnection conn = worker.getConnection();
+            try {
+                conn.shutdown();
+            } catch (IOException ex) {
+                this.exceptionLogger.log(ex);
             }
         }
     }
