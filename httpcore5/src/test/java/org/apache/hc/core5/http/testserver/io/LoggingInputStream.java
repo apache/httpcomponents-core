@@ -79,12 +79,12 @@ class LoggingInputStream extends InputStream {
     }
 
     @Override
-    public synchronized void mark(final int readlimit) {
+    public void mark(final int readlimit) {
         super.mark(readlimit);
     }
 
     @Override
-    public synchronized void reset() throws IOException {
+    public void reset() throws IOException {
         super.reset();
     }
 

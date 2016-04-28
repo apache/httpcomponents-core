@@ -134,8 +134,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        final Socket socket = ensureOpen();
-        this.requestWriter.write(request, this.outbuffer, socket.getOutputStream());
+        final SocketHolder socketHolder = ensureOpen();
+        this.requestWriter.write(request, this.outbuffer, socketHolder.getOutputStream());
         onRequestSubmitted(request);
         incrementRequestCount();
     }
@@ -143,7 +143,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public void sendRequestEntity(final HttpRequest request) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        final Socket socket = ensureOpen();
+        final SocketHolder socketHolder = ensureOpen();
         final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
@@ -152,7 +152,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException("Length required");
         }
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socket.getOutputStream(), entity.getTrailers());
+        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
         entity.writeTo(outstream);
         outstream.close();
     }
@@ -165,17 +165,17 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public void terminateRequest(final HttpRequest request) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        final Socket socket = ensureOpen();
+        final SocketHolder socketHolder = ensureOpen();
         final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.CHUNKED) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socket.getOutputStream(), entity.getTrailers());
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
             outstream.close();
         } else if (len >= 0 && len <= 1024) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socket.getOutputStream(), null);
+            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), null);
             entity.writeTo(outstream);
             outstream.close();
         } else {
@@ -185,8 +185,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
     @Override
     public HttpResponse receiveResponseHeader() throws HttpException, IOException {
-        final Socket socket = ensureOpen();
-        final HttpResponse response = this.responseParser.parse(this.inbuffer, socket.getInputStream());
+        final SocketHolder socketHolder = ensureOpen();
+        final HttpResponse response = this.responseParser.parse(this.inbuffer, socketHolder.getInputStream());
         this.version = response.getVersion();
         onResponseReceived(response);
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
@@ -198,11 +198,11 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public void receiveResponseEntity( final HttpResponse response) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        final Socket socket = ensureOpen();
+        final SocketHolder socketHolder = ensureOpen();
         final long len = this.incomingContentStrategy.determineLength(response);
         if (len == ContentLengthStrategy.UNDEFINED) {
             return;
         }
-        response.setEntity(createIncomingEntity(response, this.inbuffer, socket.getInputStream(), len));
+        response.setEntity(createIncomingEntity(response, this.inbuffer, socketHolder.getInputStream(), len));
     }
 }

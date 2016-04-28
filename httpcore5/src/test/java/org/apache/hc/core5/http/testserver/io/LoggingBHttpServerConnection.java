@@ -27,9 +27,10 @@
 
 package org.apache.hc.core5.http.testserver.io;
 
+import static java.lang.System.in;
+import static java.lang.System.out;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -98,21 +99,10 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     }
 
     @Override
-    protected InputStream getSocketInputStream(final Socket socket) throws IOException {
-        InputStream in = super.getSocketInputStream(socket);
-        if (wire.isEnabled()) {
-            in = new LoggingInputStream(in, wire);
-        }
-        return in;
-    }
-
-    @Override
-    protected OutputStream getSocketOutputStream(final Socket socket) throws IOException {
-        OutputStream out = super.getSocketOutputStream(socket);
-        if (wire.isEnabled()) {
-            out = new LoggingOutputStream(out, wire);
-        }
-        return out;
+    public void bind(final Socket socket) throws IOException {
+        super.bind(socket,
+                wire.isEnabled() ? new LoggingInputStream(in, wire) : null,
+                this.wire.isEnabled() ? new LoggingOutputStream(out, wire) : null);
     }
 
     @Override

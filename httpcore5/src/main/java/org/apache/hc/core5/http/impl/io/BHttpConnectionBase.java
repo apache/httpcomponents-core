@@ -62,7 +62,7 @@ class BHttpConnectionBase implements BHttpConnection {
     final SessionOutputBufferImpl outbuffer;
     final MessageConstraints messageConstraints;
     final HttpConnectionMetricsImpl connMetrics;
-    final AtomicReference<Socket> socketHolder;
+    final AtomicReference<SocketHolder> socketHolderRef;
 
     volatile ProtocolVersion version;
 
@@ -82,23 +82,15 @@ class BHttpConnectionBase implements BHttpConnection {
                 charencoder);
         this.messageConstraints = messageConstraints;
         this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
-        this.socketHolder = new AtomicReference<>();
+        this.socketHolderRef = new AtomicReference<>();
     }
 
-    protected Socket ensureOpen() throws IOException {
-        final Socket socket = this.socketHolder.get();
-        if (socket == null) {
+    protected SocketHolder ensureOpen() throws IOException {
+        final SocketHolder socketHolder = this.socketHolderRef.get();
+        if (socketHolder == null) {
             throw new ConnectionClosedException("Connection is closed");
         }
-        return socket;
-    }
-
-    protected InputStream getSocketInputStream(final Socket socket) throws IOException {
-        return socket.getInputStream();
-    }
-
-    protected OutputStream getSocketOutputStream(final Socket socket) throws IOException {
-        return socket.getOutputStream();
+        return socketHolder;
     }
 
     /**
@@ -113,12 +105,17 @@ class BHttpConnectionBase implements BHttpConnection {
      */
     protected void bind(final Socket socket) throws IOException {
         Args.notNull(socket, "Socket");
-        this.socketHolder.set(socket);
+        this.socketHolderRef.set(new SocketHolder(socket));
+    }
+
+    protected void bind(final Socket socket, final InputStream inputStream, final OutputStream outputStream) throws IOException {
+        Args.notNull(socket, "Socket");
+        this.socketHolderRef.set(new SocketHolder(socket, inputStream, outputStream));
     }
 
     @Override
     public boolean isOpen() {
-        return this.socketHolder.get() != null;
+        return this.socketHolderRef.get() != null;
     }
 
     /**
@@ -129,8 +126,8 @@ class BHttpConnectionBase implements BHttpConnection {
         return this.version;
     }
 
-    Socket getSocket() {
-        return this.socketHolder.get();
+    SocketHolder getSocketHolder() {
+        return this.socketHolderRef.get();
     }
 
     protected OutputStream createContentOutputStream(
@@ -176,22 +173,22 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public SocketAddress getRemoteAddress() {
-        final Socket socket = this.socketHolder.get();
-        return socket != null ? socket.getRemoteSocketAddress() : null;
+        final SocketHolder socketHolder = this.socketHolderRef.get();
+        return socketHolder != null ? socketHolder.getSocket().getRemoteSocketAddress() : null;
     }
 
     @Override
     public SocketAddress getLocalAddress() {
-        final Socket socket = this.socketHolder.get();
-        return socket != null ? socket.getLocalSocketAddress() : null;
+        final SocketHolder socketHolder = this.socketHolderRef.get();
+        return socketHolder != null ? socketHolder.getSocket().getLocalSocketAddress() : null;
     }
 
     @Override
     public void setSocketTimeout(final int timeout) {
-        final Socket socket = this.socketHolder.get();
-        if (socket != null) {
+        final SocketHolder socketHolder = this.socketHolderRef.get();
+        if (socketHolder != null) {
             try {
-                socket.setSoTimeout(timeout);
+                socketHolder.getSocket().setSoTimeout(timeout);
             } catch (final SocketException ignore) {
                 // It is not quite clear from the Sun's documentation if there are any
                 // other legitimate cases for a socket exception to be thrown when setting
@@ -202,10 +199,10 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public int getSocketTimeout() {
-        final Socket socket = this.socketHolder.get();
-        if (socket != null) {
+        final SocketHolder socketHolder = this.socketHolderRef.get();
+        if (socketHolder != null) {
             try {
-                return socket.getSoTimeout();
+                return socketHolder.getSocket().getSoTimeout();
             } catch (final SocketException ignore) {
                 return -1;
             }
@@ -215,8 +212,9 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public void shutdown() throws IOException {
-        final Socket socket = this.socketHolder.getAndSet(null);
-        if (socket != null) {
+        final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
+        if (socketHolder != null) {
+            final Socket socket = socketHolder.getSocket();
             // force abortive close (RST)
             try {
                 socket.setSoLinger(true, 0);
@@ -229,11 +227,12 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public void close() throws IOException {
-        final Socket socket = this.socketHolder.getAndSet(null);
-        if (socket != null) {
+        final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
+        if (socketHolder != null) {
+            final Socket socket = socketHolder.getSocket();
             try {
                 this.inbuffer.clear();
-                this.outbuffer.flush(socket.getOutputStream());
+                this.outbuffer.flush(socketHolder.getOutputStream());
                 try {
                     try {
                         socket.shutdownOutput();
@@ -253,11 +252,12 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     private int fillInputBuffer(final int timeout) throws IOException {
-        final Socket socket = this.socketHolder.get();
+        final SocketHolder socketHolder = ensureOpen();
+        final Socket socket = socketHolder.getSocket();
         final int oldtimeout = socket.getSoTimeout();
         try {
             socket.setSoTimeout(timeout);
-            return this.inbuffer.fillBuffer(socket.getInputStream());
+            return this.inbuffer.fillBuffer(socketHolder.getInputStream());
         } finally {
             socket.setSoTimeout(oldtimeout);
         }
@@ -298,8 +298,8 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public void flush() throws IOException {
-        final Socket socket = ensureOpen();
-        this.outbuffer.flush(socket.getOutputStream());
+        final SocketHolder socketHolder = ensureOpen();
+        this.outbuffer.flush(socketHolder.getOutputStream());
     }
 
     protected void incrementRequestCount() {
@@ -317,8 +317,9 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public String toString() {
-        final Socket socket = this.socketHolder.get();
-        if (socket != null) {
+        final SocketHolder socketHolder = this.socketHolderRef.get();
+        if (socketHolder != null) {
+            final Socket socket = socketHolder.getSocket();
             final StringBuilder buffer = new StringBuilder();
             final SocketAddress remoteAddress = socket.getRemoteSocketAddress();
             final SocketAddress localAddress = socket.getLocalSocketAddress();
