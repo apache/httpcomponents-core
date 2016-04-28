@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 
@@ -103,7 +104,7 @@ public class ContentLengthOutputStream extends OutputStream {
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
         if (this.closed) {
-            throw new IOException("Attempted write to closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
         if (this.total < this.contentLength) {
             final long max = this.contentLength - this.total;
@@ -124,7 +125,7 @@ public class ContentLengthOutputStream extends OutputStream {
     @Override
     public void write(final int b) throws IOException {
         if (this.closed) {
-            throw new IOException("Attempted write to closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
         if (this.total < this.contentLength) {
             this.buffer.write(b, this.outputStream);

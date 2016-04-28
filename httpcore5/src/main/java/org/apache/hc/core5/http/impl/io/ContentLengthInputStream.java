@@ -32,6 +32,7 @@ import java.io.InputStream;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 
@@ -125,7 +126,7 @@ public class ContentLengthInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         if (closed) {
-            throw new IOException("Attempted read from closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
 
         if (pos >= contentLength) {
@@ -159,7 +160,7 @@ public class ContentLengthInputStream extends InputStream {
     @Override
     public int read (final byte[] b, final int off, final int len) throws java.io.IOException {
         if (closed) {
-            throw new IOException("Attempted read from closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
 
         if (pos >= contentLength) {

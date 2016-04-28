@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -116,22 +117,19 @@ public class TestContentLengthInputStream {
         in.close();
         try {
             in.read();
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
         final byte[] tmp = new byte[10];
         try {
             in.read(tmp);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
         try {
             in.read(tmp, 0, tmp.length);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
         Assert.assertEquals('-', inbuffer.read(inputStream));
     }

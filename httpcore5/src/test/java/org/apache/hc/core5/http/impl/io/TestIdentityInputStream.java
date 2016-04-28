@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.ByteArrayInputStream;
 
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -68,10 +69,16 @@ public class TestIdentityInputStream {
 
         Assert.assertEquals(0, in.available());
         final byte[] tmp = new byte[2];
-        Assert.assertEquals(-1, in.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, in.read());
-        Assert.assertEquals(-1, in.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, in.read());
+        try {
+            in.read(tmp, 0, tmp.length);
+            Assert.fail("StreamClosedException expected");
+        } catch (StreamClosedException expected) {
+        }
+        try {
+            in.read();
+            Assert.fail("StreamClosedException expected");
+        } catch (StreamClosedException expected) {
+        }
     }
 
     @Test

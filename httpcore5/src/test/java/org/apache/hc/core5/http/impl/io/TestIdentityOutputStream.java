@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -109,15 +110,13 @@ public class TestIdentityOutputStream {
         try {
             final byte[] tmp = new byte[2];
             out.write(tmp, 0, tmp.length);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException e) {
-            //expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
         try {
             out.write('a');
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException e) {
-            //expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final IOException expected) {
         }
     }
 

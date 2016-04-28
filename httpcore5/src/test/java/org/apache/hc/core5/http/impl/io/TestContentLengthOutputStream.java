@@ -28,9 +28,9 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -67,15 +67,13 @@ public class TestContentLengthOutputStream {
         final byte[] tmp = new byte[10];
         try {
             out.write(tmp);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
         try {
             out.write(1);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
     }
 

@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
@@ -168,7 +169,7 @@ public class ChunkedOutputStream extends OutputStream {
     @Override
     public void write(final int b) throws IOException {
         if (this.closed) {
-            throw new IOException("Attempted write to closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
         this.cache[this.cachePosition] = (byte) b;
         this.cachePosition++;
@@ -193,7 +194,7 @@ public class ChunkedOutputStream extends OutputStream {
     @Override
     public void write(final byte[] src, final int off, final int len) throws IOException {
         if (this.closed) {
-            throw new IOException("Attempted write to closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
         if (len >= this.cache.length - this.cachePosition) {
             flushCacheWithAppend(src, off, len);

@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -150,22 +151,19 @@ public class TestChunkCoding {
         in.close();
         try {
             in.read();
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
         final byte[] tmp = new byte[10];
         try {
             in.read(tmp);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
         try {
             in.read(tmp, 0, tmp.length);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
+            Assert.fail("StreamClosedException expected");
+        } catch (final StreamClosedException expected) {
         }
     }
 

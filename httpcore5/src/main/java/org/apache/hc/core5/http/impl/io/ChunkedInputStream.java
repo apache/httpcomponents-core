@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -139,7 +140,7 @@ public class ChunkedInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         if (this.closed) {
-            throw new IOException("Attempted read from closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
         if (this.eof) {
             return -1;
@@ -174,7 +175,7 @@ public class ChunkedInputStream extends InputStream {
     public int read (final byte[] b, final int off, final int len) throws IOException {
 
         if (closed) {
-            throw new IOException("Attempted read from closed stream.");
+            throw new StreamClosedException("Stream already closed");
         }
 
         if (eof) {

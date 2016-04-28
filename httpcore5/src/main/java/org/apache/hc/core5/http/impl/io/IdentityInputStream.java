@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 
@@ -79,7 +80,7 @@ public class IdentityInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         if (this.closed) {
-            return -1;
+            throw new StreamClosedException("Stream already closed");
         }
         return this.buffer.read(this.inputStream);
     }
@@ -87,7 +88,7 @@ public class IdentityInputStream extends InputStream {
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
         if (this.closed) {
-            return -1;
+            throw new StreamClosedException("Stream already closed");
         }
         return this.buffer.read(b, off, len, this.inputStream);
     }
