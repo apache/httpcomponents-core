@@ -71,7 +71,6 @@ public class ElementalHttpPost {
 
         HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost host = new HttpHost("localhost", 8080);
-        coreContext.setTargetHost(host);
 
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
         ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
@@ -97,7 +96,7 @@ public class ElementalHttpPost {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket);
                 }
-                HttpRequest request = new BasicHttpRequest("POST",
+                HttpRequest request = new BasicHttpRequest("POST", host,
                         "/servlets-examples/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getUri());

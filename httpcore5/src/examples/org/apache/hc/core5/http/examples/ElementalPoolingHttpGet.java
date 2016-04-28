@@ -97,9 +97,8 @@ public class ElementalPoolingHttpGet {
                     try {
                         HttpClientConnection conn = entry.getConnection();
                         HttpCoreContext coreContext = HttpCoreContext.create();
-                        coreContext.setTargetHost(this.target);
 
-                        BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+                        BasicHttpRequest request = new BasicHttpRequest("GET", this.target, "/");
                         System.out.println(">> Request URI: " + request.getUri());
 
                         httpexecutor.preProcess(request, httpproc, coreContext);

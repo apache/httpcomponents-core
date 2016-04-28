@@ -151,8 +151,8 @@ public class NHttpFileServer {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
 
-            String target = request.getUri();
-            final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
+            String path = request.getPath();
+            final File file = new File(this.docRoot, URLDecoder.decode(path, "UTF-8"));
             if (!file.exists()) {
 
                 response.setCode(HttpStatus.SC_NOT_FOUND);

@@ -148,7 +148,7 @@ public class HttpFileServer {
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
-            String target = request.getUri();
+            String path = request.getPath();
 
             HttpEntity incomingEntity = request.getEntity();
             if (incomingEntity != null) {
@@ -156,7 +156,7 @@ public class HttpFileServer {
                 System.out.println("Incoming incomingEntity content (bytes): " + entityContent.length);
             }
 
-            final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
+            final File file = new File(this.docRoot, URLDecoder.decode(path, "UTF-8"));
             if (!file.exists()) {
 
                 response.setCode(HttpStatus.SC_NOT_FOUND);

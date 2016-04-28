@@ -62,14 +62,13 @@ public class ElementalHttpPostTrailers {
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
         HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost host = new HttpHost("localhost", 8080);
-        coreContext.setTargetHost(host);
         DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
         HttpEntity requestBody = new HttpEntityWithTrailers(
                 new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
                 new BasicHeader("t1","Hello world"));
         Socket socket = new Socket(host.getHostName(), host.getPort());
         conn.bind(socket);
-        BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        BasicHttpRequest request = new BasicHttpRequest("POST", host, "/");
         request.setEntity(requestBody);
         httpexecutor.preProcess(request, httpproc, coreContext);
         HttpResponse response = httpexecutor.execute(request, conn, coreContext);

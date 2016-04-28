@@ -27,6 +27,9 @@
 
 package org.apache.hc.core5.http;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * A request message from a client to a server includes, within the
  * first line of that message, the method to be applied to the resource,
@@ -88,5 +91,14 @@ public interface HttpRequest extends HttpMessage<HttpEntity> {
      * @since 5.0
      */
     void setAuthority(String authority);
+
+    /**
+     * Returns full request URI of this request message.
+     *
+     * @return  the request URI.
+     *
+     * @since 5.0
+     */
+    URI getUri() throws URISyntaxException;
 
 }

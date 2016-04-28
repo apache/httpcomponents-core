@@ -417,7 +417,7 @@ public class NHttpReverseProxy {
         @Override
         public void requestReceived(final HttpRequest request) {
             synchronized (this.httpExchange) {
-                System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getUri());
+                System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getPath());
                 this.httpExchange.setRequest(request);
                 this.executor.execute(
                         new ProxyRequestProducer(this.httpExchange),
@@ -514,9 +514,9 @@ public class NHttpReverseProxy {
         public HttpRequest generateRequest() {
             synchronized (this.httpExchange) {
                 HttpRequest request = this.httpExchange.getRequest();
-                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getUri());
+                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getPath());
                 // Rewrite request!!!!
-                BasicHttpRequest newREquest = new BasicHttpRequest(request.getMethod(), request.getUri());
+                BasicHttpRequest newREquest = new BasicHttpRequest(request.getMethod(), request.getPath());
                 newREquest.setEntity(request.getEntity());
                 return newREquest;
             }

@@ -109,6 +109,7 @@ public class TestBasicMessages {
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals(null, request.getAuthority());
+        Assert.assertEquals(new URI("/stuff"), request.getUri());
     }
 
     @Test
@@ -117,6 +118,7 @@ public class TestBasicMessages {
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals(null, request.getAuthority());
+        Assert.assertEquals(new URI("/stuff"), request.getUri());
     }
 
     @Test
@@ -126,6 +128,7 @@ public class TestBasicMessages {
         Assert.assertEquals("/stuff?param=value", request.getPath());
         Assert.assertEquals("host:9443", request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
+        Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
     }
 
     @Test
@@ -135,6 +138,7 @@ public class TestBasicMessages {
         Assert.assertEquals("/", request.getPath());
         Assert.assertEquals("host", request.getAuthority());
         Assert.assertEquals("http", request.getScheme());
+        Assert.assertEquals(new URI("http://host/"), request.getUri());
     }
 
     @Test

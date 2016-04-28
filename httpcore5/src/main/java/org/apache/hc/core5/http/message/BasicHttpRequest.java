@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpHost;
@@ -94,13 +95,13 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
         this.scheme = requestUri.getScheme();
         this.authority = requestUri.getAuthority();
         final StringBuilder buf = new StringBuilder();
-        final String path = requestUri.getRawPath();
+        final String path = requestUri.getPath();
         if (!TextUtils.isBlank(path)) {
             buf.append(path);
         } else {
             buf.append("/");
         }
-        final String query = requestUri.getRawQuery();
+        final String query = requestUri.getQuery();
         if (query != null) {
             buf.append('?').append(query);
         }
@@ -150,6 +151,16 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     @Override
     public void setAuthority(final String authority) {
         this.authority = authority;
+    }
+
+    @Override
+    public URI getUri() throws URISyntaxException {
+        final StringBuilder buf = new StringBuilder();
+        if (this.authority != null) {
+            buf.append(this.scheme != null ? this.scheme : "http").append("://").append(this.authority);
+        }
+        buf.append(this.path != null ? this.path : "/");
+        return new URI(buf.toString());
     }
 
     @Override

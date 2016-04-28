@@ -119,9 +119,8 @@ public class ElementalReverseProxy {
                     HTTP_OUT_CONN);
 
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
-            context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, this.target);
 
-            System.out.println(">> Request URI: " + request.getUri());
+            System.out.println(">> Request URI: " + request.getPath());
 
             // Remove hop-by-hop headers
             request.removeHeaders(HttpHeaders.CONTENT_LENGTH);
