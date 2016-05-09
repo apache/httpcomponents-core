@@ -25,13 +25,12 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio;
+package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
 
 public class ReadableByteChannelMock implements ReadableByteChannel {
 
@@ -42,14 +41,6 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
     private ByteBuffer currentChunk;
     private boolean eof = false;
     private boolean closed = false;
-
-    public ReadableByteChannelMock(final String[] strings, final Charset charset) {
-        super();
-        this.chunks = new byte[strings.length][];
-        for (int i = 0; i < strings.length; i++) {
-            this.chunks[i] = strings[i].getBytes(charset);
-        }
-    }
 
     public ReadableByteChannelMock(final byte[]... chunks) {
         super();

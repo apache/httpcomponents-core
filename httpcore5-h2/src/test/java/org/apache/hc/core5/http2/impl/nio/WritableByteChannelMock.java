@@ -25,15 +25,12 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio;
+package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.WritableByteChannel;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 
 public class WritableByteChannelMock implements WritableByteChannel {
 
@@ -109,11 +106,10 @@ public class WritableByteChannelMock implements WritableByteChannel {
         this.buf.clear();
     }
 
-    public String dump(final Charset charset) throws CharacterCodingException {
-        this.buf.flip();
-        final CharBuffer charBuffer = charset.newDecoder().decode(this.buf);
-        this.buf.flip();
-        return charBuffer.toString();
+    public ByteBuffer asReadOnly() {
+        final ByteBuffer dup = this.buf.duplicate();
+        dup.reset();
+        return dup.asReadOnlyBuffer();
     }
 
 }
