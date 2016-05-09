@@ -24,47 +24,33 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.setting;
+package org.apache.hc.core5.http2.frame;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import org.junit.Assert;
+import org.junit.Test;
 
-public enum H2Param {
+public class TestH2Settings {
 
-    HEADER_TABLE_SIZE      (0x1,   4096),
-    ENABLE_PUSH            (0x2,   1),
-    MAX_CONCURRENT_STREAMS (0x3,   Long.MAX_VALUE),
-    INITIAL_WINDOW_SIZE    (0x4,   65535),
-    MAX_FRAME_SIZE         (0x5,   16384),
-    MAX_HEADER_LIST_SIZE   (0x6,   Long.MAX_VALUE);
-
-    int code;
-
-    long initialValue;
-
-    H2Param(final int code, final long initialValue) {
-        this.code = code;
-        this.initialValue = initialValue;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public long getInitialValue() {
-        return initialValue;
-    }
-
-    private static final ConcurrentMap<Integer, H2Param> MAP_BY_CODE;
-    static {
-        MAP_BY_CODE = new ConcurrentHashMap<>();
-        for (H2Param param: values()) {
-            MAP_BY_CODE.putIfAbsent(param.code, param);
+    @Test
+    public void testH2ParamBasics() throws Exception {
+        for (H2Param param: H2Param.values()) {
+            Assert.assertEquals(param, H2Param.valueOf(param.getCode()));
+            Assert.assertEquals(param.name(), H2Param.toString(param.getCode()));
         }
+        Assert.assertEquals(null, H2Param.valueOf(0));
+        Assert.assertEquals(null, H2Param.valueOf(10));
+        Assert.assertEquals("0", H2Param.toString(0));
+        Assert.assertEquals("10", H2Param.toString(10));
     }
 
-    public static H2Param getByCode(final int code) {
-        return MAP_BY_CODE.get(code);
+    @Test
+    public void testH2SettingBasics() throws Exception {
+
+        final H2Setting setting1 = new H2Setting(H2Param.ENABLE_PUSH, 0);
+        final H2Setting setting2 = new H2Setting(H2Param.INITIAL_WINDOW_SIZE, 1024);
+
+        Assert.assertEquals("ENABLE_PUSH: 0", setting1.toString());
+        Assert.assertEquals("INITIAL_WINDOW_SIZE: 1024", setting2.toString());
     }
 
 };

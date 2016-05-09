@@ -31,16 +31,25 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.setting.H2Setting;
 import org.apache.hc.core5.util.Args;
 
 public abstract class FrameFactory {
 
+    // PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n
+    private final static byte[] PREFACE = new byte[] {
+            0x50, 0x52, 0x49, 0x20, 0x2a, 0x20, 0x48, 0x54, 0x54, 0x50,
+            0x2f, 0x32, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x53, 0x4d,
+            0x0d, 0x0a, 0x0d, 0x0a};
+
+    public byte[] createConnectionPreface() {
+        return PREFACE;
+    }
+
     public Frame<ByteBuffer> createSettings(final H2Setting... settings) {
         final ByteBuffer payload = ByteBuffer.allocate(settings.length * 12);
         for (H2Setting setting: settings) {
-            payload.putInt(setting.getCode());
-            payload.putLong(setting.getValue());
+            payload.putShort((short) setting.getCode());
+            payload.putInt(setting.getValue());
         }
         payload.flip();
         return new ByteBufferFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);

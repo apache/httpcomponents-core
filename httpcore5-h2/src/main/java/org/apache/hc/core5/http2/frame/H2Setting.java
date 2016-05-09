@@ -24,17 +24,16 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.setting;
+package org.apache.hc.core5.http2.frame;
 
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.LangUtils;
 
 public final class H2Setting {
 
     private final H2Param param;
-    private final long value;
+    private final int value;
 
-    public H2Setting(final H2Param param, final long value) {
+    public H2Setting(final H2Param param, final int value) {
         Args.notNull(param, "Setting parameter");
         Args.notNegative(value, "Setting value must be a non-negative value");
         this.param = param;
@@ -51,34 +50,13 @@ public final class H2Setting {
         return param.code;
     }
 
-    public long getValue() {
+    public int getValue() {
         return value;
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof H2Setting) {
-            final H2Setting that = (H2Setting) obj;
-            return this.param.equals(that.param);
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.param);
-        return hash;
-    }
-
-    @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder()
-                .append("[").append(param).append(":").append(value).append(']');
+        final StringBuilder sb = new StringBuilder().append(param).append(": ").append(value);
         return sb.toString();
     }
 };

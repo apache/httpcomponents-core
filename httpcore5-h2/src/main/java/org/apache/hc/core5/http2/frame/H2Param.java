@@ -26,15 +26,51 @@
  */
 package org.apache.hc.core5.http2.frame;
 
-public final class FrameConsts {
+public enum H2Param {
 
-    private FrameConsts() {
-        // Do not allow utility class to be instantiated.
+    HEADER_TABLE_SIZE      (0x1,   4096),
+    ENABLE_PUSH            (0x2,   1),
+    MAX_CONCURRENT_STREAMS (0x3,   Integer.MAX_VALUE),
+    INITIAL_WINDOW_SIZE    (0x4,   65535),
+    MAX_FRAME_SIZE         (0x5,   16384),
+    MAX_HEADER_LIST_SIZE   (0x6,   Integer.MAX_VALUE);
+
+    int code;
+
+    int initialValue;
+
+    H2Param(final int code, final int initialValue) {
+        this.code = code;
+        this.initialValue = initialValue;
     }
 
-    public final static int HEAD_LEN = 9;
-    public final static int MAX_PADDING = 255;
-    public final static int MIN_FRAME_SIZE = 2 ^ 14;
-    public final static int MAX_FRAME_SIZE = 2 ^ 24 - 1;
+    public int getCode() {
+        return code;
+    }
+
+    public int getInitialValue() {
+        return initialValue;
+    }
+
+    private static final H2Param[] LOOKUP_TABLE = new H2Param[6];
+    static {
+        for (H2Param param: H2Param.values()) {
+            LOOKUP_TABLE[param.code - 1] = param;
+        }
+    }
+
+    public static H2Param valueOf(final int code) {
+        if (code < 1 || code > LOOKUP_TABLE.length) {
+            return null;
+        }
+        return LOOKUP_TABLE[code - 1];
+    }
+
+    public static String toString(final int code) {
+        if (code < 1 || code > LOOKUP_TABLE.length) {
+            return Integer.toString(code);
+        }
+        return LOOKUP_TABLE[code - 1].name();
+    }
 
 };

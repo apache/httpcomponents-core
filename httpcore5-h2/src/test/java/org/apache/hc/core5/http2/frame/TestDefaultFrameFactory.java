@@ -30,8 +30,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.setting.H2Param;
-import org.apache.hc.core5.http2.setting.H2Setting;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -63,7 +61,7 @@ public class TestDefaultFrameFactory {
         Assert.assertEquals(0, settingsFrame.getFlags());
         final ByteBuffer payload = settingsFrame.getPayload();
         Assert.assertNotNull(payload);
-        Assert.assertEquals(24, payload.remaining());
+        Assert.assertEquals(12, payload.remaining());
     }
 
     @Test

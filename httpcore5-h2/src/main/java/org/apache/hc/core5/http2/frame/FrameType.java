@@ -63,4 +63,11 @@ public enum FrameType {
         return LOOKUP_TABLE[value];
     }
 
+    public static String toString(final int value) {
+        if (value < 0 || value >= LOOKUP_TABLE.length) {
+            return Integer.toString(value);
+        }
+        return LOOKUP_TABLE[value].name();
+    }
+
 };
