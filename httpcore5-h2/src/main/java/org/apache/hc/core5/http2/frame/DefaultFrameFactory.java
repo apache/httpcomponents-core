@@ -33,22 +33,24 @@ import org.apache.hc.core5.util.Args;
 
 public class DefaultFrameFactory extends FrameFactory {
 
-    public Frame<ByteBuffer> createHeaders(final int streamId, final ByteBuffer content, final boolean endHeaders, final boolean endStream) {
+    public static final FrameFactory INSTANCE = new DefaultFrameFactory();
+
+    public Frame<ByteBuffer> createHeaders(final int streamId, final ByteBuffer payload, final boolean endHeaders, final boolean endStream) {
         Args.positive(streamId, "Stream id");
         final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0) | (endStream ? FrameFlag.END_STREAM.value : 0);
-        return new ByteBufferFrame(FrameType.HEADERS.getValue(), flags, streamId, content);
+        return new ByteBufferFrame(FrameType.HEADERS.getValue(), flags, streamId, payload);
     }
 
-    public Frame<ByteBuffer> createContinuation(final int streamId, final ByteBuffer content, final boolean endHeaders) {
+    public Frame<ByteBuffer> createContinuation(final int streamId, final ByteBuffer payload, final boolean endHeaders) {
         Args.positive(streamId, "Stream id");
         final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0);
-        return new ByteBufferFrame(FrameType.CONTINUATION.getValue(), flags, streamId, content);
+        return new ByteBufferFrame(FrameType.CONTINUATION.getValue(), flags, streamId, payload);
     }
 
-    public Frame<ByteBuffer> createData(final int streamId, final ByteBuffer content, final boolean endStream) {
+    public Frame<ByteBuffer> createData(final int streamId, final ByteBuffer payload, final boolean endStream) {
         Args.positive(streamId, "Stream id");
         final int flags = (endStream ? FrameFlag.END_STREAM.value : 0);
-        return new ByteBufferFrame(FrameType.DATA.getValue(), flags, streamId, content);
+        return new ByteBufferFrame(FrameType.DATA.getValue(), flags, streamId, payload);
     }
 
 }

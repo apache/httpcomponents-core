@@ -26,10 +26,11 @@
  */
 package org.apache.hc.core5.http2;
 
-import org.apache.hc.core5.http.ProtocolException;
+import java.io.IOException;
+
 import org.apache.hc.core5.util.Args;
 
-public class H2StreamException extends ProtocolException {
+public class H2StreamException extends IOException {
 
     private static final long serialVersionUID = 6321637486572232180L;
 

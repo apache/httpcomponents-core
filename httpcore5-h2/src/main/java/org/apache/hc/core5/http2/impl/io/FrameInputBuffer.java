@@ -33,7 +33,6 @@ import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
 import org.apache.hc.core5.http2.H2Error;
@@ -43,15 +42,15 @@ import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.apache.hc.core5.http2.io.Http2TransportMetrics;
-import org.apache.hc.core5.http2.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Frame input buffer for HTTP/2 blocking connections.
  *
  * @since 5.0
  */
 @NotThreadSafe
-public class SessionInputBufferImpl implements SessionInputBuffer {
+public final class FrameInputBuffer {
 
     private final BasicHttp2TransportMetrics metrics;
     private final int maxFramePayloadSize;
@@ -60,24 +59,28 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     private int off;
     private int dataLen;
 
-    SessionInputBufferImpl(final BasicHttp2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
+    FrameInputBuffer(final BasicHttp2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrcis");
-        Args.positive(maxFramePayloadSize, "Buffer size");
+        Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
         this.maxFramePayloadSize = maxFramePayloadSize;
         this.buffer = new byte[bufferLen];
         this.dataLen = 0;
     }
 
-    public SessionInputBufferImpl(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
-        this(metrics, FrameConsts.HEAD_LEN + maxFramePayloadSize + FrameConsts.MAX_PADDING + 1, maxFramePayloadSize);
+    public FrameInputBuffer(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
+        this(metrics, FrameConsts.HEAD_LEN + maxFramePayloadSize, maxFramePayloadSize);
     }
 
-    public SessionInputBufferImpl(final int maxFramePayloadSize) {
+    public FrameInputBuffer(final int maxFramePayloadSize) {
         this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
     }
 
-    private void fillBuffer(final InputStream instream, final int requiredLen)throws IOException {
+    boolean hasData() {
+        return this.dataLen > 0;
+    }
+
+    void fillBuffer(final InputStream instream, final int requiredLen) throws IOException {
         while (dataLen < requiredLen) {
             if (off > 0) {
                 System.arraycopy(buffer, off, buffer, 0, dataLen);
@@ -97,39 +100,42 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         }
     }
 
-    public Frame<ByteBuffer> readFrame(final InputStream instream) throws ProtocolException, IOException {
+    public Frame<ByteBuffer> read(final InputStream instream) throws IOException {
 
         fillBuffer(instream, FrameConsts.HEAD_LEN);
-        int payloadOff = FrameConsts.HEAD_LEN;
+        final int payloadOff = FrameConsts.HEAD_LEN;
 
         final int payloadLen = (buffer[off] & 0xff) << 16 | (buffer[off + 1] & 0xff) << 8 | (buffer[off + 2] & 0xff);
         final int type = buffer[off + 3] & 0xff;
         final int flags = buffer[off + 4] & 0xff;
-        final int streamId = (buffer[off + 5] & 0xff) << 24 | (buffer[off + 6] & 0xff << 16) | (buffer[off + 7] & 0xff) << 8 | (buffer[off + 8] & 0xff);
+        final int streamId = Math.abs(buffer[off + 5] & 0xff) << 24 | (buffer[off + 6] & 0xff << 16) | (buffer[off + 7] & 0xff) << 8 | (buffer[off + 8] & 0xff);
         if (payloadLen > maxFramePayloadSize) {
-            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, streamId, "Frame size exceeds maximum");
+            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
         }
 
-        final int padding;
-        if ((flags & FrameFlag.PADDED.getValue()) == 0) {
-            padding = 0;
-        } else {
-            fillBuffer(instream, FrameConsts.HEAD_LEN + 1);
-            payloadOff = FrameConsts.HEAD_LEN + 1;
-            padding = buffer[off + 9] & 0xff;
-        }
-
-        final int frameLen = payloadOff + payloadLen + padding;
+        final int frameLen = payloadOff + payloadLen;
         fillBuffer(instream, frameLen);
 
         final ByteBuffer payload;
         if (payloadLen > 0) {
-            payload = ByteBuffer.wrap(buffer, off + payloadOff, payloadLen).asReadOnlyBuffer();
+            if ((flags & FrameFlag.PADDED.getValue()) == 0) {
+                payload = ByteBuffer.wrap(buffer, off + payloadOff, payloadLen);
+            } else {
+                if (payloadLen == 0) {
+                    throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Inconsistent padding");
+                }
+                final int padding = buffer[off + FrameConsts.HEAD_LEN] & 0xff;
+                if (payloadLen < padding + 1) {
+                    throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Inconsistent padding");
+                }
+                payload = ByteBuffer.wrap(buffer, off + payloadOff + 1, payloadLen - padding - 1);
+            }
         } else {
             payload = null;
         }
 
-        final ByteBufferFrame frame = new ByteBufferFrame(type, flags, streamId, payload);
+        final ByteBufferFrame frame = new ByteBufferFrame(type, flags & ~FrameFlag.PADDED.getValue(), streamId,
+                payload != null ? payload.asReadOnlyBuffer() : null);
 
         off += frameLen;
         dataLen -= frameLen;

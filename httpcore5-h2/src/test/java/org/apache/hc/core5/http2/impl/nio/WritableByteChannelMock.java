@@ -108,8 +108,16 @@ public class WritableByteChannelMock implements WritableByteChannel {
 
     public ByteBuffer asReadOnly() {
         final ByteBuffer dup = this.buf.duplicate();
-        dup.reset();
+        dup.flip();
         return dup.asReadOnlyBuffer();
+    }
+
+    public byte[] toByteArray() {
+        final ByteBuffer dup = this.buf.duplicate();
+        dup.flip();
+        final byte[] bytes = new byte[dup.remaining()];
+        dup.get(bytes);
+        return bytes;
     }
 
 }

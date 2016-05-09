@@ -59,18 +59,16 @@ public abstract class FrameFactory {
         return new ByteBufferFrame(FrameType.RST_STREAM.getValue(), 0, streamId, payload);
     }
 
-    public Frame<ByteBuffer> createPing(final byte[] opaqueData) {
+    public Frame<ByteBuffer> createPing(final ByteBuffer opaqueData) {
         Args.notNull(opaqueData, "Opaque data");
-        Args.check(opaqueData.length == 8, "Opaque data length must be equal 8");
-        final ByteBuffer payload = ByteBuffer.wrap(opaqueData);
-        return new ByteBufferFrame(FrameType.PING.getValue(), 0, 0, payload);
+        Args.check(opaqueData.remaining() == 8, "Opaque data length must be equal 8");
+        return new ByteBufferFrame(FrameType.PING.getValue(), 0, 0, opaqueData);
     }
 
-    public Frame<ByteBuffer> createPingAck(final byte[] opaqueData) {
+    public Frame<ByteBuffer> createPingAck(final ByteBuffer opaqueData) {
         Args.notNull(opaqueData, "Opaque data");
-        Args.check(opaqueData.length == 8, "Opaque data length must be equal 8");
-        final ByteBuffer payload = ByteBuffer.wrap(opaqueData);
-        return new ByteBufferFrame(FrameType.PING.getValue(), FrameFlag.ACK.value, 0, payload);
+        Args.check(opaqueData.remaining() == 8, "Opaque data length must be equal 8");
+        return new ByteBufferFrame(FrameType.PING.getValue(), FrameFlag.ACK.value, 0, opaqueData);
     }
 
     public Frame<ByteBuffer> createGoAway(final int lastStream, final H2Error error, final String message) {
@@ -84,10 +82,10 @@ public abstract class FrameFactory {
         return new ByteBufferFrame(FrameType.GOAWAY.getValue(), 0, 0, payload);
     }
 
-    public abstract Frame<ByteBuffer> createHeaders(int streamId, ByteBuffer content, boolean endHeaders, boolean endStream);
+    public abstract Frame<ByteBuffer> createHeaders(int streamId, ByteBuffer payload, boolean endHeaders, boolean endStream);
 
-    public abstract Frame<ByteBuffer> createContinuation(int streamId, ByteBuffer content, boolean endHeaders);
+    public abstract Frame<ByteBuffer> createContinuation(int streamId, ByteBuffer payload, boolean endHeaders);
 
-    public abstract Frame<ByteBuffer> createData(int streamId, ByteBuffer content, boolean endStream);
+    public abstract Frame<ByteBuffer> createData(int streamId, ByteBuffer payload, boolean endStream);
 
 }

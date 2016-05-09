@@ -32,7 +32,6 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.annotation.NotThreadSafe;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.frame.Frame;
@@ -40,35 +39,34 @@ import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.apache.hc.core5.http2.io.Http2TransportMetrics;
-import org.apache.hc.core5.http2.io.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Session output buffer for HTTP/2 blocking connections.
+ * Frame output buffer for HTTP/2 blocking connections.
  *
  * @since 5.0
  */
 @NotThreadSafe
-public class SessionOutputBufferImpl implements SessionOutputBuffer {
+public final class FrameOutputBuffer {
 
     private final BasicHttp2TransportMetrics metrics;
     private final int maxFramePayloadSize;
     private final byte[] buffer;
 
-    public SessionOutputBufferImpl(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
+    public FrameOutputBuffer(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
         super();
         Args.notNull(metrics, "HTTP2 transport metrcis");
-        Args.positive(maxFramePayloadSize, "Buffer size");
+        Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
         this.maxFramePayloadSize = maxFramePayloadSize;
         this.buffer = new byte[FrameConsts.HEAD_LEN + maxFramePayloadSize + FrameConsts.MAX_PADDING + 1];
     }
 
-    public SessionOutputBufferImpl(final int maxFramePayloadSize) {
+    public FrameOutputBuffer(final int maxFramePayloadSize) {
         this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
     }
 
-    public void write(final Frame<ByteBuffer> frame, final OutputStream outstream) throws ProtocolException, IOException {
+    public void write(final Frame<ByteBuffer> frame, final OutputStream outstream) throws IOException {
         if (frame == null) {
             return;
         }
@@ -78,7 +76,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         final ByteBuffer payload = frame.getPayload();
         final int payloadLen = payload != null ? payload.remaining() : 0;
         if (payload != null && payload.remaining() > maxFramePayloadSize) {
-            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, streamId, "Frame size exceeds maximum");
+            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
         }
         buffer[0] = (byte) (payloadLen >> 16 & 0xff);
         buffer[1] = (byte) (payloadLen >> 8 & 0xff);

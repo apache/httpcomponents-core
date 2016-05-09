@@ -26,37 +26,29 @@
  */
 package org.apache.hc.core5.http2;
 
-import org.apache.hc.core5.http.ProtocolException;
+import java.io.IOException;
+
 import org.apache.hc.core5.util.Args;
 
-public class H2ConnectionException extends ProtocolException {
+public class H2ConnectionException extends IOException {
 
     private static final long serialVersionUID = -2014204317155428658L;
 
     private final int code;
-    private final long streamId;
 
-    public H2ConnectionException(final H2Error error, final long streamId, final String message) {
+    public H2ConnectionException(final H2Error error, final String message) {
         super(message);
         Args.notNull(error, "H2 Error code may not be null");
-        Args.positive(streamId, "H2 stream id may not be negative or zero");
         this.code = error.getCode();
-        this.streamId = streamId;
     }
 
-    public H2ConnectionException(final int code, final long streamId, final String message) {
+    public H2ConnectionException(final int code, final String message) {
         super(message);
-        Args.positive(streamId, "H2 stream id may not be negative or zero");
         this.code = code;
-        this.streamId = streamId;
     }
 
     public int getCode() {
         return code;
-    }
-
-    public long getStreamId() {
-        return streamId;
     }
 
 };
