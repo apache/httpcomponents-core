@@ -34,9 +34,9 @@ import java.nio.ByteBuffer;
 import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.frame.Frame;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
+import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.apache.hc.core5.http2.io.Http2TransportMetrics;
 import org.apache.hc.core5.util.Args;
@@ -66,7 +66,7 @@ public final class FrameOutputBuffer {
         this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
     }
 
-    public void write(final Frame<ByteBuffer> frame, final OutputStream outstream) throws IOException {
+    public void write(final RawFrame frame, final OutputStream outstream) throws IOException {
         if (frame == null) {
             return;
         }

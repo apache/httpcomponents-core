@@ -32,11 +32,10 @@ import java.nio.ByteBuffer;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
-import org.apache.hc.core5.http2.frame.ByteBufferFrame;
-import org.apache.hc.core5.http2.frame.Frame;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
+import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.junit.Assert;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class TestFrameInOutBuffers {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(16 * 1024);
 
-        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), 0, 1,
+        final RawFrame frame = new RawFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[]{1,2,3,4,5}));
         outbuffer.write(frame, writableChannel);
 
@@ -60,11 +59,11 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(bytes.length, outbuffer.getMetrics().getBytesTransferred());
 
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(bytes);
-        final Frame<ByteBuffer> frame2 = inbuffer.read(readableChannel);
+        final RawFrame frame2 = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA.getValue(), frame2.getType());
         Assert.assertEquals(0, frame2.getFlags());
         Assert.assertEquals(1L, frame2.getStreamId());
-        final ByteBuffer payload2 = frame2.getPayload();
+        final ByteBuffer payload2 = frame2.getPayloadContent();
         Assert.assertNotNull(payload2);
         Assert.assertEquals(5, payload2.remaining());
         Assert.assertEquals(1, payload2.get());
@@ -82,7 +81,7 @@ public class TestFrameInOutBuffers {
     public void testPartialFrameWrite() throws Exception {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024, FrameConsts.HEAD_LEN + 10);
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(16 * 1024);
-        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), FrameFlag.END_STREAM.getValue(), 5,
+        final RawFrame frame = new RawFrame(FrameType.DATA.getValue(), FrameFlag.END_STREAM.getValue(), 5,
                 ByteBuffer.wrap(new byte[]{'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'}));
 
         outbuffer.write(frame, writableChannel);
@@ -109,11 +108,11 @@ public class TestFrameInOutBuffers {
                         0,0,10,0,9,0,0,0,8,4,5,6,7,8,9,0,0,0,0
                 });
 
-        final Frame<ByteBuffer> frame1 = inbuffer.read(readableChannel);
+        final RawFrame frame1 = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame1.getType()));
-        Assert.assertEquals(0, frame1.getFlags());
+        Assert.assertEquals(8, frame1.getFlags());
         Assert.assertEquals(8, frame1.getStreamId());
-        final ByteBuffer payload1 = frame1.getPayload();
+        final ByteBuffer payload1 = frame1.getPayloadContent();
         Assert.assertNotNull(payload1);
         Assert.assertEquals(5, payload1.remaining());
         Assert.assertEquals(0, payload1.get());
@@ -122,11 +121,11 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(3, payload1.get());
         Assert.assertEquals(4, payload1.get());
 
-        final Frame<ByteBuffer> frame2 = inbuffer.read(readableChannel);
+        final RawFrame frame2 = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame2.getType()));
-        Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM), frame2.getFlags());
+        Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame2.getFlags());
         Assert.assertEquals(8, frame2.getStreamId());
-        final ByteBuffer payload2 = frame2.getPayload();
+        final ByteBuffer payload2 = frame2.getPayloadContent();
         Assert.assertNotNull(payload2);
         Assert.assertEquals(5, payload2.remaining());
         Assert.assertEquals(5, payload2.get());
@@ -148,11 +147,11 @@ public class TestFrameInOutBuffers {
                         0,0,10,0,9,0,0,0,8,4,3,3,3,3,3,0,0,0,0
                 });
 
-        final Frame<ByteBuffer> frame1 = inbuffer.read(readableChannel);
+        final RawFrame frame1 = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame1.getType()));
-        Assert.assertEquals(0, frame1.getFlags());
+        Assert.assertEquals(8, frame1.getFlags());
         Assert.assertEquals(8, frame1.getStreamId());
-        final ByteBuffer payload1 = frame1.getPayload();
+        final ByteBuffer payload1 = frame1.getPayloadContent();
         Assert.assertNotNull(payload1);
         Assert.assertEquals(5, payload1.remaining());
         Assert.assertEquals(1, payload1.get());
@@ -161,11 +160,11 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(1, payload1.get());
         Assert.assertEquals(1, payload1.get());
 
-        final Frame<ByteBuffer> frame2 = inbuffer.read(readableChannel);
+        final RawFrame frame2 = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame2.getType()));
         Assert.assertEquals(0, frame2.getFlags());
         Assert.assertEquals(8, frame2.getStreamId());
-        final ByteBuffer payload2 = frame2.getPayload();
+        final ByteBuffer payload2 = frame2.getPayloadContent();
         Assert.assertNotNull(payload2);
         Assert.assertEquals(5, payload2.remaining());
         Assert.assertEquals(2, payload2.get());
@@ -174,11 +173,11 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(2, payload2.get());
         Assert.assertEquals(2, payload2.get());
 
-        final Frame<ByteBuffer> frame3 = inbuffer.read(readableChannel);
+        final RawFrame frame3 = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame3.getType()));
-        Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM), frame3.getFlags());
+        Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame3.getFlags());
         Assert.assertEquals(8, frame3.getStreamId());
-        final ByteBuffer payload3 = frame3.getPayload();
+        final ByteBuffer payload3 = frame3.getPayloadContent();
         Assert.assertNotNull(payload3);
         Assert.assertEquals(5, payload3.remaining());
         Assert.assertEquals(3, payload3.get());
@@ -202,11 +201,11 @@ public class TestFrameInOutBuffers {
                 new byte[] {5,0},
                 new byte[] {0,0,0});
 
-        final Frame<ByteBuffer> frame = inbuffer.read(readableChannel);
+        final RawFrame frame = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame.getType()));
-        Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM), frame.getFlags());
+        Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame.getFlags());
         Assert.assertEquals(8, frame.getStreamId());
-        final ByteBuffer payload = frame.getPayload();
+        final ByteBuffer payload = frame.getPayloadContent();
         Assert.assertNotNull(payload);
         Assert.assertEquals(5, payload.remaining());
         Assert.assertEquals(1, payload.get());
@@ -224,11 +223,11 @@ public class TestFrameInOutBuffers {
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(
                 new byte[] {0,0,0,0,0,0,0,0,0});
 
-        final Frame<ByteBuffer> frame = inbuffer.read(readableChannel);
+        final RawFrame frame = inbuffer.read(readableChannel);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame.getType()));
         Assert.assertEquals(0, frame.getFlags());
         Assert.assertEquals(0, frame.getStreamId());
-        final ByteBuffer payload = frame.getPayload();
+        final ByteBuffer payload = frame.getPayloadContent();
         Assert.assertNull(payload);
     }
 
@@ -255,7 +254,7 @@ public class TestFrameInOutBuffers {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(1024);
 
-        final ByteBufferFrame frame = new ByteBufferFrame(FrameType.DATA.getValue(), 0, 1,
+        final RawFrame frame = new RawFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[2048]));
         outbuffer.write(frame, writableChannel);
     }

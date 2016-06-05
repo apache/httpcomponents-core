@@ -35,10 +35,9 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
 import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.frame.ByteBufferFrame;
-import org.apache.hc.core5.http2.frame.Frame;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
+import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.apache.hc.core5.http2.io.Http2TransportMetrics;
 import org.apache.hc.core5.util.Args;
@@ -83,7 +82,7 @@ public final class FrameInputBuffer {
         this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
     }
 
-    public Frame<ByteBuffer> read(final ReadableByteChannel channel) throws IOException {
+    public RawFrame read(final ReadableByteChannel channel) throws IOException {
         for (;;) {
             switch (state) {
                 case HEAD_EXPECTED:
@@ -102,31 +101,22 @@ public final class FrameInputBuffer {
                     }
                 case PAYLOAD_EXPECTED:
                     if (buffer.remaining() >= payloadLen) {
-                        final ByteBuffer payload;
-                        if ((flags & FrameFlag.PADDED.getValue()) == 0) {
-                            if (payloadLen > 0) {
-                                payload = ByteBuffer.wrap(bytes, buffer.position(), payloadLen);
-                                buffer.position(buffer.position() + payloadLen);
-                            } else {
-                                payload = null;
-                            }
-                        } else {
+                        if ((flags & FrameFlag.PADDED.getValue()) > 0) {
                             if (payloadLen == 0) {
                                 throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Inconsistent padding");
                             }
+                            buffer.mark();
                             final int padding = buffer.get();
                             if (payloadLen < padding + 1) {
                                 throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Inconsistent padding");
                             }
-                            final int off = buffer.position();
-                            final int len = payloadLen - padding - 1;
-                            payload = ByteBuffer.wrap(bytes, off, len);
-                            buffer.position(buffer.position() - 1 + payloadLen);
+                            buffer.reset();
                         }
+                        final ByteBuffer payload = payloadLen > 0 ? ByteBuffer.wrap(bytes, buffer.position(), payloadLen) : null;
+                        buffer.position(buffer.position() + payloadLen);
                         state = State.HEAD_EXPECTED;
                         metrics.incrementFramesTransferred();
-                        return new ByteBufferFrame(type, flags & ~FrameFlag.PADDED.getValue(), streamId,
-                                payload != null ? payload.asReadOnlyBuffer() : null);
+                        return new RawFrame(type, flags, streamId, payload);
                     }
             }
             if (buffer.hasRemaining()) {

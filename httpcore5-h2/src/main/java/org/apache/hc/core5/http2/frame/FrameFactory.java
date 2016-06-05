@@ -45,42 +45,42 @@ public abstract class FrameFactory {
         return PREFACE;
     }
 
-    public Frame<ByteBuffer> createSettings(final H2Setting... settings) {
+    public RawFrame createSettings(final H2Setting... settings) {
         final ByteBuffer payload = ByteBuffer.allocate(settings.length * 12);
         for (H2Setting setting: settings) {
             payload.putShort((short) setting.getCode());
             payload.putInt(setting.getValue());
         }
         payload.flip();
-        return new ByteBufferFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
+        return new RawFrame(FrameType.SETTINGS.getValue(), 0, 0, payload);
     }
 
-    public Frame<ByteBuffer> createSettingsAck() {
-        return new ByteBufferFrame(FrameType.SETTINGS.getValue(), FrameFlag.ACK.getValue(), 0, null);
+    public RawFrame createSettingsAck() {
+        return new RawFrame(FrameType.SETTINGS.getValue(), FrameFlag.ACK.getValue(), 0, null);
     }
 
-    public Frame<ByteBuffer> createResetStream(final int streamId, final H2Error error) {
+    public RawFrame createResetStream(final int streamId, final H2Error error) {
         Args.positive(streamId, "Stream id");
         Args.notNull(error, "Error");
         final ByteBuffer payload = ByteBuffer.allocate(4);
         payload.putInt(error.getCode());
         payload.flip();
-        return new ByteBufferFrame(FrameType.RST_STREAM.getValue(), 0, streamId, payload);
+        return new RawFrame(FrameType.RST_STREAM.getValue(), 0, streamId, payload);
     }
 
-    public Frame<ByteBuffer> createPing(final ByteBuffer opaqueData) {
+    public RawFrame createPing(final ByteBuffer opaqueData) {
         Args.notNull(opaqueData, "Opaque data");
         Args.check(opaqueData.remaining() == 8, "Opaque data length must be equal 8");
-        return new ByteBufferFrame(FrameType.PING.getValue(), 0, 0, opaqueData);
+        return new RawFrame(FrameType.PING.getValue(), 0, 0, opaqueData);
     }
 
-    public Frame<ByteBuffer> createPingAck(final ByteBuffer opaqueData) {
+    public RawFrame createPingAck(final ByteBuffer opaqueData) {
         Args.notNull(opaqueData, "Opaque data");
         Args.check(opaqueData.remaining() == 8, "Opaque data length must be equal 8");
-        return new ByteBufferFrame(FrameType.PING.getValue(), FrameFlag.ACK.value, 0, opaqueData);
+        return new RawFrame(FrameType.PING.getValue(), FrameFlag.ACK.value, 0, opaqueData);
     }
 
-    public Frame<ByteBuffer> createGoAway(final int lastStream, final H2Error error, final String message) {
+    public RawFrame createGoAway(final int lastStream, final H2Error error, final String message) {
         Args.positive(lastStream, "Last stream id");
         final byte[] debugData = message != null ? message.getBytes(StandardCharsets.US_ASCII) : null;
         final ByteBuffer payload = ByteBuffer.allocate(8 + (debugData != null ? debugData.length : 0));
@@ -88,13 +88,13 @@ public abstract class FrameFactory {
         payload.putInt(error.getCode());
         payload.put(debugData);
         payload.flip();
-        return new ByteBufferFrame(FrameType.GOAWAY.getValue(), 0, 0, payload);
+        return new RawFrame(FrameType.GOAWAY.getValue(), 0, 0, payload);
     }
 
-    public abstract Frame<ByteBuffer> createHeaders(int streamId, ByteBuffer payload, boolean endHeaders, boolean endStream);
+    public abstract RawFrame createHeaders(int streamId, ByteBuffer payload, boolean endHeaders, boolean endStream);
 
-    public abstract Frame<ByteBuffer> createContinuation(int streamId, ByteBuffer payload, boolean endHeaders);
+    public abstract RawFrame createContinuation(int streamId, ByteBuffer payload, boolean endHeaders);
 
-    public abstract Frame<ByteBuffer> createData(int streamId, ByteBuffer payload, boolean endStream);
+    public abstract RawFrame createData(int streamId, ByteBuffer payload, boolean endStream);
 
 }

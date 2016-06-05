@@ -28,18 +28,47 @@ package org.apache.hc.core5.http2.frame;
 
 import java.nio.ByteBuffer;
 
-public final class ByteBufferFrame extends Frame<ByteBuffer> {
+public final class RawFrame extends Frame<ByteBuffer> {
 
     private final ByteBuffer payload;
 
-    public ByteBufferFrame(final int type, final int flags, final int streamId, final ByteBuffer payload) {
+    public RawFrame(final int type, final int flags, final int streamId, final ByteBuffer payload) {
         super(type, flags, streamId);
         this.payload = payload;
     }
 
+    public boolean isPadded() {
+        return isFlagSet(FrameFlag.PADDED);
+    }
+
+    public int getLength() {
+        return payload != null ? payload.remaining() : 0;
+    }
+
+    public ByteBuffer getPayloadContent() {
+        if (payload != null) {
+            if (isPadded()) {
+                final ByteBuffer dup = payload.duplicate();
+                if (dup.remaining() == 0) {
+                    return null;
+                }
+                final int padding = dup.get() & 0xff;
+                if (padding > dup.remaining()) {
+                    return null;
+                }
+                dup.limit(dup.limit() - padding);
+                return dup.asReadOnlyBuffer();
+            } else {
+                return payload.asReadOnlyBuffer();
+            }
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public ByteBuffer getPayload() {
-        return payload;
+        return payload != null ? payload.asReadOnlyBuffer() : null;
     }
 
 }
