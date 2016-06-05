@@ -94,7 +94,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     protected final IOReactorConfig config;
     protected final Selector selector;
     protected final long selectTimeout;
-    protected final boolean interestOpsQueueing;
 
     private final int workerCount;
     private final ThreadFactory threadFactory;
@@ -130,7 +129,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             throw new IOReactorException("Failure opening selector", ex);
         }
         this.selectTimeout = this.config.getSelectInterval();
-        this.interestOpsQueueing = this.config.isInterestOpQueued();
         this.statusLock = new Object();
         if (threadFactory != null) {
             this.threadFactory = threadFactory;
@@ -264,7 +262,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.status = IOReactorStatus.ACTIVE;
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
-                final BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout, this.interestOpsQueueing);
+                final BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout);
                 dispatcher.setExceptionHandler(exceptionHandler);
                 this.dispatchers[i] = dispatcher;
             }

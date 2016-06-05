@@ -43,7 +43,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
 
 /**
  * Generic implementation of {@link IOReactor} that can used as a subclass
@@ -59,10 +58,8 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     private final Object statusMutex;
     private final long selectTimeout;
-    private final boolean interestOpsQueueing;
     private final Selector selector;
     private final Set<IOSession> sessions;
-    private final Queue<InterestOpEntry> interestOpsQueue;
     private final Queue<IOSession> closedSessions;
     private final Queue<ChannelEntry> newChannels;
 
@@ -73,26 +70,10 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     public AbstractIOReactor(final long selectTimeout) throws IOReactorException {
-        this(selectTimeout, false);
-    }
-
-    /**
-     * Creates new AbstractIOReactor instance.
-     *
-     * @param selectTimeout the select timeout.
-     * @param interestOpsQueueing Ops queueing flag.
-     *
-     * @throws IOReactorException in case if a non-recoverable I/O error.
-     *
-     * @since 4.1
-     */
-    public AbstractIOReactor(final long selectTimeout, final boolean interestOpsQueueing) throws IOReactorException {
         super();
         Args.positive(selectTimeout, "Select timeout");
         this.selectTimeout = selectTimeout;
-        this.interestOpsQueueing = interestOpsQueueing;
         this.sessions = Collections.synchronizedSet(new HashSet<IOSession>());
-        this.interestOpsQueue = new ConcurrentLinkedQueue<>();
         this.closedSessions = new ConcurrentLinkedQueue<>();
         this.newChannels = new ConcurrentLinkedQueue<>();
         try {
@@ -200,15 +181,6 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
 
     /**
-     * Returns {@code true} if interest Ops queueing is enabled, {@code false} otherwise.
-     *
-     * @since 4.1
-     */
-    public boolean getInterestOpsQueueing() {
-        return this.interestOpsQueueing;
-    }
-
-    /**
      * Adds new channel entry. The channel will be asynchronously registered
      * with the selector.
      *
@@ -290,12 +262,6 @@ public abstract class AbstractIOReactor implements IOReactor {
                         && this.sessions.isEmpty()) {
                     break;
                 }
-
-                if (this.interestOpsQueueing) {
-                    // process all pending interestOps() operations
-                    processPendingInterestOps();
-                }
-
             }
 
         } catch (final ClosedSelectorException ignore) {
@@ -386,21 +352,9 @@ public abstract class AbstractIOReactor implements IOReactor {
 
             };
 
-            InterestOpsCallback interestOpsCallback = null;
-            if (this.interestOpsQueueing) {
-                interestOpsCallback = new InterestOpsCallback() {
-
-                    @Override
-                    public void addInterestOps(final InterestOpEntry entry) {
-                        queueInterestOps(entry);
-                    }
-
-                };
-            }
-
             final IOSession session;
             try {
-                session = new IOSessionImpl(key, interestOpsCallback, sessionClosedCallback);
+                session = new IOSessionImpl(key, sessionClosedCallback);
                 int timeout = 0;
                 try {
                     timeout = channel.socket().getSoTimeout();
@@ -441,35 +395,6 @@ public abstract class AbstractIOReactor implements IOReactor {
                 }
             }
         }
-    }
-
-    private void processPendingInterestOps() {
-        // validity check
-        if (!this.interestOpsQueueing) {
-            return;
-        }
-        InterestOpEntry entry;
-        while ((entry = this.interestOpsQueue.poll()) != null) {
-            // obtain the operation's details
-            final SelectionKey key = entry.getSelectionKey();
-            final int eventMask = entry.getEventMask();
-            if (key.isValid()) {
-                key.interestOps(eventMask);
-            }
-        }
-    }
-
-    private boolean queueInterestOps(final InterestOpEntry entry) {
-        // validity checks
-        Asserts.check(this.interestOpsQueueing, "Interest ops queueing not enabled");
-        if (entry == null) {
-            return false;
-        }
-
-        // add this operation to the interestOps() queue
-        this.interestOpsQueue.add(entry);
-
-        return true;
     }
 
     /**

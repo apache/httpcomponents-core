@@ -64,22 +64,7 @@ public class BaseIOReactor extends AbstractIOReactor {
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     public BaseIOReactor(final long selectTimeout) throws IOReactorException {
-        this(selectTimeout, false);
-    }
-
-    /**
-     * Creates new BaseIOReactor instance.
-     *
-     * @param selectTimeout the select timeout.
-     * @param interestOpsQueueing Ops queueing flag.
-     *
-     * @throws IOReactorException in case if a non-recoverable I/O error.
-     *
-     * @since 4.1
-     */
-    public BaseIOReactor(
-            final long selectTimeout, final boolean interestOpsQueueing) throws IOReactorException {
-        super(selectTimeout, interestOpsQueueing);
+        super(selectTimeout);
         this.bufferingSessions = new HashSet<>();
         this.timeoutCheckInterval = selectTimeout;
         this.lastTimeoutCheck = System.currentTimeMillis();
