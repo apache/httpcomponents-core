@@ -43,7 +43,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
 
     private static final long serialVersionUID = -6208952725094867135L;
 
-    private char[] buffer;
+    private char[] array;
     private int len;
 
     /**
@@ -55,13 +55,13 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
     public CharArrayBuffer(final int capacity) {
         super();
         Args.notNegative(capacity, "Buffer capacity");
-        this.buffer = new char[capacity];
+        this.array = new char[capacity];
     }
 
     private void expand(final int newlen) {
-        final char[] newbuffer = new char[Math.max(this.buffer.length << 1, newlen)];
-        System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
-        this.buffer = newbuffer;
+        final char[] newArray = new char[Math.max(this.array.length << 1, newlen)];
+        System.arraycopy(this.array, 0, newArray, 0, this.len);
+        this.array = newArray;
     }
 
     /**
@@ -88,10 +88,10 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
             return;
         }
         final int newlen = this.len + len;
-        if (newlen > this.buffer.length) {
+        if (newlen > this.array.length) {
             expand(newlen);
         }
-        System.arraycopy(b, off, this.buffer, this.len, len);
+        System.arraycopy(b, off, this.array, this.len, len);
         this.len = newlen;
     }
 
@@ -105,10 +105,10 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         final String s = str != null ? str : "null";
         final int strlen = s.length();
         final int newlen = this.len + strlen;
-        if (newlen > this.buffer.length) {
+        if (newlen > this.array.length) {
             expand(newlen);
         }
-        s.getChars(0, strlen, this.buffer, this.len);
+        s.getChars(0, strlen, this.array, this.len);
         this.len = newlen;
     }
 
@@ -129,7 +129,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (b == null) {
             return;
         }
-        append(b.buffer, off, len);
+        append(b.array, off, len);
     }
 
     /**
@@ -143,7 +143,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (b == null) {
             return;
         }
-        append(b.buffer,0, b.len);
+        append(b.array,0, b.len);
     }
 
     /**
@@ -154,10 +154,10 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      */
     public void append(final char ch) {
         final int newlen = this.len + 1;
-        if (newlen > this.buffer.length) {
+        if (newlen > this.array.length) {
             expand(newlen);
         }
-        this.buffer[this.len] = ch;
+        this.array[this.len] = ch;
         this.len = newlen;
     }
 
@@ -188,11 +188,11 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         }
         final int oldlen = this.len;
         final int newlen = oldlen + len;
-        if (newlen > this.buffer.length) {
+        if (newlen > this.array.length) {
             expand(newlen);
         }
         for (int i1 = off, i2 = oldlen; i2 < newlen; i1++, i2++) {
-            this.buffer[i2] = (char) (b[i1] & 0xff);
+            this.array[i2] = (char) (b[i1] & 0xff);
         }
         this.len = newlen;
     }
@@ -215,7 +215,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (b == null) {
             return;
         }
-        append(b.buffer(), off, len);
+        append(b.array(), off, len);
     }
 
     /**
@@ -244,7 +244,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
     public char[] toCharArray() {
         final char[] b = new char[this.len];
         if (this.len > 0) {
-            System.arraycopy(this.buffer, 0, b, 0, this.len);
+            System.arraycopy(this.array, 0, b, 0, this.len);
         }
         return b;
     }
@@ -261,7 +261,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      */
     @Override
     public char charAt(final int i) {
-        return this.buffer[i];
+        return this.array[i];
     }
 
     /**
@@ -269,8 +269,8 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      *
      * @return the char array.
      */
-    public char[] buffer() {
-        return this.buffer;
+    public char[] array() {
+        return this.array;
     }
 
     /**
@@ -281,7 +281,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      * @return  the current capacity
      */
     public int capacity() {
-        return this.buffer.length;
+        return this.array.length;
     }
 
     /**
@@ -306,7 +306,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (required <= 0) {
             return;
         }
-        final int available = this.buffer.length - this.len;
+        final int available = this.array.length - this.len;
         if (required > available) {
             expand(this.len + required);
         }
@@ -323,8 +323,8 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      *               capacity of the buffer or less than {@code 0}.
      */
     public void setLength(final int len) {
-        if (len < 0 || len > this.buffer.length) {
-            throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.buffer.length);
+        if (len < 0 || len > this.array.length) {
+            throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.array.length);
         }
         this.len = len;
     }
@@ -346,7 +346,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      *   otherwise.
      */
     public boolean isFull() {
-        return this.len == this.buffer.length;
+        return this.len == this.array.length;
     }
 
     /**
@@ -383,7 +383,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
             return -1;
         }
         for (int i = beginIndex; i < endIndex; i++) {
-            if (this.buffer[i] == ch) {
+            if (this.array[i] == ch) {
                 return i;
             }
         }
@@ -428,7 +428,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (beginIndex > endIndex) {
             throw new IndexOutOfBoundsException("beginIndex: " + beginIndex + " > endIndex: " + endIndex);
         }
-        return new String(this.buffer, beginIndex, endIndex - beginIndex);
+        return new String(this.array, beginIndex, endIndex - beginIndex);
     }
 
     private static boolean isWhitespace(final char ch) {
@@ -463,13 +463,13 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         }
         int beginIndex0 = beginIndex;
         int endIndex0 = endIndex;
-        while (beginIndex0 < endIndex && isWhitespace(this.buffer[beginIndex0])) {
+        while (beginIndex0 < endIndex && isWhitespace(this.array[beginIndex0])) {
             beginIndex0++;
         }
-        while (endIndex0 > beginIndex0 && isWhitespace(this.buffer[endIndex0 - 1])) {
+        while (endIndex0 > beginIndex0 && isWhitespace(this.array[endIndex0 - 1])) {
             endIndex0--;
         }
-        return new String(this.buffer, beginIndex0, endIndex0 - beginIndex0);
+        return new String(this.array, beginIndex0, endIndex0 - beginIndex0);
     }
 
     /**
@@ -487,12 +487,12 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (beginIndex > endIndex) {
             throw new IndexOutOfBoundsException("beginIndex: " + beginIndex + " > endIndex: " + endIndex);
         }
-        return CharBuffer.wrap(this.buffer, beginIndex, endIndex);
+        return CharBuffer.wrap(this.array, beginIndex, endIndex);
     }
 
     @Override
     public String toString() {
-        return new String(this.buffer, 0, this.len);
+        return new String(this.array, 0, this.len);
     }
 
 }

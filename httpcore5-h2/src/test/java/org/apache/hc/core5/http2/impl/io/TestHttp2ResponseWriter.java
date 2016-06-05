@@ -58,7 +58,7 @@ public class TestHttp2ResponseWriter {
         final Http2ResponseWriter writer = new Http2ResponseWriter(StandardCharsets.US_ASCII);
         writer.write(response, buf);
 
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
         final List<Header> headers = decoder.decodeHeaders(src);
 

@@ -191,7 +191,7 @@ public final class HPackDecoder {
                 buf.append((char) (this.contentBuf.byteAt(i) & 0xff));
             }
         } else {
-            final ByteBuffer in = ByteBuffer.wrap(this.contentBuf.buffer(), 0, binaryLen);
+            final ByteBuffer in = ByteBuffer.wrap(this.contentBuf.array(), 0, binaryLen);
             while (in.hasRemaining()) {
                 ensureCapacity(in.remaining());
                 final CoderResult result = this.charsetDecoder.decode(in, this.tmpBuf, true);

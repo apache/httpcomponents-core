@@ -56,7 +56,7 @@ public class TestHttp2ResponseParser {
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value")));
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
 
         final Http2ResponseParser parser = new Http2ResponseParser(StandardCharsets.US_ASCII);
         final HttpResponse response = parser.parse(src);
@@ -82,7 +82,7 @@ public class TestHttp2ResponseParser {
                 new BasicHeader(":Status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value")));
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
 
         final Http2ResponseParser parser = new Http2ResponseParser(StandardCharsets.US_ASCII);
         parser.parse(src);
@@ -100,7 +100,7 @@ public class TestHttp2ResponseParser {
                 new BasicHeader(":status", "boom"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value")));
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
 
         final Http2ResponseParser parser = new Http2ResponseParser(StandardCharsets.US_ASCII);
         parser.parse(src);
@@ -118,7 +118,7 @@ public class TestHttp2ResponseParser {
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("connection", "keep-alive")));
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
 
         final Http2ResponseParser parser = new Http2ResponseParser(StandardCharsets.US_ASCII);
         parser.parse(src);
@@ -135,7 +135,7 @@ public class TestHttp2ResponseParser {
         encoder.encodeHeaders(buf, Arrays.<Header>asList(
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom", "value")));
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
 
         final Http2ResponseParser parser = new Http2ResponseParser(StandardCharsets.US_ASCII);
         parser.parse(src);
@@ -154,7 +154,7 @@ public class TestHttp2ResponseParser {
                 new BasicHeader(":custom", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom1", "value")));
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
 
         final Http2ResponseParser parser = new Http2ResponseParser(StandardCharsets.US_ASCII);
         parser.parse(src);
@@ -173,7 +173,7 @@ public class TestHttp2ResponseParser {
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom1", "value")));
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
 
         final Http2ResponseParser parser = new Http2ResponseParser(StandardCharsets.US_ASCII);
         parser.parse(src);

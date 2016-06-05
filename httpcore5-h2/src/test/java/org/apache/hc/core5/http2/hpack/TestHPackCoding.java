@@ -66,7 +66,7 @@ public class TestHPackCoding {
 
     static ByteBuffer wrap(final ByteArrayBuffer src) {
 
-        return ByteBuffer.wrap(src.buffer(), 0, src.length());
+        return ByteBuffer.wrap(src.array(), 0, src.length());
     }
 
     @Test
@@ -130,7 +130,7 @@ public class TestHPackCoding {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodePlainString(buffer, src);
-        Assert.assertEquals("custom-key", new String(buffer.buffer(), 0, buffer.length(), StandardCharsets.US_ASCII));
+        Assert.assertEquals("custom-key", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
         Assert.assertFalse("Decoding completed", src.hasRemaining());
     }
 
@@ -151,7 +151,7 @@ public class TestHPackCoding {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodeHuffman(buffer, src);
-        Assert.assertEquals("www.example.com", new String(buffer.buffer(), 0, buffer.length(), StandardCharsets.US_ASCII));
+        Assert.assertEquals("www.example.com", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
         Assert.assertFalse("Decoding completed", src.hasRemaining());
     }
 
@@ -179,13 +179,13 @@ public class TestHPackCoding {
         encoder.encodeString(buffer, "this and that", false);
 
         final StringBuilder strBuf = new StringBuilder();
-        decoder.decodeString(ByteBuffer.wrap(buffer.buffer(), 0, buffer.length()), strBuf);
+        decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
         Assert.assertEquals("this and that", strBuf.toString());
 
         buffer.clear();
         strBuf.setLength(0);
         encoder.encodeString(buffer, "this and that and Huffman", true);
-        decoder.decodeString(ByteBuffer.wrap(buffer.buffer(), 0, buffer.length()), strBuf);
+        decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
         Assert.assertEquals("this and that and Huffman", strBuf.toString());
     }
 
@@ -231,7 +231,7 @@ public class TestHPackCoding {
                     buffer.clear();
                     encoder.encodeString(buffer, hello, b);
                     strBuf.setLength(0);
-                    decoder.decodeString(ByteBuffer.wrap(buffer.buffer(), 0, buffer.length()), strBuf);
+                    decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
                     final String helloBack = strBuf.toString();
                     Assert.assertEquals("charset: " + charset + "; huffman: " + b, hello, helloBack);
                 }
@@ -259,7 +259,7 @@ public class TestHPackCoding {
                     buffer.clear();
                     strBuf.setLength(0);
                     encoder.encodeString(buffer, hello, b);
-                    decoder.decodeString(ByteBuffer.wrap(buffer.buffer(), 0, buffer.length()), strBuf);
+                    decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
                     final String helloBack = strBuf.toString();
                     Assert.assertEquals("charset: " + charset + "; huffman: " + b, hello, helloBack);
                 }
@@ -978,7 +978,7 @@ public class TestHPackCoding {
         decoder1.setMaxTableSize(48);
 
         encoder1.encodeHeader(buffer, header);
-        assertHeaderEquals(header, decoder1.decodeHeader(ByteBuffer.wrap(buffer.buffer(), 0, buffer.length())));
+        assertHeaderEquals(header, decoder1.decodeHeader(ByteBuffer.wrap(buffer.array(), 0, buffer.length())));
 
         Assert.assertEquals(1, outboundTable1.dynamicLength());
         Assert.assertEquals(1, inboundTable1.dynamicLength());
@@ -997,7 +997,7 @@ public class TestHPackCoding {
         decoder2.setMaxTableSize(48);
 
         encoder2.encodeHeader(buffer, header);
-        assertHeaderEquals(header, decoder2.decodeHeader(ByteBuffer.wrap(buffer.buffer(), 0, buffer.length())));
+        assertHeaderEquals(header, decoder2.decodeHeader(ByteBuffer.wrap(buffer.array(), 0, buffer.length())));
 
         Assert.assertEquals(0, outboundTable2.dynamicLength());
         Assert.assertEquals(0, inboundTable2.dynamicLength());

@@ -94,7 +94,7 @@ public final class HPackEncoder {
             Huffman.ENCODER.encode(this.huffmanBuf, src);
             dst.ensureCapacity(this.huffmanBuf.length() + 8);
             encodeInt(dst, 7, this.huffmanBuf.length(), 0x80);
-            dst.append(this.huffmanBuf.buffer(), 0, this.huffmanBuf.length());
+            dst.append(this.huffmanBuf.array(), 0, this.huffmanBuf.length());
         } else {
             dst.ensureCapacity(strLen + 8);
             encodeInt(dst, 7, strLen, 0x0);
@@ -153,7 +153,7 @@ public final class HPackEncoder {
                 Huffman.ENCODER.encode(this.huffmanBuf, charSequence, off, len);
                 dst.ensureCapacity(this.huffmanBuf.length() + 8);
                 encodeInt(dst, 7, this.huffmanBuf.length(), 0x80);
-                dst.append(this.huffmanBuf.buffer(), 0, this.huffmanBuf.length());
+                dst.append(this.huffmanBuf.array(), 0, this.huffmanBuf.length());
             } else {
                 dst.ensureCapacity(len + 8);
                 encodeInt(dst, 7, len, 0x0);

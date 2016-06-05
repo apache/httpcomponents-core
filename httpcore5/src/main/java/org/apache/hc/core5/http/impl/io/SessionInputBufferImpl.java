@@ -322,7 +322,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         if (this.decoder == null) {
             charbuffer.append(this.linebuffer, 0, len);
         } else {
-            final ByteBuffer bbuf =  ByteBuffer.wrap(this.linebuffer.buffer(), 0, len);
+            final ByteBuffer bbuf =  ByteBuffer.wrap(this.linebuffer.array(), 0, len);
             len = appendDecoded(charbuffer, bbuf);
         }
         this.linebuffer.clear();

@@ -116,7 +116,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
     private void flushBuffer(final OutputStream outputStream) throws IOException {
         final int len = this.buffer.length();
         if (len > 0) {
-            outputStream.write(this.buffer.buffer(), 0, len);
+            outputStream.write(this.buffer.array(), 0, len);
             this.buffer.clear();
             this.metrics.incrementBytesTransferred(len);
         }
@@ -209,7 +209,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
                 remaining -= chunk;
             }
         } else {
-            final CharBuffer cbuf = CharBuffer.wrap(charbuffer.buffer(), 0, charbuffer.length());
+            final CharBuffer cbuf = CharBuffer.wrap(charbuffer.array(), 0, charbuffer.length());
             writeEncoded(cbuf, outputStream);
         }
         write(CRLF, outputStream);

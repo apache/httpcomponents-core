@@ -194,7 +194,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                         // terminate the encoding process
                         eol = true;
                     }
-                    this.charbuffer.put(linebuffer.buffer(), offset, l);
+                    this.charbuffer.put(linebuffer.array(), offset, l);
                     this.charbuffer.flip();
 
                     boolean retry = true;

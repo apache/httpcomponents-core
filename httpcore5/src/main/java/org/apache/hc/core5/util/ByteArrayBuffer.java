@@ -41,7 +41,7 @@ public final class ByteArrayBuffer implements Serializable {
 
     private static final long serialVersionUID = 4359112959524048036L;
 
-    private byte[] buffer;
+    private byte[] array;
     private int len;
 
     /**
@@ -53,13 +53,13 @@ public final class ByteArrayBuffer implements Serializable {
     public ByteArrayBuffer(final int capacity) {
         super();
         Args.notNegative(capacity, "Buffer capacity");
-        this.buffer = new byte[capacity];
+        this.array = new byte[capacity];
     }
 
     private void expand(final int newlen) {
-        final byte[] newbuffer = new byte[Math.max(this.buffer.length << 1, newlen)];
-        System.arraycopy(this.buffer, 0, newbuffer, 0, this.len);
-        this.buffer = newbuffer;
+        final byte[] newArray = new byte[Math.max(this.array.length << 1, newlen)];
+        System.arraycopy(this.array, 0, newArray, 0, this.len);
+        this.array = newArray;
     }
 
     /**
@@ -86,10 +86,10 @@ public final class ByteArrayBuffer implements Serializable {
             return;
         }
         final int newlen = this.len + len;
-        if (newlen > this.buffer.length) {
+        if (newlen > this.array.length) {
             expand(newlen);
         }
-        System.arraycopy(b, off, this.buffer, this.len, len);
+        System.arraycopy(b, off, this.array, this.len, len);
         this.len = newlen;
     }
 
@@ -101,10 +101,10 @@ public final class ByteArrayBuffer implements Serializable {
      */
     public void append(final int b) {
         final int newlen = this.len + 1;
-        if (newlen > this.buffer.length) {
+        if (newlen > this.array.length) {
             expand(newlen);
         }
-        this.buffer[this.len] = (byte)b;
+        this.array[this.len] = (byte)b;
         this.len = newlen;
     }
 
@@ -135,11 +135,11 @@ public final class ByteArrayBuffer implements Serializable {
         }
         final int oldlen = this.len;
         final int newlen = oldlen + len;
-        if (newlen > this.buffer.length) {
+        if (newlen > this.array.length) {
             expand(newlen);
         }
         for (int i1 = off, i2 = oldlen; i2 < newlen; i1++, i2++) {
-            this.buffer[i2] = (byte) b[i1];
+            this.array[i2] = (byte) b[i1];
         }
         this.len = newlen;
     }
@@ -163,7 +163,7 @@ public final class ByteArrayBuffer implements Serializable {
         if (b == null) {
             return;
         }
-        append(b.buffer(), off, len);
+        append(b.array(), off, len);
     }
 
     /**
@@ -181,7 +181,7 @@ public final class ByteArrayBuffer implements Serializable {
     public byte[] toByteArray() {
         final byte[] b = new byte[this.len];
         if (this.len > 0) {
-            System.arraycopy(this.buffer, 0, b, 0, this.len);
+            System.arraycopy(this.array, 0, b, 0, this.len);
         }
         return b;
     }
@@ -197,7 +197,7 @@ public final class ByteArrayBuffer implements Serializable {
      *             negative or greater than or equal to {@link #length()}.
      */
     public int byteAt(final int i) {
-        return this.buffer[i];
+        return this.array[i];
     }
 
     /**
@@ -208,7 +208,7 @@ public final class ByteArrayBuffer implements Serializable {
      * @return  the current capacity
      */
     public int capacity() {
-        return this.buffer.length;
+        return this.array.length;
     }
 
     /**
@@ -234,7 +234,7 @@ public final class ByteArrayBuffer implements Serializable {
         if (required <= 0) {
             return;
         }
-        final int available = this.buffer.length - this.len;
+        final int available = this.array.length - this.len;
         if (required > available) {
             expand(this.len + required);
         }
@@ -245,8 +245,8 @@ public final class ByteArrayBuffer implements Serializable {
      *
      * @return the byte array.
      */
-    public byte[] buffer() {
-        return this.buffer;
+    public byte[] array() {
+        return this.array;
     }
 
     /**
@@ -260,8 +260,8 @@ public final class ByteArrayBuffer implements Serializable {
      *               capacity of the buffer or less than {@code 0}.
      */
     public void setLength(final int len) {
-        if (len < 0 || len > this.buffer.length) {
-            throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.buffer.length);
+        if (len < 0 || len > this.array.length) {
+            throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.array.length);
         }
         this.len = len;
     }
@@ -283,7 +283,7 @@ public final class ByteArrayBuffer implements Serializable {
      *   otherwise.
      */
     public boolean isFull() {
-        return this.len == this.buffer.length;
+        return this.len == this.array.length;
     }
 
     /**
@@ -322,7 +322,7 @@ public final class ByteArrayBuffer implements Serializable {
             return -1;
         }
         for (int i = beginIndex; i < endIndex; i++) {
-            if (this.buffer[i] == b) {
+            if (this.array[i] == b) {
                 return i;
             }
         }

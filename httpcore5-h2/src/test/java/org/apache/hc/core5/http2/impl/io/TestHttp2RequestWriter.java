@@ -59,7 +59,7 @@ public class TestHttp2RequestWriter {
         final Http2RequestWriter writer = new Http2RequestWriter(StandardCharsets.US_ASCII);
         writer.write(request, buf);
 
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
         final List<Header> headers = decoder.decodeHeaders(src);
 
@@ -125,7 +125,7 @@ public class TestHttp2RequestWriter {
         final Http2RequestWriter writer = new Http2RequestWriter(StandardCharsets.US_ASCII);
         writer.write(request, buf);
 
-        final ByteBuffer src = ByteBuffer.wrap(buf.buffer(), 0, buf.length());
+        final ByteBuffer src = ByteBuffer.wrap(buf.array(), 0, buf.length());
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
         final List<Header> headers = decoder.decodeHeaders(src);
 
