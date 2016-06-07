@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -40,7 +39,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.3
  */
-@NotThreadSafe
 public class HttpCoreContext implements HttpContext {
 
     /**

@@ -29,7 +29,8 @@ package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -42,7 +43,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestUserAgent implements HttpRequestInterceptor {
 
     private final String userAgent;

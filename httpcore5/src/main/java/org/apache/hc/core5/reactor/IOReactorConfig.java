@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -35,7 +36,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.2
  */
-@NotThreadSafe
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class IOReactorConfig {
 
     private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();

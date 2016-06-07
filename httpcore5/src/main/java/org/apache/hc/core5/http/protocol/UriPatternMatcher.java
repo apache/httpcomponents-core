@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hc.core5.annotation.GuardedBy;
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -49,10 +49,9 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class UriPatternMatcher<T> {
 
-    @GuardedBy("this")
     private final Map<String, T> map;
 
     public UriPatternMatcher() {

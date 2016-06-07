@@ -27,14 +27,15 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 
 /**
  * Internal HPack header representation that also contains binary length of
  * header name and header value.
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 final class HPackHeader implements Header {
 
     static private final int ENTRY_SIZE_OVERHEAD = 32;

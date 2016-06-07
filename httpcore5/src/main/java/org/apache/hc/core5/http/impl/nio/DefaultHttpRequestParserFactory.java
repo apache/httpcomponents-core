@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -42,7 +43,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
  *
  * @since 4.3
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactory<HttpRequest> {
 
     public static final DefaultHttpRequestParserFactory INSTANCE = new DefaultHttpRequestParserFactory();

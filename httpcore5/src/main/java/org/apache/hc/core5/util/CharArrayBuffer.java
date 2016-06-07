@@ -30,7 +30,6 @@ package org.apache.hc.core5.util;
 import java.io.Serializable;
 import java.nio.CharBuffer;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Chars;
 
 /**
@@ -38,7 +37,6 @@ import org.apache.hc.core5.http.Chars;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public final class CharArrayBuffer implements CharSequence, Serializable {
 
     private static final long serialVersionUID = -6208952725094867135L;

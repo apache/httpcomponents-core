@@ -29,7 +29,8 @@ package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
@@ -38,7 +39,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class RequestLine implements Serializable {
 
     private static final long serialVersionUID = 2810581718468737193L;

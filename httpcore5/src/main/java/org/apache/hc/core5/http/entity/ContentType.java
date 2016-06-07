@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
@@ -58,7 +59,7 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class ContentType implements Serializable {
 
     private static final long serialVersionUID = -7768694718232371896L;

@@ -34,13 +34,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.util.Args;
 
 /**
  * An entity that delivers the contents of a {@link ByteBuffer}.
  */
-@NotThreadSafe
 public class ByteBufferEntity extends AbstractHttpEntity implements Cloneable {
 
     private final ByteBuffer buffer;

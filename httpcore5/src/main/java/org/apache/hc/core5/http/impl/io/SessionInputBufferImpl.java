@@ -34,7 +34,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -56,7 +55,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.3
  */
-@NotThreadSafe
 public class SessionInputBufferImpl implements SessionInputBuffer {
 
     private final BasicHttpTransportMetrics metrics;

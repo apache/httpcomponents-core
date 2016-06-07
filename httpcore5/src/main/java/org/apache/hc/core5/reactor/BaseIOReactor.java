@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe // public methods only
 public class BaseIOReactor extends AbstractIOReactor {
 
     private final long timeoutCheckInterval;

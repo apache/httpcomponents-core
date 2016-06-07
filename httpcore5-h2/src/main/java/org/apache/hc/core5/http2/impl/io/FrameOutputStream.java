@@ -31,13 +31,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
  */
-@NotThreadSafe
 abstract class FrameOutputStream extends OutputStream {
 
     private final OutputStream outputStream;

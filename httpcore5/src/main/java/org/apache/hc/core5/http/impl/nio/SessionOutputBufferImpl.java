@@ -37,7 +37,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
@@ -51,7 +50,6 @@ import org.apache.hc.core5.util.HeapByteBufferAllocator;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.MessageConstraintException;
@@ -49,7 +48,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements NHttpMessageParser<T> {
 
     private static final int READ_HEAD_LINE = 0;

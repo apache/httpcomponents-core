@@ -29,7 +29,6 @@ package org.apache.hc.core5.reactor;
 
 import java.nio.channels.SocketChannel;
 
-import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -39,7 +38,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@Immutable
 public class ChannelEntry {
 
     private final SocketChannel channel;

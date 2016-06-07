@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.nio.entity;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.nio.ContentInputBuffer;
 import org.apache.hc.core5.util.Args;
 
@@ -39,7 +38,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ContentInputStream extends InputStream {
 
     private final ContentInputBuffer buffer;

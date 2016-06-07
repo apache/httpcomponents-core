@@ -32,8 +32,6 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.annotation.Immutable;
-
 /**
  * {@link javax.net.ssl.SSLContext} factory methods.
  *
@@ -48,7 +46,6 @@ import org.apache.hc.core5.annotation.Immutable;
  * </a>
  * @since 4.4
  */
-@Immutable
 public class SSLContexts {
 
     private SSLContexts() {

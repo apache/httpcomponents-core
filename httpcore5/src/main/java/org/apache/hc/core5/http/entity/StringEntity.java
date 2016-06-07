@@ -34,7 +34,6 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -43,8 +42,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
-public class StringEntity extends AbstractHttpEntity {
+public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     private final byte[] content;
 

@@ -29,7 +29,8 @@ package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -48,7 +49,7 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 5.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestValidateHost implements HttpRequestInterceptor {
 
     public RequestValidateHost() {

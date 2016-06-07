@@ -28,7 +28,8 @@ package org.apache.hc.core5.pool;
 
 import java.io.Serializable;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
  * Pool statistics.
@@ -38,7 +39,7 @@ import org.apache.hc.core5.annotation.Immutable;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class PoolStats implements Serializable {
 
     private static final long serialVersionUID = -2807686144795228544L;

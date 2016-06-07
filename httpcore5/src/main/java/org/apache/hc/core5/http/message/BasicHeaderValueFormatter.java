@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.Args;
@@ -38,7 +39,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     public final static BasicHeaderValueFormatter INSTANCE = new BasicHeaderValueFormatter();

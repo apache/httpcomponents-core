@@ -31,7 +31,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.frame.FrameConsts;
@@ -45,7 +44,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public final class FrameOutputBuffer {
 
     private final BasicHttp2TransportMetrics metrics;

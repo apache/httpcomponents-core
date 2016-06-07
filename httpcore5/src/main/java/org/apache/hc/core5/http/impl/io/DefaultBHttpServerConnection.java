@@ -33,7 +33,6 @@ import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
@@ -54,9 +53,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.3
  */
-@NotThreadSafe
-public class DefaultBHttpServerConnection extends BHttpConnectionBase
-                                                   implements HttpServerConnection {
+public class DefaultBHttpServerConnection extends BHttpConnectionBase implements HttpServerConnection {
 
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;

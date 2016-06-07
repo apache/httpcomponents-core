@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.Args;
@@ -37,7 +36,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHeaderElement implements HeaderElement {
 
     private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];

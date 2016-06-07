@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
@@ -48,7 +47,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public final class FrameInputBuffer {
 
     private final BasicHttp2TransportMetrics metrics;

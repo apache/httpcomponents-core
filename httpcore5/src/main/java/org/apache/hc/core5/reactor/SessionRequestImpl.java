@@ -32,7 +32,8 @@ import java.net.SocketAddress;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -40,7 +41,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class SessionRequestImpl implements SessionRequest {
 
     private volatile boolean completed;

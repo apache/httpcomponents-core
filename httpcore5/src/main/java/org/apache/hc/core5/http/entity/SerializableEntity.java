@@ -35,7 +35,6 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class SerializableEntity extends AbstractHttpEntity {
 
     private byte[] objSer;

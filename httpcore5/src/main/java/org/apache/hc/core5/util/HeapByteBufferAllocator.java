@@ -29,7 +29,8 @@ package org.apache.hc.core5.util;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
  * Allocates {@link ByteBuffer} instances using
@@ -37,7 +38,7 @@ import org.apache.hc.core5.annotation.Immutable;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class HeapByteBufferAllocator implements ByteBufferAllocator {
 
     public static final HeapByteBufferAllocator INSTANCE = new HeapByteBufferAllocator();

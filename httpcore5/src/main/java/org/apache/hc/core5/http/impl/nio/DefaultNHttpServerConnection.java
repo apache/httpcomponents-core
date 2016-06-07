@@ -32,7 +32,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
@@ -58,7 +57,6 @@ import org.apache.hc.core5.util.ByteBufferAllocator;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class DefaultNHttpServerConnection
     extends NHttpConnectionBase implements NHttpServerConnection {
 

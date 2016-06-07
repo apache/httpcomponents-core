@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
@@ -47,7 +46,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class IdentityInputStream extends InputStream {
 
     private final SessionInputBuffer buffer;

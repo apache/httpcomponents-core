@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestHandler;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestHandlerMapper;
@@ -51,7 +52,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.3
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandlerMapper {
 
     private final UriPatternMatcher<HttpAsyncRequestHandler<?>> matcher;

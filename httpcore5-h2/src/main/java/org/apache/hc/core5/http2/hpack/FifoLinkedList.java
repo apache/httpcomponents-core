@@ -27,10 +27,8 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 
-@NotThreadSafe
 final class FifoLinkedList {
 
     private final InternalNode master;

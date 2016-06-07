@@ -29,14 +29,15 @@ package org.apache.hc.core5.reactor;
 
 import java.util.Date;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
  * A {@link Throwable} instance along with a time stamp.
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ExceptionEvent {
 
     private final Throwable ex;

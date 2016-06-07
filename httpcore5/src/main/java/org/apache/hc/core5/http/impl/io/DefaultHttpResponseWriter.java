@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -43,7 +42,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.3
  */
-@NotThreadSafe
 public class DefaultHttpResponseWriter extends AbstractMessageWriter<HttpResponse> {
 
     /**

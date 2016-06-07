@@ -32,11 +32,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Asserts;
 
-@NotThreadSafe
 final class OutboundDynamicTable {
 
     private final StaticTable staticTable;

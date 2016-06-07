@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Iterator;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.util.Args;
@@ -39,7 +38,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHeaderElementIterator extends AbstractHeaderElementIterator<HeaderElement> {
 
     private final HeaderValueParser parser;

@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.message;
 import java.util.BitSet;
 import java.util.Iterator;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.TextUtils;
 
@@ -39,7 +38,6 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicTokenIterator extends AbstractHeaderElementIterator<String> {
 
     private static final BitSet COMMA = TokenParser.INIT_BITSET(',');

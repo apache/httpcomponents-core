@@ -30,7 +30,8 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -45,7 +46,7 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
  *
  * @since 4.3
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultBHttpClientConnectionFactory
         implements HttpConnectionFactory<DefaultBHttpClientConnection> {
 

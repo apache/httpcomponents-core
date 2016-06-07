@@ -28,7 +28,8 @@ package org.apache.hc.core5.http.pool.io;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.SocketConfig;
@@ -46,7 +47,7 @@ import org.apache.hc.core5.pool.io.ConnFactory;
  * @see HttpHost
  * @since 4.2
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
     public static final int DEFAULT_MAX_TOTAL_CONNECTIONS = 25;

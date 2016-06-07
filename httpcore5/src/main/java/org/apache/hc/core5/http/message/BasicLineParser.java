@@ -29,7 +29,8 @@ package org.apache.hc.core5.http.message;
 
 import java.util.BitSet;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ParseException;
@@ -43,7 +44,7 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class BasicLineParser implements LineParser {
 
     public final static BasicLineParser INSTANCE = new BasicLineParser();

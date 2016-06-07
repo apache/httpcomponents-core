@@ -32,7 +32,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.FileContentEncoder;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
@@ -51,7 +50,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class LengthDelimitedEncoder extends AbstractContentEncoder implements FileContentEncoder {
 
     private final long contentLength;

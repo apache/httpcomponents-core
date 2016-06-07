@@ -31,7 +31,6 @@ import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Locale;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.ByteArrayBuffer;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public abstract class AbstractHttp2MessageWriter<T extends HttpMessage> implements Http2MessageWriter<T> {
 
     private final HPackEncoder encoder;

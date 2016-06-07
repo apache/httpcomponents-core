@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ChunkEncoder extends AbstractContentEncoder {
     private final int fragHint;
     private final CharArrayBuffer lineBuffer;

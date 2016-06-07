@@ -32,7 +32,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.Set;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.entity.AbstractImmutableHttpEntity;
@@ -43,7 +42,6 @@ import org.apache.hc.core5.http.impl.io.EmptyInputStream;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
 
     private final InputStream content;

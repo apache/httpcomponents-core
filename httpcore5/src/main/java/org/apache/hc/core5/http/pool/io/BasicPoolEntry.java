@@ -28,7 +28,8 @@ package org.apache.hc.core5.http.pool.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.pool.PoolEntry;
@@ -41,7 +42,7 @@ import org.apache.hc.core5.pool.PoolEntry;
  * @see HttpHost
  * @since 4.2
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class BasicPoolEntry extends PoolEntry<HttpHost, HttpClientConnection> {
 
     public BasicPoolEntry(final String id, final HttpHost route, final HttpClientConnection conn) {

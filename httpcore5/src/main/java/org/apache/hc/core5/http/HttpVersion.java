@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
  * Represents an HTTP version. HTTP uses a "major.minor" numbering
@@ -39,7 +40,7 @@ import org.apache.hc.core5.annotation.Immutable;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class HttpVersion extends ProtocolVersion {
 
     private static final long serialVersionUID = -5856653513894415344L;

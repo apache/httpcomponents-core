@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.io;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
@@ -50,7 +51,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.3
  */
-@ThreadSafe // provided injected dependencies are thread-safe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
 
     private final UriPatternMatcher<HttpRequestHandler> matcher;

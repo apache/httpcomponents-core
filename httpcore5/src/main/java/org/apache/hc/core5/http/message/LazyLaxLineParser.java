@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
@@ -48,7 +47,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 5.0
  */
-@Immutable
 public class LazyLaxLineParser extends BasicLineParser {
 
     public final static LazyLaxLineParser INSTANCE = new LazyLaxLineParser();

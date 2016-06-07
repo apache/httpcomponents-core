@@ -59,7 +59,6 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -74,7 +73,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.4
  */
-@NotThreadSafe
 public class SSLContextBuilder {
 
     static final String TLS   = "TLS";

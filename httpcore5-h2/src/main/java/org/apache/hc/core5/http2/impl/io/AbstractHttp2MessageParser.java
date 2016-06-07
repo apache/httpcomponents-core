@@ -32,7 +32,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.http2.io.Http2MessageParser;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public abstract class AbstractHttp2MessageParser<T extends HttpMessage> implements Http2MessageParser<T> {
 
     private final HPackDecoder decoder;

@@ -28,11 +28,12 @@ package org.apache.hc.core5.pool.nio;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.pool.PoolEntry;
 
-@Immutable
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;

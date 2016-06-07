@@ -33,7 +33,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class NByteArrayEntity extends AbstractHttpEntity implements HttpAsyncContentProducer {
 
     private final byte[] b;

@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteBufferAllocator;
 
@@ -42,7 +41,6 @@ import org.apache.hc.core5.util.ByteBufferAllocator;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ExpandableBuffer {
 
     public final static int INPUT_MODE = 0;

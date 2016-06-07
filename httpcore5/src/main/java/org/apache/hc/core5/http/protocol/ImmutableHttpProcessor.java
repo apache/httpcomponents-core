@@ -29,7 +29,8 @@ package org.apache.hc.core5.http.protocol;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
@@ -41,7 +42,7 @@ import org.apache.hc.core5.http.HttpResponseInterceptor;
  *
  * @since 4.1
  */
-@ThreadSafe // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public final class ImmutableHttpProcessor implements HttpProcessor {
 
     private final HttpRequestInterceptor[] requestInterceptors;

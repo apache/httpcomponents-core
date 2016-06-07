@@ -30,7 +30,8 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -54,7 +55,7 @@ import org.apache.hc.core5.util.ByteBufferAllocator;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClientConnection> {
 
     private final NHttpConnectionFactory<? extends NHttpClientConnection> plainFactory;

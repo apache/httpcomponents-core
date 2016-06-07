@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Locale;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
@@ -43,7 +42,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHttpResponse extends AbstractHttpMessage implements HttpResponse {
 
     private static final long serialVersionUID = 1L;

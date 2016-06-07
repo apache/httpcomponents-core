@@ -36,7 +36,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -50,7 +49,6 @@ import org.apache.hc.core5.util.Args;
  * @since 4.0
  *
  */
-@NotThreadSafe
 public class NStringEntity extends AbstractHttpEntity implements HttpAsyncContentProducer {
 
     private final byte[] b;

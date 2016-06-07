@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.nio.entity;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.entity.BasicHttpEntity;
 import org.apache.hc.core5.http.nio.ContentInputBuffer;
@@ -39,7 +38,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ContentBufferEntity extends BasicHttpEntity {
 
     private final HttpEntity wrappedEntity;

@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.1
  */
-@NotThreadSafe
 public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
 
     private final HttpRequestFactory requestFactory;

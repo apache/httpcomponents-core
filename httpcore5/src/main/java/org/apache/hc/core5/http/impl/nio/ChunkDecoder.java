@@ -33,7 +33,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
@@ -53,7 +52,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ChunkDecoder extends AbstractContentDecoder {
 
     private static final int READ_CONTENT   = 0;

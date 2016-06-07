@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 
@@ -39,7 +38,6 @@ import org.apache.hc.core5.http.io.HttpTransportMetrics;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
 
     public static final String REQUEST_COUNT = "http.request-count";

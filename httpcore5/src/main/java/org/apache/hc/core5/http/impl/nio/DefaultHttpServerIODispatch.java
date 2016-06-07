@@ -31,7 +31,8 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
 import org.apache.hc.core5.http.nio.NHttpServerEventHandler;
@@ -47,7 +48,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.2
  */
-@Immutable // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultHttpServerIODispatch
                     extends AbstractIODispatch<DefaultNHttpServerConnection> {
 

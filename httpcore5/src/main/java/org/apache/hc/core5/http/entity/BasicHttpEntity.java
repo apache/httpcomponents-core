@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.entity;
 
 import java.io.InputStream;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.apache.hc.core5.util.Asserts;
 
@@ -39,7 +38,6 @@ import org.apache.hc.core5.util.Asserts;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHttpEntity extends AbstractHttpEntity {
 
     private InputStream content;

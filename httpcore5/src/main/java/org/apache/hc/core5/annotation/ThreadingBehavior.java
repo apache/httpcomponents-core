@@ -26,25 +26,38 @@
  */
 package org.apache.hc.core5.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * The class to which this annotation is applied is not thread-safe.
- * This annotation primarily exists for clarifying the non-thread-safety of a class
- * that might otherwise be assumed to be thread-safe, despite the fact that it is a bad
- * idea to assume a class is thread-safe without good reason.
- * @see ThreadSafe
- * <p>
- * Based on code developed by Brian Goetz and Tim Peierls and concepts
- * published in 'Java Concurrency in Practice' by Brian Goetz, Tim Peierls,
- * Joshua Bloch, Joseph Bowbeer, David Holmes and Doug Lea.
+ Defines types of threading behavior enforced at runtime.
  */
-@Documented
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS) // The original version used RUNTIME
-public @interface NotThreadSafe {
+public enum ThreadingBehavior {
+
+    /**
+     * Instances of classes with the given contract are expected to be fully immutable
+     * and thread-safe.
+     */
+    IMMUTABLE,
+
+    /**
+     * Instances of classes with the given contract are expected to be immutable if their
+     * dependencies injected at construction time are immutable and are expected to be thread-safe
+     * if their dependencies are thread-safe.
+     */
+    IMMUTABLE_CONDITIONAL,
+
+    /**
+     * Instances of classes with the given contract are expected to be fully thread-safe.
+     */
+    SAFE,
+
+    /**
+     * Instances of classes with the given contract are expected to be thread-safe if their
+     * dependencies injected at construction time are thread-safe.
+     */
+    SAFE_CONDITIONAL,
+
+    /**
+     * Instances of classes with the given contract are expected to be non thread-safe.
+     */
+    UNSAFE
+
 }

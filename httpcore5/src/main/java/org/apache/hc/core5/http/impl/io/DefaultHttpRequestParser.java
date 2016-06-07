@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -49,7 +48,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.2
  */
-@NotThreadSafe
 public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
 
     private final HttpRequestFactory requestFactory;

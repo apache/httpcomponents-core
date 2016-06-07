@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
@@ -44,7 +43,6 @@ import org.apache.hc.core5.util.Asserts;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public abstract class AbstractContentEncoder implements ContentEncoder {
 
     final WritableByteChannel channel;

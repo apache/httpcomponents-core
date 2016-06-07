@@ -31,12 +31,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
-@NotThreadSafe
 abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;

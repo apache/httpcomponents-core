@@ -31,7 +31,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -57,7 +58,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpAsyncRequester {
 
     private final HttpProcessor httpprocessor;

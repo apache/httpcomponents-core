@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
@@ -86,7 +85,6 @@ import org.apache.hc.core5.util.Asserts;
  *
  * @since 4.0
  */
-@ThreadSafe // public methods only
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;

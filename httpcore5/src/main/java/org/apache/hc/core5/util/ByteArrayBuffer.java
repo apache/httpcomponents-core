@@ -29,14 +29,11 @@ package org.apache.hc.core5.util;
 
 import java.io.Serializable;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
-
 /**
  * A resizable byte array.
  *
  * @since 4.0
  */
-@NotThreadSafe
 public final class ByteArrayBuffer implements Serializable {
 
     private static final long serialVersionUID = 4359112959524048036L;

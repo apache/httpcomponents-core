@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.impl;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
@@ -48,7 +49,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class DefaultContentLengthStrategy implements ContentLengthStrategy {
 
     public static final DefaultContentLengthStrategy INSTANCE = new DefaultContentLengthStrategy();

@@ -34,7 +34,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionLogger;
@@ -104,7 +105,7 @@ import org.apache.hc.core5.util.Asserts;
  *
  * @since 4.2
  */
-@Immutable // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpAsyncService implements NHttpServerEventHandler {
 
     static final String HTTP_EXCHANGE_STATE = "http.nio.http-exchange-state";

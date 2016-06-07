@@ -29,7 +29,6 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.Immutable;
 import org.apache.hc.core5.reactor.ssl.SSLIOSession;
 import org.apache.hc.core5.util.Asserts;
 
@@ -40,7 +39,6 @@ import org.apache.hc.core5.util.Asserts;
  * @param <T> the connection type.
  * @since 4.2
  */
-@Immutable // provided injected dependencies are immutable
 public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     protected abstract T createConnection(IOSession session);

@@ -41,7 +41,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -51,7 +50,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe // public methods only
 public abstract class AbstractIOReactor implements IOReactor {
 
     private volatile IOReactorStatus status;

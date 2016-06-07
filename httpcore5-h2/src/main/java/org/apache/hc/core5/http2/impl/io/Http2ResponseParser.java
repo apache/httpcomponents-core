@@ -30,7 +30,6 @@ package org.apache.hc.core5.http2.impl.io;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
@@ -45,7 +44,6 @@ import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public class Http2ResponseParser extends AbstractHttp2MessageParser<HttpResponse> {
 
     private HttpResponseFactory responseFactory;

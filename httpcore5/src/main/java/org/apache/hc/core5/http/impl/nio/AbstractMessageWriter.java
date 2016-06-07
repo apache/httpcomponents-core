@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -48,7 +47,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public abstract class AbstractMessageWriter<T extends HttpMessage<?>> implements NHttpMessageWriter<T> {
 
     private final CharArrayBuffer lineBuf;

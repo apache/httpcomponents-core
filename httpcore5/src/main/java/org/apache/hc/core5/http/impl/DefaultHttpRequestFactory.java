@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.impl;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.MethodNotSupportedException;
@@ -39,7 +40,7 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class DefaultHttpRequestFactory implements HttpRequestFactory {
 
     public static final DefaultHttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();

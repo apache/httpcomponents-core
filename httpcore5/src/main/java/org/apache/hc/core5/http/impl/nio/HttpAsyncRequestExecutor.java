@@ -32,7 +32,8 @@ import java.net.SocketTimeoutException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionLogger;
@@ -85,7 +86,7 @@ import org.apache.hc.core5.util.Asserts;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     public static final int DEFAULT_WAIT_FOR_CONTINUE = 3000;

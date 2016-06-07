@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -58,7 +57,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * @since 4.0
  *
  */
-@NotThreadSafe
 public class ChunkedInputStream extends InputStream {
 
     private static final int CHUNK_LEN               = 1;

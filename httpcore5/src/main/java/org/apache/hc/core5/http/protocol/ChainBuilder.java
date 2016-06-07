@@ -32,8 +32,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
-
 /**
  * Builder class to build a linked list (chain) of unique class instances. Each class can have
  * only one instance in the list. Useful for building lists of protocol interceptors.
@@ -42,7 +40,6 @@ import org.apache.hc.core5.annotation.NotThreadSafe;
  *
  * @since 4.3
  */
-@NotThreadSafe
 final class ChainBuilder<E> {
 
     private final LinkedList<E> list;

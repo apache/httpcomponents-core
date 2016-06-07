@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
@@ -41,7 +40,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BufferedHeader implements FormattedHeader, Serializable {
 
     private static final long serialVersionUID = -2768352615787625448L;

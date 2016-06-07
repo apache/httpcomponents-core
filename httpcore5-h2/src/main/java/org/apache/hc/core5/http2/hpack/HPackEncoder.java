@@ -36,13 +36,11 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.LangUtils;
 
-@NotThreadSafe
 public final class HPackEncoder {
 
     private final OutboundDynamicTable dynamicTable;

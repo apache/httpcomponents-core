@@ -31,7 +31,8 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentInputBuffer;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -55,7 +56,7 @@ import org.apache.hc.core5.util.HeapByteBufferAllocator;
  *
  * @since 4.0
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class SharedInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
     private final ReentrantLock lock;

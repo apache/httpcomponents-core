@@ -29,7 +29,6 @@ package org.apache.hc.core5.http2.impl.io;
 
 import java.nio.charset.Charset;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolException;
@@ -43,7 +42,6 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public class Http2RequestWriter extends AbstractHttp2MessageWriter<HttpRequest> {
 
     public Http2RequestWriter(final Charset charset) {

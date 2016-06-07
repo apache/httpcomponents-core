@@ -27,11 +27,9 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Asserts;
 
-@NotThreadSafe
 final class InboundDynamicTable {
 
     private final StaticTable staticTable;

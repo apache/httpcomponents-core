@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.impl;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -40,7 +41,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultHttpResponseFactory implements HttpResponseFactory {
 
     public static final DefaultHttpResponseFactory INSTANCE = new DefaultHttpResponseFactory();

@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http2.impl;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http2.io.Http2TransportMetrics;
 
@@ -36,7 +35,6 @@ import org.apache.hc.core5.http2.io.Http2TransportMetrics;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public class BasicHttp2TransportMetrics extends BasicHttpTransportMetrics implements Http2TransportMetrics {
 
     private long framesTransferred;

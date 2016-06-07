@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -47,7 +46,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class HeaderGroup implements Serializable {
 
 

@@ -33,7 +33,6 @@ import java.io.OutputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.TrailerSupplier;
@@ -44,7 +43,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public class HttpEntityWithTrailers implements HttpEntity {
 
     private final HttpEntity wrappedEntity;

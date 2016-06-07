@@ -29,7 +29,8 @@ package org.apache.hc.core5.http.impl;
 
 import java.util.Locale;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
 import org.apache.hc.core5.util.Args;
@@ -41,7 +42,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
 
     // static array with english reason phrases defined below
@@ -51,8 +52,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
      * This catalog is thread safe, so there typically
      * is no need to create other instances.
      */
-    public final static EnglishReasonPhraseCatalog INSTANCE =
-        new EnglishReasonPhraseCatalog();
+    public final static EnglishReasonPhraseCatalog INSTANCE = new EnglishReasonPhraseCatalog();
 
 
     /**

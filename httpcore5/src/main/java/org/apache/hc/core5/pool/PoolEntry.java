@@ -28,8 +28,8 @@ package org.apache.hc.core5.pool;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.annotation.GuardedBy;
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -48,7 +48,7 @@ import org.apache.hc.core5.util.Args;
  * @param <C> the connection type.
  * @since 4.2
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public abstract class PoolEntry<T, C> {
 
     private final String id;
@@ -57,10 +57,8 @@ public abstract class PoolEntry<T, C> {
     private final long created;
     private final long validityDeadline;
 
-    @GuardedBy("this")
     private long updated;
 
-    @GuardedBy("this")
     private long expiry;
 
     private volatile Object state;

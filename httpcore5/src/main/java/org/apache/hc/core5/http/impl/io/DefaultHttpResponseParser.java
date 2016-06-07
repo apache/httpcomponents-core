@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
@@ -49,7 +48,6 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.2
  */
-@NotThreadSafe
 public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
 
     private final HttpResponseFactory responseFactory;

@@ -33,7 +33,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.2
  */
-@NotThreadSafe
 public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
 
     private final HttpEntity entity;

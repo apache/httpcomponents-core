@@ -33,7 +33,8 @@ import java.net.Socket;
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.SocketConfig;
@@ -49,7 +50,7 @@ import org.apache.hc.core5.pool.io.ConnFactory;
  * @see HttpHost
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnection> {
 
     private final SocketFactory plainfactory;

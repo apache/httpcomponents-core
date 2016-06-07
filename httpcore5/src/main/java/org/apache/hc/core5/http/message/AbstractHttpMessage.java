@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.util.Args;
@@ -37,7 +36,6 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public abstract class AbstractHttpMessage extends HeaderGroup implements HttpMessage<HttpEntity> {
 
     private static final long serialVersionUID = 1L;

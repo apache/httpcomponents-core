@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.message;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -42,7 +41,6 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
 
     private static final long serialVersionUID = 1L;

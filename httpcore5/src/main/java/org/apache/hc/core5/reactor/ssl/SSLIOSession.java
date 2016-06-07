@@ -43,7 +43,8 @@ import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
-import org.apache.hc.core5.annotation.ThreadSafe;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOSession;
@@ -69,7 +70,7 @@ import org.apache.hc.core5.util.Asserts;
  *
  * @since 4.2
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAccessor {
 
     /**

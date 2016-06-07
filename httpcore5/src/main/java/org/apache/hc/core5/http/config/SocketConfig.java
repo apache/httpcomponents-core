@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.config;
 
-import org.apache.hc.core5.annotation.Immutable;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -35,7 +36,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.3
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class SocketConfig {
 
     public static final SocketConfig DEFAULT = new Builder().build();

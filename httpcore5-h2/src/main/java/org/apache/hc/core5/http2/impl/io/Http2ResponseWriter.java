@@ -29,7 +29,6 @@ package org.apache.hc.core5.http2.impl.io;
 
 import java.nio.charset.Charset;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
@@ -42,7 +41,6 @@ import org.apache.hc.core5.util.ByteArrayBuffer;
  *
  * @since 5.0
  */
-@NotThreadSafe
 public class Http2ResponseWriter extends AbstractHttp2MessageWriter<HttpResponse> {
 
     public Http2ResponseWriter(final Charset charset) {

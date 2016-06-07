@@ -28,7 +28,6 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.annotation.NotThreadSafe;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.ContentOutputBuffer;
 import org.apache.hc.core5.util.ByteBufferAllocator;
@@ -41,7 +40,6 @@ import org.apache.hc.core5.util.HeapByteBufferAllocator;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
 
     private boolean endOfStream;
