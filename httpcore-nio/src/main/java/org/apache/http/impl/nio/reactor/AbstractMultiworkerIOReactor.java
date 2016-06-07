@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.params.NIOReactorPNames;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactor;
@@ -96,7 +95,6 @@ import org.apache.http.util.Asserts;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@ThreadSafe // public methods only
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;

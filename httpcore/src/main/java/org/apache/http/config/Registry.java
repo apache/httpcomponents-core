@@ -27,18 +27,19 @@
 
 package org.apache.http.config;
 
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
+
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.http.annotation.ThreadSafe;
 
 /**
  * Generic registry of items keyed by low-case string ID.
  *
  * @since 4.3
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public final class Registry<I> implements Lookup<I> {
 
     private final Map<String, I> map;

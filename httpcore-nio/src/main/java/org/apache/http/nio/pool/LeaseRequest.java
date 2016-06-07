@@ -26,13 +26,11 @@
  */
 package org.apache.http.nio.pool;
 
-import org.apache.http.annotation.Immutable;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.pool.PoolEntry;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Immutable
 class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;

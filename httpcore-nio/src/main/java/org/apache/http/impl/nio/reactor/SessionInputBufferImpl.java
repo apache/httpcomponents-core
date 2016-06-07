@@ -39,7 +39,6 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.MessageConstraintException;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.nio.reactor.SessionInputBuffer;
 import org.apache.http.nio.util.ByteBufferAllocator;
@@ -59,7 +58,6 @@ import org.apache.http.util.CharsetUtils;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
     private final CharsetDecoder chardecoder;

@@ -29,7 +29,8 @@ package org.apache.http.message;
 
 import java.util.BitSet;
 
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -40,7 +41,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.4
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class TokenParser {
 
     public static BitSet INIT_BITSET(final int ... b) {

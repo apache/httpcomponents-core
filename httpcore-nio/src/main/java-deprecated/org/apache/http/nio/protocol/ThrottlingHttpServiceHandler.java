@@ -44,7 +44,8 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
@@ -109,7 +110,7 @@ import org.apache.http.util.EntityUtils;
  * @deprecated (4.2) use {@link HttpAsyncService}
  */
 @Deprecated
-@ThreadSafe // provided injected dependencies are immutable or thread safe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                                           implements NHttpServiceHandler {
 

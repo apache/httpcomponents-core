@@ -29,7 +29,8 @@ package org.apache.http.protocol;
 
 import java.util.Map;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 
 /**
@@ -50,7 +51,7 @@ import org.apache.http.util.Args;
  * @since 4.0
  * @deprecated (4.3) use {@link UriHttpRequestHandlerMapper}
  */
-@ThreadSafe // provided injected dependencies are thread-safe
+@Contract(threading = ThreadingBehavior.SAFE)
 @Deprecated
 public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
 

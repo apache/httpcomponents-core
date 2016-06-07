@@ -27,7 +27,6 @@
 
 package org.apache.http.impl.io;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.HttpTransportMetrics;
 
 /**
@@ -35,7 +34,6 @@ import org.apache.http.io.HttpTransportMetrics;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class HttpTransportMetricsImpl implements HttpTransportMetrics {
 
     private long bytesTransferred = 0;

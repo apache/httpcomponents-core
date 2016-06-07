@@ -27,9 +27,10 @@
 
 package org.apache.http;
 
-import java.io.Serializable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 
-import org.apache.http.annotation.Immutable;
+import java.io.Serializable;
 
 /**
  * Represents an HTTP version. HTTP uses a "major.minor" numbering
@@ -44,9 +45,8 @@ import org.apache.http.annotation.Immutable;
  *
  * @since 4.0
  */
-@Immutable
-public final class HttpVersion extends ProtocolVersion
-    implements Serializable {
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
+public final class HttpVersion extends ProtocolVersion implements Serializable {
 
     private static final long serialVersionUID = -5856653513894415344L;
 

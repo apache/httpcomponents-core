@@ -34,7 +34,8 @@ import java.util.List;
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -45,7 +46,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class BasicHeaderValueParser implements HeaderValueParser {
 
     /**
@@ -57,8 +58,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
      * @deprecated (4.3) use {@link #INSTANCE}
      */
     @Deprecated
-    public final static
-        BasicHeaderValueParser DEFAULT = new BasicHeaderValueParser();
+    public final static BasicHeaderValueParser DEFAULT = new BasicHeaderValueParser();
 
     public final static BasicHeaderValueParser INSTANCE = new BasicHeaderValueParser();
 

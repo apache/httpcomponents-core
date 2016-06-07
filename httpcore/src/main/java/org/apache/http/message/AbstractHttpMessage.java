@@ -30,7 +30,6 @@ package org.apache.http.message;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
 import org.apache.http.HttpMessage;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
@@ -41,7 +40,6 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public abstract class AbstractHttpMessage implements HttpMessage {
 
     protected HeaderGroup headergroup;

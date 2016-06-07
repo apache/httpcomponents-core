@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.http.HttpConnectionMetrics;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.HttpTransportMetrics;
 
 /**
@@ -39,7 +38,6 @@ import org.apache.http.io.HttpTransportMetrics;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
 
     public static final String REQUEST_COUNT = "http.request-count";

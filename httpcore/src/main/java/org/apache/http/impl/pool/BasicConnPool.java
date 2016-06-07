@@ -30,7 +30,8 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpHost;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.params.HttpParams;
@@ -48,7 +49,7 @@ import org.apache.http.pool.ConnFactory;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnection, BasicPoolEntry> {
 
     private static final AtomicLong COUNTER = new AtomicLong();

@@ -27,7 +27,6 @@
 
 package org.apache.http.impl.nio.reactor;
 
-import org.apache.http.annotation.Immutable;
 import org.apache.http.util.Args;
 
 /**
@@ -37,7 +36,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@Immutable
 public class SessionRequestHandle {
 
     private final SessionRequestImpl sessionRequest;

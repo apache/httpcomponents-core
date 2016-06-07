@@ -39,7 +39,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
 import org.apache.http.HttpStatus;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
 import org.apache.http.impl.entity.LaxContentLengthStrategy;
@@ -72,7 +71,6 @@ import org.apache.http.util.Args;
  *
  * @deprecated (4.3) use {@link DefaultBHttpClientConnection}
  */
-@NotThreadSafe
 @Deprecated
 public abstract class AbstractHttpClientConnection implements HttpClientConnection {
 

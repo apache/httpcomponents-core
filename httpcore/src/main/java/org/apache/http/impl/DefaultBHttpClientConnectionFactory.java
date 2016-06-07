@@ -30,7 +30,8 @@ package org.apache.http.impl;
 import org.apache.http.HttpConnectionFactory;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.io.HttpMessageParserFactory;
@@ -44,9 +45,8 @@ import java.net.Socket;
  *
  * @since 4.3
  */
-@Immutable
-public class DefaultBHttpClientConnectionFactory
-        implements HttpConnectionFactory<DefaultBHttpClientConnection> {
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+public class DefaultBHttpClientConnectionFactory implements HttpConnectionFactory<DefaultBHttpClientConnection> {
 
     public static final DefaultBHttpClientConnectionFactory INSTANCE = new DefaultBHttpClientConnectionFactory();
 

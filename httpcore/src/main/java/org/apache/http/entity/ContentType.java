@@ -42,7 +42,8 @@ import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.message.BasicHeaderValueFormatter;
 import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.http.message.BasicNameValuePair;
@@ -60,7 +61,7 @@ import org.apache.http.util.TextUtils;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class ContentType implements Serializable {
 
     private static final long serialVersionUID = -7768694718232371896L;

@@ -35,7 +35,6 @@ import org.apache.http.HttpResponseFactory;
 import org.apache.http.NoHttpResponseException;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.io.SessionInputBuffer;
@@ -52,7 +51,6 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
 
     private final HttpResponseFactory responseFactory;

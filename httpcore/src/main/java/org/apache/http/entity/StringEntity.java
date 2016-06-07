@@ -35,7 +35,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 
@@ -45,7 +44,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     protected final byte[] content;

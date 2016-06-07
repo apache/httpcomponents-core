@@ -35,7 +35,6 @@ import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionInputBuffer;
 import org.apache.http.message.LineParser;
 import org.apache.http.message.ParserCursor;
@@ -59,7 +58,6 @@ import org.apache.http.util.CharArrayBuffer;
  * @deprecated (4.2) use {@link DefaultHttpRequestParser}
  */
 @Deprecated
-@NotThreadSafe
 public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
 
     private final HttpRequestFactory requestFactory;

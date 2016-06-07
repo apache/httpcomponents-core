@@ -30,7 +30,8 @@ package org.apache.http.impl.nio;
 import java.io.IOException;
 
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpServerIOTarget;
@@ -51,7 +52,7 @@ import org.apache.http.util.Args;
  * @deprecated (4.2) use {@link DefaultHttpServerIODispatch}
  */
 @Deprecated
-@Immutable // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultServerIOEventDispatch extends AbstractIODispatch<NHttpServerIOTarget> {
 
     protected final ByteBufferAllocator allocator;

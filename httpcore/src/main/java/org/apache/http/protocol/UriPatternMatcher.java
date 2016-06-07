@@ -30,8 +30,8 @@ package org.apache.http.protocol;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.annotation.GuardedBy;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 
 /**
@@ -49,10 +49,9 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class UriPatternMatcher<T> {
 
-    @GuardedBy("this")
     private final Map<String, T> map;
 
     public UriPatternMatcher() {

@@ -30,7 +30,6 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 
@@ -42,7 +41,6 @@ import org.apache.http.util.Args;
  *
  * @deprecated (4.3) use {@link SessionOutputBufferImpl}
  */
-@NotThreadSafe
 @Deprecated
 public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
 

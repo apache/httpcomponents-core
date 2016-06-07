@@ -29,7 +29,6 @@ package org.apache.http.nio.entity;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.nio.util.ContentInputBuffer;
 import org.apache.http.util.Args;
@@ -40,7 +39,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ContentBufferEntity extends BasicHttpEntity {
 
     private final HttpEntity wrappedEntity;

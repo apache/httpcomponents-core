@@ -29,7 +29,8 @@ package org.apache.http.impl.nio;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.ConnSupport;
@@ -52,7 +53,7 @@ import org.apache.http.util.Args;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultNHttpClientConnectionFactory
     implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 

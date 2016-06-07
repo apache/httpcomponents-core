@@ -34,7 +34,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOReactorException;
@@ -51,7 +50,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe // public methods only
 public class BaseIOReactor extends AbstractIOReactor {
 
     private final long timeoutCheckInterval;

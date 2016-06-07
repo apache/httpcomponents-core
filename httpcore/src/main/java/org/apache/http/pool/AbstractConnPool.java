@@ -40,7 +40,8 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -60,7 +61,7 @@ import org.apache.http.util.Asserts;
  * @param <E> the type of the pool entry containing a pooled connection.
  * @since 4.2
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                                                implements ConnPool<T, E>, ConnPoolControl<T> {
 

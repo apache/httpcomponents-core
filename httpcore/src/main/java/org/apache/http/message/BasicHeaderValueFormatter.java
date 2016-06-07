@@ -29,7 +29,8 @@ package org.apache.http.message;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.NameValuePair;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -40,7 +41,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     /**
@@ -52,8 +53,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
      * @deprecated (4.3) use {@link #INSTANCE}
      */
     @Deprecated
-    public final static
-        BasicHeaderValueFormatter DEFAULT = new BasicHeaderValueFormatter();
+    public final static BasicHeaderValueFormatter DEFAULT = new BasicHeaderValueFormatter();
 
     public final static BasicHeaderValueFormatter INSTANCE = new BasicHeaderValueFormatter();
 

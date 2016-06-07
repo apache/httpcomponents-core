@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.HttpTransportMetricsImpl;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.nio.reactor.SessionOutputBuffer;
@@ -43,7 +42,6 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ChunkEncoder extends AbstractContentEncoder {
 
     private final int fragHint;

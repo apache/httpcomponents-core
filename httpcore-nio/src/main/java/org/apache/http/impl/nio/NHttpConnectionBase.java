@@ -49,7 +49,6 @@ import org.apache.http.HttpInetConnection;
 import org.apache.http.HttpMessage;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
@@ -92,7 +91,6 @@ import org.apache.http.util.NetUtils;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class NHttpConnectionBase
         implements NHttpConnection, HttpInetConnection, SessionBufferStatus, SocketAccessor {
 

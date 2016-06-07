@@ -35,7 +35,8 @@ import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.ExceptionLogger;
 import org.apache.http.HttpHost;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -58,7 +59,7 @@ import org.apache.http.util.Args;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpAsyncRequester {
 
     private final HttpProcessor httpprocessor;

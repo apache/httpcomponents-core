@@ -43,7 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
@@ -68,7 +69,7 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.2
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                                                   implements ConnPool<T, E>, ConnPoolControl<T> {
 

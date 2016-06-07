@@ -32,7 +32,6 @@ import java.io.Serializable;
 import org.apache.http.FormattedHeader;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -42,7 +41,6 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BufferedHeader implements FormattedHeader, Cloneable, Serializable {
 
     private static final long serialVersionUID = -2768352615787625448L;

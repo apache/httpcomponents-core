@@ -31,7 +31,8 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
 import org.apache.http.util.Args;
@@ -53,7 +54,7 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.0
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutputBuffer {
 
     private final ReentrantLock lock;

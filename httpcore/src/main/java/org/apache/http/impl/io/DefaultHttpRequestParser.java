@@ -35,7 +35,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.io.SessionInputBuffer;
@@ -52,7 +51,6 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
 
     private final HttpRequestFactory requestFactory;

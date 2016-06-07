@@ -28,7 +28,8 @@
 package org.apache.http.impl.nio.codecs;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.message.BasicLineFormatter;
 import org.apache.http.message.LineFormatter;
 import org.apache.http.nio.NHttpMessageWriter;
@@ -40,7 +41,7 @@ import org.apache.http.nio.reactor.SessionOutputBuffer;
  *
  * @since 4.3
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultHttpResponseWriterFactory implements NHttpMessageWriterFactory<HttpResponse> {
 
     public static final DefaultHttpResponseWriterFactory INSTANCE = new DefaultHttpResponseWriterFactory();

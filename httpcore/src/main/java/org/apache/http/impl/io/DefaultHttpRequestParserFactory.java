@@ -29,7 +29,8 @@ package org.apache.http.impl.io;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.impl.DefaultHttpRequestFactory;
 import org.apache.http.io.HttpMessageParser;
@@ -43,7 +44,7 @@ import org.apache.http.message.LineParser;
  *
  * @since 4.3
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultHttpRequestParserFactory implements HttpMessageParserFactory<HttpRequest> {
 
     public static final DefaultHttpRequestParserFactory INSTANCE = new DefaultHttpRequestParserFactory();

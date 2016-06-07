@@ -29,7 +29,8 @@ package org.apache.http.impl.nio.pool;
 import java.io.IOException;
 
 import org.apache.http.HttpHost;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.pool.PoolEntry;
 
@@ -41,7 +42,7 @@ import org.apache.http.pool.PoolEntry;
  * @see HttpHost
  * @since 4.2
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class BasicNIOPoolEntry extends PoolEntry<HttpHost, NHttpClientConnection> {
 
     private volatile int socketTimeout;

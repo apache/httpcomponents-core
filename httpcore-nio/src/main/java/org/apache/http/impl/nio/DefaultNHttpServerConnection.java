@@ -38,7 +38,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
@@ -71,7 +70,6 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class DefaultNHttpServerConnection
     extends NHttpConnectionBase implements NHttpServerIOTarget {
 

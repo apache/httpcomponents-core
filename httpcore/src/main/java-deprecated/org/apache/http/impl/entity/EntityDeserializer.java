@@ -33,7 +33,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpMessage;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.io.ChunkedInputStream;
@@ -61,7 +62,7 @@ import org.apache.http.util.Args;
  *
  * @deprecated (4.3) use {@link org.apache.http.impl.BHttpConnectionBase}
  */
-@Immutable // assuming injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 @Deprecated
 public class EntityDeserializer {
 

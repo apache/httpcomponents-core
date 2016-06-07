@@ -32,7 +32,6 @@ import java.util.NoSuchElementException;
 import org.apache.http.HeaderIterator;
 import org.apache.http.ParseException;
 import org.apache.http.TokenIterator;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
@@ -43,7 +42,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicTokenIterator implements TokenIterator {
 
     /** The HTTP separator characters. Defined in RFC 2616, section 2.2. */

@@ -30,7 +30,8 @@ package org.apache.http.protocol;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 
 /**
@@ -41,7 +42,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class BasicHttpContext implements HttpContext {
 
     private final HttpContext parentContext;

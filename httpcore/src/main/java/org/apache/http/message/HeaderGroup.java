@@ -35,7 +35,6 @@ import java.util.Locale;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.CharArrayBuffer;
 
 /**
@@ -46,7 +45,6 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class HeaderGroup implements Cloneable, Serializable {
 
     private static final long serialVersionUID = 2608834160639271617L;

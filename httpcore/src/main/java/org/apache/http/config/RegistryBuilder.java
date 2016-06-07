@@ -31,7 +31,6 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
@@ -39,7 +38,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.3
  */
-@NotThreadSafe
 public final class RegistryBuilder<I> {
 
     private final Map<String, I> items;

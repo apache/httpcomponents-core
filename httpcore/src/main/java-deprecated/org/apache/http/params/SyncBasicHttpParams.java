@@ -26,7 +26,8 @@
  */
 package org.apache.http.params;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 
 /**
  * Thread-safe extension of the {@link BasicHttpParams}.
@@ -36,7 +37,7 @@ import org.apache.http.annotation.ThreadSafe;
  * @deprecated (4.3) use configuration classes provided 'org.apache.http.config'
  *  and 'org.apache.http.client.config'
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 @Deprecated
 public class SyncBasicHttpParams extends BasicHttpParams {
 

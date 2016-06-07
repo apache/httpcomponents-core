@@ -31,7 +31,8 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpClientEventHandler;
@@ -49,7 +50,7 @@ import org.apache.http.util.Args;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@Immutable // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultHttpClientIODispatch
                     extends AbstractIODispatch<DefaultNHttpClientConnection> {
 

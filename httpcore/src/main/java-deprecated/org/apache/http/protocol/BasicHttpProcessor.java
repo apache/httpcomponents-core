@@ -37,7 +37,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
@@ -50,7 +49,6 @@ import org.apache.http.util.Args;
  *
  * @deprecated (4.3)
  */
-@NotThreadSafe
 @Deprecated
 public final class BasicHttpProcessor implements
     HttpProcessor, HttpRequestInterceptorList, HttpResponseInterceptorList, Cloneable {

@@ -29,7 +29,6 @@ package org.apache.http.impl.nio.reactor;
 
 import java.io.IOException;
 
-import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.reactor.IOEventDispatch;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLIOSession;
@@ -42,7 +41,6 @@ import org.apache.http.util.Asserts;
  * @param <T> the connection type.
  * @since 4.2
  */
-@Immutable // provided injected dependencies are immutable
 public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     protected abstract T createConnection(IOSession session);

@@ -27,7 +27,6 @@
 
 package org.apache.http.impl.nio.reactor;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
@@ -35,7 +34,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.2
  */
-@NotThreadSafe
 public final class IOReactorConfig implements Cloneable {
 
     private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();

@@ -32,7 +32,6 @@ import java.util.NoSuchElementException;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
@@ -42,7 +41,6 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicListHeaderIterator implements HeaderIterator {
 
     /**

@@ -39,7 +39,6 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
@@ -56,9 +55,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.3
  */
-@NotThreadSafe
-public class DefaultBHttpServerConnection extends BHttpConnectionBase
-                                                   implements HttpServerConnection {
+public class DefaultBHttpServerConnection extends BHttpConnectionBase implements HttpServerConnection {
 
     private final HttpMessageParser<HttpRequest> requestParser;
     private final HttpMessageWriter<HttpResponse> responseWriter;

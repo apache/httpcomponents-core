@@ -29,7 +29,8 @@ package org.apache.http.nio.protocol;
 
 import java.util.Map;
 
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.protocol.UriPatternMatcher;
 
 /**
@@ -49,7 +50,7 @@ import org.apache.http.protocol.UriPatternMatcher;
  * @since 4.2
  * @deprecated (4.3) use {@link UriHttpAsyncRequestHandlerMapper}
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 @Deprecated
 public class HttpAsyncRequestHandlerRegistry implements HttpAsyncRequestHandlerResolver {
 

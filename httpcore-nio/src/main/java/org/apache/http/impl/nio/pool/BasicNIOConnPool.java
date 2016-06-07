@@ -33,7 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.http.HttpHost;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.nio.NHttpClientConnection;
@@ -56,7 +57,7 @@ import org.apache.http.util.Args;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientConnection, BasicNIOPoolEntry> {
 
     private static final AtomicLong COUNTER = new AtomicLong();

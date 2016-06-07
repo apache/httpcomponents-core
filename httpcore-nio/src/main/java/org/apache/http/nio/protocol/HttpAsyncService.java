@@ -46,7 +46,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -98,7 +99,7 @@ import org.apache.http.util.Asserts;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@Immutable // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpAsyncService implements NHttpServerEventHandler {
 
     static final String HTTP_EXCHANGE_STATE = "http.nio.http-exchange-state";

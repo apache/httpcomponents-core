@@ -30,7 +30,6 @@ package org.apache.http.nio.entity;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.util.ContentOutputBuffer;
 import org.apache.http.util.Args;
 
@@ -39,7 +38,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ContentOutputStream extends OutputStream {
 
     private final ContentOutputBuffer buffer;

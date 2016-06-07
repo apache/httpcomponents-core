@@ -37,7 +37,6 @@ import org.apache.http.HttpMessage;
 import org.apache.http.MessageConstraintException;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolException;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.config.MessageConstraints;
 import org.apache.http.io.HttpMessageParser;
 import org.apache.http.io.SessionInputBuffer;
@@ -55,7 +54,6 @@ import org.apache.http.util.CharArrayBuffer;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public abstract class AbstractMessageParser<T extends HttpMessage> implements HttpMessageParser<T> {
 
     private static final int HEAD_LINE    = 0;

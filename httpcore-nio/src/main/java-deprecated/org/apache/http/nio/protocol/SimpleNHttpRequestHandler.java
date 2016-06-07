@@ -27,13 +27,12 @@
 
 package org.apache.http.nio.protocol;
 
-import java.io.IOException;
-
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.Immutable;
 import org.apache.http.protocol.HttpContext;
+
+import java.io.IOException;
 
 /**
  * A simple implementation of {@link NHttpRequestHandler} that abstracts away
@@ -45,7 +44,6 @@ import org.apache.http.protocol.HttpContext;
  * @deprecated (4.2) use {@link BasicAsyncRequestHandler}
  */
 @Deprecated
-@Immutable
 public abstract class SimpleNHttpRequestHandler implements NHttpRequestHandler {
 
     public final void handle(

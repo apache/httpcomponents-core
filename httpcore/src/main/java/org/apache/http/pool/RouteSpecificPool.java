@@ -31,11 +31,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
-@NotThreadSafe
 abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;

@@ -43,7 +43,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
@@ -79,7 +80,7 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     public static final int DEFAULT_WAIT_FOR_CONTINUE = 3000;

@@ -33,7 +33,6 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.annotation.Immutable;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.util.ByteBufferAllocator;
 import org.apache.http.params.HttpParams;
@@ -46,7 +45,6 @@ import org.apache.http.util.Args;
  * @deprecated (4.2) do not use
  */
 @Deprecated
-@Immutable // provided injected dependencies are immutable
 public abstract class NHttpHandlerBase {
 
     protected static final String CONN_STATE = "http.nio.conn-state";

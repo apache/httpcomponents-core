@@ -26,9 +26,10 @@
  */
 package org.apache.http.pool;
 
-import java.io.Serializable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 
-import org.apache.http.annotation.Immutable;
+import java.io.Serializable;
 
 /**
  * Pool statistics.
@@ -38,7 +39,7 @@ import org.apache.http.annotation.Immutable;
  *
  * @since 4.2
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class PoolStats implements Serializable {
 
     private static final long serialVersionUID = -2807686144795228544L;

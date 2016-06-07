@@ -35,7 +35,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
@@ -51,7 +50,6 @@ import org.apache.http.util.Args;
  *
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class NStringEntity extends AbstractHttpEntity
                            implements HttpAsyncContentProducer, ProducingNHttpEntity {
 

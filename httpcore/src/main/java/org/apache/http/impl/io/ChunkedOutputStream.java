@@ -30,7 +30,6 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
 
 /**
@@ -45,7 +44,6 @@ import org.apache.http.io.SessionOutputBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ChunkedOutputStream extends OutputStream {
 
     // ----------------------------------------------------- Instance Variables

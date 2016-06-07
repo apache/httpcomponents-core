@@ -30,7 +30,6 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 
 import org.apache.http.HttpRequest;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.message.LineFormatter;
 
@@ -39,7 +38,6 @@ import org.apache.http.message.LineFormatter;
  *
  * @since 4.3
  */
-@NotThreadSafe
 public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
 
     /**

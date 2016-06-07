@@ -35,7 +35,6 @@ import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.ReasonPhraseCatalog;
 import org.apache.http.StatusLine;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
@@ -45,7 +44,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHttpResponse extends AbstractHttpMessage implements HttpResponse {
 
     private StatusLine          statusline;

@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.EmptyInputStream;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -42,7 +41,6 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHttpEntity extends AbstractHttpEntity {
 
     private InputStream content;

@@ -30,7 +30,6 @@ package org.apache.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.SessionOutputBuffer;
 import org.apache.http.util.Args;
 
@@ -47,7 +46,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class ContentLengthOutputStream extends OutputStream {
 
     /**

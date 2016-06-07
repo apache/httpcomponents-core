@@ -27,9 +27,10 @@
 
 package org.apache.http.nio.util;
 
-import java.nio.ByteBuffer;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 
-import org.apache.http.annotation.Immutable;
+import java.nio.ByteBuffer;
 
 /**
  * Allocates {@link ByteBuffer} instances using
@@ -37,7 +38,7 @@ import org.apache.http.annotation.Immutable;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class HeapByteBufferAllocator implements ByteBufferAllocator {
 
     public static final HeapByteBufferAllocator INSTANCE = new HeapByteBufferAllocator();

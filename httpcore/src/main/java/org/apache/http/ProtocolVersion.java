@@ -29,7 +29,8 @@ package org.apache.http;
 
 import java.io.Serializable;
 
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 
 /**
@@ -44,7 +45,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ProtocolVersion implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 8950662842175091068L;

@@ -41,7 +41,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.http.annotation.ThreadSafe;
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.nio.reactor.IOReactorStatus;
@@ -56,7 +55,6 @@ import org.apache.http.util.Asserts;
  *
  * @since 4.0
  */
-@ThreadSafe // public methods only
 public abstract class AbstractIOReactor implements IOReactor {
 
     private volatile IOReactorStatus status;

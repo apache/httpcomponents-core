@@ -37,7 +37,6 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import org.apache.http.Consts;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionInputBuffer;
@@ -62,7 +61,6 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @deprecated (4.3) use {@link SessionInputBufferImpl}
  */
-@NotThreadSafe
 @Deprecated
 public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, BufferInfo {
 

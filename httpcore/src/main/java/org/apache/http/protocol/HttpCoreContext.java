@@ -31,7 +31,6 @@ import org.apache.http.HttpConnection;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 
 /**
@@ -40,7 +39,6 @@ import org.apache.http.util.Args;
  *
  * @since 4.3
  */
-@NotThreadSafe
 public class HttpCoreContext implements HttpContext {
 
     /**

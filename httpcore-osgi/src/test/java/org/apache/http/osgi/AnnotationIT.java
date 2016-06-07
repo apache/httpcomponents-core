@@ -27,7 +27,6 @@
 
 package org.apache.http.osgi;
 
-import org.apache.http.annotation.Immutable;
 import org.junit.Test;
 
 /**
@@ -35,7 +34,6 @@ import org.junit.Test;
  */
 public class AnnotationIT extends Common {
 
-    @Immutable
     static class SomeClass {
         //
     }

@@ -34,14 +34,15 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 
 /**
  * Immutable {@link HttpProcessor}.
  *
  * @since 4.1
  */
-@ThreadSafe // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public final class ImmutableHttpProcessor implements HttpProcessor {
 
     private final HttpRequestInterceptor[] requestInterceptors;

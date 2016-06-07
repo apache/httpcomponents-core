@@ -32,14 +32,11 @@ import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.annotation.Immutable;
-
 /**
  * {@link javax.net.ssl.SSLContext} factory methods.
  *
  * @since 4.4
  */
-@Immutable
 public class SSLContexts {
 
     /**

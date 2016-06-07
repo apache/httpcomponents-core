@@ -30,7 +30,6 @@ package org.apache.http.impl.nio;
 import java.io.IOException;
 
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.DefaultHttpResponseFactory;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpClientHandler;
@@ -51,7 +50,6 @@ import org.apache.http.util.Args;
  * @deprecated (4.2) use {@link DefaultHttpClientIODispatch}
  */
 @Deprecated
-@Immutable // provided injected dependencies are immutable
 public class DefaultClientIOEventDispatch extends AbstractIODispatch<NHttpClientIOTarget> {
 
     protected final NHttpClientHandler handler;

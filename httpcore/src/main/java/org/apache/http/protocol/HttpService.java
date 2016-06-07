@@ -42,7 +42,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.DefaultHttpResponseFactory;
@@ -71,7 +72,7 @@ import org.apache.http.util.EntityUtils;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@Immutable // provided injected dependencies are immutable and deprecated methods are not used
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpService {
 
     /**

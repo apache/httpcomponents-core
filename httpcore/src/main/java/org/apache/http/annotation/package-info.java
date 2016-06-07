@@ -26,10 +26,6 @@
  */
 
 /**
- * Thread-safety annotations based on JCIP-ANNOTATIONS
- * <p>
- * Copyright (c) 2005 Brian Goetz and Tim Peierls.
- * See http://www.jcip.net
- * </p>
+ * Provides annotations for public interface definitions
  */
 package org.apache.http.annotation;

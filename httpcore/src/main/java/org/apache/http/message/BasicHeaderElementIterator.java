@@ -34,7 +34,6 @@ import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
 import org.apache.http.HeaderIterator;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -43,7 +42,6 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class BasicHeaderElementIterator implements HeaderElementIterator {
 
     private final HeaderIterator headerIt;

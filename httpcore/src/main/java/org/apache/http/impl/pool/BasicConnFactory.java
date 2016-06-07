@@ -36,7 +36,8 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpConnectionFactory;
 import org.apache.http.HttpHost;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.DefaultBHttpClientConnection;
@@ -55,7 +56,7 @@ import org.apache.http.util.Args;
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnection> {
 
     private final SocketFactory plainfactory;

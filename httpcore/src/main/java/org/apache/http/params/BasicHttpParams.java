@@ -27,13 +27,14 @@
 
 package org.apache.http.params;
 
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
+
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.http.annotation.ThreadSafe;
 
 /**
  * Default implementation of {@link HttpParams} interface.
@@ -47,7 +48,7 @@ import org.apache.http.annotation.ThreadSafe;
  *  and 'org.apache.http.client.config'
  */
 @Deprecated
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class BasicHttpParams extends AbstractHttpParams implements Serializable, Cloneable {
 
     private static final long serialVersionUID = -7086398485908701455L;

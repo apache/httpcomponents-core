@@ -31,7 +31,8 @@ import java.io.Serializable;
 
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 
 /**
@@ -39,7 +40,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class BasicRequestLine implements RequestLine, Cloneable, Serializable {
 
     private static final long serialVersionUID = 2810581718468737193L;

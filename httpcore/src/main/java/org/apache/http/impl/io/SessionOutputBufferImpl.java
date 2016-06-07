@@ -34,7 +34,6 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.io.SessionOutputBuffer;
@@ -54,7 +53,6 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.3
  */
-@NotThreadSafe
 public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo {
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};

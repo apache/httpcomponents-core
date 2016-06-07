@@ -33,7 +33,8 @@ import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
@@ -67,7 +68,7 @@ import org.apache.http.protocol.HttpProcessor;
  * @deprecated (4.2) use {@link HttpAsyncRequestExecutor} and {@link HttpAsyncRequester}
  */
 @Deprecated
-@Immutable // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class BufferingHttpClientHandler implements NHttpClientHandler {
 
     private final AsyncNHttpClientHandler asyncHandler;

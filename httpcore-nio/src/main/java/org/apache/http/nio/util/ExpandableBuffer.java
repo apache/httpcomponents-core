@@ -29,7 +29,6 @@ package org.apache.http.nio.util;
 
 import java.nio.ByteBuffer;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.io.BufferInfo;
 import org.apache.http.util.Args;
 
@@ -43,7 +42,6 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.BufferInfo {
 
     public final static int INPUT_MODE = 0;

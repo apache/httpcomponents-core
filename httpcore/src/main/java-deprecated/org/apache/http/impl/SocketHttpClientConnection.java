@@ -35,7 +35,6 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 
 import org.apache.http.HttpInetConnection;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.io.SocketInputBuffer;
 import org.apache.http.impl.io.SocketOutputBuffer;
 import org.apache.http.io.SessionInputBuffer;
@@ -54,7 +53,6 @@ import org.apache.http.util.Asserts;
  *
  * @deprecated (4.3) use {@link DefaultBHttpClientConnection}
  */
-@NotThreadSafe
 @Deprecated
 public class SocketHttpClientConnection
         extends AbstractHttpClientConnection implements HttpInetConnection {

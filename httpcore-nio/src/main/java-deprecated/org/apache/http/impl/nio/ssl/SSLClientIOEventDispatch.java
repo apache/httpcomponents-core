@@ -30,7 +30,6 @@ package org.apache.http.impl.nio.ssl;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 
-import org.apache.http.annotation.Immutable;
 import org.apache.http.impl.nio.DefaultClientIOEventDispatch;
 import org.apache.http.impl.nio.reactor.SSLIOSession;
 import org.apache.http.impl.nio.reactor.SSLSetupHandler;
@@ -50,7 +49,6 @@ import org.apache.http.util.Args;
  * @deprecated (4.2) use {@link org.apache.http.impl.nio.DefaultHttpClientIODispatch}
  */
 @Deprecated
-@Immutable // provided injected dependencies are immutable
 public class SSLClientIOEventDispatch extends DefaultClientIOEventDispatch {
 
     private final SSLContext sslcontext;

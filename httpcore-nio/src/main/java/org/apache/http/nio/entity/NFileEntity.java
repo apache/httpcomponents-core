@@ -35,7 +35,6 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.entity.AbstractHttpEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.nio.ContentEncoder;
@@ -53,7 +52,6 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @SuppressWarnings("deprecation")
-@NotThreadSafe
 public class NFileEntity extends AbstractHttpEntity
                          implements HttpAsyncContentProducer, ProducingNHttpEntity {
 

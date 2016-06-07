@@ -38,7 +38,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -98,7 +99,7 @@ import org.apache.http.util.Args;
  * @deprecated (4.2) use {@link HttpAsyncRequestExecutor} and {@link HttpAsyncRequester}
  */
 @Deprecated
-@ThreadSafe // provided injected dependencies are immutable or thread safe
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                                          implements NHttpClientHandler {
 

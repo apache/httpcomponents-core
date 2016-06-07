@@ -33,7 +33,8 @@ import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
@@ -56,7 +57,7 @@ import org.apache.http.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-@Immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class BasicLineParser implements LineParser {
 
     /**

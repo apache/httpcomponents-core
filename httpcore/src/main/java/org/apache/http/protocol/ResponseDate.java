@@ -33,7 +33,8 @@ import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
-import org.apache.http.annotation.ThreadSafe;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
 
 /**
@@ -43,7 +44,7 @@ import org.apache.http.util.Args;
  *
  * @since 4.0
  */
-@ThreadSafe
+@Contract(threading = ThreadingBehavior.SAFE)
 public class ResponseDate implements HttpResponseInterceptor {
 
     private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();

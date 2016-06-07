@@ -28,7 +28,6 @@ package org.apache.http.nio.util;
 
 import java.io.IOException;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.nio.ContentDecoder;
 
 /**
@@ -38,7 +37,6 @@ import org.apache.http.nio.ContentDecoder;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputBuffer {
 
     private boolean endOfStream = false;

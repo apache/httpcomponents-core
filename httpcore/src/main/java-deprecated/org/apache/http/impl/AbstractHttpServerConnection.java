@@ -37,7 +37,6 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestFactory;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpServerConnection;
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.impl.entity.DisallowIdentityContentLengthStrategy;
 import org.apache.http.impl.entity.EntityDeserializer;
 import org.apache.http.impl.entity.EntitySerializer;
@@ -71,7 +70,6 @@ import org.apache.http.util.Args;
  *
  * @deprecated (4.3) use {@link DefaultBHttpServerConnection}
  */
-@NotThreadSafe
 @Deprecated
 public abstract class AbstractHttpServerConnection implements HttpServerConnection {
 

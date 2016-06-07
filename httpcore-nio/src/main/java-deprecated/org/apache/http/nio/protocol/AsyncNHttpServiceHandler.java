@@ -42,7 +42,8 @@ import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.UnsupportedHttpVersionException;
-import org.apache.http.annotation.Immutable;
+import org.apache.http.annotation.ThreadingBehavior;
+import org.apache.http.annotation.Contract;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.IOControl;
@@ -100,7 +101,7 @@ import org.apache.http.util.EncodingUtils;
  * @deprecated (4.2) use {@link HttpAsyncService}
  */
 @Deprecated
-@Immutable // provided injected dependencies are immutable
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class AsyncNHttpServiceHandler extends NHttpHandlerBase
                                       implements NHttpServiceHandler {
 

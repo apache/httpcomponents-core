@@ -30,7 +30,6 @@ package org.apache.http.util;
 import java.io.Serializable;
 import java.nio.CharBuffer;
 
-import org.apache.http.annotation.NotThreadSafe;
 import org.apache.http.protocol.HTTP;
 
 /**
@@ -38,7 +37,6 @@ import org.apache.http.protocol.HTTP;
  *
  * @since 4.0
  */
-@NotThreadSafe
 public final class CharArrayBuffer implements CharSequence, Serializable {
 
     private static final long serialVersionUID = -6208952725094867135L;
