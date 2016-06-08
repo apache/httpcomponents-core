@@ -298,6 +298,9 @@
         <version>${hc.clirr.version}</version>
         <configuration>
           <comparisonVersion>${api.comparison.version}</comparisonVersion>
+          <excludes>
+            <exclude>org/apache/http/annotation/**</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
