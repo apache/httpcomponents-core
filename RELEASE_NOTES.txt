@@ -1,3 +1,46 @@
+Release 4.4.5
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.4.
+
+Please note the following annotations originally based on CC-BY licensed source have been removed 
+in this release:
+
+org.apache.http.annotation.GuardedBy
+org.apache.http.annotation.Immutable
+org.apache.http.annotation.NotThreadSafe
+org.apache.http.annotation.ThreadSafe
+
+
+Changelog
+-------------------
+
+* [HTTPCLIENT-1743] remove dependency on CC-BY licensed source
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+    
+* [HTTPCORE-420] Blocking HttpServer does not close out persistent connection when shut down
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+    
+* Support 64-bit chunk headers
+  Contributed by Dmitry Potapov <dpotapov at yandex-team.ru>
+  
+* Fixed race condition in request initialization code and #endOfInput method in async client 
+  protocol handlers
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+    
+* [HTTPCORE-417] SSLIOSession#writePlain incorrectly handles closed channel condition leading 
+  to an infinite loop
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+    
+* [HTTPCORE-416] DefaultConnectingIOReactor to treat failure to open a channel for a new outgoing 
+  connection as a recoverable request failure
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+    
+* PATCH method support
+  Contributed by Ömer Özkan <omer at ozkan.info>
+    
+
+
 Release 4.4.4
 -------------------
 
