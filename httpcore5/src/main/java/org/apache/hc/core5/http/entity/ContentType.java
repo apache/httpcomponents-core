@@ -176,9 +176,9 @@ public final class ContentType implements Serializable {
      * @return content type
      */
     public static ContentType create(final String mimeType, final Charset charset) {
-        final String type = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.ROOT);
-        Args.check(valid(type), "MIME type may not contain reserved characters");
-        return new ContentType(type, charset);
+        final String normalizedMimeType = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.ROOT);
+        Args.check(valid(normalizedMimeType), "MIME type may not contain reserved characters");
+        return new ContentType(normalizedMimeType, charset);
     }
 
     /**
@@ -189,7 +189,7 @@ public final class ContentType implements Serializable {
      * @return content type
      */
     public static ContentType create(final String mimeType) {
-        return new ContentType(mimeType, (Charset) null);
+        return create(mimeType, (Charset) null);
     }
 
     /**
