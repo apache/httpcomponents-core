@@ -324,10 +324,6 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             state.setEarlyResponse(true);
         }
 
-        handler.responseReceived(response);
-
-        state.setResponseState(MessageState.BODY_STREAM);
-
         final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
         final HttpRequest request;
         if (pipelined) {
@@ -340,8 +336,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             }
         }
 
-        if (!canResponseHaveBody(request, response)) {
+        if (canResponseHaveBody(request, response)) {
+            handler.responseReceived(response);
+            state.setResponseState(MessageState.BODY_STREAM);
+        } else {
             response.setEntity(null);
+            handler.responseReceived(response);
             conn.resetInput();
 
             if (!state.isEarlyResponse()) {
