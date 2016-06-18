@@ -300,11 +300,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             state.invalidate();
         }
 
-        handler.responseReceived(response);
-
-        state.setResponseState(MessageState.BODY_STREAM);
-        if (!canResponseHaveBody(request, response)) {
+        if (canResponseHaveBody(request, response)) {
+            handler.responseReceived(response);
+            state.setResponseState(MessageState.BODY_STREAM);
+        } else {
             response.setEntity(null);
+            handler.responseReceived(response);
             conn.resetInput();
             processResponse(conn, state, handler);
         }
