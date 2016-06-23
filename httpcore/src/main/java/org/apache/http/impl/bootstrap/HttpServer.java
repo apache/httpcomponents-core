@@ -145,7 +145,7 @@ public class HttpServer {
             if (local != null) {
                 try {
                     local.terminate();
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     this.exceptionLogger.log(ex);
                 }
             }
@@ -162,16 +162,16 @@ public class HttpServer {
         if (gracePeriod > 0) {
             try {
                 awaitTermination(gracePeriod, timeUnit);
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
         }
         final Set<Worker> workers = this.workerExecutorService.getWorkers();
-        for (Worker worker: workers) {
+        for (final Worker worker: workers) {
             final HttpServerConnection conn = worker.getConnection();
             try {
                 conn.shutdown();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 this.exceptionLogger.log(ex);
             }
         }

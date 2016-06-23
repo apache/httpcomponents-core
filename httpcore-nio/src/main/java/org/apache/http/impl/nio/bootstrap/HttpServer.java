@@ -86,7 +86,7 @@ public class HttpServer {
             this.ioReactor = new DefaultListeningIOReactor(
                     this.ioReactorConfig,
                     new ThreadFactoryImpl("I/O-dispatch", this.dispatchThreads));
-        } catch (IOReactorException ex) {
+        } catch (final IOReactorException ex) {
             throw new IllegalStateException(ex);
         }
         this.ioReactor.setExceptionHandler(new IOReactorExceptionHandler() {
@@ -120,7 +120,7 @@ public class HttpServer {
                 public void run() {
                     try {
                         ioReactor.execute(ioEventDispatch);
-                    } catch (Exception ex) {
+                    } catch (final Exception ex) {
                         exceptionLogger.log(ex);
                     }
                 }
@@ -137,7 +137,7 @@ public class HttpServer {
         if (this.status.compareAndSet(Status.ACTIVE, Status.STOPPING)) {
             try {
                 this.ioReactor.shutdown(timeUnit.toMillis(gracePeriod));
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 this.exceptionLogger.log(ex);
             }
             this.listenerExecutorService.shutdown();

@@ -37,7 +37,7 @@ class SSLContextUtils {
         try {
             try {
                 sslcontext = SSLContext.getInstance("Default");
-            }  catch (NoSuchAlgorithmException ex) {
+            }  catch (final NoSuchAlgorithmException ex) {
                 sslcontext = SSLContext.getInstance("TLS");
             }
             sslcontext.init(null, null, null);

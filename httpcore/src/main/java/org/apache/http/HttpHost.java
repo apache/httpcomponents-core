@@ -119,7 +119,7 @@ public final class HttpHost implements Cloneable, Serializable {
         if (portIdx > 0) {
             try {
                 port = Integer.parseInt(text.substring(portIdx + 1));
-            } catch (NumberFormatException ex) {
+            } catch (final NumberFormatException ex) {
                 throw new IllegalArgumentException("Invalid HTTP host: " + text);
             }
             text = text.substring(0, portIdx);

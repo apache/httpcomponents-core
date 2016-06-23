@@ -265,7 +265,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
         final BitSet delimSet = new BitSet();
         if (delimiters != null) {
-            for (char delimiter: delimiters) {
+            for (final char delimiter: delimiters) {
                 delimSet.set(delimiter);
             }
         }

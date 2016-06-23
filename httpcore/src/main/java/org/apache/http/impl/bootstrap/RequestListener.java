@@ -88,7 +88,7 @@ class RequestListener implements Runnable {
                 final Worker worker = new Worker(this.httpService, conn, this.exceptionLogger);
                 this.executorService.execute(worker);
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             this.exceptionLogger.log(ex);
         }
     }

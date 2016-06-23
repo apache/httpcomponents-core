@@ -491,7 +491,7 @@ public class HttpAsyncRequester {
         public void failed(final Exception ex) {
             try {
                 try {
-                    for (HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
+                    for (final HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
                         responseConsumer.failed(ex);
                     }
                 } finally {
@@ -506,7 +506,7 @@ public class HttpAsyncRequester {
         public void cancelled() {
             try {
                 try {
-                    for (HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
+                    for (final HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
                         responseConsumer.cancel();
                     }
                 } finally {
@@ -518,10 +518,10 @@ public class HttpAsyncRequester {
         }
 
         public void releaseResources() {
-            for (HttpAsyncRequestProducer requestProducer: this.requestProducers) {
+            for (final HttpAsyncRequestProducer requestProducer: this.requestProducers) {
                 close(requestProducer);
             }
-            for (HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
+            for (final HttpAsyncResponseConsumer<T> responseConsumer: this.responseConsumers) {
                 close(responseConsumer);
             }
         }
@@ -588,7 +588,7 @@ public class HttpAsyncRequester {
     private void close(final Closeable closeable) {
         try {
             closeable.close();
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             log(ex);
         }
     }

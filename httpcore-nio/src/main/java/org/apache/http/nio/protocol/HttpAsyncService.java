@@ -447,9 +447,9 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     conn.suspendOutput();
                     try {
                         handler.handle(result, httpExchange, context);
-                    } catch (RuntimeException ex) {
+                    } catch (final RuntimeException ex) {
                         throw ex;
-                    } catch (Exception ex) {
+                    } catch (final Exception ex) {
                         pipeline.add(new PipelineEntry(
                             request,
                             null,
