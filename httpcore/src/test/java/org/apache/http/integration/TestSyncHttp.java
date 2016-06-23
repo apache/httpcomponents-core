@@ -543,7 +543,7 @@ public class TestSyncHttp {
                     final HttpContext context) throws HttpException {
                 final Header someheader = request.getFirstHeader("Secret");
                 if (someheader != null) {
-                    int secretNumber;
+                    final int secretNumber;
                     try {
                         secretNumber = Integer.parseInt(someheader.getValue());
                     } catch (final NumberFormatException ex) {
@@ -612,8 +612,7 @@ public class TestSyncHttp {
         public RepeatingEntity(final String content, final Charset charset, final int n) {
             super();
             final Charset cs = charset != null ? charset : Charset.forName("US-ASCII");
-            byte[] b;
-            b = content.getBytes(cs);
+            final byte[] b = content.getBytes(cs);
             this.raw = b;
             this.n = n;
         }

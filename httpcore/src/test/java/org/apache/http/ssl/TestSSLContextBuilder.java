@@ -33,6 +33,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.Principal;
@@ -318,7 +319,7 @@ public class TestSSLContextBuilder {
                     final SSLSession session = socket.getSession();
                     try {
                         clientPrincipal = session.getPeerPrincipal();
-                    } catch (SSLPeerUnverifiedException ignore) {
+                    } catch (final SSLPeerUnverifiedException ignore) {
                     }
                     final OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(new byte [] {'H', 'i'});
@@ -559,7 +560,7 @@ public class TestSSLContextBuilder {
         }
     }
 
-    @Test(expected = SSLHandshakeException.class)
+    @Test
     public void testSSLHanskshakeProtocolMismatch2() throws Exception {
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
@@ -577,7 +578,7 @@ public class TestSSLContextBuilder {
         final Set<String> supportedServerProtocols = new LinkedHashSet<String>(Arrays.asList(serverSocket.getSupportedProtocols()));
         Assert.assertTrue(supportedServerProtocols.contains("SSLv3"));
         serverSocket.setEnabledProtocols(new String[] {"SSLv3"});
-        serverSocket.bind(new InetSocketAddress(0));
+        serverSocket.bind(new InetSocketAddress("localhost", 0));
 
         this.executorService = Executors.newSingleThreadExecutor();
         this.executorService.submit(new Callable<Boolean>() {
@@ -596,11 +597,20 @@ public class TestSSLContextBuilder {
         final int localPort = serverSocket.getLocalPort();
         final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
         try {
-            final Set<String> supportedClientProtocols = new LinkedHashSet<String>(Arrays.asList(clientSocket.getSupportedProtocols()));
+            final Set<String> supportedClientProtocols = new LinkedHashSet<String>(
+                    Arrays.asList(clientSocket.getSupportedProtocols()));
             Assert.assertTrue(supportedClientProtocols.contains("TLSv1"));
-            clientSocket.setEnabledProtocols(new String[] {"TLSv1"});
+            clientSocket.setEnabledProtocols(new String[] { "TLSv1" });
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
-            clientSocket.startHandshake();
+            final boolean isWindows = System.getProperty("os.name").contains("Windows");
+            final Class<? extends IOException> expectedExceptionClass = isWindows ? SocketException.class
+                    : SSLHandshakeException.class;
+            try {
+                clientSocket.startHandshake();
+                Assert.fail();
+            } catch (final Exception e) {
+                Assert.assertEquals(expectedExceptionClass, e.getClass());
+            }
         } finally {
             clientSocket.close();
         }
