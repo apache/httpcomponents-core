@@ -115,7 +115,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
         @Override
         public int write(final ByteBuffer src) throws IOException {
-            int chunk;
+            final int chunk;
             if (!this.done) {
                 this.lineBuffer.clear();
                 this.lineBuffer.append(Integer.toHexString(GARBAGE.length * 10));
