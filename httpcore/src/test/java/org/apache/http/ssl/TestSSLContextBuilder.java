@@ -59,6 +59,8 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.commons.lang3.JavaVersion;
+import org.apache.commons.lang3.SystemUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -602,9 +604,9 @@ public class TestSSLContextBuilder {
             Assert.assertTrue(supportedClientProtocols.contains("TLSv1"));
             clientSocket.setEnabledProtocols(new String[] { "TLSv1" });
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
-            final boolean isWindows = System.getProperty("os.name").contains("Windows");
-            final Class<? extends IOException> expectedExceptionClass = isWindows ? SocketException.class
-                    : SSLHandshakeException.class;
+            final Class<? extends IOException> expectedExceptionClass = SystemUtils.IS_OS_WINDOWS
+                    && SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_7) ? SocketException.class
+                            : SSLHandshakeException.class;
             try {
                 clientSocket.startHandshake();
                 Assert.fail();
