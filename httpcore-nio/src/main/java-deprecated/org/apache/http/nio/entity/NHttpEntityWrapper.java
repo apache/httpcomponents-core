@@ -81,6 +81,7 @@ public class NHttpEntityWrapper
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
+    @Override
     public void produceContent(
             final ContentEncoder encoder,
             final IOControl ioctrl) throws IOException {
@@ -95,6 +96,7 @@ public class NHttpEntityWrapper
         }
     }
 
+    @Override
     public void finish() {
         try {
             this.channel.close();

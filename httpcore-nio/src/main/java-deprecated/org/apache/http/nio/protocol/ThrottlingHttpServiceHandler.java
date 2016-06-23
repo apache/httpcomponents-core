@@ -155,6 +155,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         this.expectationVerifier = expectationVerifier;
     }
 
+    @Override
     public void connected(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
 
@@ -166,6 +167,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void closed(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
         final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
@@ -182,6 +184,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
         if (conn.isResponseSubmitted()) {
             if (eventListener != null) {
@@ -226,6 +229,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void exception(final NHttpServerConnection conn, final IOException ex) {
         shutdownConnection(conn, ex);
 
@@ -234,10 +238,12 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void timeout(final NHttpServerConnection conn) {
         handleTimeout(conn);
     }
 
+    @Override
     public void requestReceived(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
 
@@ -259,6 +265,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
 
             this.executor.execute(new Runnable() {
 
+                @Override
                 public void run() {
                     try {
 
@@ -284,6 +291,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
 
     }
 
+    @Override
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
         final HttpContext context = conn.getContext();
 
@@ -313,6 +321,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
 
     }
 
+    @Override
     public void responseReady(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
 
@@ -365,6 +374,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
         final HttpContext context = conn.getContext();
 

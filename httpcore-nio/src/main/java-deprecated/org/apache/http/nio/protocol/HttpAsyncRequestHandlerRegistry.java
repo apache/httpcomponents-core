@@ -96,6 +96,7 @@ public class HttpAsyncRequestHandlerRegistry implements HttpAsyncRequestHandlerR
         return matcher.getObjects();
     }
 
+    @Override
     public HttpAsyncRequestHandler<?> lookup(final String requestURI) {
         return matcher.lookup(requestURI);
     }

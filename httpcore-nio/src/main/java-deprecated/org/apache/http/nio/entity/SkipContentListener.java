@@ -53,6 +53,7 @@ public class SkipContentListener implements ContentListener {
         this.buffer = allocator.allocate(2048);
     }
 
+    @Override
     public void contentAvailable(
             final ContentDecoder decoder,
             final IOControl ioctrl) throws IOException {
@@ -63,6 +64,7 @@ public class SkipContentListener implements ContentListener {
         } while (lastRead > 0);
     }
 
+    @Override
     public void finished() {
     }
 

@@ -117,44 +117,54 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
         this.handlerResolver = handlerResolver;
     }
 
+    @Override
     public void connected(final NHttpServerConnection conn) {
         this.asyncHandler.connected(conn);
     }
 
+    @Override
     public void closed(final NHttpServerConnection conn) {
         this.asyncHandler.closed(conn);
     }
 
+    @Override
     public void requestReceived(final NHttpServerConnection conn) {
         this.asyncHandler.requestReceived(conn);
     }
 
+    @Override
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
         this.asyncHandler.inputReady(conn, decoder);
     }
 
+    @Override
     public void responseReady(final NHttpServerConnection conn) {
         this.asyncHandler.responseReady(conn);
     }
 
+    @Override
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
         this.asyncHandler.outputReady(conn, encoder);
     }
 
+    @Override
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
         this.asyncHandler.exception(conn, httpex);
     }
 
+    @Override
     public void exception(final NHttpServerConnection conn, final IOException ioex) {
         this.asyncHandler.exception(conn, ioex);
     }
 
+    @Override
     public void timeout(final NHttpServerConnection conn) {
         this.asyncHandler.timeout(conn);
     }
 
     class RequestHandlerResolverAdaptor implements NHttpRequestHandlerResolver {
 
+        @Override
         public NHttpRequestHandler lookup(final String requestURI) {
             final HttpRequestHandler handler = handlerResolver.lookup(requestURI);
             if (handler != null) {
@@ -175,6 +185,7 @@ public class BufferingHttpServiceHandler implements NHttpServiceHandler {
             this.requestHandler = requestHandler;
         }
 
+        @Override
         public ConsumingNHttpEntity entityRequest(
                 final HttpEntityEnclosingRequest request,
                 final HttpContext context) throws HttpException, IOException {

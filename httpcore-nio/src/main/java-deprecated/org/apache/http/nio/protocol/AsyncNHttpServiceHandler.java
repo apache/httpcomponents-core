@@ -137,6 +137,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         this.handlerResolver = handlerResolver;
     }
 
+    @Override
     public void connected(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
 
@@ -149,6 +150,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void requestReceived(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
 
@@ -237,6 +239,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
 
     }
 
+    @Override
     public void closed(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
 
@@ -253,6 +256,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void exception(final NHttpServerConnection conn, final HttpException httpex) {
         if (conn.isResponseSubmitted()) {
             // There is not much that we can do if a response head
@@ -287,6 +291,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void exception(final NHttpServerConnection conn, final IOException ex) {
         shutdownConnection(conn, ex);
 
@@ -295,10 +300,12 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void timeout(final NHttpServerConnection conn) {
         handleTimeout(conn);
     }
 
+    @Override
     public void inputReady(final NHttpServerConnection conn, final ContentDecoder decoder) {
         final HttpContext context = conn.getContext();
         final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
@@ -327,6 +334,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void responseReady(final NHttpServerConnection conn) {
         final HttpContext context = conn.getContext();
         final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
@@ -373,6 +381,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void outputReady(final NHttpServerConnection conn, final ContentEncoder encoder) {
         final HttpContext context = conn.getContext();
         final ServerConnState connState = (ServerConnState) context.getAttribute(CONN_STATE);
@@ -658,6 +667,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             this.iocontrol = iocontrol;
         }
 
+        @Override
         public void submitResponse(final HttpResponse response) {
             Args.notNull(response, "Response");
             Asserts.check(!this.triggered, "Response already triggered");
@@ -666,6 +676,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             this.iocontrol.requestOutput();
         }
 
+        @Override
         public void handleException(final HttpException ex) {
             Asserts.check(!this.triggered, "Response already triggered");
             this.triggered = true;
@@ -673,6 +684,7 @@ public class AsyncNHttpServiceHandler extends NHttpHandlerBase
             this.iocontrol.requestOutput();
         }
 
+        @Override
         public void handleException(final IOException ex) {
             Asserts.check(!this.triggered, "Response already triggered");
             this.triggered = true;

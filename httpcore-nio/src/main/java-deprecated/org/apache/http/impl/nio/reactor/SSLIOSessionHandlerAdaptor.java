@@ -50,10 +50,12 @@ class SSLIOSessionHandlerAdaptor implements org.apache.http.nio.reactor.ssl.SSLS
         this.handler = handler;
     }
 
+    @Override
     public void initalize(final SSLEngine sslengine) throws SSLException {
         this.handler.initalize(sslengine, this.params != null ? this.params : new BasicHttpParams());
     }
 
+    @Override
     public void verify(final IOSession iosession, final SSLSession sslsession) throws SSLException {
         this.handler.verify(iosession.getRemoteAddress(), sslsession);
     }

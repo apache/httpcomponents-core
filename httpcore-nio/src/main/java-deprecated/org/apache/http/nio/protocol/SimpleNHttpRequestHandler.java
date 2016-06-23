@@ -46,6 +46,7 @@ import java.io.IOException;
 @Deprecated
 public abstract class SimpleNHttpRequestHandler implements NHttpRequestHandler {
 
+    @Override
     public final void handle(
             final HttpRequest request,
             final HttpResponse response,

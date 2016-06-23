@@ -78,12 +78,14 @@ public class ConsumingNHttpEntityTemplate
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
+    @Override
     public void consumeContent(
             final ContentDecoder decoder,
             final IOControl ioctrl) throws IOException {
         this.contentListener.contentAvailable(decoder, ioctrl);
     }
 
+    @Override
     public void finish() {
         this.contentListener.finished();
     }

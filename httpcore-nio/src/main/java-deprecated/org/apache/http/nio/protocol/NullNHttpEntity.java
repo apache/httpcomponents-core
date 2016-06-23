@@ -66,6 +66,7 @@ class NullNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity 
         throw new UnsupportedOperationException("Does not support blocking methods");
     }
 
+    @Override
     public void consumeContent(
             final ContentDecoder decoder,
             final IOControl ioctrl) throws IOException {
@@ -76,6 +77,7 @@ class NullNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity 
         } while (lastRead > 0);
     }
 
+    @Override
     public void finish() {
     }
 

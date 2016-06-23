@@ -173,6 +173,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         return new SSLIOSession(session, sslcontext, sslHandler);
     }
 
+    @Override
     public void connected(final IOSession session) {
 
         final SSLIOSession sslSession = createSSLIOSession(
@@ -197,6 +198,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         }
     }
 
+    @Override
     public void disconnected(final IOSession session) {
         final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
@@ -205,6 +207,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         }
     }
 
+    @Override
     public void inputReady(final IOSession session) {
         final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
@@ -222,6 +225,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         }
     }
 
+    @Override
     public void outputReady(final IOSession session) {
         final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);
@@ -239,6 +243,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         }
     }
 
+    @Override
     public void timeout(final IOSession session) {
         final NHttpClientIOTarget conn =
             (NHttpClientIOTarget) session.getAttribute(ExecutionContext.HTTP_CONNECTION);

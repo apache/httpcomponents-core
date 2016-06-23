@@ -100,38 +100,47 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
         this.asyncHandler.setEventListener(eventListener);
     }
 
+    @Override
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         this.asyncHandler.connected(conn, attachment);
     }
 
+    @Override
     public void closed(final NHttpClientConnection conn) {
         this.asyncHandler.closed(conn);
     }
 
+    @Override
     public void requestReady(final NHttpClientConnection conn) {
         this.asyncHandler.requestReady(conn);
     }
 
+    @Override
     public void inputReady(final NHttpClientConnection conn, final ContentDecoder decoder) {
         this.asyncHandler.inputReady(conn, decoder);
     }
 
+    @Override
     public void outputReady(final NHttpClientConnection conn, final ContentEncoder encoder) {
         this.asyncHandler.outputReady(conn, encoder);
     }
 
+    @Override
     public void responseReceived(final NHttpClientConnection conn) {
         this.asyncHandler.responseReceived(conn);
     }
 
+    @Override
     public void exception(final NHttpClientConnection conn, final HttpException httpex) {
         this.asyncHandler.exception(conn, httpex);
     }
 
+    @Override
     public void exception(final NHttpClientConnection conn, final IOException ioex) {
         this.asyncHandler.exception(conn, ioex);
     }
 
+    @Override
     public void timeout(final NHttpClientConnection conn) {
         this.asyncHandler.timeout(conn);
     }
@@ -145,17 +154,21 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
             this.execHandler = execHandler;
         }
 
+        @Override
         public void initalizeContext(final HttpContext context, final Object attachment) {
             this.execHandler.initalizeContext(context, attachment);
         }
+        @Override
         public void finalizeContext(final HttpContext context) {
             this.execHandler.finalizeContext(context);
         }
 
+        @Override
         public HttpRequest submitRequest(final HttpContext context) {
             return this.execHandler.submitRequest(context);
         }
 
+        @Override
         public ConsumingNHttpEntity responseEntity(
                 final HttpResponse response,
                 final HttpContext context) throws IOException {
@@ -164,6 +177,7 @@ public class BufferingHttpClientHandler implements NHttpClientHandler {
                     HeapByteBufferAllocator.INSTANCE);
         }
 
+        @Override
         public void handleResponse(
                 final HttpResponse response,
                 final HttpContext context) throws IOException {

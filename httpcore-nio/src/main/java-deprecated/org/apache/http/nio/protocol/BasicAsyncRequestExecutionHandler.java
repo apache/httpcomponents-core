@@ -114,6 +114,7 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         }
     }
 
+    @Override
     public void close() throws IOException {
         releaseResources();
         if (!this.future.isDone()) {
@@ -121,40 +122,49 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         }
     }
 
+    @Override
     public HttpHost getTarget() {
         return this.requestProducer.getTarget();
     }
 
+    @Override
     public HttpRequest generateRequest() throws IOException, HttpException {
         return this.requestProducer.generateRequest();
     }
 
+    @Override
     public void produceContent(
             final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
         this.requestProducer.produceContent(encoder, ioctrl);
     }
 
+    @Override
     public void requestCompleted(final HttpContext context) {
         this.requestProducer.requestCompleted(context);
         this.requestSent = true;
     }
 
+    @Override
     public boolean isRepeatable() {
         return false;
     }
 
+    @Override
     public void resetRequest() {
     }
 
+    @Override
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
         this.responseConsumer.responseReceived(response);
     }
 
+    @Override
     public void consumeContent(
             final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
         this.responseConsumer.consumeContent(decoder, ioctrl);
     }
 
+    @Override
     public void failed(final Exception ex) {
         try {
             if (!this.requestSent) {
@@ -170,6 +180,7 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         }
     }
 
+    @Override
     public boolean cancel() {
         try {
             final boolean cancelled = this.responseConsumer.cancel();
@@ -182,6 +193,7 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         }
     }
 
+    @Override
     public void responseCompleted(final HttpContext context) {
         try {
             this.responseConsumer.responseCompleted(context);
@@ -199,26 +211,32 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
         }
     }
 
+    @Override
     public T getResult() {
         return this.responseConsumer.getResult();
     }
 
+    @Override
     public Exception getException() {
         return this.responseConsumer.getException();
     }
 
+    @Override
     public HttpContext getContext() {
         return this.localContext;
     }
 
+    @Override
     public HttpProcessor getHttpProcessor() {
         return this.httppocessor;
     }
 
+    @Override
     public ConnectionReuseStrategy getConnectionReuseStrategy() {
         return this.reuseStrategy;
     }
 
+    @Override
     public boolean isDone() {
         return this.responseConsumer.isDone();
     }

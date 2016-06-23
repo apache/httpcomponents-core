@@ -133,6 +133,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 DirectByteBufferAllocator.INSTANCE, executor, params);
     }
 
+    @Override
     public void connected(final NHttpClientConnection conn, final Object attachment) {
         final HttpContext context = conn.getContext();
 
@@ -148,6 +149,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         requestReady(conn);
     }
 
+    @Override
     public void closed(final NHttpClientConnection conn) {
         final HttpContext context = conn.getContext();
         final ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
@@ -165,6 +167,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void exception(final NHttpClientConnection conn, final HttpException ex) {
         closeConnection(conn, ex);
         if (this.eventListener != null) {
@@ -172,6 +175,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void exception(final NHttpClientConnection conn, final IOException ex) {
         shutdownConnection(conn, ex);
         if (this.eventListener != null) {
@@ -180,6 +184,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
     }
 
 
+    @Override
     public void requestReady(final NHttpClientConnection conn) {
         final HttpContext context = conn.getContext();
 
@@ -240,6 +245,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void outputReady(final NHttpClientConnection conn, final ContentEncoder encoder) {
         final HttpContext context = conn.getContext();
 
@@ -271,6 +277,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void responseReceived(final NHttpClientConnection conn) {
         final HttpContext context = conn.getContext();
         final ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
@@ -342,6 +349,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void inputReady(final NHttpClientConnection conn, final ContentDecoder decoder) {
         final HttpContext context = conn.getContext();
 
@@ -374,6 +382,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
     }
 
+    @Override
     public void timeout(final NHttpClientConnection conn) {
         final HttpContext context = conn.getContext();
         final ClientConnState connState = (ClientConnState) context.getAttribute(CONN_STATE);
@@ -436,6 +445,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
             this.executor.execute(new Runnable() {
 
+                @Override
                 public void run() {
                     try {
 
@@ -492,6 +502,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
 
         this.executor.execute(new Runnable() {
 
+            @Override
             public void run() {
                 try {
 

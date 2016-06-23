@@ -69,6 +69,7 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
         this.buffer = new SimpleInputBuffer(BUFFER_SIZE, allocator);
     }
 
+    @Override
     public void consumeContent(
             final ContentDecoder decoder,
             final IOControl ioctrl) throws IOException {
@@ -78,6 +79,7 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
         }
     }
 
+    @Override
     public void finish() {
         this.finished = true;
     }
