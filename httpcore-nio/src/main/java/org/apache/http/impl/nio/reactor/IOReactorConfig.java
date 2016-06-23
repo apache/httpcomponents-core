@@ -53,7 +53,7 @@ public final class IOReactorConfig implements Cloneable {
     private int connectTimeout;
     private int sndBufSize;
     private int rcvBufSize;
-    private int backlogSize;
+    private final int backlogSize;
 
     @Deprecated
     public IOReactorConfig() {
