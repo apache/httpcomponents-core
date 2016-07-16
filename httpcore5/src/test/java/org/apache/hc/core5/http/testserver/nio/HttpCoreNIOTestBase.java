@@ -31,7 +31,23 @@ import java.net.URL;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.http.pool.nio.BasicNIOConnFactory;
+import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.http.HttpResponseInterceptor;
+import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
+import org.apache.hc.core5.http.nio.HttpAsyncExpectationVerifier;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestConnControl;
+import org.apache.hc.core5.http.protocol.RequestContent;
+import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestTargetHost;
+import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.http.protocol.RequestValidateHost;
+import org.apache.hc.core5.http.protocol.ResponseConnControl;
+import org.apache.hc.core5.http.protocol.ResponseContent;
+import org.apache.hc.core5.http.protocol.ResponseDate;
+import org.apache.hc.core5.http.protocol.ResponseServer;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.junit.After;
 
@@ -77,27 +93,73 @@ public abstract class HttpCoreNIOTestBase {
                 .build();
     }
 
+    protected HttpProcessor createServerHttpProcessor() {
+        return new ImmutableHttpProcessor(
+                new HttpRequestInterceptor[] {
+                        new RequestValidateHost()
+                },
+                new HttpResponseInterceptor[]{
+                        new ResponseDate(),
+                        new ResponseServer("TEST-SERVER/1.1"),
+                        new ResponseContent(),
+                        new ResponseConnControl()
+                });
+    }
+
+    protected HttpAsyncExpectationVerifier createExpectationVerifier() {
+        return null;
+    }
+
+    protected HttpProcessor createClientHttpProcessor() {
+        return new ImmutableHttpProcessor(
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent("TEST-CLIENT/1.1"),
+                new RequestExpectContinue());
+    }
+
     protected ServerConnectionFactory createServerConnectionFactory() throws Exception {
         return new ServerConnectionFactory(
                 this.scheme.equals(ProtocolScheme.https) ? createServerSSLContext() : null);
     }
 
-    protected BasicNIOConnFactory createClientConnectionFactory() throws Exception {
-        return new BasicNIOConnFactory(
-                new ClientConnectionFactory(),
-                this.scheme.equals(ProtocolScheme.https) ? new ClientConnectionFactory(createClientSSLContext()) : null);
+    protected IOReactorConfig createServerIOReactorConfig() {
+        return IOReactorConfig.custom()
+                .setSoTimeout(5000)
+                .build();
+    }
 
+    protected IOReactorConfig createClientIOReactorConfig() {
+        return IOReactorConfig.custom()
+                .setConnectTimeout(5000)
+                .setSoTimeout(5000)
+                .build();
+    }
+
+    protected HttpAsyncRequestExecutor createHttpAsyncRequestExecutor() throws Exception {
+        return new HttpAsyncRequestExecutor();
+    }
+
+    protected ClientConnectionFactory createClientConnectionFactory() throws Exception {
+        return new ClientConnectionFactory(
+                this.scheme.equals(ProtocolScheme.https) ? createClientSSLContext() : null);
     }
 
     public void initServer() throws Exception {
-        this.server = new HttpServerNio();
-        this.server.setConnectionFactory(createServerConnectionFactory());
-        this.server.setTimeout(5000);
+        this.server = new HttpServerNio(
+                createServerHttpProcessor(),
+                createServerConnectionFactory(),
+                createExpectationVerifier(),
+                createServerIOReactorConfig());
     }
 
     public void initClient() throws Exception {
-        this.client = new HttpClientNio(createClientConnectionFactory());
-        this.client.setTimeout(5000);
+        this.client = new HttpClientNio(
+                createClientHttpProcessor(),
+                createHttpAsyncRequestExecutor(),
+                createClientConnectionFactory(),
+                createClientIOReactorConfig());
     }
 
     @After

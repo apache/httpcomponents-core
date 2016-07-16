@@ -52,11 +52,25 @@ public interface IOSession {
      * Name of the context attribute key, which can be used to obtain the
      * session attachment object.
      */
-    public static final String ATTACHMENT_KEY = "http.session.attachment";
+    String ATTACHMENT_KEY = "http.session.attachment";
 
-    public static final int ACTIVE       = 0;
-    public static final int CLOSING      = 1;
-    public static final int CLOSED       = Integer.MAX_VALUE;
+    int ACTIVE       = 0;
+    int CLOSING      = 1;
+    int CLOSED       = Integer.MAX_VALUE;
+
+    /**
+     * Returns the event handler for this session.
+     *
+     * @since 5.0
+     */
+    IOEventHandler getHandler();
+
+    /**
+     * Sets the event handler for this session.
+     *
+     * @since 5.0
+     */
+    void setHandler(IOEventHandler handler);
 
     /**
      * Returns the underlying I/O channel associated with this session.

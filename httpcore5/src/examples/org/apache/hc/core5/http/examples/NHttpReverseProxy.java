@@ -37,15 +37,14 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseProducer;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIODispatch;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIODispatch;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIOEventHandlerFactory;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncService;
@@ -82,11 +81,9 @@ import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.pool.PoolStats;
-import org.apache.hc.core5.pool.nio.NIOConnFactory;
 import org.apache.hc.core5.reactor.ConnectingIOReactor;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.reactor.IOEventDispatch;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListeningIOReactor;
 
@@ -119,8 +116,25 @@ public class NHttpReverseProxy {
             .setSoTimeout(3000)
             .setConnectTimeout(3000)
             .build();
-        final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(config);
-        final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(config);
+
+        // Set up HTTP protocol processor for outgoing connections
+        HttpProcessor outhttpproc;
+        outhttpproc = new ImmutableHttpProcessor(
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent("Test/1.1"),
+                new RequestExpectContinue());
+
+        ProxyClientProtocolHandler clientProtocolHandler = new ProxyClientProtocolHandler();
+        final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(
+                new DefaultHttpClientIOEventHandlerFactory(clientProtocolHandler, ConnectionConfig.DEFAULT));
+        HttpAsyncRequester executor = new HttpAsyncRequester(outhttpproc);
+
+        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, 0);
+        connPool.setMaxTotal(100);
+        connPool.setDefaultMaxPerRoute(20);
+
 
         // Set up HTTP protocol processor for incoming connections
         HttpProcessor inhttpproc = new ImmutableHttpProcessor(
@@ -129,44 +143,22 @@ public class NHttpReverseProxy {
                 new ResponseContent(),
                 new ResponseConnControl());
 
-        // Set up HTTP protocol processor for outgoing connections
-        HttpProcessor outhttpproc;
-        outhttpproc = new ImmutableHttpProcessor(
-                new HttpRequestInterceptor[] {
-                        new RequestContent(),
-                        new RequestTargetHost(),
-                        new RequestConnControl(),
-                        new RequestUserAgent("Test/1.1"),
-                        new RequestExpectContinue()
-        });
-
-        ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();
-        HttpAsyncRequester executor = new HttpAsyncRequester(outhttpproc);
-
-        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, ConnectionConfig.DEFAULT);
-        connPool.setMaxTotal(100);
-        connPool.setDefaultMaxPerRoute(20);
-
         UriHttpAsyncRequestHandlerMapper handlerRegistry = new UriHttpAsyncRequestHandlerMapper();
         handlerRegistry.register("*", new ProxyRequestHandler(targetHost, executor, connPool));
 
-        ProxyServiceHandler serviceHandler = new ProxyServiceHandler(
+        ProxyServiceHandler serverProtocolHandler = new ProxyServiceHandler(
                 inhttpproc,
                 new ProxyIncomingConnectionReuseStrategy(),
                 handlerRegistry);
-
-        final IOEventDispatch connectingEventDispatch = new DefaultHttpClientIODispatch(
-                clientHandler, ConnectionConfig.DEFAULT);
-
-        final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch(
-                serviceHandler, ConnectionConfig.DEFAULT);
+        final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(
+                new DefaultHttpServerIOEventHandlerFactory(serverProtocolHandler, ConnectionConfig.DEFAULT));
 
         Thread t = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    connectingIOReactor.execute(connectingEventDispatch);
+                    connectingIOReactor.execute();
                 } catch (InterruptedIOException ex) {
                     System.err.println("Interrupted");
                 } catch (IOException ex) {
@@ -184,7 +176,7 @@ public class NHttpReverseProxy {
         t.start();
         try {
             listeningIOReactor.listen(new InetSocketAddress(port));
-            listeningIOReactor.execute(listeningEventDispatch);
+            listeningIOReactor.execute();
         } catch (InterruptedIOException ex) {
             System.err.println("Interrupted");
         } catch (IOException ex) {
@@ -863,15 +855,8 @@ public class NHttpReverseProxy {
 
         public ProxyConnPool(
                 final ConnectingIOReactor ioreactor,
-                final ConnectionConfig config) {
-            super(ioreactor, config);
-        }
-
-        public ProxyConnPool(
-                final ConnectingIOReactor ioreactor,
-                final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
                 final int connectTimeout) {
-            super(ioreactor, connFactory, connectTimeout);
+            super(ioreactor, connectTimeout);
         }
 
         @Override

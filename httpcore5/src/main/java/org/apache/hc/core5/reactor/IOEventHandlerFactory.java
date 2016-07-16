@@ -28,12 +28,12 @@
 package org.apache.hc.core5.reactor;
 
 /**
- * Session callback interface used internally by I/O reactor implementations.
+ * Factory interface to create {@link IOEventHandler} instances for the given connected endpoints.
  *
- * @since 4.0
+ * @since 5.0
  */
-public interface SessionClosedCallback {
+public interface IOEventHandlerFactory {
 
-    void sessionClosed(IOSession session);
+    IOEventHandler createHandler(IOSession ioSession);
 
 }

@@ -63,17 +63,19 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     /**
      * Creates an instance of DefaultListeningIOReactor with the given configuration.
      *
+     * @param eventHandlerFactory the factory to create I/O event handlers.
      * @param config I/O reactor configuration.
      * @param threadFactory the factory to create threads.
      *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @since 4.2
+     * @since 5.0
      */
     public DefaultListeningIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final ThreadFactory threadFactory) throws IOReactorException {
-        super(config, threadFactory);
+        super(eventHandlerFactory, config, threadFactory);
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.endpoints = Collections.synchronizedSet(new HashSet<ListenerEndpointImpl>());
         this.pausedEndpoints = new HashSet<>();
@@ -82,25 +84,30 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     /**
      * Creates an instance of DefaultListeningIOReactor with the given configuration.
      *
+     * @param eventHandlerFactory the factory to create I/O event handlers.
      * @param config I/O reactor configuration.
      *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @since 4.2
+     * @since 5.0
      */
-    public DefaultListeningIOReactor(final IOReactorConfig config) throws IOReactorException {
-        this(config, null);
+    public DefaultListeningIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig config) throws IOReactorException {
+        this(eventHandlerFactory, config, null);
     }
 
     /**
      * Creates an instance of DefaultListeningIOReactor with default configuration.
      *
+     * @param eventHandlerFactory the factory to create I/O event handlers.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @since 4.2
+     * @since 5.0
      */
-    public DefaultListeningIOReactor() throws IOReactorException {
-        this(null, null);
+    public DefaultListeningIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory) throws IOReactorException {
+        this(eventHandlerFactory, null, null);
     }
 
     @Override
@@ -158,8 +165,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                                     "Failure initalizing socket", ex);
                         }
                     }
-                    final ChannelEntry entry = new ChannelEntry(socketChannel);
-                    addChannel(entry);
+                    enqueuePendingSession(socketChannel, null);
                 }
             }
 
@@ -205,15 +211,15 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             }
             try {
                 final ServerSocket socket = serverChannel.socket();
-                socket.setReuseAddress(this.config.isSoReuseAddress());
-                if (this.config.getSoTimeout() > 0) {
-                    socket.setSoTimeout(this.config.getSoTimeout());
+                socket.setReuseAddress(this.reactorConfig.isSoReuseAddress());
+                if (this.reactorConfig.getSoTimeout() > 0) {
+                    socket.setSoTimeout(this.reactorConfig.getSoTimeout());
                 }
-                if (this.config.getRcvBufSize() > 0) {
-                    socket.setReceiveBufferSize(this.config.getRcvBufSize());
+                if (this.reactorConfig.getRcvBufSize() > 0) {
+                    socket.setReceiveBufferSize(this.reactorConfig.getRcvBufSize());
                 }
                 serverChannel.configureBlocking(false);
-                socket.bind(address, this.config.getBacklogSize());
+                socket.bind(address, this.reactorConfig.getBacklogSize());
             } catch (final IOException ex) {
                 closeChannel(serverChannel);
                 request.failed(ex);

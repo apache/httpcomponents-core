@@ -34,9 +34,8 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.config.ConnectionConfig;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIODispatch;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncService;
 import org.apache.hc.core5.http.impl.nio.UriHttpAsyncRequestHandlerMapper;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -46,13 +45,14 @@ import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.reactor.IOEventDispatch;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.reactor.ListeningIOReactor;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -60,30 +60,43 @@ import org.junit.Test;
  */
 public class TestDefaultListeningIOReactor {
 
-    private static IOEventDispatch createIOEventDispatch() {
-        final HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
-                new ResponseDate(),
+    protected DefaultListeningIOReactor ioreactor;
+
+    @Before
+    public void setup() throws Exception {
+        final HttpProcessor httpproc = new ImmutableHttpProcessor(new ResponseDate(),
                 new ResponseServer(),
                 new ResponseContent(),
-                new ResponseConnControl()
-        });
-        final HttpAsyncService serviceHandler = new HttpAsyncService(httpproc,
+                new ResponseConnControl());
+        final HttpAsyncService serviceHandler = new HttpAsyncService(
+                httpproc,
                 new UriHttpAsyncRequestHandlerMapper());
-        return new DefaultHttpServerIODispatch(serviceHandler, ConnectionConfig.DEFAULT);
+        final IOEventHandlerFactory eventHandlerFactory = new DefaultHttpServerIOEventHandlerFactory(
+                serviceHandler,
+                ConnectionConfig.DEFAULT);
+
+        final IOReactorConfig reactorConfig = IOReactorConfig.custom()
+                .setIoThreadCount(1)
+                .build();
+        this.ioreactor = new DefaultListeningIOReactor(eventHandlerFactory, reactorConfig);
+    }
+
+    @After
+    public void cleanup() throws Exception {
+        if (this.ioreactor != null) {
+            this.ioreactor.shutdown();
+        }
     }
 
     @Test
     public void testEndpointUpAndDown() throws Exception {
-        final IOEventDispatch eventDispatch = createIOEventDispatch();
-        final IOReactorConfig config = IOReactorConfig.custom().setIoThreadCount(1).build();
-        final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
 
         final Thread t = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    ioreactor.execute(eventDispatch);
+                    ioreactor.execute();
                 } catch (final IOException ex) {
                 }
             }
@@ -125,10 +138,6 @@ public class TestDefaultListeningIOReactor {
 
     @Test
     public void testEndpointAlreadyBoundFatal() throws Exception {
-        final IOEventDispatch eventDispatch = createIOEventDispatch();
-        final IOReactorConfig config = IOReactorConfig.custom().setIoThreadCount(1).build();
-        final ListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
-
         final CountDownLatch latch = new CountDownLatch(1);
 
         final Thread t = new Thread(new Runnable() {
@@ -136,7 +145,7 @@ public class TestDefaultListeningIOReactor {
             @Override
             public void run() {
                 try {
-                    ioreactor.execute(eventDispatch);
+                    ioreactor.execute();
                     Assert.fail("IOException should have been thrown");
                 } catch (final IOException ex) {
                     latch.countDown();
@@ -171,10 +180,6 @@ public class TestDefaultListeningIOReactor {
 
     @Test
     public void testEndpointAlreadyBoundNonFatal() throws Exception {
-        final IOEventDispatch eventDispatch = createIOEventDispatch();
-        final IOReactorConfig config = IOReactorConfig.custom().setIoThreadCount(1).build();
-        final DefaultListeningIOReactor ioreactor = new DefaultListeningIOReactor(config);
-
         ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {
 
             @Override
@@ -194,7 +199,7 @@ public class TestDefaultListeningIOReactor {
             @Override
             public void run() {
                 try {
-                    ioreactor.execute(eventDispatch);
+                    ioreactor.execute();
                 } catch (final IOException ex) {
                 }
             }

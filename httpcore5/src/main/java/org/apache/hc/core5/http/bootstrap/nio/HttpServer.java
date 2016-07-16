@@ -35,12 +35,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ExceptionLogger;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIODispatch;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
 import org.apache.hc.core5.http.nio.NHttpServerEventHandler;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.reactor.IOEventDispatch;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
@@ -57,7 +56,6 @@ public class HttpServer {
     private final InetAddress ifAddress;
     private final IOReactorConfig ioReactorConfig;
     private final NHttpServerEventHandler serverEventHandler;
-    private final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory;
     private final ExceptionLogger exceptionLogger;
     private final ExecutorService listenerExecutorService;
     private final ThreadGroup dispatchThreads;
@@ -77,13 +75,13 @@ public class HttpServer {
         this.ifAddress = ifAddress;
         this.ioReactorConfig = ioReactorConfig;
         this.serverEventHandler = serverEventHandler;
-        this.connectionFactory = connectionFactory;
         this.exceptionLogger = exceptionLogger;
         this.listenerExecutorService = Executors.newSingleThreadExecutor(
                 new ThreadFactoryImpl("HTTP-listener-" + this.port));
         this.dispatchThreads = new ThreadGroup("I/O-dispatchers");
         try {
             this.ioReactor = new DefaultListeningIOReactor(
+                    new DefaultHttpServerIOEventHandlerFactory(this.serverEventHandler, connectionFactory),
                     this.ioReactorConfig,
                     new ThreadFactoryImpl("I/O-dispatch", this.dispatchThreads));
         } catch (final IOReactorException ex) {
@@ -112,14 +110,12 @@ public class HttpServer {
     public void start() {
         if (this.status.compareAndSet(Status.READY, Status.ACTIVE)) {
             this.endpoint = this.ioReactor.listen(new InetSocketAddress(this.ifAddress, this.port > 0 ? this.port : 0));
-            final IOEventDispatch ioEventDispatch = new DefaultHttpServerIODispatch(
-                    this.serverEventHandler, this.connectionFactory);
             this.listenerExecutorService.execute(new Runnable() {
 
                 @Override
                 public void run() {
                     try {
-                        ioReactor.execute(ioEventDispatch);
+                        ioReactor.execute();
                     } catch (final Exception ex) {
                         exceptionLogger.log(ex);
                     }

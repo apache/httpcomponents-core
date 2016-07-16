@@ -32,7 +32,7 @@ import java.net.SocketAddress;
 
 /**
  * Strategy that resolves an abstract connection route to a local or a remote {@link SocketAddress}.
- * .
+ *
  * @since 4.3
  */
 public interface SocketAddressResolver<T> {

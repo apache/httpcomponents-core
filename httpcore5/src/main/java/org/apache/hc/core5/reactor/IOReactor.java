@@ -56,13 +56,12 @@ public interface IOReactor {
     IOReactorStatus getStatus();
 
     /**
-     * Starts the reactor and initiates the dispatch of I/O event notifications
-     * to the given {@link IOEventDispatch}.
+     * Starts the reactor and initiates the dispatch of I/O event to I/O session
+     * event handlers.
      *
-     * @param eventDispatch the I/O event dispatch.
      * @throws IOException in case of an I/O error.
      */
-    void execute(IOEventDispatch eventDispatch)
+    void execute()
         throws IOException;
 
     /**

@@ -64,7 +64,7 @@ import org.apache.hc.core5.http.nio.HttpAsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.NStringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
@@ -92,15 +92,19 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         });
     }
 
+    @Override
+    protected HttpProcessor createClientHttpProcessor() {
+        return HttpProcessorBuilder.create().addAll(
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent("TEST-CLIENT/1.1"))
+                .build();
+    }
+
     public TestHttpAsyncHandlersPipelining(final ProtocolScheme scheme) {
         super(scheme);
     }
-
-    public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(
-            new RequestContent(),
-            new RequestTargetHost(),
-            new RequestConnControl(),
-            new RequestUserAgent("TEST-CLIENT/1.1"));
 
     @Before
     public void setUp() throws Exception {
@@ -116,7 +120,6 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
     private HttpHost start() throws Exception {
         this.server.start();
-        this.client.setHttpProcessor(DEFAULT_HTTP_PROC);
         this.client.start();
 
         final ListenerEndpoint endpoint = this.server.getListenerEndpoint();

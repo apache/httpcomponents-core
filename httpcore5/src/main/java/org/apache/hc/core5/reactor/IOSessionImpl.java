@@ -35,6 +35,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -48,17 +49,18 @@ import org.apache.hc.core5.util.Args;
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public class IOSessionImpl implements IOSession, SocketAccessor {
+class IOSessionImpl implements IOSession, SocketAccessor {
 
     private final SelectionKey key;
-    private final ByteChannel channel;
+    private final SocketChannel channel;
     private final Map<String, Object> attributes;
-    private final SessionClosedCallback sessionClosedCallback;
+    private final Queue<IOSession> closedSessions;
 
     private final long startedTime;
     private final AtomicInteger status;
     private final AtomicInteger eventMask;
 
+    private volatile IOEventHandler eventHandler;
     private volatile SessionBufferStatus bufferStatus;
     private volatile int socketTimeout;
 
@@ -70,18 +72,19 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
      * Creates new instance of IOSessionImpl.
      *
      * @param key the selection key.
-     * @param sessionClosedCallback session closed callback.
+     * @param socketChannel the socket channel
+     * @param closedSessions the queue containing closed sessions
      *
      * @since 4.1
      */
     public IOSessionImpl(
             final SelectionKey key,
-            final SessionClosedCallback sessionClosedCallback) {
+            final SocketChannel socketChannel,
+            final Queue<IOSession> closedSessions) {
         super();
-        Args.notNull(key, "Selection key");
-        this.key = key;
-        this.channel = (ByteChannel) this.key.channel();
-        this.sessionClosedCallback = sessionClosedCallback;
+        this.key = Args.notNull(key, "Selection key");
+        this.channel = Args.notNull(socketChannel, "Socket channel");
+        this.closedSessions = closedSessions;
         this.attributes = new ConcurrentHashMap<>();
         this.socketTimeout = 0;
         this.eventMask = new AtomicInteger(key.interestOps());
@@ -94,24 +97,28 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     }
 
     @Override
+    public IOEventHandler getHandler() {
+        return this.eventHandler;
+    }
+
+    @Override
+    public void setHandler(final IOEventHandler handler) {
+        this.eventHandler = handler;
+    }
+
+    @Override
     public ByteChannel channel() {
         return this.channel;
     }
 
     @Override
     public SocketAddress getLocalAddress() {
-        if (this.channel instanceof SocketChannel) {
-            return ((SocketChannel)this.channel).socket().getLocalSocketAddress();
-        }
-        return null;
+        return this.channel.socket().getLocalSocketAddress();
     }
 
     @Override
     public SocketAddress getRemoteAddress() {
-        if (this.channel instanceof SocketChannel) {
-            return ((SocketChannel)this.channel).socket().getRemoteSocketAddress();
-        }
-        return null;
+        return this.channel.socket().getRemoteSocketAddress();
     }
 
     @Override
@@ -180,13 +187,14 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
     @Override
     public void close() {
         if (this.status.compareAndSet(ACTIVE, CLOSED)) {
+            if (this.closedSessions != null) {
+                this.closedSessions.add(this);
+            }
             this.key.cancel();
+            this.key.attach(null);
             try {
                 this.key.channel().close();
             } catch (final IOException ignore) {
-            }
-            if (this.sessionClosedCallback != null) {
-                this.sessionClosedCallback.sessionClosed(this);
             }
             if (this.key.selector().isOpen()) {
                 this.key.selector().wakeup();

@@ -66,12 +66,14 @@ import org.apache.hc.core5.http.nio.entity.NStringEntity;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.http.testserver.nio.HttpClientNio;
 import org.apache.hc.core5.http.testserver.nio.HttpCoreNIOTestBase;
+import org.apache.hc.core5.http.testserver.nio.HttpServerNio;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.junit.After;
 import org.junit.Assert;
@@ -84,7 +86,7 @@ import org.junit.runners.Parameterized;
  * HttpCore NIO integration tests for async handlers.
  */
 @RunWith(Parameterized.class)
-public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
+public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
@@ -94,7 +96,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         });
     }
 
-    public TestHttpAsyncHandlers(final ProtocolScheme scheme) {
+    public TestAsyncHttp(final ProtocolScheme scheme) {
         super(scheme);
     }
 
@@ -337,11 +339,16 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostNoContentLength() throws Exception {
         this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
-        this.client.setHttpProcessor(new ImmutableHttpProcessor(
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()));
+        // Rewire client
+        this.client = new HttpClientNio(
+                new ImmutableHttpProcessor(
+                        new RequestTargetHost(),
+                        new RequestConnControl(),
+                        new RequestUserAgent(),
+                        new RequestExpectContinue()),
+                createHttpAsyncRequestExecutor(),
+                createClientConnectionFactory(),
+                createClientIOReactorConfig());
 
         final HttpHost target = start();
 
@@ -366,21 +373,26 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
     public void testHttpPostIdentity() throws Exception {
         this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
-        this.client.setHttpProcessor(new ImmutableHttpProcessor(
-                new HttpRequestInterceptor() {
+        // Rewire client
+        this.client = new HttpClientNio(
+                new ImmutableHttpProcessor(
+                        new HttpRequestInterceptor() {
 
-                    @Override
-                    public void process(
-                            final HttpRequest request,
-                            final HttpContext context) throws HttpException, IOException {
-                        request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
-                    }
+                            @Override
+                            public void process(
+                                    final HttpRequest request,
+                                    final HttpContext context) throws HttpException, IOException {
+                                request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
+                            }
 
-                },
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
-                new RequestExpectContinue()));
+                        },
+                        new RequestTargetHost(),
+                        new RequestConnControl(),
+                        new RequestUserAgent(),
+                        new RequestExpectContinue()),
+                createHttpAsyncRequestExecutor(),
+                createClientConnectionFactory(),
+                createClientIOReactorConfig());
 
         final HttpHost target = start();
 
@@ -436,8 +448,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
-        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+        final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             @Override
             public void verify(
@@ -454,7 +465,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 }
             }
 
-        });
+        };
+        // Rewire server
+        this.server = new HttpServerNio(
+                createServerHttpProcessor(),
+                createServerConnectionFactory(),
+                expectationVerifier,
+                createServerIOReactorConfig());
+
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
         final HttpHost target = start();
 
@@ -559,8 +578,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsWithExpectationVerificationDelayedResponse() throws Exception {
-        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+        final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             @Override
             public void verify(
@@ -588,7 +606,15 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 }.start();
             }
 
-        });
+        };
+        // Rewire server
+        this.server = new HttpServerNio(
+                createServerHttpProcessor(),
+                createServerConnectionFactory(),
+                expectationVerifier,
+                createServerIOReactorConfig());
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+
         final HttpHost target = start();
 
         final BasicHttpRequest request1 = new BasicHttpRequest(
@@ -625,13 +651,12 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsFailedExpectionContentLengthNonReusableConnection() throws Exception {
-        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+        final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             @Override
             public void verify(
-                    final HttpAsyncExchange httpexchange,
-                    final HttpContext context) throws HttpException {
+            final HttpAsyncExchange httpexchange,
+            final HttpContext context) throws HttpException {
                 new Thread() {
                     @Override
                     public void run() {
@@ -648,7 +673,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 }.start();
             }
 
-        });
+        };
+        // Rewire server
+        this.server = new HttpServerNio(
+                createServerHttpProcessor(),
+                createServerConnectionFactory(),
+                expectationVerifier,
+                createServerIOReactorConfig());
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
         this.client.setMaxPerRoute(1);
         this.client.setMaxTotal(1);
@@ -677,8 +709,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsFailedExpectionConnectionReuse() throws Exception {
-        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+        final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             @Override
             public void verify(
@@ -700,7 +731,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 }.start();
             }
 
-        });
+        };
+        // Rewire server
+        this.server = new HttpServerNio(
+                createServerHttpProcessor(),
+                createServerConnectionFactory(),
+                expectationVerifier,
+                createServerIOReactorConfig());
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
         this.client.setMaxPerRoute(1);
         this.client.setMaxTotal(1);
@@ -731,8 +769,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     @Test
     public void testHttpPostsFailedExpectionConnectionReuseLateResponseBody() throws Exception {
-        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
+        final HttpAsyncExpectationVerifier expectationVerifier = new HttpAsyncExpectationVerifier() {
 
             @Override
             public void verify(
@@ -768,7 +805,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
                 }.start();
             }
 
-        });
+        };
+        // Rewire server
+        this.server = new HttpServerNio(
+                createServerHttpProcessor(),
+                createServerConnectionFactory(),
+                expectationVerifier,
+                createServerIOReactorConfig());
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
 
         this.client.setMaxPerRoute(1);
         this.client.setMaxTotal(1);
@@ -919,7 +963,14 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             }
 
         }));
-        this.client.setHttpProcessor(new ImmutableHttpProcessor(new RequestContent(), new RequestConnControl()));
+
+        // Rewire client
+        this.client = new HttpClientNio(
+                new ImmutableHttpProcessor(new RequestContent(), new RequestConnControl()),
+                createHttpAsyncRequestExecutor(),
+                createClientConnectionFactory(),
+                createClientIOReactorConfig());
+
         final HttpHost target = start();
 
         this.client.setMaxPerRoute(3);

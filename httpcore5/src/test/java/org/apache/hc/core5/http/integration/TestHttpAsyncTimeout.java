@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.testserver.nio.HttpCoreNIOTestBase;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -68,6 +69,15 @@ public class TestHttpAsyncTimeout extends HttpCoreNIOTestBase {
     }
 
     private ServerSocket serverSocket;
+
+    @Override
+    protected IOReactorConfig createClientIOReactorConfig() {
+        return IOReactorConfig.custom()
+                .setIoThreadCount(1)
+                .setConnectTimeout(1000)
+                .setSoTimeout(1000)
+                .build();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -120,13 +130,12 @@ public class TestHttpAsyncTimeout extends HttpCoreNIOTestBase {
 
         final HttpRequest request = new BasicHttpRequest("GET", "/");
         final HttpContext context = new BasicHttpContext();
-        this.client.setTimeout(1000);
         this.client.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
                 context, callback);
         try (final Socket accepted = serverSocket.accept()) {
-            Assert.assertTrue(latch.await(10, TimeUnit.SECONDS));
+            Assert.assertTrue(latch.await(10000, TimeUnit.SECONDS));
         }
     }
 

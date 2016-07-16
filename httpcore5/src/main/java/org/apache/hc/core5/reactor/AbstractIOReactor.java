@@ -35,13 +35,12 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * Generic implementation of {@link IOReactor} that can used as a subclass
@@ -52,28 +51,30 @@ import org.apache.hc.core5.util.Args;
  */
 public abstract class AbstractIOReactor implements IOReactor {
 
-    private volatile IOReactorStatus status;
-
-    private final Object statusMutex;
-    private final long selectTimeout;
+    private final IOReactorConfig reactorConfig;
+    private final IOEventHandlerFactory eventHandlerFactory;
     private final Selector selector;
-    private final Set<IOSession> sessions;
     private final Queue<IOSession> closedSessions;
-    private final Queue<ChannelEntry> newChannels;
+    private final Queue<PendingSession> pendingSessions;
+    private final Object statusMutex;
+
+    private volatile IOReactorStatus status;
 
     /**
      * Creates new AbstractIOReactor instance.
      *
-     * @param selectTimeout the select timeout.
+     * @param eventHandlerFactory the event handler factory.
+     * @param reactorConfig the reactor configuration.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
-    public AbstractIOReactor(final long selectTimeout) throws IOReactorException {
+    public AbstractIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig reactorConfig) throws IOReactorException {
         super();
-        Args.positive(selectTimeout, "Select timeout");
-        this.selectTimeout = selectTimeout;
-        this.sessions = Collections.synchronizedSet(new HashSet<IOSession>());
+        this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
+        this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.closedSessions = new ConcurrentLinkedQueue<>();
-        this.newChannels = new ConcurrentLinkedQueue<>();
+        this.pendingSessions = new ConcurrentLinkedQueue<>();
         try {
             this.selector = Selector.open();
         } catch (final IOException ex) {
@@ -136,11 +137,9 @@ public abstract class AbstractIOReactor implements IOReactor {
      * <p>
      * Super-classes can implement this method to react to the event.
      *
-     * @param key the selection key.
      * @param session new I/O session.
      */
-    protected void sessionCreated(final SelectionKey key, final IOSession session) {
-    }
+    protected abstract void sessionCreated(final IOSession session);
 
     /**
      * Triggered when a session has been closed.
@@ -149,8 +148,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      *
      * @param session closed I/O session.
      */
-    protected void sessionClosed(final IOSession session) {
-    }
+    protected abstract void sessionClosed(final IOSession session);
 
     /**
      * Triggered when a session has timed out.
@@ -159,8 +157,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      *
      * @param session timed out I/O session.
      */
-    protected void sessionTimedOut(final IOSession session) {
-    }
+    protected abstract void sessionTimedOut(final IOSession session);
 
     /**
      * Obtains {@link IOSession} instance associated with the given selection
@@ -173,26 +170,35 @@ public abstract class AbstractIOReactor implements IOReactor {
         return (IOSession) key.attachment();
     }
 
+    protected IOEventHandler ensureEventHandler(final IOSession ioSession) {
+        Asserts.notNull(ioSession, "IO session");
+        final IOEventHandler handler = ioSession.getHandler();
+        Asserts.notNull(handler, "IO event handler");
+        return handler;
+    }
+
     @Override
     public IOReactorStatus getStatus() {
         return this.status;
     }
 
     /**
-     * Adds new channel entry. The channel will be asynchronously registered
+     * Enqueues pending session. The socket channel will be asynchronously registered
      * with the selector.
      *
-     * @param channelEntry the channel entry.
+     * @param socketChannel the new socketChannel.
+     * @param sessionRequest the session request if applicable.
      */
-    public void addChannel(final ChannelEntry channelEntry) {
-        Args.notNull(channelEntry, "Channel entry");
-        this.newChannels.add(channelEntry);
+    public void enqueuePendingSession(final SocketChannel socketChannel, final SessionRequestImpl sessionRequest) {
+        Args.notNull(socketChannel, "SocketChannel");
+        this.pendingSessions.add(new PendingSession(socketChannel, sessionRequest));
         this.selector.wakeup();
     }
 
     /**
-     * Activates the I/O reactor. The I/O reactor will start reacting to
-     * I/O events and triggering notification methods.
+     * Activates the I/O reactor. The I/O reactor will start reacting to I/O
+     * events and and dispatch I/O event notifications to the {@link IOEventHandler}
+     * associated with the given I/O session.
      * <p>
      * This method will enter the infinite I/O select loop on
      * the {@link Selector} instance associated with this I/O reactor.
@@ -206,21 +212,22 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @see #writable(SelectionKey)
      * @see #timeoutCheck(SelectionKey, long)
      * @see #validate(Set)
-     * @see #sessionCreated(SelectionKey, IOSession)
+     * @see #sessionCreated(IOSession)
      * @see #sessionClosed(IOSession)
      *
      * @throws InterruptedIOException if the dispatch thread is interrupted.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
-    protected void execute() throws InterruptedIOException, IOReactorException {
+    public void execute() throws InterruptedIOException, IOReactorException {
         this.status = IOReactorStatus.ACTIVE;
 
+        final long selectTimeout = this.reactorConfig.getSelectInterval();
         try {
             for (;;) {
 
                 final int readyCount;
                 try {
-                    readyCount = this.selector.select(this.selectTimeout);
+                    readyCount = this.selector.select(selectTimeout);
                 } catch (final InterruptedIOException ex) {
                     throw ex;
                 } catch (final IOException ex) {
@@ -236,7 +243,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     // Graceful shutdown in process
                     // Try to close things out nicely
                     closeSessions();
-                    closeNewChannels();
+                    closePendingSessions();
                 }
 
                 // Process selected I/O events
@@ -252,12 +259,12 @@ public abstract class AbstractIOReactor implements IOReactor {
 
                 // If active process new channels
                 if (this.status == IOReactorStatus.ACTIVE) {
-                    processNewChannels();
+                    processPendingSessions();
                 }
 
                 // Exit select loop if graceful shutdown has been completed
                 if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0
-                        && this.sessions.isEmpty()) {
+                        && this.selector.keys().isEmpty()) {
                     break;
                 }
             }
@@ -303,81 +310,40 @@ public abstract class AbstractIOReactor implements IOReactor {
                 writable(key);
             }
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
-            key.attach(null);
+            session.shutdown();
         }
     }
 
-    /**
-     * Queues the given I/O session to be processed asynchronously as closed.
-     *
-     * @param session the closed I/O session.
-     */
-    protected void queueClosedSession(final IOSession session) {
-        if (session != null) {
-            this.closedSessions.add(session);
-        }
-    }
-
-    private void processNewChannels() throws IOReactorException {
-        ChannelEntry entry;
-        while ((entry = this.newChannels.poll()) != null) {
-
-            final SocketChannel channel;
-            final SelectionKey key;
+    private void processPendingSessions() throws IOReactorException {
+        PendingSession pendingSession;
+        while ((pendingSession = this.pendingSessions.poll()) != null) {
+            final IOSession session;
             try {
-                channel = entry.getChannel();
-                channel.configureBlocking(false);
-                key = channel.register(this.selector, SelectionKey.OP_READ);
+                final SocketChannel socketChannel = pendingSession.socketChannel;
+                socketChannel.configureBlocking(false);
+                final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_READ);
+                session = new IOSessionImpl(key, socketChannel, this.closedSessions);
+                session.setHandler(this.eventHandlerFactory.createHandler(session));
+                session.setSocketTimeout(this.reactorConfig.getSoTimeout());
+                key.attach(session);
             } catch (final ClosedChannelException ex) {
-                final SessionRequestImpl sessionRequest = entry.getSessionRequest();
+                final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;
                 if (sessionRequest != null) {
                     sessionRequest.failed(ex);
                 }
                 return;
-
             } catch (final IOException ex) {
-                throw new IOReactorException("Failure registering channel " +
-                        "with the selector", ex);
-            }
-
-            final SessionClosedCallback sessionClosedCallback = new SessionClosedCallback() {
-
-                @Override
-                public void sessionClosed(final IOSession session) {
-                    queueClosedSession(session);
-                }
-
-            };
-
-            final IOSession session;
-            try {
-                session = new IOSessionImpl(key, sessionClosedCallback);
-                int timeout = 0;
-                try {
-                    timeout = channel.socket().getSoTimeout();
-                } catch (final IOException ex) {
-                    // Very unlikely to happen and is not fatal
-                    // as the protocol layer is expected to overwrite
-                    // this value anyways
-                }
-
-                session.setAttribute(IOSession.ATTACHMENT_KEY, entry.getAttachment());
-                session.setSocketTimeout(timeout);
-            } catch (final CancelledKeyException ex) {
-                continue;
+                throw new IOReactorException("Failure registering channel with the selector", ex);
             }
             try {
-                this.sessions.add(session);
-                final SessionRequestImpl sessionRequest = entry.getSessionRequest();
+                final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;
                 if (sessionRequest != null) {
+                    session.setAttribute(IOSession.ATTACHMENT_KEY, sessionRequest.getAttachment());
                     sessionRequest.completed(session);
                 }
-                key.attach(session);
-                sessionCreated(key, session);
+                sessionCreated(session);
             } catch (final CancelledKeyException ex) {
-                queueClosedSession(session);
-                key.attach(null);
+                session.shutdown();
             }
         }
     }
@@ -385,12 +351,10 @@ public abstract class AbstractIOReactor implements IOReactor {
     private void processClosedSessions() {
         IOSession session;
         while ((session = this.closedSessions.poll()) != null) {
-            if (this.sessions.remove(session)) {
-                try {
-                    sessionClosed(session);
-                } catch (final CancelledKeyException ex) {
-                    // ignore and move on
-                }
+            try {
+                sessionClosed(session);
+            } catch (final CancelledKeyException ex) {
+                // ignore and move on
             }
         }
     }
@@ -416,30 +380,24 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    /**
-     * Closes out all I/O sessions maintained by this I/O reactor.
-     */
-    protected void closeSessions() {
-        synchronized (this.sessions) {
-            for (final IOSession session : this.sessions) {
+    private void closeSessions() {
+        final Set<SelectionKey> keys = this.selector.keys();
+        for (final SelectionKey key : keys) {
+            final IOSession session = getSession(key);
+            if (session != null) {
                 session.close();
             }
         }
     }
 
-    /**
-     * Closes out all new channels pending registration with the selector of
-     * this I/O reactor.
-     * @throws IOReactorException - not thrown currently
-     */
-    protected void closeNewChannels() throws IOReactorException {
-        ChannelEntry entry;
-        while ((entry = this.newChannels.poll()) != null) {
-            final SessionRequestImpl sessionRequest = entry.getSessionRequest();
+    private void closePendingSessions() {
+        PendingSession pendingSession;
+        while ((pendingSession = this.pendingSessions.poll()) != null) {
+            final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;
             if (sessionRequest != null) {
                 sessionRequest.cancel();
             }
-            final SocketChannel channel = entry.getChannel();
+            final SocketChannel channel = pendingSession.socketChannel;
             try {
                 channel.close();
             } catch (final IOException ignore) {
@@ -492,7 +450,7 @@ public abstract class AbstractIOReactor implements IOReactor {
             this.status = IOReactorStatus.SHUT_DOWN;
         }
 
-        closeNewChannels();
+        closePendingSessions();
         closeActiveChannels();
         processClosedSessions();
     }
@@ -537,6 +495,18 @@ public abstract class AbstractIOReactor implements IOReactor {
     @Override
     public void shutdown() throws IOReactorException {
         shutdown(1000);
+    }
+
+    private static class PendingSession {
+
+        final SocketChannel socketChannel;
+        final SessionRequestImpl sessionRequest;
+
+        private PendingSession(final SocketChannel socketChannel, final SessionRequestImpl sessionRequest) {
+            this.socketChannel = socketChannel;
+            this.sessionRequest = sessionRequest;
+        }
+
     }
 
 }

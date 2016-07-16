@@ -54,37 +54,44 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
     private final Queue<SessionRequestImpl> requestQueue;
 
+    private final long selectInterval;
     private long lastTimeoutCheck;
 
     /**
      * Creates an instance of DefaultConnectingIOReactor with the given configuration.
      *
-     * @param config I/O reactor configuration.
+     * @param eventHandlerFactory the factory to create I/O event handlers.
+     * @param reactorConfig I/O reactor configuration.
      * @param threadFactory the factory to create threads.
      *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @since 4.2
+     * @since 5.0
      */
     public DefaultConnectingIOReactor(
-            final IOReactorConfig config,
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig reactorConfig,
             final ThreadFactory threadFactory) throws IOReactorException {
-        super(config, threadFactory);
+        super(eventHandlerFactory, reactorConfig, threadFactory);
         this.requestQueue = new ConcurrentLinkedQueue<>();
+        this.selectInterval = reactorConfig.getSelectInterval();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
     /**
      * Creates an instance of DefaultConnectingIOReactor with the given configuration.
      *
+     * @param eventHandlerFactory the factory to create I/O event handlers.
      * @param config I/O reactor configuration.
      *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @since 4.2
+     * @since 5.0
      */
-    public DefaultConnectingIOReactor(final IOReactorConfig config) throws IOReactorException {
-        this(config, null);
+    public DefaultConnectingIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig config) throws IOReactorException {
+        this(eventHandlerFactory, config, null);
     }
 
     /**
@@ -92,10 +99,11 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
      *
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @since 4.2
+     * @since 5.0
      */
-    public DefaultConnectingIOReactor() throws IOReactorException {
-        this(null, null);
+    public DefaultConnectingIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory) throws IOReactorException {
+        this(eventHandlerFactory, null, null);
     }
 
     @Override
@@ -121,7 +129,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         }
 
         final long currentTime = System.currentTimeMillis();
-        if ((currentTime - this.lastTimeoutCheck) >= this.selectTimeout) {
+        if ((currentTime - this.lastTimeoutCheck) >= this.selectInterval) {
             this.lastTimeoutCheck = currentTime;
             final Set<SelectionKey> keys = this.selector.keys();
             processTimeouts(keys);
@@ -133,24 +141,24 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
             if (key.isConnectable()) {
 
-                final SocketChannel channel = (SocketChannel) key.channel();
+                final SocketChannel socketChannel = (SocketChannel) key.channel();
                 // Get request handle
                 final SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
                 final SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
 
                 // Finish connection process
                 try {
-                    channel.finishConnect();
+                    socketChannel.finishConnect();
                 } catch (final IOException ex) {
                     sessionRequest.failed(ex);
                 }
                 key.cancel();
                 key.attach(null);
                 if (!sessionRequest.isCompleted()) {
-                    addChannel(new ChannelEntry(channel, sessionRequest));
+                    enqueuePendingSession(socketChannel, sessionRequest);
                 } else {
                     try {
-                        channel.close();
+                        socketChannel.close();
                     } catch (final IOException ignore) {
                     }
                 }
@@ -197,7 +205,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             "I/O reactor has been shut down");
         final SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, callback);
-        sessionRequest.setConnectTimeout(this.config.getConnectTimeout());
+        sessionRequest.setConnectTimeout(this.reactorConfig.getConnectTimeout());
 
         this.requestQueue.add(sessionRequest);
         this.selector.wakeup();
@@ -239,13 +247,12 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
                 if (request.getLocalAddress() != null) {
                     final Socket sock = socketChannel.socket();
-                    sock.setReuseAddress(this.config.isSoReuseAddress());
+                    sock.setReuseAddress(this.reactorConfig.isSoReuseAddress());
                     sock.bind(request.getLocalAddress());
                 }
                 final boolean connected = socketChannel.connect(request.getRemoteAddress());
                 if (connected) {
-                    final ChannelEntry entry = new ChannelEntry(socketChannel, request);
-                    addChannel(entry);
+                    enqueuePendingSession(socketChannel, request);
                     continue;
                 }
             } catch (final IOException ex) {

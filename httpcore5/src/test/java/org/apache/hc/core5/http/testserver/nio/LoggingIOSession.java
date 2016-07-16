@@ -34,6 +34,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
 import org.apache.commons.logging.Log;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionBufferStatus;
 
@@ -195,6 +196,16 @@ public class LoggingIOSession implements IOSession {
             this.log.debug(this.id + " " + this.session + ": Remove attribute " + name);
         }
         return this.session.removeAttribute(name);
+    }
+
+    @Override
+    public IOEventHandler getHandler() {
+        return this.session.getHandler();
+    }
+
+    @Override
+    public void setHandler(final IOEventHandler handler) {
+        this.session.setHandler(handler);
     }
 
     @Override

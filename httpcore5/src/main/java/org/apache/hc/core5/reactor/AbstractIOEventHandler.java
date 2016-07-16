@@ -33,15 +33,15 @@ import org.apache.hc.core5.reactor.ssl.SSLIOSession;
 import org.apache.hc.core5.util.Asserts;
 
 /**
- * Abstract {@link IOEventDispatch} implementation that supports both plain (non-encrypted)
+ * Abstract {@link IOEventHandler} implementation that supports both plain (non-encrypted)
  * and SSL encrypted HTTP connections.
  *
  * @param <T> the connection type.
  * @since 4.2
  */
-public abstract class AbstractIODispatch<T> implements IOEventDispatch {
+public abstract class AbstractIOEventHandler<T> implements IOEventHandler {
 
-    protected abstract T createConnection(IOSession session);
+    public static final String CONNECTION_KEY = "http.connection";
 
     protected abstract void onConnected(T conn);
 
@@ -55,19 +55,17 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     protected abstract void onTimeout(T conn);
 
-    private void ensureNotNull(final T conn) {
+    @SuppressWarnings("unchecked")
+    private T ensureNotNull(final IOSession session) {
+        final T conn = (T) session.getAttribute(CONNECTION_KEY);
         Asserts.notNull(conn, "HTTP connection");
+        return conn;
     }
 
     @Override
     public void connected(final IOSession session) {
-        @SuppressWarnings("unchecked")
-        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
+        final T conn = ensureNotNull(session);
         try {
-            if (conn == null) {
-                conn = createConnection(session);
-                session.setAttribute(IOEventDispatch.CONNECTION_KEY, conn);
-            }
             onConnected(conn);
             final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
@@ -92,8 +90,7 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
     @Override
     public void disconnected(final IOSession session) {
         @SuppressWarnings("unchecked")
-        final
-        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
+        final T conn = (T) session.getAttribute(CONNECTION_KEY);
         if (conn != null) {
             onClosed(conn);
         }
@@ -101,11 +98,8 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     @Override
     public void inputReady(final IOSession session) {
-        @SuppressWarnings("unchecked")
-        final
-        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
+        final T conn = ensureNotNull(session);
         try {
-            ensureNotNull(conn);
             final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             if (ssliosession == null) {
@@ -133,10 +127,8 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
     @Override
     public void outputReady(final IOSession session) {
         @SuppressWarnings("unchecked")
-        final
-        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
+        final T conn = ensureNotNull(session);
         try {
-            ensureNotNull(conn);
             final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             if (ssliosession == null) {
@@ -163,13 +155,10 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
 
     @Override
     public void timeout(final IOSession session) {
-        @SuppressWarnings("unchecked")
-        final
-        T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
+        final T conn = ensureNotNull(session);
         try {
             final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
-            ensureNotNull(conn);
             onTimeout(conn);
             if (ssliosession != null) {
                 synchronized (ssliosession) {

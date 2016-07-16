@@ -47,6 +47,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.reactor.EventMask;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionBufferStatus;
 import org.apache.hc.core5.reactor.SocketAccessor;
@@ -728,6 +729,16 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     @Override
     public void setAttribute(final String name, final Object obj) {
         this.session.setAttribute(name, obj);
+    }
+
+    @Override
+    public IOEventHandler getHandler() {
+        return this.session.getHandler();
+    }
+
+    @Override
+    public void setHandler(final IOEventHandler handler) {
+        this.session.setHandler(handler);
     }
 
     private static void formatOps(final StringBuilder buffer, final int ops) {

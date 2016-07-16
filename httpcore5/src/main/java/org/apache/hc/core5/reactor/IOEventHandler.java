@@ -28,21 +28,15 @@
 package org.apache.hc.core5.reactor;
 
 /**
- * IOEventDispatch interface is used by I/O reactors to notify clients of I/O
- * events pending for a particular session. All methods of this interface are
- * executed on a dispatch thread of the I/O reactor. Therefore, it is important
- * that processing that takes place in the event methods will not block the
- * dispatch thread for too long, as the I/O reactor will be unable to react to
+ * IOEventHandler interface is used by I/O reactors to handle I/O events for individual
+ * I/O sessions. All methods of this interface are executed on a single dispatch thread
+ * of the I/O reactor. Therefore, it is important that event processing does not not block
+ * the I/O dispatch thread for too long, thus making the I/O reactor unable to react to
  * other events.
  *
- * @since 4.0
+ * @since 5.0
  */
-public interface IOEventDispatch {
-
-    /**
-     * Attribute name of an object that represents a non-blocking connection.
-     */
-    public static final String CONNECTION_KEY = "http.connection";
+public interface IOEventHandler {
 
     /**
      * Triggered after the given session has been just created.

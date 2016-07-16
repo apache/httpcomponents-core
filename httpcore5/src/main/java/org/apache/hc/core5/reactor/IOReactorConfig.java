@@ -45,7 +45,6 @@ public final class IOReactorConfig {
 
     private final long selectInterval;
     private final long shutdownGracePeriod;
-    private final boolean interestOpQueued;
     private final int ioThreadCount;
     private final int soTimeout;
     private final boolean soReuseAddress;
@@ -60,7 +59,6 @@ public final class IOReactorConfig {
     IOReactorConfig(
             final long selectInterval,
             final long shutdownGracePeriod,
-            final boolean interestOpQueued,
             final int ioThreadCount,
             final int soTimeout,
             final boolean soReuseAddress,
@@ -74,7 +72,6 @@ public final class IOReactorConfig {
         super();
         this.selectInterval = selectInterval;
         this.shutdownGracePeriod = shutdownGracePeriod;
-        this.interestOpQueued = interestOpQueued;
         this.ioThreadCount = ioThreadCount;
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
@@ -105,21 +102,6 @@ public final class IOReactorConfig {
      */
     public long getShutdownGracePeriod() {
         return this.shutdownGracePeriod;
-    }
-
-    /**
-     * Determines whether or not I/O interest operations are to be queued and executed
-     * asynchronously by the I/O reactor thread or to be applied to the underlying
-     * {@link java.nio.channels.SelectionKey} immediately.
-     * <p>
-     * Default: {@code false}
-     *
-     * @see java.nio.channels.SelectionKey
-     * @see java.nio.channels.SelectionKey#interestOps()
-     * @see java.nio.channels.SelectionKey#interestOps(int)
-     */
-    public boolean isInterestOpQueued() {
-        return this.interestOpQueued;
     }
 
     /**
@@ -243,7 +225,6 @@ public final class IOReactorConfig {
         return new Builder()
             .setSelectInterval(config.getSelectInterval())
             .setShutdownGracePeriod(config.getShutdownGracePeriod())
-            .setInterestOpQueued(config.isInterestOpQueued())
             .setIoThreadCount(config.getIoThreadCount())
             .setSoTimeout(config.getSoTimeout())
             .setSoReuseAddress(config.isSoReuseAddress())
@@ -260,7 +241,6 @@ public final class IOReactorConfig {
 
         private long selectInterval;
         private long shutdownGracePeriod;
-        private boolean interestOpQueued;
         private int ioThreadCount;
         private int soTimeout;
         private boolean soReuseAddress;
@@ -275,7 +255,6 @@ public final class IOReactorConfig {
         Builder() {
             this.selectInterval = 1000;
             this.shutdownGracePeriod = 500;
-            this.interestOpQueued = false;
             this.ioThreadCount = AVAIL_PROCS;
             this.soTimeout = 0;
             this.soReuseAddress = false;
@@ -295,11 +274,6 @@ public final class IOReactorConfig {
 
         public Builder setShutdownGracePeriod(final long shutdownGracePeriod) {
             this.shutdownGracePeriod = shutdownGracePeriod;
-            return this;
-        }
-
-        public Builder setInterestOpQueued(final boolean interestOpQueued) {
-            this.interestOpQueued = interestOpQueued;
             return this;
         }
 
@@ -355,7 +329,7 @@ public final class IOReactorConfig {
 
         public IOReactorConfig build() {
             return new IOReactorConfig(
-                    selectInterval, shutdownGracePeriod, interestOpQueued, ioThreadCount,
+                    selectInterval, shutdownGracePeriod, ioThreadCount,
                     soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
                     connectTimeout, sndBufSize, rcvBufSize, backlogSize);
         }
@@ -367,7 +341,6 @@ public final class IOReactorConfig {
         final StringBuilder builder = new StringBuilder();
         builder.append("[selectInterval=").append(this.selectInterval)
                 .append(", shutdownGracePeriod=").append(this.shutdownGracePeriod)
-                .append(", interestOpQueued=").append(this.interestOpQueued)
                 .append(", ioThreadCount=").append(this.ioThreadCount)
                 .append(", soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)

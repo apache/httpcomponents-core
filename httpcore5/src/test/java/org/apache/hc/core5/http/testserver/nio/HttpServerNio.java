@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.testserver.nio;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 
@@ -44,48 +45,34 @@ import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.util.Asserts;
 
 public class HttpServerNio {
 
     private final UriHttpAsyncRequestHandlerMapper reqistry;
-    private volatile HttpAsyncExpectationVerifier expectationVerifier;
-    private volatile NHttpConnectionFactory<DefaultNHttpServerConnection> connectionFactory;
-    private volatile HttpProcessor httpProcessor;
+    private final HttpServer server;
 
-    private volatile int timeout;
-
-    private volatile HttpServer server;
-
-    public HttpServerNio() {
+    public HttpServerNio(
+            final HttpProcessor httpProcessor,
+            final NHttpConnectionFactory<DefaultNHttpServerConnection> connectionFactory,
+            final HttpAsyncExpectationVerifier expectationVerifier,
+            final IOReactorConfig reactorConfig) throws IOException {
         super();
         this.reqistry = new UriHttpAsyncRequestHandlerMapper();
-    }
-
-    public int getTimeout() {
-        return this.timeout;
-    }
-
-    public void setTimeout(final int timeout) {
-        this.timeout = timeout;
+        this.server = ServerBootstrap.bootstrap()
+                .setIOReactorConfig(reactorConfig)
+                .setServerInfo("TEST-SERVER/1.1")
+                .setConnectionFactory(connectionFactory)
+                .setExceptionLogger(new SimpleExceptionLogger())
+                .setExpectationVerifier(expectationVerifier)
+                .setHttpProcessor(httpProcessor)
+                .setHandlerMapper(this.reqistry)
+                .create();
     }
 
     public void registerHandler(
             final String pattern,
             final HttpAsyncRequestHandler handler) {
         this.reqistry.register(pattern, handler);
-    }
-
-    public void setExpectationVerifier(final HttpAsyncExpectationVerifier expectationVerifier) {
-        this.expectationVerifier = expectationVerifier;
-    }
-
-    public void setConnectionFactory(final NHttpConnectionFactory<DefaultNHttpServerConnection> connectionFactory) {
-        this.connectionFactory = connectionFactory;
-    }
-
-    public void setHttpProcessor(final HttpProcessor httpProcessor) {
-        this.httpProcessor = httpProcessor;
     }
 
     public ListenerEndpoint getListenerEndpoint() {
@@ -97,27 +84,11 @@ public class HttpServerNio {
     }
 
     public void start() {
-        Asserts.check(this.server == null, "Server already running");
-        this.server = ServerBootstrap.bootstrap()
-                .setIOReactorConfig(IOReactorConfig.custom()
-                        .setSoTimeout(this.timeout)
-                        .build())
-                .setServerInfo("TEST-SERVER/1.1")
-                .setConnectionFactory(connectionFactory)
-                .setExceptionLogger(new SimpleExceptionLogger())
-                .setExpectationVerifier(this.expectationVerifier)
-                .setHttpProcessor(this.httpProcessor)
-                .setHandlerMapper(this.reqistry)
-                .create();
         this.server.start();
     }
 
     public void shutdown() {
-        final HttpServer local = this.server;
-        this.server = null;
-        if (local != null) {
-            local.shutdown(5, TimeUnit.SECONDS);
-        }
+        this.server.shutdown(5, TimeUnit.SECONDS);
     }
 
     static class SimpleExceptionLogger implements ExceptionLogger {

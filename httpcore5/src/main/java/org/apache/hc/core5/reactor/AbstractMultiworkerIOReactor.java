@@ -36,6 +36,7 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.nio.channels.SocketChannel;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -89,11 +90,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     protected volatile IOReactorStatus status;
 
-    protected final IOReactorConfig config;
+    protected final IOReactorConfig reactorConfig;
     protected final Selector selector;
-    protected final long selectTimeout;
 
     private final int workerCount;
+    private final IOEventHandlerFactory eventHandlerFactory;
     private final ThreadFactory threadFactory;
     private final BaseIOReactor[] dispatchers;
     private final Worker[] workers;
@@ -109,24 +110,26 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     /**
      * Creates an instance of AbstractMultiworkerIOReactor with the given configuration.
      *
-     * @param config I/O reactor configuration.
+     * @param eventHandlerFactory the factory to create I/O event handlers.
+     * @param reactorConfig I/O reactor configuration.
      * @param threadFactory the factory to create threads.
      *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      *
-     * @since 4.2
+     * @since 5.0
      */
     public AbstractMultiworkerIOReactor(
-            final IOReactorConfig config,
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig reactorConfig,
             final ThreadFactory threadFactory) throws IOReactorException {
         super();
-        this.config = config != null ? config : IOReactorConfig.DEFAULT;
+        this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
+        this.reactorConfig = reactorConfig != null ? reactorConfig : IOReactorConfig.DEFAULT;
         try {
             this.selector = Selector.open();
         } catch (final IOException ex) {
             throw new IOReactorException("Failure opening selector", ex);
         }
-        this.selectTimeout = this.config.getSelectInterval();
         this.statusLock = new Object();
         if (threadFactory != null) {
             this.threadFactory = threadFactory;
@@ -134,7 +137,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.threadFactory = new DefaultThreadFactory();
         }
         this.auditLog = new ArrayList<>();
-        this.workerCount = this.config.getIoThreadCount();
+        this.workerCount = this.reactorConfig.getIoThreadCount();
         this.dispatchers = new BaseIOReactor[workerCount];
         this.workers = new Worker[workerCount];
         this.threads = new Thread[workerCount];
@@ -148,8 +151,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *
      * @since 4.2
      */
-    public AbstractMultiworkerIOReactor() throws IOReactorException {
-        this(null, null);
+    public AbstractMultiworkerIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory) throws IOReactorException {
+        this(eventHandlerFactory, null, null);
     }
 
     @Override
@@ -227,8 +231,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * Activates the main I/O reactor as well as all worker I/O reactors.
      * The I/O main reactor will start reacting to I/O events and triggering
      * notification methods. The worker I/O reactor in their turn will start
-     * reacting to I/O events and dispatch I/O event notifications to the given
-     * {@link IOEventDispatch} interface.
+     * reacting to I/O events and dispatch I/O event notifications to the
+     * {@link IOEventHandler} associated with the given I/O session.
      * <p>
      * This method will enter the infinite I/O select loop on
      * the {@link Selector} instance associated with this I/O reactor and used
@@ -246,9 +250,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     @Override
-    public void execute(
-            final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
-        Args.notNull(eventDispatch, "Event dispatcher");
+    public void execute() throws InterruptedIOException, IOReactorException {
         synchronized (this.statusLock) {
             if (this.status.compareTo(IOReactorStatus.SHUTDOWN_REQUEST) >= 0) {
                 this.status = IOReactorStatus.SHUT_DOWN;
@@ -260,13 +262,13 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.status = IOReactorStatus.ACTIVE;
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
-                final BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout);
+                final BaseIOReactor dispatcher = new BaseIOReactor(this.eventHandlerFactory, this.reactorConfig);
                 dispatcher.setExceptionHandler(exceptionHandler);
                 this.dispatchers[i] = dispatcher;
             }
             for (int i = 0; i < this.workerCount; i++) {
                 final BaseIOReactor dispatcher = this.dispatchers[i];
-                this.workers[i] = new Worker(dispatcher, eventDispatch);
+                this.workers[i] = new Worker(dispatcher);
                 this.threads[i] = this.threadFactory.newThread(this.workers[i]);
             }
         }
@@ -279,10 +281,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 this.threads[i].start();
             }
 
+            final long selectTimeout = this.reactorConfig.getSelectInterval();
             for (;;) {
                 final int readyCount;
                 try {
-                    readyCount = this.selector.select(this.selectTimeout);
+                    readyCount = this.selector.select(selectTimeout);
                 } catch (final InterruptedIOException ex) {
                     throw ex;
                 } catch (final IOException ex) {
@@ -376,7 +379,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             dispatcher.gracefulShutdown();
         }
 
-        final long gracePeriod = this.config.getShutdownGracePeriod();
+        final long gracePeriod = this.reactorConfig.getShutdownGracePeriod();
 
         try {
             // Force shut down I/O dispatchers if they fail to terminate
@@ -411,12 +414,13 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     /**
      * Assigns the given channel entry to one of the worker I/O reactors.
      *
-     * @param entry the channel entry.
+     * @param channel the new channel.
+     * @param sessionRequest the session request if applicable.
      */
-    protected void addChannel(final ChannelEntry entry) {
+    protected void enqueuePendingSession(final SocketChannel channel, final SessionRequestImpl sessionRequest) {
         // Distribute new channels among the workers
         final int i = Math.abs(this.currentWorker++ % this.workerCount);
-        this.dispatchers[i].addChannel(entry);
+        this.dispatchers[i].enqueuePendingSession(channel, sessionRequest);
     }
 
     /**
@@ -439,18 +443,18 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @throws IOException in case of an I/O error.
      */
     protected void prepareSocket(final Socket socket) throws IOException {
-        socket.setTcpNoDelay(this.config.isTcpNoDelay());
-        socket.setKeepAlive(this.config.isSoKeepalive());
-        if (this.config.getSoTimeout() > 0) {
-            socket.setSoTimeout(this.config.getSoTimeout());
+        socket.setTcpNoDelay(this.reactorConfig.isTcpNoDelay());
+        socket.setKeepAlive(this.reactorConfig.isSoKeepalive());
+        if (this.reactorConfig.getSoTimeout() > 0) {
+            socket.setSoTimeout(this.reactorConfig.getSoTimeout());
         }
-        if (this.config.getSndBufSize() > 0) {
-            socket.setSendBufferSize(this.config.getSndBufSize());
+        if (this.reactorConfig.getSndBufSize() > 0) {
+            socket.setSendBufferSize(this.reactorConfig.getSndBufSize());
         }
-        if (this.config.getRcvBufSize() > 0) {
-            socket.setReceiveBufferSize(this.config.getRcvBufSize());
+        if (this.reactorConfig.getRcvBufSize() > 0) {
+            socket.setReceiveBufferSize(this.reactorConfig.getRcvBufSize());
         }
-        final int linger = this.config.getSoLinger();
+        final int linger = this.reactorConfig.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(true, linger);
         }
@@ -517,20 +521,18 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     static class Worker implements Runnable {
 
         final BaseIOReactor dispatcher;
-        final IOEventDispatch eventDispatch;
 
         private volatile Exception exception;
 
-        public Worker(final BaseIOReactor dispatcher, final IOEventDispatch eventDispatch) {
+        public Worker(final BaseIOReactor dispatcher) {
             super();
             this.dispatcher = dispatcher;
-            this.eventDispatch = eventDispatch;
         }
 
         @Override
         public void run() {
             try {
-                this.dispatcher.execute(this.eventDispatch);
+                this.dispatcher.execute();
             } catch (final Exception ex) {
                 this.exception = ex;
             }

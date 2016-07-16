@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseConsumer;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIODispatch;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -51,7 +51,8 @@ import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.reactor.ConnectingIOReactor;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
-import org.apache.hc.core5.reactor.IOEventDispatch;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 
 /**
  * Minimal asynchronous HTTP/1.1 client.
@@ -74,13 +75,16 @@ public class NHttpClient {
                 .add(new RequestExpectContinue()).build();
         // Create client-side HTTP protocol handler
         HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
-        // Create client-side I/O event dispatch
-        final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler,
+        // Create client-side I/O event handler factory
+        final IOEventHandlerFactory eventHandlerFactory = new DefaultHttpClientIOEventHandlerFactory(
+                protocolHandler,
                 ConnectionConfig.DEFAULT);
         // Create client-side I/O reactor
-        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
+        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(
+                eventHandlerFactory,
+                IOReactorConfig.DEFAULT);
         // Create HTTP connection pool
-        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
+        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor);
         // Limit total number of connections to just two
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);
@@ -91,7 +95,7 @@ public class NHttpClient {
             public void run() {
                 try {
                     // Ready to go!
-                    ioReactor.execute(ioEventDispatch);
+                    ioReactor.execute();
                 } catch (InterruptedIOException ex) {
                     System.err.println("Interrupted");
                 } catch (IOException e) {

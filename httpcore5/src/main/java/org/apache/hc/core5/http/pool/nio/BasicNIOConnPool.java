@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.pool.nio;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
@@ -36,12 +37,13 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.nio.NHttpClientConnection;
 import org.apache.hc.core5.pool.nio.AbstractNIOConnPool;
 import org.apache.hc.core5.pool.nio.NIOConnFactory;
 import org.apache.hc.core5.pool.nio.SocketAddressResolver;
+import org.apache.hc.core5.reactor.AbstractIOEventHandler;
 import org.apache.hc.core5.reactor.ConnectingIOReactor;
+import org.apache.hc.core5.reactor.IOSession;
 
 /**
  * A very basic {@link org.apache.hc.core5.pool.ConnPool} implementation that
@@ -86,41 +88,39 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, NHttpClientC
 
     }
 
+    static class BasicNIOConnFactory implements NIOConnFactory<HttpHost, NHttpClientConnection> {
+
+        public BasicNIOConnFactory() {
+            super();
+        }
+
+        @Override
+        public NHttpClientConnection create(final HttpHost route, final IOSession session) throws IOException {
+            final Object connAttribute = session.getAttribute(AbstractIOEventHandler.CONNECTION_KEY);
+            if (connAttribute instanceof NHttpClientConnection) {
+                return (NHttpClientConnection) connAttribute;
+            } else {
+                throw new IllegalStateException("I/O session has not been initialized");
+            }
+        }
+
+    }
+
     /**
      * @since 4.3
      */
     public BasicNIOConnPool(
             final ConnectingIOReactor ioreactor,
-            final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
             final int connectTimeout) {
-        super(ioreactor, connFactory, new BasicAddressResolver(), DEFAULT_MAX_CONNECTIONS_PER_ROUTE, DEFAULT_MAX_TOTAL_CONNECTIONS);
+        super(ioreactor, new BasicNIOConnFactory(), new BasicAddressResolver(), DEFAULT_MAX_CONNECTIONS_PER_ROUTE, DEFAULT_MAX_TOTAL_CONNECTIONS);
         this.connectTimeout = connectTimeout;
     }
 
     /**
      * @since 4.3
      */
-    public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor,
-            final int connectTimeout,
-            final ConnectionConfig config) {
-        this(ioreactor, new BasicNIOConnFactory(config), connectTimeout);
-    }
-
-    /**
-     * @since 4.3
-     */
-    public BasicNIOConnPool(
-            final ConnectingIOReactor ioreactor,
-            final ConnectionConfig config) {
-        this(ioreactor, new BasicNIOConnFactory(config), 0);
-    }
-
-    /**
-     * @since 4.3
-     */
     public BasicNIOConnPool(final ConnectingIOReactor ioreactor) {
-        this(ioreactor, new BasicNIOConnFactory(ConnectionConfig.DEFAULT), 0);
+        this(ioreactor, 0);
     }
 
     @Override

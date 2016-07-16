@@ -34,14 +34,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.hc.core5.util.Args;
-
 /**
  * Default implementation of {@link AbstractIOReactor} that serves as a base
- * for more advanced {@link IOReactor}
- * implementations. This class adds support for the I/O event dispatching
- * using {@link IOEventDispatch}, management of buffering sessions, and
- * session timeout handling.
+ * for more advanced {@link IOReactor} implementations.
  *
  * @since 4.0
  */
@@ -53,35 +48,34 @@ public class BaseIOReactor extends AbstractIOReactor {
     private long lastTimeoutCheck;
 
     private IOReactorExceptionHandler exceptionHandler = null;
-    private IOEventDispatch eventDispatch = null;
 
     /**
      * Creates new BaseIOReactor instance.
      *
-     * @param selectTimeout the select timeout.
+     * @param eventHandlerFactory the event handler factory.
+     * @param reactorConfig the reactor configuration.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
-    public BaseIOReactor(final long selectTimeout) throws IOReactorException {
-        super(selectTimeout);
+    public BaseIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig reactorConfig) throws IOReactorException {
+        super(eventHandlerFactory, reactorConfig);
         this.bufferingSessions = new HashSet<>();
-        this.timeoutCheckInterval = selectTimeout;
+        this.timeoutCheckInterval = reactorConfig.getSelectInterval();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
     /**
      * Activates the I/O reactor. The I/O reactor will start reacting to I/O
-     * events and dispatch I/O event notifications to the given
-     * {@link IOEventDispatch}.
+     * events and and dispatch I/O event notifications to the {@link IOEventHandler}
+     * associated with the given I/O session.
      *
      * @throws InterruptedIOException if the dispatch thread is interrupted.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     @Override
-    public void execute(
-            final IOEventDispatch eventDispatch) throws InterruptedIOException, IOReactorException {
-        Args.notNull(eventDispatch, "Event dispatcher");
-        this.eventDispatch = eventDispatch;
-        execute();
+    public void execute() throws InterruptedIOException, IOReactorException {
+        super.execute();
     }
 
     /**
@@ -128,18 +122,20 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Processes {@link SelectionKey#OP_READ} event on the given selection key.
-     * This method dispatches the event notification to the
-     * {@link IOEventDispatch#inputReady(IOSession)} method.
+     * This method dispatches the event
+     * to the {@link IOEventHandler#inputReady(IOSession)} method of the event
+     * handler associated with the I/O session.
      */
     @Override
     protected void readable(final SelectionKey key) {
         final IOSession session = getSession(key);
         try {
+            final IOEventHandler eventHandler = ensureEventHandler(session);
             // Try to gently feed more data to the event dispatcher
             // if the session input buffer has not been fully exhausted
             // (the choice of 5 iterations is purely arbitrary)
             for (int i = 0; i < 5; i++) {
-                this.eventDispatch.inputReady(session);
+                eventHandler.inputReady(session);
                 if (!session.hasBufferedInput()
                         || (session.getEventMask() & SelectionKey.OP_READ) == 0) {
                     break;
@@ -149,7 +145,7 @@ public class BaseIOReactor extends AbstractIOReactor {
                 this.bufferingSessions.add(session);
             }
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
+            session.shutdown();
             key.attach(null);
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
@@ -158,17 +154,18 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Processes {@link SelectionKey#OP_WRITE} event on the given selection key.
-     * This method dispatches the event notification to the
-     * {@link IOEventDispatch#outputReady(IOSession)} method.
+     * This method dispatches the event to
+     * the {@link IOEventHandler#outputReady(IOSession)} method of the event
+     * handler associated with the I/O session.
      */
     @Override
     protected void writable(final SelectionKey key) {
         final IOSession session = getSession(key);
         try {
-            this.eventDispatch.outputReady(session);
+            final IOEventHandler eventHandler = ensureEventHandler(session);
+            eventHandler.outputReady(session);
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
-            key.attach(null);
+            session.shutdown();
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -178,10 +175,6 @@ public class BaseIOReactor extends AbstractIOReactor {
      * Verifies whether any of the sessions associated with the given selection
      * keys timed out by invoking the {@link #timeoutCheck(SelectionKey, long)}
      * method.
-     * <p>
-     * This method will also invoke the
-     * {@link IOEventDispatch#inputReady(IOSession)} method on all sessions
-     * that have buffered input data.
      */
     @Override
     protected void validate(final Set<SelectionKey> keys) {
@@ -203,14 +196,15 @@ public class BaseIOReactor extends AbstractIOReactor {
                 }
                 try {
                     if ((session.getEventMask() & EventMask.READ) > 0) {
-                        this.eventDispatch.inputReady(session);
+                        final IOEventHandler eventHandler = ensureEventHandler(session);
+                        eventHandler.inputReady(session);
                         if (!session.hasBufferedInput()) {
                             it.remove();
                         }
                     }
                 } catch (final CancelledKeyException ex) {
                     it.remove();
-                    queueClosedSession(session);
+                    session.shutdown();
                 } catch (final RuntimeException ex) {
                     handleRuntimeException(ex);
                 }
@@ -220,14 +214,16 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Processes newly created I/O session. This method dispatches the event
-     * notification to the {@link IOEventDispatch#connected(IOSession)} method.
+     * to the {@link IOEventHandler#connected(IOSession)} method of the event
+     * handler associated with the I/O session.
      */
     @Override
-    protected void sessionCreated(final SelectionKey key, final IOSession session) {
+    protected void sessionCreated(final IOSession session) {
         try {
-            this.eventDispatch.connected(session);
+            final IOEventHandler eventHandler = ensureEventHandler(session);
+            eventHandler.connected(session);
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
+            session.shutdown();
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -235,14 +231,16 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Processes timed out I/O session. This method dispatches the event
-     * notification to the {@link IOEventDispatch#timeout(IOSession)} method.
+     * to the {@link IOEventHandler#timeout(IOSession)} method of the event
+     * handler associated with the I/O session.
      */
     @Override
     protected void sessionTimedOut(final IOSession session) {
         try {
-            this.eventDispatch.timeout(session);
+            final IOEventHandler eventHandler = ensureEventHandler(session);
+            eventHandler.timeout(session);
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
+            session.shutdown();
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -250,13 +248,14 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     /**
      * Processes closed I/O session. This method dispatches the event
-     * notification to the {@link IOEventDispatch#disconnected(IOSession)}
-     * method.
+     * to the {@link IOEventHandler#timeout(IOSession)} method of the event
+     * handler associated with the I/O session.
      */
     @Override
     protected void sessionClosed(final IOSession session) {
         try {
-            this.eventDispatch.disconnected(session);
+            final IOEventHandler eventHandler = ensureEventHandler(session);
+            eventHandler.disconnected(session);
         } catch (final CancelledKeyException ex) {
             // ignore
         } catch (final RuntimeException ex) {

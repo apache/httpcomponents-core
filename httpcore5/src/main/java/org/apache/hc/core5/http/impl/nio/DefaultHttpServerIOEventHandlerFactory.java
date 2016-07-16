@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import java.io.IOException;
-
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -36,26 +34,25 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
 import org.apache.hc.core5.http.nio.NHttpServerEventHandler;
-import org.apache.hc.core5.reactor.AbstractIODispatch;
+import org.apache.hc.core5.reactor.AbstractIOEventHandler;
+import org.apache.hc.core5.reactor.IOEventHandler;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Default {@link org.apache.hc.core5.reactor.IOEventDispatch} implementation
- * that supports both plain (non-encrypted) and SSL encrypted server side HTTP
- * connections.
+ * Factory for {@link DefaultHttpServerIOEventHandler}.
  *
- * @since 4.2
+ * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultHttpServerIODispatch
-                    extends AbstractIODispatch<DefaultNHttpServerConnection> {
+public class DefaultHttpServerIOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final NHttpServerEventHandler handler;
     private final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connFactory;
 
-    public DefaultHttpServerIODispatch(
+    public DefaultHttpServerIOEventHandlerFactory(
             final NHttpServerEventHandler handler,
             final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connFactory) {
         super();
@@ -63,17 +60,11 @@ public class DefaultHttpServerIODispatch
         this.connFactory = Args.notNull(connFactory, "HTTP server connection factory");
     }
 
-    /**
-     * @since 4.3
-     */
-    public DefaultHttpServerIODispatch(final NHttpServerEventHandler handler, final ConnectionConfig config) {
+    public DefaultHttpServerIOEventHandlerFactory(final NHttpServerEventHandler handler, final ConnectionConfig config) {
         this(handler, new DefaultNHttpServerConnectionFactory(config));
     }
 
-    /**
-     * @since 4.3
-     */
-    public DefaultHttpServerIODispatch(
+    public DefaultHttpServerIOEventHandlerFactory(
             final NHttpServerEventHandler handler,
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
@@ -81,10 +72,7 @@ public class DefaultHttpServerIODispatch
         this(handler, new SSLNHttpServerConnectionFactory(sslcontext, sslHandler, config));
     }
 
-    /**
-     * @since 4.3
-     */
-    public DefaultHttpServerIODispatch(
+    public DefaultHttpServerIOEventHandlerFactory(
             final NHttpServerEventHandler handler,
             final SSLContext sslcontext,
             final ConnectionConfig config) {
@@ -92,46 +80,9 @@ public class DefaultHttpServerIODispatch
     }
 
     @Override
-    protected DefaultNHttpServerConnection createConnection(final IOSession session) {
-        return this.connFactory.createConnection(session);
+    public IOEventHandler createHandler(final IOSession ioSession) {
+        final DefaultNHttpServerConnection connection = this.connFactory.createConnection(ioSession);
+        ioSession.setAttribute(AbstractIOEventHandler.CONNECTION_KEY, connection);
+        return new DefaultHttpServerIOEventHandler(this.handler);
     }
-
-    @Override
-    protected void onConnected(final DefaultNHttpServerConnection conn) {
-        try {
-            this.handler.connected(conn);
-        } catch (final Exception ex) {
-            this.handler.exception(conn, ex);
-        }
-    }
-
-    @Override
-    protected void onClosed(final DefaultNHttpServerConnection conn) {
-        this.handler.closed(conn);
-    }
-
-    @Override
-    protected void onException(final DefaultNHttpServerConnection conn, final IOException ex) {
-        this.handler.exception(conn, ex);
-    }
-
-    @Override
-    protected void onInputReady(final DefaultNHttpServerConnection conn) {
-        conn.consumeInput(this.handler);
-    }
-
-    @Override
-    protected void onOutputReady(final DefaultNHttpServerConnection conn) {
-        conn.produceOutput(this.handler);
-    }
-
-    @Override
-    protected void onTimeout(final DefaultNHttpServerConnection conn) {
-        try {
-            this.handler.timeout(conn);
-        } catch (final Exception ex) {
-            this.handler.exception(conn, ex);
-        }
-    }
-
 }

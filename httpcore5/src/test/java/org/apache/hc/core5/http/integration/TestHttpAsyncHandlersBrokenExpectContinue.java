@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
+import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncExpectationVerifier;
@@ -66,6 +67,31 @@ public class TestHttpAsyncHandlersBrokenExpectContinue extends HttpCoreNIOTestBa
                 { ProtocolScheme.http },
                 { ProtocolScheme.https },
         });
+    }
+
+    @Override
+    protected HttpAsyncExpectationVerifier createExpectationVerifier() {
+        return new HttpAsyncExpectationVerifier() {
+
+            @Override
+            public void verify(
+                    final HttpAsyncExchange httpexchange,
+                    final HttpContext context) throws HttpException {
+                try {
+                    Thread.sleep(1200);
+                } catch (final InterruptedException ignore) {
+                }
+
+                httpexchange.submitResponse();
+            }
+
+        };
+    }
+
+    @Override
+    protected HttpAsyncRequestExecutor createHttpAsyncRequestExecutor() throws Exception {
+        // Do not wait for continue
+        return new HttpAsyncRequestExecutor(1);
     }
 
     public TestHttpAsyncHandlersBrokenExpectContinue(final ProtocolScheme scheme) {
@@ -110,26 +136,9 @@ public class TestHttpAsyncHandlersBrokenExpectContinue extends HttpCoreNIOTestBa
     @Test
     public void testHttpPostsWithExpectationVerificationSendWithoutAck() throws Exception {
         this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
-        this.server.setExpectationVerifier(new HttpAsyncExpectationVerifier() {
-
-            @Override
-            public void verify(
-                    final HttpAsyncExchange httpexchange,
-                    final HttpContext context) throws HttpException {
-                try {
-                    Thread.sleep(1200);
-                } catch (final InterruptedException ignore) {
-                }
-
-                httpexchange.submitResponse();
-            }
-
-        });
 
         this.client.setMaxPerRoute(1);
         this.client.setMaxTotal(1);
-        // Do not wait for continue
-        this.client.setWaitForContinue(1);
 
         final HttpHost target = start();
 

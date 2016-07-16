@@ -46,12 +46,10 @@ import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.NHttpConnection;
-import org.apache.hc.core5.http.pool.nio.BasicNIOConnFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.testserver.nio.ClientConnectionFactory;
-import org.apache.hc.core5.http.testserver.nio.HttpClientNio;
-import org.apache.hc.core5.http.testserver.nio.HttpServerNio;
+import org.apache.hc.core5.http.testserver.nio.HttpCoreNIOTestBase;
 import org.apache.hc.core5.http.testserver.nio.ServerConnectionFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -59,31 +57,17 @@ import org.apache.hc.core5.reactor.ssl.SSLSetupHandler;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class TestCustomSSL {
+public class TestCustomSSL extends HttpCoreNIOTestBase {
 
-    protected HttpServerNio server;
-    protected HttpClientNio client;
-
-    @After
-    public void shutDownClient() throws Exception {
-        if (this.client != null) {
-            this.client.shutdown();
-            this.client = null;
-        }
+    public TestCustomSSL() {
+        super(ProtocolScheme.https);
     }
 
-    @After
-    public void shutDownServer() throws Exception {
-        if (this.server != null) {
-            this.server.shutdown();
-            this.server = null;
-        }
-    }
-
-    @Test
-    public void testCustomSSLContext() throws Exception {
+    @Override
+    protected ServerConnectionFactory createServerConnectionFactory() throws Exception {
         final SSLSetupHandler sslSetupHandler = new SSLSetupHandler() {
 
             @Override
@@ -99,7 +83,40 @@ public class TestCustomSSL {
             }
 
         };
+        final URL keyStoreURL = getClass().getResource("/test.keystore");
+        final String storePassword = "nopassword";
+        final SSLContext serverSSLContext = SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                .build();
+        return new ServerConnectionFactory(serverSSLContext, sslSetupHandler);
+    }
 
+    @Override
+    protected ClientConnectionFactory createClientConnectionFactory() throws Exception {
+        final URL keyStoreURL = getClass().getResource("/test.keystore");
+        final String storePassword = "nopassword";
+        final SSLContext clientSSLContext = SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .build();
+
+        return new ClientConnectionFactory(clientSSLContext, null);
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        initServer();
+        initClient();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        shutDownClient();
+        shutDownServer();
+    }
+
+    @Test
+    public void testCustomSSLContext() throws Exception {
         final HttpRequestHandler requestHandler = new HttpRequestHandler() {
 
             @Override
@@ -115,24 +132,6 @@ public class TestCustomSSL {
             }
 
         };
-
-        final URL keyStoreURL = getClass().getResource("/test.keystore");
-        final String storePassword = "nopassword";
-        final SSLContext serverSSLContext = SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
-                .build();
-        this.server = new HttpServerNio();
-        this.server.setConnectionFactory(new ServerConnectionFactory(serverSSLContext, sslSetupHandler));
-        this.server.setTimeout(5000);
-
-        final SSLContext clientSSLContext = SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .build();
-
-        this.client = new HttpClientNio(new BasicNIOConnFactory(new ClientConnectionFactory(clientSSLContext), null));
-        this.client.setTimeout(5000);
-
         this.server.registerHandler("*", new BasicAsyncRequestHandler(requestHandler));
 
         this.server.start();

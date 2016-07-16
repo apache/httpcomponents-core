@@ -37,10 +37,17 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.impl.nio.DefaultNHttpClientConnectionFactory;
+import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.pool.nio.BasicNIOConnFactory;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestConnControl;
+import org.apache.hc.core5.http.protocol.RequestContent;
+import org.apache.hc.core5.http.protocol.RequestTargetHost;
+import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.testserver.nio.HttpClientNio;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,7 +64,22 @@ public class TestClientOutOfSequenceResponse {
     @Before
     public void setup() throws Exception {
         server = new ServerSocket(0, 1);
-        client = new HttpClientNio(new BasicNIOConnFactory(ConnectionConfig.DEFAULT));
+        final HttpProcessor httpProcessor = new ImmutableHttpProcessor(
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent("TEST-CLIENT/1.1"));
+
+        final IOReactorConfig reactorConfig = IOReactorConfig.custom()
+                .setConnectTimeout(5000)
+                .setSoTimeout(5000)
+                .build();
+
+        client = new HttpClientNio(
+                httpProcessor,
+                new HttpAsyncRequestExecutor(),
+                DefaultNHttpClientConnectionFactory.INSTANCE,
+                reactorConfig);
     }
 
     @After

@@ -45,11 +45,11 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
-import org.apache.hc.core5.http.impl.nio.UriHttpAsyncRequestHandlerMapper;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.nio.entity.NByteArrayEntity;
 import org.apache.hc.core5.http.nio.entity.NStringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
 import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
@@ -66,12 +66,17 @@ import org.junit.Test;
  */
 public class TestServerSidePipelining extends HttpCoreNIOTestBase {
 
+    @Override
+    protected HttpProcessor createServerHttpProcessor() {
+        return new ImmutableHttpProcessor(
+                new ResponseServer("TEST-SERVER/1.1"),
+                new ResponseContent(),
+                new ResponseConnControl());
+    }
+
     @Before
     public void setUp() throws Exception {
         initServer();
-        this.server.setHttpProcessor(new ImmutableHttpProcessor(
-                new ResponseServer("TEST-SERVER/1.1"), new ResponseContent(), new ResponseConnControl()));
-        final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper();
         this.server.registerHandler("*", new BasicAsyncRequestHandler(new HttpRequestHandler() {
 
             @Override
