@@ -320,8 +320,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
                 // Process incoming handshake data
 
                 // Acquire buffers
-                ByteBuffer inEncryptedBuf = this.inEncrypted.acquire();
-                ByteBuffer inPlainBuf = this.inPlain.acquire();
+                final ByteBuffer inEncryptedBuf = this.inEncrypted.acquire();
+                final ByteBuffer inPlainBuf = this.inPlain.acquire();
 
                 // Perform operations
                 inEncryptedBuf.flip();
@@ -337,13 +337,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
                     // Release inEncrypted if empty
                     if (inEncryptedBuf.position() == 0) {
                         this.inEncrypted.release();
-                        inEncryptedBuf = null;
                     }
                 }
 
                 if (this.status >= IOSession.CLOSING) {
                     this.inPlain.release();
-                    inPlainBuf = null;
                 }
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
@@ -572,7 +570,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         }
         if (this.outPlain.hasData()) {
             // Acquire buffers
-            ByteBuffer outPlainBuf = this.outPlain.acquire();
+            final ByteBuffer outPlainBuf = this.outPlain.acquire();
             final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
 
             // Perform operations
@@ -583,7 +581,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             // Release outPlain if empty
             if (outPlainBuf.position() == 0) {
                 this.outPlain.release();
-                outPlainBuf = null;
             }
         }
         if (!this.outPlain.hasData()) {
@@ -602,7 +599,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         Args.notNull(dst, "Byte buffer");
         if (this.inPlain.hasData()) {
             // Acquire buffer
-            ByteBuffer inPlainBuf = this.inPlain.acquire();
+            final ByteBuffer inPlainBuf = this.inPlain.acquire();
 
             // Perform opertaions
             inPlainBuf.flip();
@@ -615,7 +612,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             // Release if empty
             if (inPlainBuf.position() == 0) {
                 this.inPlain.release();
-                inPlainBuf = null;
             }
             return n;
         } else {
