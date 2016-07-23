@@ -32,6 +32,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 
@@ -633,7 +634,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             this.session.setSocketTimeout(1000);
         }
         this.sslEngine.closeOutbound();
-        updateEventMask();
+        try {
+            updateEventMask();
+        } catch (CancelledKeyException ex) {
+            shutdown();
+        }
     }
 
     @Override
@@ -641,14 +646,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.status == CLOSED) {
             return;
         }
+        this.status = CLOSED;
+        this.session.shutdown();
 
         this.inEncrypted.release();
         this.outEncrypted.release();
         this.inPlain.release();
         this.outPlain.release();
 
-        this.status = CLOSED;
-        this.session.shutdown();
     }
 
     @Override
