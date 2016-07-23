@@ -612,10 +612,10 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.status >= CLOSING) {
             return;
         }
-
-        // deactivating buffers in here causes failed tests
-
         this.status = CLOSING;
+        if (this.session.getSocketTimeout() == 0) {
+            this.session.setSocketTimeout(1000);
+        }
         this.sslEngine.closeOutbound();
         updateEventMask();
     }
