@@ -44,8 +44,8 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.http.HttpHost;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.nio.reactor.EventMask;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
@@ -628,10 +628,10 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.status >= CLOSING) {
             return;
         }
-
-        // deactivating buffers in here causes failed tests
-
         this.status = CLOSING;
+        if (this.session.getSocketTimeout() == 0) {
+            this.session.setSocketTimeout(1000);
+        }
         this.sslEngine.closeOutbound();
         updateEventMask();
     }
