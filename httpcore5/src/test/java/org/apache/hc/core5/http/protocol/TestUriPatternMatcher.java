@@ -133,9 +133,7 @@ public class TestUriPatternMatcher {
         matcher.register("/ma*", h1);
         matcher.register("*tch", h2);
 
-        Object h;
-
-        h = matcher.lookup("/match");
+        final Object h = matcher.lookup("/match");
         Assert.assertNotNull(h);
         Assert.assertTrue(h1 == h);
     }
