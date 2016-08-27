@@ -38,8 +38,8 @@ import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
-import org.apache.hc.core5.http2.io.Http2TransportMetrics;
+import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
+import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -49,14 +49,14 @@ import org.apache.hc.core5.util.Args;
  */
 public final class FrameInputBuffer {
 
-    private final BasicHttp2TransportMetrics metrics;
+    private final BasicH2TransportMetrics metrics;
     private final int maxFramePayloadSize;
     private final byte[] buffer;
 
     private int off;
     private int dataLen;
 
-    FrameInputBuffer(final BasicHttp2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
+    FrameInputBuffer(final BasicH2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrcis");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
@@ -65,12 +65,12 @@ public final class FrameInputBuffer {
         this.dataLen = 0;
     }
 
-    public FrameInputBuffer(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
+    public FrameInputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
         this(metrics, FrameConsts.HEAD_LEN + maxFramePayloadSize, maxFramePayloadSize);
     }
 
     public FrameInputBuffer(final int maxFramePayloadSize) {
-        this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
+        this(new BasicH2TransportMetrics(), maxFramePayloadSize);
     }
 
     boolean hasData() {
@@ -134,7 +134,7 @@ public final class FrameInputBuffer {
         return frame;
     }
 
-    public Http2TransportMetrics getMetrics() {
+    public H2TransportMetrics getMetrics() {
         return metrics;
     }
 

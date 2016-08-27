@@ -25,36 +25,17 @@
  *
  */
 
-package org.apache.hc.core5.http2.impl.io;
+package org.apache.hc.core5.http2;
 
-import java.nio.charset.Charset;
-
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
-import org.apache.hc.core5.http2.hpack.HPackEncoder;
-import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.apache.hc.core5.http.io.HttpTransportMetrics;
 
 /**
- * HTTP/2 response writer.
+ * The point of access to connection statistics.
  *
  * @since 5.0
  */
-public class Http2ResponseWriter extends AbstractHttp2MessageWriter<HttpResponse> {
+public interface H2TransportMetrics extends HttpTransportMetrics {
 
-    public Http2ResponseWriter(final Charset charset) {
-        super(charset);
-    }
-
-    @Override
-    protected void writePseudoHeaders(final HttpResponse message, final ByteArrayBuffer buffer) throws HttpException {
-        final int code = message.getCode();
-        if (code < 100 || code >= 600) {
-            throw new ProtocolException("Response status " + code + " is invalid");
-        }
-        final HPackEncoder encoder = getEncoder();
-        encoder.encodeHeader(buffer, H2PseudoResponseHeaders.STATUS, Integer.toString(code), false);
-    }
+    long getFramesTransferred();
 
 }

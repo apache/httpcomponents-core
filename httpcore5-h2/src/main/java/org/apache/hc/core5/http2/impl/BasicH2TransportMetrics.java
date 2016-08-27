@@ -25,30 +25,33 @@
  *
  */
 
-package org.apache.hc.core5.http2.io;
+package org.apache.hc.core5.http2.impl;
 
-import java.nio.ByteBuffer;
-
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHead;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
+import org.apache.hc.core5.http2.H2TransportMetrics;
 
 /**
- * Abstract message parser intended to build HTTP message head from an arbitrary data source.
- *
- * @param <T>
- *            {@link MessageHead} or a subclass
+ * Default implementation of {@link H2TransportMetrics}.
  *
  * @since 5.0
  */
-public interface Http2MessageParser<T extends MessageHead> {
+public class BasicH2TransportMetrics extends BasicHttpTransportMetrics implements H2TransportMetrics {
 
-    /**
-     * Generates an instance of {@link MessageHead} from the given input buffer.
-     *
-     * @param buffer input buffer
-     * @return HTTP message head
-     * @throws HttpException in case of HTTP protocol violation
-     */
-    T parse(ByteBuffer buffer) throws HttpException;
+    private long framesTransferred;
+
+    @Override
+    public long getFramesTransferred() {
+        return framesTransferred;
+    }
+
+    public void incrementFramesTransferred() {
+        framesTransferred++;
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        this.framesTransferred = 0;
+    }
 
 }

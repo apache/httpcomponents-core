@@ -35,8 +35,8 @@ import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
-import org.apache.hc.core5.http2.io.Http2TransportMetrics;
+import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
+import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,11 +46,11 @@ import org.apache.hc.core5.util.Args;
  */
 public final class FrameOutputBuffer {
 
-    private final BasicHttp2TransportMetrics metrics;
+    private final BasicH2TransportMetrics metrics;
     private final int maxFramePayloadSize;
     private final ByteBuffer buffer;
 
-    public FrameOutputBuffer(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
+    public FrameOutputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrcis");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
@@ -59,7 +59,7 @@ public final class FrameOutputBuffer {
     }
 
     public FrameOutputBuffer(final int maxFramePayloadSize) {
-        this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
+        this(new BasicH2TransportMetrics(), maxFramePayloadSize);
     }
 
     private void writeToChannel(final WritableByteChannel channel, final ByteBuffer src) throws IOException {
@@ -115,7 +115,7 @@ public final class FrameOutputBuffer {
         return buffer.position() == 0;
     }
 
-    public Http2TransportMetrics getMetrics() {
+    public H2TransportMetrics getMetrics() {
         return metrics;
     }
 

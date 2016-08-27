@@ -38,7 +38,7 @@ import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
+import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -119,7 +119,7 @@ public class TestFrameInOutBuffers {
 
     @Test
     public void testReadFrameMultipleSmallBuffer() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(new BasicHttp2TransportMetrics(), 20, 10);
+        final FrameInputBuffer inbuffer = new FrameInputBuffer(new BasicH2TransportMetrics(), 20, 10);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {
                         0,0,10,0,8,0,0,0,8,4,1,1,1,1,1,0,0,0,0,

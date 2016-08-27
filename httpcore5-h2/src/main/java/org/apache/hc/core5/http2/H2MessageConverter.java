@@ -25,27 +25,42 @@
  *
  */
 
-package org.apache.hc.core5.http2.io;
+package org.apache.hc.core5.http2;
 
+import java.util.List;
+
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.MessageHead;
-import org.apache.hc.core5.util.ByteArrayBuffer;
 
 /**
- * Abstract message writer intended to serialize HTTP message head to an arbitrary
- * data sink.
+ * Abstract message converter intended to convert from a list of HTTP/2 headers to object
+ * representing an HTTP message and from an object representing an HTTP message to a list
+ * of HTTP/2 headers.
  *
- * @since 4.0
+ * @param <T>
+ *            {@link MessageHead} or a subclass
+ *
+ * @since 5.0
  */
-public interface Http2MessageWriter<T extends MessageHead> {
+public interface H2MessageConverter<T extends MessageHead> {
 
     /**
-     * Serializes an instance of {@link MessageHead} to the given output buffer.
+     * Converts given list of HTTP/2 headers to a {@link MessageHead}.
      *
-     * @param message HTTP message head
-     * @param buffer output buffer
+     * @param headers list of HTTP/2 headers
+     * @return HTTP message
      * @throws HttpException in case of HTTP protocol violation
      */
-    void write(T message, ByteArrayBuffer buffer) throws HttpException;
+    T convert(List<Header> headers) throws HttpException;
+
+    /**
+     * Converts given {@link MessageHead} to a list of HTTP/2 headers.
+     *
+     * @param message HTTP message
+     * @return list of HTTP/2 headers
+     * @throws HttpException in case of HTTP protocol violation
+     */
+    List<Header> convert(T message) throws HttpException;
 
 }
