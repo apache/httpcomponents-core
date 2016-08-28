@@ -40,8 +40,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
@@ -67,8 +67,8 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final HttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
+            final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
+            final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
         super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints,
                 incomingContentStrategy, outgoingContentStrategy,
                 requestParserFactory, responseWriterFactory);
@@ -106,7 +106,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     }
 
     @Override
-    protected void onRequestReceived(final HttpRequest request) {
+    protected void onRequestReceived(final ClassicHttpRequest request) {
         if (request != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getPath(),
                     request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
@@ -118,7 +118,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     }
 
     @Override
-    protected void onResponseSubmitted(final HttpResponse response) {
+    protected void onResponseSubmitted(final ClassicHttpResponse response) {
         if (response != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(this.id + " << " + new StatusLine(
                     response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1,

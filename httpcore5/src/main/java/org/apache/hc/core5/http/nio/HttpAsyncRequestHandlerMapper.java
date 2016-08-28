@@ -27,12 +27,12 @@
 
 package org.apache.hc.core5.http.nio;
 
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * {@code HttpAsyncRequestHandlerMapper} can be used to resolve an instance
- * of {@link HttpAsyncRequestHandler} matching a particular {@link HttpRequest}.
+ * of {@link HttpAsyncRequestHandler} matching a particular {@link ClassicHttpRequest}.
  * Usually the resolved request handler will be used to process the request.
  *
  * @since 4.3
@@ -48,6 +48,6 @@ public interface HttpAsyncRequestHandlerMapper {
      *
      * @since 5.0
      */
-    HttpAsyncRequestHandler<?> lookup(HttpRequest request, HttpContext context);
+    HttpAsyncRequestHandler<?> lookup(ClassicHttpRequest request, HttpContext context);
 
 }

@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.nio;
 import java.io.Closeable;
 import java.io.IOException;
 
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -47,7 +47,7 @@ public interface HttpAsyncResponseProducer extends Closeable {
      *
      * @return HTTP response message.
      */
-    HttpResponse generateResponse();
+    ClassicHttpResponse generateResponse();
 
     /**
      * Invoked to write out a chunk of content to the {@link ContentEncoder}.

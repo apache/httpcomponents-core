@@ -29,19 +29,19 @@ package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 
 /**
- * Default factory for creating {@link HttpRequest} objects.
+ * Default factory for creating {@link ClassicHttpRequest} objects.
  *
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class DefaultHttpRequestFactory implements HttpRequestFactory {
+public class DefaultHttpRequestFactory implements HttpRequestFactory<ClassicHttpRequest> {
 
     public static final DefaultHttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();
 
@@ -67,9 +67,9 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     }
 
     @Override
-    public HttpRequest newHttpRequest(final ProtocolVersion transportVersion, final String method, final String uri) throws MethodNotSupportedException {
+    public ClassicHttpRequest newHttpRequest(final ProtocolVersion transportVersion, final String method, final String uri) throws MethodNotSupportedException {
         if (isOneOf(SUPPORTED_METHODS, method)) {
-            final HttpRequest request = new BasicHttpRequest(method, uri);
+            final ClassicHttpRequest request = new BasicClassicHttpRequest(method, uri);
             request.setVersion(transportVersion);
             return request;
         }
@@ -77,8 +77,8 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory {
     }
 
     @Override
-    public HttpRequest newHttpRequest(final String method, final String uri) throws MethodNotSupportedException {
-        return new BasicHttpRequest(method, uri);
+    public ClassicHttpRequest newHttpRequest(final String method, final String uri) throws MethodNotSupportedException {
+        return new BasicClassicHttpRequest(method, uri);
     }
 
 }

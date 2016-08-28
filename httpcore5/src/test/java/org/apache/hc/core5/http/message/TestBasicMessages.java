@@ -29,11 +29,9 @@ package org.apache.hc.core5.http.message;
 
 import java.net.URI;
 
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.entity.BasicHttpEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -76,16 +74,6 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testSetResponseEntity() {
-        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
-        Assert.assertNull(response.getEntity());
-
-        final HttpEntity entity = new BasicHttpEntity();
-        response.setEntity(entity);
-        Assert.assertTrue(entity == response.getEntity());
-    }
-
-    @Test
     public void testDefaultRequestConstructors() {
         HttpRequest request = new BasicHttpRequest("WHATEVER", "/");
         Assert.assertEquals("WHATEVER", request.getMethod());
@@ -100,6 +88,41 @@ public class TestBasicMessages {
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
+        }
+    }
+
+    @Test
+    public void testResponseBasics() {
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        Assert.assertEquals(200, response.getCode());
+        Assert.assertEquals("OK", response.getReasonPhrase());
+    }
+
+    @Test
+    public void testResponseStatusLineMutation() {
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        Assert.assertEquals(200, response.getCode());
+        Assert.assertEquals("OK", response.getReasonPhrase());
+        response.setReasonPhrase("Kind of OK");
+        Assert.assertEquals(200, response.getCode());
+        Assert.assertEquals("Kind of OK", response.getReasonPhrase());
+        response.setCode(299);
+        Assert.assertEquals(299, response.getCode());
+        Assert.assertEquals(null, response.getReasonPhrase());
+    }
+
+    @Test
+    public void testResponseInvalidStatusCode() {
+        try {
+            new BasicHttpResponse(-200, "OK");
+            Assert.fail("IllegalArgumentException expected");
+        } catch (final IllegalArgumentException expected) {
+        }
+        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        try {
+            response.setCode(-1);
+            Assert.fail("IllegalArgumentException expected");
+        } catch (final IllegalArgumentException expected) {
         }
     }
 
@@ -139,16 +162,6 @@ public class TestBasicMessages {
         Assert.assertEquals("host", request.getAuthority());
         Assert.assertEquals("http", request.getScheme());
         Assert.assertEquals(new URI("http://host/"), request.getUri());
-    }
-
-    @Test
-    public void testSetRequestEntity() {
-        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        Assert.assertNull(request.getEntity());
-
-        final HttpEntity entity = new BasicHttpEntity();
-        request.setEntity(entity);
-        Assert.assertTrue(entity == request.getEntity());
     }
 
 }

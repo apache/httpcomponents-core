@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
@@ -60,7 +60,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     }
 
     @Override
-    public void process(final HttpResponse response, final HttpContext context)
+    public void process(final ClassicHttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
 
@@ -95,7 +95,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             }
         }
         // Drop connection if requested by the client or request was <= 1.0
-        final HttpRequest request = corecontext.getRequest();
+        final ClassicHttpRequest request = corecontext.getRequest();
         if (request != null) {
             final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
             if (header != null) {

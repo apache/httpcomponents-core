@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
@@ -93,7 +93,7 @@ public class ResponseContent implements HttpResponseInterceptor {
      * @throws IllegalArgumentException If the response is null.
      */
     @Override
-    public void process(final HttpResponse response, final HttpContext context)
+    public void process(final ClassicHttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         if (this.overwrite) {

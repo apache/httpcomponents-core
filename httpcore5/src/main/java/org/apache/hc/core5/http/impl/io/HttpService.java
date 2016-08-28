@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
@@ -84,7 +84,7 @@ public class HttpService {
     private final HttpProcessor processor;
     private final HttpRequestHandlerMapper handlerMapper;
     private final ConnectionReuseStrategy connStrategy;
-    private final HttpResponseFactory responseFactory;
+    private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
     private final HttpExpectationVerifier expectationVerifier;
 
     /**
@@ -103,7 +103,7 @@ public class HttpService {
     public HttpService(
             final HttpProcessor processor,
             final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final HttpRequestHandlerMapper handlerMapper,
             final HttpExpectationVerifier expectationVerifier) {
         super();
@@ -131,7 +131,7 @@ public class HttpService {
     public HttpService(
             final HttpProcessor processor,
             final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final HttpRequestHandlerMapper handlerMapper) {
         this(processor, connStrategy, responseFactory, handlerMapper, null);
     }
@@ -165,7 +165,7 @@ public class HttpService {
 
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
-        final HttpRequest request = conn.receiveRequestHeader();
+        final ClassicHttpRequest request = conn.receiveRequestHeader();
         final ProtocolVersion transportVersion = request.getVersion();
         if (transportVersion != null) {
             context.setProtocolVersion(transportVersion);
@@ -174,7 +174,7 @@ public class HttpService {
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
         final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
 
-        HttpResponse response;
+        ClassicHttpResponse response;
         if (expectContinue) {
             response = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
             if (this.expectationVerifier != null) {
@@ -238,7 +238,7 @@ public class HttpService {
         }
     }
 
-    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+    private boolean canResponseHaveBody(final ClassicHttpRequest request, final ClassicHttpResponse response) {
         if (request != null && "HEAD".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
@@ -257,7 +257,7 @@ public class HttpService {
      * @param ex the exception.
      * @param response the HTTP response.
      */
-    protected void handleException(final HttpException ex, final HttpResponse response) {
+    protected void handleException(final HttpException ex, final ClassicHttpResponse response) {
         if (ex instanceof MethodNotSupportedException) {
             response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
         } else if (ex instanceof UnsupportedHttpVersionException) {
@@ -281,7 +281,7 @@ public class HttpService {
      * The default implementation of this method attempts to resolve an
      * {@link HttpRequestHandler} for the request URI of the given request
      * and, if found, executes its
-     * {@link HttpRequestHandler#handle(HttpRequest, HttpResponse, HttpContext)}
+     * {@link HttpRequestHandler#handle(ClassicHttpRequest, ClassicHttpResponse, HttpContext)}
      * method.
      * <p>
      * Super-classes can override this method in order to provide a custom
@@ -295,8 +295,8 @@ public class HttpService {
      *   problem.
      */
     protected void doService(
-            final HttpRequest request,
-            final HttpResponse response,
+            final ClassicHttpRequest request,
+            final ClassicHttpResponse response,
             final HttpContext context) throws HttpException, IOException {
         HttpRequestHandler handler = null;
         if (this.handlerMapper != null) {

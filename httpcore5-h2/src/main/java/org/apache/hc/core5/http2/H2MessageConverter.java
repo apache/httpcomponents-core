@@ -31,7 +31,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHead;
+import org.apache.hc.core5.http.HttpMessage;
 
 /**
  * Abstract message converter intended to convert from a list of HTTP/2 headers to object
@@ -39,14 +39,14 @@ import org.apache.hc.core5.http.MessageHead;
  * of HTTP/2 headers.
  *
  * @param <T>
- *            {@link MessageHead} or a subclass
+ *            {@link HttpMessage} or a subclass
  *
  * @since 5.0
  */
-public interface H2MessageConverter<T extends MessageHead> {
+public interface H2MessageConverter<T extends HttpMessage> {
 
     /**
-     * Converts given list of HTTP/2 headers to a {@link MessageHead}.
+     * Converts given list of HTTP/2 headers to a {@link HttpMessage}.
      *
      * @param headers list of HTTP/2 headers
      * @return HTTP message
@@ -55,7 +55,7 @@ public interface H2MessageConverter<T extends MessageHead> {
     T convert(List<Header> headers) throws HttpException;
 
     /**
-     * Converts given {@link MessageHead} to a list of HTTP/2 headers.
+     * Converts given {@link HttpMessage} to a list of HTTP/2 headers.
      *
      * @param message HTTP message
      * @return list of HTTP/2 headers

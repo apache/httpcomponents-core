@@ -35,7 +35,7 @@ import java.util.Locale;
  *
  * @since 4.0
  */
-public interface HttpResponse extends HttpMessage<HttpEntity> {
+public interface HttpResponse extends HttpMessage {
 
     /**
      * Obtains the code of this response message.

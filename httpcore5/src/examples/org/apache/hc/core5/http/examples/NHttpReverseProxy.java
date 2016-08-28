@@ -36,8 +36,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentType;
@@ -49,8 +49,8 @@ import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncService;
 import org.apache.hc.core5.http.impl.nio.UriHttpAsyncRequestHandlerMapper;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
@@ -200,9 +200,9 @@ public class NHttpReverseProxy {
         private volatile HttpAsyncExchange responseTrigger;
         private volatile IOControl originIOControl;
         private volatile IOControl clientIOControl;
-        private volatile HttpRequest request;
+        private volatile ClassicHttpRequest request;
         private volatile boolean requestReceived;
-        private volatile HttpResponse response;
+        private volatile ClassicHttpResponse response;
         private volatile boolean responseReceived;
         private volatile Exception ex;
 
@@ -236,19 +236,19 @@ public class NHttpReverseProxy {
             this.target = target;
         }
 
-        public HttpRequest getRequest() {
+        public ClassicHttpRequest getRequest() {
             return this.request;
         }
 
-        public void setRequest(final HttpRequest request) {
+        public void setRequest(final ClassicHttpRequest request) {
             this.request = request;
         }
 
-        public HttpResponse getResponse() {
+        public ClassicHttpResponse getResponse() {
             return this.response;
         }
 
-        public void setResponse(final HttpResponse response) {
+        public void setResponse(final ClassicHttpResponse response) {
             this.response = response;
         }
 
@@ -337,7 +337,7 @@ public class NHttpReverseProxy {
 
         @Override
         public HttpAsyncRequestConsumer<ProxyHttpExchange> processRequest(
-                final HttpRequest request,
+                final ClassicHttpRequest request,
                 final HttpContext context) {
             ProxyHttpExchange httpExchange = (ProxyHttpExchange) context.getAttribute("http-exchange");
             if (httpExchange == null) {
@@ -363,7 +363,7 @@ public class NHttpReverseProxy {
                 if (ex != null) {
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " " + ex);
                     int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    HttpResponse response = new BasicHttpResponse(status);
+                    ClassicHttpResponse response = new BasicClassicHttpResponse(status);
                     String message = ex.getMessage();
                     if (message == null) {
                         message = "Unexpected error";
@@ -372,7 +372,7 @@ public class NHttpReverseProxy {
                     responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " error response triggered");
                 }
-                HttpResponse response = httpExchange.getResponse();
+                ClassicHttpResponse response = httpExchange.getResponse();
                 if (response != null) {
                     responseTrigger.submitResponse(new ProxyResponseProducer(httpExchange));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " response triggered");
@@ -407,7 +407,7 @@ public class NHttpReverseProxy {
         }
 
         @Override
-        public void requestReceived(final HttpRequest request) {
+        public void requestReceived(final ClassicHttpRequest request) {
             synchronized (this.httpExchange) {
                 System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getPath());
                 this.httpExchange.setRequest(request);
@@ -503,12 +503,12 @@ public class NHttpReverseProxy {
         }
 
         @Override
-        public HttpRequest generateRequest() {
+        public ClassicHttpRequest generateRequest() {
             synchronized (this.httpExchange) {
-                HttpRequest request = this.httpExchange.getRequest();
+                ClassicHttpRequest request = this.httpExchange.getRequest();
                 System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getPath());
                 // Rewrite request!!!!
-                BasicHttpRequest newREquest = new BasicHttpRequest(request.getMethod(), request.getPath());
+                BasicClassicHttpRequest newREquest = new BasicClassicHttpRequest(request.getMethod(), request.getPath());
                 newREquest.setEntity(request.getEntity());
                 return newREquest;
             }
@@ -586,7 +586,7 @@ public class NHttpReverseProxy {
         }
 
         @Override
-        public void responseReceived(final HttpResponse response) {
+        public void responseReceived(final ClassicHttpResponse response) {
             synchronized (this.httpExchange) {
                 System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getCode());
                 this.httpExchange.setResponse(response);
@@ -655,7 +655,7 @@ public class NHttpReverseProxy {
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
                     int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    HttpResponse response = new BasicHttpResponse(status);
+                    ClassicHttpResponse response = new BasicClassicHttpResponse(status);
                     String message = ex.getMessage();
                     if (message == null) {
                         message = "Unexpected error";
@@ -709,12 +709,12 @@ public class NHttpReverseProxy {
         }
 
         @Override
-        public HttpResponse generateResponse() {
+        public ClassicHttpResponse generateResponse() {
             synchronized (this.httpExchange) {
-                HttpResponse response = this.httpExchange.getResponse();
+                ClassicHttpResponse response = this.httpExchange.getResponse();
                 System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + response.getCode());
                 // Rewrite response!!!!
-                BasicHttpResponse r = new BasicHttpResponse(response.getCode());
+                BasicClassicHttpResponse r = new BasicClassicHttpResponse(response.getCode());
                 r.setEntity(response.getEntity());
                 return r;
             }
@@ -770,7 +770,7 @@ public class NHttpReverseProxy {
     static class ProxyIncomingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
 
         @Override
-        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
+        public boolean keepAlive(final ClassicHttpRequest request, final ClassicHttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
             boolean keepAlive = super.keepAlive(request, response, context);
@@ -785,7 +785,7 @@ public class NHttpReverseProxy {
     static class ProxyOutgoingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
 
         @Override
-        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
+        public boolean keepAlive(final ClassicHttpRequest request, final ClassicHttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
             boolean keepAlive = super.keepAlive(request, response, context);

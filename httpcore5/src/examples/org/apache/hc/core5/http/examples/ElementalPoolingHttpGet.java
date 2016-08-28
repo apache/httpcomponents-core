@@ -30,15 +30,16 @@ package org.apache.hc.core5.http.examples;
 import java.io.IOException;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.HttpClientConnection;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.pool.io.BasicConnFactory;
 import org.apache.hc.core5.http.pool.io.BasicConnPool;
 import org.apache.hc.core5.http.pool.io.BasicPoolEntry;
@@ -98,11 +99,11 @@ public class ElementalPoolingHttpGet {
                         HttpClientConnection conn = entry.getConnection();
                         HttpCoreContext coreContext = HttpCoreContext.create();
 
-                        BasicHttpRequest request = new BasicHttpRequest("GET", this.target, "/");
+                        ClassicHttpRequest request = new BasicClassicHttpRequest("GET", this.target, "/");
                         System.out.println(">> Request URI: " + request.getUri());
 
                         httpexecutor.preProcess(request, httpproc, coreContext);
-                        HttpResponse response = httpexecutor.execute(request, conn, coreContext);
+                        ClassicHttpResponse response = httpexecutor.execute(request, conn, coreContext);
                         httpexecutor.postProcess(response, httpproc, coreContext);
 
                         System.out.println("<< Response: " + response.getCode());

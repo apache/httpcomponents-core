@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.LineFormatter;
@@ -42,7 +42,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.3
  */
-public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest> {
+public class DefaultHttpRequestWriter extends AbstractMessageWriter<ClassicHttpRequest> {
 
     /**
      * Creates an instance of DefaultHttpRequestWriter.
@@ -61,7 +61,7 @@ public class DefaultHttpRequestWriter extends AbstractMessageWriter<HttpRequest>
 
     @Override
     protected void writeHeadLine(
-            final HttpRequest message, final CharArrayBuffer lineBuf) throws IOException {
+            final ClassicHttpRequest message, final CharArrayBuffer lineBuf) throws IOException {
         ProtocolVersion transportVersion = message.getVersion();
         if (transportVersion == null || transportVersion.greaterEquals(HttpVersion.HTTP_2_0)) {
             transportVersion = HttpVersion.HTTP_1_1;

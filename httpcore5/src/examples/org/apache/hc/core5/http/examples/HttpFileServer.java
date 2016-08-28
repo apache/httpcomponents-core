@@ -43,8 +43,8 @@ import org.apache.hc.core5.http.ExceptionLogger;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.bootstrap.io.HttpServer;
@@ -140,8 +140,8 @@ public class HttpFileServer {
 
         @Override
         public void handle(
-                final HttpRequest request,
-                final HttpResponse response,
+                final ClassicHttpRequest request,
+                final ClassicHttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
             String method = request.getMethod().toUpperCase(Locale.ROOT);

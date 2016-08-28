@@ -69,6 +69,6 @@ public interface ConnectionReuseStrategy {
      * @return {@code true} if the connection is allowed to be reused, or
      *         {@code false} if it MUST NOT be reused
      */
-    boolean keepAlive(HttpRequest request, HttpResponse response, HttpContext context);
+    boolean keepAlive(ClassicHttpRequest request, ClassicHttpResponse response, HttpContext context);
 
 }

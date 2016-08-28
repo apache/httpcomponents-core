@@ -25,42 +25,30 @@
  *
  */
 
-package org.apache.hc.core5.http.message;
-
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.util.Args;
+package org.apache.hc.core5.http;
 
 /**
- * Basic implementation of {@link HttpMessage}.
+ * 'Classic' {@link HttpRequest} message that can enclose {@link HttpEntity}.
  *
- * @since 4.0
+ * @since 5.0
  */
-public abstract class AbstractHttpMessage extends HeaderGroup implements HttpMessage<HttpEntity> {
+public interface ClassicHttpRequest extends HttpRequest {
 
-    private static final long serialVersionUID = 1L;
-    private HttpEntity entity;
+    /**
+     * Obtains the message entity, if available.
+     *
+     * @return  the message entity, or {@code null} if not available
+     */
+    HttpEntity getEntity();
 
-    @Override
-    public void addHeader(final String name, final Object value) {
-        Args.notNull(name, "Header name");
-        addHeader(new BasicHeader(name, value));
-    }
-
-    @Override
-    public void setHeader(final String name, final Object value) {
-        Args.notNull(name, "Header name");
-        setHeader(new BasicHeader(name, value));
-    }
-
-    @Override
-    public HttpEntity getEntity() {
-        return this.entity;
-    }
-
-    @Override
-    public void setEntity(final HttpEntity entity) {
-        this.entity = entity;
-    }
+    /**
+     * Sets an entity for this message.
+     * <p>
+     * Please note that if an entity has already been set it is responsibility of the caller
+     * to ensure release of the resources that may be associated with that entity.
+     *
+     * @param entity    the entity to set of this message, or {@code null} to unset
+     */
+    void setEntity(HttpEntity entity);
 
 }

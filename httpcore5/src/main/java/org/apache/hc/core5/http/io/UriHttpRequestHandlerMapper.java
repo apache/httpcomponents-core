@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.io;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.util.Args;
@@ -88,9 +88,9 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
     }
 
     /**
-     * Extracts request path from the given {@link HttpRequest}
+     * Extracts request path from the given {@link ClassicHttpRequest}
      */
-    protected String getRequestPath(final HttpRequest request) {
+    protected String getRequestPath(final ClassicHttpRequest request) {
         String uriPath = request.getPath();
         int index = uriPath.indexOf("?");
         if (index != -1) {
@@ -111,7 +111,7 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
      * @return handler or {@code null} if no match is found.
      */
     @Override
-    public HttpRequestHandler lookup(final HttpRequest request, final HttpContext context) {
+    public HttpRequestHandler lookup(final ClassicHttpRequest request, final HttpContext context) {
         Args.notNull(request, "HTTP request");
         return matcher.lookup(getRequestPath(request));
     }

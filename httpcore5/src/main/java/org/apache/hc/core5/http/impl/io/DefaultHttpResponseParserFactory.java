@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.message.LineParser;
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultHttpResponseParserFactory implements HttpMessageParserFactory<HttpResponse> {
+public class DefaultHttpResponseParserFactory implements HttpMessageParserFactory<ClassicHttpResponse> {
 
     public static final DefaultHttpResponseParserFactory INSTANCE = new DefaultHttpResponseParserFactory();
 
@@ -63,7 +63,7 @@ public class DefaultHttpResponseParserFactory implements HttpMessageParserFactor
     }
 
     @Override
-    public HttpMessageParser<HttpResponse> create(final MessageConstraints constraints) {
+    public HttpMessageParser<ClassicHttpResponse> create(final MessageConstraints constraints) {
         return new DefaultHttpResponseParser(this.lineParser, this.responseFactory, constraints);
     }
 

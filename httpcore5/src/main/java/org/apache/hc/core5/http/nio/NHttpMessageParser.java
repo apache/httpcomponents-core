@@ -30,14 +30,14 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHead;
+import org.apache.hc.core5.http.MessageHeaders;
 
 /**
  * Message parser intended to build HTTP message head from a session input buffer..
  *
  * @since 4.0
  */
-public interface NHttpMessageParser<T extends MessageHead> {
+public interface NHttpMessageParser<T extends MessageHeaders> {
 
     /**
      * Resets the parser. The parser will be ready to start parsing another

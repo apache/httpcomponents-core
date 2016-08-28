@@ -37,9 +37,9 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
@@ -111,8 +111,8 @@ public class ElementalReverseProxy {
 
         @Override
         public void handle(
-                final HttpRequest request,
-                final HttpResponse response,
+                final ClassicHttpRequest request,
+                final ClassicHttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
             final HttpClientConnection conn = (HttpClientConnection) context.getAttribute(
@@ -133,7 +133,7 @@ public class ElementalReverseProxy {
             request.removeHeaders(HttpHeaders.UPGRADE);
 
             this.httpexecutor.preProcess(request, this.httpproc, context);
-            final HttpResponse targetResponse = this.httpexecutor.execute(request, conn, context);
+            final ClassicHttpResponse targetResponse = this.httpexecutor.execute(request, conn, context);
             this.httpexecutor.postProcess(response, this.httpproc, context);
 
             // Remove hop-by-hop headers

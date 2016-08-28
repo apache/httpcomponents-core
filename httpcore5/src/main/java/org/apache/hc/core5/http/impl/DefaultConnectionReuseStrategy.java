@@ -35,8 +35,8 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -77,7 +77,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     // see interface ConnectionReuseStrategy
     @Override
     public boolean keepAlive(
-            final HttpRequest request, final HttpResponse response, final HttpContext context) {
+            final ClassicHttpRequest request, final ClassicHttpResponse response, final HttpContext context) {
         Args.notNull(response, "HTTP response");
 
         if (request != null) {
@@ -138,7 +138,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         return ver.greaterEquals(HttpVersion.HTTP_1_1);
     }
 
-    private boolean canResponseHaveBody(final HttpResponse response) {
+    private boolean canResponseHaveBody(final ClassicHttpResponse response) {
         final int status = response.getCode();
         return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT

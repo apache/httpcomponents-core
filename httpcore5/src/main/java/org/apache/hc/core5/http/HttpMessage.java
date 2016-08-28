@@ -33,7 +33,7 @@ package org.apache.hc.core5.http;
  *
  * @since 4.0
  */
-public interface HttpMessage<T> extends MessageHead {
+public interface HttpMessage extends MessageHeaders {
 
     /**
      * Sets protocol version.
@@ -111,26 +111,5 @@ public interface HttpMessage<T> extends MessageHead {
      * @param name The name of the headers to remove.
      */
     void removeHeaders(String name);
-
-    /**
-     * Obtains the message entity, if available.
-     *
-     * @return  the message entity, or {@code null} if not available
-     *
-     * @since 5.0
-     */
-    T getEntity();
-
-    /**
-     * Sets an entity for this message.
-     * <p>
-     * Please note that if an entity has already been set it is responsibility of the caller
-     * to ensure release of the resources that may be associated with that entity.
-     *
-     * @param entity    the entity to set of this message, or {@code null} to unset
-     *
-     * @since 5.0
-     */
-    void setEntity(T entity);
 
 }

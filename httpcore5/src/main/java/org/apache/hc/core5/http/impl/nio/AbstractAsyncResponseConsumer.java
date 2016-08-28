@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.HttpAsyncResponseConsumer;
@@ -68,7 +68,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
      * @throws IOException in case of an I/O error
      */
     protected abstract void onResponseReceived(
-            HttpResponse response) throws HttpException, IOException;
+            ClassicHttpResponse response) throws HttpException, IOException;
 
     /**
      * Invoked to process a chunk of content from the {@link ContentDecoder}.
@@ -120,11 +120,11 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     }
 
     /**
-     * Use {@link #onResponseReceived(HttpResponse)} instead.
+     * Use {@link #onResponseReceived(ClassicHttpResponse)} instead.
      */
     @Override
     public final void responseReceived(
-            final HttpResponse response) throws IOException, HttpException {
+            final ClassicHttpResponse response) throws IOException, HttpException {
         onResponseReceived(response);
         final HttpEntity entity = response.getEntity();
         if (entity != null) {

@@ -28,11 +28,11 @@
 package org.apache.hc.core5.http;
 
 /**
- * A factory for {@link HttpRequest HttpRequest} objects.
+ * A factory for {@link HttpRequest} objects.
  *
  * @since 4.0
  */
-public interface HttpRequestFactory {
+public interface HttpRequestFactory<T extends HttpRequest> {
 
     /**
      * Creates request message with the given request method and request URI.
@@ -45,7 +45,7 @@ public interface HttpRequestFactory {
      *
      * @since 5.0
      */
-    HttpRequest newHttpRequest(ProtocolVersion transportVersion, String method, String uri) throws MethodNotSupportedException;
+    T newHttpRequest(ProtocolVersion transportVersion, String method, String uri) throws MethodNotSupportedException;
 
     /**
      * Creates request message with the given request method and request URI.
@@ -55,6 +55,6 @@ public interface HttpRequestFactory {
      *
      * @return  request message
      */
-    HttpRequest newHttpRequest(String method, String uri) throws MethodNotSupportedException;
+    T newHttpRequest(String method, String uri) throws MethodNotSupportedException;
 
 }

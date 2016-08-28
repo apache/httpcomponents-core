@@ -32,9 +32,9 @@ import java.util.List;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 
 /**
@@ -99,7 +99,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
 
     @Override
     public void process(
-            final HttpRequest request,
+            final ClassicHttpRequest request,
             final HttpContext context) throws IOException, HttpException {
         for (final HttpRequestInterceptor requestInterceptor : this.requestInterceptors) {
             requestInterceptor.process(request, context);
@@ -108,7 +108,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
 
     @Override
     public void process(
-            final HttpResponse response,
+            final ClassicHttpResponse response,
             final HttpContext context) throws IOException, HttpException {
         for (final HttpResponseInterceptor responseInterceptor : this.responseInterceptors) {
             responseInterceptor.process(response, context);

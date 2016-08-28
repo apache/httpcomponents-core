@@ -42,9 +42,9 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.ByteArrayEntity;
@@ -54,8 +54,8 @@ import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestConsumer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseProducer;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncExpectationVerifier;
@@ -148,16 +148,16 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", createRequestUri(pattern, count));
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -174,16 +174,16 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest("HEAD", createRequestUri(pattern, count));
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest("HEAD", createRequestUri(pattern, count));
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         }
@@ -202,19 +202,19 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest(
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -233,20 +233,20 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest(
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity.setChunked(true);
             request.setEntity(entity);
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -258,8 +258,8 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity incoming = request.getEntity();
@@ -285,19 +285,19 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest("POST", createRequestUri(pattern, count));
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", createRequestUri(pattern, count));
             request.setVersion(HttpVersion.HTTP_1_0);
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpVersion.HTTP_1_1, response.getVersion());
             final Header h1 = response.getFirstHeader("Version");
@@ -318,18 +318,18 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest(
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             request.setEntity(null);
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         }
@@ -358,13 +358,13 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final BasicHttpRequest request = new BasicHttpRequest(
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(
                 "POST", createRequestUri(pattern, count));
         request.setEntity(null);
 
-        final Future<HttpResponse> future = this.client.execute(target, request);
+        final Future<ClassicHttpResponse> future = this.client.execute(target, request);
 
-        final HttpResponse response = future.get();
+        final ClassicHttpResponse response = future.get();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
     }
@@ -380,7 +380,7 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
                             @Override
                             public void process(
-                                    final HttpRequest request,
+                                    final ClassicHttpRequest request,
                                     final HttpContext context) throws HttpException, IOException {
                                 request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
                             }
@@ -402,13 +402,13 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final BasicHttpRequest request = new BasicHttpRequest(
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(
                 "POST", createRequestUri(pattern, count));
         request.setEntity(null);
 
-        final Future<HttpResponse> future = this.client.execute(target, request);
+        final Future<ClassicHttpResponse> future = this.client.execute(target, request);
 
-        final HttpResponse response = future.get();
+        final ClassicHttpResponse response = future.get();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
     }
@@ -426,21 +426,21 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest(
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             request.setEntity(entity);
 
             final HttpContext context = new BasicHttpContext();
-            final Future<HttpResponse> future = this.client.execute(target, request, context);
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request, context);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -454,10 +454,10 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
             public void verify(
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException {
-                final HttpRequest request = httpexchange.getRequest();
+                final ClassicHttpRequest request = httpexchange.getRequest();
                 final String s = request.getPath();
                 if (!s.equals("AAAAAx10")) {
-                    final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                    final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                     response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                     httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                 } else {
@@ -477,42 +477,42 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         final HttpHost target = start();
 
-        final BasicHttpRequest request1 = new BasicHttpRequest(
+        final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpRequest request2 = new BasicHttpRequest(
+        final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpRequest request3 = new BasicHttpRequest(
+        final BasicClassicHttpRequest request3 = new BasicClassicHttpRequest(
                 "POST", createRequestUri("BBBBB", 10));
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
-        final HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
+        final ClassicHttpRequest[] requests = new ClassicHttpRequest[] { request1, request2, request3 };
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
-        for (final HttpRequest request : requests) {
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        for (final ClassicHttpRequest request : requests) {
             final HttpContext context = new BasicHttpContext();
-            final Future<HttpResponse> future = this.client.execute(target, request, context);
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request, context);
             queue.add(future);
         }
 
-        final Future<HttpResponse> future1 = queue.remove();
-        final HttpResponse response1 = future1.get();
+        final Future<ClassicHttpResponse> future1 = queue.remove();
+        final ClassicHttpResponse response1 = future1.get();
         Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
-        final Future<HttpResponse> future2 = queue.remove();
-        final HttpResponse response2 = future2.get();
+        final Future<ClassicHttpResponse> future2 = queue.remove();
+        final ClassicHttpResponse response2 = future2.get();
         Assert.assertEquals(HttpStatus.SC_OK, response2.getCode());
 
-        final Future<HttpResponse> future3 = queue.remove();
-        final HttpResponse response3 = future3.get();
+        final Future<ClassicHttpResponse> future3 = queue.remove();
+        final ClassicHttpResponse response3 = future3.get();
         Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getCode());
     }
 
     @Test
     public void testHttpHeadsDelayedResponse() throws Exception {
 
-        class DelayedRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
+        class DelayedRequestHandler implements HttpAsyncRequestHandler<ClassicHttpRequest> {
 
             private final SimpleRequestHandler requestHandler;
 
@@ -522,18 +522,18 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
             }
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) {
                 return new BasicAsyncRequestConsumer();
             }
 
             @Override
             public void handle(
-                    final HttpRequest request,
+                    final ClassicHttpRequest request,
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
-                final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
+                final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
                 new Thread() {
                     @Override
                     public void run() {
@@ -561,16 +561,16 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest("HEAD", createRequestUri(pattern, count));
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest("HEAD", createRequestUri(pattern, count));
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         }
@@ -593,10 +593,10 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
                         } catch (final InterruptedException ie) {
                         }
                         // Set the entity after delaying...
-                        final HttpRequest request = httpexchange.getRequest();
+                        final ClassicHttpRequest request = httpexchange.getRequest();
                         final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
-                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                         } else {
@@ -617,35 +617,35 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         final HttpHost target = start();
 
-        final BasicHttpRequest request1 = new BasicHttpRequest(
+        final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request1.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpRequest request2 = new BasicHttpRequest(
+        final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest(
                 "POST", createRequestUri("AAAAA", 10));
         request2.setEntity(new NStringEntity(createExpectedString("AAAAA", 10)));
-        final BasicHttpRequest request3 = new BasicHttpRequest(
+        final BasicClassicHttpRequest request3 = new BasicClassicHttpRequest(
                 "POST", createRequestUri("BBBBB", 10));
         request3.setEntity(new NStringEntity(createExpectedString("BBBBB", 10)));
 
-        final HttpRequest[] requests = new HttpRequest[] { request1, request2, request3 };
+        final ClassicHttpRequest[] requests = new ClassicHttpRequest[] { request1, request2, request3 };
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
-        for (final HttpRequest request : requests) {
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        for (final ClassicHttpRequest request : requests) {
             final HttpContext context = new BasicHttpContext();
-            final Future<HttpResponse> future = this.client.execute(target, request, context);
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request, context);
             queue.add(future);
         }
 
-        final Future<HttpResponse> future1 = queue.remove();
-        final HttpResponse response1 = future1.get();
+        final Future<ClassicHttpResponse> future1 = queue.remove();
+        final ClassicHttpResponse response1 = future1.get();
         Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
-        final Future<HttpResponse> future2 = queue.remove();
-        final HttpResponse response2 = future2.get();
+        final Future<ClassicHttpResponse> future2 = queue.remove();
+        final ClassicHttpResponse response2 = future2.get();
         Assert.assertEquals(HttpStatus.SC_OK, response2.getCode());
 
-        final Future<HttpResponse> future3 = queue.remove();
-        final HttpResponse response3 = future3.get();
+        final Future<ClassicHttpResponse> future3 = queue.remove();
+        final ClassicHttpResponse response3 = future3.get();
         Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response3.getCode());
     }
 
@@ -660,10 +660,10 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
                 new Thread() {
                     @Override
                     public void run() {
-                        final HttpRequest request = httpexchange.getRequest();
+                        final ClassicHttpRequest request = httpexchange.getRequest();
                         final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
-                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                         } else {
@@ -688,21 +688,21 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final HttpHost target = start();
 
         for (int i = 0; i < 3; i++) {
-            final BasicHttpRequest request1 = new BasicHttpRequest("POST", createRequestUri("AAAAA", 10));
+            final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest("POST", createRequestUri("AAAAA", 10));
             final HttpEntity entity1 = new NStringEntity(createExpectedString("AAAAA", 10));
             request1.setEntity(entity1);
 
             final HttpContext context = new BasicHttpContext();
-            final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
-            final HttpResponse response1 = future1.get();
+            final Future<ClassicHttpResponse> future1 = this.client.execute(target, request1, context);
+            final ClassicHttpResponse response1 = future1.get();
             Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
-            final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
+            final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final HttpEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 500));
             request2.setEntity(entity2);
 
-            final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
-            final HttpResponse response2 = future2.get();
+            final Future<ClassicHttpResponse> future2 = this.client.execute(target, request2, context);
+            final ClassicHttpResponse response2 = future2.get();
             Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getCode());
         }
     }
@@ -718,10 +718,10 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
                 new Thread() {
                     @Override
                     public void run() {
-                        final HttpRequest request = httpexchange.getRequest();
+                        final ClassicHttpRequest request = httpexchange.getRequest();
                         final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
-                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
                             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
                         } else {
@@ -746,23 +746,23 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final HttpHost target = start();
 
         for (int i = 0; i < 10; i++) {
-            final BasicHttpRequest request1 = new BasicHttpRequest("POST", createRequestUri("AAAAA", 10));
+            final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest("POST", createRequestUri("AAAAA", 10));
             final NStringEntity entity1 = new NStringEntity(createExpectedString("AAAAA", 10));
             entity1.setChunked(i % 2 == 0);
             request1.setEntity(entity1);
 
             final HttpContext context = new BasicHttpContext();
-            final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
-            final HttpResponse response1 = future1.get();
+            final Future<ClassicHttpResponse> future1 = this.client.execute(target, request1, context);
+            final ClassicHttpResponse response1 = future1.get();
             Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
-            final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
+            final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 10));
             entity2.setChunked(i % 2 == 0);
             request2.setEntity(entity2);
 
-            final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
-            final HttpResponse response2 = future2.get();
+            final Future<ClassicHttpResponse> future2 = this.client.execute(target, request2, context);
+            final ClassicHttpResponse response2 = future2.get();
             Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getCode());
         }
     }
@@ -778,10 +778,10 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
                 new Thread() {
                     @Override
                     public void run() {
-                        final HttpRequest request = httpexchange.getRequest();
+                        final ClassicHttpRequest request = httpexchange.getRequest();
                         final String s = request.getPath();
                         if (!s.equals("AAAAAx10")) {
-                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
+                            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED, "Expectation failed");
                             response.setEntity(new NStringEntity("Expectation failed", ContentType.TEXT_PLAIN));
 
                             final AtomicInteger count = new AtomicInteger(0);
@@ -820,23 +820,23 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final HttpHost target = start();
 
         for (int i = 0; i < 10; i++) {
-            final BasicHttpRequest request1 = new BasicHttpRequest("POST", createRequestUri("AAAAA", 10));
+            final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest("POST", createRequestUri("AAAAA", 10));
             final NStringEntity entity1 = new NStringEntity(createExpectedString("AAAAA", 10));
             entity1.setChunked(i % 2 == 0);
             request1.setEntity(entity1);
 
             final HttpContext context = new BasicHttpContext();
-            final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
-            final HttpResponse response1 = future1.get();
+            final Future<ClassicHttpResponse> future1 = this.client.execute(target, request1, context);
+            final ClassicHttpResponse response1 = future1.get();
             Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
-            final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
+            final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 10));
             entity2.setChunked(i % 2 == 0);
             request2.setEntity(entity2);
 
-            final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
-            final HttpResponse response2 = future2.get();
+            final Future<ClassicHttpResponse> future2 = this.client.execute(target, request2, context);
+            final ClassicHttpResponse response2 = future2.get();
             Assert.assertEquals(HttpStatus.SC_EXPECTATION_FAILED, response2.getCode());
         }
     }
@@ -844,22 +844,22 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
     @Test
     public void testHttpExceptionInHandler() throws Exception {
 
-        class FailingRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
+        class FailingRequestHandler implements HttpAsyncRequestHandler<ClassicHttpRequest> {
 
             public FailingRequestHandler() {
                 super();
             }
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) {
                 return new BasicAsyncRequestConsumer();
             }
 
             @Override
             public void handle(
-                    final HttpRequest request,
+                    final ClassicHttpRequest request,
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
                 throw new HttpException("Boom");
@@ -876,16 +876,16 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 1; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", createRequestUri(pattern, count));
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
         }
@@ -901,16 +901,16 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", createRequestUri(pattern, count));
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
         }
@@ -922,8 +922,8 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setCode(HttpStatus.SC_NO_CONTENT);
             }
@@ -934,16 +934,16 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
-        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<ClassicHttpResponse>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 30; i++) {
-            final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-            final Future<HttpResponse> future = this.client.execute(target, request);
+            final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
+            final Future<ClassicHttpResponse> future = this.client.execute(target, request);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final Future<ClassicHttpResponse> future = queue.remove();
+            final ClassicHttpResponse response = future.get();
             Assert.assertNotNull(response);
             Assert.assertNull(response.getEntity());
         }
@@ -955,8 +955,8 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setCode(HttpStatus.SC_OK);
                 response.setEntity(new NStringEntity("All is well", StandardCharsets.US_ASCII));
@@ -976,15 +976,15 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
         this.client.setMaxPerRoute(3);
         this.client.setMaxTotal(3);
 
-        final BasicHttpRequest request1 = new BasicHttpRequest("GET", "/");
+        final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest("GET", "/");
         request1.setVersion(HttpVersion.HTTP_1_0);
-        final Future<HttpResponse> future1 = this.client.execute(target, request1);
-        final HttpResponse response1 = future1.get();
+        final Future<ClassicHttpResponse> future1 = this.client.execute(target, request1);
+        final ClassicHttpResponse response1 = future1.get();
         Assert.assertNotNull(response1);
         Assert.assertEquals(200, response1.getCode());
-        final BasicHttpRequest request2 = new BasicHttpRequest("GET", "/");
-        final Future<HttpResponse> future2 = this.client.execute(target, request2);
-        final HttpResponse response2 = future2.get();
+        final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest("GET", "/");
+        final Future<ClassicHttpResponse> future2 = this.client.execute(target, request2);
+        final ClassicHttpResponse response2 = future2.get();
         Assert.assertNotNull(response2);
         Assert.assertEquals(400, response2.getCode());
     }

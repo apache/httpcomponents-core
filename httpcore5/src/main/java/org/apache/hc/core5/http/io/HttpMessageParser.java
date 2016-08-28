@@ -31,20 +31,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHead;
+import org.apache.hc.core5.http.MessageHeaders;
 
 /**
  * Message parser intended to build HTTP message head from an input stream..
  *
  * @param <T>
- *            {@link MessageHead} or a subclass
+ *            {@link MessageHeaders} or a subclass
  *
  * @since 4.0
  */
-public interface HttpMessageParser<T extends MessageHead> {
+public interface HttpMessageParser<T extends MessageHeaders> {
 
     /**
-     * Generates an instance of {@link MessageHead} from the given input stream..
+     * Generates an instance of {@link MessageHeaders} from the given input stream..
      *
      * @param buffer Session input buffer
      * @param inputStream Input stream

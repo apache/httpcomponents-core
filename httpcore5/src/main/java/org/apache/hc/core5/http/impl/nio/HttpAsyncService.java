@@ -43,8 +43,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
@@ -112,7 +112,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     private final HttpProcessor httpProcessor;
     private final ConnectionReuseStrategy connStrategy;
-    private final HttpResponseFactory responseFactory;
+    private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
     private final HttpAsyncRequestHandlerMapper handlerMapper;
     private final HttpAsyncExpectationVerifier expectationVerifier;
     private final ExceptionLogger exceptionLogger;
@@ -133,7 +133,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     public HttpAsyncService(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final HttpAsyncRequestHandlerMapper handlerMapper,
             final HttpAsyncExpectationVerifier expectationVerifier) {
         this(httpProcessor, connStrategy, responseFactory, handlerMapper, expectationVerifier, null);
@@ -159,7 +159,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     public HttpAsyncService(
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connStrategy,
-            final HttpResponseFactory responseFactory,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final HttpAsyncRequestHandlerMapper handlerMapper,
             final HttpAsyncExpectationVerifier expectationVerifier,
             final ExceptionLogger exceptionLogger) {
@@ -251,10 +251,10 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         } else {
             try {
                 final Incoming incoming = state.getIncoming();
-                final HttpRequest request = incoming != null ? incoming.getRequest() : null;
+                final ClassicHttpRequest request = incoming != null ? incoming.getRequest() : null;
                 final HttpContext context = incoming != null ? incoming.getContext() : new BasicHttpContext();
                 final HttpAsyncResponseProducer responseProducer = handleException(cause, context);
-                final HttpResponse response = responseProducer.generateResponse();
+                final ClassicHttpResponse response = responseProducer.generateResponse();
                 final Outgoing outgoing = new Outgoing(request, response, responseProducer, context);
                 state.setResponseState(MessageState.INIT);
                 state.setOutgoing(outgoing);
@@ -278,7 +278,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         Asserts.check(state.getRequestState() == MessageState.READY,
                 "Unexpected request state %s", state.getRequestState());
 
-        final HttpRequest request = conn.getHttpRequest();
+        final ClassicHttpRequest request = conn.getHttpRequest();
         final HttpContext context = new BasicHttpContext();
 
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
@@ -306,7 +306,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                         && state.getRequestQueue().isEmpty()
                         && !conn.isDataAvailable()) {
 
-                final HttpResponse ack = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
+                final ClassicHttpResponse ack = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
                 if (this.expectationVerifier != null) {
                     final HttpAsyncExchange httpAsyncExchange = new HttpAsyncExchangeImpl(
                             incoming, request, ack, state, conn, context);
@@ -381,14 +381,14 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 conn.suspendOutput();
                 return;
             }
-            final HttpRequest request = pipelineEntry.getRequest();
+            final ClassicHttpRequest request = pipelineEntry.getRequest();
             final HttpContext context = pipelineEntry.getContext();
             final Object requestResult = pipelineEntry.getResult();
 
             state.setResponseState(MessageState.INIT);
             if (requestResult != null) {
                 final HttpAsyncRequestHandler<Object> handler = pipelineEntry.getHandler();
-                final HttpResponse response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
+                final ClassicHttpResponse response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
                 final HttpAsyncExchangeImpl httpExchange = new HttpAsyncExchangeImpl(
                         null, request, response, state, conn, context);
                 conn.suspendOutput();
@@ -398,7 +398,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     throw ex;
                 } catch (final Exception ex) {
                     final HttpAsyncResponseProducer responseProducer = handleException(ex, context);
-                    final HttpResponse error = responseProducer.generateResponse();
+                    final ClassicHttpResponse error = responseProducer.generateResponse();
                     state.setOutgoing(new Outgoing(request, error, responseProducer, context));
                 }
             } else {
@@ -406,7 +406,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 final HttpAsyncResponseProducer responseProducer = handleException(
                         exception != null ? exception : new HttpException("Internal error processing request"),
                         context);
-                final HttpResponse error = responseProducer.generateResponse();
+                final ClassicHttpResponse error = responseProducer.generateResponse();
                 state.setOutgoing(new Outgoing(request, error, responseProducer, context));
             }
         }
@@ -419,7 +419,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     return;
                 }
             }
-            final HttpResponse response = outgoing.getResponse();
+            final ClassicHttpResponse response = outgoing.getResponse();
             final int status = response.getCode();
             if (status >= HttpStatus.SC_OK) {
                 commitFinalResponse(conn, state);
@@ -572,7 +572,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         if (message == null) {
             message = ex.toString();
         }
-        final HttpResponse response = this.responseFactory.newHttpResponse(code);
+        final ClassicHttpResponse response = this.responseFactory.newHttpResponse(code);
         return new ErrorResponseProducer(response,
                 new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
     }
@@ -605,7 +605,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         throw new IllegalStateException("Response already submitted");
     }
 
-    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+    private boolean canResponseHaveBody(final ClassicHttpRequest request, final ClassicHttpResponse response) {
         if (request != null && "HEAD".equalsIgnoreCase(request.getMethod())) {
             return false;
         }
@@ -638,8 +638,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final State state) throws IOException, HttpException {
         final Outgoing outgoing = state.getOutgoing();
         Asserts.notNull(outgoing, "Outgoing response");
-        final HttpRequest request = outgoing.getRequest();
-        final HttpResponse response = outgoing.getResponse();
+        final ClassicHttpRequest request = outgoing.getRequest();
+        final ClassicHttpResponse response = outgoing.getResponse();
         final HttpContext context = outgoing.getContext();
 
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
@@ -665,8 +665,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final NHttpServerConnection conn,
             final State state) throws IOException {
         final HttpContext context = outgoing.getContext();
-        final HttpRequest request = outgoing.getRequest();
-        final HttpResponse response = outgoing.getResponse();
+        final ClassicHttpRequest request = outgoing.getRequest();
+        final ClassicHttpResponse response = outgoing.getResponse();
         try (final HttpAsyncResponseProducer responseProducer = outgoing.getProducer()) {
             responseProducer.responseCompleted(context);
         }
@@ -681,7 +681,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private HttpAsyncRequestHandler<Object> getRequestHandler(final HttpRequest request, final HttpContext context) {
+    private HttpAsyncRequestHandler<Object> getRequestHandler(final ClassicHttpRequest request, final HttpContext context) {
         HttpAsyncRequestHandler<Object> handler = null;
         if (this.handlerMapper != null) {
             handler = (HttpAsyncRequestHandler<Object>) this.handlerMapper.lookup(request, context);
@@ -694,14 +694,14 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     static class Incoming {
 
-        private final HttpRequest request;
+        private final ClassicHttpRequest request;
         private final HttpAsyncRequestHandler<Object> handler;
         private final HttpAsyncRequestConsumer<Object> consumer;
         private final HttpContext context;
         private volatile boolean earlyResponse;
 
         Incoming(
-                final HttpRequest request,
+                final ClassicHttpRequest request,
                 final HttpAsyncRequestHandler<Object> handler,
                 final HttpAsyncRequestConsumer<Object> consumer,
                 final HttpContext context) {
@@ -711,7 +711,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             this.context = context;
         }
 
-        public HttpRequest getRequest() {
+        public ClassicHttpRequest getRequest() {
             return this.request;
         }
 
@@ -739,14 +739,14 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     static class Outgoing {
 
-        private final HttpRequest request;
-        private final HttpResponse response;
+        private final ClassicHttpRequest request;
+        private final ClassicHttpResponse response;
         private final HttpAsyncResponseProducer producer;
         private final HttpContext context;
 
         Outgoing(
-                final HttpRequest request,
-                final HttpResponse response,
+                final ClassicHttpRequest request,
+                final ClassicHttpResponse response,
                 final HttpAsyncResponseProducer producer,
                 final HttpContext context) {
             this.request = request;
@@ -755,11 +755,11 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             this.context = context;
         }
 
-        public HttpRequest getRequest() {
+        public ClassicHttpRequest getRequest() {
             return this.request;
         }
 
-        public HttpResponse getResponse() {
+        public ClassicHttpResponse getResponse() {
             return this.response;
         }
 
@@ -774,14 +774,14 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     static class PipelineEntry {
 
-        private final HttpRequest request;
+        private final ClassicHttpRequest request;
         private final Object result;
         private final Exception exception;
         private final HttpAsyncRequestHandler<Object> handler;
         private final HttpContext context;
 
         PipelineEntry(
-                final HttpRequest request,
+                final ClassicHttpRequest request,
                 final Object result,
                 final Exception exception,
                 final HttpAsyncRequestHandler<Object> handler,
@@ -793,7 +793,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             this.context = context;
         }
 
-        public HttpRequest getRequest() {
+        public ClassicHttpRequest getRequest() {
             return this.request;
         }
 
@@ -911,16 +911,16 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
         private final AtomicBoolean completed = new AtomicBoolean();
         private final Incoming incoming;
-        private final HttpRequest request;
-        private final HttpResponse response;
+        private final ClassicHttpRequest request;
+        private final ClassicHttpResponse response;
         private final State state;
         private final NHttpServerConnection conn;
         private final HttpContext context;
 
         public HttpAsyncExchangeImpl(
                 final Incoming incoming,
-                final HttpRequest request,
-                final HttpResponse response,
+                final ClassicHttpRequest request,
+                final ClassicHttpResponse response,
                 final State state,
                 final NHttpServerConnection conn,
                 final HttpContext context) {
@@ -934,8 +934,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
 
         public HttpAsyncExchangeImpl(
-                final HttpRequest request,
-                final HttpResponse response,
+                final ClassicHttpRequest request,
+                final ClassicHttpResponse response,
                 final State state,
                 final NHttpServerConnection conn,
                 final HttpContext context) {
@@ -943,12 +943,12 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
 
         @Override
-        public HttpRequest getRequest() {
+        public ClassicHttpRequest getRequest() {
             return this.request;
         }
 
         @Override
-        public HttpResponse getResponse() {
+        public ClassicHttpResponse getResponse() {
             return this.response;
         }
 
@@ -969,7 +969,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             if (this.completed.getAndSet(true)) {
                 handleAlreadySubmittedResponse(responseProducer, this.context);
             } else if (!this.state.isTerminated()) {
-                final HttpResponse response = responseProducer.generateResponse();
+                final ClassicHttpResponse response = responseProducer.generateResponse();
                 final Outgoing outgoing = new Outgoing(this.request, response, responseProducer, this.context);
 
                 // If there is an incoming request associated with the exchange

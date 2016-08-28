@@ -28,8 +28,8 @@
 package org.apache.hc.core5.http.protocol;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 
 /**
  * Defines an interface to verify whether an incoming HTTP request meets
@@ -55,7 +55,7 @@ public interface HttpExpectationVerifier {
      * @param context the HTTP context.
      * @throws HttpException in case of an HTTP protocol violation.
      */
-    void verify(HttpRequest request, HttpResponse response, HttpContext context)
+    void verify(ClassicHttpRequest request, ClassicHttpResponse response, HttpContext context)
             throws HttpException;
 
 }

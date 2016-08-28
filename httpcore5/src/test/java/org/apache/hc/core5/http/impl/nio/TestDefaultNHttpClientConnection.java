@@ -35,10 +35,10 @@ import java.util.LinkedList;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.StringEntity;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -77,7 +77,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testSubmitRequest() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         conn.submitRequest(request);
 
         Assert.assertNull(conn.getHttpRequest());
@@ -88,7 +88,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testSubmitEntityEnclosingRequest() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setEntity(new StringEntity("stuff"));
 
@@ -108,7 +108,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testOutputReset() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         request.setEntity(new StringEntity("stuff"));
 
@@ -127,9 +127,9 @@ public class TestDefaultNHttpClientConnection {
 
     static class RequestReadyAnswer implements Answer<Void> {
 
-        private final HttpRequest request;
+        private final ClassicHttpRequest request;
 
-        RequestReadyAnswer(final HttpRequest request) {
+        RequestReadyAnswer(final ClassicHttpRequest request) {
             super();
             this.request = request;
         }
@@ -164,7 +164,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputShortMessageAfterSubmit() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -190,7 +190,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputLongMessageAfterSubmit() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "22");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         request.setEntity(entity);
@@ -216,7 +216,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputShortMessage() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -242,7 +242,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputLongMessage() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "22");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         request.setEntity(entity);
@@ -269,7 +269,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputLongMessageSaturatedChannel() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "22");
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         request.setEntity(entity);
@@ -297,7 +297,7 @@ public class TestDefaultNHttpClientConnection {
     @Test
     public void testProduceOutputLongMessageSaturatedChannel2() throws Exception {
         conn = new DefaultNHttpClientConnection(session, 24);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "45");
         final NStringEntity entity = new NStringEntity("a loooooooooooooooooooooooot of various stuff");
         request.setEntity(entity);
@@ -326,7 +326,7 @@ public class TestDefaultNHttpClientConnection {
     public void testProduceOutputLongChunkedMessage() throws Exception {
         conn = new DefaultNHttpClientConnection(session, 64);
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
@@ -356,7 +356,7 @@ public class TestDefaultNHttpClientConnection {
     public void testProduceOutputLongChunkedMessageSaturatedChannel() throws Exception {
         conn = new DefaultNHttpClientConnection(session, 64);
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("a lot of various stuff");
         entity.setChunked(true);
@@ -386,7 +386,7 @@ public class TestDefaultNHttpClientConnection {
 
     @Test
     public void testProduceOutputClosingConnection() throws Exception {
-        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         final WritableByteChannelMock wchannel = Mockito.spy(new WritableByteChannelMock(64));
         final ByteChannelMock channel = new ByteChannelMock(null, wchannel);
@@ -412,9 +412,9 @@ public class TestDefaultNHttpClientConnection {
 
     static class ResponseCapturingAnswer implements Answer<Void> {
 
-        private final LinkedList<HttpResponse> responses;
+        private final LinkedList<ClassicHttpResponse> responses;
 
-        ResponseCapturingAnswer(final LinkedList<HttpResponse> responses) {
+        ResponseCapturingAnswer(final LinkedList<ClassicHttpResponse> responses) {
             super();
             this.responses = responses;
         }
@@ -424,7 +424,7 @@ public class TestDefaultNHttpClientConnection {
             final Object[] args = invocation.getArguments();
             final NHttpClientConnection conn = (NHttpClientConnection) args[0];
             if (conn != null) {
-                final HttpResponse response = conn.getHttpResponse();
+                final ClassicHttpResponse response = conn.getHttpResponse();
                 if (response != null) {
                     responses.add(response);
                 }
@@ -461,7 +461,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<>();
+        final LinkedList<ClassicHttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Matchers.<NHttpClientConnection>any());
@@ -486,7 +486,7 @@ public class TestDefaultNHttpClientConnection {
             Matchers.<NHttpClientConnection>any(), Matchers.<Exception>any());
 
         Assert.assertFalse(responses.isEmpty());
-        final HttpResponse response = responses.getFirst();
+        final ClassicHttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("OK", response.getReasonPhrase());
@@ -505,7 +505,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<>();
+        final LinkedList<ClassicHttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Matchers.<NHttpClientConnection>any());
@@ -530,7 +530,7 @@ public class TestDefaultNHttpClientConnection {
             Matchers.<NHttpClientConnection>any(), Matchers.<Exception>any());
 
         Assert.assertFalse(responses.isEmpty());
-        final HttpResponse response = responses.getFirst();
+        final ClassicHttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getCode());
         Assert.assertEquals("OK", response.getReasonPhrase());
@@ -556,7 +556,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<>();
+        final LinkedList<ClassicHttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Matchers.<NHttpClientConnection>any());
@@ -577,7 +577,7 @@ public class TestDefaultNHttpClientConnection {
             Matchers.<NHttpClientConnection>any(), Matchers.<Exception>any());
 
         Assert.assertFalse(responses.isEmpty());
-        final HttpResponse response = responses.getFirst();
+        final ClassicHttpResponse response = responses.getFirst();
         Assert.assertNotNull(response);
         Assert.assertEquals(100, response.getCode());
         final HttpEntity entity = response.getEntity();
@@ -593,7 +593,7 @@ public class TestDefaultNHttpClientConnection {
         Mockito.when(session.channel()).thenReturn(channel);
         Mockito.when(session.getEventMask()).thenReturn(SelectionKey.OP_READ);
 
-        final LinkedList<HttpResponse> responses = new LinkedList<>();
+        final LinkedList<ClassicHttpResponse> responses = new LinkedList<>();
 
         Mockito.doAnswer(new ResponseCapturingAnswer(responses)).when(
             handler).responseReceived(Matchers.<NHttpClientConnection>any());

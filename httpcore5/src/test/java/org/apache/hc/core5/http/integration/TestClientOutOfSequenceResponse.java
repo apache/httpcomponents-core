@@ -35,11 +35,11 @@ import java.util.concurrent.Future;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.impl.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
@@ -99,10 +99,10 @@ public class TestClientOutOfSequenceResponse {
 
         client.start();
         final HttpHost target = new HttpHost("localhost", server.getLocalPort());
-        final HttpRequest get1 = new BasicHttpRequest("GET", "/");
-        final Future<HttpResponse> future1 = client.execute(target, get1);
-        final HttpRequest get2 = new BasicHttpRequest("GET", "/");
-        final Future<HttpResponse> future2 = client.execute(target, get2);
+        final ClassicHttpRequest get1 = new BasicClassicHttpRequest("GET", "/");
+        final Future<ClassicHttpResponse> future1 = client.execute(target, get1);
+        final ClassicHttpRequest get2 = new BasicClassicHttpRequest("GET", "/");
+        final Future<ClassicHttpResponse> future2 = client.execute(target, get2);
 
         final Socket socket = server.accept();
         Thread.sleep(100);
@@ -114,11 +114,11 @@ public class TestClientOutOfSequenceResponse {
             socket.getOutputStream().flush();
         }
 
-        final HttpResponse response1 = future1.get();
+        final ClassicHttpResponse response1 = future1.get();
         Assert.assertEquals(200, response1.getCode());
 
         try {
-            final HttpResponse response2 = future2.get();
+            final ClassicHttpResponse response2 = future2.get();
             Assert.assertEquals(200, response2.getCode());
         } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof HttpException);

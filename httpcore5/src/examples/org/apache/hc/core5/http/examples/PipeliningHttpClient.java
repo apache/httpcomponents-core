@@ -34,14 +34,14 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseConsumer;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequester;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.pool.nio.BasicNIOConnPool;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -115,9 +115,9 @@ public class PipeliningHttpClient {
 
         final HttpHost target = new HttpHost("www.apache.org");
         List<BasicAsyncRequestProducer> requestProducers = Arrays.asList(
-                new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/index.html")),
-                new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/foundation/index.html")),
-                new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/foundation/how-it-works.html"))
+                new BasicAsyncRequestProducer(target, new BasicClassicHttpRequest("GET", "/index.html")),
+                new BasicAsyncRequestProducer(target, new BasicClassicHttpRequest("GET", "/foundation/index.html")),
+                new BasicAsyncRequestProducer(target, new BasicClassicHttpRequest("GET", "/foundation/how-it-works.html"))
         );
         List<BasicAsyncResponseConsumer> responseConsumers = Arrays.asList(
                 new BasicAsyncResponseConsumer(),
@@ -130,12 +130,12 @@ public class PipeliningHttpClient {
         HttpCoreContext context = HttpCoreContext.create();
         requester.executePipelined(
                 target, requestProducers, responseConsumers, pool, context,
-                new FutureCallback<List<HttpResponse>>() {
+                new FutureCallback<List<ClassicHttpResponse>>() {
 
                     @Override
-                    public void completed(final List<HttpResponse> result) {
+                    public void completed(final List<ClassicHttpResponse> result) {
                         latch.countDown();
-                        for (HttpResponse response: result) {
+                        for (ClassicHttpResponse response: result) {
                             System.out.println(target + "->" + response.getCode());
                         }
                     }

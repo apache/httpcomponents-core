@@ -40,11 +40,11 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.nio.NHttpConnection;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -121,8 +121,8 @@ public class TestCustomSSL extends HttpCoreNIOTestBase {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 final NHttpConnection conn = (NHttpConnection) context.getAttribute(
                         HttpCoreContext.HTTP_CONNECTION);
@@ -143,9 +143,9 @@ public class TestCustomSSL extends HttpCoreNIOTestBase {
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
 
         final HttpHost target = new HttpHost("localhost", address.getPort());
-        final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-        final Future<HttpResponse> future = this.client.execute(target, request);
-        final HttpResponse response = future.get();
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
+        final Future<ClassicHttpResponse> future = this.client.execute(target, request);
+        final ClassicHttpResponse response = future.get();
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getCode());
     }

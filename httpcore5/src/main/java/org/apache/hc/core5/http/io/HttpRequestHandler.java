@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.io;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -57,7 +57,7 @@ public interface HttpRequestHandler {
      * @throws HttpException in case of HTTP protocol violation or a processing
      *   problem.
      */
-    void handle(HttpRequest request, HttpResponse response, HttpContext context)
+    void handle(ClassicHttpRequest request, ClassicHttpResponse response, HttpContext context)
             throws HttpException, IOException;
 
 }

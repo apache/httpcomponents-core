@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.message.LineFormatter;
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultHttpResponseWriterFactory implements HttpMessageWriterFactory<HttpResponse> {
+public class DefaultHttpResponseWriterFactory implements HttpMessageWriterFactory<ClassicHttpResponse> {
 
     public static final DefaultHttpResponseWriterFactory INSTANCE = new DefaultHttpResponseWriterFactory();
 
@@ -57,7 +57,7 @@ public class DefaultHttpResponseWriterFactory implements HttpMessageWriterFactor
     }
 
     @Override
-    public HttpMessageWriter<HttpResponse> create() {
+    public HttpMessageWriter<ClassicHttpResponse> create() {
         return new DefaultHttpResponseWriter(this.lineFormatter);
     }
 

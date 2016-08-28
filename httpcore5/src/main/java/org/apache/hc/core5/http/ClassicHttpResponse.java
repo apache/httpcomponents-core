@@ -25,29 +25,30 @@
  *
  */
 
-package org.apache.hc.core5.http.io;
-
-import java.io.IOException;
-import java.io.OutputStream;
-
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHeaders;
+package org.apache.hc.core5.http;
 
 /**
- * Message writer intended to serialize HTTP message head to an output stream.
+ * 'Classic' {@link HttpResponse} message that can enclose {@link HttpEntity}.
  *
- * @since 4.0
+ * @since 5.0
  */
-public interface HttpMessageWriter<T extends MessageHeaders> {
+public interface ClassicHttpResponse extends HttpResponse {
 
     /**
-     * Serializes an instance of {@link MessageHeaders} to the given output stream.
+     * Obtains the message entity, if available.
      *
-     * @param message HTTP message head
-     * @param buffer session output buffer
-     * @throws IOException in case of an I/O error
-     * @throws HttpException in case of HTTP protocol violation
+     * @return  the message entity, or {@code null} if not available
      */
-    void write(T message, SessionOutputBuffer buffer, OutputStream outputStream) throws IOException, HttpException;
+    HttpEntity getEntity();
+
+    /**
+     * Sets an entity for this message.
+     * <p>
+     * Please note that if an entity has already been set it is responsibility of the caller
+     * to ensure release of the resources that may be associated with that entity.
+     *
+     * @param entity    the entity to set of this message, or {@code null} to unset
+     */
+    void setEntity(HttpEntity entity);
 
 }

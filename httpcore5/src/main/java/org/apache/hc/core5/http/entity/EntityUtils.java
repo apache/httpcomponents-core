@@ -37,7 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
@@ -102,7 +102,7 @@ public final class EntityUtils {
      * @since 4.3
      */
     public static void updateEntity(
-            final HttpResponse response, final HttpEntity entity) throws IOException {
+            final ClassicHttpResponse response, final HttpEntity entity) throws IOException {
         Args.notNull(response, "Response");
         consume(response.getEntity());
         response.setEntity(entity);

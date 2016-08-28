@@ -30,7 +30,7 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestProducer;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -52,7 +52,7 @@ import org.apache.hc.core5.util.Args;
 public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
 
     private final HttpHost target;
-    private final HttpRequest request;
+    private final ClassicHttpRequest request;
     private final HttpAsyncContentProducer producer;
 
     /**
@@ -68,7 +68,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
      */
     protected BasicAsyncRequestProducer(
             final HttpHost target,
-            final HttpRequest request,
+            final ClassicHttpRequest request,
             final HttpAsyncContentProducer producer) {
         super();
         Args.notNull(target, "HTTP host");
@@ -87,7 +87,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
      * @param target target host.
      * @param request request message.
      */
-    public BasicAsyncRequestProducer(final HttpHost target, final HttpRequest request) {
+    public BasicAsyncRequestProducer(final HttpHost target, final ClassicHttpRequest request) {
         Args.notNull(target, "HTTP host");
         Args.notNull(request, "HTTP request");
         this.target = target;
@@ -105,7 +105,7 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
     }
 
     @Override
-    public HttpRequest generateRequest() {
+    public ClassicHttpRequest generateRequest() {
         return this.request;
     }
 

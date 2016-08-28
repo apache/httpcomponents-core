@@ -32,12 +32,12 @@ import java.io.IOException;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.HttpClientConnection;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.junit.Assert;
@@ -49,8 +49,8 @@ public class TestHttpRequestExecutor {
     @Test
     public void testInvalidInput() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
-        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         try {
@@ -118,15 +118,15 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         executor.preProcess(request, httprocessor, context);
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(200, "OK"));
+                new BasicClassicHttpResponse(200, "OK"));
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).flush();
         Mockito.verify(conn).receiveResponseHeader();
@@ -147,18 +147,18 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         executor.preProcess(request, httprocessor, context);
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(100, "OK"),
-                new BasicHttpResponse(101, "OK"),
-                new BasicHttpResponse(102, "OK"),
-                new BasicHttpResponse(200, "OK"));
+                new BasicClassicHttpResponse(100, "OK"),
+                new BasicClassicHttpResponse(101, "OK"),
+                new BasicClassicHttpResponse(102, "OK"),
+                new BasicClassicHttpResponse(200, "OK"));
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.times(4)).receiveResponseHeader();
@@ -179,15 +179,15 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         executor.preProcess(request, httprocessor, context);
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(204, "OK"));
+                new BasicClassicHttpResponse(204, "OK"));
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).flush();
         Mockito.verify(conn).receiveResponseHeader();
@@ -204,15 +204,15 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("HEAD", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("HEAD", "/");
 
         executor.preProcess(request, httprocessor, context);
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(200, "OK"));
+                new BasicClassicHttpResponse(200, "OK"));
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).flush();
         Mockito.verify(conn).receiveResponseHeader();
@@ -229,7 +229,7 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
 
@@ -237,9 +237,9 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(200, "OK"));
+                new BasicClassicHttpResponse(200, "OK"));
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn).flush();
@@ -257,7 +257,7 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
@@ -266,11 +266,11 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(100, "Continue"),
-                new BasicHttpResponse(200, "OK"));
+                new BasicClassicHttpResponse(100, "Continue"),
+                new BasicClassicHttpResponse(200, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
@@ -289,7 +289,7 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
@@ -298,10 +298,10 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(402, "OK"));
+                new BasicClassicHttpResponse(402, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn, Mockito.never()).sendRequestEntity(request);
         Mockito.verify(conn).terminateRequest(request);
@@ -321,7 +321,7 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
@@ -330,7 +330,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(101, "OK"));
+                new BasicClassicHttpResponse(101, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
         try {
@@ -348,7 +348,7 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("POST", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final HttpEntity entity = Mockito.mock(HttpEntity.class);
         request.setEntity(entity);
@@ -357,10 +357,10 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicHttpResponse(200, "OK"));
+                new BasicClassicHttpResponse(200, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.FALSE);
 
-        final HttpResponse response = executor.execute(request, conn, context);
+        final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
@@ -378,7 +378,7 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         Mockito.doThrow(new IOException("Oopsie")).when(conn).sendRequestHeader(request);
         try {
@@ -395,7 +395,7 @@ public class TestHttpRequestExecutor {
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         Mockito.doThrow(new RuntimeException("Oopsie")).when(conn).receiveResponseHeader();
         try {

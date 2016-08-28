@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.NoHttpResponseException;
@@ -48,9 +48,9 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.2
  */
-public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
+public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttpResponse> {
 
-    private final HttpResponseFactory responseFactory;
+    private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
 
     /**
      * Creates new instance of DefaultHttpResponseParser.
@@ -66,7 +66,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      */
     public DefaultHttpResponseParser(
             final LineParser lineParser,
-            final HttpResponseFactory responseFactory,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final MessageConstraints constraints) {
         super(lineParser, constraints);
         this.responseFactory = responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE;
@@ -92,7 +92,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     }
 
     @Override
-    protected HttpResponse createMessage(final CharArrayBuffer buffer) throws IOException, HttpException {
+    protected ClassicHttpResponse createMessage(final CharArrayBuffer buffer) throws IOException, HttpException {
         final StatusLine statusline = getLineParser().parseStatusLine(buffer);
         final ProtocolVersion transportVersion = statusline.getProtocolVersion();
         if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {

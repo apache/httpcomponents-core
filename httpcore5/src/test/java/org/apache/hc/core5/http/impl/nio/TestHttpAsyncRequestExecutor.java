@@ -35,11 +35,11 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor.State;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncClientExchangeHandler;
@@ -83,7 +83,7 @@ public class TestHttpAsyncRequestExecutor {
 
     @Test
     public void testConnected() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
 
@@ -170,7 +170,7 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         Mockito.when(this.exchangeHandler.generateRequest()).thenReturn(request);
 
         this.protocolHandler.requestReady(this.conn);
@@ -195,7 +195,7 @@ public class TestHttpAsyncRequestExecutor {
         Mockito.verify(this.exchangeHandler).generateRequest();
         Assert.assertNull(state.getRequest());
 
-        Mockito.verify(this.conn, Mockito.never()).submitRequest(Matchers.<HttpRequest>any());
+        Mockito.verify(this.conn, Mockito.never()).submitRequest(Matchers.<ClassicHttpRequest>any());
     }
 
     @Test
@@ -203,7 +203,7 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -223,7 +223,7 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -289,7 +289,7 @@ public class TestHttpAsyncRequestExecutor {
     public void testRequestChunkCodedContentEarlyResponse() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -315,7 +315,7 @@ public class TestHttpAsyncRequestExecutor {
     public void testRequestContentLengthEarlyResponse() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -342,7 +342,7 @@ public class TestHttpAsyncRequestExecutor {
     public void testRequestContentLengthCompletedEarlyResponse() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
@@ -368,13 +368,13 @@ public class TestHttpAsyncRequestExecutor {
     public void testRequestChunkCodedContentEarlyResponseCompletedHandlerDone() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         state.setRequestState(MessageState.BODY_STREAM);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         state.setResponseState(MessageState.COMPLETED);
         state.setEarlyResponse(true);
@@ -403,13 +403,13 @@ public class TestHttpAsyncRequestExecutor {
     public void testRequestContentLengthEarlyResponseCompletedHandlerDone() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         state.setRequestState(MessageState.BODY_STREAM);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         state.setResponseState(MessageState.COMPLETED);
         state.setEarlyResponse(true);
@@ -438,13 +438,13 @@ public class TestHttpAsyncRequestExecutor {
     public void testRequestChunkCodedContentEarlyResponseCompletedHandlerNotDone() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
 
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         state.setRequestState(MessageState.BODY_STREAM);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         state.setResponseState(MessageState.COMPLETED);
         state.setEarlyResponse(true);
@@ -474,11 +474,11 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testBasicResponse() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
         this.protocolHandler.responseReceived(this.conn);
@@ -492,14 +492,14 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(100, "Continue");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(100, "Continue");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
         this.protocolHandler.responseReceived(this.conn);
@@ -515,14 +515,14 @@ public class TestHttpAsyncRequestExecutor {
     public void testResponseContinueOutOfSequence() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
         state.setRequestState(MessageState.COMPLETED);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(100, "Continue");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(100, "Continue");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
         this.protocolHandler.responseReceived(this.conn);
@@ -537,14 +537,14 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(111, "WTF?");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(111, "WTF?");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
         this.protocolHandler.responseReceived(this.conn);
@@ -555,14 +555,14 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         state.setRequestState(MessageState.ACK_EXPECTED);
         state.setTimeout(1000);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(403, "Unauthorized");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(403, "Unauthorized");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
         this.protocolHandler.responseReceived(this.conn);
@@ -578,14 +578,14 @@ public class TestHttpAsyncRequestExecutor {
         final State state = new HttpAsyncRequestExecutor.State();
         state.setRequestState(MessageState.BODY_STREAM);
         state.setTimeout(1000);
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(403, "Unauthorized");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(403, "Unauthorized");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
 
         this.protocolHandler.responseReceived(this.conn);
@@ -601,11 +601,11 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseToHead() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("HEAD", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("HEAD", "/");
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.when(this.connectionReuseStrategy.keepAlive(Mockito.same(request), Mockito.same(response),
                 Mockito.<HttpContext>any())).thenReturn(Boolean.TRUE);
@@ -624,11 +624,11 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseToConnect() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("Connect", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("Connect", "/");
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.when(this.connectionReuseStrategy.keepAlive(Mockito.same(request), Mockito.same(response),
                 Mockito.<HttpContext>any())).thenReturn(Boolean.TRUE);
@@ -647,11 +647,11 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseNotModified() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         state.setRequest(request);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
-        final BasicHttpResponse response = new BasicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not modified");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not modified");
         Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
         Mockito.when(this.connectionReuseStrategy.keepAlive(Mockito.same(request), Mockito.same(response),
                 Mockito.<HttpContext>any())).thenReturn(Boolean.TRUE);
@@ -670,14 +670,14 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseNotModifiedEarlyResponseRequestNotCompleted() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         state.setRequestState(MessageState.BODY_STREAM);
         state.setEarlyResponse(true);
-        final BasicHttpResponse response = new BasicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not modified");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not modified");
         state.setResponse(response);
 
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -700,14 +700,14 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseNotModifiedEarlyResponseRequestCompleted() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         state.setRequestState(MessageState.COMPLETED);
         state.setEarlyResponse(true);
-        final BasicHttpResponse response = new BasicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not modified");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not modified");
         state.setResponse(response);
 
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -746,10 +746,10 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseContentOutputCompleted() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         state.setRequest(request);
         state.setResponseState(MessageState.BODY_STREAM);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.TRUE);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -771,9 +771,9 @@ public class TestHttpAsyncRequestExecutor {
     public void testResponseContentOutputCompletedHandlerNotDone() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
         state.setResponseState(MessageState.BODY_STREAM);
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         state.setRequest(request);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.FALSE);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -793,10 +793,10 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseContentOutputCompletedHandlerNotDoneConnClosed() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         state.setRequest(request);
         state.setResponseState(MessageState.BODY_STREAM);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         Mockito.when(this.exchangeHandler.isDone()).thenReturn(Boolean.FALSE);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -816,10 +816,10 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseInvalidState() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         state.setRequest(request);
         state.setResponseState(MessageState.BODY_STREAM);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         state.invalidate();
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
@@ -837,14 +837,14 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseContentOutputCompletedEarlyResponseRequestCompleted() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         state.setRequestState(MessageState.COMPLETED);
         state.setEarlyResponse(true);
-        final BasicHttpResponse response = new BasicHttpResponse(407, "Expectation failed");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(407, "Expectation failed");
         state.setResponse(response);
         state.setResponseState(MessageState.BODY_STREAM);
 
@@ -870,14 +870,14 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testResponseContentOutputCompletedEarlyResponseRequestNotCompleted() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final BasicHttpRequest request = new BasicHttpRequest("POST", "/");
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         final NStringEntity entity = new NStringEntity("stuff");
         request.setEntity(entity);
         state.setRequest(request);
         state.setRequestState(MessageState.BODY_STREAM);
         state.setEarlyResponse(true);
-        final BasicHttpResponse response = new BasicHttpResponse(407, "Expectation failed");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(407, "Expectation failed");
         state.setResponse(response);
         state.setResponseState(MessageState.BODY_STREAM);
 
@@ -1024,9 +1024,9 @@ public class TestHttpAsyncRequestExecutor {
     @Test
     public void testExchangeDone() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         state.setRequest(request);
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         state.setResponse(response);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
         this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);

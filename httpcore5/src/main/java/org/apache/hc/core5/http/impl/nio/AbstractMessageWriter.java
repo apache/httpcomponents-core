@@ -47,7 +47,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public abstract class AbstractMessageWriter<T extends HttpMessage<?>> implements NHttpMessageWriter<T> {
+public abstract class AbstractMessageWriter<T extends HttpMessage> implements NHttpMessageWriter<T> {
 
     private final CharArrayBuffer lineBuf;
     private final LineFormatter lineFormatter;

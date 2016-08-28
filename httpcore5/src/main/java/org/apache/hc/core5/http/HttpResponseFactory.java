@@ -28,11 +28,11 @@
 package org.apache.hc.core5.http;
 
 /**
- * A factory for {@link HttpResponse HttpResponse} objects.
+ * A factory for {@link HttpResponse} objects.
  *
  * @since 4.0
  */
-public interface HttpResponseFactory {
+public interface HttpResponseFactory<T extends HttpResponse> {
 
     /**
      * Creates response message with the given code and reason phrase.
@@ -45,7 +45,7 @@ public interface HttpResponseFactory {
      *
      * @since 5.0
      */
-    HttpResponse newHttpResponse(ProtocolVersion transportVersion, int status, String reasonPhrase);
+    T newHttpResponse(ProtocolVersion transportVersion, int status, String reasonPhrase);
 
     /**
      * Creates a new response with the given code.
@@ -54,6 +54,6 @@ public interface HttpResponseFactory {
      *
      * @return  response message
      */
-    HttpResponse newHttpResponse(int status);
+    T newHttpResponse(int status);
 
 }

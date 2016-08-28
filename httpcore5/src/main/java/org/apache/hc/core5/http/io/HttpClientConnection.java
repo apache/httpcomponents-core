@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.io;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 
 /**
  * A client-side HTTP connection, which can be used for sending
@@ -47,7 +47,7 @@ public interface HttpClientConnection extends BHttpConnection {
      * @return  {@code true} if the connection is known to be
      * in a inconsistent state and cannot be re-used.
      *
-     * @see #terminateRequest(HttpRequest)
+     * @see #terminateRequest(ClassicHttpRequest)
      *
      * @since 5.0
      */
@@ -59,7 +59,7 @@ public interface HttpClientConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void sendRequestHeader(HttpRequest request)
+    void sendRequestHeader(ClassicHttpRequest request)
         throws HttpException, IOException;
 
     /**
@@ -74,7 +74,7 @@ public interface HttpClientConnection extends BHttpConnection {
      *
      * @since 5.0
      */
-    void terminateRequest(HttpRequest request)
+    void terminateRequest(ClassicHttpRequest request)
             throws HttpException, IOException;
 
     /**
@@ -83,7 +83,7 @@ public interface HttpClientConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void sendRequestEntity(HttpRequest request)
+    void sendRequestEntity(ClassicHttpRequest request)
         throws HttpException, IOException;
 
     /**
@@ -96,7 +96,7 @@ public interface HttpClientConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    HttpResponse receiveResponseHeader()
+    ClassicHttpResponse receiveResponseHeader()
         throws HttpException, IOException;
 
     /**
@@ -107,7 +107,7 @@ public interface HttpClientConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void receiveResponseEntity(HttpResponse response)
+    void receiveResponseEntity(ClassicHttpResponse response)
         throws HttpException, IOException;
 
 }

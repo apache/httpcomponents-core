@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -41,13 +41,13 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Default {@link org.apache.hc.core5.http.nio.NHttpMessageParser} implementation
- * for {@link HttpRequest}s.
+ * for {@link ClassicHttpRequest}s.
  *
  * @since 4.1
  */
-public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest> {
+public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpRequest> {
 
-    private final HttpRequestFactory requestFactory;
+    private final HttpRequestFactory<ClassicHttpRequest> requestFactory;
 
     /**
      * Creates an instance of DefaultHttpRequestParser.
@@ -63,7 +63,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
      */
     public DefaultHttpRequestParser(
             final LineParser parser,
-            final HttpRequestFactory requestFactory,
+            final HttpRequestFactory<ClassicHttpRequest> requestFactory,
             final MessageConstraints constraints) {
         super(parser, constraints);
         this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
@@ -84,7 +84,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<HttpRequest>
     }
 
     @Override
-    protected HttpRequest createMessage(final CharArrayBuffer buffer) throws HttpException {
+    protected ClassicHttpRequest createMessage(final CharArrayBuffer buffer) throws HttpException {
         final RequestLine requestLine = getLineParser().parseRequestLine(buffer);
         final ProtocolVersion transportVersion = requestLine.getProtocolVersion();
         if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {

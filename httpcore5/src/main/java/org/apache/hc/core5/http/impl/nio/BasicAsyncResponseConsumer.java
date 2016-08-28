@@ -30,7 +30,7 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.ContentTooLongException;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -46,9 +46,9 @@ import org.apache.hc.core5.util.HeapByteBufferAllocator;
  *
  * @since 4.2
  */
-public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<HttpResponse> {
+public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<ClassicHttpResponse> {
 
-    private volatile HttpResponse response;
+    private volatile ClassicHttpResponse response;
     private volatile SimpleInputBuffer buf;
 
     public BasicAsyncResponseConsumer() {
@@ -56,7 +56,7 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
     }
 
     @Override
-    protected void onResponseReceived(final HttpResponse response) throws IOException {
+    protected void onResponseReceived(final ClassicHttpResponse response) throws IOException {
         this.response = response;
     }
 
@@ -88,7 +88,7 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
     }
 
     @Override
-    protected HttpResponse buildResult(final HttpContext context) {
+    protected ClassicHttpResponse buildResult(final HttpContext context) {
         return this.response;
     }
 

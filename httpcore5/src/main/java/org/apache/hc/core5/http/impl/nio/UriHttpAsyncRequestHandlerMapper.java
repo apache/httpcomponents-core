@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestHandler;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestHandlerMapper;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -87,9 +87,9 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
     }
 
     /**
-     * Extracts request path from the given {@link HttpRequest}
+     * Extracts request path from the given {@link ClassicHttpRequest}
      */
-    protected String getRequestPath(final HttpRequest request) {
+    protected String getRequestPath(final ClassicHttpRequest request) {
         String uriPath = request.getPath();
         int index = uriPath.indexOf("?");
         if (index != -1) {
@@ -110,7 +110,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
      * @return handler or {@code null} if no match is found.
      */
     @Override
-    public HttpAsyncRequestHandler<?> lookup(final HttpRequest request, final HttpContext context) {
+    public HttpAsyncRequestHandler<?> lookup(final ClassicHttpRequest request, final HttpContext context) {
         return matcher.lookup(getRequestPath(request));
     }
 

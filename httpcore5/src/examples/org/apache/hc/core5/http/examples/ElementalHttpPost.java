@@ -34,8 +34,8 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
@@ -96,13 +96,13 @@ public class ElementalHttpPost {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket);
                 }
-                HttpRequest request = new BasicHttpRequest("POST", host,
+                ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host,
                         "/servlets-examples/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getUri());
 
                 httpexecutor.preProcess(request, httpproc, coreContext);
-                HttpResponse response = httpexecutor.execute(request, conn, coreContext);
+                ClassicHttpResponse response = httpexecutor.execute(request, conn, coreContext);
                 httpexecutor.postProcess(response, httpproc, coreContext);
 
                 System.out.println("<< Response: " + response.getCode());

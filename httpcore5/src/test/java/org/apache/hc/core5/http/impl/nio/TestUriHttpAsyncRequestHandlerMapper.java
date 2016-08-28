@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
@@ -59,7 +59,7 @@ public class TestUriHttpAsyncRequestHandlerMapper {
                 new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
         final UriHttpAsyncRequestHandlerMapper registry = new UriHttpAsyncRequestHandlerMapper(matcher);
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final HttpCoreContext context = HttpCoreContext.create();
         registry.lookup(request, context);
         registry.unregister("/h1");
@@ -95,15 +95,15 @@ public class TestUriHttpAsyncRequestHandlerMapper {
         HttpAsyncRequestHandler<?> h;
 
         final HttpCoreContext context = HttpCoreContext.create();
-        h = registry.lookup(new BasicHttpRequest("GET", "/that.view?param=value"), context);
+        h = registry.lookup(new BasicClassicHttpRequest("GET", "/that.view?param=value"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(h1 == h);
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/that.form?whatever"), context);
+        h = registry.lookup(new BasicClassicHttpRequest("GET", "/that.form?whatever"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(h2 == h);
 
-        h = registry.lookup(new BasicHttpRequest("GET", "/whatever"), context);
+        h = registry.lookup(new BasicClassicHttpRequest("GET", "/whatever"), context);
         Assert.assertNotNull(h);
         Assert.assertTrue(def == h);
     }

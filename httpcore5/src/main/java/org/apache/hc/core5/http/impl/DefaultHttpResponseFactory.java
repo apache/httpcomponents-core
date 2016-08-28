@@ -29,20 +29,20 @@ package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Default factory for creating {@link HttpResponse} objects.
+ * Default factory for creating {@link ClassicHttpResponse} objects.
  *
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultHttpResponseFactory implements HttpResponseFactory {
+public class DefaultHttpResponseFactory implements HttpResponseFactory<ClassicHttpResponse> {
 
     public static final DefaultHttpResponseFactory INSTANCE = new DefaultHttpResponseFactory();
 
@@ -66,8 +66,8 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
     }
 
     @Override
-    public HttpResponse newHttpResponse(final ProtocolVersion transportVersion, final int status, final String reasonPhrase) {
-        final HttpResponse response = new BasicHttpResponse(status, reasonPhrase);
+    public ClassicHttpResponse newHttpResponse(final ProtocolVersion transportVersion, final int status, final String reasonPhrase) {
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(status, reasonPhrase);
         response.setVersion(transportVersion);
         if (reasonPhrase != null) {
             response.setReasonPhrase(reasonPhrase);
@@ -76,8 +76,8 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory {
     }
 
     @Override
-    public HttpResponse newHttpResponse(final int status) {
-        return new BasicHttpResponse(status, this.reasonCatalog, null);
+    public ClassicHttpResponse newHttpResponse(final int status) {
+        return new BasicClassicHttpResponse(status, this.reasonCatalog, null);
     }
 
 }

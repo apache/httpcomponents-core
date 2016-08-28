@@ -31,15 +31,16 @@ import java.io.InterruptedIOException;
 import java.util.concurrent.CountDownLatch;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseConsumer;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequester;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.pool.nio.BasicNIOConnPool;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -117,7 +118,7 @@ public class NHttpClient {
         };
         final CountDownLatch latch = new CountDownLatch(targets.length);
         for (final HttpHost target: targets) {
-            BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+            ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
             HttpCoreContext coreContext = HttpCoreContext.create();
             requester.execute(
                     new BasicAsyncRequestProducer(target, request),
@@ -125,10 +126,10 @@ public class NHttpClient {
                     pool,
                     coreContext,
                     // Handle HTTP response from a callback
-                    new FutureCallback<HttpResponse>() {
+                    new FutureCallback<ClassicHttpResponse>() {
 
                 @Override
-                public void completed(final HttpResponse response) {
+                public void completed(final ClassicHttpResponse response) {
                     latch.countDown();
                     System.out.println(target + "->" + response.getCode());
                 }

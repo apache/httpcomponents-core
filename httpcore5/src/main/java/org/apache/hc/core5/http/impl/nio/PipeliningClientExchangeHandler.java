@@ -41,8 +41,8 @@ import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -69,7 +69,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     private final Queue<HttpAsyncRequestProducer> requestProducerQueue;
     private final Queue<HttpAsyncResponseConsumer<T>> responseConsumerQueue;
-    private final Queue<HttpRequest> requestQueue;
+    private final Queue<ClassicHttpRequest> requestQueue;
     private final Queue<T> resultQueue;
     private final BasicFuture<List<T>> future;
     private final HttpContext localContext;
@@ -176,14 +176,14 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     @Override
-    public HttpRequest generateRequest() throws IOException, HttpException {
+    public ClassicHttpRequest generateRequest() throws IOException, HttpException {
         Asserts.check(this.requestProducerRef.get() == null, "Inconsistent state: request producer is not null");
         final HttpAsyncRequestProducer requestProducer = this.requestProducerQueue.poll();
         if (requestProducer == null) {
             return null;
         }
         this.requestProducerRef.set(requestProducer);
-        final HttpRequest request = requestProducer.generateRequest();
+        final ClassicHttpRequest request = requestProducer.generateRequest();
         this.httppocessor.process(request, this.localContext);
         this.requestQueue.add(request);
         return request;
@@ -205,14 +205,14 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     @Override
-    public void responseReceived(final HttpResponse response) throws IOException, HttpException {
+    public void responseReceived(final ClassicHttpResponse response) throws IOException, HttpException {
         Asserts.check(this.responseConsumerRef.get() == null, "Inconsistent state: response consumer is not null");
 
         final HttpAsyncResponseConsumer<T> responseConsumer = this.responseConsumerQueue.poll();
         Asserts.check(responseConsumer != null, "Inconsistent state: response consumer queue is empty");
         this.responseConsumerRef.set(responseConsumer);
 
-        final HttpRequest request = this.requestQueue.poll();
+        final ClassicHttpRequest request = this.requestQueue.poll();
         Asserts.check(request != null, "Inconsistent state: request queue is empty");
 
         this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);

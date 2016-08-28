@@ -30,7 +30,7 @@ import java.io.Closeable;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -50,7 +50,7 @@ public interface HttpAsyncRequestConsumer<T> extends Closeable {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void requestReceived(HttpRequest request) throws HttpException, IOException;
+    void requestReceived(ClassicHttpRequest request) throws HttpException, IOException;
 
     /**
      * Invoked to process a chunk of content from the {@link ContentDecoder}.

@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -57,7 +57,7 @@ public class TestRequestParser {
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
-        final HttpRequest httprequest = parser.parse(inbuffer, inputStream);
+        final ClassicHttpRequest httprequest = parser.parse(inbuffer, inputStream);
 
         Assert.assertEquals("GET", httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
@@ -87,7 +87,7 @@ public class TestRequestParser {
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 MessageConstraints.custom().setMaxEmptyLineCount(3).build());
-        final HttpRequest httprequest = parser.parse(inbuffer, inputStream);
+        final ClassicHttpRequest httprequest = parser.parse(inbuffer, inputStream);
 
         Assert.assertEquals("GET", httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
@@ -127,7 +127,7 @@ public class TestRequestParser {
 
         int timeoutCount = 0;
 
-        HttpRequest httprequest = null;
+        ClassicHttpRequest httprequest = null;
         for (int i = 0; i < 10; i++) {
             try {
                 httprequest = parser.parse(inbuffer, inputStream);

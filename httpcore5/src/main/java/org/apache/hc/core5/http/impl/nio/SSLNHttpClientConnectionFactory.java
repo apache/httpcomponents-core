@@ -31,8 +31,8 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentLengthStrategy;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.impl.ConnSupport;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
@@ -59,8 +59,8 @@ public class SSLNHttpClientConnectionFactory
 
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-    private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
-    private final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
+    private final NHttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
+    private final NHttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
     private final ByteBufferAllocator allocator;
     private final SSLContext sslcontext;
     private final SSLSetupHandler sslHandler;
@@ -74,8 +74,8 @@ public class SSLNHttpClientConnectionFactory
             final SSLSetupHandler sslHandler,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
-            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
+            final NHttpMessageParserFactory<ClassicHttpResponse> responseParserFactory,
+            final NHttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig cconfig) {
         super();
@@ -95,8 +95,8 @@ public class SSLNHttpClientConnectionFactory
     public SSLNHttpClientConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
-            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
-            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
+            final NHttpMessageParserFactory<ClassicHttpResponse> responseParserFactory,
+            final NHttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig cconfig) {
         this(sslcontext, sslHandler,
@@ -109,8 +109,8 @@ public class SSLNHttpClientConnectionFactory
     public SSLNHttpClientConnectionFactory(
             final SSLContext sslcontext,
             final SSLSetupHandler sslHandler,
-            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
-            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
+            final NHttpMessageParserFactory<ClassicHttpResponse> responseParserFactory,
+            final NHttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final ConnectionConfig cconfig) {
         this(sslcontext, sslHandler,
                 null, null, responseParserFactory, requestWriterFactory, null, cconfig);

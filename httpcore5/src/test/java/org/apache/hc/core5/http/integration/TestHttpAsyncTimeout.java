@@ -37,11 +37,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseConsumer;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.testserver.nio.HttpCoreNIOTestBase;
@@ -109,7 +109,7 @@ public class TestHttpAsyncTimeout extends HttpCoreNIOTestBase {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
+        final FutureCallback<ClassicHttpResponse> callback = new FutureCallback<ClassicHttpResponse>() {
 
             @Override
             public void cancelled() {
@@ -122,13 +122,13 @@ public class TestHttpAsyncTimeout extends HttpCoreNIOTestBase {
             }
 
             @Override
-            public void completed(final HttpResponse response) {
+            public void completed(final ClassicHttpResponse response) {
                 Assert.fail();
             }
 
         };
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final HttpContext context = new BasicHttpContext();
         this.client.execute(
                 new BasicAsyncRequestProducer(target, request),

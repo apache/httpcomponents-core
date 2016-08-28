@@ -36,11 +36,11 @@ import java.util.concurrent.Future;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncExpectationVerifier;
 import org.apache.hc.core5.http.nio.entity.NStringEntity;
@@ -144,22 +144,22 @@ public class TestHttpAsyncHandlersBrokenExpectContinue extends HttpCoreNIOTestBa
 
         for (int i = 0; i < 2; i++) {
 
-            final BasicHttpRequest request1 = new BasicHttpRequest("POST", createRequestUri("AAAAA", 10));
+            final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest("POST", createRequestUri("AAAAA", 10));
             final HttpEntity entity1 = new NStringEntity(createExpectedString("AAAAA", 1000));
             request1.setEntity(entity1);
 
             final HttpContext context = new BasicHttpContext();
-            final Future<HttpResponse> future1 = this.client.execute(target, request1, context);
-            final HttpResponse response1 = future1.get();
+            final Future<ClassicHttpResponse> future1 = this.client.execute(target, request1, context);
+            final ClassicHttpResponse response1 = future1.get();
             Assert.assertEquals(HttpStatus.SC_OK, response1.getCode());
 
-            final BasicHttpRequest request2 = new BasicHttpRequest("POST", createRequestUri("BBBBB", 10));
+            final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest("POST", createRequestUri("BBBBB", 10));
             final NStringEntity entity2 = new NStringEntity(createExpectedString("BBBBB", 1000));
             entity2.setChunked(true);
             request2.setEntity(entity2);
 
-            final Future<HttpResponse> future2 = this.client.execute(target, request2, context);
-            final HttpResponse response2 = future2.get();
+            final Future<ClassicHttpResponse> future2 = this.client.execute(target, request2, context);
+            final ClassicHttpResponse response2 = future2.get();
             Assert.assertEquals(HttpStatus.SC_OK, response2.getCode());
         }
     }

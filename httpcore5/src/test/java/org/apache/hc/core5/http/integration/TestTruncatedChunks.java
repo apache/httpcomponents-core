@@ -38,7 +38,7 @@ import java.util.concurrent.Future;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.TrailerSupplier;
@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestHandler;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.hc.core5.http.impl.nio.SimpleInputBuffer;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -181,8 +181,8 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         final int count = RndTestPatternGenerator.generateCount(1000);
 
         final HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
-        final BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
-        final Future<HttpResponse> future = this.client.execute(target, request);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", pattern + "x" + count);
+        final Future<ClassicHttpResponse> future = this.client.execute(target, request);
         try {
             future.get();
             Assert.fail("ExecutionException should have been thrown");
@@ -192,10 +192,10 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         }
     }
 
-    static class LenientAsyncResponseConsumer extends AbstractAsyncResponseConsumer<HttpResponse> {
+    static class LenientAsyncResponseConsumer extends AbstractAsyncResponseConsumer<ClassicHttpResponse> {
 
         private final SimpleInputBuffer buffer;
-        private volatile HttpResponse response;
+        private volatile ClassicHttpResponse response;
 
         public LenientAsyncResponseConsumer() {
             super();
@@ -203,7 +203,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         }
 
         @Override
-        protected void onResponseReceived(final HttpResponse response) {
+        protected void onResponseReceived(final ClassicHttpResponse response) {
             this.response = response;
         }
 
@@ -235,7 +235,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         }
 
         @Override
-        protected HttpResponse buildResult(final HttpContext context) {
+        protected ClassicHttpResponse buildResult(final HttpContext context) {
             return this.response;
         }
 
@@ -254,13 +254,13 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         final int count = RndTestPatternGenerator.generateCount(1000);
 
         final HttpHost target = new HttpHost("localhost", ((InetSocketAddress)endpoint.getAddress()).getPort());
-        final BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
-        final Future<HttpResponse> future = this.client.execute(
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", pattern + "x" + count);
+        final Future<ClassicHttpResponse> future = this.client.execute(
                 new BasicAsyncRequestProducer(target, request),
                 new LenientAsyncResponseConsumer(),
                 null, null);
 
-        final HttpResponse response = future.get();
+        final ClassicHttpResponse response = future.get();
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
         Assert.assertEquals(new String(GARBAGE, StandardCharsets.ISO_8859_1.name()),

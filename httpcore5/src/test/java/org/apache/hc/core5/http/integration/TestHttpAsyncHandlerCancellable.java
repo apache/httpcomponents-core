@@ -38,12 +38,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.BasicHttpEntity;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestConsumer;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
@@ -77,8 +77,8 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final HttpAsyncResponseProducer responseProducer = new HttpAsyncResponseProducer() {
 
             @Override
-            public HttpResponse generateResponse() {
-                final HttpResponse response = new BasicHttpResponse(200, "OK");
+            public ClassicHttpResponse generateResponse() {
+                final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
                 final BasicHttpEntity entity = new BasicHttpEntity();
                 entity.setContentType(ContentType.DEFAULT_BINARY.toString());
                 entity.setChunked(true);
@@ -108,18 +108,18 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
 
         };
 
-        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<ClassicHttpRequest>() {
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
             @Override
             public void handle(
-                    final HttpRequest data,
+                    final ClassicHttpRequest data,
                     final HttpAsyncExchange httpExchange,
                     final HttpContext context)
                     throws HttpException, IOException {
@@ -162,18 +162,18 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
             }
         };
 
-        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<ClassicHttpRequest>() {
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
             @Override
             public void handle(
-                    final HttpRequest data,
+                    final ClassicHttpRequest data,
                     final HttpAsyncExchange httpExchange,
                     final HttpContext context)
                     throws HttpException, IOException {

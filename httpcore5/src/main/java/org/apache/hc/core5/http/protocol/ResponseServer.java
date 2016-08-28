@@ -33,7 +33,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.util.Args;
 
@@ -61,7 +61,7 @@ public class ResponseServer implements HttpResponseInterceptor {
     }
 
     @Override
-    public void process(final HttpResponse response, final HttpContext context)
+    public void process(final ClassicHttpResponse response, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         if (!response.containsHeader(HttpHeaders.SERVER) && this.originServer != null) {

@@ -32,7 +32,7 @@ import java.io.IOException;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncResponseProducer;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -42,13 +42,13 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 
 class ErrorResponseProducer implements HttpAsyncResponseProducer {
 
-    private final HttpResponse response;
+    private final ClassicHttpResponse response;
     private final HttpEntity entity;
     private final HttpAsyncContentProducer contentProducer;
     private final boolean keepAlive;
 
     ErrorResponseProducer(
-            final HttpResponse response,
+            final ClassicHttpResponse response,
             final HttpEntity entity,
             final boolean keepAlive) {
         super();
@@ -63,7 +63,7 @@ class ErrorResponseProducer implements HttpAsyncResponseProducer {
     }
 
     @Override
-    public HttpResponse generateResponse() {
+    public ClassicHttpResponse generateResponse() {
         if (this.keepAlive) {
             response.addHeader(HttpHeaders.CONNECTION, HeaderElements.KEEP_ALIVE);
         } else {

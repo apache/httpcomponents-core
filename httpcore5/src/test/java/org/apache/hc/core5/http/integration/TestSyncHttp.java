@@ -44,9 +44,9 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.AbstractHttpEntity;
@@ -56,7 +56,7 @@ import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpExpectationVerifier;
 import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
@@ -120,8 +120,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 String s = request.getPath();
@@ -147,8 +147,8 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
-                final HttpResponse response = this.client.execute(get, host, conn);
+                final BasicClassicHttpRequest get = new BasicClassicHttpRequest("GET", "/?" + r);
+                final ClassicHttpResponse response = this.client.execute(get, host, conn);
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -197,8 +197,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity incoming = request.getEntity();
@@ -224,12 +224,12 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+                final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
 
-                final HttpResponse response = this.client.execute(post, host, conn);
+                final ClassicHttpResponse response = this.client.execute(post, host, conn);
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -277,8 +277,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity entity = request.getEntity();
@@ -303,13 +303,13 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+                final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
                 post.setEntity(outgoing);
 
-                final HttpResponse response = this.client.execute(post, host, conn);
+                final ClassicHttpResponse response = this.client.execute(post, host, conn);
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -355,8 +355,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity incoming = request.getEntity();
@@ -385,13 +385,13 @@ public class TestSyncHttp {
                 }
 
                 // Set protocol level to HTTP/1.0
-                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+                final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
                 post.setVersion(HttpVersion.HTTP_1_0);
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 post.setEntity(outgoing);
 
-                final HttpResponse response = this.client.execute(post, host, conn);
+                final ClassicHttpResponse response = this.client.execute(post, host, conn);
                 Assert.assertEquals(HttpVersion.HTTP_1_1, response.getVersion());
                 final Header h1 = response.getFirstHeader("Version");
                 Assert.assertNotNull(h1);
@@ -443,8 +443,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity incoming = request.getEntity();
@@ -471,13 +471,13 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+                final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
                 final byte[] data = testData.get(r);
                 final ByteArrayEntity outgoing = new ByteArrayEntity(data);
                 outgoing.setChunked(true);
                 post.setEntity(outgoing);
 
-                final HttpResponse response = this.client.execute(post, host, conn);
+                final ClassicHttpResponse response = this.client.execute(post, host, conn);
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -515,8 +515,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final StringEntity outgoing = new StringEntity("No content");
@@ -529,8 +529,8 @@ public class TestSyncHttp {
 
             @Override
             public void verify(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException {
                 final Header someheader = request.getFirstHeader("Secret");
                 if (someheader != null) {
@@ -562,7 +562,7 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+                final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
                 post.addHeader("Secret", Integer.toString(r));
 
                 final byte[] b = new byte[2048];
@@ -573,7 +573,7 @@ public class TestSyncHttp {
                 requestEntity.setChunked(false);
                 post.setEntity(requestEntity);
 
-                final HttpResponse response = this.client.execute(post, host, conn);
+                final ClassicHttpResponse response = this.client.execute(post, host, conn);
 
                 final HttpEntity responseEntity = response.getEntity();
                 Assert.assertNotNull(responseEntity);
@@ -671,11 +671,11 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                if (request instanceof HttpRequest) {
+                if (request instanceof ClassicHttpRequest) {
                     int n = 1;
                     String s = request.getPath();
                     if (s.startsWith("/?n=")) {
@@ -722,13 +722,13 @@ public class TestSyncHttp {
                         client.connect(host, conn);
                     }
 
-                    final BasicHttpRequest post = new BasicHttpRequest(
+                    final BasicClassicHttpRequest post = new BasicClassicHttpRequest(
                             "POST", "/?n=" + n);
                     final StringEntity outgoing = new StringEntity(pattern);
                     outgoing.setChunked(n % 2 == 0);
                     post.setEntity(outgoing);
 
-                    final HttpResponse response = this.client.execute(post, host, conn);
+                    final ClassicHttpResponse response = this.client.execute(post, host, conn);
                     final HttpEntity incoming = response.getEntity();
                     Assert.assertNotNull(incoming);
                     final InputStream instream = incoming.getContent();
@@ -764,8 +764,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity incoming = request.getEntity();
@@ -788,10 +788,10 @@ public class TestSyncHttp {
                 client.connect(host, conn);
             }
 
-            final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setEntity(null);
 
-            final HttpResponse response = this.client.execute(post, host, conn);
+            final ClassicHttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assert.assertEquals(0, received.length);
@@ -807,8 +807,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity incoming = request.getEntity();
@@ -831,7 +831,7 @@ public class TestSyncHttp {
                 client.connect(host, conn);
             }
 
-            final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
@@ -840,7 +840,7 @@ public class TestSyncHttp {
                     new RequestUserAgent(),
                     new RequestExpectContinue()));
 
-            final HttpResponse response = this.client.execute(post, host, conn);
+            final ClassicHttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assert.assertEquals(0, received.length);
@@ -856,8 +856,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
                 final HttpEntity incoming = request.getEntity();
@@ -880,7 +880,7 @@ public class TestSyncHttp {
                 client.connect(host, conn);
             }
 
-            final BasicHttpRequest post = new BasicHttpRequest("POST", "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
@@ -888,7 +888,7 @@ public class TestSyncHttp {
 
                         @Override
                         public void process(
-                                final HttpRequest request,
+                                final ClassicHttpRequest request,
                                 final HttpContext context) throws HttpException, IOException {
                             request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
                         }
@@ -899,7 +899,7 @@ public class TestSyncHttp {
                     new RequestUserAgent(),
                     new RequestExpectContinue()));
 
-            final HttpResponse response = this.client.execute(post, host, conn);
+            final ClassicHttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
         } finally {
             conn.close();
@@ -917,8 +917,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setCode(HttpStatus.SC_NO_CONTENT);
             }
@@ -936,8 +936,8 @@ public class TestSyncHttp {
                     client.connect(host, conn);
                 }
 
-                final BasicHttpRequest get = new BasicHttpRequest("GET", "/?" + r);
-                final HttpResponse response = this.client.execute(get, host, conn);
+                final BasicClassicHttpRequest get = new BasicClassicHttpRequest("GET", "/?" + r);
+                final ClassicHttpResponse response = this.client.execute(get, host, conn);
                 Assert.assertNull(response.getEntity());
                 if (!this.client.keepAlive(get, response)) {
                     conn.close();
@@ -964,8 +964,8 @@ public class TestSyncHttp {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII));
             }
@@ -980,13 +980,13 @@ public class TestSyncHttp {
         client.connect(host, conn);
 
         try {
-            final BasicHttpRequest get1 = new BasicHttpRequest("GET", "/");
+            final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest("GET", "/");
             get1.setVersion(HttpVersion.HTTP_1_0);
-            final HttpResponse response1 = this.client.execute(get1, host, conn);
+            final ClassicHttpResponse response1 = this.client.execute(get1, host, conn);
             Assert.assertEquals(200, response1.getCode());
             EntityUtils.consume(response1.getEntity());
-            final BasicHttpRequest get2 = new BasicHttpRequest("GET", "/");
-            final HttpResponse response2 = this.client.execute(get2, host, conn);
+            final BasicClassicHttpRequest get2 = new BasicClassicHttpRequest("GET", "/");
+            final ClassicHttpResponse response2 = this.client.execute(get2, host, conn);
             Assert.assertEquals(400, response2.getCode());
             EntityUtils.consume(response2.getEntity());
 

@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -47,7 +47,7 @@ class NullRequestConsumer implements HttpAsyncRequestConsumer<Object> {
     }
 
     @Override
-    public void requestReceived(final HttpRequest request) {
+    public void requestReceived(final ClassicHttpRequest request) {
     }
 
     @Override

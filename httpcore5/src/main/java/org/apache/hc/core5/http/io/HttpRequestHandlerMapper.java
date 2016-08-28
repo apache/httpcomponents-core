@@ -27,12 +27,12 @@
 
 package org.apache.hc.core5.http.io;
 
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * HttpRequestHandlerMapper can be used to resolve an instance of
- * {@link HttpRequestHandler} matching a particular {@link HttpRequest}. Usually the
+ * {@link HttpRequestHandler} matching a particular {@link ClassicHttpRequest}. Usually the
  * mapped request handler will be used to process the request.
  *
  * @since 4.3
@@ -48,6 +48,6 @@ public interface HttpRequestHandlerMapper {
      *
      * @since 5.0
      */
-    HttpRequestHandler lookup(HttpRequest request, HttpContext context);
+    HttpRequestHandler lookup(ClassicHttpRequest request, HttpContext context);
 
 }

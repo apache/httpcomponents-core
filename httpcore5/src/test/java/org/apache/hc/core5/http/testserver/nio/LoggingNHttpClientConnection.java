@@ -34,8 +34,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.impl.nio.DefaultNHttpClientConnection;
 import org.apache.hc.core5.http.message.RequestLine;
@@ -82,7 +82,7 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
     }
 
     @Override
-    public void submitRequest(final HttpRequest request) throws IOException, HttpException {
+    public void submitRequest(final ClassicHttpRequest request) throws IOException, HttpException {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + ": "  + request.getMethod() + " " + request.getPath());
         }
@@ -106,7 +106,7 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
     }
 
     @Override
-    protected void onResponseReceived(final HttpResponse response) {
+    protected void onResponseReceived(final ClassicHttpResponse response) {
         if (response != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(this.id + " << " + new StatusLine(
                     response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1,
@@ -119,7 +119,7 @@ public class LoggingNHttpClientConnection extends DefaultNHttpClientConnection {
     }
 
     @Override
-    protected void onRequestSubmitted(final HttpRequest request) {
+    protected void onRequestSubmitted(final ClassicHttpRequest request) {
         if (request != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getPath(),
                     request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));

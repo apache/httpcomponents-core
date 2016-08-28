@@ -35,11 +35,10 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http2.H2MessageConverter;
 import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
 
@@ -51,16 +50,6 @@ import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
 public class DefaultH2ResponseConverter implements H2MessageConverter<HttpResponse> {
 
     public final static DefaultH2ResponseConverter INSTANCE = new DefaultH2ResponseConverter();
-
-    private HttpResponseFactory responseFactory;
-
-    public DefaultH2ResponseConverter() {
-        this(null);
-    }
-
-    public DefaultH2ResponseConverter(final HttpResponseFactory responseFactory) {
-        this.responseFactory = responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE;
-    }
 
     @Override
     public HttpResponse convert(final List<Header> headers) throws HttpException {
@@ -109,7 +98,8 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
         } catch (NumberFormatException ex) {
             throw new ProtocolException("Invalid response status: " + statusText);
         }
-        final HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_2, statusCode, null);
+        final HttpResponse response = new BasicHttpResponse(statusCode, null);
+        response.setVersion(HttpVersion.HTTP_2);
         for (int i = 0; i < messageHeaders.size(); i++) {
             response.addHeader(messageHeaders.get(i));
         }

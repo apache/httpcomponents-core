@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -63,7 +63,7 @@ public interface HttpAsyncRequestHandler<T> {
      *   problem.
      */
     HttpAsyncRequestConsumer<T> processRequest(
-            HttpRequest request,
+            ClassicHttpRequest request,
             HttpContext context) throws HttpException, IOException;
 
     /**

@@ -34,8 +34,8 @@ import java.net.Socket;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
@@ -99,8 +99,8 @@ public class HttpClient {
         conn.setSocketTimeout(this.timeout);
     }
 
-    public HttpResponse execute(
-            final HttpRequest request,
+    public ClassicHttpResponse execute(
+            final ClassicHttpRequest request,
             final HttpHost targetHost,
             final HttpClientConnection conn) throws HttpException, IOException {
         if (request.getAuthority() == null) {
@@ -108,12 +108,12 @@ public class HttpClient {
             request.setScheme(targetHost.getSchemeName());
         }
         this.httpexecutor.preProcess(request, this.httpproc, this.context);
-        final HttpResponse response = this.httpexecutor.execute(request, conn, this.context);
+        final ClassicHttpResponse response = this.httpexecutor.execute(request, conn, this.context);
         this.httpexecutor.postProcess(response, this.httpproc, this.context);
         return response;
     }
 
-    public boolean keepAlive(final HttpRequest request, final HttpResponse response) {
+    public boolean keepAlive(final ClassicHttpRequest request, final ClassicHttpResponse response) {
         return this.connStrategy.keepAlive(request, response, this.context);
     }
 

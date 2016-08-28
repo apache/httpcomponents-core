@@ -33,8 +33,8 @@ import java.net.Socket;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentLengthStrategy;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.impl.ConnSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
@@ -55,15 +55,15 @@ public class DefaultBHttpServerConnectionFactory
     private final ConnectionConfig cconfig;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-    private final HttpMessageParserFactory<HttpRequest> requestParserFactory;
-    private final HttpMessageWriterFactory<HttpResponse> responseWriterFactory;
+    private final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory;
+    private final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory;
 
     public DefaultBHttpServerConnectionFactory(
             final ConnectionConfig cconfig,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final HttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
+            final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
+            final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
         super();
         this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
         this.incomingContentStrategy = incomingContentStrategy;
@@ -74,8 +74,8 @@ public class DefaultBHttpServerConnectionFactory
 
     public DefaultBHttpServerConnectionFactory(
             final ConnectionConfig cconfig,
-            final HttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
+            final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
+            final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
         this(cconfig, null, null, requestParserFactory, responseWriterFactory);
     }
 

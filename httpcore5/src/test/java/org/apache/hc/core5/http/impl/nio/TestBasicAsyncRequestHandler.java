@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
@@ -46,8 +46,8 @@ public class TestBasicAsyncRequestHandler {
     private HttpRequestHandler requestHandler;
     private BasicAsyncRequestHandler asyncRequestHandler;
     private HttpContext context;
-    private HttpRequest request;
-    private HttpResponse response;
+    private ClassicHttpRequest request;
+    private ClassicHttpResponse response;
     private HttpAsyncExchange httpexchange;
 
     @Before
@@ -55,8 +55,8 @@ public class TestBasicAsyncRequestHandler {
         this.requestHandler = Mockito.mock(HttpRequestHandler.class);
         this.asyncRequestHandler = new BasicAsyncRequestHandler(this.requestHandler);
         this.context = new BasicHttpContext();
-        this.request = Mockito.mock(HttpRequest.class);
-        this.response = Mockito.mock(HttpResponse.class);
+        this.request = Mockito.mock(ClassicHttpRequest.class);
+        this.response = Mockito.mock(ClassicHttpResponse.class);
         this.httpexchange = Mockito.mock(HttpAsyncExchange.class);
         Mockito.when(this.httpexchange.getRequest()).thenReturn(this.request);
         Mockito.when(this.httpexchange.getResponse()).thenReturn(this.response);
@@ -78,7 +78,7 @@ public class TestBasicAsyncRequestHandler {
 
     @Test
     public void testProcessRequest() throws Exception {
-        final HttpAsyncRequestConsumer<HttpRequest> requestConsumer = this.asyncRequestHandler.processRequest(
+        final HttpAsyncRequestConsumer<ClassicHttpRequest> requestConsumer = this.asyncRequestHandler.processRequest(
                 this.request, this.context);
         Assert.assertTrue(requestConsumer instanceof BasicAsyncRequestConsumer);
     }

@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.message;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -41,7 +42,7 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 4.0
  */
-public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest {
+public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,6 +51,7 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
     private String scheme;
     private String authority;
     private ProtocolVersion version;
+    private HttpEntity entity;
 
     /**
      * Creates request message with the given method and request path.
@@ -104,6 +106,18 @@ public class BasicHttpRequest extends AbstractHttpMessage implements HttpRequest
             buf.append('?').append(query);
         }
         this.path = buf.toString();
+    }
+
+    @Override
+    public void addHeader(final String name, final Object value) {
+        Args.notNull(name, "Header name");
+        addHeader(new BasicHeader(name, value));
+    }
+
+    @Override
+    public void setHeader(final String name, final Object value) {
+        Args.notNull(name, "Header name");
+        setHeader(new BasicHeader(name, value));
     }
 
     @Override

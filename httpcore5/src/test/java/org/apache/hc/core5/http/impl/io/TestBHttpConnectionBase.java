@@ -37,9 +37,9 @@ import java.net.SocketTimeoutException;
 
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -156,7 +156,7 @@ public class TestBHttpConnectionBase {
     @Test
     public void testCreateEntityLengthDelimited() throws Exception {
         final InputStream instream = Mockito.mock(InputStream.class);
-        final HttpResponse message = new BasicHttpResponse(200, "OK");
+        final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         message.addHeader("Content-Length", "10");
         message.addHeader("Content-Type", "stuff");
         message.addHeader("Content-Encoding", "chunked");
@@ -174,7 +174,7 @@ public class TestBHttpConnectionBase {
     @Test
     public void testCreateEntityInputChunked() throws Exception {
         final InputStream instream = Mockito.mock(InputStream.class);
-        final HttpResponse message = new BasicHttpResponse(200, "OK");
+        final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, instream, ContentLengthStrategy.CHUNKED);
         Assert.assertNotNull(entity);
         Assert.assertTrue(entity.isChunked());
@@ -187,7 +187,7 @@ public class TestBHttpConnectionBase {
     @Test
     public void testCreateEntityInputUndefined() throws Exception {
         final InputStream instream = Mockito.mock(InputStream.class);
-        final HttpResponse message = new BasicHttpResponse(200, "OK");
+        final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inbuffer, instream, ContentLengthStrategy.UNDEFINED);
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());

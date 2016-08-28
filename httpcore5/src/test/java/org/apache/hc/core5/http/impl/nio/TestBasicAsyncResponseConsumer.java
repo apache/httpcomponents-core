@@ -31,7 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -47,7 +47,7 @@ import org.mockito.MockitoAnnotations;
 public class TestBasicAsyncResponseConsumer {
 
     private BasicAsyncResponseConsumer consumer;
-    @Mock private HttpResponse response;
+    @Mock private ClassicHttpResponse response;
     @Mock private HttpContext context;
     @Mock private ContentDecoder decoder;
     @Mock private IOControl ioctrl;

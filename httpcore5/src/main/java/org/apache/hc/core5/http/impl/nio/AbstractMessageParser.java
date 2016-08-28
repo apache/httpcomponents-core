@@ -48,7 +48,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
-public abstract class AbstractMessageParser<T extends HttpMessage<?>> implements NHttpMessageParser<T> {
+public abstract class AbstractMessageParser<T extends HttpMessage> implements NHttpMessageParser<T> {
 
     private static final int READ_HEAD_LINE = 0;
     private static final int READ_HEADERS   = 1;

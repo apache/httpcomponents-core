@@ -38,13 +38,13 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.InputStreamEntity;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestConsumer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseProducer;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
@@ -87,11 +87,11 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
     @Test
     public void testConnectionTerminatedProcessingRequest() throws Exception {
-        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<ClassicHttpRequest>() {
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 final HttpConnection conn = (HttpConnection) context.getAttribute(
                         HttpCoreContext.HTTP_CONNECTION);
@@ -101,10 +101,10 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
             @Override
             public void handle(
-                    final HttpRequest request,
+                    final ClassicHttpRequest request,
                     final HttpAsyncExchange httpExchange,
                     final HttpContext context) throws HttpException, IOException {
-                final HttpResponse response = httpExchange.getResponse();
+                final ClassicHttpResponse response = httpExchange.getResponse();
                 response.setEntity(new NStringEntity("all is well", ContentType.TEXT_PLAIN));
                 httpExchange.submitResponse();
             }
@@ -115,7 +115,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
+        final FutureCallback<ClassicHttpResponse> callback = new FutureCallback<ClassicHttpResponse>() {
 
             @Override
             public void cancelled() {
@@ -128,13 +128,13 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
             }
 
             @Override
-            public void completed(final HttpResponse response) {
+            public void completed(final ClassicHttpResponse response) {
                 Assert.fail();
             }
 
         };
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final HttpContext context = new BasicHttpContext();
         this.client.execute(target, request, context, callback);
 
@@ -152,24 +152,24 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                 super.close();
             }
         };
-        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<ClassicHttpRequest>() {
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
             @Override
             public void handle(
-                    final HttpRequest request,
+                    final ClassicHttpRequest request,
                     final HttpAsyncExchange httpExchange,
                     final HttpContext context) throws HttpException, IOException {
                 final HttpConnection conn = (HttpConnection) context.getAttribute(
                         HttpCoreContext.HTTP_CONNECTION);
                 conn.shutdown();
-                final HttpResponse response = httpExchange.getResponse();
+                final ClassicHttpResponse response = httpExchange.getResponse();
                 response.setEntity(new InputStreamEntity(testInputStream, -1));
                 httpExchange.submitResponse();
             }
@@ -180,7 +180,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
+        final FutureCallback<ClassicHttpResponse> callback = new FutureCallback<ClassicHttpResponse>() {
 
             @Override
             public void cancelled() {
@@ -193,13 +193,13 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
             }
 
             @Override
-            public void completed(final HttpResponse response) {
+            public void completed(final ClassicHttpResponse response) {
                 Assert.fail();
             }
 
         };
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final HttpContext context = new BasicHttpContext();
         this.client.execute(target, request, context, callback);
 
@@ -209,21 +209,21 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
     @Test
     public void testConnectionTerminatedSendingResponse() throws Exception {
-        this.server.registerHandler("*", new HttpAsyncRequestHandler<HttpRequest>() {
+        this.server.registerHandler("*", new HttpAsyncRequestHandler<ClassicHttpRequest>() {
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) throws HttpException, IOException {
                 return new BasicAsyncRequestConsumer();
             }
 
             @Override
             public void handle(
-                    final HttpRequest request,
+                    final ClassicHttpRequest request,
                     final HttpAsyncExchange httpExchange,
                     final HttpContext context) throws HttpException, IOException {
-                final HttpResponse response = httpExchange.getResponse();
+                final ClassicHttpResponse response = httpExchange.getResponse();
                 response.setEntity(new NStringEntity("all is well", ContentType.TEXT_PLAIN));
                 httpExchange.submitResponse(new BasicAsyncResponseProducer(response) {
 
@@ -243,7 +243,7 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        final FutureCallback<HttpResponse> callback = new FutureCallback<HttpResponse>() {
+        final FutureCallback<ClassicHttpResponse> callback = new FutureCallback<ClassicHttpResponse>() {
 
             @Override
             public void cancelled() {
@@ -256,13 +256,13 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
             }
 
             @Override
-            public void completed(final HttpResponse response) {
+            public void completed(final ClassicHttpResponse response) {
                 Assert.fail();
             }
 
         };
 
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final HttpContext context = new BasicHttpContext();
         this.client.execute(target, request, context, callback);
 

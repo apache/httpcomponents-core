@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Locale;
 
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
@@ -38,11 +39,9 @@ import org.apache.hc.core5.util.Args;
 /**
  * Basic implementation of {@link HttpResponse}.
  *
- * @see org.apache.hc.core5.http.impl.DefaultHttpResponseFactory
- *
  * @since 4.0
  */
-public class BasicHttpResponse extends AbstractHttpMessage implements HttpResponse {
+public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
 
     private static final long serialVersionUID = 1L;
 
@@ -52,6 +51,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     private Locale locale;
     private int code;
     private String reasonPhrase;
+    private HttpEntity entity;
 
     /**
      * Creates a new response.
@@ -94,6 +94,18 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
         this.code = Args.positive(code, "Status code");
         this.reasonPhrase = null;
         this.reasonCatalog = EnglishReasonPhraseCatalog.INSTANCE;
+    }
+
+    @Override
+    public void addHeader(final String name, final Object value) {
+        Args.notNull(name, "Header name");
+        addHeader(new BasicHeader(name, value));
+    }
+
+    @Override
+    public void setHeader(final String name, final Object value) {
+        Args.notNull(name, "Header name");
+        setHeader(new BasicHeader(name, value));
     }
 
     @Override

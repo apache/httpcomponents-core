@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentLengthStrategy;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.impl.ConnSupport;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
@@ -51,8 +51,8 @@ public class DefaultNHttpServerConnectionFactory
 
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-    private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
-    private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
+    private final NHttpMessageParserFactory<ClassicHttpRequest> requestParserFactory;
+    private final NHttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory;
     private final ByteBufferAllocator allocator;
     private final ConnectionConfig cconfig;
 
@@ -62,8 +62,8 @@ public class DefaultNHttpServerConnectionFactory
     public DefaultNHttpServerConnectionFactory(
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
+            final NHttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
+            final NHttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig cconfig) {
         super();
@@ -80,8 +80,8 @@ public class DefaultNHttpServerConnectionFactory
      */
     public DefaultNHttpServerConnectionFactory(
             final ByteBufferAllocator allocator,
-            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
+            final NHttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
+            final NHttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory,
             final ConnectionConfig cconfig) {
         this(null, null, requestParserFactory, responseWriterFactory, allocator, cconfig);
     }

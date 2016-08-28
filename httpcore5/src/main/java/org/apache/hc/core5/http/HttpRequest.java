@@ -37,7 +37,7 @@ import java.net.URISyntaxException;
  *
  * @since 4.0
  */
-public interface HttpRequest extends HttpMessage<HttpEntity> {
+public interface HttpRequest extends HttpMessage {
 
     /**
      * Returns method of this request message.

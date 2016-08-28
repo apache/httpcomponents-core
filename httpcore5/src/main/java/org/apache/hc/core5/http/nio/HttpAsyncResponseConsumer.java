@@ -31,7 +31,7 @@ import java.io.IOException;
 
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -54,7 +54,7 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void responseReceived(HttpResponse response) throws IOException, HttpException;
+    void responseReceived(ClassicHttpResponse response) throws IOException, HttpException;
 
     /**
      * Invoked to process a chunk of content from the {@link ContentDecoder}.

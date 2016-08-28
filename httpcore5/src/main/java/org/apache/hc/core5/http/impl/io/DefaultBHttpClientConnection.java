@@ -36,8 +36,8 @@ import java.nio.charset.CharsetEncoder;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -57,8 +57,8 @@ import org.apache.hc.core5.util.Args;
 public class DefaultBHttpClientConnection extends BHttpConnectionBase
                                                    implements HttpClientConnection {
 
-    private final HttpMessageParser<HttpResponse> responseParser;
-    private final HttpMessageWriter<HttpRequest> requestWriter;
+    private final HttpMessageParser<ClassicHttpResponse> responseParser;
+    private final HttpMessageWriter<ClassicHttpRequest> requestWriter;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
     private volatile boolean consistent;
@@ -91,8 +91,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
-            final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
+            final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
+            final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
         super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create();
@@ -117,10 +117,10 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         this(buffersize, buffersize, null, null, null, null, null, null, null);
     }
 
-    protected void onResponseReceived(final HttpResponse response) {
+    protected void onResponseReceived(final ClassicHttpResponse response) {
     }
 
-    protected void onRequestSubmitted(final HttpRequest request) {
+    protected void onRequestSubmitted(final ClassicHttpRequest request) {
     }
 
     @Override
@@ -129,7 +129,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     @Override
-    public void sendRequestHeader(final HttpRequest request)
+    public void sendRequestHeader(final ClassicHttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         final SocketHolder socketHolder = ensureOpen();
@@ -139,7 +139,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     @Override
-    public void sendRequestEntity(final HttpRequest request) throws HttpException, IOException {
+    public void sendRequestEntity(final ClassicHttpRequest request) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         final SocketHolder socketHolder = ensureOpen();
         final HttpEntity entity = request.getEntity();
@@ -161,7 +161,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     @Override
-    public void terminateRequest(final HttpRequest request) throws HttpException, IOException {
+    public void terminateRequest(final ClassicHttpRequest request) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         final SocketHolder socketHolder = ensureOpen();
         final HttpEntity entity = request.getEntity();
@@ -182,9 +182,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     @Override
-    public HttpResponse receiveResponseHeader() throws HttpException, IOException {
+    public ClassicHttpResponse receiveResponseHeader() throws HttpException, IOException {
         final SocketHolder socketHolder = ensureOpen();
-        final HttpResponse response = this.responseParser.parse(this.inbuffer, socketHolder.getInputStream());
+        final ClassicHttpResponse response = this.responseParser.parse(this.inbuffer, socketHolder.getInputStream());
         this.version = response.getVersion();
         onResponseReceived(response);
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
@@ -194,7 +194,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     }
 
     @Override
-    public void receiveResponseEntity( final HttpResponse response) throws HttpException, IOException {
+    public void receiveResponseEntity( final ClassicHttpResponse response) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         final SocketHolder socketHolder = ensureOpen();
         final long len = this.incomingContentStrategy.determineLength(response);

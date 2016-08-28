@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncResponseProducer;
 import org.apache.hc.core5.http.nio.IOControl;
@@ -52,7 +52,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
 
-    private final HttpResponse response;
+    private final ClassicHttpResponse response;
     private final HttpAsyncContentProducer producer;
 
     /**
@@ -66,7 +66,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
      * @param producer response content producer.
      */
     protected BasicAsyncResponseProducer(
-            final HttpResponse response,
+            final ClassicHttpResponse response,
             final HttpAsyncContentProducer producer) {
         super();
         Args.notNull(response, "HTTP response");
@@ -82,7 +82,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
      *
      * @param response response message.
      */
-    public BasicAsyncResponseProducer(final HttpResponse response) {
+    public BasicAsyncResponseProducer(final ClassicHttpResponse response) {
         super();
         Args.notNull(response, "HTTP response");
         this.response = response;
@@ -99,7 +99,7 @@ public class BasicAsyncResponseProducer implements HttpAsyncResponseProducer {
     }
 
     @Override
-    public HttpResponse generateResponse() {
+    public ClassicHttpResponse generateResponse() {
         return this.response;
     }
 

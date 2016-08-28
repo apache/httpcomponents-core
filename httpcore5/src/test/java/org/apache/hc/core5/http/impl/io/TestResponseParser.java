@@ -32,7 +32,7 @@ import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
@@ -58,7 +58,7 @@ public class TestResponseParser {
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
-        final HttpResponse httpresponse = parser.parse(inbuffer, inputStream);
+        final ClassicHttpResponse httpresponse = parser.parse(inbuffer, inputStream);
 
         Assert.assertEquals(200, httpresponse.getCode());
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
@@ -88,7 +88,7 @@ public class TestResponseParser {
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 MessageConstraints.custom().setMaxEmptyLineCount(3).build());
-        final HttpResponse httpresponse = parser.parse(inbuffer, inputStream);
+        final ClassicHttpResponse httpresponse = parser.parse(inbuffer, inputStream);
 
         Assert.assertEquals(200, httpresponse.getCode());
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
@@ -128,7 +128,7 @@ public class TestResponseParser {
 
         int timeoutCount = 0;
 
-        HttpResponse httpresponse = null;
+        ClassicHttpResponse httpresponse = null;
         for (int i = 0; i < 10; i++) {
             try {
                 httpresponse = parser.parse(inbuffer, inputStream);

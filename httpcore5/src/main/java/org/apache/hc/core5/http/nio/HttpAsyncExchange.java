@@ -28,8 +28,8 @@
 package org.apache.hc.core5.http.nio;
 
 import org.apache.hc.core5.concurrent.Cancellable;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 
 /**
  * {@code HttpAsyncExchange} represents a server-side HTTP message exchange
@@ -45,7 +45,7 @@ public interface HttpAsyncExchange {
      *
      * @return received HTTP request message.
      */
-    HttpRequest getRequest();
+    ClassicHttpRequest getRequest();
 
     /**
      * Returns the default HTTP response message. Once ready the response
@@ -53,7 +53,7 @@ public interface HttpAsyncExchange {
      *
      * @return default HTTP response message.
      */
-    HttpResponse getResponse();
+    ClassicHttpResponse getResponse();
 
     /**
      * Submits the default HTTP response and completed the message exchange.

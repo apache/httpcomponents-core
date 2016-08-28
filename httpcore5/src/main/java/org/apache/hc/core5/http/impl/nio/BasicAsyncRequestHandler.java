@@ -32,7 +32,7 @@ import java.io.IOException;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
@@ -49,7 +49,7 @@ import org.apache.hc.core5.util.Args;
  * @since 4.2
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class BasicAsyncRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
+public class BasicAsyncRequestHandler implements HttpAsyncRequestHandler<ClassicHttpRequest> {
 
     private final HttpRequestHandler handler;
 
@@ -60,14 +60,14 @@ public class BasicAsyncRequestHandler implements HttpAsyncRequestHandler<HttpReq
     }
 
     @Override
-    public HttpAsyncRequestConsumer<HttpRequest> processRequest(final HttpRequest request,
-                                                                final HttpContext context) {
+    public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(final ClassicHttpRequest request,
+                                                                       final HttpContext context) {
         return new BasicAsyncRequestConsumer();
     }
 
     @Override
     public void handle(
-            final HttpRequest request,
+            final ClassicHttpRequest request,
             final HttpAsyncExchange httpexchange,
             final HttpContext context) throws HttpException, IOException {
         this.handler.handle(request, httpexchange.getResponse(), context);

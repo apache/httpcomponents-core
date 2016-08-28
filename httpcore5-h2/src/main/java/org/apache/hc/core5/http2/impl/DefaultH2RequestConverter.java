@@ -35,11 +35,10 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.impl.DefaultHttpRequestFactory;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http2.H2MessageConverter;
 import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
 import org.apache.hc.core5.util.TextUtils;
@@ -52,16 +51,6 @@ import org.apache.hc.core5.util.TextUtils;
 public final class DefaultH2RequestConverter implements H2MessageConverter<HttpRequest> {
 
     public final static DefaultH2RequestConverter INSTANCE = new DefaultH2RequestConverter();
-
-    private final HttpRequestFactory requestFactory;
-
-    public DefaultH2RequestConverter() {
-        this(null);
-    }
-
-    public DefaultH2RequestConverter(final HttpRequestFactory requestFactory) {
-        this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
-    }
 
     @Override
     public HttpRequest convert(final List<Header> headers) throws HttpException {
@@ -137,7 +126,8 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             }
         }
 
-        final HttpRequest httpRequest = this.requestFactory.newHttpRequest(HttpVersion.HTTP_2, method, path);
+        final HttpRequest httpRequest = new BasicHttpRequest(method, path);
+        httpRequest.setVersion(HttpVersion.HTTP_2);
         httpRequest.setScheme(scheme);
         httpRequest.setAuthority(authority);
         httpRequest.setPath(path);

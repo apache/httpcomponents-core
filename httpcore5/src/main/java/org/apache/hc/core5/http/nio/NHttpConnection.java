@@ -28,14 +28,14 @@
 package org.apache.hc.core5.http.nio;
 
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract non-blocking HTTP connection interface. Each connection contains an
  * HTTP execution context, which can be used to maintain a processing state,
- * as well as the actual {@link HttpRequest} and {@link HttpResponse} that are
+ * as well as the actual {@link ClassicHttpRequest} and {@link ClassicHttpResponse} that are
  * being transmitted over this connection. Both the request and
  * the response objects can be {@code null} if there is no incoming or
  * outgoing message currently being transferred.
@@ -73,7 +73,7 @@ public interface NHttpConnection extends HttpConnection, IOControl {
      *
      * @return HTTP request, if available, {@code null} otherwise.
      */
-    HttpRequest getHttpRequest();
+    ClassicHttpRequest getHttpRequest();
 
     /**
      * Returns the current HTTP response if one is being received / transmitted.
@@ -81,7 +81,7 @@ public interface NHttpConnection extends HttpConnection, IOControl {
      *
      * @return HTTP response, if available, {@code null} otherwise.
      */
-    HttpResponse getHttpResponse();
+    ClassicHttpResponse getHttpResponse();
 
     /**
      * Returns an HTTP execution context associated with this connection.

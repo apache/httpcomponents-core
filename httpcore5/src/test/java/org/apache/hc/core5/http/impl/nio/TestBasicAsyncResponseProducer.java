@@ -32,7 +32,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.entity.HttpAsyncContentProducer;
 import org.junit.After;
@@ -46,7 +46,7 @@ public class TestBasicAsyncResponseProducer {
 
     private BasicAsyncResponseProducer producer;
     @Mock private HttpAsyncContentProducer contentProducer;
-    @Mock private HttpResponse response;
+    @Mock private ClassicHttpResponse response;
     @Mock private ContentEncoder encoder;
 
     @Before
@@ -66,7 +66,7 @@ public class TestBasicAsyncResponseProducer {
 
     @Test
     public void testGenerateRequest() {
-        final HttpResponse res = producer.generateResponse();
+        final ClassicHttpResponse res = producer.generateResponse();
 
         Assert.assertSame(response, res);
     }

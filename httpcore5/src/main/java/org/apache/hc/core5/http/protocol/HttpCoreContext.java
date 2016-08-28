@@ -28,8 +28,8 @@
 package org.apache.hc.core5.http.protocol;
 
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
@@ -48,13 +48,13 @@ public class HttpCoreContext implements HttpContext {
     public static final String HTTP_CONNECTION  = HttpContext.RESERVED_PREFIX + "connection";
 
     /**
-     * Attribute name of a {@link org.apache.hc.core5.http.HttpRequest} object that
+     * Attribute name of a {@link ClassicHttpRequest} object that
      * represents the actual HTTP request.
      */
     public static final String HTTP_REQUEST     = HttpContext.RESERVED_PREFIX + "request";
 
     /**
-     * Attribute name of a {@link org.apache.hc.core5.http.HttpResponse} object that
+     * Attribute name of a {@link ClassicHttpResponse} object that
      * represents the actual HTTP response.
      */
     public static final String HTTP_RESPONSE    = HttpContext.RESERVED_PREFIX + "response";
@@ -131,12 +131,12 @@ public class HttpCoreContext implements HttpContext {
         return getAttribute(HTTP_CONNECTION, HttpConnection.class);
     }
 
-    public HttpRequest getRequest() {
-        return getAttribute(HTTP_REQUEST, HttpRequest.class);
+    public ClassicHttpRequest getRequest() {
+        return getAttribute(HTTP_REQUEST, ClassicHttpRequest.class);
     }
 
-    public HttpResponse getResponse() {
-        return getAttribute(HTTP_RESPONSE, HttpResponse.class);
+    public ClassicHttpResponse getResponse() {
+        return getAttribute(HTTP_RESPONSE, ClassicHttpResponse.class);
     }
 
 }

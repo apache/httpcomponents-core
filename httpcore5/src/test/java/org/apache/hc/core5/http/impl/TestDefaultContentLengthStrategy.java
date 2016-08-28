@@ -32,19 +32,30 @@ import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.AbstractHttpMessage;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.HeaderGroup;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestDefaultContentLengthStrategy {
 
-    static class TestHttpMessage extends AbstractHttpMessage {
+    static class TestHttpMessage extends HeaderGroup implements HttpMessage {
 
         private static final long serialVersionUID = 1L;
 
         @Override
         public ProtocolVersion getVersion() {
             return null;
+        }
+
+        @Override
+        public void addHeader(final String name, final Object value) {
+            addHeader(new BasicHeader(name, value));
+        }
+
+        @Override
+        public void setHeader(final String name, final Object value) {
+            setHeader(new BasicHeader(name, value));
         }
 
         @Override

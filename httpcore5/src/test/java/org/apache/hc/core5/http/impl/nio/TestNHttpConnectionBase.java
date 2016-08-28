@@ -34,7 +34,7 @@ import java.nio.channels.SelectionKey;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.nio.NHttpConnection;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -190,7 +190,7 @@ public class TestNHttpConnectionBase {
 
     @Test
     public void testCreateEntityWithContentLength() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.addHeader(HttpHeaders.CONTENT_LENGTH, "10");
         response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
         response.addHeader(HttpHeaders.CONTENT_ENCODING, "blah");
@@ -205,7 +205,7 @@ public class TestNHttpConnectionBase {
 
     @Test
     public void testCreateEntityChunkCoded() throws Exception {
-        final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
+        final BasicClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.addHeader(HttpHeaders.TRANSFER_ENCODING, "chunked");
         response.addHeader(HttpHeaders.CONTENT_TYPE, "stuff");
         response.addHeader(HttpHeaders.CONTENT_ENCODING, "blah");

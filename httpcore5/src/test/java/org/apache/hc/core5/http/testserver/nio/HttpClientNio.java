@@ -36,8 +36,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.OoopsieRuntimeException;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseConsumer;
@@ -119,11 +119,11 @@ public class HttpClientNio {
                 context != null ? context : HttpCoreContext.create(), callback);
     }
 
-    public Future<HttpResponse> execute(
+    public Future<ClassicHttpResponse> execute(
             final HttpHost target,
-            final HttpRequest request,
+            final ClassicHttpRequest request,
             final HttpContext context,
-            final FutureCallback<HttpResponse> callback) {
+            final FutureCallback<ClassicHttpResponse> callback) {
         return execute(
                 new BasicAsyncRequestProducer(target, request),
                 new BasicAsyncResponseConsumer(),
@@ -131,16 +131,16 @@ public class HttpClientNio {
                 callback);
     }
 
-    public Future<List<HttpResponse>> executePipelined(
+    public Future<List<ClassicHttpResponse>> executePipelined(
             final HttpHost target,
-            final List<HttpRequest> requests,
+            final List<ClassicHttpRequest> requests,
             final HttpContext context,
-            final FutureCallback<List<HttpResponse>> callback) {
+            final FutureCallback<List<ClassicHttpResponse>> callback) {
         final List<HttpAsyncRequestProducer> requestProducers =
                 new ArrayList<>(requests.size());
-        final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers =
+        final List<HttpAsyncResponseConsumer<ClassicHttpResponse>> responseConsumers =
                 new ArrayList<>(requests.size());
-        for (final HttpRequest request: requests) {
+        for (final ClassicHttpRequest request: requests) {
             requestProducers.add(new BasicAsyncRequestProducer(target, request));
             responseConsumers.add(new BasicAsyncResponseConsumer());
         }
@@ -148,29 +148,29 @@ public class HttpClientNio {
                 context != null ? context : HttpCoreContext.create(), callback);
     }
 
-    public Future<HttpResponse> execute(
+    public Future<ClassicHttpResponse> execute(
             final HttpHost target,
-            final HttpRequest request,
+            final ClassicHttpRequest request,
             final HttpContext context) {
         return execute(target, request, context, null);
     }
 
-    public Future<List<HttpResponse>> executePipelined(
+    public Future<List<ClassicHttpResponse>> executePipelined(
             final HttpHost target,
-            final List<HttpRequest> requests,
+            final List<ClassicHttpRequest> requests,
             final HttpContext context) {
         return executePipelined(target, requests, context, null);
     }
 
-    public Future<HttpResponse> execute(
+    public Future<ClassicHttpResponse> execute(
             final HttpHost target,
-            final HttpRequest request) {
+            final ClassicHttpRequest request) {
         return execute(target, request, null, null);
     }
 
-    public Future<List<HttpResponse>> executePipelined(
+    public Future<List<ClassicHttpResponse>> executePipelined(
             final HttpHost target,
-            final HttpRequest... requests) {
+            final ClassicHttpRequest... requests) {
         return executePipelined(target, Arrays.asList(requests), null, null);
     }
 

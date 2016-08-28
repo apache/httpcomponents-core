@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.StringEntity;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,12 +40,12 @@ import org.junit.Test;
 public class TestErrorResponseProducer {
 
     private ErrorResponseProducer erp;
-    private HttpResponse response;
+    private ClassicHttpResponse response;
     private HttpEntity entity;
 
     @Before
     public void setUp() throws Exception {
-        response = new BasicHttpResponse(200, "OK");
+        response = new BasicClassicHttpResponse(200, "OK");
         entity = new StringEntity("stuff");
     }
 
@@ -56,7 +56,7 @@ public class TestErrorResponseProducer {
     @Test
     public void testGenerateResponseKeepAlive() {
         erp = new ErrorResponseProducer(response, entity, true);
-        final HttpResponse res = erp.generateResponse();
+        final ClassicHttpResponse res = erp.generateResponse();
 
         Assert.assertEquals("keep-alive", res.getFirstHeader(HttpHeaders.CONNECTION).getValue());
         Assert.assertEquals(entity, res.getEntity());
@@ -66,7 +66,7 @@ public class TestErrorResponseProducer {
     @Test
     public void testGenerateResponseClose() {
         erp = new ErrorResponseProducer(response, entity, false);
-        final HttpResponse res = erp.generateResponse();
+        final ClassicHttpResponse res = erp.generateResponse();
 
         Assert.assertEquals("close", res.getFirstHeader(HttpHeaders.CONNECTION).getValue());
         Assert.assertEquals(entity, res.getEntity());

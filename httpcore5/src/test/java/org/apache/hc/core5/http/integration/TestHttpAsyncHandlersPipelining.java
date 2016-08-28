@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
@@ -54,8 +54,8 @@ import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseConsumer;
 import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseProducer;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestHandler;
@@ -154,22 +154,22 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<List<ClassicHttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
-            final Future<List<HttpResponse>> future = this.client.executePipelined(target,
-                    new BasicHttpRequest("GET", requestUri),
-                    new BasicHttpRequest("GET", requestUri),
-                    new BasicHttpRequest("GET", requestUri));
+            final Future<List<ClassicHttpResponse>> future = this.client.executePipelined(target,
+                    new BasicClassicHttpRequest("GET", requestUri),
+                    new BasicClassicHttpRequest("GET", requestUri),
+                    new BasicClassicHttpRequest("GET", requestUri));
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final Future<List<ClassicHttpResponse>> future = queue.remove();
+            final List<ClassicHttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (final HttpResponse response: responses) {
+            for (final ClassicHttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
                 Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
             }
@@ -187,23 +187,23 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final String pattern = RndTestPatternGenerator.generateText();
         final int count = RndTestPatternGenerator.generateCount(1000);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<List<ClassicHttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
-            final HttpRequest head1 = new BasicHttpRequest("HEAD", requestUri);
-            final HttpRequest head2 = new BasicHttpRequest("HEAD", requestUri);
-            final HttpRequest post1 = new BasicHttpRequest("POST", requestUri);
+            final ClassicHttpRequest head1 = new BasicClassicHttpRequest("HEAD", requestUri);
+            final ClassicHttpRequest head2 = new BasicClassicHttpRequest("HEAD", requestUri);
+            final ClassicHttpRequest post1 = new BasicClassicHttpRequest("POST", requestUri);
             post1.setEntity(new NStringEntity("stuff", ContentType.TEXT_PLAIN));
-            final Future<List<HttpResponse>> future = this.client.executePipelined(target, head1, head2, post1);
+            final Future<List<ClassicHttpResponse>> future = this.client.executePipelined(target, head1, head2, post1);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final Future<List<ClassicHttpResponse>> future = queue.remove();
+            final List<ClassicHttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (final HttpResponse response: responses) {
+            for (final ClassicHttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             }
         }
@@ -222,32 +222,32 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         final String expectedPattern = createExpectedString(pattern, count);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<List<ClassicHttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 10; i++) {
             final String requestUri = createRequestUri(pattern, count);
-            final HttpRequest request1 = new BasicHttpRequest("POST", requestUri);
+            final ClassicHttpRequest request1 = new BasicClassicHttpRequest("POST", requestUri);
             final NStringEntity entity1 = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity1.setChunked(RndTestPatternGenerator.generateBoolean());
             request1.setEntity(entity1);
-            final HttpRequest request2 = new BasicHttpRequest("POST", requestUri);
+            final ClassicHttpRequest request2 = new BasicClassicHttpRequest("POST", requestUri);
             final NStringEntity entity2 = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity2.setChunked(RndTestPatternGenerator.generateBoolean());
             request2.setEntity(entity2);
-            final HttpRequest request3 = new BasicHttpRequest("POST", requestUri);
+            final ClassicHttpRequest request3 = new BasicClassicHttpRequest("POST", requestUri);
             final NStringEntity entity3 = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
             entity3.setChunked(RndTestPatternGenerator.generateBoolean());
             request3.setEntity(entity3);
-            final Future<List<HttpResponse>> future = this.client.executePipelined(target,
+            final Future<List<ClassicHttpResponse>> future = this.client.executePipelined(target,
                     request1, request2, request3);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final Future<List<ClassicHttpResponse>> future = queue.remove();
+            final List<ClassicHttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (final HttpResponse response: responses) {
+            for (final ClassicHttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
                 Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
             }
@@ -257,7 +257,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
     @Test
     public void testHttpDelayedResponse() throws Exception {
 
-        class DelayedRequestHandler implements HttpAsyncRequestHandler<HttpRequest> {
+        class DelayedRequestHandler implements HttpAsyncRequestHandler<ClassicHttpRequest> {
 
             private final SimpleRequestHandler requestHandler;
 
@@ -267,18 +267,18 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             }
 
             @Override
-            public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                    final HttpRequest request,
+            public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                    final ClassicHttpRequest request,
                     final HttpContext context) {
                 return new BasicAsyncRequestConsumer();
             }
 
             @Override
             public void handle(
-                    final HttpRequest request,
+                    final ClassicHttpRequest request,
                     final HttpAsyncExchange httpexchange,
                     final HttpContext context) throws HttpException, IOException {
-                final BasicHttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
+                final BasicClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
                 new Thread() {
                     @Override
                     public void run() {
@@ -312,30 +312,30 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         final String expectedPattern2 = createExpectedString(pattern2, count);
         final String expectedPattern3 = createExpectedString(pattern3, count);
 
-        final Queue<Future<List<HttpResponse>>> queue = new ConcurrentLinkedQueue<>();
+        final Queue<Future<List<ClassicHttpResponse>>> queue = new ConcurrentLinkedQueue<>();
         for (int i = 0; i < 1; i++) {
-            final HttpRequest request1 = new BasicHttpRequest("GET", createRequestUri(pattern1, count));
-            final HttpRequest request2 = new BasicHttpRequest("POST",
+            final ClassicHttpRequest request1 = new BasicClassicHttpRequest("GET", createRequestUri(pattern1, count));
+            final ClassicHttpRequest request2 = new BasicClassicHttpRequest("POST",
                     createRequestUri(pattern2, count));
             final NStringEntity entity2 = new NStringEntity(expectedPattern2, ContentType.DEFAULT_TEXT);
             entity2.setChunked(RndTestPatternGenerator.generateBoolean());
             request2.setEntity(entity2);
-            final HttpRequest request3 = new BasicHttpRequest("POST",
+            final ClassicHttpRequest request3 = new BasicClassicHttpRequest("POST",
                     createRequestUri(pattern3, count));
             final NStringEntity entity3 = new NStringEntity(expectedPattern3, ContentType.DEFAULT_TEXT);
             entity3.setChunked(RndTestPatternGenerator.generateBoolean());
             request3.setEntity(entity3);
-            final Future<List<HttpResponse>> future = this.client.executePipelined(target,
+            final Future<List<ClassicHttpResponse>> future = this.client.executePipelined(target,
                     request1, request2, request3);
             queue.add(future);
         }
 
         while (!queue.isEmpty()) {
-            final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final Future<List<ClassicHttpResponse>> future = queue.remove();
+            final List<ClassicHttpResponse> responses = future.get();
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
-            for (final HttpResponse response: responses) {
+            for (final ClassicHttpResponse response: responses) {
                 Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
             }
             Assert.assertEquals(expectedPattern1, EntityUtils.toString(responses.get(0).getEntity()));
@@ -350,8 +350,8 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setCode(HttpStatus.SC_OK);
                 response.setEntity(new StringEntity("all is well", ContentType.TEXT_PLAIN));
@@ -362,8 +362,8 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
             @Override
             public void handle(
-                    final HttpRequest request,
-                    final HttpResponse response,
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
                 response.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
                 response.setHeader(HttpHeaders.CONNECTION, "Close");
@@ -378,23 +378,23 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         for (int i = 0; i < 3; i++) {
 
-            final HttpAsyncRequestProducer p1 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
-            final HttpAsyncRequestProducer p2 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
-            final HttpAsyncRequestProducer p3 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/boom"));
+            final HttpAsyncRequestProducer p1 = new BasicAsyncRequestProducer(target, new BasicClassicHttpRequest("GET", "/"));
+            final HttpAsyncRequestProducer p2 = new BasicAsyncRequestProducer(target, new BasicClassicHttpRequest("GET", "/"));
+            final HttpAsyncRequestProducer p3 = new BasicAsyncRequestProducer(target, new BasicClassicHttpRequest("GET", "/boom"));
             final List<HttpAsyncRequestProducer> requestProducers = new ArrayList<>();
             requestProducers.add(p1);
             requestProducers.add(p2);
             requestProducers.add(p3);
 
-            final HttpAsyncResponseConsumer<HttpResponse> c1 = new BasicAsyncResponseConsumer();
-            final HttpAsyncResponseConsumer<HttpResponse> c2 = new BasicAsyncResponseConsumer();
-            final HttpAsyncResponseConsumer<HttpResponse> c3 = new BasicAsyncResponseConsumer();
-            final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers = new ArrayList<>();
+            final HttpAsyncResponseConsumer<ClassicHttpResponse> c1 = new BasicAsyncResponseConsumer();
+            final HttpAsyncResponseConsumer<ClassicHttpResponse> c2 = new BasicAsyncResponseConsumer();
+            final HttpAsyncResponseConsumer<ClassicHttpResponse> c3 = new BasicAsyncResponseConsumer();
+            final List<HttpAsyncResponseConsumer<ClassicHttpResponse>> responseConsumers = new ArrayList<>();
             responseConsumers.add(c1);
             responseConsumers.add(c2);
             responseConsumers.add(c3);
 
-            final Future<List<HttpResponse>> future = this.client.executePipelined(target, requestProducers, responseConsumers, null, null);
+            final Future<List<ClassicHttpResponse>> future = this.client.executePipelined(target, requestProducers, responseConsumers, null, null);
             try {
                 future.get();
             } catch (final ExecutionException ex) {

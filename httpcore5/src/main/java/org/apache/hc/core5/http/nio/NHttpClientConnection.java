@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 
 /**
  * Abstract non-blocking client-side HTTP connection interface. It can be used
@@ -43,13 +43,13 @@ import org.apache.hc.core5.http.HttpRequest;
 public interface NHttpClientConnection extends NHttpConnection {
 
     /**
-     * Submits {@link HttpRequest} to be sent to the target server.
+     * Submits {@link ClassicHttpRequest} to be sent to the target server.
      *
      * @param request HTTP request
      * @throws IOException if I/O error occurs while submitting the request
      * @throws HttpException if the HTTP request violates the HTTP protocol.
      */
-    void submitRequest(HttpRequest request) throws IOException, HttpException;
+    void submitRequest(ClassicHttpRequest request) throws IOException, HttpException;
 
     /**
      * Returns {@code true} if an HTTP request has been submitted to the

@@ -35,8 +35,8 @@ import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -145,11 +145,11 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     @Override
-    public HttpRequest generateRequest() throws IOException, HttpException {
+    public ClassicHttpRequest generateRequest() throws IOException, HttpException {
         if (isDone()) {
             return null;
         }
-        final HttpRequest request = this.requestProducer.generateRequest();
+        final ClassicHttpRequest request = this.requestProducer.generateRequest();
         this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
         this.httppocessor.process(request, this.localContext);
@@ -169,7 +169,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     }
 
     @Override
-    public void responseReceived(final HttpResponse response) throws IOException, HttpException {
+    public void responseReceived(final ClassicHttpResponse response) throws IOException, HttpException {
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         final ProtocolVersion transportVersion = response.getVersion();
         if (transportVersion != null) {

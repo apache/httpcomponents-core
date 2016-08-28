@@ -35,8 +35,8 @@ import java.nio.charset.CharsetEncoder;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -64,8 +64,8 @@ public class DefaultNHttpClientConnection
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
 
-    private final NHttpMessageParser<HttpResponse> responseParser;
-    private final NHttpMessageWriter<HttpRequest> requestWriter;
+    private final NHttpMessageParser<ClassicHttpResponse> responseParser;
+    private final NHttpMessageWriter<ClassicHttpRequest> requestWriter;
 
     /**
      * Creates new instance DefaultNHttpClientConnection given the underlying I/O session.
@@ -99,8 +99,8 @@ public class DefaultNHttpClientConnection
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
-            final NHttpMessageParserFactory<HttpResponse> responseParserFactory) {
+            final NHttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
+            final NHttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
         super(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder, constraints);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create();
@@ -135,13 +135,13 @@ public class DefaultNHttpClientConnection
     /**
      * @since 4.2
      */
-    protected void onResponseReceived(final HttpResponse response) {
+    protected void onResponseReceived(final ClassicHttpResponse response) {
     }
 
     /**
      * @since 4.2
      */
-    protected void onRequestSubmitted(final HttpRequest request) {
+    protected void onRequestSubmitted(final ClassicHttpRequest request) {
     }
 
     @Override
@@ -252,7 +252,7 @@ public class DefaultNHttpClientConnection
     }
 
     @Override
-    public void submitRequest(final HttpRequest request) throws IOException, HttpException {
+    public void submitRequest(final ClassicHttpRequest request) throws IOException, HttpException {
         Args.notNull(request, "HTTP request");
         assertNotClosed();
         if (this.request != null) {

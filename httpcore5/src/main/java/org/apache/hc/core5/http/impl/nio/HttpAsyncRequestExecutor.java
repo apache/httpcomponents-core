@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
@@ -194,7 +194,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
         final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
 
-        final HttpRequest request = handler.generateRequest();
+        final ClassicHttpRequest request = handler.generateRequest();
         if (request == null) {
             return;
         }
@@ -252,7 +252,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         if (state.isEarlyResponse()) {
 
             // Attempt to salvage the underlying connection
-            final HttpRequest request = state.getRequest();
+            final ClassicHttpRequest request = state.getRequest();
             final Header header = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
             final boolean chunked = header != null && HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(header.getValue());
             if (chunked) {
@@ -295,7 +295,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         final HttpAsyncClientExchangeHandler handler = getHandler(conn);
         Asserts.notNull(handler, "Client exchange handler");
 
-        final HttpResponse response = conn.getHttpResponse();
+        final ClassicHttpResponse response = conn.getHttpResponse();
 
         final int statusCode = response.getCode();
         if (statusCode < HttpStatus.SC_OK) {
@@ -325,7 +325,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
 
         final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
-        final HttpRequest request;
+        final ClassicHttpRequest request;
         if (pipelined) {
             request = state.getRequestQueue().peek();
             Asserts.notNull(request, "HTTP request");
@@ -482,11 +482,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             final State state,
             final HttpAsyncClientExchangeHandler handler) throws IOException, HttpException {
 
-        final HttpResponse response = state.getResponse();
+        final ClassicHttpResponse response = state.getResponse();
         final HttpContext context = handler.getContext();
 
         final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
-        final HttpRequest request;
+        final ClassicHttpRequest request;
         if (pipelined) {
             request = state.getRequestQueue().poll();
         } else {
@@ -516,7 +516,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
-    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+    private boolean canResponseHaveBody(final ClassicHttpRequest request, final ClassicHttpResponse response) {
 
         final String method = request.getMethod();
         final int status = response.getCode();
@@ -537,11 +537,11 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     static class State {
 
-        private final Queue<HttpRequest> requestQueue;
+        private final Queue<ClassicHttpRequest> requestQueue;
         private volatile MessageState requestState;
         private volatile MessageState responseState;
-        private volatile HttpRequest request;
-        private volatile HttpResponse response;
+        private volatile ClassicHttpRequest request;
+        private volatile ClassicHttpResponse response;
         private volatile boolean earlyResponse;
         private volatile int timeout;
         private volatile boolean valid;
@@ -570,23 +570,23 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             this.responseState = state;
         }
 
-        public HttpRequest getRequest() {
+        public ClassicHttpRequest getRequest() {
             return this.request;
         }
 
-        public void setRequest(final HttpRequest request) {
+        public void setRequest(final ClassicHttpRequest request) {
             this.request = request;
         }
 
-        public HttpResponse getResponse() {
+        public ClassicHttpResponse getResponse() {
             return this.response;
         }
 
-        public void setResponse(final HttpResponse response) {
+        public void setResponse(final ClassicHttpResponse response) {
             this.response = response;
         }
 
-        public Queue<HttpRequest> getRequestQueue() {
+        public Queue<ClassicHttpRequest> getRequestQueue() {
             return this.requestQueue;
         }
 

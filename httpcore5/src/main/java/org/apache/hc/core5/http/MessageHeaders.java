@@ -30,11 +30,11 @@ package org.apache.hc.core5.http;
 import java.util.Iterator;
 
 /**
- * HTTP messages head consisting of multiple message headers.
+ * Messages head consisting of multiple message headers.
  *
  * @since 5.0
  */
-public interface MessageHead {
+public interface MessageHeaders {
 
     /**
      * Checks if a certain header is present in this message. Header values are

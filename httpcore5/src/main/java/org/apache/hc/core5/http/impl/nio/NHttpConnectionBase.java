@@ -41,8 +41,8 @@ import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -80,8 +80,8 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     volatile boolean hasBufferedInput;
     volatile ContentEncoder contentEncoder;
     volatile boolean hasBufferedOutput;
-    volatile HttpRequest request;
-    volatile HttpResponse response;
+    volatile ClassicHttpRequest request;
+    volatile ClassicHttpResponse response;
 
     volatile int status;
     volatile ProtocolVersion version;
@@ -158,12 +158,12 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     }
 
     @Override
-    public HttpRequest getHttpRequest() {
+    public ClassicHttpRequest getHttpRequest() {
         return this.request;
     }
 
     @Override
-    public HttpResponse getHttpResponse() {
+    public ClassicHttpResponse getHttpResponse() {
         return this.response;
     }
 

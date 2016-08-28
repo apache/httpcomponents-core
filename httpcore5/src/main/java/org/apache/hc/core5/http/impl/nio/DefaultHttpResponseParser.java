@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -41,13 +41,13 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * Default {@link org.apache.hc.core5.http.nio.NHttpMessageParser} implementation
- * for {@link HttpResponse}s.
+ * for {@link ClassicHttpResponse}s.
  *
  * @since 4.1
  */
-public class DefaultHttpResponseParser extends AbstractMessageParser<HttpResponse> {
+public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttpResponse> {
 
-    private final HttpResponseFactory responseFactory;
+    private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
 
     /**
      * Creates an instance of DefaultHttpResponseParser.
@@ -63,7 +63,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
      */
     public DefaultHttpResponseParser(
             final LineParser parser,
-            final HttpResponseFactory responseFactory,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final MessageConstraints constraints) {
         super(parser, constraints);
         this.responseFactory = responseFactory != null ? responseFactory :
@@ -85,7 +85,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<HttpRespons
     }
 
     @Override
-    protected HttpResponse createMessage(final CharArrayBuffer buffer) throws HttpException {
+    protected ClassicHttpResponse createMessage(final CharArrayBuffer buffer) throws HttpException {
         final StatusLine statusLine = getLineParser().parseStatusLine(buffer);
         final ProtocolVersion transportVersion = statusLine.getProtocolVersion();
         if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {

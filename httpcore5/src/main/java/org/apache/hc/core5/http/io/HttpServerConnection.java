@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.io;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 
 /**
  * A server-side HTTP connection, which can be used for receiving
@@ -51,7 +51,7 @@ public interface HttpServerConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    HttpRequest receiveRequestHeader()
+    ClassicHttpRequest receiveRequestHeader()
         throws HttpException, IOException;
 
     /**
@@ -61,7 +61,7 @@ public interface HttpServerConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void receiveRequestEntity(HttpRequest request)
+    void receiveRequestEntity(ClassicHttpRequest request)
         throws HttpException, IOException;
 
     /**
@@ -70,7 +70,7 @@ public interface HttpServerConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void sendResponseHeader(HttpResponse response)
+    void sendResponseHeader(ClassicHttpResponse response)
         throws HttpException, IOException;
 
     /**
@@ -79,7 +79,7 @@ public interface HttpServerConnection extends BHttpConnection {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void sendResponseEntity(HttpResponse response)
+    void sendResponseEntity(ClassicHttpResponse response)
         throws HttpException, IOException;
 
 }

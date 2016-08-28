@@ -35,8 +35,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -91,8 +91,8 @@ public class HttpRequestExecutor {
      * @param request   the request, to obtain the executed method
      * @param response  the response, to obtain the status code
      */
-    protected boolean canResponseHaveBody(final HttpRequest request,
-                                          final HttpResponse response) {
+    protected boolean canResponseHaveBody(final ClassicHttpRequest request,
+                                          final ClassicHttpResponse response) {
 
         if ("HEAD".equalsIgnoreCase(request.getMethod())) {
             return false;
@@ -116,8 +116,8 @@ public class HttpRequestExecutor {
      * @throws HttpException in case of HTTP protocol violation or a processing
      *   problem.
      */
-    public HttpResponse execute(
-            final HttpRequest request,
+    public ClassicHttpResponse execute(
+            final ClassicHttpRequest request,
             final HttpClientConnection conn,
             final HttpContext context) throws IOException, HttpException {
         Args.notNull(request, "HTTP request");
@@ -129,7 +129,7 @@ public class HttpRequestExecutor {
             Args.notNull(conn, "Client connection");
             Args.notNull(context, "HTTP context");
 
-            HttpResponse response = null;
+            ClassicHttpResponse response = null;
 
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
@@ -201,7 +201,7 @@ public class HttpRequestExecutor {
      *   problem.
      */
     public void preProcess(
-            final HttpRequest request,
+            final ClassicHttpRequest request,
             final HttpProcessor processor,
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -229,7 +229,7 @@ public class HttpRequestExecutor {
      *   problem.
      */
     public void postProcess(
-            final HttpResponse response,
+            final ClassicHttpResponse response,
             final HttpProcessor processor,
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");

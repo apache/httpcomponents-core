@@ -47,12 +47,12 @@ import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.FileEntity;
 import org.apache.hc.core5.http.entity.StringEntity;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.TrustStrategy;
 
@@ -94,7 +94,7 @@ public class HttpBenchmark {
         this.config = config != null ? config : new Config();
     }
 
-    private HttpRequest createRequest(final HttpHost host) {
+    private ClassicHttpRequest createRequest(final HttpHost host) {
         final URL url = config.getUrl();
         HttpEntity entity = null;
 
@@ -110,13 +110,13 @@ public class HttpBenchmark {
             se.setChunked(config.isUseChunking());
             entity = se;
         }
-        final HttpRequest request;
+        final ClassicHttpRequest request;
         if ("POST".equals(config.getMethod())) {
-            final HttpRequest httppost = new BasicHttpRequest("POST", url.getPath());
+            final ClassicHttpRequest httppost = new BasicClassicHttpRequest("POST", url.getPath());
             httppost.setEntity(entity);
             request = httppost;
         } else if ("PUT".equals(config.getMethod())) {
-            final HttpRequest httpput = new BasicHttpRequest("PUT", url.getPath());
+            final ClassicHttpRequest httpput = new BasicClassicHttpRequest("PUT", url.getPath());
             httpput.setEntity(entity);
             request = httpput;
         } else {
@@ -126,7 +126,7 @@ public class HttpBenchmark {
             } else if (path.trim().length() == 0) {
                 path = "/";
             }
-            request = new BasicHttpRequest(config.getMethod(), path);
+            request = new BasicClassicHttpRequest(config.getMethod(), path);
         }
         request.setVersion(config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1);
 

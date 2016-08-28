@@ -38,8 +38,8 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.http.ExceptionLogger;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.bootstrap.nio.HttpServer;
@@ -114,7 +114,7 @@ public class NHttpFileServer {
 
     }
 
-    static class HttpFileHandler implements HttpAsyncRequestHandler<HttpRequest> {
+    static class HttpFileHandler implements HttpAsyncRequestHandler<ClassicHttpRequest> {
 
         private final File docRoot;
 
@@ -124,8 +124,8 @@ public class NHttpFileServer {
         }
 
         @Override
-        public HttpAsyncRequestConsumer<HttpRequest> processRequest(
-                final HttpRequest request,
+        public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
+                final ClassicHttpRequest request,
                 final HttpContext context) {
             // Buffer request content in memory for simplicity
             return new BasicAsyncRequestConsumer();
@@ -133,17 +133,17 @@ public class NHttpFileServer {
 
         @Override
         public void handle(
-                final HttpRequest request,
+                final ClassicHttpRequest request,
                 final HttpAsyncExchange httpexchange,
                 final HttpContext context) throws HttpException, IOException {
-            HttpResponse response = httpexchange.getResponse();
+            ClassicHttpResponse response = httpexchange.getResponse();
             handleInternal(request, response, context);
             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
         }
 
         private void handleInternal(
-                final HttpRequest request,
-                final HttpResponse response,
+                final ClassicHttpRequest request,
+                final ClassicHttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
             String method = request.getMethod().toUpperCase(Locale.ENGLISH);

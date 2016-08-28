@@ -30,14 +30,14 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.MessageHead;
+import org.apache.hc.core5.http.MessageHeaders;
 
 /**
  * Message writer intended to serialize HTTP message head to a session buffer.
  *
  * @since 4.0
  */
-public interface NHttpMessageWriter<T extends MessageHead> {
+public interface NHttpMessageWriter<T extends MessageHeaders> {
 
     /**
      * Resets the writer. The writer will be ready to start serializing another

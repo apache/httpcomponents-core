@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
@@ -45,7 +45,7 @@ class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
 
     @Override
     public HttpAsyncRequestConsumer<Object> processRequest(
-            final HttpRequest request, final HttpContext context) {
+            final ClassicHttpRequest request, final HttpContext context) {
         return new NullRequestConsumer();
     }
 
@@ -54,7 +54,7 @@ class NullRequestHandler implements HttpAsyncRequestHandler<Object> {
             final Object obj,
             final HttpAsyncExchange httpexchange,
             final HttpContext context) {
-        final HttpResponse response = httpexchange.getResponse();
+        final ClassicHttpResponse response = httpexchange.getResponse();
         response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
         httpexchange.submitResponse(new ErrorResponseProducer(
                 response, new NStringEntity("Service not implemented", ContentType.TEXT_PLAIN), true));

@@ -29,14 +29,15 @@ package org.apache.hc.core5.http.examples;
 
 import java.net.Socket;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
-import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
@@ -79,11 +80,11 @@ public class ElementalHttpGet {
                     Socket socket = new Socket(host.getHostName(), host.getPort());
                     conn.bind(socket);
                 }
-                BasicHttpRequest request = new BasicHttpRequest("GET", host, targets[i]);
+                ClassicHttpRequest request = new BasicClassicHttpRequest("GET", host, targets[i]);
                 System.out.println(">> Request URI: " + request.getUri());
 
                 httpexecutor.preProcess(request, httpproc, coreContext);
-                HttpResponse response = httpexecutor.execute(request, conn, coreContext);
+                ClassicHttpResponse response = httpexecutor.execute(request, conn, coreContext);
                 httpexecutor.postProcess(response, httpproc, coreContext);
 
                 System.out.println("<< Response: " + response.getCode());

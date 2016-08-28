@@ -41,8 +41,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.ContentType;
@@ -71,14 +71,14 @@ class BenchmarkWorker implements Runnable {
     private final HttpRequestExecutor httpexecutor;
     private final ConnectionReuseStrategy connstrategy;
     private final HttpHost host;
-    private final HttpRequest request;
+    private final ClassicHttpRequest request;
     private final Config config;
     private final SocketFactory socketFactory;
     private final Stats stats = new Stats();
 
     public BenchmarkWorker(
             final HttpHost host,
-            final HttpRequest request,
+            final ClassicHttpRequest request,
             final SocketFactory socketFactory,
             final Config config) {
         super();
@@ -104,7 +104,7 @@ class BenchmarkWorker implements Runnable {
 
     @Override
     public void run() {
-        HttpResponse response = null;
+        ClassicHttpResponse response = null;
         final HttpVersion version = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
         final BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);
 
@@ -233,7 +233,7 @@ class BenchmarkWorker implements Runnable {
         }
     }
 
-    private void verboseOutput(final HttpResponse response) {
+    private void verboseOutput(final ClassicHttpResponse response) {
         if (config.getVerbosity() >= 3) {
             System.out.println(">> " + request.getMethod() + " " + request.getPath());
             final Header[] headers = request.getAllHeaders();
@@ -255,7 +255,7 @@ class BenchmarkWorker implements Runnable {
         }
     }
 
-    private static void resetHeader(final HttpRequest request) {
+    private static void resetHeader(final ClassicHttpRequest request) {
         for (final Iterator<Header> it = request.headerIterator(); it.hasNext();) {
             final Header header = it.next();
             if (!(header instanceof DefaultHeader)) {

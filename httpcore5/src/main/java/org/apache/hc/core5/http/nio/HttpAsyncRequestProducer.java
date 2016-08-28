@@ -31,7 +31,7 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -61,7 +61,7 @@ public interface HttpAsyncRequestProducer extends Closeable {
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    HttpRequest generateRequest() throws IOException, HttpException;
+    ClassicHttpRequest generateRequest() throws IOException, HttpException;
 
     /**
      * Invoked to write out a chunk of content to the {@link ContentEncoder}.
