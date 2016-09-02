@@ -27,14 +27,17 @@
 
 package org.apache.http.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.SequenceInputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
+import org.apache.http.Consts;
 import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -196,7 +199,8 @@ public final class EntityUtils {
     /**
      * Get the entity content as a String, using the provided default character set
      * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * If defaultCharset is null, the default "ISO-8859-1" is used (except for application/json, in which case the UTF
+     * encoding is auto-detected).
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity,
@@ -212,7 +216,7 @@ public final class EntityUtils {
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
         Args.notNull(entity, "Entity");
-        final InputStream instream = entity.getContent();
+        InputStream instream = entity.getContent();
         if (instream == null) {
             return null;
         }
@@ -223,9 +227,10 @@ public final class EntityUtils {
             if (i < 0) {
                 i = 4096;
             }
+            ContentType contentType = null;
             Charset charset = null;
             try {
-                final ContentType contentType = ContentType.get(entity);
+                contentType = ContentType.get(entity);
                 if (contentType != null) {
                     charset = contentType.getCharset();
                 }
@@ -238,7 +243,56 @@ public final class EntityUtils {
                 charset = defaultCharset;
             }
             if (charset == null) {
-                charset = HTTP.DEF_CONTENT_CHARSET;
+                if (contentType != null && contentType.getMimeType().equals(ContentType.APPLICATION_JSON.getMimeType())) {
+                    // RFC 4627 requires detecting the UTF encoding of JSON. The detection is unambiguous because the
+                    // first character is Basic Latin, and no character is NUL.
+                    // We implement the optional feature in RFC 7159 of handling byte order marks.
+                    int octect = instream.read();
+                    final ByteArrayBuffer peeked = new ByteArrayBuffer(3);
+                    switch (octect) {
+                        case 0:
+                            peeked.append((byte)octect);
+                            octect = instream.read();
+                            peeked.append((byte)octect);
+                            charset = octect == 0 ? Consts.UTF_32 : Consts.UTF_16;
+                            break;
+                        case 0xef:
+                            instream.skip(2); // OpenJDK/Oracle UTF-8 implementation cannot handle BOM
+                            charset = Consts.UTF_8;
+                            break;
+                        case 0xfe:
+                            peeked.append((byte)octect);
+                            charset = Consts.UTF_16;
+                            break;
+                        case 0xff:
+                            peeked.append((byte)octect);
+                            peeked.append((byte)instream.read());
+                            octect = instream.read();
+                            peeked.append((byte)octect);
+                            charset = octect == 0 ? Consts.UTF_32 : Consts.UTF_16;
+                            break;
+                        default:
+                            peeked.append((byte)octect);
+                            octect = instream.read();
+                            if (octect == 0) {
+                                peeked.append((byte)octect);
+                                octect = instream.read();
+                                peeked.append((byte)octect);
+                                charset = octect == 0 ? Consts.UTF_32 : Consts.UTF_16;
+                            } else {
+                                if (octect != -1) {
+                                    peeked.append((byte)octect);
+                                }
+                                charset = Consts.UTF_8;
+                            }
+                    }
+                    if (!peeked.isEmpty()) {
+                       instream = new SequenceInputStream(new ByteArrayInputStream(peeked.toByteArray()), instream);
+                    }
+                } else {
+                    // per RFC 2616
+                    charset = HTTP.DEF_CONTENT_CHARSET;
+                }
             }
             final Reader reader = new InputStreamReader(instream, charset);
             final CharArrayBuffer buffer = new CharArrayBuffer(i);
@@ -256,7 +310,8 @@ public final class EntityUtils {
     /**
      * Get the entity content as a String, using the provided default character set
      * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * If defaultCharset is null, the default "ISO-8859-1" is used (except for application/json, in which case the UTF
+     * encoding is auto-detected).
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
@@ -275,8 +330,8 @@ public final class EntityUtils {
 
     /**
      * Read the contents of an entity and return it as a String.
-     * The content is converted using the character set from the entity (if any),
-     * failing that, "ISO-8859-1" is used.
+     * The content is converted using the character set from the entity (if any), failing that, "ISO-8859-1" is used
+     * (except for application/json, in which case the UTF encoding is auto-detected).
      *
      * @param entity the entity to convert to a string; must not be null
      * @return String containing the content.

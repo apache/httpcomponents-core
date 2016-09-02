@@ -42,6 +42,8 @@ public final class Consts {
     public static final int HT = 9;  // <US-ASCII HT, horizontal-tab (9)>
 
     public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Charset UTF_16 = Charset.forName("UTF-16");
+    public static final Charset UTF_32 = Charset.forName("UTF-32");
     public static final Charset ASCII = Charset.forName("US-ASCII");
     public static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
