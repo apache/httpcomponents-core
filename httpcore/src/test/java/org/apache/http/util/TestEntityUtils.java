@@ -215,6 +215,110 @@ public class TestEntityUtils {
         Assert.assertEquals(content, s);
     }
 
+    @Test
+    public void testUtf8JsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0x22, (byte)0xc2, (byte)0xa7, (byte)0x22
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
+    @Test
+    public void testUtf8BomJsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0xef, (byte)0xbb, (byte)0xbf, (byte)0x22, (byte)0xc2, (byte)0xa7, (byte)0x22
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
+    @Test
+    public void testUtf16JsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0x00, (byte)0x22,
+                (byte)0x00, (byte)0xa7,
+                (byte)0x00, (byte)0x22
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
+    @Test
+    public void testUtf16BeJsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0xfe, (byte)0xff,
+                (byte)0x00, (byte)0x22,
+                (byte)0x00, (byte)0xa7,
+                (byte)0x00, (byte)0x22
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
+    @Test
+    public void testUtf16LeJsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0xff, (byte)0xfe,
+                (byte)0x22, (byte)0x00,
+                (byte)0xa7, (byte)0x00,
+                (byte)0x22, (byte)0x00
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
+    @Test
+    public void testUtf32JsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x22,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0xa7,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x22
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
+    @Test
+    public void testUtf32BeJsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0x00, (byte)0x00, (byte)0xfe, (byte)0xff,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x22,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0xa7,
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x22
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
+    @Test
+    public void testUtf32LeJsonToString() throws Exception {
+        final BasicHttpEntity httpentity = new BasicHttpEntity();
+        httpentity.setContent(new ByteArrayInputStream(new byte[] {
+                (byte)0xff, (byte)0xfe, (byte)0x00, (byte)0x00,
+                (byte)0x22, (byte)0x00, (byte)0x00, (byte)0x00,
+                (byte)0xa7, (byte)0x00, (byte)0x00, (byte)0x00,
+                (byte)0x22, (byte)0x00, (byte)0x00, (byte)0x00
+        }));
+        httpentity.setContentType("application/json");
+        final String s = EntityUtils.toString(httpentity);
+        Assert.assertEquals("\"\u00a7\"", s);
+    }
+
     /**
      * Helper class that returns {@code null} as the content.
      */
