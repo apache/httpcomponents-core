@@ -31,6 +31,8 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -42,8 +44,8 @@ import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.message.BasicHeaderValueFormatter;
 import org.apache.http.message.BasicHeaderValueParser;
 import org.apache.http.message.BasicNameValuePair;
@@ -91,6 +93,28 @@ public final class ContentType implements Serializable {
             "text/xml", Consts.ISO_8859_1);
     public static final ContentType WILDCARD = create(
             "*/*", (Charset) null);
+
+
+    private static final Map<String, ContentType> CONTENT_TYPE_MAP;
+    static {
+
+        final ContentType[] contentTypes = {
+            APPLICATION_ATOM_XML,
+            APPLICATION_FORM_URLENCODED,
+            APPLICATION_JSON,
+            APPLICATION_SVG_XML,
+            APPLICATION_XHTML_XML,
+            APPLICATION_XML,
+            MULTIPART_FORM_DATA,
+            TEXT_HTML,
+            TEXT_PLAIN,
+            TEXT_XML };
+        final HashMap<String, ContentType> map = new HashMap<String, ContentType>();
+        for (ContentType contentType: contentTypes) {
+            map.put(contentType.getMimeType(), contentType);
+        }
+        CONTENT_TYPE_MAP = Collections.unmodifiableMap(map);
+    }
 
     // defaults
     public static final ContentType DEFAULT_TEXT = TEXT_PLAIN;
@@ -360,6 +384,22 @@ public final class ContentType implements Serializable {
             final HttpEntity entity) throws ParseException, UnsupportedCharsetException {
         final ContentType contentType = get(entity);
         return contentType != null ? contentType : DEFAULT_TEXT;
+    }
+
+
+    /**
+     * Returns {@code Content-Type} for the given MIME type.
+     *
+     * @param mimeType MIME type
+     * @return content type or {@code null} if not known.
+     *
+     * @since 4.5
+     */
+    public static ContentType getByMimeType(final String mimeType) {
+        if (mimeType == null) {
+            return null;
+        }
+        return CONTENT_TYPE_MAP.get(mimeType);
     }
 
     /**
