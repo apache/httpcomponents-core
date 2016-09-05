@@ -36,8 +36,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
@@ -142,25 +142,9 @@ public final class EntityUtils {
         }
     }
 
-    /**
-     * Get the entity content as a String, using the provided default character set
-     * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
-     *
-     * @param entity must not be null
-     * @param defaultCharset character set to be applied if none found in the entity,
-     * or if the entity provided charset is invalid or not available.
-     * @return the entity content as a String. May be null if
-     *   {@link HttpEntity#getContent()} is null.
-     * @throws ParseException if header elements cannot be parsed
-     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
-     * @throws IOException if an error occurs reading the input stream
-     * @throws UnsupportedCharsetException Thrown when the named entity's charset is not available in
-     * this instance of the Java virtual machine and no defaultCharset is provided.
-     */
-    public static String toString(
-            final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
-        Args.notNull(entity, "Entity");
+    private static String toString(
+            final HttpEntity entity,
+            final ContentType contentType) throws IOException {
         final InputStream instream = entity.getContent();
         if (instream == null) {
             return null;
@@ -173,18 +157,12 @@ public final class EntityUtils {
                 i = 4096;
             }
             Charset charset = null;
-            try {
-                final ContentType contentType = ContentType.get(entity);
-                if (contentType != null) {
-                    charset = contentType.getCharset();
+            if (contentType != null) {
+                charset = contentType.getCharset();
+                if (charset == null) {
+                    final ContentType defaultContentType = ContentType.getByMimeType(contentType.getMimeType());
+                    charset = defaultContentType != null ? defaultContentType.getCharset() : null;
                 }
-            } catch (final UnsupportedCharsetException ex) {
-                if (defaultCharset == null) {
-                    throw new UnsupportedEncodingException(ex.getMessage());
-                }
-            }
-            if (charset == null) {
-                charset = defaultCharset;
             }
             if (charset == null) {
                 charset = StandardCharsets.ISO_8859_1;
@@ -208,13 +186,50 @@ public final class EntityUtils {
      * If defaultCharset is null, the default "ISO-8859-1" is used.
      *
      * @param entity must not be null
+     * @param defaultCharset character set to be applied if none found in the entity,
+     * or if the entity provided charset is invalid or not available.
+     * @return the entity content as a String. May be null if
+     *   {@link HttpEntity#getContent()} is null.
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named entity's charset is not available in
+     * this instance of the Java virtual machine and no defaultCharset is provided.
+     */
+    public static String toString(
+            final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
+        Args.notNull(entity, "Entity");
+        ContentType contentType = null;
+        try {
+            contentType = ContentType.get(entity);
+        } catch (final UnsupportedCharsetException ex) {
+            if (defaultCharset == null) {
+                throw new UnsupportedEncodingException(ex.getMessage());
+            }
+        }
+        if (contentType != null) {
+            if (contentType.getCharset() == null) {
+                contentType = contentType.withCharset(defaultCharset);
+            }
+        } else {
+            contentType = ContentType.DEFAULT_TEXT.withCharset(defaultCharset);
+        }
+        return toString(entity, contentType);
+    }
+
+    /**
+     * Get the entity content as a String, using the provided default character set
+     * if none is found in the entity.
+     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     *
+     * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
      * @return the entity content as a String. May be null if
      *   {@link HttpEntity#getContent()} is null.
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
     public static String toString(
@@ -232,12 +247,12 @@ public final class EntityUtils {
      * @throws ParseException if header elements cannot be parsed
      * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      * @throws IOException if an error occurs reading the input stream
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
-    public static String toString(final HttpEntity entity)
-        throws IOException, ParseException {
-        return toString(entity, (Charset)null);
+    public static String toString(final HttpEntity entity) throws IOException, ParseException {
+        Args.notNull(entity, "Entity");
+        return toString(entity, ContentType.get(entity));
     }
 
 }
