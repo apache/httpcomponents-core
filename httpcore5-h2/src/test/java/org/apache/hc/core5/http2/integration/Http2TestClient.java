@@ -117,6 +117,13 @@ public class Http2TestClient {
         return connect(address, connectTimeout, null, null);
     }
 
+    public Future<ClientCommandEndpoint> connect(
+            final String hostname,
+            final int port,
+            final int connectTimeout) throws InterruptedException {
+        return connect(new InetSocketAddress(hostname, port), connectTimeout, null, null);
+    }
+
     private AsyncPushConsumer createHandler(final HttpRequest request) throws HttpException, IOException {
 
         final HttpHost authority;
