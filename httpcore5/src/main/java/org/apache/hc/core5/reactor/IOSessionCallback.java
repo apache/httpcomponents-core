@@ -27,31 +27,15 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.io.IOException;
+
 /**
- * IOReactorStatus represents an internal status of an I/O reactor.
+ * Callback for operations with {@link IOSession} instances managed by an I/O reactor..
  *
- * @since 4.0
+ * @since 5.0
  */
-public enum IOReactorStatus {
+public interface IOSessionCallback {
 
-    /**
-     * The reactor is active / processing I/O events.
-     */
-    ACTIVE,
-
-    /**
-     * The reactor is shutting down.
-     */
-    SHUTTING_DOWN,
-
-    /**
-     * The reactor has shut down.
-     */
-    SHUT_DOWN,
-
-    /**
-     * The reactor is inactive / has not been started
-     */
-    INACTIVE
+    void execute(IOSession session) throws IOException;
 
 }

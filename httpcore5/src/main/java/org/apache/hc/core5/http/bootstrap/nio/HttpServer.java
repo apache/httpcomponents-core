@@ -131,11 +131,7 @@ public class HttpServer {
 
     public void shutdown(final long gracePeriod, final TimeUnit timeUnit) {
         if (this.status.compareAndSet(Status.ACTIVE, Status.STOPPING)) {
-            try {
-                this.ioReactor.shutdown(timeUnit.toMillis(gracePeriod));
-            } catch (final IOException ex) {
-                this.exceptionLogger.log(ex);
-            }
+            this.ioReactor.shutdown(gracePeriod, timeUnit);
             this.listenerExecutorService.shutdown();
         }
     }

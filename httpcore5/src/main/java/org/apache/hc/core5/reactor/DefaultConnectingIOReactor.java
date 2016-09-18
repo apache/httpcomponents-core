@@ -107,7 +107,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     }
 
     @Override
-    protected void cancelRequests() throws IOReactorException {
+    protected void cancelRequests() {
         SessionRequestImpl request;
         while ((request = this.requestQueue.poll()) != null) {
             request.cancel();
@@ -201,8 +201,8 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             final SocketAddress localAddress,
             final Object attachment,
             final SessionRequestCallback callback) {
-        Asserts.check(this.status.compareTo(IOReactorStatus.ACTIVE) <= 0,
-            "I/O reactor has been shut down");
+        final IOReactorStatus status = getStatus();
+        Asserts.check(status == IOReactorStatus.INACTIVE || status == IOReactorStatus.ACTIVE, "I/O reactor has been shut down");
         final SessionRequestImpl sessionRequest = new SessionRequestImpl(
                 remoteAddress, localAddress, attachment, callback);
         sessionRequest.setConnectTimeout(this.reactorConfig.getConnectTimeout());

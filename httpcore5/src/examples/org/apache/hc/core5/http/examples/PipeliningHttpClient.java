@@ -31,6 +31,7 @@ import java.io.InterruptedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
@@ -156,7 +157,7 @@ public class PipeliningHttpClient {
 
         latch.await();
         System.out.println("Shutting down I/O reactor");
-        ioReactor.shutdown();
+        ioReactor.shutdown(3, TimeUnit.SECONDS);
         System.out.println("Done");
     }
 

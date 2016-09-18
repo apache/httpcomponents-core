@@ -146,7 +146,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         return this.isShutDown.get();
     }
 
-    public void shutdown(final long waitMs) throws IOException {
+    public void shutdown(final long deadline, final TimeUnit timeUnit) throws IOException {
+        Args.notNull(timeUnit, "Time unit");
         if (this.isShutDown.compareAndSet(false, true)) {
             fireCallbacks();
             this.lock.lock();
@@ -168,7 +169,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 this.pending.clear();
                 this.available.clear();
                 this.leasingRequests.clear();
-                this.ioreactor.shutdown(waitMs);
+                this.ioreactor.shutdown(deadline, timeUnit);
             } finally {
                 this.lock.unlock();
             }

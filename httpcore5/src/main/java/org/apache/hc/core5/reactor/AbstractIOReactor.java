@@ -38,6 +38,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
@@ -49,27 +51,24 @@ import org.apache.hc.core5.util.Asserts;
  *
  * @since 4.0
  */
-public abstract class AbstractIOReactor implements IOReactor {
+abstract class AbstractIOReactor implements IOReactor {
 
     private final IOReactorConfig reactorConfig;
     private final IOEventHandlerFactory eventHandlerFactory;
     private final Selector selector;
     private final Queue<IOSession> closedSessions;
     private final Queue<PendingSession> pendingSessions;
-    private final Object statusMutex;
+    private final Object shutdownMutex;
 
-    private volatile IOReactorStatus status;
+    private final AtomicReference<IOReactorStatus> status;
 
     /**
      * Creates new AbstractIOReactor instance.
      *
      * @param eventHandlerFactory the event handler factory.
      * @param reactorConfig the reactor configuration.
-     * @throws IOReactorException in case if a non-recoverable I/O error.
      */
-    public AbstractIOReactor(
-            final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig reactorConfig) throws IOReactorException {
+    public AbstractIOReactor(final IOEventHandlerFactory eventHandlerFactory, final IOReactorConfig reactorConfig) {
         super();
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
@@ -78,10 +77,10 @@ public abstract class AbstractIOReactor implements IOReactor {
         try {
             this.selector = Selector.open();
         } catch (final IOException ex) {
-            throw new IOReactorException("Failure opening selector", ex);
+            throw new IllegalStateException("Unexpected failure opening I/O selector", ex);
         }
-        this.statusMutex = new Object();
-        this.status = IOReactorStatus.INACTIVE;
+        this.shutdownMutex = new Object();
+        this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
     }
 
     /**
@@ -179,7 +178,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
     @Override
     public IOReactorStatus getStatus() {
-        return this.status;
+        return this.status.get();
     }
 
     /**
@@ -218,12 +217,18 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @throws InterruptedIOException if the dispatch thread is interrupted.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
+
     public void execute() throws InterruptedIOException, IOReactorException {
-        this.status = IOReactorStatus.ACTIVE;
+        if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE)) {
+            doExecute();
+        }
+    }
+
+    private void doExecute() throws InterruptedIOException, IOReactorException {
 
         final long selectTimeout = this.reactorConfig.getSelectInterval();
         try {
-            for (;;) {
+            while (!Thread.currentThread().isInterrupted()) {
 
                 final int readyCount;
                 try {
@@ -234,16 +239,11 @@ public abstract class AbstractIOReactor implements IOReactor {
                     throw new IOReactorException("Unexpected selector failure", ex);
                 }
 
-                if (this.status == IOReactorStatus.SHUT_DOWN) {
-                    // Hard shut down. Exit select loop immediately
-                    break;
-                }
-
-                if (this.status == IOReactorStatus.SHUTTING_DOWN) {
-                    // Graceful shutdown in process
-                    // Try to close things out nicely
-                    closeSessions();
+                if (this.status.get().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
                     closePendingSessions();
+                }
+                if (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) == 0) {
+                    break;
                 }
 
                 // Process selected I/O events
@@ -258,22 +258,27 @@ public abstract class AbstractIOReactor implements IOReactor {
                 processClosedSessions();
 
                 // If active process new channels
-                if (this.status == IOReactorStatus.ACTIVE) {
+                if (this.status.get().compareTo(IOReactorStatus.ACTIVE) == 0) {
                     processPendingSessions();
                 }
 
                 // Exit select loop if graceful shutdown has been completed
-                if (this.status.compareTo(IOReactorStatus.ACTIVE) > 0
-                        && this.selector.keys().isEmpty()) {
+                if (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) > 0 && this.selector.keys().isEmpty()) {
                     break;
                 }
             }
 
         } catch (final ClosedSelectorException ignore) {
         } finally {
-            hardShutdown();
-            synchronized (this.statusMutex) {
-                this.statusMutex.notifyAll();
+            try {
+                closePendingSessions();
+                closeActiveChannels();
+                processClosedSessions();
+            } finally {
+                this.status.set(IOReactorStatus.SHUT_DOWN);
+                synchronized (this.shutdownMutex) {
+                    this.shutdownMutex.notifyAll();
+                }
             }
         }
     }
@@ -380,16 +385,6 @@ public abstract class AbstractIOReactor implements IOReactor {
         }
     }
 
-    private void closeSessions() {
-        final Set<SelectionKey> keys = this.selector.keys();
-        for (final SelectionKey key : keys) {
-            final IOSession session = getSession(key);
-            if (session != null) {
-                session.close();
-            }
-        }
-    }
-
     private void closePendingSessions() {
         PendingSession pendingSession;
         while ((pendingSession = this.pendingSessions.poll()) != null) {
@@ -408,9 +403,8 @@ public abstract class AbstractIOReactor implements IOReactor {
     /**
      * Closes out all active channels registered with the selector of
      * this I/O reactor.
-     * @throws IOReactorException - not thrown currently
      */
-    protected void closeActiveChannels() throws IOReactorException {
+    protected void closeActiveChannels() {
         try {
             final Set<SelectionKey> keys = this.selector.keys();
             for (final SelectionKey key : keys) {
@@ -425,76 +419,60 @@ public abstract class AbstractIOReactor implements IOReactor {
     }
 
     /**
-     * Attempts graceful shutdown of this I/O reactor.
-     */
-    public void gracefulShutdown() {
-        synchronized (this.statusMutex) {
-            if (this.status != IOReactorStatus.ACTIVE) {
-                // Already shutting down
-                return;
-            }
-            this.status = IOReactorStatus.SHUTTING_DOWN;
-        }
-        this.selector.wakeup();
-    }
-
-    /**
-     * Attempts force-shutdown of this I/O reactor.
-     */
-    public void hardShutdown() throws IOReactorException {
-        synchronized (this.statusMutex) {
-            if (this.status == IOReactorStatus.SHUT_DOWN) {
-                // Already shut down
-                return;
-            }
-            this.status = IOReactorStatus.SHUT_DOWN;
-        }
-
-        closePendingSessions();
-        closeActiveChannels();
-        processClosedSessions();
-    }
-
-    /**
-     * Blocks for the given period of time in milliseconds awaiting
-     * the completion of the reactor shutdown.
+     * Enumerates all active sessions
      *
-     * @param timeout the maximum wait time.
-     * @throws InterruptedException if interrupted.
+     * @since 5.0
      */
-    public void awaitShutdown(final long timeout) throws InterruptedException {
-        synchronized (this.statusMutex) {
-            final long deadline = System.currentTimeMillis() + timeout;
-            long remaining = timeout;
-            while (this.status != IOReactorStatus.SHUT_DOWN) {
-                this.statusMutex.wait(remaining);
-                if (timeout > 0) {
-                    remaining = deadline - System.currentTimeMillis();
-                    if (remaining <= 0) {
-                        break;
-                    }
+    protected void enumSessions(final IOSessionCallback callback) throws IOException {
+        if (this.selector.isOpen()) {
+            final Set<SelectionKey> keys = this.selector.keys();
+            for (final SelectionKey key : keys) {
+                final IOSession session = getSession(key);
+                if (session != null) {
+                    callback.execute(session);
                 }
             }
         }
     }
 
     @Override
-    public void shutdown(final long gracePeriod) throws IOReactorException {
-        if (this.status != IOReactorStatus.INACTIVE) {
-            gracefulShutdown();
-            try {
-                awaitShutdown(gracePeriod);
-            } catch (final InterruptedException ignore) {
+    public void awaitShutdown(final long timeout, final TimeUnit timeUnit) throws InterruptedException {
+        Args.notNull(timeUnit, "Time unit");
+        final long timeoutMs = timeUnit.toMillis(timeout);
+        final long deadline = System.currentTimeMillis() + timeoutMs;
+        long remaining = timeoutMs;
+        synchronized (this.shutdownMutex) {
+            while (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
+                this.shutdownMutex.wait(remaining);
+                remaining = deadline - System.currentTimeMillis();
+                if (remaining <= 0) {
+                    return;
+                }
             }
-        }
-        if (this.status != IOReactorStatus.SHUT_DOWN) {
-            hardShutdown();
         }
     }
 
     @Override
-    public void shutdown() throws IOReactorException {
-        shutdown(1000);
+    public void initiateShutdown() {
+        if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUT_DOWN)) {
+            selector.wakeup();
+        }
+    }
+
+    void forceShutdown() {
+        this.status.set(IOReactorStatus.SHUT_DOWN);
+        this.selector.wakeup();
+    }
+
+    @Override
+    public void shutdown(final long graceTime, final TimeUnit timeUnit) {
+        initiateShutdown();
+        try {
+            awaitShutdown(graceTime, timeUnit);
+            forceShutdown();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private static class PendingSession {

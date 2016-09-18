@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.examples;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -150,7 +151,7 @@ public class NHttpClient {
         }
         latch.await();
         System.out.println("Shutting down I/O reactor");
-        ioReactor.shutdown();
+        ioReactor.shutdown(3, TimeUnit.SECONDS);
         System.out.println("Done");
     }
 

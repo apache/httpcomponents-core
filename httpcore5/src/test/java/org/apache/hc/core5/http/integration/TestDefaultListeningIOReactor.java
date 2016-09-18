@@ -130,7 +130,7 @@ public class TestDefaultListeningIOReactor {
 
         Assert.assertEquals(port, ((InetSocketAddress) endpoint.getAddress()).getPort());
 
-        ioreactor.shutdown(1000);
+        ioreactor.shutdown();
         t.join(1000);
 
         Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
@@ -172,7 +172,7 @@ public class TestDefaultListeningIOReactor {
         Assert.assertNotNull(endpoints);
         Assert.assertEquals(0, endpoints.size());
 
-        ioreactor.shutdown(1000);
+        ioreactor.shutdown();
         t.join(1000);
 
         Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
@@ -220,7 +220,7 @@ public class TestDefaultListeningIOReactor {
 
         Assert.assertEquals(IOReactorStatus.ACTIVE, ioreactor.getStatus());
 
-        ioreactor.shutdown(1000);
+        ioreactor.shutdown(1, TimeUnit.SECONDS);
         t.join(1000);
 
         Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());

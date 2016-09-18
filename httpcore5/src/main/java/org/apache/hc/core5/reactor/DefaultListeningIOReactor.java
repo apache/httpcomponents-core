@@ -111,7 +111,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     }
 
     @Override
-    protected void cancelRequests() throws IOReactorException {
+    protected void cancelRequests() {
         ListenerEndpointImpl request;
         while ((request = this.requestQueue.poll()) != null) {
             request.cancel();
@@ -191,8 +191,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
 
     @Override
     public ListenerEndpoint listen(final SocketAddress address) {
-        Asserts.check(this.status.compareTo(IOReactorStatus.ACTIVE) <= 0,
-                "I/O reactor has been shut down");
+        final IOReactorStatus status = getStatus();
+        Asserts.check(status == IOReactorStatus.INACTIVE || status == IOReactorStatus.ACTIVE, "I/O reactor has been shut down");
         final ListenerEndpointImpl request = createEndpoint(address);
         this.requestQueue.add(request);
         this.selector.wakeup();

@@ -205,7 +205,7 @@ public class HttpClientNio {
     }
 
     public void shutdown() throws IOException {
-        this.connpool.shutdown(2000);
+        this.connpool.shutdown(3, TimeUnit.SECONDS);
         try {
             join(500);
         } catch (final InterruptedException ignore) {

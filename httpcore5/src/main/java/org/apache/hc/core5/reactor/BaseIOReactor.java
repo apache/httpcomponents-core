@@ -44,24 +44,24 @@ public class BaseIOReactor extends AbstractIOReactor {
 
     private final long timeoutCheckInterval;
     private final Set<IOSession> bufferingSessions;
+    private final IOReactorExceptionHandler exceptionHandler;
 
     private long lastTimeoutCheck;
-
-    private IOReactorExceptionHandler exceptionHandler = null;
 
     /**
      * Creates new BaseIOReactor instance.
      *
      * @param eventHandlerFactory the event handler factory.
      * @param reactorConfig the reactor configuration.
-     * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     public BaseIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig reactorConfig) throws IOReactorException {
+            final IOReactorConfig reactorConfig,
+            final IOReactorExceptionHandler exceptionHandler) {
         super(eventHandlerFactory, reactorConfig);
         this.bufferingSessions = new HashSet<>();
         this.timeoutCheckInterval = reactorConfig.getSelectInterval();
+        this.exceptionHandler = exceptionHandler;
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
@@ -76,15 +76,6 @@ public class BaseIOReactor extends AbstractIOReactor {
     @Override
     public void execute() throws InterruptedIOException, IOReactorException {
         super.execute();
-    }
-
-    /**
-     * Sets exception handler for this I/O reactor.
-     *
-     * @param exceptionHandler the exception handler.
-     */
-    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
     }
 
     /**

@@ -31,13 +31,14 @@ import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentType;
@@ -164,11 +165,7 @@ public class NHttpReverseProxy {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } finally {
-                    try {
-                        listeningIOReactor.shutdown();
-                    } catch (IOException ex2) {
-                        ex2.printStackTrace();
-                    }
+                    listeningIOReactor.shutdown(3, TimeUnit.SECONDS);
                 }
             }
 
@@ -182,11 +179,7 @@ public class NHttpReverseProxy {
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
-            try {
-                connectingIOReactor.shutdown();
-            } catch (IOException ex2) {
-                ex2.printStackTrace();
-            }
+            connectingIOReactor.shutdown(3, TimeUnit.SECONDS);
         }
     }
 

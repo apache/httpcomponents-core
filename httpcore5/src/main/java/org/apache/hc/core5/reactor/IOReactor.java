@@ -28,6 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * HttpCore NIO is based on the Reactor pattern as described by Doug Lea.
@@ -61,8 +62,7 @@ public interface IOReactor {
      *
      * @throws IOException in case of an I/O error.
      */
-    void execute()
-        throws IOException;
+    void execute() throws IOException;
 
     /**
      * Initiates shutdown of the reactor and blocks approximately for the given
@@ -70,22 +70,31 @@ public interface IOReactor {
      * active connections, to shut down itself and to release system resources
      * it currently holds.
      *
-     * @param waitMs wait time in milliseconds.
-     * @throws IOException in case of an I/O error.
+     * @param graceTime grace time in units.
+     * @param timeUnit time unit
+     *
+     * @since 5.0
      */
-    void shutdown(long waitMs)
-        throws IOException;
+    void shutdown(long graceTime, TimeUnit timeUnit);
 
     /**
-     * Initiates shutdown of the reactor and blocks for a default period of
-     * time waiting for the reactor to terminate all active connections, to shut
-     * down itself and to release system resources it currently holds. It is
-     * up to individual implementations to decide for how long this method can
-     * remain blocked.
+     * Initiates shutdown of the reactor without blocking. The reactor is expected
+     * to terminate all active connections, to shut down itself and to release
+     * system resources it currently holds
      *
-     * @throws IOException in case of an I/O error.
+     * @since 5.0
      */
-    void shutdown()
-        throws IOException;
+    void initiateShutdown();
+
+    /**
+     * Blocks for the given period of time in milliseconds awaiting
+     * the completion of the reactor shutdown.
+     *
+     * @param timeout wait timeout in units.
+     * @param timeUnit time unit
+     *
+     * @since 5.0
+     */
+    void awaitShutdown(long timeout, TimeUnit timeUnit) throws InterruptedException;
 
 }

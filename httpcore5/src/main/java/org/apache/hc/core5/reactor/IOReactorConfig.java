@@ -44,7 +44,6 @@ public final class IOReactorConfig {
     public static final IOReactorConfig DEFAULT = new Builder().build();
 
     private final long selectInterval;
-    private final long shutdownGracePeriod;
     private final int ioThreadCount;
     private final int soTimeout;
     private final boolean soReuseAddress;
@@ -58,7 +57,6 @@ public final class IOReactorConfig {
 
     IOReactorConfig(
             final long selectInterval,
-            final long shutdownGracePeriod,
             final int ioThreadCount,
             final int soTimeout,
             final boolean soReuseAddress,
@@ -71,7 +69,6 @@ public final class IOReactorConfig {
             final int backlogSize) {
         super();
         this.selectInterval = selectInterval;
-        this.shutdownGracePeriod = shutdownGracePeriod;
         this.ioThreadCount = ioThreadCount;
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
@@ -92,16 +89,6 @@ public final class IOReactorConfig {
      */
     public long getSelectInterval() {
         return this.selectInterval;
-    }
-
-    /**
-     * Determines grace period in milliseconds the I/O reactors are expected to block waiting
-     * for individual worker threads to terminate cleanly.
-     * <p>
-     * Default: {@code 500} milliseconds.
-     */
-    public long getShutdownGracePeriod() {
-        return this.shutdownGracePeriod;
     }
 
     /**
@@ -224,7 +211,6 @@ public final class IOReactorConfig {
         Args.notNull(config, "I/O reactor config");
         return new Builder()
             .setSelectInterval(config.getSelectInterval())
-            .setShutdownGracePeriod(config.getShutdownGracePeriod())
             .setIoThreadCount(config.getIoThreadCount())
             .setSoTimeout(config.getSoTimeout())
             .setSoReuseAddress(config.isSoReuseAddress())
@@ -240,7 +226,6 @@ public final class IOReactorConfig {
     public static class Builder {
 
         private long selectInterval;
-        private long shutdownGracePeriod;
         private int ioThreadCount;
         private int soTimeout;
         private boolean soReuseAddress;
@@ -254,7 +239,6 @@ public final class IOReactorConfig {
 
         Builder() {
             this.selectInterval = 1000;
-            this.shutdownGracePeriod = 500;
             this.ioThreadCount = AVAIL_PROCS;
             this.soTimeout = 0;
             this.soReuseAddress = false;
@@ -269,11 +253,6 @@ public final class IOReactorConfig {
 
         public Builder setSelectInterval(final long selectInterval) {
             this.selectInterval = selectInterval;
-            return this;
-        }
-
-        public Builder setShutdownGracePeriod(final long shutdownGracePeriod) {
-            this.shutdownGracePeriod = shutdownGracePeriod;
             return this;
         }
 
@@ -329,8 +308,7 @@ public final class IOReactorConfig {
 
         public IOReactorConfig build() {
             return new IOReactorConfig(
-                    selectInterval, shutdownGracePeriod, ioThreadCount,
-                    soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
+                    selectInterval, ioThreadCount, soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
                     connectTimeout, sndBufSize, rcvBufSize, backlogSize);
         }
 
@@ -340,7 +318,6 @@ public final class IOReactorConfig {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append("[selectInterval=").append(this.selectInterval)
-                .append(", shutdownGracePeriod=").append(this.shutdownGracePeriod)
                 .append(", ioThreadCount=").append(this.ioThreadCount)
                 .append(", soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)
