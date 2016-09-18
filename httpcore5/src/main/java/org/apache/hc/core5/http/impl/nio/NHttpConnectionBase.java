@@ -35,14 +35,14 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
@@ -334,14 +334,11 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
     public String toString() {
         final SocketAddress remoteAddress = this.session.getRemoteAddress();
         final SocketAddress localAddress = this.session.getLocalAddress();
-        if (remoteAddress != null && localAddress != null) {
-            final StringBuilder buffer = new StringBuilder();
-            NetUtils.formatAddress(buffer, localAddress);
-            buffer.append("<->");
-            NetUtils.formatAddress(buffer, remoteAddress);
-            return buffer.toString();
-        }
-        return "[Not bound]";
+        final StringBuilder buffer = new StringBuilder();
+        NetUtils.formatAddress(buffer, localAddress);
+        buffer.append("->");
+        NetUtils.formatAddress(buffer, remoteAddress);
+        return buffer.toString();
     }
 
     @Override

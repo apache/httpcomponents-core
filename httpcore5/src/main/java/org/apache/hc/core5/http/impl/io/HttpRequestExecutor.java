@@ -31,12 +31,12 @@ import java.io.IOException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -124,11 +124,6 @@ public class HttpRequestExecutor {
         Args.notNull(conn, "Client connection");
         Args.notNull(context, "HTTP context");
         try {
-
-            Args.notNull(request, "HTTP request");
-            Args.notNull(conn, "Client connection");
-            Args.notNull(context, "HTTP context");
-
             ClassicHttpResponse response = null;
 
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);

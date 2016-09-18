@@ -30,6 +30,8 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.http2.config.H2Setting;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -53,7 +55,7 @@ public class TestDefaultFrameFactory {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
         final Frame<ByteBuffer> settingsFrame = frameFactory.createSettings(
-                new H2Setting(H2Param.HEADER_TABLE_SIZE),
+                new H2Setting(H2Param.HEADER_TABLE_SIZE, 1024),
                 new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, 1));
 
         Assert.assertEquals(FrameType.SETTINGS.value, settingsFrame.getType());

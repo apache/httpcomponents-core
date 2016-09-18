@@ -24,53 +24,54 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.frame;
 
-public enum H2Param {
+package org.apache.hc.core5.http2.integration;
 
-    HEADER_TABLE_SIZE      (0x1,   4096),
-    ENABLE_PUSH            (0x2,   1),
-    MAX_CONCURRENT_STREAMS (0x3,   Integer.MAX_VALUE),
-    INITIAL_WINDOW_SIZE    (0x4,   65535),
-    MAX_FRAME_SIZE         (0x5,   16384),
-    MAX_HEADER_LIST_SIZE   (0x6,   Integer.MAX_VALUE);
+import java.io.IOException;
 
-    int code;
+import org.apache.commons.logging.Log;
 
-    int initialValue;
+class LogAppendable implements Appendable {
 
-    H2Param(final int code, final int initialValue) {
-        this.code = code;
-        this.initialValue = initialValue;
+    private final Log log;
+    private final String prefix;
+    private final StringBuilder buffer;
+
+    LogAppendable(final Log log, final String prefix) {
+        this.log = log;
+        this.prefix = prefix;
+        this.buffer = new StringBuilder();
     }
 
-    public int getCode() {
-        return code;
+    @Override
+    public Appendable append(final CharSequence text) throws IOException {
+        return append(text, 0, text.length());
     }
 
-    public int getInitialValue() {
-        return initialValue;
+    @Override
+    public Appendable append(final CharSequence text, final int start, final int end) throws IOException {
+        for (int i = start; i < end; i++) {
+            append(text.charAt(i));
+        }
+        return this;
     }
 
-    private static final H2Param[] LOOKUP_TABLE = new H2Param[6];
-    static {
-        for (H2Param param: H2Param.values()) {
-            LOOKUP_TABLE[param.code - 1] = param;
+    @Override
+    public Appendable append(final char ch) throws IOException {
+        if (ch == '\n') {
+            log.debug(prefix + " " + buffer.toString());
+            buffer.setLength(0);
+        } else if (ch != '\r') {
+            buffer.append(ch);
+        }
+        return this;
+    }
+
+    public void flush() {
+        if (buffer.length() > 0) {
+            log.debug(prefix + " " + buffer.toString());
+            buffer.setLength(0);
         }
     }
 
-    public static H2Param valueOf(final int code) {
-        if (code < 1 || code > LOOKUP_TABLE.length) {
-            return null;
-        }
-        return LOOKUP_TABLE[code - 1];
-    }
-
-    public static String toString(final int code) {
-        if (code < 1 || code > LOOKUP_TABLE.length) {
-            return Integer.toString(code);
-        }
-        return LOOKUP_TABLE[code - 1].name();
-    }
-
-};
+}

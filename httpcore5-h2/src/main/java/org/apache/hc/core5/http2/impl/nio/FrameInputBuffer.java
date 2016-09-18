@@ -34,11 +34,11 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
 import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
-import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -78,6 +78,16 @@ public final class FrameInputBuffer {
 
     public FrameInputBuffer(final int maxFramePayloadSize) {
         this(new BasicH2TransportMetrics(), maxFramePayloadSize);
+    }
+
+    public void put(final ByteBuffer src) {
+        if (buffer.hasRemaining()) {
+            buffer.compact();
+        } else {
+            buffer.clear();
+        }
+        buffer.put(src);
+        buffer.flip();
     }
 
     public RawFrame read(final ReadableByteChannel channel) throws IOException {

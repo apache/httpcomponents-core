@@ -32,8 +32,10 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.util.Deque;
 
 import org.apache.commons.logging.Log;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionBufferStatus;
@@ -58,6 +60,11 @@ public class LoggingIOSession implements IOSession {
         this.id = id;
         this.log = log;
         this.wirelog = new Wire(wirelog, this.id);
+    }
+
+    @Override
+    public Deque<Command> getCommandQueue() {
+        return this.session.getCommandQueue();
     }
 
     @Override

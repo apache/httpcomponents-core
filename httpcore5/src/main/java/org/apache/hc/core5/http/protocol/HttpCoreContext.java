@@ -27,9 +27,9 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 

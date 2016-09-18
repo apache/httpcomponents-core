@@ -32,6 +32,8 @@ import java.nio.ByteBuffer;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
+import org.apache.hc.core5.http2.ReadableByteChannelMock;
+import org.apache.hc.core5.http2.WritableByteChannelMock;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;

@@ -94,7 +94,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
             return;
         }
         setInputMode();
-        ensureCapacity(this.capacity() + 1);
+        ensureCapacity(buffer().position() + 1);
         buffer().put((byte)b);
     }
 

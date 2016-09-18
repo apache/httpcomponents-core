@@ -31,19 +31,10 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.util.Args;
 
 public abstract class FrameFactory {
-
-    // PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n
-    private final static byte[] PREFACE = new byte[] {
-            0x50, 0x52, 0x49, 0x20, 0x2a, 0x20, 0x48, 0x54, 0x54, 0x50,
-            0x2f, 0x32, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x53, 0x4d,
-            0x0d, 0x0a, 0x0d, 0x0a};
-
-    public byte[] createConnectionPreface() {
-        return PREFACE;
-    }
 
     public RawFrame createSettings(final H2Setting... settings) {
         final ByteBuffer payload = ByteBuffer.allocate(settings.length * 12);
@@ -60,10 +51,14 @@ public abstract class FrameFactory {
     }
 
     public RawFrame createResetStream(final int streamId, final H2Error error) {
-        Args.positive(streamId, "Stream id");
         Args.notNull(error, "Error");
+        return createResetStream(streamId, error.getCode());
+    }
+
+    public RawFrame createResetStream(final int streamId, final int code) {
+        Args.positive(streamId, "Stream id");
         final ByteBuffer payload = ByteBuffer.allocate(4);
-        payload.putInt(error.getCode());
+        payload.putInt(code);
         payload.flip();
         return new RawFrame(FrameType.RST_STREAM.getValue(), 0, streamId, payload);
     }
@@ -81,12 +76,14 @@ public abstract class FrameFactory {
     }
 
     public RawFrame createGoAway(final int lastStream, final H2Error error, final String message) {
-        Args.positive(lastStream, "Last stream id");
+        Args.notNegative(lastStream, "Last stream id");
         final byte[] debugData = message != null ? message.getBytes(StandardCharsets.US_ASCII) : null;
         final ByteBuffer payload = ByteBuffer.allocate(8 + (debugData != null ? debugData.length : 0));
         payload.putInt(lastStream);
         payload.putInt(error.getCode());
-        payload.put(debugData);
+        if (debugData != null) {
+            payload.put(debugData);
+        }
         payload.flip();
         return new RawFrame(FrameType.GOAWAY.getValue(), 0, 0, payload);
     }
@@ -95,6 +92,17 @@ public abstract class FrameFactory {
 
     public abstract RawFrame createContinuation(int streamId, ByteBuffer payload, boolean endHeaders);
 
+    public abstract RawFrame createPushPromise(int streamId, ByteBuffer payload, boolean endHeaders);
+
     public abstract RawFrame createData(int streamId, ByteBuffer payload, boolean endStream);
+
+    public RawFrame createWindowUpdate(final int streamId, final int increment) {
+        Args.notNegative(streamId, "Stream id");
+        Args.positive(increment, "Increment");
+        final ByteBuffer payload = ByteBuffer.allocate(4);
+        payload.putInt(increment);
+        payload.flip();
+        return new RawFrame(FrameType.WINDOW_UPDATE.getValue(), 0, streamId, payload);
+    }
 
 }

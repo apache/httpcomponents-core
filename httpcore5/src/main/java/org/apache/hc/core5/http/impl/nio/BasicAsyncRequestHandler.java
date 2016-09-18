@@ -31,8 +31,8 @@ import java.io.IOException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.nio.HttpAsyncExchange;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;

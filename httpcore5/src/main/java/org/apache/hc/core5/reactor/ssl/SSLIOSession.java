@@ -35,6 +35,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
+import java.util.Deque;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -47,6 +48,7 @@ import javax.net.ssl.SSLSession;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
@@ -648,6 +650,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     @Override
     public boolean isClosed() {
         return this.status >= CLOSING || this.session.isClosed();
+    }
+
+    @Override
+    public Deque<Command> getCommandQueue() {
+        return this.session.getCommandQueue();
     }
 
     @Override

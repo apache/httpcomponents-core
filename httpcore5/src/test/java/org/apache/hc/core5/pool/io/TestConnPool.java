@@ -89,7 +89,11 @@ public class TestConnPool {
 
         @Override
         protected boolean validate(final LocalPoolEntry entry) {
-            return !entry.getConnection().isStale();
+            try {
+                return !entry.getConnection().isStale();
+            } catch (IOException ignore) {
+                return false;
+            }
         }
     }
 

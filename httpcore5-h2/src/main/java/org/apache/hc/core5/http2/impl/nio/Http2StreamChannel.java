@@ -24,40 +24,22 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2;
+
+package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
+import java.util.List;
 
-import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http2.nio.AsyncPushProducer;
+import org.apache.hc.core5.http2.nio.CapacityChannel;
+import org.apache.hc.core5.http2.nio.DataStreamChannel;
 
-public class H2StreamException extends IOException {
+interface Http2StreamChannel extends DataStreamChannel, CapacityChannel {
 
-    private static final long serialVersionUID = 6321637486572232180L;
+    void submit(List<Header> headers, boolean endStream) throws HttpException, IOException;
 
-    private final int code;
-    private final long streamId;
+    void push(List<Header> headers, AsyncPushProducer pushProducer) throws HttpException, IOException;
 
-    public H2StreamException(final H2Error error, final long streamId, final String message) {
-        super(message);
-        Args.notNull(error, "H2 Error code may not be null");
-        Args.positive(streamId, "H2 stream id may not be negative or zero");
-        this.code = error.getCode();
-        this.streamId = streamId;
-    }
-
-    public H2StreamException(final int code, final long streamId, final String message) {
-        super(message);
-        Args.positive(streamId, "H2 stream id may not be negative or zero");
-        this.code = code;
-        this.streamId = streamId;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public long getStreamId() {
-        return streamId;
-    }
-
-};
+}

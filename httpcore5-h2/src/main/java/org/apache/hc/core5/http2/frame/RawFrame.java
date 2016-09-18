@@ -28,13 +28,20 @@ package org.apache.hc.core5.http2.frame;
 
 import java.nio.ByteBuffer;
 
+/**
+ * HTTP/2 stream frame.
+ *
+ * @since 5.0
+ */
 public final class RawFrame extends Frame<ByteBuffer> {
 
     private final ByteBuffer payload;
+    private final int len;
 
     public RawFrame(final int type, final int flags, final int streamId, final ByteBuffer payload) {
         super(type, flags, streamId);
         this.payload = payload;
+        this.len = payload != null ? payload.remaining() : 0;
     }
 
     public boolean isPadded() {
@@ -42,7 +49,7 @@ public final class RawFrame extends Frame<ByteBuffer> {
     }
 
     public int getLength() {
-        return payload != null ? payload.remaining() : 0;
+        return len;
     }
 
     public ByteBuffer getPayloadContent() {

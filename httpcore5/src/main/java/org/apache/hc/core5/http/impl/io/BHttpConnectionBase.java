@@ -282,7 +282,7 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public boolean isStale() {
+    public boolean isStale() throws IOException {
         if (!isOpen()) {
             return true;
         }
@@ -291,7 +291,7 @@ class BHttpConnectionBase implements BHttpConnection {
             return bytesRead < 0;
         } catch (final SocketTimeoutException ex) {
             return false;
-        } catch (final IOException ex) {
+        } catch (final SocketException ex) {
             return true;
         }
     }

@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -173,13 +174,14 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {
             final Header header = it.next();
             final String name = header.getName();
+            final String value = header.getValue();
             if (name.startsWith(":")) {
                 throw new ProtocolException("Header name '" + name + "' is invalid");
             }
             if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
-                throw new ProtocolException("Header '" + header.getName() + ": " + header.getValue() + "' is illegal for HTTP/2 messages");
+                throw new ProtocolException("Header '" + name + ": " + value + "' is illegal for HTTP/2 messages");
             }
-            headers.add(header);
+            headers.add(new BasicHeader(name.toLowerCase(Locale.ROOT), value));
         }
 
         return headers;

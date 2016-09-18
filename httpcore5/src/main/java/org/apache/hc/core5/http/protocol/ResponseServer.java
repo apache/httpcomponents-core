@@ -31,9 +31,9 @@ import java.io.IOException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.util.Args;
 

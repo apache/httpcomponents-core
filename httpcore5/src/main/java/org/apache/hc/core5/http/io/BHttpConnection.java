@@ -48,8 +48,7 @@ public interface BHttpConnection extends HttpConnection {
      *         even after waiting for {@code timeout} milliseconds.
      * @throws IOException if an error happens on the connection
      */
-    boolean isDataAvailable(int timeout)
-        throws IOException;
+    boolean isDataAvailable(int timeout) throws IOException;
 
     /**
      * Checks whether this connection has gone down.
@@ -66,7 +65,7 @@ public interface BHttpConnection extends HttpConnection {
      *          likely to succeed, or {@code false} if they are likely
      *          to fail and this connection should be closed
      */
-    boolean isStale();
+    boolean isStale() throws IOException;
 
     /**
      * Writes out all pending buffered data over the open connection.

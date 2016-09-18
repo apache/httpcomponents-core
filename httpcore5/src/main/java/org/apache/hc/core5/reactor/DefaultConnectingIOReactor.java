@@ -74,7 +74,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
             final ThreadFactory threadFactory) throws IOReactorException {
         super(eventHandlerFactory, reactorConfig, threadFactory);
         this.requestQueue = new ConcurrentLinkedQueue<>();
-        this.selectInterval = reactorConfig.getSelectInterval();
+        this.selectInterval = this.reactorConfig.getSelectInterval();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 

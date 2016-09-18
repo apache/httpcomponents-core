@@ -44,7 +44,6 @@ public final class NetUtils {
             final StringBuilder buffer,
             final SocketAddress socketAddress) {
         Args.notNull(buffer, "Buffer");
-        Args.notNull(socketAddress, "Socket address");
         if (socketAddress instanceof InetSocketAddress) {
             final InetSocketAddress socketaddr = (InetSocketAddress) socketAddress;
             final InetAddress inetaddr = socketaddr.getAddress();

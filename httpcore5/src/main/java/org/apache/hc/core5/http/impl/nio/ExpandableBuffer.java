@@ -57,7 +57,7 @@ public class ExpandableBuffer {
      * @param buffersize the buffer size.
      * @param allocator allocator to be used to allocate {@link ByteBuffer}s.
      */
-    public ExpandableBuffer(final int buffersize, final ByteBufferAllocator allocator) {
+    protected ExpandableBuffer(final int buffersize, final ByteBufferAllocator allocator) {
         super();
         Args.notNull(allocator, "ByteBuffer allocator");
         this.allocator = allocator;
@@ -74,11 +74,11 @@ public class ExpandableBuffer {
      *
      * @return current input/output mode.
      */
-    protected int mode() {
+    public int mode() {
         return this.mode;
     }
 
-    protected ByteBuffer buffer() {
+    public ByteBuffer buffer() {
         return this.buffer;
     }
 
@@ -131,15 +131,6 @@ public class ExpandableBuffer {
         if (requiredCapacity > this.buffer.capacity()) {
             expandCapacity(requiredCapacity);
         }
-    }
-
-    /**
-     * Returns the total capacity of this buffer.
-     *
-     * @return total capacity.
-     */
-    public int capacity() {
-        return this.buffer.capacity();
     }
 
     /**

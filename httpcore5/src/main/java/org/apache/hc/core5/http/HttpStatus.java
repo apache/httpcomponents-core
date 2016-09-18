@@ -133,6 +133,8 @@ public interface HttpStatus {
     public static final int SC_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
     /** {@code 417 Expectation Failed} (HTTP/1.1 - RFC 2616) */
     public static final int SC_EXPECTATION_FAILED = 417;
+    /** {@code 421 Misdirected Request} (HTTP/2 - RFC 7540) */
+    public static final int SC_MISDIRECTED_REQUEST = 421;
 
     /**
      * Static constant for a 418 error.

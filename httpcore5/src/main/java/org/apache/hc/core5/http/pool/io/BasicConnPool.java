@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.pool.io;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -92,7 +93,11 @@ public class BasicConnPool extends AbstractConnPool<HttpHost, HttpClientConnecti
 
     @Override
     protected boolean validate(final BasicPoolEntry entry) {
-        return !entry.getConnection().isStale();
+        try {
+            return !entry.getConnection().isStale();
+        } catch (IOException ignore) {
+            return false;
+        }
     }
 
 }

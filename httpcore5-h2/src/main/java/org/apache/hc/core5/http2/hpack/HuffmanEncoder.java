@@ -45,7 +45,7 @@ final class HuffmanEncoder {
         this.lengths = lengths;
     }
 
-    void encode(final ByteArrayBuffer out, final ByteBuffer src) throws HPackException {
+    void encode(final ByteArrayBuffer out, final ByteBuffer src) {
 
         long current = 0;
         int n = 0;
@@ -72,7 +72,7 @@ final class HuffmanEncoder {
         }
     }
 
-    void encode(final ByteArrayBuffer out, final CharSequence src, final int off, final int len) throws HPackException {
+    void encode(final ByteArrayBuffer out, final CharSequence src, final int off, final int len) {
 
         long current = 0;
         int n = 0;

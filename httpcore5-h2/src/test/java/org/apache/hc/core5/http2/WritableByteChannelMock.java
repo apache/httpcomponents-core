@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http2.impl.nio;
+package org.apache.hc.core5.http2;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

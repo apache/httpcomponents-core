@@ -35,11 +35,11 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2CorruptFrameException;
 import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
-import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.util.Args;
 
 /**

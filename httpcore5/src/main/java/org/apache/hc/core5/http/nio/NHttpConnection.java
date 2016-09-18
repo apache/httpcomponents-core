@@ -27,9 +27,9 @@
 
 package org.apache.hc.core5.http.nio;
 
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**

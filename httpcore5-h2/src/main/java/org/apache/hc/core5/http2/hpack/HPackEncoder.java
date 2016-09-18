@@ -78,12 +78,12 @@ public final class HPackEncoder {
         }
     }
 
-    static void encodeHuffman(final ByteArrayBuffer dst, final ByteBuffer src) throws HPackException {
+    static void encodeHuffman(final ByteArrayBuffer dst, final ByteBuffer src) {
 
         Huffman.ENCODER.encode(dst, src);
     }
 
-    void encodeString(final ByteArrayBuffer dst, final ByteBuffer src, final boolean huffman) throws HPackException {
+    void encodeString(final ByteArrayBuffer dst, final ByteBuffer src, final boolean huffman) {
 
         final int strLen = src.remaining();
         if (huffman) {
@@ -141,7 +141,7 @@ public final class HPackEncoder {
     int encodeString(
             final ByteArrayBuffer dst,
             final CharSequence charSequence, final int off, final int len,
-            final boolean huffman) throws HPackException, CharacterCodingException {
+            final boolean huffman) throws CharacterCodingException {
 
         clearState();
         if (this.charsetEncoder == null) {
@@ -181,20 +181,20 @@ public final class HPackEncoder {
         }
     }
 
-    int encodeString(final ByteArrayBuffer dst, final String s, final boolean huffman) throws HPackException, CharacterCodingException {
+    int encodeString(final ByteArrayBuffer dst, final String s, final boolean huffman) throws CharacterCodingException {
 
         return encodeString(dst, s, 0, s.length(), huffman);
     }
 
     void encodeLiteralHeader(
             final ByteArrayBuffer dst, final HPackEntry existing, final Header header,
-            final HPackRepresentation representation, final boolean useHuffman) throws CharacterCodingException, HPackException {
+            final HPackRepresentation representation, final boolean useHuffman) throws CharacterCodingException {
         encodeLiteralHeader(dst, existing, header.getName(), header.getValue(), header.isSensitive(), representation, useHuffman);
     }
 
     void encodeLiteralHeader(
             final ByteArrayBuffer dst, final HPackEntry existing, final String key, final String value, final boolean sensitive,
-            final HPackRepresentation representation, final boolean useHuffman) throws CharacterCodingException, HPackException {
+            final HPackRepresentation representation, final boolean useHuffman) throws CharacterCodingException {
 
         final int n;
         final int mask;
@@ -229,7 +229,7 @@ public final class HPackEncoder {
         }
     }
 
-    void encodeIndex(final ByteArrayBuffer dst, final int index) throws HPackException {
+    void encodeIndex(final ByteArrayBuffer dst, final int index) {
         encodeInt(dst, 7, index, 0x80);
     }
 
@@ -248,13 +248,13 @@ public final class HPackEncoder {
 
     void encodeHeader(
             final ByteArrayBuffer dst, final Header header,
-            final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException, HPackException {
+            final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException {
         encodeHeader(dst, header.getName(), header.getValue(), header.isSensitive(), noIndexing, useHuffman);
     }
 
     void encodeHeader(
             final ByteArrayBuffer dst, final String name, final String value, final boolean sensitive,
-            final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException, HPackException {
+            final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException {
 
         final HPackRepresentation representation;
         if (sensitive) {
@@ -296,36 +296,28 @@ public final class HPackEncoder {
 
     void encodeHeaders(
             final ByteArrayBuffer dst, final List<Header> headers,
-            final boolean noIndexing, final boolean useHuffman) throws HPackException {
+            final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException {
         for (int i = 0; i < headers.size(); i++) {
-            try {
-                encodeHeader(dst, headers.get(i), noIndexing, useHuffman);
-            } catch (CharacterCodingException ex) {
-                throw new HPackException(ex.getMessage(), ex);
-            }
+            encodeHeader(dst, headers.get(i), noIndexing, useHuffman);
         }
     }
 
     public void encodeHeader(
-            final ByteArrayBuffer dst, final Header header) throws HPackException {
+            final ByteArrayBuffer dst, final Header header) throws CharacterCodingException {
         Args.notNull(dst, "ByteArrayBuffer");
         Args.notNull(header, "Header");
         encodeHeader(dst, header.getName(), header.getValue(), header.isSensitive());
     }
 
     public void encodeHeader(
-            final ByteArrayBuffer dst, final String name, final String value, final boolean sensitive) throws HPackException {
+            final ByteArrayBuffer dst, final String name, final String value, final boolean sensitive) throws CharacterCodingException {
         Args.notNull(dst, "ByteArrayBuffer");
         Args.notEmpty(name, "Header name");
-        try {
-            encodeHeader(dst, name, value, sensitive, false, true);
-        } catch (CharacterCodingException ex) {
-            throw new HPackException(ex.getMessage(), ex);
-        }
+        encodeHeader(dst, name, value, sensitive, false, true);
     }
 
     public void encodeHeaders(
-            final ByteArrayBuffer dst, final List<Header> headers) throws HPackException {
+            final ByteArrayBuffer dst, final List<Header> headers) throws CharacterCodingException {
         Args.notNull(dst, "ByteArrayBuffer");
         Args.notEmpty(headers, "Header list");
         encodeHeaders(dst, headers, false, true);

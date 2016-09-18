@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.http2.frame;
 
+import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.http2.config.H2Setting;
 import org.junit.Assert;
 import org.junit.Test;
 

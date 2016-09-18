@@ -1,0 +1,162 @@
+/*
+ * ====================================================================
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * ====================================================================
+ *
+ * This software consists of voluntary contributions made by many
+ * individuals on behalf of the Apache Software Foundation.  For more
+ * information on the Apache Software Foundation, please see
+ * <http://www.apache.org/>.
+ *
+ */
+package org.apache.hc.core5.http2.impl.nio;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.H2StreamResetException;
+import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
+import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http2.nio.HandlerFactory;
+import org.apache.hc.core5.util.Asserts;
+
+class ClientPushHttp2StreamHandler implements Http2StreamHandler {
+
+    private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
+    private final AtomicBoolean done;
+
+    private volatile Http2StreamChannel internalOutputChannel;
+    private volatile HttpRequest request;
+    private volatile AsyncPushConsumer exchangeHandler;
+    private volatile MessageState requestState;
+    private volatile MessageState responseState;
+
+    ClientPushHttp2StreamHandler(final Http2StreamChannel outputChannel, final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) {
+        this.internalOutputChannel = outputChannel;
+        this.pushHandlerFactory = pushHandlerFactory;
+        this.done = new AtomicBoolean(false);
+        this.requestState = MessageState.HEADERS;
+        this.responseState = MessageState.HEADERS;
+    }
+
+    @Override
+    public boolean isOutputReady() {
+        return false;
+    }
+
+    @Override
+    public void produceOutput() throws HttpException, IOException {
+    }
+
+    @Override
+    public void consumePromise(final List<Header> headers) throws HttpException, IOException {
+        if (requestState == MessageState.HEADERS) {
+            request = DefaultH2RequestConverter.INSTANCE.convert(headers);
+            exchangeHandler = pushHandlerFactory != null ? pushHandlerFactory.create(request, null) : null;
+            if (exchangeHandler == null) {
+                releaseResources();
+                throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
+            }
+        } else {
+            throw new ProtocolException("Unexpected promise");
+        }
+    }
+
+    @Override
+    public void consumeHeader(final List<Header> headers, final boolean endStream) throws HttpException, IOException {
+        if (responseState == MessageState.HEADERS) {
+            Asserts.notNull(request, "Request");
+            Asserts.notNull(exchangeHandler, "Exchange handler");
+            final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
+            exchangeHandler.consumePromise(request, response);
+            if (endStream) {
+                responseState = MessageState.COMPLETE;
+                exchangeHandler.streamEnd(null);
+            } else {
+                responseState = MessageState.BODY;
+            }
+        } else {
+            throw new ProtocolException("Unexpected message headers");
+        }
+    }
+
+    @Override
+    public void updateInputCapacity() throws IOException {
+        Asserts.notNull(exchangeHandler, "Exchange handler");
+        exchangeHandler.updateCapacity(internalOutputChannel);
+    }
+
+    @Override
+    public void consumeData(final ByteBuffer src, final boolean endStream) throws HttpException, IOException {
+        if (responseState != MessageState.BODY) {
+            throw new ProtocolException("Unexpected message data");
+        }
+        Asserts.notNull(exchangeHandler, "Exchange handler");
+        if (src != null) {
+            exchangeHandler.consume(src);
+        }
+        if (endStream) {
+            responseState = MessageState.COMPLETE;
+            exchangeHandler.streamEnd(null);
+        }
+    }
+
+    public boolean isDone() {
+        return responseState == MessageState.COMPLETE;
+    }
+
+    @Override
+    public void failed(final Exception cause) {
+        releaseResources();
+    }
+
+    @Override
+    public void cancel() {
+        releaseResources();
+    }
+
+    @Override
+    public void releaseResources() {
+        if (done.compareAndSet(false, true)) {
+            responseState = MessageState.COMPLETE;
+            requestState = MessageState.COMPLETE;
+            if (exchangeHandler != null) {
+                exchangeHandler.releaseResources();
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "[" +
+                "requestState=" + requestState +
+                ", responseState=" + responseState +
+                ']';
+    }
+
+}
+

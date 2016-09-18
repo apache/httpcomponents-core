@@ -118,16 +118,6 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     }
 
     @Override
-    public int capacity() {
-        this.lock.lock();
-        try {
-            return super.capacity();
-        } finally {
-            this.lock.unlock();
-        }
-    }
-
-    @Override
     public int length() {
         this.lock.lock();
         try {

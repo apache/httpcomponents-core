@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.NoHttpResponseException;

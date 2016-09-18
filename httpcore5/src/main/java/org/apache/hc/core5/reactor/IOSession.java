@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
+import java.util.Deque;
 
 /**
  * IOSession interface represents a sequence of logically related data exchanges
@@ -71,6 +72,13 @@ public interface IOSession {
      * @since 5.0
      */
     void setHandler(IOEventHandler handler);
+
+    /**
+     * Returns the command queue for this session.
+     *
+     * @since 5.0
+     */
+    Deque<Command> getCommandQueue();
 
     /**
      * Returns the underlying I/O channel associated with this session.

@@ -47,6 +47,13 @@ public class DefaultFrameFactory extends FrameFactory {
         return new RawFrame(FrameType.CONTINUATION.getValue(), flags, streamId, payload);
     }
 
+    @Override
+    public RawFrame createPushPromise(final int streamId, final ByteBuffer payload, final boolean endHeaders) {
+        Args.positive(streamId, "Stream id");
+        final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0);
+        return new RawFrame(FrameType.PUSH_PROMISE.getValue(), flags, streamId, payload);
+    }
+
     public RawFrame createData(final int streamId, final ByteBuffer payload, final boolean endStream) {
         Args.positive(streamId, "Stream id");
         final int flags = (endStream ? FrameFlag.END_STREAM.value : 0);

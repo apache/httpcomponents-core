@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.nio;
 import java.io.Closeable;
 import java.io.IOException;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**

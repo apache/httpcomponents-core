@@ -29,8 +29,8 @@ package org.apache.hc.core5.http.nio;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpException;
 
 /**
  * Abstract non-blocking server-side HTTP connection interface. It can be used

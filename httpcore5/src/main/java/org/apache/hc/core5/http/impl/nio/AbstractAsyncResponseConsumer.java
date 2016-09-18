@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.HttpAsyncResponseConsumer;

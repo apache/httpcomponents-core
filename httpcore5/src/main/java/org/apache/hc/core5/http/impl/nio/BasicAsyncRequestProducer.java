@@ -28,9 +28,9 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestProducer;
 import org.apache.hc.core5.http.nio.IOControl;

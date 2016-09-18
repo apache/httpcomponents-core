@@ -33,10 +33,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;

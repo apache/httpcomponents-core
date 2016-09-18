@@ -24,39 +24,19 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.frame;
+package org.apache.hc.core5.http2.nio;
 
-import org.apache.hc.core5.util.Args;
+import java.io.IOException;
 
-public final class H2Setting {
+/**
+ * Abstract asynchronous message entity producer.
+ *
+ * @since 5.0
+ */
+public interface AsyncEntityProducer extends AsyncDataProducer {
 
-    private final H2Param param;
-    private final int value;
+    String getContentType();
 
-    public H2Setting(final H2Param param, final int value) {
-        Args.notNull(param, "Setting parameter");
-        Args.notNegative(value, "Setting value must be a non-negative value");
-        this.param = param;
-        this.value = value;
-    }
+    void streamStart(final DataStreamChannel channel) throws IOException;
 
-    public H2Setting(final H2Param param) {
-        Args.notNull(param, "Setting parameter");
-        this.param = param;
-        this.value = param.initialValue;
-    }
-
-    public int getCode() {
-        return param.code;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder().append(param).append(": ").append(value);
-        return sb.toString();
-    }
-};
+}

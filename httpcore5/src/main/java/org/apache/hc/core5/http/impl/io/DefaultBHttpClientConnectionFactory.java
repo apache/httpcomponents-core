@@ -32,9 +32,9 @@ import java.net.Socket;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.impl.ConnSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;

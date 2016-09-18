@@ -27,9 +27,9 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpException;
 
 /**
  * Defines an interface to verify whether an incoming HTTP request meets

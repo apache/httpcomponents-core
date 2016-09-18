@@ -201,6 +201,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Requested Range Not Satisfiable");
         setReason(HttpStatus.SC_EXPECTATION_FAILED,
                   "Expectation Failed");
+        setReason(HttpStatus.SC_MISDIRECTED_REQUEST,
+                "Misdirected Request");
 
         // WebDAV Server-specific status codes
         setReason(HttpStatus.SC_PROCESSING,

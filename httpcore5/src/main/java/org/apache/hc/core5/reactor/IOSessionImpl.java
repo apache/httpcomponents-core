@@ -34,9 +34,11 @@ import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.Deque;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -59,6 +61,7 @@ class IOSessionImpl implements IOSession, SocketAccessor {
     private final long startedTime;
     private final AtomicInteger status;
     private final AtomicInteger eventMask;
+    private final Deque<Command> commandQueue;
 
     private volatile IOEventHandler eventHandler;
     private volatile SessionBufferStatus bufferStatus;
@@ -86,6 +89,7 @@ class IOSessionImpl implements IOSession, SocketAccessor {
         this.channel = Args.notNull(socketChannel, "Socket channel");
         this.closedSessions = closedSessions;
         this.attributes = new ConcurrentHashMap<>();
+        this.commandQueue = new ConcurrentLinkedDeque<>();
         this.socketTimeout = 0;
         this.eventMask = new AtomicInteger(key.interestOps());
         this.status = new AtomicInteger(ACTIVE);
@@ -104,6 +108,11 @@ class IOSessionImpl implements IOSession, SocketAccessor {
     @Override
     public void setHandler(final IOEventHandler handler) {
         this.eventHandler = handler;
+    }
+
+    @Override
+    public Deque<Command> getCommandQueue() {
+        return commandQueue;
     }
 
     @Override

@@ -31,10 +31,10 @@ import java.util.List;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 
 /**
