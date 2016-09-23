@@ -82,6 +82,11 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     }
 
     @Override
+    public int capacity() {
+        return dataConsumer.capacity();
+    }
+
+    @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         dataConsumer.updateCapacity(capacityChannel);
     }

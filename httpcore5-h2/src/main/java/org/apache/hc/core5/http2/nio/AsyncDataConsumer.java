@@ -40,6 +40,8 @@ import org.apache.hc.core5.http.HttpException;
  */
 public interface AsyncDataConsumer extends ResourceHolder {
 
+    int capacity();
+
     void updateCapacity(CapacityChannel capacityChannel) throws IOException;
 
     void consume(ByteBuffer src) throws IOException;

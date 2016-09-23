@@ -377,6 +377,11 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         }
 
         @Override
+        public int capacity() {
+            return buffer.remaining();
+        }
+
+        @Override
         public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
             if (buffer.hasRemaining()) {
                 capacityChannel.update(buffer.remaining());

@@ -205,6 +205,11 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
     }
 
     @Override
+    public int capacity() {
+        return inputBuffer != null ? inputBuffer.available() : 0;
+    }
+
+    @Override
     public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         if (inputBuffer != null) {
             inputBuffer.updateCapacity(capacityChannel);

@@ -64,6 +64,11 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
     protected abstract T consumeData(ContentType contentType, InputStream inputStream) throws IOException;
 
     @Override
+    public int capacity() {
+        return buffer.available();
+    }
+
+    @Override
     public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         buffer.updateCapacity(capacityChannel);
     }

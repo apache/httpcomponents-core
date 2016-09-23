@@ -77,6 +77,11 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
+    public int capacity() {
+        return dataConsumer.capacity();
+    }
+
+    @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         dataConsumer.updateCapacity(capacityChannel);
     }

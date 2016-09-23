@@ -137,6 +137,11 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
     }
 
     @Override
+    public int capacity() {
+        return requestConsumer.capacity();
+    }
+
+    @Override
     public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         requestConsumer.updateCapacity(capacityChannel);
     }

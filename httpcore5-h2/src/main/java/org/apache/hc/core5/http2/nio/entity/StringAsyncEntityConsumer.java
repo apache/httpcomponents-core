@@ -55,6 +55,11 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
     }
 
     @Override
+    public int capacity() {
+        return capacityIncrement;
+    }
+
+    @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         capacityChannel.update(capacityIncrement);
     }

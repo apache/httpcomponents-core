@@ -84,6 +84,11 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     }
 
     @Override
+    public int capacity() {
+        return responseConsumer.capacity();
+    }
+
+    @Override
     public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         responseConsumer.updateCapacity(capacityChannel);
     }

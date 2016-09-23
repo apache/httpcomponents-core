@@ -51,6 +51,11 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
     }
 
     @Override
+    public int capacity() {
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         capacityChannel.update(Integer.MAX_VALUE);
     }

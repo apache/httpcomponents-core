@@ -57,6 +57,11 @@ public class ByteArrayAsyncEntityConsumer extends AbstractBinAsyncEntityConsumer
     }
 
     @Override
+    public int capacity() {
+        return capacityIncrement;
+    }
+
+    @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         capacityChannel.update(capacityIncrement);
     }
