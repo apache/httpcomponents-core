@@ -28,9 +28,11 @@
 package org.apache.hc.core5.http2.nio.command;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http2.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.reactor.Command;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Request execution command.
@@ -43,14 +45,17 @@ public final class ExecutionCommand<T> implements Command {
 
     private final AsyncRequestProducer requestProducer;
     private final AsyncResponseConsumer<T> responseConsumer;
+    private final HttpContext context;
     private final FutureCallback<T> callback;
 
     public ExecutionCommand(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final HttpContext context,
             final FutureCallback<T> callback) {
-        this.requestProducer = requestProducer;
-        this.responseConsumer = responseConsumer;
+        this.requestProducer = Args.notNull(requestProducer, "Request producer");
+        this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
+        this.context = Args.notNull(context, "Context");
         this.callback = callback;
     }
 
@@ -60,6 +65,10 @@ public final class ExecutionCommand<T> implements Command {
 
     public AsyncResponseConsumer<T> getResponseConsumer() {
         return responseConsumer;
+    }
+
+    public HttpContext getContext() {
+        return context;
     }
 
     public FutureCallback<T> getCallback() {

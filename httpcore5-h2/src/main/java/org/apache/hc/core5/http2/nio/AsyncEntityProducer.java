@@ -28,14 +28,14 @@ package org.apache.hc.core5.http2.nio;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.EntityDetails;
+
 /**
  * Abstract asynchronous message entity producer.
  *
  * @since 5.0
  */
-public interface AsyncEntityProducer extends AsyncDataProducer {
-
-    String getContentType();
+public interface AsyncEntityProducer extends AsyncDataProducer, EntityDetails {
 
     void streamStart(final DataStreamChannel channel) throws IOException;
 

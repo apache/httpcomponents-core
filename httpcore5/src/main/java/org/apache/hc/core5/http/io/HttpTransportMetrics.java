@@ -28,8 +28,7 @@
 package org.apache.hc.core5.http.io;
 
 /**
- * The point of access to the statistics of {@link SessionInputBuffer} or
- * {@link SessionOutputBuffer}.
+ * Transport level metrics.
  *
  * @since 4.0
  */
@@ -39,10 +38,5 @@ public interface HttpTransportMetrics {
      * Returns the number of bytes transferred.
      */
     long getBytesTransferred();
-
-    /**
-     * Resets the counts
-     */
-    void reset();
 
 }

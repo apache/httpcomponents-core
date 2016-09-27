@@ -32,34 +32,47 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http2.nio.AsyncPushProducer;
 import org.apache.hc.core5.http2.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http2.nio.AsyncResponseConsumer;
 
 class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
 
+    private final Http2StreamChannel internalOutputChannel;
+    private final HttpProcessor httpProcessor;
+    private final BasicHttpConnectionMetrics connMetrics;
     private final AsyncRequestProducer requestProducer;
     private final AsyncResponseConsumer<T> responseConsumer;
+    private final HttpCoreContext context;
     private final FutureCallback<T> resultCallback;
     private final AtomicBoolean done;
 
     private volatile MessageState requestState;
     private volatile MessageState responseState;
-    private volatile Http2StreamChannel internalOutputChannel;
 
     ClientHttp2StreamHandler(
             final Http2StreamChannel outputChannel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics,
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final HttpContext context,
             final FutureCallback<T> resultCallback) {
         this.internalOutputChannel = new Http2StreamChannel() {
 
@@ -102,9 +115,12 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
             }
 
         };
+        this.httpProcessor = httpProcessor;
+        this.connMetrics = connMetrics;
         this.requestProducer = requestProducer;
         this.responseConsumer = responseConsumer;
         this.resultCallback = resultCallback;
+        this.context = HttpCoreContext.adapt(context);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
@@ -127,10 +143,17 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
         switch (requestState) {
             case HEADERS:
                 final HttpRequest request = requestProducer.produceRequest();
+                final EntityDetails entityDetails = requestProducer.getEntityDetails();
+
+                context.setProtocolVersion(HttpVersion.HTTP_2);
+                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+                context.setAttribute(HttpCoreContext.HTTP_CONNECTION, this);
+                httpProcessor.process(request, entityDetails, context);
+
                 final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
-                final boolean endStream = !requestProducer.isEnclosingEntity();
-                internalOutputChannel.submit(headers, endStream);
-                if (!endStream) {
+                internalOutputChannel.submit(headers, entityDetails == null);
+                connMetrics.incrementRequestCount();
+                if (entityDetails != null) {
                     requestProducer.dataStart(internalOutputChannel);
                 }
                 break;
@@ -151,7 +174,13 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
             throw new ProtocolException("Unexpected message headers");
         }
         final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
-        responseConsumer.consumeResponse(response, new FutureCallback<T>() {
+        final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(response);
+
+        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+        httpProcessor.process(response, entityDetails, context);
+        connMetrics.incrementResponseCount();
+
+        responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {

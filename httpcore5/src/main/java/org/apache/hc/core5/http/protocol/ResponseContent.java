@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -42,7 +41,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -112,21 +111,12 @@ public class ResponseContent implements HttpResponseInterceptor {
             final long len = entity.getContentLength();
             if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
                 response.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
-                final Set<String> trailerNames = entity.getTrailerNames();
-                if (trailerNames != null && !trailerNames.isEmpty()) {
-                    response.setHeader(TrailerNameFormatter.format(entity));
-                }
+                MessageSupport.addTrailerHeader(response, entity);
             } else if (len >= 0) {
                 response.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }
-            // Specify a content type if known
-            if (entity.getContentType() != null && !response.containsHeader(HttpHeaders.CONTENT_TYPE)) {
-                response.addHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, entity.getContentType()));
-            }
-            // Specify a content encoding if known
-            if (entity.getContentEncoding() != null && !response.containsHeader(HttpHeaders.CONTENT_ENCODING)) {
-                response.addHeader(new BasicHeader(HttpHeaders.CONTENT_ENCODING, entity.getContentEncoding()));
-            }
+            MessageSupport.addContentTypeHeader(response, entity);
+            MessageSupport.addContentEncodingHeader(response, entity);
         } else {
             final int status = response.getCode();
             if (status != HttpStatus.SC_NO_CONTENT

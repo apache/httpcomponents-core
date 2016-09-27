@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
@@ -45,6 +46,7 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
 
+    private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
@@ -52,11 +54,13 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final HttpErrorListener errorListener;
 
     public ServerHttpProtocolNegotiatorFactory(
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,
             final HttpErrorListener errorListener) {
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
@@ -65,15 +69,16 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     public ServerHttpProtocolNegotiatorFactory(
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
             final Http2StreamListener streamListener,
             final HttpErrorListener errorListener) {
-        this(exchangeHandlerFactory, null, null, streamListener, errorListener);
+        this(httpProcessor, exchangeHandlerFactory, null, null, streamListener, errorListener);
     }
 
     @Override
     public ServerHttpProtocolNegotiator createHandler(final IOSession ioSession) {
-        return new ServerHttpProtocolNegotiator(exchangeHandlerFactory, charset, h2Config, streamListener, errorListener);
+        return new ServerHttpProtocolNegotiator(httpProcessor, exchangeHandlerFactory, charset, h2Config, streamListener, errorListener);
     }
 
 }

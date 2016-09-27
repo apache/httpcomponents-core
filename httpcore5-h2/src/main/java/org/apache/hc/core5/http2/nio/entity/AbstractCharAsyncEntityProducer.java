@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
+import java.util.Set;
 
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http2.nio.AsyncEntityProducer;
@@ -90,6 +91,21 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     @Override
     public final String getContentType() {
         return contentType != null ? contentType.toString() : null;
+    }
+
+    @Override
+    public String getContentEncoding() {
+        return null;
+    }
+
+    @Override
+    public boolean isChunked() {
+        return false;
+    }
+
+    @Override
+    public Set<String> getTrailerNames() {
+        return null;
     }
 
     private void checkResult(final CoderResult result) throws IOException {

@@ -39,8 +39,14 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.ResponseDate;
+import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
@@ -49,6 +55,9 @@ import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.http2.nio.Supplier;
 import org.apache.hc.core5.http2.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http2.nio.command.ShutdownType;
+import org.apache.hc.core5.http2.protocol.H2RequestValidateHost;
+import org.apache.hc.core5.http2.protocol.H2ResponseConnControl;
+import org.apache.hc.core5.http2.protocol.H2ResponseContent;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
@@ -106,7 +115,18 @@ public class Http2TestServer {
     }
 
     public InetSocketAddress start(final H2Config h2Config) throws Exception {
+        final HttpProcessor httpProcessor = new DefaultHttpProcessor(
+                new HttpRequestInterceptor[] {
+                        new H2RequestValidateHost()
+                },
+                new HttpResponseInterceptor[]{
+                        new ResponseDate(),
+                        new ResponseServer("TEST-SERVER/1.1"),
+                        new H2ResponseContent(),
+                        new H2ResponseConnControl()
+                });
         ioReactor = new DefaultListeningIOReactor(new InternalServerHttp2EventHandlerFactory(
+                httpProcessor,
                 new HandlerFactory<AsyncExchangeHandler>() {
 
                     @Override

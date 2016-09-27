@@ -25,51 +25,60 @@
  *
  */
 
-package org.apache.hc.core5.http.protocol;
+package org.apache.hc.core5.http2.impl;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.message.BufferedHeader;
-import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.http.MessageHeaders;
+import org.apache.hc.core5.http.message.MessageSupport;
+import org.apache.hc.core5.util.Args;
 
 /**
- * Utility class to generate Trailer header.
+ * HTTP/2 message entity details.
  *
  * @since 5.0
  */
-public class TrailerNameFormatter {
+public class IncomingEntityDetails implements EntityDetails {
 
-    private TrailerNameFormatter() {
-        // Do not allow utility class to be instantiated.
+    private final MessageHeaders message;
+
+    public IncomingEntityDetails(final MessageHeaders message) {
+        this.message = Args.notNull(message, "Message");
     }
 
-    public static Header format(final EntityDetails entity) {
-        if (entity == null) {
-            return null;
+    @Override
+    public long getContentLength() {
+        return -1;
+    }
+
+    @Override
+    public String getContentType() {
+        final Header h = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+        return h != null ? h.getValue() : null;
+    }
+
+    @Override
+    public String getContentEncoding() {
+        final Header h = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+        return h != null ? h.getValue() : null;
+    }
+
+    @Override
+    public boolean isChunked() {
+        return false;
+    }
+
+    @Override
+    public Set<String> getTrailerNames() {
+        final Header h = message.getFirstHeader(HttpHeaders.TRAILER);
+        if (h == null) {
+            return Collections.emptySet();
         }
-        final Set<String> trailerNames = entity.getTrailerNames();
-        if (trailerNames != null && !trailerNames.isEmpty()) {
-            final List<String> elements = new ArrayList<>(trailerNames);
-            Collections.sort(elements);
-            final CharArrayBuffer buffer = new CharArrayBuffer(trailerNames.size() + 20);
-            buffer.append(HttpHeaders.TRAILER);
-            buffer.append(": ");
-            for (int i = 0; i < elements.size(); i++) {
-                final String element = elements.get(i);
-                if (i > 0) {
-                    buffer.append(", ");
-                }
-                buffer.append(element);
-            }
-            return BufferedHeader.create(buffer);
-        }
-        return null;
+        return MessageSupport.parseTokens(h);
     }
 
 }

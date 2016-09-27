@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.protocol;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 
@@ -48,5 +50,6 @@ import org.apache.hc.core5.http.HttpResponseInterceptor;
  *
  * @since 4.0
  */
+@Contract(threading = ThreadingBehavior.STATELESS)
 public interface HttpProcessor extends HttpRequestInterceptor, HttpResponseInterceptor {
 }

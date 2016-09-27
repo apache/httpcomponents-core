@@ -29,6 +29,8 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
@@ -50,25 +52,30 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     public ServerHttp2StreamMultiplexer(
             final IOSession ioSession,
             final FrameFactory frameFactory,
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener callback) {
-        super(Mode.SERVER, ioSession, frameFactory, StreamIdGenerator.EVEN, charset, h2Config, callback);
+        super(Mode.SERVER, ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charset, h2Config, callback);
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
     }
 
     public ServerHttp2StreamMultiplexer(
             final IOSession ioSession,
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, exchangeHandlerFactory, charset, h2Config, null);
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charset, h2Config, null);
     }
 
     @Override
-    Http2StreamHandler createRemotelyInitiatedStream(final Http2StreamChannel channel) throws IOException {
-        return new ServerHttp2StreamHandler(channel, exchangeHandlerFactory);
+    Http2StreamHandler createRemotelyInitiatedStream(
+            final Http2StreamChannel channel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics) throws IOException {
+        return new ServerHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory);
     }
 
 }

@@ -40,11 +40,18 @@ import org.apache.hc.core5.util.Asserts;
 public class ByteArrayAsyncEntityProducer extends AbstractBinAsyncEntityProducer {
 
     private final ByteBuffer content;
+    private final int len;
 
     public ByteArrayAsyncEntityProducer(final byte[] content, final int bufferSize, final ContentType contentType) {
         super(bufferSize, contentType);
         Args.notNull(content, "Byte array");
         this.content = ByteBuffer.wrap(content);
+        this.len = this.content.remaining();
+    }
+
+    @Override
+    public long getContentLength() {
+        return len;
     }
 
     @Override

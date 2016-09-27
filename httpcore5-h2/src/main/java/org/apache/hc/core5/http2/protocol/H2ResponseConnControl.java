@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http2.nio;
+package org.apache.hc.core5.http2.protocol;
 
 import java.io.IOException;
 
@@ -33,21 +33,29 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.ResponseConnControl;
+import org.apache.hc.core5.util.Args;
 
 /**
- * Abstract response / response promise channel.
- * <p>
- * Implementations are expected to be thread-safe.
+ * HTTP/2 compatible extension of {@link ResponseConnControl}.
  *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.SAFE)
-public interface ResponseChannel {
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
+public class H2ResponseConnControl extends ResponseConnControl {
 
-    void sendResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
-
-    void pushPromise(HttpRequest promise, AsyncPushProducer pushProducer) throws HttpException, IOException;
-
+    @Override
+    public void process(
+            final HttpResponse response,
+            final EntityDetails entity,
+            final HttpContext context) throws HttpException, IOException {
+        Args.notNull(context, "HTTP context");
+        final ProtocolVersion ver = context.getProtocolVersion();
+        if (ver.getMajor() < 2) {
+            super.process(response, entity, context);
+        }
+    }
 }

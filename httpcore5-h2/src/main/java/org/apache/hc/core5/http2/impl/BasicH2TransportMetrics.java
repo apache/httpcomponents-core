@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http2.impl;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http2.H2TransportMetrics;
 
@@ -37,21 +39,19 @@ import org.apache.hc.core5.http2.H2TransportMetrics;
  */
 public class BasicH2TransportMetrics extends BasicHttpTransportMetrics implements H2TransportMetrics {
 
-    private long framesTransferred;
+    private final AtomicLong framesTransferred;
+
+    public BasicH2TransportMetrics() {
+        this.framesTransferred = new AtomicLong(0);
+    }
 
     @Override
     public long getFramesTransferred() {
-        return framesTransferred;
+        return framesTransferred.get();
     }
 
     public void incrementFramesTransferred() {
-        framesTransferred++;
-    }
-
-    @Override
-    public void reset() {
-        super.reset();
-        this.framesTransferred = 0;
+        framesTransferred.incrementAndGet();
     }
 
 }

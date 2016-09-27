@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.nio.entity;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Set;
 
 import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http2.nio.AsyncEntityProducer;
@@ -58,6 +59,21 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
     @Override
     public final String getContentType() {
         return contentType != null ? contentType.toString() : null;
+    }
+
+    @Override
+    public String getContentEncoding() {
+        return null;
+    }
+
+    @Override
+    public boolean isChunked() {
+        return false;
+    }
+
+    @Override
+    public Set<String> getTrailerNames() {
+        return null;
     }
 
     @Override

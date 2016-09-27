@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
-import org.apache.hc.core5.http.impl.HttpConnectionMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -72,7 +72,7 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
 
     final BasicHttpTransportMetrics inTransportMetrics;
     final BasicHttpTransportMetrics outTransportMetrics;
-    final HttpConnectionMetricsImpl connMetrics;
+    final BasicHttpConnectionMetrics connMetrics;
 
     volatile HttpContext context;
     volatile IOSession session;
@@ -105,7 +105,7 @@ class NHttpConnectionBase implements NHttpConnection, SessionBufferStatus, Socke
         this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : buffersize;
         this.inTransportMetrics = new BasicHttpTransportMetrics();
         this.outTransportMetrics = new BasicHttpTransportMetrics();
-        this.connMetrics = new HttpConnectionMetricsImpl(this.inTransportMetrics, this.outTransportMetrics);
+        this.connMetrics = new BasicHttpConnectionMetrics(this.inTransportMetrics, this.outTransportMetrics);
         this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
 
         setSession(session);

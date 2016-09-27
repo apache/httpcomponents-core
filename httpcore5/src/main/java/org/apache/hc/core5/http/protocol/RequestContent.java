@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
-import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -41,7 +40,7 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -108,21 +107,12 @@ public class RequestContent implements HttpRequestInterceptor {
                             "Chunked transfer encoding not allowed for " + ver);
                 }
                 request.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
-                final Set<String> trailerNames = entity.getTrailerNames();
-                if (trailerNames != null && !trailerNames.isEmpty()) {
-                    request.setHeader(TrailerNameFormatter.format(entity));
-                }
+                MessageSupport.addTrailerHeader(request, entity);
             } else {
                 request.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }
-            // Specify a content type if known
-            if (entity.getContentType() != null && !request.containsHeader(HttpHeaders.CONTENT_TYPE)) {
-                request.addHeader(new BasicHeader(HttpHeaders.CONTENT_TYPE, entity.getContentType()));
-            }
-            // Specify a content encoding if known
-            if (entity.getContentEncoding() != null && !request.containsHeader(HttpHeaders.CONTENT_ENCODING)) {
-                request.addHeader(new BasicHeader(HttpHeaders.CONTENT_ENCODING, entity.getContentEncoding()));
-            }
+            MessageSupport.addContentTypeHeader(request, entity);
+            MessageSupport.addContentEncodingHeader(request, entity);
         }
     }
 

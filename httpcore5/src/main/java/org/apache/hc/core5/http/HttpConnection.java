@@ -39,6 +39,13 @@ import java.net.SocketAddress;
 public interface HttpConnection extends Closeable {
 
     /**
+     * Returns a collection of connection metrics.
+     *
+     * @return HttpConnectionMetrics
+     */
+    HttpConnectionMetrics getMetrics();
+
+    /**
      * Closes this connection gracefully.
      * This method will attempt to flush the internal output
      * buffer prior to closing the underlying socket.
@@ -85,13 +92,6 @@ public interface HttpConnection extends Closeable {
      * @since 5.0
      */
     ProtocolVersion getProtocolVersion();
-
-    /**
-     * Returns a collection of connection metrics.
-     *
-     * @return HttpConnectionMetrics
-     */
-    HttpConnectionMetrics getMetrics();
 
     /**
      * @since 5.0

@@ -31,33 +31,49 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.util.Asserts;
 
 class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
+    private final Http2StreamChannel internalOutputChannel;
+    private final HttpProcessor httpProcessor;
+    private final BasicHttpConnectionMetrics connMetrics;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
+    private final HttpCoreContext context;
     private final AtomicBoolean done;
 
-    private volatile Http2StreamChannel internalOutputChannel;
     private volatile HttpRequest request;
     private volatile AsyncPushConsumer exchangeHandler;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
 
-    ClientPushHttp2StreamHandler(final Http2StreamChannel outputChannel, final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) {
+    ClientPushHttp2StreamHandler(
+            final Http2StreamChannel outputChannel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) {
         this.internalOutputChannel = outputChannel;
+        this.httpProcessor = httpProcessor;
+        this.connMetrics = connMetrics;
         this.pushHandlerFactory = pushHandlerFactory;
+        this.context = HttpCoreContext.create();
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
@@ -75,8 +91,16 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
     @Override
     public void consumePromise(final List<Header> headers) throws HttpException, IOException {
         if (requestState == MessageState.HEADERS) {
+
             request = DefaultH2RequestConverter.INSTANCE.convert(headers);
-            exchangeHandler = pushHandlerFactory != null ? pushHandlerFactory.create(request, null) : null;
+
+            context.setProtocolVersion(HttpVersion.HTTP_2);
+            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, this);
+            httpProcessor.process(request, null, context);
+            connMetrics.incrementRequestCount();
+
+            exchangeHandler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
             if (exchangeHandler == null) {
                 releaseResources();
                 throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
@@ -91,8 +115,15 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
         if (responseState == MessageState.HEADERS) {
             Asserts.notNull(request, "Request");
             Asserts.notNull(exchangeHandler, "Exchange handler");
+
             final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
-            exchangeHandler.consumePromise(request, response);
+            final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(request);
+
+            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+            httpProcessor.process(response, entityDetails, context);
+            connMetrics.incrementResponseCount();
+
+            exchangeHandler.consumePromise(request, response, entityDetails);
             if (endStream) {
                 responseState = MessageState.COMPLETE;
                 exchangeHandler.streamEnd(null);

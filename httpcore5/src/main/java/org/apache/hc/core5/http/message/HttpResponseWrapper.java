@@ -24,55 +24,53 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.nio.entity;
 
-import java.io.IOException;
-import java.nio.CharBuffer;
+package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http2.nio.StreamChannel;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
+import java.util.Locale;
 
-public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
+import org.apache.hc.core5.http.HttpResponse;
 
-    private final CharBuffer content;
+/**
+ * {@link HttpResponse} wrapper.
+ */
+public class HttpResponseWrapper extends AbstractMessageWrapper implements HttpResponse {
 
-    public StringAsyncEntityProducer(final CharSequence content, final int bufferSize, final ContentType contentType) {
-        super(bufferSize, contentType);
-        Args.notNull(content, "Content");
-        this.content = CharBuffer.wrap(content);
-    }
+    private final HttpResponse message;
 
-    public StringAsyncEntityProducer(final CharSequence content, final ContentType contentType) {
-        this(content, 4096, contentType);
+    public HttpResponseWrapper(final HttpResponse message) {
+        super(message);
+        this.message = message;
     }
 
     @Override
-    public long getContentLength() {
-        return -1;
+    public int getCode() {
+        return message.getCode();
     }
 
     @Override
-    protected void dataStart(final StreamChannel<CharBuffer> channel) throws IOException {
+    public void setCode(final int code) {
+        message.setCode(code);
     }
 
     @Override
-    public int available() {
-        return Integer.MAX_VALUE;
+    public String getReasonPhrase() {
+        return message.getReasonPhrase();
     }
 
     @Override
-    protected void produceData(final StreamChannel<CharBuffer> channel) throws IOException {
-        Asserts.notNull(channel, "StreamChannel");
-        channel.write(content);
-        if (!content.hasRemaining()) {
-            channel.endStream();
-        }
+    public void setReasonPhrase(final String reason) {
+        message.setReasonPhrase(reason);
     }
 
     @Override
-    public void releaseResources() {
+    public Locale getLocale() {
+        return message.getLocale();
+    }
+
+    @Override
+    public void setLocale(final Locale loc) {
+        message.setLocale(loc);
     }
 
 }

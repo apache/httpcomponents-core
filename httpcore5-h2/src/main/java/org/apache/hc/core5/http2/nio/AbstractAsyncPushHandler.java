@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -57,8 +58,9 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     @Override
     public void consumePromise(
             final HttpRequest promise,
-            final HttpResponse response) throws HttpException, IOException {
-        responseConsumer.consumeResponse(response, new FutureCallback<Message<HttpResponse, T>>() {
+            final HttpResponse response,
+            final EntityDetails entityDetails) throws HttpException, IOException {
+        responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<Message<HttpResponse, T>>() {
 
             @Override
             public void completed(final Message<HttpResponse, T> result) {

@@ -31,15 +31,21 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
 import org.apache.hc.core5.http2.nio.AsyncPushProducer;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
@@ -48,15 +54,22 @@ import org.apache.hc.core5.util.Asserts;
 
 public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
+    private final Http2StreamChannel internalOutputChannel;
+    private final HttpProcessor httpProcessor;
+    private final BasicHttpConnectionMetrics connMetrics;
     private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
+    private final HttpCoreContext context;
     private final AtomicBoolean done;
 
-    private volatile Http2StreamChannel internalOutputChannel;
     private volatile AsyncExchangeHandler exchangeHandler;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
 
-    ServerHttp2StreamHandler(final Http2StreamChannel outputChannel, final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory) {
+    ServerHttp2StreamHandler(
+            final Http2StreamChannel outputChannel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics,
+            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory) {
         this.internalOutputChannel = new Http2StreamChannel() {
 
             @Override
@@ -98,7 +111,10 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
             }
 
         };
+        this.httpProcessor = httpProcessor;
+        this.connMetrics = connMetrics;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
+        this.context = HttpCoreContext.create();
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.IDLE;
@@ -117,23 +133,36 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
         requestState = requestEndStream ? MessageState.COMPLETE : MessageState.BODY;
 
         final HttpRequest request = DefaultH2RequestConverter.INSTANCE.convert(requestHeaders);
+        final EntityDetails requestEntityDetails = requestEndStream ? null : new IncomingEntityDetails(request);
 
-        exchangeHandler = exchangeHandlerFactory.create(request, null);
+        context.setProtocolVersion(HttpVersion.HTTP_2);
+        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, this);
+        httpProcessor.process(request, requestEntityDetails, context);
+        connMetrics.incrementRequestCount();
+
+        exchangeHandler = exchangeHandlerFactory.create(request, context);
         if (exchangeHandler == null) {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR,
                     "Unable to handle " + request.getMethod() + " " + request.getPath());
         }
-        exchangeHandler.handleRequest(request, requestEndStream, new ResponseChannel() {
+        exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
 
             private final AtomicBoolean responseCommitted = new AtomicBoolean(false);
 
             @Override
             public void sendResponse(
-                    final HttpResponse response, final boolean responseEndStream) throws HttpException, IOException {
+                    final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
                 if (responseCommitted.compareAndSet(false, true)) {
+
+                    context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+                    httpProcessor.process(response, responseEntityDetails, context);
+
                     final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
-                    internalOutputChannel.submit(responseHeaders, responseEndStream);
-                    if (!responseEndStream) {
+
+                    internalOutputChannel.submit(responseHeaders, responseEntityDetails == null);
+                    connMetrics.incrementResponseCount();
+                    if (responseEntityDetails != null) {
                         exchangeHandler.produce(internalOutputChannel);
                     }
                 } else {
@@ -143,8 +172,12 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
             @Override
             public void pushPromise(final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+
+                httpProcessor.process(promise, null, context);
+
                 final List<Header> promiseHeaders = DefaultH2RequestConverter.INSTANCE.convert(promise);
                 internalOutputChannel.push(promiseHeaders, pushProducer);
+                connMetrics.incrementRequestCount();
             }
 
             @Override

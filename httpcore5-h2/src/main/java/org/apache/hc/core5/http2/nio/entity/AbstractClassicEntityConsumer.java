@@ -36,6 +36,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.entity.ContentType;
@@ -74,10 +75,10 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
     }
 
     @Override
-    public final void streamStart(final String contentType, final FutureCallback<T> resultCallback) throws HttpException, IOException {
-        final ContentType localContentType;
+    public final void streamStart(final EntityDetails entityDetails, final FutureCallback<T> resultCallback) throws HttpException, IOException {
+        final ContentType contentType;
         try {
-            localContentType = ContentType.parse(contentType);
+            contentType = ContentType.parse(entityDetails.getContentType());
         } catch (UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());
         }
@@ -87,7 +88,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
                 @Override
                 public void run() {
                     try {
-                        final T result = consumeData(localContentType, new ContentInputStream(buffer));
+                        final T result = consumeData(contentType, new ContentInputStream(buffer));
                         resultCallback.completed(result);
                     } catch (Exception ex) {
                         buffer.abort();

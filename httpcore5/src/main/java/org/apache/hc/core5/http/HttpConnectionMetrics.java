@@ -58,20 +58,4 @@ public interface HttpConnectionMetrics {
      */
     long getReceivedBytesCount();
 
-    /**
-     * Return the value for the specified metric.
-     *
-     *@param metricName the name of the metric to query.
-     *
-     *@return the object representing the metric requested,
-     *        {@code null} if the metric cannot not found.
-     */
-    Object getMetric(String metricName);
-
-    /**
-     * Resets the counts
-     *
-     */
-    void reset();
-
 }

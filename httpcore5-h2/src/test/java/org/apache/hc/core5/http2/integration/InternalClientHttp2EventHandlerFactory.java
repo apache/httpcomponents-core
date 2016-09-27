@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexer;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiator;
@@ -41,19 +42,23 @@ import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.util.Args;
 
 public class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
     private static final AtomicLong COUNT = new AtomicLong();
 
+    private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
 
     public InternalClientHttp2EventHandlerFactory(
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.charset = charset;
         this.h2Config = h2Config;
@@ -65,7 +70,7 @@ public class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFac
         final Log sessionLog = LogFactory.getLog(ioSession.getClass());
         final InternalHttp2StreamListener streamListener = new InternalHttp2StreamListener(id);
         final HttpErrorListener errorListener = new InternalHttpErrorListener(sessionLog);
-        return new ClientHttpProtocolNegotiator(exchangeHandlerFactory, charset, h2Config, streamListener, errorListener) {
+        return new ClientHttpProtocolNegotiator(httpProcessor, exchangeHandlerFactory, charset, h2Config, streamListener, errorListener) {
 
             @Override
             protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {

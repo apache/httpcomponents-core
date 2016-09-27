@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http2.nio.AsyncEntityConsumer;
@@ -45,7 +46,7 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
 
     @Override
     public final void streamStart(
-            final String contentType,
+            final EntityDetails entityDetails,
             final FutureCallback<Void> resultCallback) throws IOException, HttpException {
         this.resultCallback = resultCallback;
     }

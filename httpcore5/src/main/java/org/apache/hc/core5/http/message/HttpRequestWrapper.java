@@ -24,55 +24,64 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.nio.entity;
 
-import java.io.IOException;
-import java.nio.CharBuffer;
+package org.apache.hc.core5.http.message;
 
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http2.nio.StreamChannel;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
+import java.net.URI;
+import java.net.URISyntaxException;
 
-public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
+import org.apache.hc.core5.http.HttpRequest;
 
-    private final CharBuffer content;
+/**
+ * {@link HttpRequest} wrapper.
+ */
+public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRequest {
 
-    public StringAsyncEntityProducer(final CharSequence content, final int bufferSize, final ContentType contentType) {
-        super(bufferSize, contentType);
-        Args.notNull(content, "Content");
-        this.content = CharBuffer.wrap(content);
-    }
+    private final HttpRequest message;
 
-    public StringAsyncEntityProducer(final CharSequence content, final ContentType contentType) {
-        this(content, 4096, contentType);
+    public HttpRequestWrapper(final HttpRequest message) {
+        super(message);
+        this.message = message;
     }
 
     @Override
-    public long getContentLength() {
-        return -1;
+    public String getMethod() {
+        return message.getMethod();
     }
 
     @Override
-    protected void dataStart(final StreamChannel<CharBuffer> channel) throws IOException {
+    public String getPath() {
+        return message.getPath();
     }
 
     @Override
-    public int available() {
-        return Integer.MAX_VALUE;
+    public void setPath(final String path) {
+        message.setPath(path);
     }
 
     @Override
-    protected void produceData(final StreamChannel<CharBuffer> channel) throws IOException {
-        Asserts.notNull(channel, "StreamChannel");
-        channel.write(content);
-        if (!content.hasRemaining()) {
-            channel.endStream();
-        }
+    public String getScheme() {
+        return message.getScheme();
     }
 
     @Override
-    public void releaseResources() {
+    public void setScheme(final String scheme) {
+        message.setScheme(scheme);
+    }
+
+    @Override
+    public String getAuthority() {
+        return message.getAuthority();
+    }
+
+    @Override
+    public void setAuthority(final String authority) {
+        message.setAuthority(authority);
+    }
+
+    @Override
+    public URI getUri() throws URISyntaxException {
+        return message.getUri();
     }
 
 }

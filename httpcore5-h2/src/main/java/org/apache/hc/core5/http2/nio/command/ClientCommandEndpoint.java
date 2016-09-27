@@ -34,6 +34,8 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http2.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.reactor.Command;
@@ -57,9 +59,14 @@ public final class ClientCommandEndpoint {
     public <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final HttpContext context,
             final FutureCallback<T> callback) {
         final BasicFuture<T> future = new BasicFuture<>(callback);
-        final Command executionCommand = new ExecutionCommand<>(requestProducer, responseConsumer, new FutureCallback<T>() {
+        final Command executionCommand = new ExecutionCommand<>(
+                requestProducer,
+                responseConsumer,
+                context != null ? context : HttpCoreContext.create(),
+                new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {
@@ -80,6 +87,13 @@ public final class ClientCommandEndpoint {
         ioSession.getCommandQueue().add(executionCommand);
         ioSession.setEvent(SelectionKey.OP_WRITE);
         return future;
+    }
+
+    public <T> Future<T> execute(
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final FutureCallback<T> callback) {
+        return execute(requestProducer, responseConsumer, HttpCoreContext.create(), callback);
     }
 
     public void requestGracefulShutdown() {

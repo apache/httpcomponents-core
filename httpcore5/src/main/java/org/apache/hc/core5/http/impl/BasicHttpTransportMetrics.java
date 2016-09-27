@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 
 /**
@@ -36,24 +38,19 @@ import org.apache.hc.core5.http.io.HttpTransportMetrics;
  */
 public class BasicHttpTransportMetrics implements HttpTransportMetrics {
 
-    private long bytesTransferred = 0;
+    private final AtomicLong bytesTransferred;
 
     public BasicHttpTransportMetrics() {
-        super();
+        this.bytesTransferred = new AtomicLong(0);
     }
 
     @Override
     public long getBytesTransferred() {
-        return this.bytesTransferred;
+        return this.bytesTransferred.get();
     }
 
     public void incrementBytesTransferred(final long count) {
-        this.bytesTransferred += count;
-    }
-
-    @Override
-    public void reset() {
-        this.bytesTransferred = 0;
+        this.bytesTransferred.addAndGet(count);
     }
 
 }

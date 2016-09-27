@@ -43,7 +43,11 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
@@ -54,6 +58,9 @@ import org.apache.hc.core5.http2.nio.Supplier;
 import org.apache.hc.core5.http2.nio.command.ClientCommandEndpoint;
 import org.apache.hc.core5.http2.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http2.nio.command.ShutdownType;
+import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
+import org.apache.hc.core5.http2.protocol.H2RequestContent;
+import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
@@ -159,7 +166,14 @@ public class Http2TestClient {
     }
 
     public void start(final H2Config h2Config) throws Exception {
+        final HttpProcessor httpProcessor = new DefaultHttpProcessor(
+                new H2RequestContent(),
+                new H2RequestTargetHost(),
+                new H2RequestConnControl(),
+                new RequestUserAgent("TEST-CLIENT/1.1"),
+                new RequestExpectContinue());
         this.ioReactor = new DefaultConnectingIOReactor(new InternalClientHttp2EventHandlerFactory(
+                httpProcessor,
                 new HandlerFactory<AsyncPushConsumer>() {
 
                     @Override

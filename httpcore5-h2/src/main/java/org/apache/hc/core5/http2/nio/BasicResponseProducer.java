@@ -28,7 +28,7 @@ package org.apache.hc.core5.http2.nio;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
@@ -57,20 +57,12 @@ public class BasicResponseProducer implements AsyncResponseProducer {
 
     @Override
     public HttpResponse produceResponse() {
-        if (!response.containsHeader(HttpHeaders.CONTENT_TYPE)) {
-            if (dataProducer != null) {
-                final String contentType = dataProducer.getContentType();
-                if (contentType != null) {
-                    response.addHeader(HttpHeaders.CONTENT_TYPE, contentType);
-                }
-            }
-        }
         return response;
     }
 
     @Override
-    public boolean isEnclosingEntity() {
-        return dataProducer != null;
+    public EntityDetails getEntityDetails() {
+        return dataProducer;
     }
 
     @Override

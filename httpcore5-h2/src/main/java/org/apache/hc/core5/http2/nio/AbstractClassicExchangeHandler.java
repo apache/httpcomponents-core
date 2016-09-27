@@ -32,17 +32,21 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.message.HttpResponseWrapper;
 import org.apache.hc.core5.http.nio.entity.ContentInputStream;
 import org.apache.hc.core5.http.nio.entity.ContentOutputStream;
 import org.apache.hc.core5.http2.nio.entity.SharedInputBuffer;
@@ -83,12 +87,13 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
     @Override
     public final void handleRequest(
             final HttpRequest request,
-            final boolean endStream,
+            final EntityDetails entityDetails,
             final ResponseChannel responseChannel) throws HttpException, IOException {
 
         final AtomicBoolean responseCommitted = new AtomicBoolean(false);
 
-        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK) {
+        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
+        final HttpResponse responseWrapper = new HttpResponseWrapper(response){
 
             private void ensureNotCommitted() {
                 Asserts.check(!responseCommitted.get(), "Response already committed");
@@ -133,7 +138,7 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
         };
 
         final InputStream inputStream;
-        if (!endStream) {
+        if (entityDetails != null) {
             inputBuffer = new SharedInputBuffer(initialBufferSize);
             inputStream = new ContentInputStream(inputBuffer);
         } else {
@@ -146,7 +151,36 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
             private void triggerResponse() throws IOException {
                 try {
                     if (responseCommitted.compareAndSet(false, true)) {
-                        responseChannel.sendResponse(response, false);
+                        responseChannel.sendResponse(response, new EntityDetails() {
+
+                            @Override
+                            public long getContentLength() {
+                                return -1;
+                            }
+
+                            @Override
+                            public String getContentType() {
+                                final Header h = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+                                return h != null ? h.getValue() : null;
+                            }
+
+                            @Override
+                            public String getContentEncoding() {
+                                final Header h = response.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
+                                return h != null ? h.getValue() : null;
+                            }
+
+                            @Override
+                            public boolean isChunked() {
+                                return false;
+                            }
+
+                            @Override
+                            public Set<String> getTrailerNames() {
+                                return null;
+                            }
+
+                        });
                     }
                 } catch (HttpException ex) {
                     throw new IOException(ex.getMessage(), ex);
@@ -185,12 +219,13 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
                 @Override
                 public void run() {
                     try {
-                        handle(request, inputStream, response, outputStream);
+                        handle(request, inputStream, responseWrapper, outputStream);
                         if (inputStream != null) {
                             inputStream.close();
                         }
                         outputStream.close();
                     } catch (Exception ex) {
+                        exception.compareAndSet(null, ex);
                         if (inputBuffer != null) {
                             inputBuffer.abort();
                         }
@@ -242,7 +277,7 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
 
     @Override
     public void failed(final Exception cause) {
-        exception.set(cause);
+        exception.compareAndSet(null, cause);
         releaseResources();
     }
 

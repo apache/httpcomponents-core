@@ -52,6 +52,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -186,6 +187,11 @@ public class Http2IntegrationTest extends InternalServerTestBase {
             this.total = total;
             this.charbuf = CharBuffer.allocate(4096);
             this.count = 0;
+        }
+
+        @Override
+        public long getContentLength() {
+            return -1;
         }
 
         @Override
@@ -346,18 +352,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         @Override
         public void handleRequest(
                 final HttpRequest request,
-                final boolean enclosedBody,
+                final EntityDetails entityDetails,
                 final ResponseChannel responseChannel) throws HttpException, IOException {
             final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-            final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-            if (h1 != null) {
-                response.addHeader(h1);
-            }
-            final Header h2 = request.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
-            if (h2 != null) {
-                response.addHeader(h2);
-            }
-            responseChannel.sendResponse(response, enclosedBody);
+            responseChannel.sendResponse(response, entityDetails);
         }
 
         @Override
@@ -848,7 +846,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, Void>> future = queue.remove();
-            final Message<HttpResponse, Void> result = future.get(50000, TimeUnit.SECONDS);
+            final Message<HttpResponse, Void> result = future.get(5, TimeUnit.SECONDS);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             Assert.assertNotNull(response);

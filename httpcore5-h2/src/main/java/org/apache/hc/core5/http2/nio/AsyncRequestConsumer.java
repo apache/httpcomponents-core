@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 
@@ -39,6 +40,6 @@ import org.apache.hc.core5.http.HttpRequest;
  */
 public interface AsyncRequestConsumer<T> extends AsyncDataConsumer {
 
-    void consumeRequest(HttpRequest request, boolean endStream, FutureCallback<T> resultCallback) throws HttpException, IOException;
+    void consumeRequest(HttpRequest request, EntityDetails entityDetails, FutureCallback<T> resultCallback) throws HttpException, IOException;
 
 }

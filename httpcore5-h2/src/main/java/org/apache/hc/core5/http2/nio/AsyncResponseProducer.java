@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.nio;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpResponse;
 
 /**
@@ -39,7 +40,7 @@ public interface AsyncResponseProducer extends AsyncDataProducer {
 
     HttpResponse produceResponse();
 
-    boolean isEnclosingEntity();
+    EntityDetails getEntityDetails();
 
     void dataStart(final DataStreamChannel channel) throws IOException;
 

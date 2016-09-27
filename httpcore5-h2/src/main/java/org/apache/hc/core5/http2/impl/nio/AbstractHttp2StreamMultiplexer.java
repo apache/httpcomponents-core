@@ -45,8 +45,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
@@ -71,7 +77,7 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.NetUtils;
 
-abstract class AbstractHttp2StreamMultiplexer {
+abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
     private static final long LINGER_TIME = 1000; // 1 second
 
@@ -83,8 +89,11 @@ abstract class AbstractHttp2StreamMultiplexer {
     private final IOSession ioSession;
     private final FrameFactory frameFactory;
     private final StreamIdGenerator idGenerator;
+    private final HttpProcessor httpProcessor;
     private final H2Config localConfig;
-    private final BasicH2TransportMetrics metrics;
+    private final BasicH2TransportMetrics inputMetrics;
+    private final BasicH2TransportMetrics outputMetrics;
+    private final BasicHttpConnectionMetrics connMetrics;
     private final FrameInputBuffer inputBuffer;
     private final FrameOutputBuffer outputBuffer;
     private final Deque<RawFrame> outputQueue;
@@ -113,6 +122,7 @@ abstract class AbstractHttp2StreamMultiplexer {
             final IOSession ioSession,
             final FrameFactory frameFactory,
             final StreamIdGenerator idGenerator,
+            final HttpProcessor httpProcessor,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener callback) {
@@ -120,10 +130,13 @@ abstract class AbstractHttp2StreamMultiplexer {
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.idGenerator = Args.notNull(idGenerator, "Stream id generator");
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.localConfig = h2Config != null ? h2Config : H2Config.DEFAULT;
-        this.metrics = new BasicH2TransportMetrics();
-        this.inputBuffer = new FrameInputBuffer(this.metrics, this.localConfig.getMaxFrameSize());
-        this.outputBuffer = new FrameOutputBuffer(this.metrics, this.localConfig.getMaxFrameSize());
+        this.inputMetrics = new BasicH2TransportMetrics();
+        this.outputMetrics = new BasicH2TransportMetrics();
+        this.connMetrics = new BasicHttpConnectionMetrics(inputMetrics, outputMetrics);
+        this.inputBuffer = new FrameInputBuffer(this.inputMetrics, this.localConfig.getMaxFrameSize());
+        this.outputBuffer = new FrameOutputBuffer(this.outputMetrics, this.localConfig.getMaxFrameSize());
         this.outputQueue = new ConcurrentLinkedDeque<>();
         this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
@@ -142,7 +155,8 @@ abstract class AbstractHttp2StreamMultiplexer {
         this.callback = callback;
     }
 
-    abstract Http2StreamHandler createRemotelyInitiatedStream(Http2StreamChannel channel) throws IOException;
+    abstract Http2StreamHandler createRemotelyInitiatedStream(
+            Http2StreamChannel channel, HttpProcessor httpProcessor, BasicHttpConnectionMetrics connMetrics) throws IOException;
 
     private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
         for (;;) {
@@ -519,8 +533,11 @@ abstract class AbstractHttp2StreamMultiplexer {
                         remoteConfig.getInitialWindowSize());
                 final Http2StreamHandler streamHandler = new ClientHttp2StreamHandler<>(
                         channel,
+                        httpProcessor,
+                        connMetrics,
                         executionCommand.getRequestProducer(),
                         executionCommand.getResponseConsumer(),
+                        executionCommand.getContext(),
                         executionCommand.getCallback());
                 final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
                 if (stream.isOutputReady()) {
@@ -629,7 +646,8 @@ abstract class AbstractHttp2StreamMultiplexer {
                             streamId,
                             localConfig.getInitialWindowSize(),
                             remoteConfig.getInitialWindowSize());
-                    final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(channel);
+                    final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
+                            channel, httpProcessor, connMetrics);
                     stream = new Http2Stream(channel, streamHandler, true);
                     if (stream.isOutputReady()) {
                         stream.produceOutput();
@@ -790,7 +808,8 @@ abstract class AbstractHttp2StreamMultiplexer {
                         promisedStreamId,
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
-                final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(channel);
+                final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
+                        channel, httpProcessor, connMetrics);
                 final Http2Stream promisedStream = new Http2Stream(channel, streamHandler, true);
                 streamMap.put(promisedStreamId, promisedStream);
 
@@ -1031,14 +1050,51 @@ abstract class AbstractHttp2StreamMultiplexer {
         }
     }
 
-    public void requestGracefulShutdown() {
-        try {
-            final RawFrame goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.NO_ERROR, "Graceful shutdown");
-            commitFrame(goAway);
-            connState = streamMap.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
-        } catch (IOException ex) {
-            onException(ex);
-        }
+    @Override
+    public void close() throws IOException {
+        ioSession.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+        ioSession.setEvent(SelectionKey.OP_WRITE);
+    }
+
+    @Override
+    public void shutdown() throws IOException {
+        ioSession.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.IMMEDIATE));
+        ioSession.setEvent(SelectionKey.OP_WRITE);
+    }
+
+    @Override
+    public boolean isOpen() {
+        return connState == ConnectionHandshake.ACTIVE;
+    }
+
+    @Override
+    public void setSocketTimeout(final int timeout) {
+        ioSession.setSocketTimeout(timeout);
+    }
+
+    @Override
+    public HttpConnectionMetrics getMetrics() {
+        return connMetrics;
+    }
+
+    @Override
+    public int getSocketTimeout() {
+        return ioSession.getSocketTimeout();
+    }
+
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        return HttpVersion.HTTP_2;
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() {
+        return ioSession.getRemoteAddress();
+    }
+
+    @Override
+    public SocketAddress getLocalAddress() {
+        return ioSession.getLocalAddress();
     }
 
     @Override
@@ -1135,7 +1191,8 @@ abstract class AbstractHttp2StreamMultiplexer {
                     promisedStreamId,
                     localConfig.getInitialWindowSize(),
                     remoteConfig.getInitialWindowSize());
-            final Http2StreamHandler streamHandler = new ServerPushHttp2StreamHandler(channel, pushProducer);
+            final Http2StreamHandler streamHandler = new ServerPushHttp2StreamHandler(
+                    channel, httpProcessor, connMetrics, pushProducer);
             final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
             streamMap.put(promisedStreamId, stream);
 

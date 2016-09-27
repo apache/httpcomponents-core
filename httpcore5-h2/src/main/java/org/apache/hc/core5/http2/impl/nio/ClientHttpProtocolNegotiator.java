@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
@@ -43,6 +44,7 @@ import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
@@ -56,6 +58,7 @@ public class ClientHttpProtocolNegotiator implements IOEventHandler {
             0x2f, 0x32, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x53, 0x4d,
             0x0d, 0x0a, 0x0d, 0x0a};
 
+    private final HttpProcessor httpProcessor;
     private final Charset charset;
     private final H2Config h2Config;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
@@ -63,11 +66,13 @@ public class ClientHttpProtocolNegotiator implements IOEventHandler {
     private final HttpErrorListener errorListener;
 
     public ClientHttpProtocolNegotiator(
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,
             final HttpErrorListener errorListener) {
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
         this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
@@ -76,7 +81,7 @@ public class ClientHttpProtocolNegotiator implements IOEventHandler {
     }
 
     protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
-        return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE,
+        return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
                 pushHandlerFactory, charset, h2Config, streamListener);
     }
 

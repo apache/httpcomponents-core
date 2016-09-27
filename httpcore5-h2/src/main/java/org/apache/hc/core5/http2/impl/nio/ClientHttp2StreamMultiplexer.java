@@ -29,6 +29,8 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
@@ -49,32 +51,38 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     public ClientHttp2StreamMultiplexer(
             final IOSession ioSession,
             final FrameFactory frameFactory,
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener) {
-        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, charset, h2Config, streamListener);
+        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charset, h2Config, streamListener);
         this.pushHandlerFactory = pushHandlerFactory;
     }
 
     public ClientHttp2StreamMultiplexer(
             final IOSession ioSession,
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, pushHandlerFactory, charset, h2Config, null);
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, charset, h2Config, null);
     }
 
     public ClientHttp2StreamMultiplexer(
             final IOSession ioSession,
+            final HttpProcessor httpProcessor,
             final Charset charset,
             final H2Config h2Config) {
-        this(ioSession, null, charset, h2Config);
+        this(ioSession, httpProcessor, null, charset, h2Config);
     }
 
     @Override
-    Http2StreamHandler createRemotelyInitiatedStream(final Http2StreamChannel channel) throws IOException {
-        return new ClientPushHttp2StreamHandler(channel, pushHandlerFactory);
+    Http2StreamHandler createRemotelyInitiatedStream(
+            final Http2StreamChannel channel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics) throws IOException {
+        return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics, pushHandlerFactory);
     }
 
 }

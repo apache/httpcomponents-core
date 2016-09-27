@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.nio.entity;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -90,8 +91,28 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     }
 
     @Override
+    public long getContentLength() {
+        return -1;
+    }
+
+    @Override
     public final String getContentType() {
         return contentType != null ? contentType.toString() : null;
+    }
+
+    @Override
+    public String getContentEncoding() {
+        return null;
+    }
+
+    @Override
+    public boolean isChunked() {
+        return false;
+    }
+
+    @Override
+    public Set<String> getTrailerNames() {
+        return null;
     }
 
     @Override

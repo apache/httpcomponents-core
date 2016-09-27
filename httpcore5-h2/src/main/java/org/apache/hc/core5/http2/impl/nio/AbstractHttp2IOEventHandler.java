@@ -93,8 +93,4 @@ class AbstractHttp2IOEventHandler implements IOEventHandler {
     public void disconnected(final IOSession session) {
     }
 
-    public void requestGracefulShutdown() {
-        streamMultiplexer.requestGracefulShutdown();
-    }
-
 }

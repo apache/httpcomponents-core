@@ -38,6 +38,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.entity.ContentType;
@@ -63,11 +64,11 @@ public abstract class AbstractCharAsyncEntityConsumer<T> implements AsyncEntityC
 
     @Override
     public final void streamStart(
-            final String contentType,
+            final EntityDetails entityDetails,
             final FutureCallback<T> resultCallback) throws IOException, HttpException {
         Args.notNull(resultCallback, "Result callback");
         try {
-            this.contentType = contentType != null ? ContentType.parse(contentType) : null;
+            this.contentType = entityDetails != null ? ContentType.parse(entityDetails.getContentType()) : null;
             dataStart(this.contentType, resultCallback);
         } catch (UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());

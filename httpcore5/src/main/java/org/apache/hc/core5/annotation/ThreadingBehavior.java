@@ -45,6 +45,12 @@ public enum ThreadingBehavior {
     IMMUTABLE_CONDITIONAL,
 
     /**
+     * Instances of classes with the given contract are expected to maintain no state
+     * and to be thread-safe.
+     */
+    STATELESS,
+
+    /**
      * Instances of classes with the given contract are expected to be fully thread-safe.
      */
     SAFE,

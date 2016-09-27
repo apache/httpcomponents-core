@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -73,7 +74,7 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
     @Override
     public final void handleRequest(
             final HttpRequest request,
-            final boolean endStream,
+            final EntityDetails entityDetails,
             final ResponseChannel responseChannel) throws HttpException, IOException {
 
         final AsyncResponseTrigger responseTrigger = new AsyncResponseTrigger() {
@@ -83,7 +84,7 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
                     final AsyncResponseProducer producer) throws HttpException, IOException {
                 try {
                     if (responseProducer.compareAndSet(null, producer)) {
-                        responseChannel.sendResponse(producer.produceResponse(), !producer.isEnclosingEntity());
+                        responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
                     }
                 } finally {
                     requestConsumer.releaseResources();
@@ -102,7 +103,7 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
             }
 
         };
-        requestConsumer.consumeRequest(request, !endStream, new FutureCallback<Message<HttpRequest, T>>() {
+        requestConsumer.consumeRequest(request, entityDetails, new FutureCallback<Message<HttpRequest, T>>() {
 
             @Override
             public void completed(final Message<HttpRequest, T> message) {

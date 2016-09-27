@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
@@ -52,6 +53,7 @@ public class ServerHttpProtocolNegotiator implements IOEventHandler {
 
     final static byte[] PREFACE = ClientHttpProtocolNegotiator.PREFACE;
 
+    private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
@@ -60,21 +62,23 @@ public class ServerHttpProtocolNegotiator implements IOEventHandler {
     private final ByteBuffer bytebuf;
 
     public ServerHttpProtocolNegotiator(
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,
             final HttpErrorListener errorListener) {
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchchange handler factory");
         this.streamListener = streamListener;
         this.errorListener = errorListener;
         this.bytebuf = ByteBuffer.allocate(1024);
     }
 
     protected ServerHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
-        return new ServerHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE,
+        return new ServerHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
                 exchangeHandlerFactory, charset, h2Config, streamListener);
     }
 

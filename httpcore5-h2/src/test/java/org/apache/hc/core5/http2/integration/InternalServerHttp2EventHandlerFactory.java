@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.HttpErrorListener;
 import org.apache.hc.core5.http2.impl.nio.ServerHttp2StreamMultiplexer;
@@ -41,20 +42,24 @@ import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.util.Args;
 
 public class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
     private static final AtomicLong COUNT = new AtomicLong();
 
+    private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
 
     public InternalServerHttp2EventHandlerFactory(
+            final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
-        this.exchangeHandlerFactory = exchangeHandlerFactory;
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.charset = charset;
         this.h2Config = h2Config;
     }
@@ -65,7 +70,7 @@ public class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFac
         final Log sessionLog = LogFactory.getLog(ioSession.getClass());
         final InternalHttp2StreamListener streamListener = new InternalHttp2StreamListener(id);
         final HttpErrorListener errorListener = new InternalHttpErrorListener(sessionLog);
-        return new ServerHttpProtocolNegotiator(exchangeHandlerFactory, charset, h2Config, streamListener, errorListener) {
+        return new ServerHttpProtocolNegotiator(httpProcessor, exchangeHandlerFactory, charset, h2Config, streamListener, errorListener) {
 
             @Override
             protected ServerHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {

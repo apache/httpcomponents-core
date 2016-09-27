@@ -31,9 +31,9 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.util.Args;
@@ -52,11 +52,11 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     @Override
     public void consumeResponse(
             final HttpResponse response,
+            final EntityDetails entityDetails,
             final FutureCallback<Message<HttpResponse, T>> resultCallback) throws HttpException, IOException {
         Args.notNull(response, "Response");
         Args.notNull(resultCallback, "Result callback");
-        final Header header = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-        dataConsumer.streamStart(header != null ? header.getValue() : null, new FutureCallback<T>() {
+        dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {

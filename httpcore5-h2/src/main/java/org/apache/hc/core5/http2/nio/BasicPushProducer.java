@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
@@ -61,15 +60,7 @@ public class BasicPushProducer implements AsyncPushProducer {
 
     @Override
     public void produceResponse(final ResponseChannel channel) throws HttpException, IOException {
-        if (!response.containsHeader(HttpHeaders.CONTENT_TYPE)) {
-            if (dataProducer != null) {
-                final String contentType = dataProducer.getContentType();
-                if (contentType != null) {
-                    response.addHeader(HttpHeaders.CONTENT_TYPE, contentType);
-                }
-            }
-        }
-        channel.sendResponse(response, dataProducer != null);
+        channel.sendResponse(response, dataProducer);
     }
 
     @Override

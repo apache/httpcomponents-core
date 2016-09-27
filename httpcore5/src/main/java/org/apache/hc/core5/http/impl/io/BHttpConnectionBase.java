@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.MessageConstraints;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
-import org.apache.hc.core5.http.impl.HttpConnectionMetricsImpl;
+import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -61,7 +61,7 @@ class BHttpConnectionBase implements BHttpConnection {
     final SessionInputBufferImpl inbuffer;
     final SessionOutputBufferImpl outbuffer;
     final MessageConstraints messageConstraints;
-    final HttpConnectionMetricsImpl connMetrics;
+    final BasicHttpConnectionMetrics connMetrics;
     final AtomicReference<SocketHolder> socketHolderRef;
 
     volatile ProtocolVersion version;
@@ -81,7 +81,7 @@ class BHttpConnectionBase implements BHttpConnection {
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, fragmentSizeHint,
                 charencoder);
         this.messageConstraints = messageConstraints;
-        this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
+        this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
         this.socketHolderRef = new AtomicReference<>();
     }
 
