@@ -24,25 +24,29 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.hc.core5.http2.nio;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 
 /**
- * Abstract asynchronous message exchange handler that acts as a request consumer and a response producer.
+ * Abstract expect-continue handshake channel.
+ * <p>
+ * Implementations are expected to be thread-safe.
  *
  * @since 5.0
  */
-public interface AsyncExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
+@Contract(threading = ThreadingBehavior.SAFE)
+public interface ExpectationChannel {
 
-    void verify(HttpRequest request, EntityDetails entityDetails, ExpectationChannel expectationChannel) throws HttpException, IOException;
+    void sendResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
 
-    void handleRequest(HttpRequest request, EntityDetails entityDetails, ResponseChannel responseChannel) throws HttpException, IOException;
-
-    void failed(Exception cause);
+    void sendContinue() throws HttpException, IOException;
 
 }

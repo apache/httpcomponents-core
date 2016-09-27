@@ -72,6 +72,14 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
     protected abstract void handle(Message<HttpRequest, T> request, AsyncResponseTrigger responseTrigger) throws IOException, HttpException;
 
     @Override
+    public void verify(
+            final HttpRequest request,
+            final EntityDetails entityDetails,
+            final ExpectationChannel expectationChannel) throws HttpException, IOException {
+        expectationChannel.sendContinue();
+    }
+
+    @Override
     public final void handleRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,

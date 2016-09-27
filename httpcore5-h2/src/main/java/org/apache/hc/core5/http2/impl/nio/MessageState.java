@@ -26,4 +26,4 @@
  */
 package org.apache.hc.core5.http2.impl.nio;
 
-enum MessageState { IDLE, HEADERS, BODY, COMPLETE }
+enum MessageState { IDLE, HEADERS, ACK, BODY, COMPLETE }

@@ -78,6 +78,7 @@ import org.apache.hc.core5.http2.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http2.nio.BasicResponseProducer;
 import org.apache.hc.core5.http2.nio.CapacityChannel;
 import org.apache.hc.core5.http2.nio.DataStreamChannel;
+import org.apache.hc.core5.http2.nio.ExpectationChannel;
 import org.apache.hc.core5.http2.nio.ResponseChannel;
 import org.apache.hc.core5.http2.nio.StreamChannel;
 import org.apache.hc.core5.http2.nio.Supplier;
@@ -347,6 +348,14 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                 buffer = ByteBuffer.allocate(oldBuffer.remaining() + (chunk > 2048 ? chunk : 2048));
                 buffer.put(oldBuffer);
             }
+        }
+
+        @Override
+        public void verify(
+                final HttpRequest request,
+                final EntityDetails entityDetails,
+                final ExpectationChannel expectationChannel) throws HttpException, IOException {
+            expectationChannel.sendContinue();
         }
 
         @Override

@@ -41,16 +41,16 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
 import org.apache.hc.core5.http2.nio.AsyncPushProducer;
+import org.apache.hc.core5.http2.nio.DataStreamChannel;
 import org.apache.hc.core5.http2.nio.ResponseChannel;
 
 class ServerPushHttp2StreamHandler implements Http2StreamHandler {
 
-    private final Http2StreamChannel internalOutputChannel;
+    private final Http2StreamChannel outputChannel;
+    private final DataStreamChannel dataChannel;
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
     private final AsyncPushProducer pushProducer;
@@ -65,23 +65,8 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
             final AsyncPushProducer pushProducer) {
-        this.internalOutputChannel = new Http2StreamChannel() {
-
-            @Override
-            public void submit(final List<Header> headers, final boolean endStream) throws HttpException, IOException {
-                outputChannel.submit(headers, endStream);
-                responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
-            }
-
-            @Override
-            public void push(final List<Header> headers, final AsyncPushProducer pushProducer) throws IOException {
-                throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Push not allowed");
-            }
-
-            @Override
-            public void update(final int increment) throws IOException {
-                outputChannel.update(increment);
-            }
+        this.outputChannel = outputChannel;
+        this.dataChannel = new DataStreamChannel() {
 
             @Override
             public void requestOutput() {
@@ -166,7 +151,8 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
                             httpProcessor.process(response, entityDetails, context);
 
                             final List<Header> headers = DefaultH2ResponseConverter.INSTANCE.convert(response);
-                            internalOutputChannel.submit(headers, entityDetails == null);
+                            outputChannel.submit(headers, entityDetails == null);
+                            responseState = entityDetails == null ? MessageState.COMPLETE : MessageState.BODY;
                             connMetrics.incrementResponseCount();
                         }
                     }
@@ -182,14 +168,14 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
 
                         final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(promise);
 
-                        internalOutputChannel.push(headers, pushProducer);
+                        outputChannel.push(headers, pushProducer);
                         connMetrics.incrementRequestCount();
                     }
 
                 });
                 break;
             case BODY:
-                pushProducer.produce(internalOutputChannel);
+                pushProducer.produce(dataChannel);
                 break;
         }
     }

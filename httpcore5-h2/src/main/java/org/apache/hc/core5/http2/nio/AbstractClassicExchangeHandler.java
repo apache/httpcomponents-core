@@ -85,6 +85,14 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
             HttpResponse response, OutputStream responseStream) throws IOException, HttpException;
 
     @Override
+    public void verify(
+            final HttpRequest request,
+            final EntityDetails entityDetails,
+            final ExpectationChannel expectationChannel) throws HttpException, IOException {
+        expectationChannel.sendContinue();
+    }
+
+    @Override
     public final void handleRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,

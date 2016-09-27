@@ -78,6 +78,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
 
             });
         }
+        buffer.flush(channel);
     }
 
     @Override

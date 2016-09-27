@@ -47,7 +47,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
 
     public SharedOutputBuffer(final ReentrantLock lock, final int buffersize) {
         super(lock, buffersize);
-        this.hasCapacity = true;
+        this.hasCapacity = false;
     }
 
     public SharedOutputBuffer(final int buffersize) {
