@@ -184,7 +184,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
         }
         this.requestProducerRef.set(requestProducer);
         final ClassicHttpRequest request = requestProducer.generateRequest();
-        this.httppocessor.process(request, this.localContext);
+        this.httppocessor.process(request, request.getEntity(), this.localContext);
         this.requestQueue.add(request);
         return request;
     }
@@ -221,7 +221,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
         if (transportVersion != null) {
             this.localContext.setProtocolVersion(transportVersion);
         }
-        this.httppocessor.process(response, this.localContext);
+        this.httppocessor.process(response, response.getEntity(), this.localContext);
 
         responseConsumer.responseReceived(response);
     }

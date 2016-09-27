@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.impl.io.HttpService;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
@@ -64,7 +64,7 @@ public class HttpServer {
 
     public HttpServer() throws IOException {
         super();
-        this.httpproc = new ImmutableHttpProcessor(
+        this.httpproc = new DefaultHttpProcessor(
                 new HttpResponseInterceptor[] {
                         new ResponseDate(),
                         new ResponseServer("TEST-SERVER/1.1"),

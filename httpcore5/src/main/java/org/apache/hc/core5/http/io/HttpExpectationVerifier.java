@@ -25,11 +25,12 @@
  *
  */
 
-package org.apache.hc.core5.http.protocol;
+package org.apache.hc.core5.http.io;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Defines an interface to verify whether an incoming HTTP request meets

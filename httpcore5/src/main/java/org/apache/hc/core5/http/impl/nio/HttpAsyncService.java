@@ -287,7 +287,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         if (transportVersion != null) {
             context.setProtocolVersion(transportVersion);
         }
-        this.httpProcessor.process(request, context);
+        this.httpProcessor.process(request, request.getEntity(), context);
 
         final HttpAsyncRequestHandler<Object> requestHandler = getRequestHandler(request, context);
         final HttpAsyncRequestConsumer<Object> consumer = requestHandler.processRequest(request, context);
@@ -643,7 +643,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         final HttpContext context = outgoing.getContext();
 
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-        this.httpProcessor.process(response, context);
+        this.httpProcessor.process(response, response.getEntity(), context);
 
         HttpEntity entity = response.getEntity();
         if (entity != null && !canResponseHaveBody(request, response)) {

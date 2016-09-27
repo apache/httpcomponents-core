@@ -152,7 +152,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         final ClassicHttpRequest request = this.requestProducer.generateRequest();
         this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
-        this.httppocessor.process(request, this.localContext);
+        this.httppocessor.process(request, request.getEntity(), this.localContext);
         return request;
     }
 
@@ -175,7 +175,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         if (transportVersion != null) {
             this.localContext.setProtocolVersion(transportVersion);
         }
-        this.httppocessor.process(response, this.localContext);
+        this.httppocessor.process(response, response.getEntity(), this.localContext);
         this.responseConsumer.responseReceived(response);
     }
 

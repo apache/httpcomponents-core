@@ -31,13 +31,13 @@ import java.io.IOException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
@@ -60,7 +60,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     }
 
     @Override
-    public void process(final ClassicHttpResponse response, final HttpContext context)
+    public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
 
@@ -85,7 +85,6 @@ public class ResponseConnControl implements HttpResponseInterceptor {
         }
         // Always drop connection for HTTP/1.0 responses and below
         // if the content body cannot be correctly delimited
-        final HttpEntity entity = response.getEntity();
         final ProtocolVersion ver = context.getProtocolVersion();
         if (entity != null) {
             if (entity.getContentLength() < 0 &&
@@ -95,7 +94,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             }
         }
         // Drop connection if requested by the client or request was <= 1.0
-        final ClassicHttpRequest request = corecontext.getRequest();
+        final HttpRequest request = corecontext.getRequest();
         if (request != null) {
             final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
             if (header != null) {

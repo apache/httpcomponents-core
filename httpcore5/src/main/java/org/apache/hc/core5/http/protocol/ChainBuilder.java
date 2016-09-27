@@ -36,7 +36,7 @@ import java.util.Map;
  * Builder class to build a linked list (chain) of unique class instances. Each class can have
  * only one instance in the list. Useful for building lists of protocol interceptors.
  *
- * @see ImmutableHttpProcessor
+ * @see DefaultHttpProcessor
  *
  * @since 4.3
  */

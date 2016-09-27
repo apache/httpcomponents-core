@@ -48,8 +48,5 @@ import org.apache.hc.core5.http.HttpResponseInterceptor;
  *
  * @since 4.0
  */
-public interface HttpProcessor
-    extends HttpRequestInterceptor, HttpResponseInterceptor {
-
-    // no additional methods
+public interface HttpProcessor extends HttpRequestInterceptor, HttpResponseInterceptor {
 }

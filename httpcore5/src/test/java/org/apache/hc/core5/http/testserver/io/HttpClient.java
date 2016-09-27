@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
@@ -68,7 +68,7 @@ public class HttpClient {
     }
 
     public HttpClient() {
-        this(new ImmutableHttpProcessor(
+        this(new DefaultHttpProcessor(
                 new RequestContent(),
                 new RequestTargetHost(),
                 new RequestConnControl(),

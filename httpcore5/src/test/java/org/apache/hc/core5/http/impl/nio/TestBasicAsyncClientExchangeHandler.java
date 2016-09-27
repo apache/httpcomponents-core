@@ -163,7 +163,7 @@ public class TestBasicAsyncClientExchangeHandler {
         Mockito.verify(this.requestProducer).generateRequest();
         Assert.assertSame(request, this.context.getAttribute(HttpCoreContext.HTTP_REQUEST));
         Assert.assertSame(this.conn, this.context.getAttribute(HttpCoreContext.HTTP_CONNECTION));
-        Mockito.verify(this.httpProcessor).process(request, this.context);
+        Mockito.verify(this.httpProcessor).process(request, null, this.context);
     }
 
     @Test
@@ -199,7 +199,7 @@ public class TestBasicAsyncClientExchangeHandler {
 
         Mockito.verify(this.responseConsumer).responseReceived(response);
         Assert.assertSame(response, this.context.getAttribute(HttpCoreContext.HTTP_RESPONSE));
-        Mockito.verify(this.httpProcessor).process(response, this.context);
+        Mockito.verify(this.httpProcessor).process(response, null, this.context);
     }
 
     @Test

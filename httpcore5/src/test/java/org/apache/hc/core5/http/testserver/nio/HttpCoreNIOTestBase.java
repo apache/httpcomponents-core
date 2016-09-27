@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.nio.HttpAsyncExpectationVerifier;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
@@ -94,7 +94,7 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     protected HttpProcessor createServerHttpProcessor() {
-        return new ImmutableHttpProcessor(
+        return new DefaultHttpProcessor(
                 new HttpRequestInterceptor[] {
                         new RequestValidateHost()
                 },
@@ -111,7 +111,7 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     protected HttpProcessor createClientHttpProcessor() {
-        return new ImmutableHttpProcessor(
+        return new DefaultHttpProcessor(
                 new RequestContent(),
                 new RequestTargetHost(),
                 new RequestConnControl(),

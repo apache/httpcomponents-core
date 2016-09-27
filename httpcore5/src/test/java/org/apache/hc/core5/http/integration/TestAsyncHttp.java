@@ -37,14 +37,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.ByteArrayEntity;
@@ -65,7 +67,7 @@ import org.apache.hc.core5.http.nio.IOControl;
 import org.apache.hc.core5.http.nio.entity.NStringEntity;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
@@ -341,7 +343,7 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         // Rewire client
         this.client = new HttpClientNio(
-                new ImmutableHttpProcessor(
+                new DefaultHttpProcessor(
                         new RequestTargetHost(),
                         new RequestConnControl(),
                         new RequestUserAgent(),
@@ -375,12 +377,13 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         // Rewire client
         this.client = new HttpClientNio(
-                new ImmutableHttpProcessor(
+                new DefaultHttpProcessor(
                         new HttpRequestInterceptor() {
 
                             @Override
                             public void process(
-                                    final ClassicHttpRequest request,
+                                    final HttpRequest request,
+                                    final EntityDetails entity,
                                     final HttpContext context) throws HttpException, IOException {
                                 request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
                             }
@@ -966,7 +969,7 @@ public class TestAsyncHttp extends HttpCoreNIOTestBase {
 
         // Rewire client
         this.client = new HttpClientNio(
-                new ImmutableHttpProcessor(new RequestContent(), new RequestConnControl()),
+                new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()),
                 createHttpAsyncRequestExecutor(),
                 createClientConnectionFactory(),
                 createClientIOReactorConfig());

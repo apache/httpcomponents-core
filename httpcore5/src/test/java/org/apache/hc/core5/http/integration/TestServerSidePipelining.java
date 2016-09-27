@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.nio.entity.NByteArrayEntity;
 import org.apache.hc.core5.http.nio.entity.NStringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseServer;
@@ -68,7 +68,7 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
 
     @Override
     protected HttpProcessor createServerHttpProcessor() {
-        return new ImmutableHttpProcessor(
+        return new DefaultHttpProcessor(
                 new ResponseServer("TEST-SERVER/1.1"),
                 new ResponseContent(),
                 new ResponseConnControl());

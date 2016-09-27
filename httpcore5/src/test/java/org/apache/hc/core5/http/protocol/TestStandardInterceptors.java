@@ -57,7 +57,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final RequestConnControl interceptor = new RequestConnControl();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("keep-alive", header.getValue());
@@ -68,7 +68,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("CONNECT", "/");
         final RequestConnControl interceptor = new RequestConnControl();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNull(header);
     }
@@ -80,7 +80,7 @@ public class TestStandardInterceptors {
         final Header myheader = new BasicHeader(HttpHeaders.CONNECTION, "close");
         request.addHeader(myheader);
         final RequestConnControl interceptor = new RequestConnControl();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("close", header.getValue());
@@ -91,7 +91,7 @@ public class TestStandardInterceptors {
     public void testRequestConnControlInvalidInput() throws Exception {
         final RequestConnControl interceptor = new RequestConnControl();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -108,13 +108,13 @@ public class TestStandardInterceptors {
 
         final RequestContent interceptor = new RequestContent();
         try {
-            interceptor.process(request1, context);
+            interceptor.process(request1, request1.getEntity(), context);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
         }
         try {
-            interceptor.process(request2, context);
+            interceptor.process(request2, request2.getEntity(), context);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -127,7 +127,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
 
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNull(header);
         Assert.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
@@ -142,7 +142,7 @@ public class TestStandardInterceptors {
         request.setEntity(entity);
 
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNotNull(header);
         Assert.assertEquals(s.length(), Integer.parseInt(header.getValue()));
@@ -159,7 +159,7 @@ public class TestStandardInterceptors {
         request.setEntity(entity);
 
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(header);
         Assert.assertEquals("chunked", header.getValue());
@@ -176,7 +176,7 @@ public class TestStandardInterceptors {
         request.setEntity(entity);
 
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(header);
         Assert.assertEquals("chunked", header.getValue());
@@ -195,7 +195,7 @@ public class TestStandardInterceptors {
 
         final RequestContent interceptor = new RequestContent();
         try {
-            interceptor.process(request, context);
+            interceptor.process(request, request.getEntity(), context);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -212,7 +212,7 @@ public class TestStandardInterceptors {
         request.setEntity(entity);
 
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
         Assert.assertNotNull(h1);
         Assert.assertEquals("whatever", h1.getValue());
@@ -229,7 +229,7 @@ public class TestStandardInterceptors {
         request.setEntity(entity);
 
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         Assert.assertNull(request.getFirstHeader(HttpHeaders.CONTENT_TYPE));
         Assert.assertNull(request.getFirstHeader(HttpHeaders.CONTENT_ENCODING));
     }
@@ -246,7 +246,7 @@ public class TestStandardInterceptors {
 
         final RequestContent interceptor = new RequestContent();
         try {
-            interceptor.process(request, context);
+            interceptor.process(request, request.getEntity(), context);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -257,7 +257,7 @@ public class TestStandardInterceptors {
     public void testRequestContentInvalidInput() throws Exception {
         final RequestContent interceptor = new RequestContent();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -269,7 +269,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         Assert.assertEquals(0, request.getAllHeaders().length);
     }
 
@@ -281,7 +281,7 @@ public class TestStandardInterceptors {
         request.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "whatever"));
         request.setEntity(new StringEntity(""));
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNotNull(h1);
         Assert.assertEquals("0", h1.getValue());
@@ -293,7 +293,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setEntity(new StringEntity(""));
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNotNull(h1);
         Assert.assertEquals("0", h1.getValue());
@@ -311,7 +311,7 @@ public class TestStandardInterceptors {
                 new BasicHeader("h1", "this"), new BasicHeader("h1", "that"), new BasicHeader("h2", "this and that")));
 
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header1 = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(header1);
         final Header header2 = request.getFirstHeader(HttpHeaders.TRAILER);
@@ -327,7 +327,7 @@ public class TestStandardInterceptors {
         final StringEntity entity = new StringEntity(s, StandardCharsets.US_ASCII);
         request.setEntity(entity);
         final RequestExpectContinue interceptor = new RequestExpectContinue();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.EXPECT);
         Assert.assertNotNull(header);
         Assert.assertEquals(HeaderElements.CONTINUE, header.getValue());
@@ -342,7 +342,7 @@ public class TestStandardInterceptors {
         final StringEntity entity = new StringEntity(s, StandardCharsets.US_ASCII);
         request.setEntity(entity);
         final RequestExpectContinue interceptor = new RequestExpectContinue();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.EXPECT);
         Assert.assertNull(header);
     }
@@ -355,7 +355,7 @@ public class TestStandardInterceptors {
         final StringEntity entity = new StringEntity(s, StandardCharsets.US_ASCII);
         request.setEntity(entity);
         final RequestExpectContinue interceptor = new RequestExpectContinue();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.EXPECT);
         Assert.assertNull(header);
     }
@@ -364,7 +364,7 @@ public class TestStandardInterceptors {
     public void testRequestExpectContinueInvalidInput() throws Exception {
         final RequestExpectContinue interceptor = new RequestExpectContinue();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -376,7 +376,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         final RequestExpectContinue interceptor = new RequestExpectContinue();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         Assert.assertEquals(0, request.getAllHeaders().length);
     }
 
@@ -387,7 +387,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         request.setAuthority(host.toHostString());
         final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:8080", header.getValue());
@@ -403,7 +403,7 @@ public class TestStandardInterceptors {
         Mockito.when(conn.getRemoteAddress()).thenReturn(new InetSocketAddress(address, 1234));
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:1234", header.getValue());
@@ -417,7 +417,7 @@ public class TestStandardInterceptors {
         Mockito.when(conn.getRemoteAddress()).thenReturn(null);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
         final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
     }
 
     @Test
@@ -428,7 +428,7 @@ public class TestStandardInterceptors {
         request.setAuthority(host.toHostString());
         request.addHeader(new BasicHeader(HttpHeaders.HOST, "whatever"));
         final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("whatever", header.getValue());
@@ -440,7 +440,7 @@ public class TestStandardInterceptors {
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNull(header);
     }
@@ -451,7 +451,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final RequestTargetHost interceptor = new RequestTargetHost();
         try {
-            interceptor.process(request, context);
+            interceptor.process(request, request.getEntity(), context);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -462,13 +462,13 @@ public class TestStandardInterceptors {
     public void testRequestTargetHostInvalidInput() throws Exception {
         final RequestTargetHost interceptor = new RequestTargetHost();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
-            interceptor.process(new BasicClassicHttpRequest("GET", "/"), null);
+            interceptor.process(new BasicClassicHttpRequest("GET", "/"), null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -482,7 +482,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("CONNECT", "/");
         request.setAuthority(host.toHostString());
         final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:8080", header.getValue());
@@ -496,7 +496,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("CONNECT", "/");
         request.setAuthority(host.toHostString());
         final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNull(header);
     }
@@ -506,7 +506,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final RequestUserAgent interceptor = new RequestUserAgent("some agent");
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.USER_AGENT);
         Assert.assertNotNull(header);
         Assert.assertEquals("some agent", header.getValue());
@@ -518,7 +518,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HttpHeaders.USER_AGENT, "whatever"));
         final RequestUserAgent interceptor = new RequestUserAgent("some agent");
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.USER_AGENT);
         Assert.assertNotNull(header);
         Assert.assertEquals("whatever", header.getValue());
@@ -529,7 +529,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final RequestUserAgent interceptor = new RequestUserAgent();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.USER_AGENT);
         Assert.assertNull(header);
     }
@@ -538,7 +538,7 @@ public class TestStandardInterceptors {
     public void testRequestUserAgentInvalidInput() throws Exception {
         final RequestUserAgent interceptor = new RequestUserAgent();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -550,7 +550,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNull(header);
     }
@@ -562,7 +562,7 @@ public class TestStandardInterceptors {
         final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNull(header);
     }
@@ -577,7 +577,7 @@ public class TestStandardInterceptors {
         final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("close", header.getValue());
@@ -591,7 +591,7 @@ public class TestStandardInterceptors {
         entity.setChunked(true);
         response.setEntity(entity);
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNull(header);
     }
@@ -608,7 +608,7 @@ public class TestStandardInterceptors {
         final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("close", header.getValue());
@@ -625,7 +625,7 @@ public class TestStandardInterceptors {
         final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("keep-alive", header.getValue());
@@ -641,7 +641,7 @@ public class TestStandardInterceptors {
         final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNull(header);
     }
@@ -657,7 +657,7 @@ public class TestStandardInterceptors {
         final StringEntity entity = new StringEntity("whatever");
         response.setEntity(entity);
         final ResponseConnControl interceptor = new ResponseConnControl();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("close", header.getValue());
@@ -683,7 +683,7 @@ public class TestStandardInterceptors {
 
         for (final int statusCode : statusCodes) {
             final ClassicHttpResponse response = new BasicClassicHttpResponse(statusCode, "Unreasonable");
-            interceptor.process(response, context);
+            interceptor.process(response, response.getEntity(), context);
             final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
             Assert.assertNotNull(header);
             Assert.assertEquals("close", header.getValue());
@@ -702,7 +702,7 @@ public class TestStandardInterceptors {
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         response.setHeader(HttpHeaders.CONNECTION, "close");
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("close", header.getValue());
@@ -712,14 +712,14 @@ public class TestStandardInterceptors {
     public void testResponseConnControlHostInvalidInput() throws Exception {
         final ResponseConnControl interceptor = new ResponseConnControl();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
         }
         try {
             final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-            interceptor.process(response, null);
+            interceptor.process(response, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -731,7 +731,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNotNull(header);
         Assert.assertEquals("0", header.getValue());
@@ -743,7 +743,7 @@ public class TestStandardInterceptors {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setCode(HttpStatus.SC_NO_CONTENT);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNull(header);
     }
@@ -754,7 +754,7 @@ public class TestStandardInterceptors {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setCode(HttpStatus.SC_RESET_CONTENT);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNull(header);
     }
@@ -765,7 +765,7 @@ public class TestStandardInterceptors {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setCode(HttpStatus.SC_NOT_MODIFIED);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNull(header);
     }
@@ -778,7 +778,7 @@ public class TestStandardInterceptors {
         entity.setChunked(true);
         response.setEntity(entity);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(h1);
         Assert.assertEquals("chunked", h1.getValue());
@@ -794,7 +794,7 @@ public class TestStandardInterceptors {
         entity.setContentLength (10);
         response.setEntity(entity);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNotNull(h1);
         Assert.assertEquals("10", h1.getValue());
@@ -809,7 +809,7 @@ public class TestStandardInterceptors {
         final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNull(h1);
         final Header h2 = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
@@ -825,7 +825,7 @@ public class TestStandardInterceptors {
         entity.setChunked(true);
         response.setEntity(entity);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNull(h1);
         final Header h2 = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
@@ -839,7 +839,7 @@ public class TestStandardInterceptors {
         final BasicHttpEntity entity = new BasicHttpEntity();
         response.setEntity(entity);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
         Assert.assertNull(h1);
         final Header h2 = response.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
@@ -855,7 +855,7 @@ public class TestStandardInterceptors {
         entity.setContentType("whatever");
         response.setEntity(entity);
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.CONTENT_TYPE);
         Assert.assertNotNull(h1);
         Assert.assertEquals("whatever", h1.getValue());
@@ -868,7 +868,7 @@ public class TestStandardInterceptors {
     public void testResponseContentInvalidInput() throws Exception {
         final ResponseContent interceptor = new ResponseContent();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -882,7 +882,7 @@ public class TestStandardInterceptors {
         try {
             final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
             response.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
-            interceptor.process(response, context);
+            interceptor.process(response, response.getEntity(), context);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -890,7 +890,7 @@ public class TestStandardInterceptors {
         try {
             final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
             response.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "stuff"));
-            interceptor.process(response, context);
+            interceptor.process(response, response.getEntity(), context);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -904,7 +904,7 @@ public class TestStandardInterceptors {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
         response.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "whatever"));
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         Assert.assertEquals("0", response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
     }
 
@@ -913,7 +913,7 @@ public class TestStandardInterceptors {
         final ResponseContent interceptor = new ResponseContent(true);
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         Assert.assertEquals("0", response.getFirstHeader(HttpHeaders.CONTENT_LENGTH).getValue());
         Assert.assertNull(response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
     }
@@ -928,7 +928,7 @@ public class TestStandardInterceptors {
                 new BasicHeader("h1", "this"), new BasicHeader("h1", "that"), new BasicHeader("h2", "this and that")));
 
         final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header header1 = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(header1);
         final Header header2 = response.getFirstHeader(HttpHeaders.TRAILER);
@@ -941,10 +941,10 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseDate interceptor = new ResponseDate();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNotNull(h1);
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h2 = response.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNotNull(h2);
     }
@@ -955,7 +955,7 @@ public class TestStandardInterceptors {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setCode(199);
         final ResponseDate interceptor = new ResponseDate();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNull(h1);
     }
@@ -964,7 +964,7 @@ public class TestStandardInterceptors {
     public void testResponseDateInvalidInput() throws Exception {
         final ResponseDate interceptor = new ResponseDate();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -978,10 +978,10 @@ public class TestStandardInterceptors {
         request.setEntity(new StringEntity("stuff"));
 
         final RequestDate interceptor = new RequestDate();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNotNull(h1);
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header h2 = request.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNotNull(h2);
     }
@@ -992,7 +992,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         final RequestDate interceptor = new RequestDate();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNull(h1);
     }
@@ -1001,7 +1001,7 @@ public class TestStandardInterceptors {
     public void testRequestDateInvalidInput() throws Exception {
         final RequestDate interceptor = new RequestDate();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -1013,7 +1013,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseServer interceptor = new ResponseServer("some server");
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.SERVER);
         Assert.assertNotNull(h1);
         Assert.assertEquals("some server", h1.getValue());
@@ -1025,7 +1025,7 @@ public class TestStandardInterceptors {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.addHeader(new BasicHeader(HttpHeaders.SERVER, "whatever"));
         final ResponseServer interceptor = new ResponseServer("some server");
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.SERVER);
         Assert.assertNotNull(h1);
         Assert.assertEquals("whatever", h1.getValue());
@@ -1036,7 +1036,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseServer interceptor = new ResponseServer();
-        interceptor.process(response, context);
+        interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.SERVER);
         Assert.assertNull(h1);
     }
@@ -1045,7 +1045,7 @@ public class TestStandardInterceptors {
     public void testResponseServerInvalidInput() throws Exception {
         final ResponseServer interceptor = new ResponseServer();
         try {
-            interceptor.process(null, null);
+            interceptor.process(null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -1058,7 +1058,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         request.setVersion(HttpVersion.HTTP_1_0);
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
     }
 
     @Test
@@ -1068,7 +1068,7 @@ public class TestStandardInterceptors {
         request.setVersion(HttpVersion.HTTP_1_1);
         request.setHeader(HttpHeaders.HOST, "host:8888");
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         Assert.assertEquals("host:8888", request.getAuthority());
     }
 
@@ -1079,7 +1079,7 @@ public class TestStandardInterceptors {
         request.setVersion(HttpVersion.HTTP_1_1);
         request.setHeader(HttpHeaders.HOST, "host");
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
         Assert.assertEquals("host", request.getAuthority());
     }
 
@@ -1089,7 +1089,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         request.setHeader(HttpHeaders.HOST, "blah");
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
     }
 
     @Test(expected = ProtocolException.class)
@@ -1097,7 +1097,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
     }
 
     @Test(expected = ProtocolException.class)
@@ -1107,7 +1107,7 @@ public class TestStandardInterceptors {
         request.addHeader(HttpHeaders.HOST, "blah");
         request.addHeader(HttpHeaders.HOST, "blah");
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, context);
+        interceptor.process(request, request.getEntity(), context);
     }
 
 }

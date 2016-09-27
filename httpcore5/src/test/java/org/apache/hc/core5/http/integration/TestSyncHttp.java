@@ -38,15 +38,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.entity.AbstractHttpEntity;
@@ -58,8 +60,8 @@ import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.protocol.HttpExpectationVerifier;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.io.HttpExpectationVerifier;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
@@ -834,7 +836,7 @@ public class TestSyncHttp {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setEntity(null);
 
-            this.client = new HttpClient(new ImmutableHttpProcessor(
+            this.client = new HttpClient(new DefaultHttpProcessor(
                     new RequestTargetHost(),
                     new RequestConnControl(),
                     new RequestUserAgent(),
@@ -883,12 +885,13 @@ public class TestSyncHttp {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setEntity(null);
 
-            this.client = new HttpClient(new ImmutableHttpProcessor(
+            this.client = new HttpClient(new DefaultHttpProcessor(
                     new HttpRequestInterceptor() {
 
                         @Override
                         public void process(
-                                final ClassicHttpRequest request,
+                                final HttpRequest request,
+                                final EntityDetails entity,
                                 final HttpContext context) throws HttpException, IOException {
                             request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
                         }
@@ -972,7 +975,7 @@ public class TestSyncHttp {
 
         });
 
-        this.client = new HttpClient(new ImmutableHttpProcessor(new RequestContent(), new RequestConnControl()));
+        this.client = new HttpClient(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()));
         this.server.start();
 
         final DefaultBHttpClientConnection conn = client.createConnection();

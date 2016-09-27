@@ -30,7 +30,6 @@ package org.apache.hc.core5.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
 
 /**
  * An entity that can be sent or received with an HTTP message.
@@ -60,7 +59,7 @@ import java.util.Set;
  *
  * @since 4.0
  */
-public interface HttpEntity {
+public interface HttpEntity extends EntityDetails {
 
     /**
      * Tells if the entity is capable of producing its data more than once.
@@ -69,55 +68,6 @@ public interface HttpEntity {
      * @return true if the entity is repeatable, false otherwise.
      */
     boolean isRepeatable();
-
-    /**
-     * Tells about chunked encoding for this entity.
-     * The primary purpose of this method is to indicate whether
-     * chunked encoding should be used when the entity is sent.
-     * For entities that are received, it can also indicate whether
-     * the entity was received with chunked encoding.
-     * <p>
-     * The behavior of wrapping entities is implementation dependent,
-     * but should respect the primary purpose.
-     * </p>
-     *
-     * @return  {@code true} if chunked encoding is preferred for this
-     *          entity, or {@code false} if it is not
-     */
-    boolean isChunked();
-
-    /**
-     * Tells the length of the content, if known.
-     *
-     * @return  the number of bytes of the content, or
-     *          a negative number if unknown. If the content length is known
-     *          but exceeds {@link java.lang.Long#MAX_VALUE Long.MAX_VALUE},
-     *          a negative number is returned.
-     */
-    long getContentLength();
-
-    /**
-     * Obtains the Content-Type header, if known.
-     * This is the header that should be used when sending the entity,
-     * or the one that was received with the entity. It can include a
-     * charset attribute.
-     *
-     * @return  the Content-Type header for this entity, or
-     *          {@code null} if the content type is unknown
-     */
-    String getContentType();
-
-    /**
-     * Obtains the Content-Encoding header, if known.
-     * This is the header that should be used when sending the entity,
-     * or the one that was received with the entity.
-     * Wrapping entities that modify the content encoding should
-     * adjust this header accordingly.
-     *
-     * @return  the Content-Encoding header for this entity, or
-     *          {@code null} if the content encoding is unknown
-     */
-    String getContentEncoding();
 
     /**
      * Returns a content stream of the entity.
@@ -174,13 +124,5 @@ public interface HttpEntity {
      * @since 5.0
      */
      TrailerSupplier getTrailers();
-
-    /**
-     * Preliminary declaration of trailing headers
-     * @return names of expected trailing headers
-     *
-     * @since 5.0
-     */
-     Set<String> getTrailerNames();
 
 }

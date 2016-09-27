@@ -203,7 +203,7 @@ public class HttpRequestExecutor {
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-        processor.process(request, context);
+        processor.process(request, request.getEntity(), context);
     }
 
     /**
@@ -235,7 +235,7 @@ public class HttpRequestExecutor {
             context.setProtocolVersion(transportVersion);
         }
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-        processor.process(response, context);
+        processor.process(response, response.getEntity(), context);
     }
 
 } // class HttpRequestExecutor

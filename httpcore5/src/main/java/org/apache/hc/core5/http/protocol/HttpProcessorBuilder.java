@@ -143,7 +143,7 @@ public class HttpProcessorBuilder {
     }
 
     public HttpProcessor build() {
-        return new ImmutableHttpProcessor(
+        return new DefaultHttpProcessor(
                 requestChainBuilder != null ? requestChainBuilder.build() : null,
                 responseChainBuilder != null ? responseChainBuilder.build() : null);
     }

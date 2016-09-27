@@ -32,8 +32,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.message.BufferedHeader;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -49,7 +49,7 @@ public class TrailerNameFormatter {
         // Do not allow utility class to be instantiated.
     }
 
-    public static Header format(final HttpEntity entity) {
+    public static Header format(final EntityDetails entity) {
         if (entity == null) {
             return null;
         }

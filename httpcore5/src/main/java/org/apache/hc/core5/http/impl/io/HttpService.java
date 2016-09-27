@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.io.HttpRequestHandlerMapper;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.protocol.HttpExpectationVerifier;
+import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.util.Args;
 
@@ -193,7 +193,7 @@ public class HttpService {
             } else {
                 context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
                 context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-                this.processor.process(response, context);
+                this.processor.process(response, response.getEntity(), context);
                 conn.sendResponseHeader(response);
                 if (canResponseHaveBody(request, response)) {
                     conn.sendResponseEntity(response);
@@ -208,19 +208,19 @@ public class HttpService {
             conn.receiveRequestEntity(request);
 
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-            this.processor.process(request, context);
+            this.processor.process(request, request.getEntity(), context);
 
             response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
             doService(request, response, context);
 
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-            this.processor.process(response, context);
+            this.processor.process(response, response.getEntity(), context);
 
         } catch (final HttpException ex) {
             response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             handleException(ex, response);
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-            this.processor.process(response, context);
+            this.processor.process(response, response.getEntity(), context);
         }
 
         conn.sendResponseHeader(response);

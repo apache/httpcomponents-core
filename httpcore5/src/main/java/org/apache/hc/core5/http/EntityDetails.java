@@ -25,29 +25,43 @@
  *
  */
 
-package org.apache.hc.core5.http.io;
+package org.apache.hc.core5.http;
 
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
+import java.util.Set;
 
 /**
- * HttpRequestHandlerMapper can be used to resolve an instance of
- * {@link HttpRequestHandler} matching a particular {@link HttpRequest}. Usually the
- * mapped request handler will be used to process the request.
+ * Details of an entity transmitted by a message.
  *
- * @since 4.3
+ * @since 5.0
  */
-public interface HttpRequestHandlerMapper {
+public interface EntityDetails {
 
     /**
-     * Looks up a handler matching the given request.
-     *
-     * @param request the request to map to a handler
-     * @return HTTP request handler or {@code null} if no match
-     * is found.
-     *
-     * @since 5.0
+     * Returns length of the entity, if known.
      */
-    HttpRequestHandler lookup(HttpRequest request, HttpContext context);
+    long getContentLength();
+
+    /**
+     * Returns content type of the entity, if known.
+     */
+    String getContentType();
+
+    /**
+     * Returns content encoding of the entity, if known.
+     */
+    String getContentEncoding();
+
+    /**
+     * Returns chunked transfer hint for this entity.
+     * <p>
+     * The behavior of wrapping entities is implementation dependent,
+     * but should respect the primary purpose.
+     */
+    boolean isChunked();
+
+    /**
+     * Preliminary declaration of trailing headers.
+     */
+    Set<String> getTrailerNames();
 
 }

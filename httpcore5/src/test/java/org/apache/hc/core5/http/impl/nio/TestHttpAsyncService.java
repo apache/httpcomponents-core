@@ -33,12 +33,14 @@ import java.nio.ByteBuffer;
 import java.util.Queue;
 
 import org.apache.hc.core5.concurrent.Cancellable;
-import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ConnectionReuseStrategy;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
@@ -78,7 +80,7 @@ public class TestHttpAsyncService {
     private HttpAsyncService protocolHandler;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy reuseStrategy;
-    private HttpResponseFactory responseFactory;
+    private HttpResponseFactory<ClassicHttpResponse> responseFactory;
     private HttpContext connContext;
     private NHttpServerConnection conn;
     private HttpAsyncRequestHandler<Object> requestHandler;
@@ -212,7 +214,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.doThrow(new RuntimeException()).when(this.httpProcessor).process(
-                Matchers.any(ClassicHttpResponse.class), Matchers.any(HttpContext.class));
+                Matchers.any(ClassicHttpResponse.class), Matchers.any(EntityDetails.class), Matchers.any(HttpContext.class));
         final HttpException httpex = new HttpException();
         try {
             this.protocolHandler.exception(this.conn, httpex);
@@ -243,7 +245,7 @@ public class TestHttpAsyncService {
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
         Mockito.doThrow(new IOException()).when(this.httpProcessor).process(
-                Matchers.any(ClassicHttpResponse.class), Matchers.any(HttpContext.class));
+                Matchers.any(ClassicHttpResponse.class), Matchers.any(EntityDetails.class), Matchers.any(HttpContext.class));
         final HttpException httpex = new HttpException();
 
         this.protocolHandler.exception(this.conn, httpex);
@@ -305,7 +307,7 @@ public class TestHttpAsyncService {
         Assert.assertNull(incoming);
 
         final ArgumentCaptor<HttpContext> argumentCaptor = ArgumentCaptor.forClass(HttpContext.class);
-        Mockito.verify(this.httpProcessor).process(Matchers.eq(request), argumentCaptor.capture());
+        Mockito.verify(this.httpProcessor).process(Matchers.eq(request), Matchers.isNull(EntityDetails.class), argumentCaptor.capture());
         final HttpContext exchangeContext = argumentCaptor.getValue();
         Assert.assertNotNull(exchangeContext);
 
@@ -461,7 +463,7 @@ public class TestHttpAsyncService {
         Assert.assertSame(request, exchangeContext.getAttribute(HttpCoreContext.HTTP_REQUEST));
         Assert.assertSame(this.conn, exchangeContext.getAttribute(HttpCoreContext.HTTP_CONNECTION));
 
-        Mockito.verify(this.httpProcessor).process(request, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(request, entity, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
         Mockito.verify(this.conn, Mockito.never()).suspendInput();
     }
@@ -497,7 +499,7 @@ public class TestHttpAsyncService {
         Assert.assertSame(request, exchangeContext.getAttribute(HttpCoreContext.HTTP_REQUEST));
         Assert.assertSame(this.conn, exchangeContext.getAttribute(HttpCoreContext.HTTP_CONNECTION));
 
-        Mockito.verify(this.httpProcessor).process(request, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(request, entity, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
         Mockito.verify(this.conn, Mockito.never()).suspendInput();
         Mockito.verify(this.conn).submitResponse(Matchers.argThat(new ArgumentMatcher<ClassicHttpResponse>() {
@@ -547,7 +549,7 @@ public class TestHttpAsyncService {
         Assert.assertSame(request, exchangeContext.getAttribute(HttpCoreContext.HTTP_REQUEST));
         Assert.assertSame(this.conn, exchangeContext.getAttribute(HttpCoreContext.HTTP_CONNECTION));
 
-        Mockito.verify(this.httpProcessor).process(request, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(request, entity, exchangeContext);
         Mockito.verify(this.requestConsumer).requestReceived(request);
         Mockito.verify(expectationVerifier).verify(
                 Matchers.any(HttpAsyncExchange.class),
@@ -902,7 +904,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.READY, state.getResponseState());
 
-        Mockito.verify(this.httpProcessor).process(response, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(response, null, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
         Mockito.verify(this.conn, Mockito.never()).close();
@@ -918,7 +920,8 @@ public class TestHttpAsyncService {
         state.setRequestState(MessageState.COMPLETED);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         final Outgoing outgoing = new Outgoing(request, response, this.responseProducer, exchangeContext);
-        response.setEntity(new NStringEntity("stuff"));
+        final NStringEntity entity = new NStringEntity("stuff");
+        response.setEntity(entity);
         state.setOutgoing(outgoing);
 
         final Queue<PipelineEntry> pipeline = state.getRequestQueue();
@@ -938,7 +941,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.BODY_STREAM, state.getResponseState());
 
-        Mockito.verify(this.httpProcessor).process(response, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(response, entity, exchangeContext);
         Mockito.verify(this.conn).suspendOutput();
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.conn, Mockito.never()).close();
@@ -965,7 +968,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.READY, state.getResponseState());
 
-        Mockito.verify(this.httpProcessor).process(response, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(response, null, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
         Mockito.verify(this.conn).close();
@@ -985,7 +988,8 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        response.setEntity(new NStringEntity("stuff"));
+        final NStringEntity entity = new NStringEntity("stuff");
+        response.setEntity(entity);
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
 
         this.protocolHandler.responseReady(this.conn);
@@ -995,7 +999,7 @@ public class TestHttpAsyncService {
         Assert.assertEquals("[incoming COMPLETED GET /; outgoing BODY_STREAM 200]",
                 state.toString());
 
-        Mockito.verify(this.httpProcessor).process(response, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(response, entity, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer, Mockito.never()).responseCompleted(exchangeContext);
     }
@@ -1014,7 +1018,8 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        response.setEntity(new NStringEntity("stuff"));
+        final NStringEntity entity = new NStringEntity("stuff");
+        response.setEntity(entity);
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
         Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.TRUE);
 
@@ -1022,7 +1027,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.READY, state.getResponseState());
 
-        Mockito.verify(this.httpProcessor).process(response, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(response, entity, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
         Mockito.verify(this.conn, Mockito.never()).close();
@@ -1042,7 +1047,8 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        response.setEntity(new NStringEntity("stuff"));
+        final NStringEntity entity = new NStringEntity("stuff");
+        response.setEntity(entity);
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
         Mockito.when(this.reuseStrategy.keepAlive(request, response, exchangeContext)).thenReturn(Boolean.TRUE);
 
@@ -1050,7 +1056,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.READY, state.getResponseState());
 
-        Mockito.verify(this.httpProcessor).process(response, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(response, entity, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer).responseCompleted(exchangeContext);
         Mockito.verify(this.conn, Mockito.never()).close();
@@ -1098,8 +1104,8 @@ public class TestHttpAsyncService {
         final HttpContext exchangeContext = new BasicHttpContext();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.setHeader(HttpHeaders.CONTENT_LENGTH, "5");
-        final NStringEntity entity = new NStringEntity("stuff");
-        request.setEntity(entity);
+        final NStringEntity requestEntity = new NStringEntity("stuff");
+        request.setEntity(requestEntity);
         final Incoming incoming = new Incoming(request, this.requestHandler, this.requestConsumer, exchangeContext);
         state.setIncoming(incoming);
         state.setRequestState(MessageState.ACK_EXPECTED);
@@ -1109,7 +1115,8 @@ public class TestHttpAsyncService {
         state.setResponseState(MessageState.INIT);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
 
-        response.setEntity(new NStringEntity("stuff"));
+        final HttpEntity responseEntity = new NStringEntity("stuff");
+        response.setEntity(responseEntity);
         Mockito.when(this.responseProducer.generateResponse()).thenReturn(response);
 
         this.protocolHandler.responseReady(this.conn);
@@ -1118,7 +1125,7 @@ public class TestHttpAsyncService {
         Assert.assertEquals(MessageState.BODY_STREAM, state.getResponseState());
         Assert.assertSame(outgoing, state.getOutgoing());
 
-        Mockito.verify(this.httpProcessor).process(response, exchangeContext);
+        Mockito.verify(this.httpProcessor).process(response, responseEntity, exchangeContext);
         Mockito.verify(this.conn).submitResponse(response);
         Mockito.verify(this.responseProducer, Mockito.never()).responseCompleted(exchangeContext);
     }

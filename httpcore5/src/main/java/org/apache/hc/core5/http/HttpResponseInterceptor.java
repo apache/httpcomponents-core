@@ -56,13 +56,13 @@ public interface HttpResponseInterceptor {
      * sent to the client. On the client side, this step is performed
      * on incoming messages before the message body is evaluated.
      *
-     * @param response  the response to postprocess
+     * @param response  the response to process
+     * @param entity    the request entity details or {@code null} if not available
      * @param context   the context for the request
      *
      * @throws HttpException in case of an HTTP protocol violation
      * @throws IOException in case of an I/O error
      */
-    void process(ClassicHttpResponse response, HttpContext context)
-        throws HttpException, IOException;
+    void process(HttpResponse response, EntityDetails entity, HttpContext context) throws HttpException, IOException;
 
 }

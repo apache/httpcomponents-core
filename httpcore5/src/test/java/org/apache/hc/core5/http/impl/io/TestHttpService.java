@@ -29,12 +29,12 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.InputStream;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
@@ -48,19 +48,44 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.protocol.HttpExpectationVerifier;
+import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 
 public class TestHttpService {
 
+    @Mock
+    private HttpProcessor httprocessor;
+    @Mock
+    private ConnectionReuseStrategy connReuseStrategy;
+    @Mock
+    private HttpResponseFactory<ClassicHttpResponse> responseFactory;
+    @Mock
+    private HttpRequestHandlerMapper handlerResolver;
+    @Mock
+    private HttpRequestHandler requestHandler;
+    @Mock
+    private HttpServerConnection conn;
+
+    private HttpService httpservice;
+
+    @Before
+    public void settup() {
+        MockitoAnnotations.initMocks(this);
+        httpservice = new HttpService(
+                httprocessor,
+                connReuseStrategy,
+                responseFactory,
+                handlerResolver);
+    }
+
     @Test
     public void testInvalidInitialization() throws Exception {
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
         try {
             new HttpService(
                     null,
@@ -74,18 +99,7 @@ public class TestHttpService {
 
     @Test
     public void testBasicExecution() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
@@ -100,8 +114,8 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
-        Mockito.verify(httprocessor).process(request, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
         Mockito.verify(conn).flush();
@@ -110,18 +124,7 @@ public class TestHttpService {
 
     @Test
     public void testExecutionEntityEnclosingRequest() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         final InputStream instream = Mockito.mock(InputStream.class);
         final InputStreamEntity entity = new InputStreamEntity(instream, -1);
@@ -141,9 +144,9 @@ public class TestHttpService {
         Assert.assertSame(response, context.getResponse());
 
         Mockito.verify(conn).receiveRequestEntity(request);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
         Mockito.verify(instream).close();
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
         Mockito.verify(conn).flush();
@@ -152,18 +155,7 @@ public class TestHttpService {
 
     @Test
     public void testExecutionEntityEnclosingRequestWithExpectContinue() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream instream = Mockito.mock(InputStream.class);
@@ -187,9 +179,9 @@ public class TestHttpService {
 
         Mockito.verify(conn).sendResponseHeader(resp100);
         Mockito.verify(conn).receiveRequestEntity(request);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
         Mockito.verify(instream).close();
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
         Mockito.verify(conn, Mockito.times(2)).flush();
@@ -198,11 +190,6 @@ public class TestHttpService {
 
     @Test
     public void testExecutionEntityEnclosingRequestCustomExpectationVerifier() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-
         final HttpExpectationVerifier expectationVerifier = new HttpExpectationVerifier() {
 
             @Override
@@ -222,7 +209,6 @@ public class TestHttpService {
                 handlerResolver,
                 expectationVerifier);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream instream = Mockito.mock(InputStream.class);
@@ -243,7 +229,7 @@ public class TestHttpService {
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response.getCode());
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
         Mockito.verify(conn).flush();
@@ -252,12 +238,7 @@ public class TestHttpService {
 
     @Test
     public void testExecutionExceptionInCustomExpectationVerifier() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
         final HttpExpectationVerifier expectationVerifier = Mockito.mock(HttpExpectationVerifier.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-
         final HttpService httpservice = new HttpService(
                 httprocessor,
                 connReuseStrategy,
@@ -265,7 +246,6 @@ public class TestHttpService {
                 handlerResolver,
                 expectationVerifier);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, "100-continue");
         final InputStream instream = Mockito.mock(InputStream.class);
@@ -289,7 +269,7 @@ public class TestHttpService {
         Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
         Mockito.verify(conn).flush();
@@ -298,19 +278,7 @@ public class TestHttpService {
 
     @Test
     public void testMethodNotSupported() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        final HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("whatever", "/");
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -332,7 +300,7 @@ public class TestHttpService {
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, error.getCode());
 
         Mockito.verify(conn).sendResponseHeader(error);
-        Mockito.verify(httprocessor).process(error, context);
+        Mockito.verify(httprocessor).process(error, error.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(error);
         Mockito.verify(conn).sendResponseEntity(error);
         Mockito.verify(conn).flush();
@@ -341,19 +309,7 @@ public class TestHttpService {
 
     @Test
     public void testUnsupportedHttpVersionException() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        final HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("whatever", "/");
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -375,7 +331,7 @@ public class TestHttpService {
         Assert.assertEquals(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED, error.getCode());
 
         Mockito.verify(conn).sendResponseHeader(error);
-        Mockito.verify(httprocessor).process(error, context);
+        Mockito.verify(httprocessor).process(error, error.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(error);
         Mockito.verify(conn).sendResponseEntity(error);
         Mockito.verify(conn).flush();
@@ -384,19 +340,7 @@ public class TestHttpService {
 
     @Test
     public void testProtocolException() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        final HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("whatever", "/");
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -418,7 +362,7 @@ public class TestHttpService {
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, error.getCode());
 
         Mockito.verify(conn).sendResponseHeader(error);
-        Mockito.verify(httprocessor).process(error, context);
+        Mockito.verify(httprocessor).process(error, error.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(error);
         Mockito.verify(conn).sendResponseEntity(error);
         Mockito.verify(conn).flush();
@@ -427,19 +371,7 @@ public class TestHttpService {
 
     @Test
     public void testConnectionKeepAlive() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        final HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
@@ -455,8 +387,8 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
-        Mockito.verify(httprocessor).process(request, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
         Mockito.verify(conn).flush();
@@ -465,19 +397,7 @@ public class TestHttpService {
 
     @Test
     public void testNoContentResponse() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        final HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -491,7 +411,7 @@ public class TestHttpService {
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
 
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(requestHandler).handle(request, response, context);
 
         Mockito.verify(conn).sendResponseHeader(response);
@@ -502,19 +422,7 @@ public class TestHttpService {
 
     @Test
     public void testResponseToHead() throws Exception {
-        final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        final ConnectionReuseStrategy connReuseStrategy = Mockito.mock(ConnectionReuseStrategy.class);
-        final HttpResponseFactory responseFactory = Mockito.mock(HttpResponseFactory.class);
-        final HttpRequestHandlerMapper handlerResolver = Mockito.mock(HttpRequestHandlerMapper.class);
-        final HttpRequestHandler requestHandler = Mockito.mock(HttpRequestHandler.class);
-
-        final HttpService httpservice = new HttpService(
-                httprocessor,
-                connReuseStrategy,
-                responseFactory,
-                handlerResolver);
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final ClassicHttpRequest request = new BasicClassicHttpRequest("HEAD", "/");
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -528,7 +436,7 @@ public class TestHttpService {
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
 
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(requestHandler).handle(request, response, context);
 
         Mockito.verify(conn).sendResponseHeader(response);

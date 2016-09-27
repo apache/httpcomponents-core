@@ -121,7 +121,7 @@ public class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(200, "OK"));
@@ -133,7 +133,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
@@ -150,7 +150,7 @@ public class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(100, "OK"),
@@ -165,7 +165,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn, Mockito.times(1)).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
         Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
@@ -182,7 +182,7 @@ public class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(204, "OK"));
@@ -194,7 +194,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn, Mockito.never()).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("HEAD", "/");
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(200, "OK"));
@@ -219,7 +219,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn, Mockito.never()).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
     }
 
     @Test
@@ -234,7 +234,7 @@ public class TestHttpRequestExecutor {
         request.setEntity(entity);
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(200, "OK"));
@@ -247,7 +247,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
     }
 
     @Test
@@ -263,7 +263,7 @@ public class TestHttpRequestExecutor {
         request.setEntity(entity);
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(100, "Continue"),
@@ -279,7 +279,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
     }
 
     @Test
@@ -295,7 +295,7 @@ public class TestHttpRequestExecutor {
         request.setEntity(entity);
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(402, "OK"));
@@ -311,7 +311,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
     }
 
     @Test
@@ -327,7 +327,7 @@ public class TestHttpRequestExecutor {
         request.setEntity(entity);
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(101, "OK"));
@@ -354,7 +354,7 @@ public class TestHttpRequestExecutor {
         request.setEntity(entity);
 
         executor.preProcess(request, httprocessor, context);
-        Mockito.verify(httprocessor).process(request, context);
+        Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(200, "OK"));
@@ -369,7 +369,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).receiveResponseEntity(response);
 
         executor.postProcess(response, httprocessor, context);
-        Mockito.verify(httprocessor).process(response, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
     }
 
     @Test

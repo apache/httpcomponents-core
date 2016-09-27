@@ -31,24 +31,25 @@ import java.util.List;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 
 /**
- * Immutable {@link HttpProcessor}.
+ * Default immutable implementation of {@link HttpProcessor}.
  *
- * @since 4.1
+ * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public final class ImmutableHttpProcessor implements HttpProcessor {
+public final class DefaultHttpProcessor implements HttpProcessor {
 
     private final HttpRequestInterceptor[] requestInterceptors;
     private final HttpResponseInterceptor[] responseInterceptors;
 
-    public ImmutableHttpProcessor(
+    public DefaultHttpProcessor(
             final HttpRequestInterceptor[] requestInterceptors,
             final HttpResponseInterceptor[] responseInterceptors) {
         super();
@@ -71,7 +72,7 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
     /**
      * @since 4.3
      */
-    public ImmutableHttpProcessor(
+    public DefaultHttpProcessor(
             final List<HttpRequestInterceptor> requestInterceptors,
             final List<HttpResponseInterceptor> responseInterceptors) {
         super();
@@ -89,29 +90,31 @@ public final class ImmutableHttpProcessor implements HttpProcessor {
         }
     }
 
-    public ImmutableHttpProcessor(final HttpRequestInterceptor... requestInterceptors) {
+    public DefaultHttpProcessor(final HttpRequestInterceptor... requestInterceptors) {
         this(requestInterceptors, null);
     }
 
-    public ImmutableHttpProcessor(final HttpResponseInterceptor... responseInterceptors) {
+    public DefaultHttpProcessor(final HttpResponseInterceptor... responseInterceptors) {
         this(null, responseInterceptors);
     }
 
     @Override
     public void process(
-            final ClassicHttpRequest request,
+            final HttpRequest request,
+            final EntityDetails entity,
             final HttpContext context) throws IOException, HttpException {
         for (final HttpRequestInterceptor requestInterceptor : this.requestInterceptors) {
-            requestInterceptor.process(request, context);
+            requestInterceptor.process(request, entity, context);
         }
     }
 
     @Override
     public void process(
-            final ClassicHttpResponse response,
+            final HttpResponse response,
+            final EntityDetails entity,
             final HttpContext context) throws IOException, HttpException {
         for (final HttpResponseInterceptor responseInterceptor : this.responseInterceptors) {
-            responseInterceptor.process(response, context);
+            responseInterceptor.process(response, entity, context);
         }
     }
 

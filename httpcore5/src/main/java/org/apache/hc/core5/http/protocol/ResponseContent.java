@@ -32,11 +32,11 @@ import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
@@ -93,7 +93,7 @@ public class ResponseContent implements HttpResponseInterceptor {
      * @throws IllegalArgumentException If the response is null.
      */
     @Override
-    public void process(final ClassicHttpResponse response, final HttpContext context)
+    public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         if (this.overwrite) {
@@ -108,7 +108,6 @@ public class ResponseContent implements HttpResponseInterceptor {
             }
         }
         final ProtocolVersion ver = context.getProtocolVersion();
-        final HttpEntity entity = response.getEntity();
         if (entity != null) {
             final long len = entity.getContentLength();
             if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {

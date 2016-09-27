@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncService;
 import org.apache.hc.core5.http.impl.nio.UriHttpAsyncRequestHandlerMapper;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
@@ -64,7 +64,7 @@ public class TestDefaultListeningIOReactor {
 
     @Before
     public void setup() throws Exception {
-        final HttpProcessor httpproc = new ImmutableHttpProcessor(new ResponseDate(),
+        final HttpProcessor httpproc = new DefaultHttpProcessor(new ResponseDate(),
                 new ResponseServer(),
                 new ResponseContent(),
                 new ResponseConnControl());

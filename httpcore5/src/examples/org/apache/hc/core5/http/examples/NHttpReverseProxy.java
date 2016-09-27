@@ -39,6 +39,8 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.entity.ContentType;
@@ -71,7 +73,7 @@ import org.apache.hc.core5.http.pool.nio.BasicNIOPoolEntry;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
@@ -120,7 +122,7 @@ public class NHttpReverseProxy {
 
         // Set up HTTP protocol processor for outgoing connections
         HttpProcessor outhttpproc;
-        outhttpproc = new ImmutableHttpProcessor(
+        outhttpproc = new DefaultHttpProcessor(
                 new RequestContent(),
                 new RequestTargetHost(),
                 new RequestConnControl(),
@@ -138,7 +140,7 @@ public class NHttpReverseProxy {
 
 
         // Set up HTTP protocol processor for incoming connections
-        HttpProcessor inhttpproc = new ImmutableHttpProcessor(
+        HttpProcessor inhttpproc = new DefaultHttpProcessor(
                 new ResponseDate(),
                 new ResponseServer("Test/1.1"),
                 new ResponseContent(),
@@ -763,7 +765,7 @@ public class NHttpReverseProxy {
     static class ProxyIncomingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
 
         @Override
-        public boolean keepAlive(final ClassicHttpRequest request, final ClassicHttpResponse response, final HttpContext context) {
+        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
             boolean keepAlive = super.keepAlive(request, response, context);
@@ -778,7 +780,7 @@ public class NHttpReverseProxy {
     static class ProxyOutgoingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
 
         @Override
-        public boolean keepAlive(final ClassicHttpRequest request, final ClassicHttpResponse response, final HttpContext context) {
+        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
             NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
             boolean keepAlive = super.keepAlive(request, response, context);

@@ -54,7 +54,7 @@ import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
@@ -168,7 +168,7 @@ public class ElementalReverseProxy {
             this.serversocket = new ServerSocket(port);
 
             // Set up HTTP protocol processor for incoming connections
-            final HttpProcessor inhttpproc = new ImmutableHttpProcessor(
+            final HttpProcessor inhttpproc = new DefaultHttpProcessor(
                     new HttpRequestInterceptor[] {
                             new RequestContent(),
                             new RequestTargetHost(),
@@ -178,7 +178,7 @@ public class ElementalReverseProxy {
              });
 
             // Set up HTTP protocol processor for outgoing connections
-            final HttpProcessor outhttpproc = new ImmutableHttpProcessor(
+            final HttpProcessor outhttpproc = new DefaultHttpProcessor(
                     new HttpResponseInterceptor[] {
                             new ResponseDate(),
                             new ResponseServer("Test/1.1"),

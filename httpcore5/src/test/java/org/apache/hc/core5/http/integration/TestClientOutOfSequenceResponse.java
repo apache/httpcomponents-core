@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.impl.nio.DefaultNHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.ImmutableHttpProcessor;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
@@ -64,7 +64,7 @@ public class TestClientOutOfSequenceResponse {
     @Before
     public void setup() throws Exception {
         server = new ServerSocket(0, 1);
-        final HttpProcessor httpProcessor = new ImmutableHttpProcessor(
+        final HttpProcessor httpProcessor = new DefaultHttpProcessor(
                 new RequestContent(),
                 new RequestTargetHost(),
                 new RequestConnControl(),
