@@ -68,9 +68,9 @@ import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.nio.AbstractAsyncPushHandler;
-import org.apache.hc.core5.http2.nio.AbstractAsyncServerExchangeHandler;
-import org.apache.hc.core5.http2.nio.AbstractClassicServerExchangeHandler;
+import org.apache.hc.core5.http2.nio.BasicAsyncPushHandler;
+import org.apache.hc.core5.http2.nio.BasicServerExchangeHandler;
+import org.apache.hc.core5.http2.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http2.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http2.nio.AsyncResponseTrigger;
@@ -87,8 +87,8 @@ import org.apache.hc.core5.http2.nio.StreamChannel;
 import org.apache.hc.core5.http2.nio.Supplier;
 import org.apache.hc.core5.http2.nio.command.ClientCommandEndpoint;
 import org.apache.hc.core5.http2.nio.entity.AbstractCharAsyncEntityProducer;
-import org.apache.hc.core5.http2.nio.entity.AbstractClassicEntityConsumer;
-import org.apache.hc.core5.http2.nio.entity.AbstractClassicEntityProducer;
+import org.apache.hc.core5.http2.impl.nio.entity.AbstractClassicEntityConsumer;
+import org.apache.hc.core5.http2.impl.nio.entity.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http2.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http2.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http2.nio.entity.StringAsyncEntityProducer;
@@ -129,7 +129,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     }
 
-    static class SingleLineResponseHandler extends AbstractAsyncServerExchangeHandler<String> {
+    static class SingleLineResponseHandler extends BasicServerExchangeHandler<String> {
 
         private final String message;
 
@@ -230,7 +230,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     }
 
-    static class MultiLineResponseHandler extends AbstractAsyncServerExchangeHandler<String> {
+    static class MultiLineResponseHandler extends BasicServerExchangeHandler<String> {
 
         private final String message;
         private final int count;
@@ -687,7 +687,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new AbstractAsyncServerExchangeHandler<Void>(new NoopEntityConsumer()) {
+                return new BasicServerExchangeHandler<Void>(new NoopEntityConsumer()) {
+
+
 
                     @Override
                     protected void handle(
@@ -713,7 +715,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
             @Override
             public AsyncPushConsumer get() {
-                return new AbstractAsyncPushHandler<String>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
+                return new BasicAsyncPushHandler<String>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
 
                     @Override
                     protected void handleResponse(
@@ -766,7 +768,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new AbstractAsyncServerExchangeHandler<Void>(new NoopEntityConsumer()) {
+                return new BasicServerExchangeHandler<Void>(new NoopEntityConsumer()) {
 
                     @Override
                     protected void handle(
@@ -872,7 +874,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new AbstractAsyncServerExchangeHandler<String>(new StringAsyncEntityConsumer()) {
+                return new BasicServerExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
                     @Override
                     protected AsyncResponseProducer verify(final HttpRequest request) throws IOException, HttpException {

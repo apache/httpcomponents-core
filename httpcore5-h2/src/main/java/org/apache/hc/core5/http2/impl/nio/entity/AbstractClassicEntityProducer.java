@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.nio.entity;
+package org.apache.hc.core5.http2.impl.nio.entity;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -82,7 +82,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     }
 
     @Override
-    public int available() {
+    public final int available() {
         return buffer.length();
     }
 
@@ -92,7 +92,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     }
 
     @Override
-    public long getContentLength() {
+    public final long getContentLength() {
         return -1;
     }
 
@@ -107,12 +107,12 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     }
 
     @Override
-    public boolean isChunked() {
+    public final boolean isChunked() {
         return false;
     }
 
     @Override
-    public Set<String> getTrailerNames() {
+    public final Set<String> getTrailerNames() {
         return null;
     }
 

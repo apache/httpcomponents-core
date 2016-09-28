@@ -45,19 +45,19 @@ import org.apache.hc.core5.util.Asserts;
 /**
  * @since 5.0
  */
-public abstract class AbstractAsyncServerExchangeHandler<T> implements AsyncServerExchangeHandler {
+public class BasicServerExchangeHandler<T> implements AsyncServerExchangeHandler {
 
     private final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer;
     private final AtomicReference<AsyncResponseProducer> responseProducer;
     private final AtomicBoolean dataStarted;
 
-    public AbstractAsyncServerExchangeHandler(final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer) {
+    public BasicServerExchangeHandler(final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer) {
         this.requestConsumer = Args.notNull(requestConsumer, "Request consumer");
         this.responseProducer = new AtomicReference<>(null);
         this.dataStarted = new AtomicBoolean(false);
     }
 
-    public AbstractAsyncServerExchangeHandler(final AsyncEntityConsumer<T> requestEntityConsumer) {
+    public BasicServerExchangeHandler(final AsyncEntityConsumer<T> requestEntityConsumer) {
         this(new BasicRequestConsumer<>(requestEntityConsumer));
     }
 
@@ -65,7 +65,10 @@ public abstract class AbstractAsyncServerExchangeHandler<T> implements AsyncServ
         return null;
     }
 
-    protected abstract void handle(Message<HttpRequest, T> request, AsyncResponseTrigger responseTrigger) throws IOException, HttpException;
+    protected void handle(
+            final Message<HttpRequest, T> request, final AsyncResponseTrigger responseTrigger) throws IOException, HttpException {
+        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "OK"));
+    }
 
     @Override
     public final void verify(
@@ -133,7 +136,7 @@ public abstract class AbstractAsyncServerExchangeHandler<T> implements AsyncServ
 
             @Override
             public void failed(final Exception ex) {
-                AbstractAsyncServerExchangeHandler.this.failed(ex);
+                BasicServerExchangeHandler.this.failed(ex);
                 releaseResources();
             }
 
@@ -147,7 +150,7 @@ public abstract class AbstractAsyncServerExchangeHandler<T> implements AsyncServ
     }
 
     @Override
-    public int capacity() {
+    public final int capacity() {
         return requestConsumer.capacity();
     }
 

@@ -43,7 +43,7 @@ import org.apache.hc.core5.util.Args;
 /**
  * @since 5.0
  */
-public class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler{
+public class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler {
 
     private final AsyncRequestProducer requestProducer;
     private final AsyncResponseConsumer<T> responseConsumer;

@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.nio;
+package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,8 +49,13 @@ import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.message.HttpResponseWrapper;
 import org.apache.hc.core5.http.nio.entity.ContentInputStream;
 import org.apache.hc.core5.http.nio.entity.ContentOutputStream;
-import org.apache.hc.core5.http2.nio.entity.SharedInputBuffer;
-import org.apache.hc.core5.http2.nio.entity.SharedOutputBuffer;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http2.nio.CapacityChannel;
+import org.apache.hc.core5.http2.nio.DataStreamChannel;
+import org.apache.hc.core5.http2.nio.ExpectationChannel;
+import org.apache.hc.core5.http2.nio.ResponseChannel;
+import org.apache.hc.core5.http2.impl.nio.entity.SharedInputBuffer;
+import org.apache.hc.core5.http2.impl.nio.entity.SharedOutputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
@@ -85,7 +90,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
             HttpResponse response, OutputStream responseStream) throws IOException, HttpException;
 
     @Override
-    public void verify(
+    public final void verify(
             final HttpRequest request,
             final EntityDetails entityDetails,
             final ExpectationChannel expectationChannel) throws HttpException, IOException {
@@ -248,7 +253,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
     }
 
     @Override
-    public int capacity() {
+    public final int capacity() {
         return inputBuffer != null ? inputBuffer.available() : 0;
     }
 
@@ -272,7 +277,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
     }
 
     @Override
-    public int available() {
+    public final int available() {
         Asserts.notNull(outputBuffer, "Output buffer");
         return outputBuffer.length();
     }
@@ -284,7 +289,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public final void failed(final Exception cause) {
         exception.compareAndSet(null, cause);
         releaseResources();
     }

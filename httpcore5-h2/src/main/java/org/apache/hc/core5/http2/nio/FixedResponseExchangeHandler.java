@@ -41,7 +41,7 @@ import org.apache.hc.core5.util.Args;
 /**
  * @since 5.0
  */
-public final class FixedResponseExchangeHandler extends AbstractAsyncServerExchangeHandler<Void> {
+public final class FixedResponseExchangeHandler extends BasicServerExchangeHandler<Void> {
 
     private final AsyncResponseProducer responseProducer;
 

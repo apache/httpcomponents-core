@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.nio.entity;
+package org.apache.hc.core5.http2.impl.nio.entity;
 
 import java.io.IOException;
 import java.io.InputStream;

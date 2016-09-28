@@ -43,17 +43,19 @@ import org.apache.hc.core5.util.Args;
 /**
  * @since 5.0
  */
-public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
+public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
 
     private final AsyncResponseConsumer<Message<HttpResponse, T>> responseConsumer;
     private final AtomicReference<Exception> exception;
 
-    public AbstractAsyncPushHandler(final AsyncResponseConsumer<Message<HttpResponse, T>> responseConsumer) {
+    public BasicAsyncPushHandler(final AsyncResponseConsumer<Message<HttpResponse, T>> responseConsumer) {
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
         this.exception = new AtomicReference<>(null);
     }
 
-    protected abstract void handleResponse(HttpRequest promise, Message<HttpResponse, T> responseMessage) throws IOException, HttpException;
+    protected void handleResponse(
+            final HttpRequest promise, final Message<HttpResponse, T> responseMessage) throws IOException, HttpException {
+    }
 
     @Override
     public void consumePromise(
