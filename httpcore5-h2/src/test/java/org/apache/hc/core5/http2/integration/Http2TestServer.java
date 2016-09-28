@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.FixedResponseExchangeHandler;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.http2.nio.Supplier;
@@ -70,7 +70,7 @@ import org.apache.hc.core5.util.Args;
 public class Http2TestServer {
 
     private final ExecutorService executorService;
-    private final UriPatternMatcher<Supplier<AsyncExchangeHandler>> responseHandlerMatcher;
+    private final UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> responseHandlerMatcher;
 
     private volatile DefaultListeningIOReactor ioReactor;
     private volatile Exception exception;
@@ -85,7 +85,7 @@ public class Http2TestServer {
         return start(H2Config.DEFAULT);
     }
 
-    private AsyncExchangeHandler createHandler(final HttpRequest request) throws HttpException {
+    private AsyncServerExchangeHandler createHandler(final HttpRequest request) throws HttpException {
 
         final HttpHost authority;
         try {
@@ -101,14 +101,14 @@ public class Http2TestServer {
         if (i != -1) {
             path = path.substring(0, i - 1);
         }
-        final Supplier<AsyncExchangeHandler> supplier = responseHandlerMatcher.lookup(path);
+        final Supplier<AsyncServerExchangeHandler> supplier = responseHandlerMatcher.lookup(path);
         if (supplier != null) {
             return supplier.get();
         }
         return new FixedResponseExchangeHandler(HttpStatus.SC_NOT_FOUND, "Resource not found");
     }
 
-    public void registerHandler(final String uriPattern, final Supplier<AsyncExchangeHandler> supplier) {
+    public void registerHandler(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
         responseHandlerMatcher.register(uriPattern, supplier);
@@ -127,10 +127,10 @@ public class Http2TestServer {
                 });
         ioReactor = new DefaultListeningIOReactor(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor,
-                new HandlerFactory<AsyncExchangeHandler>() {
+                new HandlerFactory<AsyncServerExchangeHandler>() {
 
                     @Override
-                    public AsyncExchangeHandler create(
+                    public AsyncServerExchangeHandler create(
                             final HttpRequest request,
                             final HttpContext context) throws HttpException {
                         return createHandler(request);

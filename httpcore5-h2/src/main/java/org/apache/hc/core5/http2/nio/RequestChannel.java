@@ -25,40 +25,26 @@
  *
  */
 
-package org.apache.hc.core5.http2.nio.command;
+package org.apache.hc.core5.http2.nio;
 
-import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http2.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.util.Args;
+import java.io.IOException;
+
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
 
 /**
- * Request execution command.
+ * Abstract request channel.
+ * <p>
+ * Implementations are expected to be thread-safe.
  *
  * @since 5.0
  */
-public final class ExecutionCommand implements Command {
+@Contract(threading = ThreadingBehavior.SAFE)
+public interface RequestChannel {
 
-    private final AsyncClientExchangeHandler exchangeHandler;
-    private final HttpContext context;
-
-    public ExecutionCommand(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
-        this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
-        this.context = Args.notNull(context, "Context");
-    }
-
-    public HttpContext getContext() {
-        return context;
-    }
-
-    public AsyncClientExchangeHandler getExchangeHandler() {
-        return exchangeHandler;
-    }
-
-    @Override
-    public boolean cancel() {
-        exchangeHandler.cancel();
-        return true;
-    }
+    void sendRequest(HttpRequest request, EntityDetails entityDetails) throws HttpException, IOException;
 
 }

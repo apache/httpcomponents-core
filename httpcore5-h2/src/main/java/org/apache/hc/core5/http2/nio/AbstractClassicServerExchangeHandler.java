@@ -57,7 +57,7 @@ import org.apache.hc.core5.util.Asserts;
 /**
  * @since 5.0
  */
-public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHandler {
+public abstract class AbstractClassicServerExchangeHandler implements AsyncServerExchangeHandler {
 
     private enum State { IDLE, ACTIVE, COMPLETED }
 
@@ -69,7 +69,7 @@ public abstract class AbstractClassicExchangeHandler implements AsyncExchangeHan
     private volatile SharedInputBuffer inputBuffer;
     private volatile SharedOutputBuffer outputBuffer;
 
-    public AbstractClassicExchangeHandler(final int initialBufferSize, final Executor executor) {
+    public AbstractClassicServerExchangeHandler(final int initialBufferSize, final Executor executor) {
         this.initialBufferSize = Args.positive(initialBufferSize, "Initial buffer size");
         this.executor = Args.notNull(executor, "Executor");
         this.exception = new AtomicReference<>(null);

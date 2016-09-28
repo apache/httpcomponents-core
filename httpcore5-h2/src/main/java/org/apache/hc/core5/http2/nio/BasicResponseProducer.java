@@ -31,7 +31,9 @@ import java.io.IOException;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http2.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -49,6 +51,10 @@ public class BasicResponseProducer implements AsyncResponseProducer {
 
     public BasicResponseProducer(final int code, final AsyncEntityProducer dataProducer) {
         this(new BasicHttpResponse(code), dataProducer);
+    }
+
+    public BasicResponseProducer(final int code, final String message) {
+        this(new BasicHttpResponse(code), new StringAsyncEntityProducer(message, ContentType.TEXT_PLAIN));
     }
 
     public BasicResponseProducer(final AsyncEntityProducer dataProducer) {

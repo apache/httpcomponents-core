@@ -35,7 +35,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
-import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -47,13 +47,13 @@ import org.apache.hc.core5.util.Args;
  */
 public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer {
 
-    private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
+    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
 
     public ServerHttp2StreamMultiplexer(
             final IOSession ioSession,
             final FrameFactory frameFactory,
             final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener callback) {
@@ -64,7 +64,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     public ServerHttp2StreamMultiplexer(
             final IOSession ioSession,
             final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
         this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charset, h2Config, null);

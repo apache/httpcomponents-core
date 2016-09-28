@@ -101,6 +101,11 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     }
 
     @Override
+    public void failed(final Exception cause) {
+        releaseResources();
+    }
+
+    @Override
     public void releaseResources() {
         dataConsumer.releaseResources();
     }

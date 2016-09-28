@@ -36,8 +36,10 @@ import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http2.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http2.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http2.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.http2.nio.BasicClientExchangeHandler;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 
@@ -56,36 +58,42 @@ public final class ClientCommandEndpoint {
         this.ioSession = ioSession;
     }
 
+    public void execute(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HttpContext context) {
+        final Command executionCommand = new ExecutionCommand(
+                exchangeHandler,
+                context != null ? context : HttpCoreContext.create());
+        ioSession.getCommandQueue().add(executionCommand);
+        ioSession.setEvent(SelectionKey.OP_WRITE);
+    }
+
     public <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final HttpContext context,
             final FutureCallback<T> callback) {
         final BasicFuture<T> future = new BasicFuture<>(callback);
-        final Command executionCommand = new ExecutionCommand<>(
-                requestProducer,
-                responseConsumer,
-                context != null ? context : HttpCoreContext.create(),
+        execute(new BasicClientExchangeHandler<>(requestProducer, responseConsumer,
                 new FutureCallback<T>() {
 
-            @Override
-            public void completed(final T result) {
-                future.completed(result);
-            }
+                    @Override
+                    public void completed(final T result) {
+                        future.completed(result);
+                    }
 
-            @Override
-            public void failed(final Exception ex) {
-                future.failed(ex);
-            }
+                    @Override
+                    public void failed(final Exception ex) {
+                        future.failed(ex);
+                    }
 
-            @Override
-            public void cancelled() {
-                future.cancel();
-            }
+                    @Override
+                    public void cancelled() {
+                        future.cancel();
+                    }
 
-        });
-        ioSession.getCommandQueue().add(executionCommand);
-        ioSession.setEvent(SelectionKey.OP_WRITE);
+                }),
+                context != null ? context : HttpCoreContext.create());
         return future;
     }
 

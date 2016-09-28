@@ -42,4 +42,6 @@ public interface AsyncRequestConsumer<T> extends AsyncDataConsumer {
 
     void consumeRequest(HttpRequest request, EntityDetails entityDetails, FutureCallback<T> resultCallback) throws HttpException, IOException;
 
+    void failed(Exception cause);
+
 }

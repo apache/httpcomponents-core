@@ -24,41 +24,26 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http2.nio;
 
-package org.apache.hc.core5.http2.nio.command;
+import java.io.IOException;
 
-import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http2.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
 
 /**
- * Request execution command.
+ * Abstract asynchronous server side message exchange handler that acts as a request consumer
+ * and a response producer.
  *
  * @since 5.0
  */
-public final class ExecutionCommand implements Command {
+public interface AsyncServerExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
 
-    private final AsyncClientExchangeHandler exchangeHandler;
-    private final HttpContext context;
+    void verify(HttpRequest request, EntityDetails entityDetails, ExpectationChannel expectationChannel) throws HttpException, IOException;
 
-    public ExecutionCommand(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
-        this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
-        this.context = Args.notNull(context, "Context");
-    }
+    void handleRequest(HttpRequest request, EntityDetails entityDetails, ResponseChannel responseChannel) throws HttpException, IOException;
 
-    public HttpContext getContext() {
-        return context;
-    }
-
-    public AsyncClientExchangeHandler getExchangeHandler() {
-        return exchangeHandler;
-    }
-
-    @Override
-    public boolean cancel() {
-        exchangeHandler.cancel();
-        return true;
-    }
+    void failed(Exception cause);
 
 }

@@ -524,21 +524,18 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 if (mode == Mode.SERVER) {
                     throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to execute a request");
                 }
-                @SuppressWarnings("unchecked")
-                final ExecutionCommand<Object> executionCommand = (ExecutionCommand<Object>) command;
+                final ExecutionCommand executionCommand = (ExecutionCommand) command;
                 final int streamId = generateStreamId();
                 final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
                         streamId,
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
-                final Http2StreamHandler streamHandler = new ClientHttp2StreamHandler<>(
+                final Http2StreamHandler streamHandler = new ClientHttp2StreamHandler(
                         channel,
                         httpProcessor,
                         connMetrics,
-                        executionCommand.getRequestProducer(),
-                        executionCommand.getResponseConsumer(),
-                        executionCommand.getContext(),
-                        executionCommand.getCallback());
+                        executionCommand.getExchangeHandler(),
+                        executionCommand.getContext());
                 final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
                 if (stream.isOutputReady()) {
                     stream.produceOutput();

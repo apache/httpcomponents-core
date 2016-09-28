@@ -31,7 +31,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -45,23 +44,24 @@ import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.H2ConnectionException;
+import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
 import org.apache.hc.core5.http2.impl.IncomingEntityDetails;
-import org.apache.hc.core5.http2.nio.AsyncRequestProducer;
-import org.apache.hc.core5.http2.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.http2.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http2.nio.DataStreamChannel;
+import org.apache.hc.core5.http2.nio.RequestChannel;
 
-class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
+class ClientHttp2StreamHandler implements Http2StreamHandler {
 
     private final Http2StreamChannel outputChannel;
     private final DataStreamChannel dataChannel;
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
-    private final AsyncRequestProducer requestProducer;
-    private final AsyncResponseConsumer<T> responseConsumer;
+    private final AsyncClientExchangeHandler exchangeHandler;
     private final HttpCoreContext context;
-    private final FutureCallback<T> resultCallback;
+    private final AtomicBoolean requestCommitted;
     private final AtomicBoolean done;
 
     private volatile MessageState requestState;
@@ -71,10 +71,8 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
             final Http2StreamChannel outputChannel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
-            final AsyncRequestProducer requestProducer,
-            final AsyncResponseConsumer<T> responseConsumer,
-            final HttpContext context,
-            final FutureCallback<T> resultCallback) {
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HttpContext context) {
         this.outputChannel = outputChannel;
         this.dataChannel = new DataStreamChannel() {
 
@@ -103,10 +101,9 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
         };
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
-        this.requestProducer = requestProducer;
-        this.responseConsumer = responseConsumer;
-        this.resultCallback = resultCallback;
+        this.exchangeHandler = exchangeHandler;
         this.context = HttpCoreContext.adapt(context);
+        this.requestCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
@@ -118,9 +115,32 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
             case HEADERS:
                 return true;
             case BODY:
-                return requestProducer.available() > 0;
+                return exchangeHandler.available() > 0;
             default:
                 return false;
+        }
+    }
+
+    private void commitRequest(final HttpRequest request, final EntityDetails entityDetails) throws HttpException, IOException {
+        if (requestCommitted.compareAndSet(false, true)) {
+            context.setProtocolVersion(HttpVersion.HTTP_2);
+            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, this);
+            httpProcessor.process(request, entityDetails, context);
+            connMetrics.incrementRequestCount();
+
+            final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
+            outputChannel.submit(headers, entityDetails == null);
+
+            if (entityDetails == null) {
+                requestState = MessageState.COMPLETE;
+            } else {
+                final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
+                final boolean expectContinue = h != null && "100-continue".equalsIgnoreCase(h.getValue());
+                requestState = expectContinue ? MessageState.ACK : MessageState.BODY;
+            }
+        } else {
+            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Request already committed");
         }
     }
 
@@ -128,33 +148,18 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
     public void produceOutput() throws HttpException, IOException {
         switch (requestState) {
             case HEADERS:
-                final HttpRequest request = requestProducer.produceRequest();
-                final EntityDetails entityDetails = requestProducer.getEntityDetails();
+                exchangeHandler.submitRequest(new RequestChannel() {
 
-                context.setProtocolVersion(HttpVersion.HTTP_2);
-                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-                context.setAttribute(HttpCoreContext.HTTP_CONNECTION, this);
-                httpProcessor.process(request, entityDetails, context);
-                connMetrics.incrementRequestCount();
-
-                final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
-                outputChannel.submit(headers, entityDetails == null);
-
-                if (entityDetails == null) {
-                    requestState = MessageState.COMPLETE;
-                } else {
-                    final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-                    final boolean expectContinue = h != null && "100-continue".equalsIgnoreCase(h.getValue());
-                    if (expectContinue) {
-                        requestState = MessageState.ACK;
-                    } else {
-                        requestState = MessageState.BODY;
-                        requestProducer.dataStart(dataChannel);
+                    @Override
+                    public void sendRequest(
+                            final HttpRequest request, final EntityDetails entityDetails) throws HttpException, IOException {
+                        commitRequest(request, entityDetails);
                     }
-                }
+
+                });
                 break;
             case BODY:
-                requestProducer.produce(dataChannel);
+                exchangeHandler.produce(dataChannel);
                 break;
         }
     }
@@ -175,7 +180,7 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
         if (response.getCode() < 200) {
             if (response.getCode() == HttpStatus.SC_CONTINUE && requestState == MessageState.ACK) {
                 requestState = MessageState.BODY;
-                requestProducer.dataStart(dataChannel);
+                exchangeHandler.produce(dataChannel);
             }
             return;
         }
@@ -184,41 +189,13 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
         httpProcessor.process(response, entityDetails, context);
         connMetrics.incrementResponseCount();
 
-        responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<T>() {
-
-            @Override
-            public void completed(final T result) {
-                if (resultCallback != null) {
-                    resultCallback.completed(result);
-                }
-            }
-
-            @Override
-            public void failed(final Exception ex) {
-                if (resultCallback != null) {
-                    resultCallback.failed(ex);
-                }
-            }
-
-            @Override
-            public void cancelled() {
-                if (resultCallback != null) {
-                    resultCallback.cancelled();
-                }
-            }
-
-        });
-        if (endStream) {
-            responseState = MessageState.COMPLETE;
-            responseConsumer.streamEnd(null);
-        } else {
-            responseState = MessageState.BODY;
-        }
+        exchangeHandler.consumeResponse(response, entityDetails);
+        responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
     }
 
     @Override
     public void updateInputCapacity() throws IOException {
-        responseConsumer.updateCapacity(outputChannel);
+        exchangeHandler.updateCapacity(outputChannel);
     }
 
     @Override
@@ -227,21 +204,18 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
             throw new ProtocolException("Unexpected message data");
         }
         if (src != null) {
-            responseConsumer.consume(src);
+            exchangeHandler.consume(src);
         }
         if (endStream) {
             responseState = MessageState.COMPLETE;
-            responseConsumer.streamEnd(null);
+            exchangeHandler.streamEnd(null);
         }
     }
 
     @Override
     public void failed(final Exception cause) {
         try {
-            if (resultCallback != null) {
-                resultCallback.failed(cause);
-            }
-            requestProducer.failed(cause);
+            exchangeHandler.failed(cause);
         } finally {
             releaseResources();
         }
@@ -250,9 +224,7 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
     @Override
     public void cancel() {
         try {
-            if (resultCallback != null) {
-                resultCallback.cancelled();
-            }
+            exchangeHandler.cancel();
         } finally {
             releaseResources();
         }
@@ -262,9 +234,8 @@ class ClientHttp2StreamHandler<T> implements Http2StreamHandler {
     public void releaseResources() {
         if (done.compareAndSet(false, true)) {
             responseState = MessageState.COMPLETE;
-            responseConsumer.releaseResources();
             requestState = MessageState.COMPLETE;
-            requestProducer.releaseResources();
+            exchangeHandler.releaseResources();
         }
     }
 

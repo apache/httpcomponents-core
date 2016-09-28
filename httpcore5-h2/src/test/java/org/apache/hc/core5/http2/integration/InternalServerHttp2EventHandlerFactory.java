@@ -37,7 +37,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.HttpErrorListener;
 import org.apache.hc.core5.http2.impl.nio.ServerHttp2StreamMultiplexer;
 import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiator;
-import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -49,13 +49,13 @@ public class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFac
     private static final AtomicLong COUNT = new AtomicLong();
 
     private final HttpProcessor httpProcessor;
-    private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
+    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
 
     public InternalServerHttp2EventHandlerFactory(
             final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");

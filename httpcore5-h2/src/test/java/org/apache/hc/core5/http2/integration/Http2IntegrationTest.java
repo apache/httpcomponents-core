@@ -51,6 +51,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -66,12 +68,13 @@ import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.nio.AbstractAsyncExchangeHandler;
 import org.apache.hc.core5.http2.nio.AbstractAsyncPushHandler;
-import org.apache.hc.core5.http2.nio.AbstractClassicExchangeHandler;
-import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
+import org.apache.hc.core5.http2.nio.AbstractAsyncServerExchangeHandler;
+import org.apache.hc.core5.http2.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http2.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http2.nio.AsyncResponseTrigger;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.BasicPushProducer;
 import org.apache.hc.core5.http2.nio.BasicRequestProducer;
 import org.apache.hc.core5.http2.nio.BasicResponseConsumer;
@@ -126,7 +129,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     }
 
-    static class SingleLineResponseHandler extends AbstractAsyncExchangeHandler<String> {
+    static class SingleLineResponseHandler extends AbstractAsyncServerExchangeHandler<String> {
 
         private final String message;
 
@@ -147,10 +150,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testSimpleGet() throws Exception {
-        server.registerHandler("/hello", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
+            public AsyncServerExchangeHandler get() {
                 return new SingleLineResponseHandler("Hi there");
             }
 
@@ -227,7 +230,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     }
 
-    static class MultiLineResponseHandler extends AbstractAsyncExchangeHandler<String> {
+    static class MultiLineResponseHandler extends AbstractAsyncServerExchangeHandler<String> {
 
         private final String message;
         private final int count;
@@ -252,10 +255,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testLargeGet() throws Exception {
-        server.registerHandler("/", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("/", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
+            public AsyncServerExchangeHandler get() {
                 return new MultiLineResponseHandler("0123456789abcdef", 5000);
             }
 
@@ -303,10 +306,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testBasicPost() throws Exception {
-        server.registerHandler("/hello", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
+            public AsyncServerExchangeHandler get() {
                 return new SingleLineResponseHandler("Hi back");
             }
 
@@ -330,7 +333,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         Assert.assertEquals("Hi back", entity1);
     }
 
-    static class EchoHandler implements AsyncExchangeHandler {
+    static class EchoHandler implements AsyncServerExchangeHandler {
 
         private volatile ByteBuffer buffer;
         private volatile CapacityChannel inputCapacityChannel;
@@ -446,10 +449,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testLargePost() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
+            public AsyncServerExchangeHandler get() {
                 return new EchoHandler(2048);
             }
 
@@ -481,10 +484,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testSlowResponseConsumer() throws Exception {
-        server.registerHandler("/", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("/", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
+            public AsyncServerExchangeHandler get() {
                 return new MultiLineResponseHandler("0123456789abcd", 3);
             }
 
@@ -540,10 +543,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testSlowRequestProducer() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
+            public AsyncServerExchangeHandler get() {
                 return new EchoHandler(2048);
             }
 
@@ -595,11 +598,11 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testSlowResponseProducer() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
-                return new AbstractClassicExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
+            public AsyncServerExchangeHandler get() {
+                return new AbstractClassicServerExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
 
                     @Override
                     protected void handle(
@@ -680,11 +683,11 @@ public class Http2IntegrationTest extends InternalServerTestBase {
     @Test
     public void testPush() throws Exception {
         final InetSocketAddress serverEndpoint = server.start();
-        server.registerHandler("/hello", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
-                return new AbstractAsyncExchangeHandler<Void>(new NoopEntityConsumer()) {
+            public AsyncServerExchangeHandler get() {
+                return new AbstractAsyncServerExchangeHandler<Void>(new NoopEntityConsumer()) {
 
                     @Override
                     protected void handle(
@@ -759,11 +762,11 @@ public class Http2IntegrationTest extends InternalServerTestBase {
     public void testPushRefused() throws Exception {
         final BlockingQueue<Exception> pushResultQueue = new LinkedBlockingDeque<>();
         final InetSocketAddress serverEndpoint = server.start();
-        server.registerHandler("/hello", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
-                return new AbstractAsyncExchangeHandler<Void>(new NoopEntityConsumer()) {
+            public AsyncServerExchangeHandler get() {
+                return new AbstractAsyncServerExchangeHandler<Void>(new NoopEntityConsumer()) {
 
                     @Override
                     protected void handle(
@@ -830,10 +833,10 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testExcessOfConcurrentStreams() throws Exception {
-        server.registerHandler("/", new Supplier<AsyncExchangeHandler>() {
+        server.registerHandler("/", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
-            public AsyncExchangeHandler get() {
+            public AsyncServerExchangeHandler get() {
                 return new MultiLineResponseHandler("0123456789abcdef", 2000);
             }
 
@@ -861,6 +864,167 @@ public class Http2IntegrationTest extends InternalServerTestBase {
             Assert.assertNotNull(response);
             Assert.assertEquals(200, response.getCode());
         }
+    }
+
+    @Test
+    public void testExpecationFailed() throws Exception {
+        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new AbstractAsyncServerExchangeHandler<String>(new StringAsyncEntityConsumer()) {
+
+                    @Override
+                    protected AsyncResponseProducer verify(final HttpRequest request) throws IOException, HttpException {
+                        final Header h = request.getFirstHeader("password");
+                        if (h != null && "secret".equals(h.getValue())) {
+                            return null;
+                        } else {
+                            return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                        }
+                    }
+
+                    @Override
+                    protected void handle(
+                            final Message<HttpRequest, String> request,
+                            final AsyncResponseTrigger responseTrigger) throws IOException, HttpException {
+                        responseTrigger.submitResponse(
+                                new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
+
+                    }
+                };
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
+        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+
+        client.start();
+
+        final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
+        request1.addHeader("password", "secret");
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(200, response1.getCode());
+        Assert.assertNotNull("All is well", result1.getBody());
+
+        final HttpRequest request2 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
+        final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
+                new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result2 = future2.get(5, TimeUnit.SECONDS);
+        Assert.assertNotNull(result2);
+        final HttpResponse response2 = result2.getHead();
+        Assert.assertNotNull(response2);
+        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
+        Assert.assertNotNull("You shall not pass", result2.getBody());
+    }
+
+    @Test
+    public void testPrematureResponse() throws Exception {
+        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new AsyncServerExchangeHandler() {
+
+                    private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
+                    private final AtomicBoolean dataStarted = new AtomicBoolean(false);
+
+                    @Override
+                    public void verify(
+                            final HttpRequest request,
+                            final EntityDetails entityDetails,
+                            final ExpectationChannel expectationChannel) throws HttpException, IOException {
+                        expectationChannel.sendContinue();
+                    }
+
+                    @Override
+                    public int capacity() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                        capacityChannel.update(Integer.MAX_VALUE);
+                    }
+
+                    @Override
+                    public void consume(final ByteBuffer src) throws IOException {
+                    }
+
+                    @Override
+                    public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+                    }
+
+                    @Override
+                    public void handleRequest(
+                            final HttpRequest request,
+                            final EntityDetails entityDetails,
+                            final ResponseChannel responseChannel) throws HttpException, IOException {
+                        final AsyncResponseProducer producer;
+                        final Header h = request.getFirstHeader("password");
+                        if (h != null && "secret".equals(h.getValue())) {
+                            producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
+                        } else {
+                            producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                        }
+                        responseProducer.set(producer);
+                        responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
+                    }
+
+                    @Override
+                    public int available() {
+                        final AsyncResponseProducer producer = this.responseProducer.get();
+                        return producer.available();
+                    }
+
+                    @Override
+                    public void produce(final DataStreamChannel channel) throws IOException {
+                        final AsyncResponseProducer producer = this.responseProducer.get();
+                        if (dataStarted.compareAndSet(false, true)) {
+                            producer.dataStart(channel);
+                        }
+                        producer.produce(channel);
+                    }
+
+                    @Override
+                    public void failed(final Exception cause) {
+                    }
+
+                    @Override
+                    public void releaseResources() {
+                    }
+                };
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
+        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+
+        client.start();
+
+        final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+        Assert.assertNotNull("You shall not pass", result1.getBody());
     }
 
 }

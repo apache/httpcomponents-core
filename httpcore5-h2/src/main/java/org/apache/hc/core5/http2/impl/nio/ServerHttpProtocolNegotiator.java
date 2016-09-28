@@ -39,7 +39,7 @@ import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
-import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
@@ -54,7 +54,7 @@ public class ServerHttpProtocolNegotiator implements IOEventHandler {
     final static byte[] PREFACE = ClientHttpProtocolNegotiator.PREFACE;
 
     private final HttpProcessor httpProcessor;
-    private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
+    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
     private final Http2StreamListener streamListener;
@@ -63,7 +63,7 @@ public class ServerHttpProtocolNegotiator implements IOEventHandler {
 
     public ServerHttpProtocolNegotiator(
             final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,

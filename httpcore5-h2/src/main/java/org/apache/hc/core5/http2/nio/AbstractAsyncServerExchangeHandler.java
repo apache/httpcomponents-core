@@ -39,44 +39,46 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http2.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
  * @since 5.0
  */
-public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHandler {
+public abstract class AbstractAsyncServerExchangeHandler<T> implements AsyncServerExchangeHandler {
 
     private final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer;
     private final AtomicReference<AsyncResponseProducer> responseProducer;
     private final AtomicBoolean dataStarted;
-    private final AtomicReference<Exception> exception;
 
-    public AbstractAsyncExchangeHandler(final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer) {
+    public AbstractAsyncServerExchangeHandler(final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer) {
         this.requestConsumer = Args.notNull(requestConsumer, "Request consumer");
         this.responseProducer = new AtomicReference<>(null);
         this.dataStarted = new AtomicBoolean(false);
-        this.exception = new AtomicReference<>(null);
     }
 
-    public AbstractAsyncExchangeHandler(final AsyncEntityConsumer<T> requestEntityConsumer) {
+    public AbstractAsyncServerExchangeHandler(final AsyncEntityConsumer<T> requestEntityConsumer) {
         this(new BasicRequestConsumer<>(requestEntityConsumer));
     }
 
-    public Exception getException() {
-        return exception.get();
+    protected AsyncResponseProducer verify(final HttpRequest request) throws IOException, HttpException {
+        return null;
     }
 
     protected abstract void handle(Message<HttpRequest, T> request, AsyncResponseTrigger responseTrigger) throws IOException, HttpException;
 
     @Override
-    public void verify(
+    public final void verify(
             final HttpRequest request,
             final EntityDetails entityDetails,
             final ExpectationChannel expectationChannel) throws HttpException, IOException {
-        expectationChannel.sendContinue();
+        final AsyncResponseProducer producer = verify(request);
+        if (producer != null) {
+            responseProducer.set(producer);
+            expectationChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
+        } else {
+            expectationChannel.sendContinue();
+        }
     }
 
     @Override
@@ -119,9 +121,8 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
                     handle(message, responseTrigger);
                 } catch (HttpException ex) {
                     try {
-                        responseTrigger.submitResponse(new BasicResponseProducer(
-                                HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                                new StringAsyncEntityProducer(ex.getMessage(), ContentType.TEXT_PLAIN)));
+                        responseTrigger.submitResponse(
+                                new BasicResponseProducer(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage()));
                     } catch (HttpException | IOException ex2) {
                         failed(ex2);
                     }
@@ -132,7 +133,7 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
 
             @Override
             public void failed(final Exception ex) {
-                exception.compareAndSet(null, ex);
+                AbstractAsyncServerExchangeHandler.this.failed(ex);
                 releaseResources();
             }
 
@@ -183,11 +184,10 @@ public abstract class AbstractAsyncExchangeHandler<T> implements AsyncExchangeHa
 
     @Override
     public final void failed(final Exception cause) {
-        if (exception.compareAndSet(null, cause)) {
-            final AsyncResponseProducer dataProducer = responseProducer.get();
-            if (dataProducer != null) {
-                dataProducer.failed(cause);
-            }
+        requestConsumer.failed(cause);
+        final AsyncResponseProducer dataProducer = responseProducer.get();
+        if (dataProducer != null) {
+            dataProducer.failed(cause);
         }
         releaseResources();
     }

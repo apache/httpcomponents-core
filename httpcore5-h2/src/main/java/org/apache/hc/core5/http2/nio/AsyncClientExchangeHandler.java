@@ -30,19 +30,22 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 
 /**
- * Abstract asynchronous message exchange handler that acts as a request consumer and a response producer.
+ * Abstract asynchronous client side message exchange handler that acts as a request producer
+ * and a response consumer.
  *
  * @since 5.0
  */
-public interface AsyncExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
+public interface AsyncClientExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
 
-    void verify(HttpRequest request, EntityDetails entityDetails, ExpectationChannel expectationChannel) throws HttpException, IOException;
+    void submitRequest(RequestChannel channel) throws HttpException, IOException;
 
-    void handleRequest(HttpRequest request, EntityDetails entityDetails, ResponseChannel responseChannel) throws HttpException, IOException;
+    void consumeResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
 
     void failed(Exception cause);
+
+    void cancel();
 
 }

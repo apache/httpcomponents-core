@@ -49,8 +49,8 @@ import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
 import org.apache.hc.core5.http2.impl.IncomingEntityDetails;
-import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
 import org.apache.hc.core5.http2.nio.AsyncPushProducer;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.DataStreamChannel;
 import org.apache.hc.core5.http2.nio.ExpectationChannel;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
@@ -63,14 +63,12 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
     private final DataStreamChannel dataChannel;
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
-    private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
+    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final HttpCoreContext context;
     private final AtomicBoolean responseCommitted;
     private final AtomicBoolean done;
 
-    private volatile HttpRequest request;
-    private volatile EntityDetails requestEntityDetails;
-    private volatile AsyncExchangeHandler exchangeHandler;
+    private volatile AsyncServerExchangeHandler exchangeHandler;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
 
@@ -78,7 +76,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
             final Http2StreamChannel outputChannel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
-            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory) {
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory) {
         this.outputChannel = outputChannel;
         this.dataChannel = new DataStreamChannel() {
 

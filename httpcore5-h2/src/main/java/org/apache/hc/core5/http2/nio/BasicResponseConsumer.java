@@ -97,6 +97,11 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
+    public void failed(final Exception cause) {
+        releaseResources();
+    }
+
+    @Override
     public void releaseResources() {
         dataConsumer.releaseResources();
     }

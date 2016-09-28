@@ -34,7 +34,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.nio.AsyncExchangeHandler;
+import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
@@ -47,7 +47,7 @@ import org.apache.hc.core5.util.Args;
 public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
 
     private final HttpProcessor httpProcessor;
-    private final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory;
+    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
     private final Http2StreamListener streamListener;
@@ -55,7 +55,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
 
     public ServerHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,
@@ -70,7 +70,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
 
     public ServerHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncExchangeHandler> exchangeHandlerFactory,
+            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Http2StreamListener streamListener,
             final HttpErrorListener errorListener) {
         this(httpProcessor, exchangeHandlerFactory, null, null, streamListener, errorListener);
