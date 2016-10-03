@@ -25,47 +25,53 @@
  *
  */
 
-package org.apache.hc.core5.http.testserver.io;
+package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
-class LoggingOutputStream extends OutputStream {
+import org.apache.commons.logging.Log;
 
-    private final OutputStream out;
-    private final Wire wire;
+class LogAppendable implements Appendable {
 
-    public LoggingOutputStream(final OutputStream out, final Wire wire) {
-        super();
-        this.out = out;
-        this.wire = wire;
+    private final Log log;
+    private final String prefix;
+    private final StringBuilder buffer;
+
+    LogAppendable(final Log log, final String prefix) {
+        this.log = log;
+        this.prefix = prefix;
+        this.buffer = new StringBuilder();
     }
 
     @Override
-    public void write(final int b) throws IOException {
-        wire.output(b);
+    public Appendable append(final CharSequence text) throws IOException {
+        return append(text, 0, text.length());
     }
 
     @Override
-    public void write(final byte[] b) throws IOException {
-        wire.output(b);
-        out.write(b);
+    public Appendable append(final CharSequence text, final int start, final int end) throws IOException {
+        for (int i = start; i < end; i++) {
+            append(text.charAt(i));
+        }
+        return this;
     }
 
     @Override
-    public void write(final byte[] b, final int off, final int len) throws IOException {
-        wire.output(b, off, len);
-        out.write(b, off, len);
+    public Appendable append(final char ch) throws IOException {
+        if (ch == '\n') {
+            log.debug(prefix + " " + buffer.toString());
+            buffer.setLength(0);
+        } else if (ch != '\r') {
+            buffer.append(ch);
+        }
+        return this;
     }
 
-    @Override
-    public void flush() throws IOException {
-        out.flush();
-    }
-
-    @Override
-    public void close() throws IOException {
-        out.close();
+    public void flush() {
+        if (buffer.length() > 0) {
+            log.debug(prefix + " " + buffer.toString());
+            buffer.setLength(0);
+        }
     }
 
 }

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.testserver.io;
+package org.apache.hc.core5.testing.classic;
 
 import org.apache.commons.logging.Log;
 

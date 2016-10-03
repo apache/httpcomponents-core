@@ -27,7 +27,24 @@
 
 package org.apache.hc.core5.http.osgi;
 
-import org.apache.hc.core5.http.integration.TestSyncHttp;
+import java.io.IOException;
+
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.entity.EntityUtils;
+import org.apache.hc.core5.http.entity.StringEntity;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.testing.classic.ClassicTestClient;
+import org.apache.hc.core5.testing.classic.ClassicTestServer;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
@@ -40,10 +57,72 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
  */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
-public class ActuallyConnectIT extends TestSyncHttp {
+public class ActuallyConnectIT {
 
     @Configuration
     public static Option[] options() {
         return Common.config();
     }
+
+    private ClassicTestServer server;
+    private ClassicTestClient client;
+
+    @Before
+    public void initServer() throws Exception {
+        this.server = new ClassicTestServer();
+        this.server.setTimeout(5000);
+    }
+
+    @Before
+    public void initClient() throws Exception {
+        this.client = new ClassicTestClient();
+        this.client.setTimeout(5000);
+    }
+
+    @After
+    public void shutDownServer() throws Exception {
+        if (this.server != null) {
+            this.server.shutdown();
+        }
+    }
+
+    @Test
+    public void testSingleGet() throws Exception {
+
+        // Initialize the server-side request handler
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setEntity(new StringEntity("Hi there"));
+            }
+
+        });
+
+        this.server.start();
+
+        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+
+        try {
+            if (!conn.isOpen()) {
+                client.connect(host, conn);
+            }
+
+            final BasicClassicHttpRequest get = new BasicClassicHttpRequest("GET", "/");
+            final ClassicHttpResponse response = this.client.execute(get, host, conn);
+            Assert.assertEquals(200, response.getCode());
+            Assert.assertEquals("Hi there", EntityUtils.toString(response.getEntity()));
+            if (!this.client.keepAlive(get, response)) {
+                conn.close();
+            }
+        } finally {
+            conn.close();
+            this.server.shutdown();
+        }
+    }
+
 }

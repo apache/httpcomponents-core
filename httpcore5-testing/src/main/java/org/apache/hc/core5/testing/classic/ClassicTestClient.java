@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.testserver.io;
+package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 
-public class HttpClient {
+public class ClassicTestClient {
 
     private final HttpProcessor httpproc;
     private final HttpRequestExecutor httpexecutor;
@@ -59,7 +59,7 @@ public class HttpClient {
 
     private volatile int timeout;
 
-    public HttpClient(final HttpProcessor httpproc) {
+    public ClassicTestClient(final HttpProcessor httpproc) {
         super();
         this.httpproc = httpproc;
         this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
@@ -67,7 +67,7 @@ public class HttpClient {
         this.context = new HttpCoreContext();
     }
 
-    public HttpClient() {
+    public ClassicTestClient() {
         this(new DefaultHttpProcessor(
                 new RequestContent(),
                 new RequestTargetHost(),

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.testserver.io;
+package org.apache.hc.core5.testing.classic;
 
 import static java.lang.System.in;
 import static java.lang.System.out;
@@ -44,13 +44,13 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 
-public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
+public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
 
     private static final AtomicLong COUNT = new AtomicLong();
 
@@ -59,7 +59,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     private final Log headerlog;
     private final Wire wire;
 
-    public LoggingBHttpServerConnection(
+    public LoggingBHttpClientConnection(
             final int buffersize,
             final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
@@ -67,18 +67,18 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
-            final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
-        super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints,
-                incomingContentStrategy, outgoingContentStrategy,
-                requestParserFactory, responseWriterFactory);
-        this.id = "http-incoming-" + COUNT.incrementAndGet();
+            final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
+            final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
+        super(buffersize, fragmentSizeHint, chardecoder, charencoder,
+                constraints, incomingContentStrategy, outgoingContentStrategy,
+                requestWriterFactory, responseParserFactory);
+        this.id = "http-outgoing-" + COUNT.incrementAndGet();
         this.log = LogFactory.getLog(getClass());
         this.headerlog = LogFactory.getLog("org.apache.http.headers");
         this.wire = new Wire(LogFactory.getLog("org.apache.http.wire"), this.id);
     }
 
-    public LoggingBHttpServerConnection(final int buffersize) {
+    public LoggingBHttpClientConnection(final int buffersize) {
         this(buffersize, buffersize, null, null, null, null, null, null, null);
     }
 
@@ -106,19 +106,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
     }
 
     @Override
-    protected void onRequestReceived(final ClassicHttpRequest request) {
-        if (request != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getPath(),
-                    request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
-            final Header[] headers = request.getAllHeaders();
-            for (final Header header : headers) {
-                this.headerlog.debug(this.id + " >> " + header.toString());
-            }
-        }
-    }
-
-    @Override
-    protected void onResponseSubmitted(final ClassicHttpResponse response) {
+    protected void onResponseReceived(final ClassicHttpResponse response) {
         if (response != null && this.headerlog.isDebugEnabled()) {
             this.headerlog.debug(this.id + " << " + new StatusLine(
                     response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1,
@@ -126,6 +114,18 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
             final Header[] headers = response.getAllHeaders();
             for (final Header header : headers) {
                 this.headerlog.debug(this.id + " << " + header.toString());
+            }
+        }
+    }
+
+    @Override
+    protected void onRequestSubmitted(final ClassicHttpRequest request) {
+        if (request != null && this.headerlog.isDebugEnabled()) {
+            this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getPath(),
+                    request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
+            final Header[] headers = request.getAllHeaders();
+            for (final Header header : headers) {
+                this.headerlog.debug(this.id + " >> " + header.toString());
             }
         }
     }

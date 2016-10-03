@@ -25,36 +25,47 @@
  *
  */
 
-package org.apache.hc.core5.http2.integration;
+package org.apache.hc.core5.testing.classic;
 
-import java.util.concurrent.TimeUnit;
+import java.io.IOException;
+import java.io.OutputStream;
 
-import org.junit.Rule;
-import org.junit.rules.ExternalResource;
+class LoggingOutputStream extends OutputStream {
 
-public abstract class InternalServerTestBase {
+    private final OutputStream out;
+    private final Wire wire;
 
-    protected Http2TestServer server;
+    public LoggingOutputStream(final OutputStream out, final Wire wire) {
+        super();
+        this.out = out;
+        this.wire = wire;
+    }
 
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
+    @Override
+    public void write(final int b) throws IOException {
+        wire.output(b);
+    }
 
-        @Override
-        protected void before() throws Throwable {
-            server = new Http2TestServer();
-        }
+    @Override
+    public void write(final byte[] b) throws IOException {
+        wire.output(b);
+        out.write(b);
+    }
 
-        @Override
-        protected void after() {
-            if (server != null) {
-                try {
-                    server.shutdown(3, TimeUnit.SECONDS);
-                    server = null;
-                } catch (Exception ignore) {
-                }
-            }
-        }
+    @Override
+    public void write(final byte[] b, final int off, final int len) throws IOException {
+        wire.output(b, off, len);
+        out.write(b, off, len);
+    }
 
-    };
+    @Override
+    public void flush() throws IOException {
+        out.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+        out.close();
+    }
 
 }

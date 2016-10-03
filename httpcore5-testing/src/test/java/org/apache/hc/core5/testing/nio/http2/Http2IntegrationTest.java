@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http2.integration;
+package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

@@ -33,7 +33,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.Principal;
@@ -62,12 +61,17 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Unit tests for {@link SSLContextBuilder}.
  */
 public class TestSSLContextBuilder {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     private ExecutorService executorService;
 
@@ -111,8 +115,11 @@ public class TestSSLContextBuilder {
         Assert.assertNotNull(socketFactory);
     }
 
-    @Test(expected=UnrecoverableKeyException.class)
+    @Test
     public void testKeyWithAlternatePasswordInvalid() throws Exception {
+
+        thrown.expect(UnrecoverableKeyException.class);
+
         final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "!password";
@@ -170,8 +177,11 @@ public class TestSSLContextBuilder {
         Assert.assertNotNull(result);
     }
 
-    @Test(expected = SSLHandshakeException.class)
+    @Test
     public void testSSLHanskshakeServerNotTrusted() throws Exception {
+
+        thrown.expect(SSLHandshakeException.class);
+
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -349,8 +359,11 @@ public class TestSSLContextBuilder {
         Assert.assertNull(clientPrincipal);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testSSLHanskshakeClientUnauthenticatedError() throws Exception {
+
+        thrown.expect(IOException.class);
+
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -514,8 +527,11 @@ public class TestSSLContextBuilder {
     }
 
 
-    @Test(expected = IOException.class)
+    @Test
     public void testSSLHanskshakeProtocolMismatch1() throws Exception {
+
+        thrown.expect(IOException.class);
+
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -563,6 +579,15 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testSSLHanskshakeProtocolMismatch2() throws Exception {
+
+        final double javaVersion = Double.parseDouble(System.getProperty("java.specification.version"));
+        final boolean isWindows = System.getProperty("os.name").contains("Windows");
+        if (isWindows && javaVersion < 1.8) {
+            thrown.expect(IOException.class);
+        } else {
+            thrown.expect(SSLHandshakeException.class);
+        }
+
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -603,15 +628,7 @@ public class TestSSLContextBuilder {
             Assert.assertTrue(supportedClientProtocols.contains("TLSv1"));
             clientSocket.setEnabledProtocols(new String[] { "TLSv1" });
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
-            final boolean isWindows = System.getProperty("os.name").contains("Windows");
-            final Class<? extends IOException> expectedExceptionClass = isWindows ? SocketException.class
-                    : SSLHandshakeException.class;
-            try {
-                clientSocket.startHandshake();
-                Assert.fail();
-            } catch (final Exception e) {
-                Assert.assertEquals(expectedExceptionClass, e.getClass());
-            }
+            clientSocket.startHandshake();
         } finally {
             clientSocket.close();
         }

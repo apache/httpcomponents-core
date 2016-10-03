@@ -25,25 +25,36 @@
  *
  */
 
-package org.apache.hc.core5.http2.integration;
+package org.apache.hc.core5.testing.nio.http2;
 
-import org.apache.commons.logging.Log;
-import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.ExceptionListener;
+import java.util.concurrent.TimeUnit;
 
-class InternalHttpErrorListener implements ExceptionListener {
+import org.junit.Rule;
+import org.junit.rules.ExternalResource;
 
-    private final Log log;
+public abstract class InternalServerTestBase {
 
-    public InternalHttpErrorListener(final Log log) {
-        this.log = log;
-    }
+    protected Http2TestServer server;
 
-    @Override
-    public void onError(final Exception cause) {
-        if (log != null && !(cause instanceof ConnectionClosedException)) {
-            log.error(cause.getMessage(), cause);
+    @Rule
+    public ExternalResource serverResource = new ExternalResource() {
+
+        @Override
+        protected void before() throws Throwable {
+            server = new Http2TestServer();
         }
-    }
+
+        @Override
+        protected void after() {
+            if (server != null) {
+                try {
+                    server.shutdown(3, TimeUnit.SECONDS);
+                    server = null;
+                } catch (Exception ignore) {
+                }
+            }
+        }
+
+    };
 
 }

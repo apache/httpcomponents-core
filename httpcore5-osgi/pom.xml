@@ -52,9 +52,8 @@
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents.core5</groupId>
-      <artifactId>httpcore5</artifactId>
+      <artifactId>httpcore5-testing</artifactId>
       <version>${project.version}</version>
-      <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>

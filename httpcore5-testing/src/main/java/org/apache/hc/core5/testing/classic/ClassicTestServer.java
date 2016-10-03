@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.testserver.io;
+package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.util.Asserts;
 
-public class HttpServer {
+public class ClassicTestServer {
 
     private final UriHttpRequestHandlerMapper reqistry;
     private volatile HttpExpectationVerifier expectationVerifier;
@@ -53,7 +53,7 @@ public class HttpServer {
 
     private volatile org.apache.hc.core5.http.bootstrap.io.HttpServer server;
 
-    public HttpServer() throws IOException {
+    public ClassicTestServer() throws IOException {
         super();
         this.reqistry = new UriHttpRequestHandlerMapper();
     }
@@ -129,7 +129,7 @@ public class HttpServer {
 
     static class SimpleExceptionListener implements ExceptionListener {
 
-        private final Log log = LogFactory.getLog(HttpServer.class);
+        private final Log log = LogFactory.getLog(ClassicTestServer.class);
 
         @Override
         public void onError(final Exception ex) {

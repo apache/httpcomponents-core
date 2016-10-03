@@ -25,52 +25,24 @@
  *
  */
 
-package org.apache.hc.core5.http2.integration;
-
-import java.io.IOException;
+package org.apache.hc.core5.testing.nio.http2;
 
 import org.apache.commons.logging.Log;
+import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.ExceptionListener;
 
-class LogAppendable implements Appendable {
+class InternalHttpErrorListener implements ExceptionListener {
 
     private final Log log;
-    private final String prefix;
-    private final StringBuilder buffer;
 
-    LogAppendable(final Log log, final String prefix) {
+    public InternalHttpErrorListener(final Log log) {
         this.log = log;
-        this.prefix = prefix;
-        this.buffer = new StringBuilder();
     }
 
     @Override
-    public Appendable append(final CharSequence text) throws IOException {
-        return append(text, 0, text.length());
-    }
-
-    @Override
-    public Appendable append(final CharSequence text, final int start, final int end) throws IOException {
-        for (int i = start; i < end; i++) {
-            append(text.charAt(i));
-        }
-        return this;
-    }
-
-    @Override
-    public Appendable append(final char ch) throws IOException {
-        if (ch == '\n') {
-            log.debug(prefix + " " + buffer.toString());
-            buffer.setLength(0);
-        } else if (ch != '\r') {
-            buffer.append(ch);
-        }
-        return this;
-    }
-
-    public void flush() {
-        if (buffer.length() > 0) {
-            log.debug(prefix + " " + buffer.toString());
-            buffer.setLength(0);
+    public void onError(final Exception cause) {
+        if (log != null && !(cause instanceof ConnectionClosedException)) {
+            log.error(cause.getMessage(), cause);
         }
     }
 

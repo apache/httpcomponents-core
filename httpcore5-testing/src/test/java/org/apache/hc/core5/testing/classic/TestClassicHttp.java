@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.integration;
+package org.apache.hc.core5.testing.classic;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -57,37 +57,35 @@ import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.http.testserver.io.HttpClient;
-import org.apache.hc.core5.http.testserver.io.HttpServer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestSyncHttp {
+public class TestClassicHttp {
 
-    private HttpServer server;
-    private HttpClient client;
+    private ClassicTestServer server;
+    private ClassicTestClient client;
 
     @Before
     public void initServer() throws Exception {
-        this.server = new HttpServer();
+        this.server = new ClassicTestServer();
         this.server.setTimeout(5000);
     }
 
     @Before
     public void initClient() throws Exception {
-        this.client = new HttpClient();
+        this.client = new ClassicTestClient();
         this.client.setTimeout(5000);
     }
 
@@ -836,7 +834,7 @@ public class TestSyncHttp {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setEntity(null);
 
-            this.client = new HttpClient(new DefaultHttpProcessor(
+            this.client = new ClassicTestClient(new DefaultHttpProcessor(
                     new RequestTargetHost(),
                     new RequestConnControl(),
                     new RequestUserAgent(),
@@ -885,7 +883,7 @@ public class TestSyncHttp {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setEntity(null);
 
-            this.client = new HttpClient(new DefaultHttpProcessor(
+            this.client = new ClassicTestClient(new DefaultHttpProcessor(
                     new HttpRequestInterceptor() {
 
                         @Override
@@ -975,7 +973,7 @@ public class TestSyncHttp {
 
         });
 
-        this.client = new HttpClient(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()));
+        this.client = new ClassicTestClient(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()));
         this.server.start();
 
         final DefaultBHttpClientConnection conn = client.createConnection();

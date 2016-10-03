@@ -67,8 +67,9 @@
   <modules>
     <module>httpcore5</module>
     <module>httpcore5-h2</module>
-    <module>httpcore5-osgi</module>
     <module>httpcore5-ab</module>
+    <module>httpcore5-testing</module>
+    <module>httpcore5-osgi</module>
   </modules>
 
   <properties>

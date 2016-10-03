@@ -81,10 +81,9 @@ public class Common {
                         buildDir,
                         projectVersion)),
                 wrappedBundle(mavenBundle().groupId("org.apache.httpcomponents.core5")
-                        .artifactId("httpcore5")
-                        .version(projectVersion)
-                        .classifier("tests"))
-                .exports("org.apache.hc.core5.http.integration")
+                        .artifactId("httpcore5-testing")
+                        .version(projectVersion))
+                .exports("org.apache.hc.core5.testing.classic")
                 .imports("org.apache.hc.core5.annotation",
                         "org.apache.hc.core5.concurrent",
                         "org.apache.hc.core5.http",
