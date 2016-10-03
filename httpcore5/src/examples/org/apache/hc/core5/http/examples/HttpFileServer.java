@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
@@ -99,7 +99,7 @@ public class HttpFileServer {
                 .setServerInfo("Test/1.1")
                 .setSocketConfig(socketConfig)
                 .setSslContext(sslcontext)
-                .setExceptionLogger(new StdErrorExceptionLogger())
+                .setExceptionListener(new StdErrorExceptionListener())
                 .registerHandler("*", new HttpFileHandler(docRoot))
                 .create();
 
@@ -114,10 +114,10 @@ public class HttpFileServer {
         });
     }
 
-    static class StdErrorExceptionLogger implements ExceptionLogger {
+    static class StdErrorExceptionListener implements ExceptionListener {
 
         @Override
-        public void log(final Exception ex) {
+        public void onError(final Exception ex) {
             if (ex instanceof SocketTimeoutException) {
                 System.err.println("Connection timed out");
             } else if (ex instanceof ConnectionClosedException) {

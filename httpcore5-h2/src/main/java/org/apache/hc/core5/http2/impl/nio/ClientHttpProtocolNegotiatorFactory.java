@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
@@ -51,7 +52,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final Charset charset;
     private final H2Config h2Config;
     private final Http2StreamListener streamListener;
-    private final HttpErrorListener errorListener;
+    private final ExceptionListener errorListener;
 
     public ClientHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
@@ -59,7 +60,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,
-            final HttpErrorListener errorListener) {
+            final ExceptionListener errorListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
         this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
@@ -72,14 +73,14 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Http2StreamListener streamListener,
-            final HttpErrorListener errorListener) {
+            final ExceptionListener errorListener) {
         this(httpProcessor, pushHandlerFactory, null, null, streamListener, errorListener);
     }
 
     public ClientHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
             final Http2StreamListener streamListener,
-            final HttpErrorListener errorListener) {
+            final ExceptionListener errorListener) {
         this(httpProcessor, null, streamListener, errorListener);
     }
 

@@ -463,8 +463,6 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
         final ClientCommandEndpoint streamEndpoint = connectFuture.get();
 
-        client.start();
-
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
@@ -904,8 +902,6 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
         final ClientCommandEndpoint streamEndpoint = connectFuture.get();
 
-        client.start();
-
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         request1.addHeader("password", "secret");
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
@@ -1014,8 +1010,6 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         client.start();
         final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
         final ClientCommandEndpoint streamEndpoint = connectFuture.get();
-
-        client.start();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.bootstrap.nio.HttpServer;
 import org.apache.hc.core5.http.bootstrap.nio.ServerBootstrap;
 import org.apache.hc.core5.http.impl.nio.DefaultNHttpServerConnection;
@@ -62,7 +62,7 @@ public class HttpServerNio {
                 .setIOReactorConfig(reactorConfig)
                 .setServerInfo("TEST-SERVER/1.1")
                 .setConnectionFactory(connectionFactory)
-                .setExceptionLogger(new SimpleExceptionLogger())
+                .setExceptionListener(new SimpleExceptionListener())
                 .setExpectationVerifier(expectationVerifier)
                 .setHttpProcessor(httpProcessor)
                 .setHandlerMapper(this.reqistry)
@@ -91,12 +91,12 @@ public class HttpServerNio {
         this.server.shutdown(5, TimeUnit.SECONDS);
     }
 
-    static class SimpleExceptionLogger implements ExceptionLogger {
+    static class SimpleExceptionListener implements ExceptionListener {
 
         private final Log log = LogFactory.getLog(HttpServer.class);
 
         @Override
-        public void log(final Exception ex) {
+        public void onError(final Exception ex) {
             if (ex instanceof ConnectionClosedException) {
                 this.log.debug(ex.getMessage());
             } else if (ex instanceof SocketException) {

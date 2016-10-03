@@ -40,7 +40,7 @@ import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
@@ -115,7 +115,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
     private final HttpAsyncRequestHandlerMapper handlerMapper;
     private final HttpAsyncExpectationVerifier expectationVerifier;
-    private final ExceptionLogger exceptionLogger;
+    private final ExceptionListener exceptionListener;
 
     /**
      * Creates new instance of {@code HttpAsyncServerProtocolHandler}.
@@ -149,8 +149,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
      * @param handlerMapper Request handler mapper.
      * @param expectationVerifier Request expectation verifier. May be {@code null}.
-     * @param exceptionLogger Exception logger. If {@code null}
-     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     * @param exceptionListener Exception logger. If {@code null}
+     *   {@link ExceptionListener#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
      *   {@link java.io.Closeable} objects (such as {@link org.apache.hc.core5.http.HttpConnection}).
      *
@@ -162,7 +162,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final HttpAsyncRequestHandlerMapper handlerMapper,
             final HttpAsyncExpectationVerifier expectationVerifier,
-            final ExceptionLogger exceptionLogger) {
+            final ExceptionListener exceptionListener) {
         super();
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.connStrategy = connStrategy != null ? connStrategy :
@@ -171,7 +171,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 DefaultHttpResponseFactory.INSTANCE;
         this.handlerMapper = handlerMapper;
         this.expectationVerifier = expectationVerifier;
-        this.exceptionLogger = exceptionLogger != null ? exceptionLogger : ExceptionLogger.NO_OP;
+        this.exceptionListener = exceptionListener != null ? exceptionListener : ExceptionListener.NO_OP;
     }
 
     /**
@@ -193,8 +193,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      *
      * @param httpProcessor HTTP protocol processor.
      * @param handlerMapper Request handler mapper.
-     * @param exceptionLogger Exception logger. If {@code null}
-     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     * @param exceptionListener Exception logger. If {@code null}
+     *   {@link ExceptionListener#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
      *   {@link java.io.Closeable} objects (such as {@link org.apache.hc.core5.http.HttpConnection}).
      *
@@ -203,8 +203,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     public HttpAsyncService(
             final HttpProcessor httpProcessor,
             final HttpAsyncRequestHandlerMapper handlerMapper,
-            final ExceptionLogger exceptionLogger) {
-        this(httpProcessor, null, null, handlerMapper, null, exceptionLogger);
+            final ExceptionListener exceptionListener) {
+        this(httpProcessor, null, null, handlerMapper, null, exceptionListener);
     }
 
     @Override
@@ -493,7 +493,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
-        this.exceptionLogger.log(ex);
+        this.exceptionListener.onError(ex);
     }
 
     private void shutdownConnection(final NHttpConnection conn) {

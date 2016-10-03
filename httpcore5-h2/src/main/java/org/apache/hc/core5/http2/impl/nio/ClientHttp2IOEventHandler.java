@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ExceptionListener;
 
 /**
  * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements client side HTTP/2 messaging protocol.
@@ -38,7 +39,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class ClientHttp2IOEventHandler extends AbstractHttp2IOEventHandler {
 
-    public ClientHttp2IOEventHandler(final ClientHttp2StreamMultiplexer streamMultiplexer, final HttpErrorListener errorListener) {
+    public ClientHttp2IOEventHandler(final ClientHttp2StreamMultiplexer streamMultiplexer, final ExceptionListener errorListener) {
         super(streamMultiplexer, errorListener);
     }
 

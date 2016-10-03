@@ -34,7 +34,7 @@ import java.util.Map;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
@@ -83,7 +83,7 @@ public class ServerBootstrap {
     private SSLContext sslContext;
     private SSLSetupHandler sslSetupHandler;
     private NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory;
-    private ExceptionLogger exceptionLogger;
+    private ExceptionListener exceptionListener;
 
     private ServerBootstrap() {
     }
@@ -299,10 +299,10 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link org.apache.hc.core5.http.ExceptionLogger} instance.
+     * Assigns {@link ExceptionListener} instance.
      */
-    public final ServerBootstrap setExceptionLogger(final ExceptionLogger exceptionLogger) {
-        this.exceptionLogger = exceptionLogger;
+    public final ServerBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
+        this.exceptionListener = exceptionListener;
         return this;
     }
 
@@ -379,17 +379,17 @@ public class ServerBootstrap {
             }
         }
 
-        ExceptionLogger exceptionLoggerCopy = this.exceptionLogger;
-        if (exceptionLoggerCopy == null) {
-            exceptionLoggerCopy = ExceptionLogger.NO_OP;
+        ExceptionListener exceptionListenerCopy = this.exceptionListener;
+        if (exceptionListenerCopy == null) {
+            exceptionListenerCopy = ExceptionListener.NO_OP;
         }
 
         final HttpAsyncService httpService = new HttpAsyncService(
                 httpProcessorCopy, connStrategyCopy, responseFactoryCopy, handlerMapperCopy,
-                this.expectationVerifier, exceptionLoggerCopy);
+                this.expectationVerifier, exceptionListenerCopy);
 
         return new HttpServer(this.listenerPort, this.localAddress, this.ioReactorConfig,
-                httpService, connectionFactoryCopy, exceptionLoggerCopy);
+                httpService, connectionFactoryCopy, exceptionListenerCopy);
 
     }
 

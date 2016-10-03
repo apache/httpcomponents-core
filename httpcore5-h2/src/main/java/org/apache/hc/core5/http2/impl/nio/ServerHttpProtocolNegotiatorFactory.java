@@ -32,6 +32,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
@@ -51,7 +52,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final Charset charset;
     private final H2Config h2Config;
     private final Http2StreamListener streamListener;
-    private final HttpErrorListener errorListener;
+    private final ExceptionListener errorListener;
 
     public ServerHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
@@ -59,7 +60,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,
-            final HttpErrorListener errorListener) {
+            final ExceptionListener errorListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
@@ -72,7 +73,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Http2StreamListener streamListener,
-            final HttpErrorListener errorListener) {
+            final ExceptionListener errorListener) {
         this(httpProcessor, exchangeHandlerFactory, null, null, streamListener, errorListener);
     }
 

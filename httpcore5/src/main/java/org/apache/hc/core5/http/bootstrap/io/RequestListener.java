@@ -32,7 +32,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
@@ -47,7 +47,7 @@ class RequestListener implements Runnable {
     private final ServerSocket serversocket;
     private final HttpService httpService;
     private final HttpConnectionFactory<? extends HttpServerConnection> connectionFactory;
-    private final ExceptionLogger exceptionLogger;
+    private final ExceptionListener exceptionListener;
     private final ExecutorService executorService;
     private final AtomicBoolean terminated;
 
@@ -56,13 +56,13 @@ class RequestListener implements Runnable {
             final ServerSocket serversocket,
             final HttpService httpService,
             final HttpConnectionFactory<? extends HttpServerConnection> connectionFactory,
-            final ExceptionLogger exceptionLogger,
+            final ExceptionListener exceptionListener,
             final ExecutorService executorService) {
         this.socketConfig = socketConfig;
         this.serversocket = serversocket;
         this.connectionFactory = connectionFactory;
         this.httpService = httpService;
-        this.exceptionLogger = exceptionLogger;
+        this.exceptionListener = exceptionListener;
         this.executorService = executorService;
         this.terminated = new AtomicBoolean(false);
     }
@@ -85,11 +85,11 @@ class RequestListener implements Runnable {
                     socket.setSoLinger(true, this.socketConfig.getSoLinger());
                 }
                 final HttpServerConnection conn = this.connectionFactory.createConnection(socket);
-                final Worker worker = new Worker(this.httpService, conn, this.exceptionLogger);
+                final Worker worker = new Worker(this.httpService, conn, this.exceptionListener);
                 this.executorService.execute(worker);
             }
         } catch (final Exception ex) {
-            this.exceptionLogger.log(ex);
+            this.exceptionListener.onError(ex);
         }
     }
 

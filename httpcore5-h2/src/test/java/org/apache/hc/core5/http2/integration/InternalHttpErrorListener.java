@@ -29,9 +29,9 @@ package org.apache.hc.core5.http2.integration;
 
 import org.apache.commons.logging.Log;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http2.impl.nio.HttpErrorListener;
+import org.apache.hc.core5.http.ExceptionListener;
 
-class InternalHttpErrorListener implements HttpErrorListener {
+class InternalHttpErrorListener implements ExceptionListener {
 
     private final Log log;
 

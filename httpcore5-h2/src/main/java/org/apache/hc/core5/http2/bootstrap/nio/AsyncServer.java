@@ -24,30 +24,31 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http;
 
-/**
- * @since 4.4
- */
-public interface ExceptionLogger {
+package org.apache.hc.core5.http2.bootstrap.nio;
 
-    public static final ExceptionLogger NO_OP = new ExceptionLogger() {
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
-        @Override
-        public void log(final Exception ex) {
-        }
+import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
+import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.util.Args;
 
-    };
+public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
 
-    public static final ExceptionLogger STD_ERR = new ExceptionLogger() {
+    public AsyncServer(final ExceptionListener exceptionListener) throws IOException {
+        super(exceptionListener);
+    }
 
-        @Override
-        public void log(final Exception ex) {
-            ex.printStackTrace();
-        }
+    protected void start(final IOEventHandlerFactory ioEventHandlerFactory) throws Exception {
+        Args.notNull(ioEventHandlerFactory, "Handler factory");
+        startExecution(new DefaultListeningIOReactor(ioEventHandlerFactory));
+    }
 
-    };
-
-    void log(Exception ex);
+    public ListenerEndpoint listen(final InetSocketAddress address) {
+        return reactor().listen(address);
+    }
 
 }

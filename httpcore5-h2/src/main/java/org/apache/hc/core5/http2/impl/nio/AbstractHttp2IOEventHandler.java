@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -34,9 +35,9 @@ import org.apache.hc.core5.util.Args;
 class AbstractHttp2IOEventHandler implements IOEventHandler {
 
     private final AbstractHttp2StreamMultiplexer streamMultiplexer;
-    private final HttpErrorListener errorListener;
+    private final ExceptionListener errorListener;
 
-    AbstractHttp2IOEventHandler(final AbstractHttp2StreamMultiplexer streamMultiplexer, final HttpErrorListener errorListener) {
+    AbstractHttp2IOEventHandler(final AbstractHttp2StreamMultiplexer streamMultiplexer, final ExceptionListener errorListener) {
         this.streamMultiplexer = Args.notNull(streamMultiplexer, "Stream multiplexer");
         this.errorListener = errorListener;
     }

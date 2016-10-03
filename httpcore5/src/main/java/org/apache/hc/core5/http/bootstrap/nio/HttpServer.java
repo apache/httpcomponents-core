@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultNHttpServerConnection;
 import org.apache.hc.core5.http.nio.NHttpConnectionFactory;
@@ -56,7 +56,7 @@ public class HttpServer {
     private final InetAddress ifAddress;
     private final IOReactorConfig ioReactorConfig;
     private final NHttpServerEventHandler serverEventHandler;
-    private final ExceptionLogger exceptionLogger;
+    private final ExceptionListener exceptionListener;
     private final ExecutorService listenerExecutorService;
     private final ThreadGroup dispatchThreads;
     private final AtomicReference<Status> status;
@@ -70,12 +70,12 @@ public class HttpServer {
             final IOReactorConfig ioReactorConfig,
             final NHttpServerEventHandler serverEventHandler,
             final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory,
-            final ExceptionLogger exceptionLogger) {
+            final ExceptionListener exceptionListener) {
         this.port = port;
         this.ifAddress = ifAddress;
         this.ioReactorConfig = ioReactorConfig;
         this.serverEventHandler = serverEventHandler;
-        this.exceptionLogger = exceptionLogger;
+        this.exceptionListener = exceptionListener;
         this.listenerExecutorService = Executors.newSingleThreadExecutor(
                 new ThreadFactoryImpl("HTTP-listener-" + this.port));
         this.dispatchThreads = new ThreadGroup("I/O-dispatchers");
@@ -90,13 +90,13 @@ public class HttpServer {
         this.ioReactor.setExceptionHandler(new IOReactorExceptionHandler() {
             @Override
             public boolean handle(final IOException ex) {
-                exceptionLogger.log(ex);
+                exceptionListener.onError(ex);
                 return false;
             }
 
             @Override
             public boolean handle(final RuntimeException ex) {
-                exceptionLogger.log(ex);
+                exceptionListener.onError(ex);
                 return false;
             }
         });
@@ -117,7 +117,7 @@ public class HttpServer {
                     try {
                         ioReactor.execute();
                     } catch (final Exception ex) {
-                        exceptionLogger.log(ex);
+                        exceptionListener.onError(ex);
                     }
                 }
 

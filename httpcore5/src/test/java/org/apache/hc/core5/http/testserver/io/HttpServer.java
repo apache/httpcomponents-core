@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.bootstrap.io.ServerBootstrap;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
@@ -102,7 +102,7 @@ public class HttpServer {
                         .build())
                 .setServerInfo("TEST-SERVER/1.1")
                 .setConnectionFactory(new LoggingConnFactory())
-                .setExceptionLogger(new SimpleExceptionLogger())
+                .setExceptionListener(new SimpleExceptionListener())
                 .setExpectationVerifier(this.expectationVerifier)
                 .setHandlerMapper(this.reqistry)
                 .create();
@@ -127,12 +127,12 @@ public class HttpServer {
         }
     }
 
-    static class SimpleExceptionLogger implements ExceptionLogger {
+    static class SimpleExceptionListener implements ExceptionListener {
 
         private final Log log = LogFactory.getLog(HttpServer.class);
 
         @Override
-        public void log(final Exception ex) {
+        public void onError(final Exception ex) {
             if (ex instanceof ConnectionClosedException) {
                 this.log.debug(ex.getMessage());
             } else if (ex instanceof SocketException) {

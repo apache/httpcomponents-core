@@ -28,7 +28,7 @@ package org.apache.hc.core5.http.bootstrap.io;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
@@ -41,16 +41,16 @@ class Worker implements Runnable {
 
     private final HttpService httpservice;
     private final HttpServerConnection conn;
-    private final ExceptionLogger exceptionLogger;
+    private final ExceptionListener exceptionListener;
 
     Worker(
             final HttpService httpservice,
             final HttpServerConnection conn,
-            final ExceptionLogger exceptionLogger) {
+            final ExceptionListener exceptionListener) {
         super();
         this.httpservice = httpservice;
         this.conn = conn;
-        this.exceptionLogger = exceptionLogger;
+        this.exceptionListener = exceptionListener;
     }
 
     public HttpServerConnection getConnection() {
@@ -68,12 +68,12 @@ class Worker implements Runnable {
             }
             this.conn.close();
         } catch (final Exception ex) {
-            this.exceptionLogger.log(ex);
+            this.exceptionListener.onError(ex);
         } finally {
             try {
                 this.conn.shutdown();
             } catch (final IOException ex) {
-                this.exceptionLogger.log(ex);
+                this.exceptionListener.onError(ex);
             }
         }
     }

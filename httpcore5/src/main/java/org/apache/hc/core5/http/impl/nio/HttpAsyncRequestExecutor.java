@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
@@ -94,15 +94,15 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     private final int waitForContinue;
     private final ConnectionReuseStrategy connReuseStrategy;
-    private final ExceptionLogger exceptionLogger;
+    private final ExceptionListener exceptionListener;
 
     /**
      * Creates new instance of {@code HttpAsyncRequestExecutor}.
      * @param waitForContinue wait for continue time period.
      * @param connReuseStrategy Connection re-use strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
-     * @param exceptionLogger Exception logger. If {@code null}
-     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     * @param exceptionListener Exception logger. If {@code null}
+     *   {@link ExceptionListener#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
      *   {@link java.io.Closeable} objects (such as {@link org.apache.hc.core5.http.HttpConnection}).
      *
@@ -111,12 +111,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
     public HttpAsyncRequestExecutor(
             final int waitForContinue,
             final ConnectionReuseStrategy connReuseStrategy,
-            final ExceptionLogger exceptionLogger) {
+            final ExceptionListener exceptionListener) {
         super();
         this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
-        this.exceptionLogger = exceptionLogger != null ? exceptionLogger : ExceptionLogger.NO_OP;
+        this.exceptionListener = exceptionListener != null ? exceptionListener : ExceptionListener.NO_OP;
     }
 
     /**
@@ -448,7 +448,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
      * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
-        this.exceptionLogger.log(ex);
+        this.exceptionListener.onError(ex);
     }
 
     private static State getState(final NHttpConnection conn) {

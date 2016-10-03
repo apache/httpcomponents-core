@@ -32,11 +32,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexer;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiator;
-import org.apache.hc.core5.http2.impl.nio.HttpErrorListener;
 import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
@@ -69,7 +69,7 @@ public class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFac
         final String id = "http2-outgoing-" + COUNT.incrementAndGet();
         final Log sessionLog = LogFactory.getLog(ioSession.getClass());
         final InternalHttp2StreamListener streamListener = new InternalHttp2StreamListener(id);
-        final HttpErrorListener errorListener = new InternalHttpErrorListener(sessionLog);
+        final ExceptionListener errorListener = new InternalHttpErrorListener(sessionLog);
         return new ClientHttpProtocolNegotiator(httpProcessor, exchangeHandlerFactory, charset, h2Config, streamListener, errorListener) {
 
             @Override

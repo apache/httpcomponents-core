@@ -36,7 +36,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.HttpAsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.HttpAsyncRequestProducer;
@@ -62,13 +62,13 @@ import org.apache.hc.core5.util.Args;
 public class HttpAsyncRequester {
 
     private final HttpProcessor httpprocessor;
-    private final ExceptionLogger exceptionLogger;
+    private final ExceptionListener exceptionListener;
 
     /**
      * Creates new instance of {@code HttpAsyncRequester}.
      * @param httpprocessor HTTP protocol processor.
-     * @param exceptionLogger Exception logger. If {@code null}
-     *   {@link ExceptionLogger#NO_OP} will be used. Please note that the exception
+     * @param exceptionListener Exception logger. If {@code null}
+     *   {@link ExceptionListener#NO_OP} will be used. Please note that the exception
      *   logger will be only used to log I/O exception thrown while closing
      *   {@link java.io.Closeable} objects (such as {@link org.apache.hc.core5.http.HttpConnection}).
      *
@@ -76,10 +76,10 @@ public class HttpAsyncRequester {
      */
     public HttpAsyncRequester(
             final HttpProcessor httpprocessor,
-            final ExceptionLogger exceptionLogger) {
+            final ExceptionListener exceptionListener) {
         super();
         this.httpprocessor = Args.notNull(httpprocessor, "HTTP processor");
-        this.exceptionLogger = exceptionLogger != null ? exceptionLogger : ExceptionLogger.NO_OP;
+        this.exceptionListener = exceptionListener != null ? exceptionListener : ExceptionListener.NO_OP;
     }
 
     /**
@@ -549,7 +549,7 @@ public class HttpAsyncRequester {
      * @param ex I/O exception thrown by {@link java.io.Closeable#close()}
      */
     protected void log(final Exception ex) {
-        this.exceptionLogger.log(ex);
+        this.exceptionListener.onError(ex);
     }
 
     private void close(final Closeable closeable) {

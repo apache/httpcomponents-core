@@ -29,19 +29,16 @@ package org.apache.hc.core5.http2.integration;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http2.bootstrap.nio.AsyncServer;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -53,31 +50,18 @@ import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.nio.FixedResponseExchangeHandler;
 import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.http2.nio.Supplier;
-import org.apache.hc.core5.http2.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http2.nio.command.ShutdownType;
 import org.apache.hc.core5.http2.protocol.H2RequestValidateHost;
 import org.apache.hc.core5.http2.protocol.H2ResponseConnControl;
 import org.apache.hc.core5.http2.protocol.H2ResponseContent;
-import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.reactor.ExceptionEvent;
-import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
-import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.Args;
 
-public class Http2TestServer {
+public class Http2TestServer extends AsyncServer {
 
-    private final ExecutorService executorService;
     private final UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> responseHandlerMatcher;
 
-    private volatile DefaultListeningIOReactor ioReactor;
-    private volatile Exception exception;
-
     public Http2TestServer() throws IOException {
-        super();
-        this.executorService = Executors.newSingleThreadExecutor();
+        super(new InternalHttpErrorListener(LogFactory.getLog(Http2TestClient.class)));
         this.responseHandlerMatcher = new UriPatternMatcher<>();
     }
 
@@ -125,7 +109,7 @@ public class Http2TestServer {
                         new H2ResponseContent(),
                         new H2ResponseConnControl()
                 });
-        ioReactor = new DefaultListeningIOReactor(new InternalServerHttp2EventHandlerFactory(
+        start(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor,
                 new HandlerFactory<AsyncServerExchangeHandler>() {
 
@@ -139,69 +123,9 @@ public class Http2TestServer {
                 },
                 StandardCharsets.US_ASCII,
                 h2Config));
-        ioReactor.setExceptionHandler(new IOReactorExceptionHandler() {
-
-            @Override
-            public boolean handle(final IOException ex) {
-                ex.printStackTrace();
-                return false;
-            }
-
-            @Override
-            public boolean handle(final RuntimeException ex) {
-                ex.printStackTrace();
-                return false;
-            }
-
-        });
-        executorService.execute(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    ioReactor.execute();
-                } catch (Exception ex) {
-                    exception = ex;
-                }
-            }
-        });
-        final ListenerEndpoint listener = ioReactor.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = listen(new InetSocketAddress(0));
         listener.waitFor();
         return (InetSocketAddress) listener.getAddress();
-    }
-
-    public IOReactorStatus getStatus() {
-        return this.ioReactor.getStatus();
-    }
-
-    public List<ExceptionEvent> getAuditLog() {
-        return this.ioReactor.getAuditLog();
-    }
-
-    public Exception getException() {
-        return this.exception;
-    }
-
-    public void awaitShutdown(final long deadline, final TimeUnit timeUnit) throws InterruptedException {
-        ioReactor.awaitShutdown(deadline, timeUnit);
-    }
-
-    public void initiateShutdown() throws IOException {
-        ioReactor.initiateShutdown();
-        ioReactor.enumSessions(new IOSessionCallback() {
-
-            @Override
-            public void execute(final IOSession session) throws IOException {
-                session.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-                session.setEvent(SelectionKey.OP_WRITE);
-            }
-
-        });
-    }
-
-    public void shutdown(final long graceTime, final TimeUnit timeUnit) throws IOException {
-        initiateShutdown();
-        ioReactor.shutdown(graceTime, timeUnit);
     }
 
 }

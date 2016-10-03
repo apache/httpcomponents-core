@@ -35,11 +35,11 @@ import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.http.ExceptionLogger;
-import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.bootstrap.nio.HttpServer;
@@ -98,7 +98,7 @@ public class NHttpFileServer {
                 .setServerInfo("Test/1.1")
                 .setIOReactorConfig(config)
                 .setSslContext(sslcontext)
-                .setExceptionLogger(ExceptionLogger.STD_ERR)
+                .setExceptionListener(ExceptionListener.STD_ERR)
                 .registerHandler("*", new HttpFileHandler(docRoot))
                 .create();
 

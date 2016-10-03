@@ -35,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
@@ -63,7 +64,7 @@ public class ClientHttpProtocolNegotiator implements IOEventHandler {
     private final H2Config h2Config;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final Http2StreamListener streamListener;
-    private final HttpErrorListener errorListener;
+    private final ExceptionListener errorListener;
 
     public ClientHttpProtocolNegotiator(
             final HttpProcessor httpProcessor,
@@ -71,7 +72,7 @@ public class ClientHttpProtocolNegotiator implements IOEventHandler {
             final Charset charset,
             final H2Config h2Config,
             final Http2StreamListener streamListener,
-            final HttpErrorListener errorListener) {
+            final ExceptionListener errorListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
         this.charset = charset != null ? charset : StandardCharsets.US_ASCII;

@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
 
-import org.apache.hc.core5.http.ExceptionLogger;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.HttpService;
@@ -59,7 +59,7 @@ public class HttpServer {
     private final HttpService httpService;
     private final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private final SSLServerSetupHandler sslSetupHandler;
-    private final ExceptionLogger exceptionLogger;
+    private final ExceptionListener exceptionListener;
     private final ThreadPoolExecutor listenerExecutorService;
     private final ThreadGroup workerThreads;
     private final WorkerPoolExecutor workerExecutorService;
@@ -76,7 +76,7 @@ public class HttpServer {
             final HttpService httpService,
             final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory,
             final SSLServerSetupHandler sslSetupHandler,
-            final ExceptionLogger exceptionLogger) {
+            final ExceptionListener exceptionListener) {
         this.port = port;
         this.ifAddress = ifAddress;
         this.socketConfig = socketConfig;
@@ -84,7 +84,7 @@ public class HttpServer {
         this.httpService = httpService;
         this.connectionFactory = connectionFactory;
         this.sslSetupHandler = sslSetupHandler;
-        this.exceptionLogger = exceptionLogger;
+        this.exceptionListener = exceptionListener;
         this.listenerExecutorService = new ThreadPoolExecutor(
                 1, 1, 0L, TimeUnit.MILLISECONDS,
                 new SynchronousQueue<Runnable>(),
@@ -129,7 +129,7 @@ public class HttpServer {
                     this.serverSocket,
                     this.httpService,
                     this.connectionFactory,
-                    this.exceptionLogger,
+                    this.exceptionListener,
                     this.workerExecutorService);
             this.listenerExecutorService.execute(this.requestListener);
         }
@@ -144,7 +144,7 @@ public class HttpServer {
                 try {
                     local.terminate();
                 } catch (final IOException ex) {
-                    this.exceptionLogger.log(ex);
+                    this.exceptionListener.onError(ex);
                 }
             }
             this.workerThreads.interrupt();
@@ -170,7 +170,7 @@ public class HttpServer {
             try {
                 conn.shutdown();
             } catch (IOException ex) {
-                this.exceptionLogger.log(ex);
+                this.exceptionListener.onError(ex);
             }
         }
     }
