@@ -425,12 +425,15 @@ abstract class AbstractIOReactor implements IOReactor {
      */
     protected void enumSessions(final IOSessionCallback callback) throws IOException {
         if (this.selector.isOpen()) {
-            final Set<SelectionKey> keys = this.selector.keys();
-            for (final SelectionKey key : keys) {
-                final IOSession session = getSession(key);
-                if (session != null) {
-                    callback.execute(session);
+            try {
+                final Set<SelectionKey> keys = this.selector.keys();
+                for (final SelectionKey key : keys) {
+                    final IOSession session = getSession(key);
+                    if (session != null) {
+                        callback.execute(session);
+                    }
                 }
+            } catch (ClosedSelectorException ignore) {
             }
         }
     }
