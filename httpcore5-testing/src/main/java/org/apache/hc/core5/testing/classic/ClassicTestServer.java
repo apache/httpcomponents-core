@@ -110,10 +110,14 @@ public class ClassicTestServer {
     }
 
     public void shutdown() {
+        shutdown(5, TimeUnit.SECONDS);
+    }
+
+    public void shutdown(final long gracePeriod, final TimeUnit timeUnit) {
         final org.apache.hc.core5.http.bootstrap.io.HttpServer local = this.server;
         this.server = null;
         if (local != null) {
-            local.shutdown(5, TimeUnit.SECONDS);
+            local.shutdown(gracePeriod, timeUnit);
         }
     }
 
