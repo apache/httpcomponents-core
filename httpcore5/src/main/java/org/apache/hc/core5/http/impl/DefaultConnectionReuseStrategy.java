@@ -40,7 +40,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.BasicHeaderIterator;
 import org.apache.hc.core5.http.message.BasicTokenIterator;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
@@ -81,14 +80,11 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
 
         if (request != null) {
-            final Header[] connHeaders = request.getHeaders(HttpHeaders.CONNECTION);
-            if (connHeaders.length != 0) {
-                final Iterator<String> ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
-                while (ti.hasNext()) {
-                    final String token = ti.next();
-                    if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
-                        return false;
-                    }
+            final Iterator<String> ti = new BasicTokenIterator(request.headerIterator(HttpHeaders.CONNECTION));
+            while (ti.hasNext()) {
+                final String token = ti.next();
+                if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
+                    return false;
                 }
             }
         }
@@ -101,7 +97,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 return false;
             }
         } else {
-            if (canResponseHaveBody(response) && response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
+            if (canResponseHaveBody(request, response) && response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
                 return false;
             }
         }
@@ -109,15 +105,15 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // Check for the "Connection" header. If that is absent, check for
         // the "Proxy-Connection" header. The latter is an unspecified and
         // broken but unfortunately common extension of HTTP.
-        Header[] connHeaders = response.getHeaders(HttpHeaders.CONNECTION);
-        if (connHeaders.length == 0) {
-            connHeaders = response.getHeaders("Proxy-Connection");
+        Iterator<Header> headerIterator = response.headerIterator(HttpHeaders.CONNECTION);
+        if (!headerIterator.hasNext()) {
+            headerIterator = response.headerIterator("Proxy-Connection");
         }
 
         final ProtocolVersion ver = context.getProtocolVersion();
-        if (connHeaders.length != 0) {
+        if (headerIterator.hasNext()) {
             if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
-                final Iterator<String> it = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+                final Iterator<String> it = new BasicTokenIterator(headerIterator);
                 while (it.hasNext()) {
                     final String token = it.next();
                     if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
@@ -126,7 +122,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 }
                 return true;
             }
-            final Iterator<String> it = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+            final Iterator<String> it = new BasicTokenIterator(headerIterator);
             while (it.hasNext()) {
                 final String token = it.next();
                 if (HeaderElements.KEEP_ALIVE.equalsIgnoreCase(token)) {
@@ -138,7 +134,10 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         return ver.greaterEquals(HttpVersion.HTTP_1_1);
     }
 
-    private boolean canResponseHaveBody(final HttpResponse response) {
+    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+        if (request != null && request.getMethod().equalsIgnoreCase("HEAD")) {
+            return false;
+        }
         final int status = response.getCode();
         return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT
