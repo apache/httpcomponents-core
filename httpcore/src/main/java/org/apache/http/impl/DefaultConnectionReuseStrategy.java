@@ -30,18 +30,20 @@ package org.apache.http.impl;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;
+import org.apache.http.HttpHeaders;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ParseException;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.TokenIterator;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
-import org.apache.http.message.BasicHeaderIterator;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.message.BasicTokenIterator;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.util.Args;
 
 /**
@@ -78,6 +80,22 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
         Args.notNull(context, "HTTP context");
 
+        final HttpRequest request = (HttpRequest) context.getAttribute(HttpCoreContext.HTTP_REQUEST);
+        if (request != null) {
+            try {
+                final TokenIterator ti = new BasicTokenIterator(request.headerIterator(HttpHeaders.CONNECTION));
+                while (ti.hasNext()) {
+                    final String token = ti.nextToken();
+                    if (HTTP.CONN_CLOSE.equalsIgnoreCase(token)) {
+                        return false;
+                    }
+                }
+            } catch (final ParseException px) {
+                // invalid connection header. do not re-use
+                return false;
+            }
+        }
+
         // Check for a self-terminating entity. If the end of the entity will
         // be indicated by closing the connection, there is no keep-alive.
         final ProtocolVersion ver = response.getStatusLine().getProtocolVersion();
@@ -87,7 +105,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 return false;
             }
         } else {
-            if (canResponseHaveBody(response)) {
+            if (canResponseHaveBody(request, response)) {
                 final Header[] clhs = response.getHeaders(HTTP.CONTENT_LEN);
                 // Do not reuse if not properly content-length delimited
                 if (clhs.length == 1) {
@@ -109,9 +127,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // Check for the "Connection" header. If that is absent, check for
         // the "Proxy-Connection" header. The latter is an unspecified and
         // broken but unfortunately common extension of HTTP.
-        Header[] connHeaders = response.getHeaders(HTTP.CONN_DIRECTIVE);
-        if (connHeaders.length == 0) {
-            connHeaders = response.getHeaders("Proxy-Connection");
+        HeaderIterator headerIterator = response.headerIterator(HTTP.CONN_DIRECTIVE);
+        if (!headerIterator.hasNext()) {
+            headerIterator = response.headerIterator("Proxy-Connection");
         }
 
         // Experimental usage of the "Connection" header in HTTP/1.0 is
@@ -137,9 +155,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         // it takes precedence and indicates a non-persistent connection.
         // If there is no "close" but a "keep-alive", we take the hint.
 
-        if (connHeaders.length != 0) {
+        if (headerIterator.hasNext()) {
             try {
-                final TokenIterator ti = new BasicTokenIterator(new BasicHeaderIterator(connHeaders, null));
+                final TokenIterator ti = new BasicTokenIterator(headerIterator);
                 boolean keepalive = false;
                 while (ti.hasNext()) {
                     final String token = ti.nextToken();
@@ -156,8 +174,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 }
 
             } catch (final ParseException px) {
-                // invalid connection header means no persistent connection
-                // we don't have logging in HttpCore, so the exception is lost
+                // invalid connection header. do not re-use
                 return false;
             }
         }
@@ -180,7 +197,10 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         return new BasicTokenIterator(hit);
     }
 
-    private boolean canResponseHaveBody(final HttpResponse response) {
+    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
+        if (request != null && request.getRequestLine().getMethod().equalsIgnoreCase("HEAD")) {
+            return false;
+        }
         final int status = response.getStatusLine().getStatusCode();
         return status >= HttpStatus.SC_OK
             && status != HttpStatus.SC_NO_CONTENT

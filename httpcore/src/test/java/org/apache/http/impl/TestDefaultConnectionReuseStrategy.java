@@ -28,12 +28,15 @@
 package org.apache.http.impl;
 
 import org.apache.http.ConnectionReuseStrategy;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
+import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HttpCoreContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -258,6 +261,27 @@ public class TestDefaultConnectionReuseStrategy {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0,
                 HttpStatus.SC_NO_CONTENT, "No Content");
         Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
+    @Test
+    public void testRequestClose() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        request.addHeader("Connection", "close");
+        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        response.addHeader("Content-Length", "10");
+        response.addHeader("Connection", "keep-alive");
+
+        Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
+    @Test
+    public void testHeadRequestWithout() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("HEAD", "/");
+        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+
+        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
     }
 
 }
