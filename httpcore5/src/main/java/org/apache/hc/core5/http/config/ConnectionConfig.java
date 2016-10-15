@@ -112,7 +112,9 @@ public class ConnectionConfig {
     public static ConnectionConfig.Builder copy(final ConnectionConfig config) {
         Args.notNull(config, "Connection config");
         return new Builder()
+            .setBufferSize(config.getBufferSize())
             .setCharset(config.getCharset())
+            .setFragmentSizeHint(config.getFragmentSizeHint())
             .setMalformedInputAction(config.getMalformedInputAction())
             .setUnmappableInputAction(config.getUnmappableInputAction())
             .setMessageConstraints(config.getMessageConstraints());
