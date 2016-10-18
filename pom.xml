@@ -301,7 +301,7 @@
       <plugin>
         <groupId>org.apache.rat</groupId>
         <artifactId>apache-rat-plugin</artifactId>
-        <version>0.11</version>
+        <version>0.12</version>
         <executions>
           <execution>
             <phase>verify</phase>
@@ -312,8 +312,11 @@
         </executions>
         <configuration>
           <excludes>
-            <exclude>.pmd</exclude>
+            <exclude>**/.checkstyle</exclude>
+            <exclude>**/.pmd</exclude>
             <exclude>**/*.iml</exclude>
+            <exclude>**/.externalToolBuilders/**</exclude>         
+            <exclude>maven-eclipse.xml</exclude>
             <exclude>src/docbkx/resources/**</exclude>
             <exclude>src/test/resources/*.truststore</exclude>
           </excludes>
