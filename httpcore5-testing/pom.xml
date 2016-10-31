@@ -31,7 +31,7 @@
     <version>5.0-alpha2-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore5-testing</artifactId>
-  <name>Apache HttpComponents Core integration tests</name>
+  <name>Apache HttpComponents Core Integration Tests</name>
   <description>Apache HttpComponents HTTP/2 and HTTP/1.1 core component integration tests</description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
