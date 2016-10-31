@@ -32,8 +32,6 @@ import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServer;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServerExchangeHandlerRegistry;
@@ -52,7 +50,8 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class Http2TestServer extends AsyncServer {
 
     private final AsyncServerExchangeHandlerRegistry handlerRegistry;
@@ -60,7 +59,7 @@ public class Http2TestServer extends AsyncServer {
     public Http2TestServer(final IOReactorConfig ioReactorConfig) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
 
-            private final Log log = LogFactory.getLog(Http2TestServer.class);
+            private final Logger log = LogManager.getLogger(Http2TestServer.class);
 
             @Override
             public void onError(final Exception ex) {

@@ -29,14 +29,13 @@ package org.apache.hc.core5.testing.classic;
 
 import java.nio.ByteBuffer;
 
-import org.apache.commons.logging.Log;
-
+import org.apache.logging.log4j.Logger;
 public class Wire {
 
-    private final Log log;
+    private final Logger log;
     private final String id;
 
-    public Wire(final Log log, final String id) {
+    public Wire(final Logger log, final String id) {
         super();
         this.log = log;
         this.id = id;

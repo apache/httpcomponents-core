@@ -30,29 +30,29 @@ package org.apache.hc.core5.testing.nio.http2;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http2.frame.FramePrinter;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class InternalHttp2StreamListener implements Http2StreamListener {
 
     private final String id;
-    private final Log headerLog;
-    private final Log frameLog;
-    private final Log framePayloadLog;
-    private final Log flowCtrlLog;
+    private final Logger headerLog;
+    private final Logger frameLog;
+    private final Logger framePayloadLog;
+    private final Logger flowCtrlLog;
     private final FramePrinter framePrinter;
 
     public InternalHttp2StreamListener(final String id) {
         this.id = id;
         this.framePrinter = new FramePrinter();
-        this.headerLog = LogFactory.getLog("org.apache.hc.core5.http.headers");
-        this.frameLog = LogFactory.getLog("org.apache.hc.core5.http.frame");
-        this.framePayloadLog = LogFactory.getLog("org.apache.hc.core5.http.frame.payload");
-        this.flowCtrlLog = LogFactory.getLog("org.apache.hc.core5.http.flow");
+        this.headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
+        this.frameLog = LogManager.getLogger("org.apache.hc.core5.http.frame");
+        this.framePayloadLog = LogManager.getLogger("org.apache.hc.core5.http.frame.payload");
+        this.flowCtrlLog = LogManager.getLogger("org.apache.hc.core5.http.flow");
     }
 
     private void logFrameInfo(final String prefix, final RawFrame frame) {

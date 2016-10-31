@@ -29,19 +29,20 @@ package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
+import org.apache.logging.log4j.Logger;
 
 class LogAppendable implements Appendable {
 
-    private final Log log;
+    private final Logger log;
     private final String prefix;
     private final StringBuilder buffer;
 
-    LogAppendable(final Log log, final String prefix) {
+    LogAppendable(final Logger log, final String prefix) {
         this.log = log;
         this.prefix = prefix;
         this.buffer = new StringBuilder();
     }
+
 
     @Override
     public Appendable append(final CharSequence text) throws IOException {

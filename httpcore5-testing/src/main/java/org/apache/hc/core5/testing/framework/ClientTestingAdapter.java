@@ -27,38 +27,7 @@
 
 package org.apache.hc.core5.testing.framework;
 
-import java.util.Map;
-
-/**
-*
-* <p>This adapter assists the testing of an HTTP client.  This adapter in turn uses an
-* {@link ClientPOJOAdapter} to actually use the HTTP client to make the request.
-* See {@link ClientPOJOAdapter} to see the format of the request and the returned
-* response.  The format of the returned response is also the format of the parameter
-* called responseExpectations.</p>
-*
-* <p>This adapter will generally call the {@link ClientPOJOAdapter} methods of the same
-* name when these methods are called:</p>
-*
-* <pre>
-*
-* isRequestSupported
-* modifyRequest
-* start
-*
-* </pre>
-*
-* <p>See these method's documentation in {@link ClientPOJOAdapter} for details.</p>
-*
-* <p>The value that this adapter adds is with the modifyResponseExpectations method.  Each
-* test will specify the response that is expected.  The HttpClient5 adapter is able
-* to use these unmodified expectations, but if a different HTTP client (such as Groovy's
-* RESTClient which uses HttpClient) for some reason needs to modify the expectations,
-* it would be done in the modifyResponseExpectations method.</p>
-*
-* @since 5.0
-*/
-public class ClientTestingAdapter {
+import java.util.Map; public class ClientTestingAdapter {
     /**
      * This adapter will perform the HTTP request and return the response in the
      * expected format.

@@ -30,6 +30,8 @@ Changelog
 
 * HTTPCORE-418: Add a HttpHost constructor for hostname and scheme.
   Based on contribution by Joshua Hendrickson <joshua dot hendrickson at live dot com>
+  
+* HTTPCORE-436: Port tests from Apache Commons Logging to Apache Log4j 2.
 
 
 Release 5.0-ALPHA1

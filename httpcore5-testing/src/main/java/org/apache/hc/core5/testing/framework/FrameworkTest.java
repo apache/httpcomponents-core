@@ -46,25 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.util.URLEncodedUtils;
-
-
-
-/**
- * <p>This class is not expected to be used directly by the user, but its job is to
- * supply helpful defaults for tests.</p>
- *
- * <p>A test is made up of an HTTP request that the HTTP client will send as well
- * as a response that is expected.</p>
- *
- * <p>See {@link ClientPOJOAdapter} for details on the request and response.</p>
- *
- * <p>Generally, if the request does not specify a method, it is assumed to be a GET.
- * There are also defaults for headers, query parameters, body, contentType, etc.</p>
- *
- * @since 5.0
- */
-public class FrameworkTest {
+import org.apache.hc.core5.util.URLEncodedUtils; public class FrameworkTest {
     private Map<String, Object> request = new HashMap<String, Object>();
     private Map<String, Object> response = new HashMap<String, Object>();
 

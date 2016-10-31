@@ -30,22 +30,21 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.apache.commons.logging.Log;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
-
+import org.apache.logging.log4j.Logger;
 public class LoggingIOEventHandler implements HttpConnectionEventHandler {
 
     private final HttpConnectionEventHandler handler;
     private final String id;
-    private final Log log;
+    private final Logger log;
 
     public LoggingIOEventHandler(
             final HttpConnectionEventHandler handler,
             final String id,
-            final Log log) {
+            final Logger log) {
         super();
         this.handler = handler;
         this.id = id;

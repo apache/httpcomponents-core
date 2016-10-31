@@ -30,8 +30,6 @@ package org.apache.hc.core5.testing.nio.http;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -63,6 +61,8 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.nio.LoggingIOEventHandler;
 import org.apache.hc.core5.testing.nio.LoggingIOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * @since 5.0
@@ -110,9 +110,9 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final IOSession ioSession) {
         final String id = "http1-outgoing-" + COUNT.incrementAndGet();
-        final Log sessionLog = LogFactory.getLog(ioSession.getClass());
-        final Log wireLog = LogFactory.getLog("org.apache.hc.core5.http.wire");
-        final Log headerLog = LogFactory.getLog("org.apache.hc.core5.http.headers");
+        final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
+        final Logger wireLog = LogManager.getLogger("org.apache.hc.core5.http.wire");
+        final Logger headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
         final ClientHttp1StreamDuplexer streamDuplexer = createClientHttp1StreamDuplexer(
                 new LoggingIOSession(ioSession, id, sessionLog, wireLog),
                 httpProcessor,

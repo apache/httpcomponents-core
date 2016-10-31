@@ -34,26 +34,20 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.util.Deque;
 
-import org.apache.commons.logging.Log;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.classic.Wire;
-
-/**
- * Decorator class intended to transparently extend an {@link IOSession}
- * with basic event logging capabilities using Commons Logging.
- *
- */
+import org.apache.logging.log4j.Logger;
 public class LoggingIOSession implements IOSession {
 
-    private final Log log;
+    private final Logger log;
     private final Wire wirelog;
     private final String id;
     private final IOSession session;
     private final ByteChannel channel;
 
-    public LoggingIOSession(final IOSession session, final String id, final Log log, final Log wirelog) {
+    public LoggingIOSession(final IOSession session, final String id, final Logger log, final Logger wirelog) {
         super();
         this.session = session;
         this.id = id;
@@ -62,7 +56,7 @@ public class LoggingIOSession implements IOSession {
         this.channel = wirelog != null ? new LoggingByteChannel() : session.channel();
     }
 
-    public LoggingIOSession(final IOSession session, final String id, final Log log) {
+    public LoggingIOSession(final IOSession session, final String id, final Logger log) {
         this(session, id, log, null);
     }
 

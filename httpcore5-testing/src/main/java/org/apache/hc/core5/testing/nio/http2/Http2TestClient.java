@@ -35,8 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ExceptionListener;
@@ -64,7 +62,8 @@ import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class Http2TestClient extends AsyncRequester {
 
     private final UriPatternMatcher<Supplier<AsyncPushConsumer>> pushHandlerMatcher;
@@ -72,7 +71,7 @@ public class Http2TestClient extends AsyncRequester {
     public Http2TestClient(final IOReactorConfig ioReactorConfig) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
 
-            private final Log log = LogFactory.getLog(Http2TestClient.class);
+            private final Logger log = LogManager.getLogger(Http2TestClient.class);
 
             @Override
             public void onError(final Exception ex) {

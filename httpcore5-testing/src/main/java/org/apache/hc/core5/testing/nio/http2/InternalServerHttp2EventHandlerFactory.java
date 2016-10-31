@@ -30,8 +30,6 @@ package org.apache.hc.core5.testing.nio.http2;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.impl.nio.ConnectionListener;
@@ -47,6 +45,8 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.nio.LoggingIOEventHandler;
 import org.apache.hc.core5.testing.nio.LoggingIOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
@@ -71,7 +71,7 @@ class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final IOSession ioSession) {
         final String id = "http2-incoming-" + COUNT.incrementAndGet();
-        final Log sessionLog = LogFactory.getLog(ioSession.getClass());
+        final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
         return new LoggingIOEventHandler(new ServerHttpProtocolNegotiator(
                 ioSession, httpProcessor, exchangeHandlerFactory, charset, h2Config,
                 new ConnectionListener() {

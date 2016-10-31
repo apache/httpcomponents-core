@@ -55,23 +55,7 @@ import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.URLEncodedUtils;
-
-/**
- * <p>This request handler is used with an in-process instance of HttpServer during testing.
- * The handler is told what to expect in the request.  If the request does not match
- * the expectations, the handler will throw an exception which is then caught and
- * saved in the "thrown" member.  The testing framework will later call assertNothingThrown().
- * If something was thrown earlier by the handler, an exception will be thrown by the method.</p>
- *
- * <p>The handler is also told what response to return.</p>
- *
- * <p>See {@link ClientPOJOAdapter} for details on the format of the request and response.</p>
- *
- * @since 5.0
- *
- */
-public class TestingFrameworkRequestHandler implements HttpRequestHandler {
+import org.apache.hc.core5.util.URLEncodedUtils; public class TestingFrameworkRequestHandler implements HttpRequestHandler {
     protected Throwable thrown;
     protected Map<String, Object> requestExpectations;
     protected Map<String, Object> desiredResponse;

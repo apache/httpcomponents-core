@@ -33,8 +33,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.SocketConfig;
@@ -45,7 +43,8 @@ import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
 import org.apache.hc.core5.util.Asserts;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class ClassicTestServer {
 
     private final UriHttpRequestHandlerMapper reqistry;
@@ -133,7 +132,7 @@ public class ClassicTestServer {
 
     static class SimpleExceptionListener implements ExceptionListener {
 
-        private final Log log = LogFactory.getLog(ClassicTestServer.class);
+        private final Logger log = LogManager.getLogger(ClassicTestServer.class);
 
         @Override
         public void onError(final Exception ex) {

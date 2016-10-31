@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.SelectionKey;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -53,7 +51,8 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class Http1TestServer extends AsyncServer {
 
     private final AsyncServerExchangeHandlerRegistry handlerRegistry;
@@ -61,7 +60,7 @@ public class Http1TestServer extends AsyncServer {
     public Http1TestServer(final IOReactorConfig ioReactorConfig) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
 
-            private final Log log = LogFactory.getLog(Http1TestServer.class);
+            private final Logger log = LogManager.getLogger(Http1TestServer.class);
 
             @Override
             public void onError(final Exception ex) {

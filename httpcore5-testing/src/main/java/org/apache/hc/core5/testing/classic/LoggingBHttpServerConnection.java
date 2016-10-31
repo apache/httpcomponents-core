@@ -36,12 +36,10 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.hc.core5.http.ContentLengthStrategy;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
@@ -49,14 +47,15 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
 
     private static final AtomicLong COUNT = new AtomicLong();
 
     private final String id;
-    private final Log log;
-    private final Log headerlog;
+    private final Logger log;
+    private final Logger headerlog;
     private final Wire wire;
 
     public LoggingBHttpServerConnection(
@@ -73,9 +72,9 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection {
                 incomingContentStrategy, outgoingContentStrategy,
                 requestParserFactory, responseWriterFactory);
         this.id = "http-incoming-" + COUNT.incrementAndGet();
-        this.log = LogFactory.getLog(getClass());
-        this.headerlog = LogFactory.getLog("org.apache.http.headers");
-        this.wire = new Wire(LogFactory.getLog("org.apache.http.wire"), this.id);
+        this.log = LogManager.getLogger(getClass());
+        this.headerlog = LogManager.getLogger("org.apache.http.headers");
+        this.wire = new Wire(LogManager.getLogger("org.apache.http.wire"), this.id);
     }
 
     public LoggingBHttpServerConnection(final int buffersize) {

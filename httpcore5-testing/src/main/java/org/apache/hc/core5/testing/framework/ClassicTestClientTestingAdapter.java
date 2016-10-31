@@ -27,11 +27,6 @@
 
 package org.apache.hc.core5.testing.framework;
 
-/**
- * Implementation of {@link ClientTestingAdapter} for the ClassicTestClient.
- *
- * @since 5.0
- */
 public class ClassicTestClientTestingAdapter extends ClientTestingAdapter {
 
     public ClassicTestClientTestingAdapter() {
