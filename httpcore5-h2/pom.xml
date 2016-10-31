@@ -32,7 +32,7 @@
   </parent>
   <artifactId>httpcore5-h2</artifactId>
   <name>Apache HttpComponents Core HTTP/2</name>
-  <description>Apache HttpComponents HTTP/2 core components</description>
+  <description>Apache HttpComponents HTTP/2 Core Components</description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
 
