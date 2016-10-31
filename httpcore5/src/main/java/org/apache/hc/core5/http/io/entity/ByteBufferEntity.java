@@ -39,7 +39,7 @@ import org.apache.hc.core5.util.Args;
 /**
  * An entity that delivers the contents of a {@link ByteBuffer}.
  */
-public class ByteBufferEntity extends AbstractHttpEntity implements Cloneable {
+public class ByteBufferEntity extends AbstractHttpEntity {
 
     private final ByteBuffer buffer;
 
@@ -111,7 +111,7 @@ public class ByteBufferEntity extends AbstractHttpEntity implements Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+    public void close() throws IOException {
     }
+
 }

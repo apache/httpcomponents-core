@@ -110,4 +110,9 @@ public class HttpEntityWrapper implements HttpEntity {
         return wrappedEntity.getTrailerNames();
     }
 
+    @Override
+    public void close() throws IOException {
+        wrappedEntity.close();
+    }
+
 }

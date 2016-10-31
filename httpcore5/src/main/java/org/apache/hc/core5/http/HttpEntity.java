@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,7 +60,7 @@ import java.io.OutputStream;
  *
  * @since 4.0
  */
-public interface HttpEntity extends EntityDetails {
+public interface HttpEntity extends EntityDetails, Closeable {
 
     /**
      * Tells if the entity is capable of producing its data more than once.

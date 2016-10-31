@@ -87,4 +87,8 @@ public class FileEntity extends AbstractHttpEntity {
         return false;
     }
 
-} // class FileEntity
+    @Override
+    public void close() throws IOException {
+    }
+
+}

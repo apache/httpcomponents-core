@@ -118,4 +118,9 @@ public class HttpEntityWithTrailers implements HttpEntity {
         return names;
     }
 
+    @Override
+    public void close() throws IOException {
+        wrappedEntity.close();
+    }
+
 }

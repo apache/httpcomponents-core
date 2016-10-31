@@ -641,6 +641,10 @@ public class TestClassicHttp {
             outstream.flush();
         }
 
+        @Override
+        public void close() throws IOException {
+        }
+
     }
 
     @Test

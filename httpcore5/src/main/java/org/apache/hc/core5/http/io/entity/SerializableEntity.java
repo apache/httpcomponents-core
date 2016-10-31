@@ -125,4 +125,8 @@ public class SerializableEntity extends AbstractHttpEntity {
         }
     }
 
+    @Override
+    public void close() throws IOException {
+    }
+
 }

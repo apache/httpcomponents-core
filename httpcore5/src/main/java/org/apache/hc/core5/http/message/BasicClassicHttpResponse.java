@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -83,6 +84,13 @@ public class BasicClassicHttpResponse extends BasicHttpResponse implements Class
     @Override
     public void setEntity(final HttpEntity entity) {
         this.entity = entity;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (entity != null) {
+            entity.close();
+        }
     }
 
 }

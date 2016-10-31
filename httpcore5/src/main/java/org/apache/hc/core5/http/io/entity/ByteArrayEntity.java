@@ -116,4 +116,8 @@ public class ByteArrayEntity extends AbstractHttpEntity {
         return false;
     }
 
-} // class ByteArrayEntity
+    @Override
+    public void close() throws IOException {
+    }
+
+}

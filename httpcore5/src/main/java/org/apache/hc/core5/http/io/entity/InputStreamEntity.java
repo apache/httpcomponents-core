@@ -155,4 +155,9 @@ public class InputStreamEntity extends AbstractHttpEntity {
         return true;
     }
 
+    @Override
+    public void close() throws IOException {
+        content.close();
+    }
+
 }

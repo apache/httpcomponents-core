@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.io.entity;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
@@ -106,6 +107,13 @@ public class BasicHttpEntity extends AbstractHttpEntity {
     @Override
     public boolean isStreaming() {
         return this.content != null && this.content != EmptyInputStream.INSTANCE;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (content != null) {
+            content.close();
+        }
     }
 
 }
