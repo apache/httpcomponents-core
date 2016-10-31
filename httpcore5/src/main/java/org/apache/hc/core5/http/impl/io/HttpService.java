@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -162,78 +163,71 @@ public class HttpService {
             final HttpServerConnection conn,
             final HttpContext context) throws IOException, HttpException {
 
-        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
-
         final ClassicHttpRequest request = conn.receiveRequestHeader();
-        final ProtocolVersion transportVersion = request.getVersion();
-        if (transportVersion != null) {
-            context.setProtocolVersion(transportVersion);
-        }
-
-        final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-        final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
-
-        ClassicHttpResponse response;
-        if (expectContinue) {
-            response = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
-            if (this.expectationVerifier != null) {
-                try {
-                    this.expectationVerifier.verify(request, response, context);
-                } catch (final HttpException ex) {
-                    response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-                    handleException(ex, response);
-                }
-            }
-            if (response.getCode() < HttpStatus.SC_SUCCESS) {
-                // Send 1xx response indicating the server expectations
-                // have been met
-                conn.sendResponseHeader(response);
-                conn.flush();
-            } else {
-                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-                context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-                this.processor.process(response, response.getEntity(), context);
-                conn.sendResponseHeader(response);
-                if (canResponseHaveBody(request, response)) {
-                    conn.sendResponseEntity(response);
-                }
-                conn.flush();
-                conn.receiveRequestEntity(request);
-                return;
-            }
-        }
-
+        ClassicHttpResponse response = null;
         try {
-            conn.receiveRequestEntity(request);
+            try {
+                conn.receiveRequestEntity(request);
+                final ProtocolVersion transportVersion = request.getVersion();
+                if (transportVersion != null) {
+                    context.setProtocolVersion(transportVersion);
+                }
+                context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
+                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+                this.processor.process(request, request.getEntity(), context);
 
-            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-            this.processor.process(request, request.getEntity(), context);
+                final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+                final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
 
-            response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
-            doService(request, response, context);
-
+                if (expectContinue) {
+                    final ClassicHttpResponse ack = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
+                    if (this.expectationVerifier != null) {
+                        this.expectationVerifier.verify(request, ack, context);
+                    }
+                    if (ack.getCode() < HttpStatus.SC_SUCCESS) {
+                        // Send 1xx response indicating the server expectations
+                        // have been met
+                        conn.sendResponseHeader(ack);
+                        conn.flush();
+                    } else {
+                        response = ack;
+                    }
+                }
+                if (response == null) {
+                    response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
+                    doService(request, response, context);
+                }
+            } catch (final HttpException ex) {
+                if (response != null) {
+                    response.close();
+                }
+                response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                handleException(ex, response);
+            }
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             this.processor.process(response, response.getEntity(), context);
 
-        } catch (final HttpException ex) {
-            response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            handleException(ex, response);
-            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-            this.processor.process(response, response.getEntity(), context);
-        }
+            conn.sendResponseHeader(response);
+            if (canResponseHaveBody(request, response)) {
+                conn.sendResponseEntity(response);
+            }
+            conn.flush();
 
-        conn.sendResponseHeader(response);
-        if (canResponseHaveBody(request, response)) {
-            conn.sendResponseEntity(response);
-        }
-        conn.flush();
-
-        // Make sure the request content is fully consumed
-        final HttpEntity entity = request.getEntity();
-        EntityUtils.consume(entity);
-
-        if (!this.connStrategy.keepAlive(request, response, context)) {
-            conn.close();
+            // Make sure the request content is fully consumed
+            final HttpEntity entity = request.getEntity();
+            if (entity != null && entity.isStreaming()) {
+                final InputStream instream = entity.getContent();
+                if (instream != null) {
+                    instream.close();
+                }
+            }
+            if (!this.connStrategy.keepAlive(request, response, context)) {
+                conn.close();
+            }
+        } finally {
+            if (response != null) {
+                response.close();
+            }
         }
     }
 
