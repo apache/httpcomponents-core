@@ -37,12 +37,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.bootstrap.io.ServerBootstrap;
 import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.impl.io.bootstrap.HttpServer;
+import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
+import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.util.Asserts;
 
 public class ClassicTestServer {
@@ -51,7 +52,7 @@ public class ClassicTestServer {
     private volatile HttpExpectationVerifier expectationVerifier;
     private volatile int timeout;
 
-    private volatile org.apache.hc.core5.http.bootstrap.io.HttpServer server;
+    private volatile HttpServer server;
 
     public ClassicTestServer() throws IOException {
         super();
@@ -77,7 +78,7 @@ public class ClassicTestServer {
     }
 
     public int getPort() {
-        final org.apache.hc.core5.http.bootstrap.io.HttpServer local = this.server;
+        final HttpServer local = this.server;
         if (local != null) {
             return this.server.getLocalPort();
         } else {
@@ -86,7 +87,7 @@ public class ClassicTestServer {
     }
 
     public InetAddress getInetAddress() {
-        final org.apache.hc.core5.http.bootstrap.io.HttpServer local = this.server;
+        final HttpServer local = this.server;
         if (local != null) {
             return local.getInetAddress();
         } else {
@@ -100,7 +101,6 @@ public class ClassicTestServer {
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(this.timeout)
                         .build())
-                .setServerInfo("TEST-SERVER/1.1")
                 .setConnectionFactory(new LoggingConnFactory())
                 .setExceptionListener(new SimpleExceptionListener())
                 .setExpectationVerifier(this.expectationVerifier)
@@ -114,7 +114,7 @@ public class ClassicTestServer {
     }
 
     public void shutdown(final long gracePeriod, final TimeUnit timeUnit) {
-        final org.apache.hc.core5.http.bootstrap.io.HttpServer local = this.server;
+        final HttpServer local = this.server;
         this.server = null;
         if (local != null) {
             local.shutdown(gracePeriod, timeUnit);

@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingHttpEntity;
@@ -60,7 +60,7 @@ class BHttpConnectionBase implements BHttpConnection {
 
     final SessionInputBufferImpl inbuffer;
     final SessionOutputBufferImpl outbuffer;
-    final MessageConstraints messageConstraints;
+    final H1Config messageConstraints;
     final BasicHttpConnectionMetrics connMetrics;
     final AtomicReference<SocketHolder> socketHolderRef;
 
@@ -71,13 +71,13 @@ class BHttpConnectionBase implements BHttpConnection {
             final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final MessageConstraints messageConstraints) {
+            final H1Config messageConstraints) {
         super();
         Args.positive(buffersize, "Buffer size");
         final BasicHttpTransportMetrics inTransportMetrics = new BasicHttpTransportMetrics();
         final BasicHttpTransportMetrics outTransportMetrics = new BasicHttpTransportMetrics();
         this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
-                messageConstraints != null ? messageConstraints : MessageConstraints.DEFAULT, chardecoder);
+                messageConstraints != null ? messageConstraints : H1Config.DEFAULT, chardecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, fragmentSizeHint,
                 charencoder);
         this.messageConstraints = messageConstraints;

@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -87,7 +87,7 @@ public class TestResponseParser {
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
-                MessageConstraints.custom().setMaxEmptyLineCount(3).build());
+                H1Config.custom().setMaxEmptyLineCount(3).build());
         final ClassicHttpResponse httpresponse = parser.parse(inbuffer, inputStream);
 
         Assert.assertEquals(200, httpresponse.getCode());
@@ -109,7 +109,7 @@ public class TestResponseParser {
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
-                MessageConstraints.custom().setMaxEmptyLineCount(3).build());
+                H1Config.custom().setMaxEmptyLineCount(3).build());
         parser.parse(inbuffer, inputStream);
     }
 

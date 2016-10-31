@@ -52,6 +52,11 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.nio.AsyncPushProducer;
+import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
@@ -67,10 +72,6 @@ import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HPackDecoder;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
-import org.apache.hc.core5.http2.nio.AsyncPushProducer;
-import org.apache.hc.core5.http2.nio.command.ExecutionCommand;
-import org.apache.hc.core5.http2.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http2.nio.command.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -105,7 +106,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private final Lock outputLock;
     private final AtomicInteger outputRequests;
     private final AtomicInteger lastStreamId;
-    private final Http2StreamListener callback;
+    private final ConnectionListener connectionListener;
+    private final Http2StreamListener streamListener;
 
     private ConnectionHandshake connState = ConnectionHandshake.READY;
     private SettingsHandshake localSettingState = SettingsHandshake.READY;
@@ -125,7 +127,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             final HttpProcessor httpProcessor,
             final Charset charset,
             final H2Config h2Config,
-            final Http2StreamListener callback) {
+            final ConnectionListener connectionListener,
+            final Http2StreamListener streamListener) {
         this.mode = Args.notNull(mode, "Mode");
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
@@ -152,7 +155,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
         this.remoteConfig = H2Config.DEFAULT;
         this.lowMark = this.remoteConfig.getInitialWindowSize() / 2;
-        this.callback = callback;
+        this.connectionListener = connectionListener;
+        this.streamListener = streamListener;
     }
 
     abstract Http2StreamHandler createRemotelyInitiatedStream(
@@ -174,8 +178,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private int updateInputWindow(
             final int streamId, final AtomicInteger window, final int delta) throws ArithmeticException {
         final int newSize = updateWindow(window, delta);
-        if (callback != null) {
-            callback.onInputFlowControl(streamId, delta, newSize);
+        if (streamListener != null) {
+            streamListener.onInputFlowControl(streamId, delta, newSize);
         }
         return newSize;
     }
@@ -183,16 +187,16 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private int updateOutputWindow(
             final int streamId, final AtomicInteger window, final int delta) throws ArithmeticException {
         final int newSize = updateWindow(window, delta);
-        if (callback != null) {
-            callback.onOutputFlowControl(streamId, delta, newSize);
+        if (streamListener != null) {
+            streamListener.onOutputFlowControl(streamId, delta, newSize);
         }
         return newSize;
     }
 
     private void commitFrameInternal(final RawFrame frame) throws IOException {
         if (outputBuffer.isEmpty() && outputQueue.isEmpty()) {
-            if (callback != null) {
-                callback.onFrameOutput(frame);
+            if (streamListener != null) {
+                streamListener.onFrameOutput(frame);
             }
             outputBuffer.write(frame, ioSession.channel());
         } else {
@@ -216,8 +220,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         if (headers == null || headers.isEmpty()) {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
         }
-        if (callback != null) {
-            callback.onHeaderOutput(headers);
+        if (streamListener != null) {
+            streamListener.onHeaderOutput(headers);
         }
         final ByteArrayBuffer buf = new ByteArrayBuffer(512);
         hPackEncoder.encodeHeaders(buf, headers);
@@ -250,8 +254,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         if (headers == null || headers.isEmpty()) {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
         }
-        if (callback != null) {
-            callback.onHeaderOutput(headers);
+        if (streamListener != null) {
+            streamListener.onHeaderOutput(headers);
         }
         final ByteArrayBuffer buf = new ByteArrayBuffer(512);
         buf.append((byte)(promisedStreamId >> 24));
@@ -297,8 +301,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             if (payload.remaining() <= maxPayloadSize) {
                 chunk = payload.remaining();
                 final RawFrame dataFrame = frameFactory.createData(streamId, payload, false);
-                if (callback != null) {
-                    callback.onFrameOutput(dataFrame);
+                if (streamListener != null) {
+                    streamListener.onFrameOutput(dataFrame);
                 }
                 outputBuffer.write(dataFrame, ioSession.channel());
             } else {
@@ -307,8 +311,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 try {
                     payload.limit(payload.position() + chunk);
                     final RawFrame dataFrame = frameFactory.createData(streamId, payload, false);
-                    if (callback != null) {
-                        callback.onFrameOutput(dataFrame);
+                    if (streamListener != null) {
+                        streamListener.onFrameOutput(dataFrame);
                     }
                     outputBuffer.write(dataFrame, ioSession.channel());
                 } finally {
@@ -361,6 +365,9 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     public final void onConnect(final ByteBuffer prefeed) throws HttpException, IOException {
+        if (connectionListener != null) {
+            connectionListener.onConnect(this);
+        }
         if (prefeed != null) {
             inputBuffer.put(prefeed);
         }
@@ -383,8 +390,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         } else {
             RawFrame frame;
             while ((frame = inputBuffer.read(ioSession.channel())) != null) {
-                if (callback != null) {
-                    callback.onFrameInput(frame);
+                if (streamListener != null) {
+                    streamListener.onFrameInput(frame);
                 }
                 consumeFrame(frame);
             }
@@ -400,8 +407,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             while (outputBuffer.isEmpty()) {
                 final RawFrame frame = outputQueue.poll();
                 if (frame != null) {
-                    if (callback != null) {
-                        callback.onFrameOutput(frame);
+                    if (streamListener != null) {
+                        streamListener.onFrameOutput(frame);
                     }
                     outputBuffer.write(frame, ioSession.channel());
                 } else {
@@ -410,16 +417,6 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             }
         } finally {
             outputLock.unlock();
-        }
-
-        switch (connState) {
-            case ACTIVE:
-                processPendingCommands();
-                break;
-            case GRACEFUL_SHUTDOWN:
-            case SHUTDOWN:
-                cancelPendingCommands();
-                break;
         }
 
         final int connWinSize = connInputWindow.get();
@@ -468,11 +465,14 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             }
         }
 
-        if (connState == ConnectionHandshake.SHUTDOWN) {
+        if (connState == ConnectionHandshake.ACTIVE) {
+            processPendingCommands();
+        } else if (connState == ConnectionHandshake.SHUTDOWN) {
             outputLock.lock();
             try {
                 if (outputBuffer.isEmpty() && outputQueue.isEmpty()) {
                     ioSession.close();
+                    cancelPendingCommands();
                 }
             } finally {
                 outputLock.unlock();
@@ -496,6 +496,13 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             stream.reset(new H2StreamResetException(H2Error.NO_ERROR, "Timeout due to inactivity"));
         }
         streamMap.clear();
+    }
+
+    public final void onDisconnect() {
+        cancelPendingCommands();
+        if (connectionListener != null) {
+            connectionListener.onConnect(this);
+        }
     }
 
     private void processPendingCommands() throws IOException, HttpException {
@@ -531,6 +538,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final Http2StreamHandler streamHandler = new ClientHttp2StreamHandler(
+                        this,
                         channel,
                         httpProcessor,
                         connMetrics,
@@ -550,14 +558,21 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     private void cancelPendingCommands() {
-        final Queue<Command> commandQueue = ioSession.getCommandQueue();
-        while (!commandQueue.isEmpty()) {
-            final Command command = commandQueue.remove();
-            command.cancel();
+        final Deque<Command> commandQueue = ioSession.getCommandQueue();
+        for (;;) {
+            final Command command = commandQueue.poll();
+            if (command != null) {
+                command.cancel();
+            } else {
+                break;
+            }
         }
     }
 
     public final void onException(final Exception cause) {
+        if (connectionListener != null) {
+            connectionListener.onError(this, cause);
+        }
         try {
             if (!(cause instanceof ConnectionClosedException)) {
                 final H2Error errorCode;
@@ -577,7 +592,6 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 stream.reset(cause);
             }
             streamMap.clear();
-            cancelPendingCommands();
             connState = ConnectionHandshake.SHUTDOWN;
         } catch (IOException ignore) {
         } finally {
@@ -895,8 +909,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             if (promisedStreamId > processedRemoteStreamId) {
                 processedRemoteStreamId = promisedStreamId;
             }
-            if (callback != null) {
-                callback.onHeaderInput(headers);
+            if (streamListener != null) {
+                streamListener.onHeaderInput(headers);
             }
             if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
                 throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
@@ -923,8 +937,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             if (stream.isRemoteInitiated() && streamId > processedRemoteStreamId) {
                 processedRemoteStreamId = streamId;
             }
-            if (callback != null) {
-                callback.onHeaderInput(headers);
+            if (streamListener != null) {
+                streamListener.onHeaderInput(headers);
             }
             if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
                 throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Stream refused");
@@ -953,8 +967,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             if (stream.isRemoteInitiated() && streamId > processedRemoteStreamId) {
                 processedRemoteStreamId = streamId;
             }
-            if (callback != null) {
-                callback.onHeaderInput(headers);
+            if (streamListener != null) {
+                streamListener.onHeaderInput(headers);
             }
             if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
                 throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Stream refused");
@@ -1189,7 +1203,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     localConfig.getInitialWindowSize(),
                     remoteConfig.getInitialWindowSize());
             final Http2StreamHandler streamHandler = new ServerPushHttp2StreamHandler(
-                    channel, httpProcessor, connMetrics, pushProducer);
+                    AbstractHttp2StreamMultiplexer.this, channel, httpProcessor, connMetrics, pushProducer);
             final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
             streamMap.put(promisedStreamId, stream);
 

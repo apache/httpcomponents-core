@@ -29,834 +29,657 @@ package org.apache.hc.core5.http.examples;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ConnectionReuseStrategy;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.config.ConnectionConfig;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseProducer;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIOEventHandlerFactory;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpServerIOEventHandlerFactory;
-import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
-import org.apache.hc.core5.http.impl.nio.HttpAsyncRequester;
-import org.apache.hc.core5.http.impl.nio.HttpAsyncService;
-import org.apache.hc.core5.http.impl.nio.UriHttpAsyncRequestHandlerMapper;
-import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
-import org.apache.hc.core5.http.nio.ContentDecoder;
-import org.apache.hc.core5.http.nio.ContentEncoder;
-import org.apache.hc.core5.http.nio.HttpAsyncExchange;
-import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
-import org.apache.hc.core5.http.nio.HttpAsyncRequestHandler;
-import org.apache.hc.core5.http.nio.HttpAsyncRequestHandlerMapper;
-import org.apache.hc.core5.http.nio.HttpAsyncRequestProducer;
-import org.apache.hc.core5.http.nio.HttpAsyncResponseConsumer;
-import org.apache.hc.core5.http.nio.HttpAsyncResponseProducer;
-import org.apache.hc.core5.http.nio.IOControl;
-import org.apache.hc.core5.http.nio.NHttpClientConnection;
-import org.apache.hc.core5.http.nio.NHttpConnection;
-import org.apache.hc.core5.http.nio.NHttpServerConnection;
-import org.apache.hc.core5.http.nio.entity.NStringEntity;
-import org.apache.hc.core5.http.pool.nio.BasicNIOConnPool;
-import org.apache.hc.core5.http.pool.nio.BasicNIOPoolEntry;
+import org.apache.hc.core5.http.impl.BasicEntityDetails;
+import org.apache.hc.core5.http.impl.LazyEntityDetails;
+import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
+import org.apache.hc.core5.http.impl.nio.Http1StreamListener;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
+import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.nio.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.impl.nio.pool.BasicNIOConnPool;
+import org.apache.hc.core5.http.impl.nio.pool.BasicNIOPoolEntry;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.ExpectationChannel;
+import org.apache.hc.core5.http.nio.RequestChannel;
+import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.Supplier;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.http.protocol.ResponseConnControl;
-import org.apache.hc.core5.http.protocol.ResponseContent;
-import org.apache.hc.core5.http.protocol.ResponseDate;
-import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.pool.PoolStats;
-import org.apache.hc.core5.reactor.ConnectingIOReactor;
-import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
-import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
+import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.ListeningIOReactor;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.util.HeapByteBufferAllocator;
 
 /**
- * Asynchronous, fully streaming HTTP/1.1 reverse proxy.
+ * Asynchronous embedded  HTTP/1.1 reverse proxy with full content streaming.
  */
 public class NHttpReverseProxy {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("Usage: NHttpReverseProxy <hostname> [port]");
+            System.out.println("Usage: NHttpReverseProxy <hostname> [listener port]");
             System.exit(1);
         }
-        URI uri = new URI(args[0]);
+        // Target host
+        final HttpHost targetHost = HttpHost.create(args[0]);
         int port = 8080;
         if (args.length > 1) {
             port = Integer.parseInt(args[1]);
         }
 
-        // Target host
-        HttpHost targetHost = new HttpHost(
-                uri.getHost(),
-                uri.getPort() > 0 ? uri.getPort() : 80,
-                uri.getScheme() != null ? uri.getScheme() : "http");
-
         System.out.println("Reverse proxy to " + targetHost);
 
         IOReactorConfig config = IOReactorConfig.custom()
-            .setIoThreadCount(1)
             .setSoTimeout(3000)
             .setConnectTimeout(3000)
             .build();
 
-        // Set up HTTP protocol processor for outgoing connections
-        HttpProcessor outhttpproc;
-        outhttpproc = new DefaultHttpProcessor(
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent("Test/1.1"),
-                new RequestExpectContinue());
+        final HttpAsyncRequester requester = RequesterBootstrap.bootstrap()
+                .setIOReactorConfig(config)
+                .setConnectionListener(new ConnectionListener() {
 
-        ProxyClientProtocolHandler clientProtocolHandler = new ProxyClientProtocolHandler();
-        final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(
-                new DefaultHttpClientIOEventHandlerFactory(clientProtocolHandler, ConnectionConfig.DEFAULT));
-        HttpAsyncRequester executor = new HttpAsyncRequester(outhttpproc);
+                    @Override
+                    public void onConnect(final HttpConnection connection) {
+                        System.out.println("[proxy->origin] connection open " + connection);
+                    }
 
-        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, 0);
+                    @Override
+                    public void onDisconnect(final HttpConnection connection) {
+                        System.out.println("[proxy->origin] connection closed " + connection);
+                    }
+
+                    @Override
+                    public void onError(final HttpConnection connection, final Exception ex) {
+                    }
+
+                })
+                .setStreamListener(new Http1StreamListener() {
+
+                    @Override
+                    public void onRequestHead(final HttpConnection connection, HttpRequest request) {
+                    }
+
+                    @Override
+                    public void onResponseHead(final HttpConnection connection, HttpResponse response) {
+                    }
+
+                    @Override
+                    public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
+                        System.out.println("[proxy<-origin] connection " + connection +
+                                (keepAlive ? " kept alive" : " cannot be kept alive"));
+                    }
+
+                })
+                .create();
+
+        final ProxyConnPool connPool = new ProxyConnPool(requester, 0);
         connPool.setMaxTotal(100);
         connPool.setDefaultMaxPerRoute(20);
 
+        final HttpAsyncServer server = ServerBootstrap.bootstrap()
+                .setIOReactorConfig(config)
+                .setConnectionListener(new ConnectionListener() {
 
-        // Set up HTTP protocol processor for incoming connections
-        HttpProcessor inhttpproc = new DefaultHttpProcessor(
-                new ResponseDate(),
-                new ResponseServer("Test/1.1"),
-                new ResponseContent(),
-                new ResponseConnControl());
+                    @Override
+                    public void onConnect(final HttpConnection connection) {
+                        System.out.println("[client->proxy] connection open " + connection);
+                    }
 
-        UriHttpAsyncRequestHandlerMapper handlerRegistry = new UriHttpAsyncRequestHandlerMapper();
-        handlerRegistry.register("*", new ProxyRequestHandler(targetHost, executor, connPool));
+                    @Override
+                    public void onDisconnect(final HttpConnection connection) {
+                        System.out.println("[client->proxy] connection closed " + connection);
+                    }
 
-        ProxyServiceHandler serverProtocolHandler = new ProxyServiceHandler(
-                inhttpproc,
-                new ProxyIncomingConnectionReuseStrategy(),
-                handlerRegistry);
-        final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(
-                new DefaultHttpServerIOEventHandlerFactory(serverProtocolHandler, ConnectionConfig.DEFAULT));
+                    @Override
+                    public void onError(final HttpConnection connection, final Exception ex) {
+                    }
 
-        Thread t = new Thread(new Runnable() {
+                })
+                .setStreamListener(new Http1StreamListener() {
 
+                    @Override
+                    public void onRequestHead(final HttpConnection connection, HttpRequest request) {
+                    }
+
+                    @Override
+                    public void onResponseHead(final HttpConnection connection, HttpResponse response) {
+                    }
+
+                    @Override
+                    public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
+                        System.out.println("[client<-proxy] connection " + connection +
+                                (keepAlive ? " kept alive" : " cannot be kept alive"));
+                    }
+
+                })
+                .register("*", new Supplier<AsyncServerExchangeHandler>() {
+
+                    @Override
+                    public AsyncServerExchangeHandler get() {
+                        return new IncomingExchangeHandler(targetHost, connPool);
+                    }
+
+                })
+                .create();
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                try {
-                    connectingIOReactor.execute();
-                } catch (InterruptedIOException ex) {
-                    System.err.println("Interrupted");
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                } finally {
-                    listeningIOReactor.shutdown(3, TimeUnit.SECONDS);
-                }
+                System.out.println("Reverse proxy shutting down");
+                server.shutdown(5, TimeUnit.SECONDS);
+                requester.shutdown(5, TimeUnit.SECONDS);
             }
-
         });
-        t.start();
-        try {
-            listeningIOReactor.listen(new InetSocketAddress(port));
-            listeningIOReactor.execute();
-        } catch (InterruptedIOException ex) {
-            System.err.println("Interrupted");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            connectingIOReactor.shutdown(3, TimeUnit.SECONDS);
-        }
+
+        requester.start();
+        server.start();
+        server.listen(new InetSocketAddress(port));
+
+        server.awaitShutdown(Integer.MAX_VALUE, TimeUnit.DAYS);
     }
 
-    static class ProxyHttpExchange {
+    private static class ProxyBuffer extends ExpandableBuffer {
 
-        private final ByteBuffer inBuffer;
-        private final ByteBuffer outBuffer;
-
-        private volatile String id;
-        private volatile HttpHost target;
-        private volatile HttpAsyncExchange responseTrigger;
-        private volatile IOControl originIOControl;
-        private volatile IOControl clientIOControl;
-        private volatile ClassicHttpRequest request;
-        private volatile boolean requestReceived;
-        private volatile ClassicHttpResponse response;
-        private volatile boolean responseReceived;
-        private volatile Exception ex;
-
-        public ProxyHttpExchange() {
-            super();
-            this.inBuffer = ByteBuffer.allocateDirect(10240);
-            this.outBuffer = ByteBuffer.allocateDirect(10240);
+        ProxyBuffer(int buffersize) {
+            super(buffersize, HeapByteBufferAllocator.INSTANCE);
         }
 
-        public ByteBuffer getInBuffer() {
-            return this.inBuffer;
+        void put(final ByteBuffer src) {
+            setInputMode();
+            int requiredCapacity = buffer().position() + src.remaining();
+            ensureCapacity(requiredCapacity);
+            buffer().put(src);
         }
 
-        public ByteBuffer getOutBuffer() {
-            return this.outBuffer;
-        }
-
-        public String getId() {
-            return this.id;
-        }
-
-        public void setId(final String id) {
-            this.id = id;
-        }
-
-        public HttpHost getTarget() {
-            return this.target;
-        }
-
-        public void setTarget(final HttpHost target) {
-            this.target = target;
-        }
-
-        public ClassicHttpRequest getRequest() {
-            return this.request;
-        }
-
-        public void setRequest(final ClassicHttpRequest request) {
-            this.request = request;
-        }
-
-        public ClassicHttpResponse getResponse() {
-            return this.response;
-        }
-
-        public void setResponse(final ClassicHttpResponse response) {
-            this.response = response;
-        }
-
-        public HttpAsyncExchange getResponseTrigger() {
-            return this.responseTrigger;
-        }
-
-        public void setResponseTrigger(final HttpAsyncExchange responseTrigger) {
-            this.responseTrigger = responseTrigger;
-        }
-
-        public IOControl getClientIOControl() {
-            return this.clientIOControl;
-        }
-
-        public void setClientIOControl(final IOControl clientIOControl) {
-            this.clientIOControl = clientIOControl;
-        }
-
-        public IOControl getOriginIOControl() {
-            return this.originIOControl;
-        }
-
-        public void setOriginIOControl(final IOControl originIOControl) {
-            this.originIOControl = originIOControl;
-        }
-
-        public boolean isRequestReceived() {
-            return this.requestReceived;
-        }
-
-        public void setRequestReceived() {
-            this.requestReceived = true;
-        }
-
-        public boolean isResponseReceived() {
-            return this.responseReceived;
-        }
-
-        public void setResponseReceived() {
-            this.responseReceived = true;
-        }
-
-        public Exception getException() {
-            return this.ex;
-        }
-
-        public void setException(final Exception ex) {
-            this.ex = ex;
-        }
-
-        public void reset() {
-            this.inBuffer.clear();
-            this.outBuffer.clear();
-            this.target = null;
-            this.id = null;
-            this.responseTrigger = null;
-            this.clientIOControl = null;
-            this.originIOControl = null;
-            this.request = null;
-            this.requestReceived = false;
-            this.response = null;
-            this.responseReceived = false;
-            this.ex = null;
+        int write(final DataStreamChannel channel) throws IOException {
+            setOutputMode();
+            if (buffer().hasRemaining()) {
+                return channel.write(buffer());
+            } else {
+                return 0;
+            }
         }
 
     }
 
-    static class ProxyRequestHandler implements HttpAsyncRequestHandler<ProxyHttpExchange> {
+    private static final AtomicLong COUNT = new AtomicLong(0);
 
-        private final HttpHost target;
-        private final HttpAsyncRequester executor;
-        private final BasicNIOConnPool connPool;
-        private final AtomicLong counter;
+    private static class ProxyExchangeState {
 
-        public ProxyRequestHandler(
-                final HttpHost target,
-                final HttpAsyncRequester executor,
-                final BasicNIOConnPool connPool) {
+        final String id;
+
+        ProxyBuffer inBuf;
+        ProxyBuffer outBuf;
+        HttpRequest request;
+        HttpResponse response;
+        boolean inputEnd;
+        boolean outputEnd;
+        ResponseChannel responseMessageChannel;
+        CapacityChannel requestCapacityChannel;
+        CapacityChannel responseCapacityChannel;
+        DataStreamChannel requestDataChannel;
+        DataStreamChannel responseDataChannel;
+
+        ProxyExchangeState() {
+            this.id = String.format("%08X", COUNT.getAndIncrement());
+        }
+
+    }
+
+    private static final int INIT_BUFFER_SIZE = 4096;
+
+    private static class IncomingExchangeHandler implements AsyncServerExchangeHandler {
+
+        private final HttpHost targetHost;
+        private final ProxyConnPool connPool;
+        private final AtomicBoolean consistent;
+        private final AtomicReference<BasicNIOPoolEntry> poolEntryRef;
+        private final ProxyExchangeState exchangeState;
+
+        IncomingExchangeHandler(final HttpHost targetHost, final ProxyConnPool connPool) {
             super();
-            this.target = target;
-            this.executor = executor;
+            this.targetHost = targetHost;
             this.connPool = connPool;
-            this.counter = new AtomicLong(1);
+            this.consistent = new AtomicBoolean(true);
+            this.poolEntryRef = new AtomicReference<>(null);
+            this.exchangeState = new ProxyExchangeState();
         }
 
         @Override
-        public HttpAsyncRequestConsumer<ProxyHttpExchange> processRequest(
-                final ClassicHttpRequest request,
-                final HttpContext context) {
-            ProxyHttpExchange httpExchange = (ProxyHttpExchange) context.getAttribute("http-exchange");
-            if (httpExchange == null) {
-                httpExchange = new ProxyHttpExchange();
-                context.setAttribute("http-exchange", httpExchange);
-            }
-            synchronized (httpExchange) {
-                httpExchange.reset();
-                String id = String.format("%08X", this.counter.getAndIncrement());
-                httpExchange.setId(id);
-                httpExchange.setTarget(this.target);
-                return new ProxyRequestConsumer(httpExchange, this.executor, this.connPool);
-            }
+        public void setContext(final HttpContext context) {
         }
 
         @Override
-        public void handle(
-                final ProxyHttpExchange httpExchange,
-                final HttpAsyncExchange responseTrigger,
-                final HttpContext context) throws HttpException, IOException {
-            synchronized (httpExchange) {
-                Exception ex = httpExchange.getException();
-                if (ex != null) {
-                    System.out.println("[client<-proxy] " + httpExchange.getId() + " " + ex);
-                    int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    ClassicHttpResponse response = new BasicClassicHttpResponse(status);
-                    String message = ex.getMessage();
-                    if (message == null) {
-                        message = "Unexpected error";
+        public void verify(
+                final HttpRequest request,
+                final EntityDetails entityDetails,
+                final ExpectationChannel expectationChannel) throws HttpException, IOException {
+            expectationChannel.sendContinue();
+        }
+
+        @Override
+        public void handleRequest(
+                final HttpRequest incomingRequest,
+                final EntityDetails entityDetails,
+                final ResponseChannel responseChannel) throws HttpException, IOException {
+
+            synchronized (exchangeState) {
+                System.out.println("[client->proxy] " + exchangeState.id + " " +
+                        incomingRequest.getMethod() + " " + incomingRequest.getPath());
+                exchangeState.request = incomingRequest;
+                exchangeState.inputEnd = entityDetails == null;
+                exchangeState.responseMessageChannel = responseChannel;
+            }
+
+            System.out.println("[proxy->origin] " + exchangeState.id + " request connection to " + targetHost);
+
+            connPool.lease(targetHost, null, 10, TimeUnit.SECONDS, new FutureCallback<BasicNIOPoolEntry>() {
+
+                @Override
+                public void completed(final BasicNIOPoolEntry poolEntry) {
+                    poolEntryRef.set(poolEntry);
+                    IOSession iosession = poolEntry.getConnection();
+                    System.out.println("[proxy->origin] " + exchangeState.id + " connection leased: " + iosession.getHandler());
+                    ClientEndpoint clientEndpoint = new ClientEndpointImpl(iosession);
+                    clientEndpoint.execute(new OutgoingExchangeHandler(exchangeState), null);
+                }
+
+                @Override
+                public void failed(final Exception cause) {
+                    HttpResponse outgoingResponse = new BasicHttpResponse(HttpStatus.SC_SERVICE_UNAVAILABLE);
+                    outgoingResponse.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                    exchangeState.response = outgoingResponse;
+
+                    ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
+                    exchangeState.outBuf = new ProxyBuffer(1024);
+                    exchangeState.outBuf.put(msg);
+                    exchangeState.outputEnd = true;
+
+                    System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
+
+                    try {
+                        EntityDetails entityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
+                        responseChannel.sendResponse(outgoingResponse, entityDetails);
+                    } catch (HttpException | IOException ignore) {
                     }
-                    response.setEntity(new NStringEntity(message, ContentType.DEFAULT_TEXT));
-                    responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
-                    System.out.println("[client<-proxy] " + httpExchange.getId() + " error response triggered");
                 }
-                ClassicHttpResponse response = httpExchange.getResponse();
-                if (response != null) {
-                    responseTrigger.submitResponse(new ProxyResponseProducer(httpExchange));
-                    System.out.println("[client<-proxy] " + httpExchange.getId() + " response triggered");
+
+                @Override
+                public void cancelled() {
+                    failed(new InterruptedIOException());
                 }
-                // No response yet.
-                httpExchange.setResponseTrigger(responseTrigger);
+
+            });
+
+        }
+
+        @Override
+        public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+            synchronized (exchangeState) {
+                exchangeState.requestCapacityChannel = capacityChannel;
+                int capacity = exchangeState.inBuf != null ? exchangeState.inBuf.capacity() : INIT_BUFFER_SIZE;
+                if (capacity > 0) {
+                    System.out.println("[client<-proxy] " + exchangeState.id + " input capacity: " + capacity);
+                    capacityChannel.update(capacity);
+                }
+            }
+        }
+
+        @Override
+        public int consume(final ByteBuffer src) throws IOException {
+            synchronized (exchangeState) {
+                System.out.println("[client->proxy] " + exchangeState.id + " " + src.remaining() + " bytes received");
+                DataStreamChannel dataChannel = exchangeState.requestDataChannel;
+                if (dataChannel != null && exchangeState.inBuf != null) {
+                    if (exchangeState.inBuf.hasData()) {
+                        int bytesWritten = exchangeState.inBuf.write(dataChannel);
+                        System.out.println("[proxy->origin] " + exchangeState.id + " " + bytesWritten + " bytes sent");
+                    }
+                    if (!exchangeState.inBuf.hasData()) {
+                        int bytesWritten = dataChannel.write(src);
+                        System.out.println("[proxy->origin] " + exchangeState.id + " " + bytesWritten + " bytes sent");
+                    }
+                }
+                if (src.hasRemaining()) {
+                    if (exchangeState.inBuf == null) {
+                        exchangeState.inBuf = new ProxyBuffer(INIT_BUFFER_SIZE);
+                    }
+                    exchangeState.inBuf.put(src);
+                }
+                int capacity = exchangeState.inBuf != null ? exchangeState.inBuf.capacity() : INIT_BUFFER_SIZE;
+                System.out.println("[client<-proxy] " + exchangeState.id + " input capacity: " + capacity);
+                if (dataChannel != null) {
+                    dataChannel.requestOutput();
+                }
+                return capacity;
+            }
+        }
+
+        @Override
+        public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+            synchronized (exchangeState) {
+                System.out.println("[client->proxy] " + exchangeState.id + " end of input");
+                exchangeState.inputEnd = true;
+                DataStreamChannel dataChannel = exchangeState.requestDataChannel;
+                if (dataChannel != null && (exchangeState.inBuf == null || !exchangeState.inBuf.hasData())) {
+                    System.out.println("[proxy->origin] " + exchangeState.id + " end of output");
+                    dataChannel.endStream();
+                }
+            }
+        }
+
+        @Override
+        public int available() {
+            synchronized (exchangeState) {
+                int available = exchangeState.outBuf != null ? exchangeState.outBuf.length() : 0;
+                System.out.println("[client<-proxy] " + exchangeState.id + " output available: " + available);
+                return available;
+            }
+        }
+
+        @Override
+        public void produce(final DataStreamChannel channel) throws IOException {
+            synchronized (exchangeState) {
+                System.out.println("[client<-proxy] " + exchangeState.id + " produce output");
+                exchangeState.responseDataChannel = channel;
+
+                if (exchangeState.outBuf != null) {
+                    if (exchangeState.outBuf.hasData()) {
+                        int bytesWritten = exchangeState.outBuf.write(channel);
+                        System.out.println("[client<-proxy] " + exchangeState.id + " " + bytesWritten + " bytes sent");
+                    }
+                    if (exchangeState.outputEnd && !exchangeState.outBuf.hasData()) {
+                        channel.endStream();
+                        System.out.println("[client<-proxy] " + exchangeState.id + " end of output");
+                    }
+                    if (!exchangeState.outputEnd) {
+                        CapacityChannel capacityChannel = exchangeState.responseCapacityChannel;
+                        if (capacityChannel != null) {
+                            int capacity = exchangeState.outBuf.capacity();
+                            if (capacity > 0) {
+                                System.out.println("[proxy->origin] " + exchangeState.id + " input capacity: " + capacity);
+                                capacityChannel.update(capacity);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void failed(final Exception cause) {
+            System.out.println("[client<-proxy] " + exchangeState.id + " error: " + cause.getMessage());
+            cause.printStackTrace(System.out);
+            consistent.set(false);
+            releaseResources();
+        }
+
+        @Override
+        public void releaseResources() {
+            BasicNIOPoolEntry poolEntry = poolEntryRef.getAndSet(null);
+            if (poolEntry != null) {
+                System.out.println("[proxy->origin] " + exchangeState.id + " releasing connection");
+                connPool.release(poolEntry, consistent.get());
+            }
+            synchronized (exchangeState) {
+                exchangeState.responseMessageChannel = null;
+                exchangeState.responseDataChannel = null;
+                exchangeState.requestCapacityChannel = null;
             }
         }
 
     }
 
-    static class ProxyRequestConsumer implements HttpAsyncRequestConsumer<ProxyHttpExchange> {
+    private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
+            HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
+            HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
+            "Keep-Alive".toLowerCase(Locale.ROOT),
+            "Proxy-Authenticate".toLowerCase(Locale.ROOT),
+            HttpHeaders.TE.toLowerCase(Locale.ROOT),
+            HttpHeaders.TRAILER.toLowerCase(Locale.ROOT),
+            HttpHeaders.UPGRADE.toLowerCase(Locale.ROOT))));
 
-        private final ProxyHttpExchange httpExchange;
-        private final HttpAsyncRequester executor;
-        private final BasicNIOConnPool connPool;
+    private static class OutgoingExchangeHandler implements AsyncClientExchangeHandler {
 
-        private volatile boolean completed;
+        private final ProxyExchangeState exchangeState;
 
-        public ProxyRequestConsumer(
-                final ProxyHttpExchange httpExchange,
-                final HttpAsyncRequester executor,
-                final BasicNIOConnPool connPool) {
-            super();
-            this.httpExchange = httpExchange;
-            this.executor = executor;
-            this.connPool = connPool;
+        OutgoingExchangeHandler(final ProxyExchangeState exchangeState) {
+            this.exchangeState = exchangeState;
         }
 
         @Override
-        public void close() throws IOException {
-        }
+        public void produceRequest(
+                final RequestChannel channel) throws HttpException, IOException {
+            synchronized (exchangeState) {
+                HttpRequest incomingRequest = exchangeState.request;
+                HttpRequest outgoingRequest = new BasicHttpRequest(incomingRequest.getMethod(), incomingRequest.getPath());
+                for (Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
+                    Header header = it.next();
+                    if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
+                        outgoingRequest.addHeader(header);
+                    }
+                }
 
-        @Override
-        public void requestReceived(final ClassicHttpRequest request) {
-            synchronized (this.httpExchange) {
-                System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getPath());
-                this.httpExchange.setRequest(request);
-                this.executor.execute(
-                        new ProxyRequestProducer(this.httpExchange),
-                        new ProxyResponseConsumer(this.httpExchange),
-                        this.connPool);
+                System.out.println("[proxy->origin] " + exchangeState.id + " " +
+                        outgoingRequest.getMethod() + " " + outgoingRequest.getPath());
+
+                channel.sendRequest(
+                        outgoingRequest,
+                        !exchangeState.inputEnd ? new LazyEntityDetails(outgoingRequest) : null);
             }
         }
 
         @Override
-        public void consumeContent(
-                final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-            synchronized (this.httpExchange) {
-                this.httpExchange.setClientIOControl(ioctrl);
-                // Receive data from the client
-                ByteBuffer buf = this.httpExchange.getInBuffer();
-                int n = decoder.read(buf);
-                System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + n + " bytes read");
-                if (decoder.isCompleted()) {
-                    System.out.println("[client->proxy] " + this.httpExchange.getId() + " content fully read");
-                }
-                // If the buffer is full, suspend client input until there is free
-                // space in the buffer
-                if (!buf.hasRemaining()) {
-                    ioctrl.suspendInput();
-                    System.out.println("[client->proxy] " + this.httpExchange.getId() + " suspend client input");
-                }
-                // If there is some content in the input buffer make sure origin
-                // output is active
-                if (buf.position() > 0) {
-                    if (this.httpExchange.getOriginIOControl() != null) {
-                        this.httpExchange.getOriginIOControl().requestOutput();
-                        System.out.println("[client->proxy] " + this.httpExchange.getId() + " request origin output");
+        public int available() {
+            synchronized (exchangeState) {
+                int available = exchangeState.inBuf != null ? exchangeState.inBuf.length() : 0;
+                System.out.println("[proxy->origin] " + exchangeState.id + " output available: " + available);
+                return available;
+            }
+        }
+
+        @Override
+        public void produce(final DataStreamChannel channel) throws IOException {
+            synchronized (exchangeState) {
+                System.out.println("[proxy->origin] " + exchangeState.id + " produce output");
+                exchangeState.requestDataChannel = channel;
+                if (exchangeState.inBuf != null) {
+                    if (exchangeState.inBuf.hasData()) {
+                        int bytesWritten = exchangeState.inBuf.write(channel);
+                        System.out.println("[proxy->origin] " + exchangeState.id + " " + bytesWritten + " bytes sent");
+                    }
+                    if (exchangeState.inputEnd && !exchangeState.inBuf.hasData()) {
+                        channel.endStream();
+                        System.out.println("[proxy->origin] " + exchangeState.id + " end of output");
+                    }
+                    if (!exchangeState.inputEnd) {
+                        CapacityChannel capacityChannel = exchangeState.requestCapacityChannel;
+                        if (capacityChannel != null) {
+                            int capacity = exchangeState.inBuf.capacity();
+                            if (capacity > 0) {
+                                System.out.println("[client<-proxy] " + exchangeState.id + " input capacity: " + capacity);
+                                capacityChannel.update(capacity);
+                            }
+                        }
                     }
                 }
             }
         }
 
         @Override
-        public void requestCompleted(final HttpContext context) {
-            synchronized (this.httpExchange) {
-                this.completed = true;;
-                System.out.println("[client->proxy] " + this.httpExchange.getId() + " request completed");
-                this.httpExchange.setRequestReceived();
-                if (this.httpExchange.getOriginIOControl() != null) {
-                    this.httpExchange.getOriginIOControl().requestOutput();
-                    System.out.println("[client->proxy] " + this.httpExchange.getId() + " request origin output");
+        public void consumeResponse(
+                final HttpResponse incomingResponse,
+                final EntityDetails entityDetails) throws HttpException, IOException {
+            synchronized (exchangeState) {
+                System.out.println("[proxy<-origin] " + exchangeState.id + " status " + incomingResponse.getCode());
+
+                HttpResponse outgoingResponse = new BasicHttpResponse(incomingResponse.getCode());
+                for (Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
+                    Header header = it.next();
+                    if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
+                        outgoingResponse.addHeader(header);
+                    }
+                }
+
+                exchangeState.response = outgoingResponse;
+                exchangeState.outputEnd = entityDetails == null;
+
+                ResponseChannel responseChannel = exchangeState.responseMessageChannel;
+                responseChannel.sendResponse(
+                        outgoingResponse,
+                        !exchangeState.outputEnd ?  new LazyEntityDetails(outgoingResponse) : null);
+
+                System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
+            }
+        }
+
+        @Override
+        public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+            synchronized (exchangeState) {
+                exchangeState.responseCapacityChannel = capacityChannel;
+                int capacity = exchangeState.outBuf != null ? exchangeState.outBuf.capacity() : INIT_BUFFER_SIZE;
+                if (capacity > 0) {
+                    System.out.println("[proxy->origin] " + exchangeState.id + " input capacity: " + capacity);
+                    capacityChannel.update(capacity);
                 }
             }
         }
 
         @Override
-        public Exception getException() {
-            return null;
+        public int consume(final ByteBuffer src) throws IOException {
+            synchronized (exchangeState) {
+                System.out.println("[proxy<-origin] " + exchangeState.id + " " + src.remaining() + " bytes received");
+                DataStreamChannel dataChannel = exchangeState.responseDataChannel;
+                if (dataChannel != null && exchangeState.outBuf != null) {
+                    if (exchangeState.outBuf.hasData()) {
+                        int bytesWritten = exchangeState.outBuf.write(dataChannel);
+                        System.out.println("[client<-proxy] " + exchangeState.id + " " + bytesWritten + " bytes sent");
+                    }
+                    if (!exchangeState.outBuf.hasData()) {
+                        int bytesWritten = dataChannel.write(src);
+                        System.out.println("[client<-proxy] " + exchangeState.id + " " + bytesWritten + " bytes sent");
+                    }
+                }
+                if (src.hasRemaining()) {
+                    if (exchangeState.outBuf == null) {
+                        exchangeState.outBuf = new ProxyBuffer(INIT_BUFFER_SIZE);
+                    }
+                    exchangeState.outBuf.put(src);
+                }
+                int capacity = exchangeState.outBuf != null ? exchangeState.outBuf.capacity() : INIT_BUFFER_SIZE;
+                System.out.println("[proxy->origin] " + exchangeState.id + " input capacity: " + capacity);
+                if (dataChannel != null) {
+                    dataChannel.requestOutput();
+                }
+                return capacity;
+            }
         }
 
         @Override
-        public ProxyHttpExchange getResult() {
-            return this.httpExchange;
+        public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+            synchronized (exchangeState) {
+                System.out.println("[proxy<-origin] " + exchangeState.id + " end of input");
+                exchangeState.outputEnd = true;
+                DataStreamChannel dataChannel = exchangeState.responseDataChannel;
+                if (dataChannel != null && (exchangeState.outBuf == null || !exchangeState.outBuf.hasData())) {
+                    System.out.println("[client<-proxy] " + exchangeState.id + " end of output");
+                    dataChannel.endStream();
+                }
+            }
         }
 
         @Override
-        public boolean isDone() {
-            return this.completed;
+        public void cancel() {
+            releaseResources();
         }
 
         @Override
-        public void failed(final Exception ex) {
-            System.out.println("[client->proxy] " + ex.toString());
+        public void failed(final Exception cause) {
+            System.out.println("[client<-proxy] " + exchangeState.id + " error: " + cause.getMessage());
+            cause.printStackTrace(System.out);
+            synchronized (exchangeState) {
+                if (exchangeState.response == null) {
+                    int status = cause instanceof IOException ? HttpStatus.SC_SERVICE_UNAVAILABLE : HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                    HttpResponse outgoingResponse = new BasicHttpResponse(status);
+                    outgoingResponse.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                    exchangeState.response = outgoingResponse;
+
+                    ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
+                    exchangeState.outBuf = new ProxyBuffer(1024);
+                    exchangeState.outBuf.put(msg);
+                    exchangeState.outputEnd = true;
+
+                    System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
+
+                    try {
+                        EntityDetails entityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
+                        exchangeState.responseMessageChannel.sendResponse(outgoingResponse, entityDetails);
+                    } catch (HttpException | IOException ignore) {
+                    }
+                } else {
+                    exchangeState.outputEnd = true;
+                }
+                releaseResources();
+            }
+        }
+
+        @Override
+        public void releaseResources() {
+            synchronized (exchangeState) {
+                exchangeState.requestDataChannel = null;
+                exchangeState.responseCapacityChannel = null;
+            }
         }
 
     }
 
-    static class ProxyRequestProducer implements HttpAsyncRequestProducer {
+    private static class ProxyConnPool extends BasicNIOConnPool {
 
-        private final ProxyHttpExchange httpExchange;
-
-        public ProxyRequestProducer(final ProxyHttpExchange httpExchange) {
-            super();
-            this.httpExchange = httpExchange;
-        }
-
-        @Override
-        public void close() throws IOException {
-        }
-
-        @Override
-        public HttpHost getTarget() {
-            synchronized (this.httpExchange) {
-                return this.httpExchange.getTarget();
-            }
-        }
-
-        @Override
-        public ClassicHttpRequest generateRequest() {
-            synchronized (this.httpExchange) {
-                ClassicHttpRequest request = this.httpExchange.getRequest();
-                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getMethod() + " " + request.getPath());
-                // Rewrite request!!!!
-                BasicClassicHttpRequest newREquest = new BasicClassicHttpRequest(request.getMethod(), request.getPath());
-                newREquest.setEntity(request.getEntity());
-                return newREquest;
-            }
-        }
-
-        @Override
-        public void produceContent(
-                final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
-            synchronized (this.httpExchange) {
-                this.httpExchange.setOriginIOControl(ioctrl);
-                // Send data to the origin server
-                ByteBuffer buf = this.httpExchange.getInBuffer();
-                buf.flip();
-                int n = encoder.write(buf);
-                buf.compact();
-                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + n + " bytes written");
-                // If there is space in the buffer and the message has not been
-                // transferred, make sure the client is sending more data
-                if (buf.hasRemaining() && !this.httpExchange.isRequestReceived()) {
-                    if (this.httpExchange.getClientIOControl() != null) {
-                        this.httpExchange.getClientIOControl().requestInput();
-                        System.out.println("[proxy->origin] " + this.httpExchange.getId() + " request client input");
-                    }
-                }
-                if (buf.position() == 0) {
-                    if (this.httpExchange.isRequestReceived()) {
-                        encoder.complete();
-                        System.out.println("[proxy->origin] " + this.httpExchange.getId() + " content fully written");
-                    } else {
-                        // Input buffer is empty. Wait until the client fills up
-                        // the buffer
-                        ioctrl.suspendOutput();
-                        System.out.println("[proxy->origin] " + this.httpExchange.getId() + " suspend origin output");
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void requestCompleted(final HttpContext context) {
-            synchronized (this.httpExchange) {
-                System.out.println("[proxy->origin] " + this.httpExchange.getId() + " request completed");
-            }
-        }
-
-        @Override
-        public boolean isRepeatable() {
-            return false;
-        }
-
-        @Override
-        public void resetRequest() {
-        }
-
-        @Override
-        public void failed(final Exception ex) {
-            System.out.println("[proxy->origin] " + ex.toString());
-        }
-
-    }
-
-    static class ProxyResponseConsumer implements HttpAsyncResponseConsumer<ProxyHttpExchange> {
-
-        private final ProxyHttpExchange httpExchange;
-
-        private volatile boolean completed;
-
-        public ProxyResponseConsumer(final ProxyHttpExchange httpExchange) {
-            super();
-            this.httpExchange = httpExchange;
-        }
-
-        @Override
-        public void close() throws IOException {
-        }
-
-        @Override
-        public void responseReceived(final ClassicHttpResponse response) {
-            synchronized (this.httpExchange) {
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getCode());
-                this.httpExchange.setResponse(response);
-                HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
-                if (responseTrigger != null && !responseTrigger.isCompleted()) {
-                    System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response triggered");
-                    responseTrigger.submitResponse(new ProxyResponseProducer(this.httpExchange));
-                }
-            }
-        }
-
-        @Override
-        public void consumeContent(
-                final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-            synchronized (this.httpExchange) {
-                this.httpExchange.setOriginIOControl(ioctrl);
-                // Receive data from the origin
-                ByteBuffer buf = this.httpExchange.getOutBuffer();
-                int n = decoder.read(buf);
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + n + " bytes read");
-                if (decoder.isCompleted()) {
-                    System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " content fully read");
-                }
-                // If the buffer is full, suspend origin input until there is free
-                // space in the buffer
-                if (!buf.hasRemaining()) {
-                    ioctrl.suspendInput();
-                    System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " suspend origin input");
-                }
-                // If there is some content in the input buffer make sure client
-                // output is active
-                if (buf.position() > 0) {
-                    if (this.httpExchange.getClientIOControl() != null) {
-                        this.httpExchange.getClientIOControl().requestOutput();
-                        System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void responseCompleted(final HttpContext context) {
-            synchronized (this.httpExchange) {
-                if (this.completed) {
-                    return;
-                }
-                this.completed = true;
-                System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " response completed");
-                this.httpExchange.setResponseReceived();
-                if (this.httpExchange.getClientIOControl() != null) {
-                    this.httpExchange.getClientIOControl().requestOutput();
-                    System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " request client output");
-                }
-            }
-        }
-
-        @Override
-        public void failed(final Exception ex) {
-            synchronized (this.httpExchange) {
-                if (this.completed) {
-                    return;
-                }
-                this.completed = true;
-                this.httpExchange.setException(ex);
-                HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
-                if (responseTrigger != null && !responseTrigger.isCompleted()) {
-                    System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
-                    int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    ClassicHttpResponse response = new BasicClassicHttpResponse(status);
-                    String message = ex.getMessage();
-                    if (message == null) {
-                        message = "Unexpected error";
-                    }
-                    response.setEntity(new NStringEntity(message, ContentType.DEFAULT_TEXT));
-                    responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
-                }
-            }
-        }
-
-        @Override
-        public boolean cancel() {
-            synchronized (this.httpExchange) {
-                if (this.completed) {
-                    return false;
-                }
-                failed(new InterruptedIOException("Cancelled"));
-                return true;
-            }
-        }
-
-        @Override
-        public ProxyHttpExchange getResult() {
-            return this.httpExchange;
-        }
-
-        @Override
-        public Exception getException() {
-            return null;
-        }
-
-        @Override
-        public boolean isDone() {
-            return this.completed;
-        }
-
-    }
-
-    static class ProxyResponseProducer implements HttpAsyncResponseProducer {
-
-        private final ProxyHttpExchange httpExchange;
-
-        public ProxyResponseProducer(final ProxyHttpExchange httpExchange) {
-            super();
-            this.httpExchange = httpExchange;
-        }
-
-        @Override
-        public void close() throws IOException {
-            this.httpExchange.reset();
-        }
-
-        @Override
-        public ClassicHttpResponse generateResponse() {
-            synchronized (this.httpExchange) {
-                ClassicHttpResponse response = this.httpExchange.getResponse();
-                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + response.getCode());
-                // Rewrite response!!!!
-                BasicClassicHttpResponse r = new BasicClassicHttpResponse(response.getCode());
-                r.setEntity(response.getEntity());
-                return r;
-            }
-        }
-
-        @Override
-        public void produceContent(
-                final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
-            synchronized (this.httpExchange) {
-                this.httpExchange.setClientIOControl(ioctrl);
-                // Send data to the client
-                ByteBuffer buf = this.httpExchange.getOutBuffer();
-                buf.flip();
-                int n = encoder.write(buf);
-                buf.compact();
-                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + n + " bytes written");
-                // If there is space in the buffer and the message has not been
-                // transferred, make sure the origin is sending more data
-                if (buf.hasRemaining() && !this.httpExchange.isResponseReceived()) {
-                    if (this.httpExchange.getOriginIOControl() != null) {
-                        this.httpExchange.getOriginIOControl().requestInput();
-                        System.out.println("[client<-proxy] " + this.httpExchange.getId() + " request origin input");
-                    }
-                }
-                if (buf.position() == 0) {
-                    if (this.httpExchange.isResponseReceived()) {
-                        encoder.complete();
-                        System.out.println("[client<-proxy] " + this.httpExchange.getId() + " content fully written");
-                    } else {
-                        // Input buffer is empty. Wait until the origin fills up
-                        // the buffer
-                        ioctrl.suspendOutput();
-                        System.out.println("[client<-proxy] " + this.httpExchange.getId() + " suspend client output");
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void responseCompleted(final HttpContext context) {
-            synchronized (this.httpExchange) {
-                System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response completed");
-            }
-        }
-
-        @Override
-        public void failed(final Exception ex) {
-            System.out.println("[client<-proxy] " + ex.toString());
-        }
-
-    }
-
-    static class ProxyIncomingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
-
-        @Override
-        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
-            NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                    HttpCoreContext.HTTP_CONNECTION);
-            boolean keepAlive = super.keepAlive(request, response, context);
-            if (keepAlive) {
-                System.out.println("[client->proxy] connection kept alive " + conn);
-            }
-            return keepAlive;
-        }
-
-    };
-
-    static class ProxyOutgoingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
-
-        @Override
-        public boolean keepAlive(final HttpRequest request, final HttpResponse response, final HttpContext context) {
-            NHttpConnection conn = (NHttpConnection) context.getAttribute(
-                    HttpCoreContext.HTTP_CONNECTION);
-            boolean keepAlive = super.keepAlive(request, response, context);
-            if (keepAlive) {
-                System.out.println("[proxy->origin] connection kept alive " + conn);
-            }
-            return keepAlive;
-        }
-
-    };
-
-    static class ProxyServiceHandler extends HttpAsyncService {
-
-        public ProxyServiceHandler(
-                final HttpProcessor httpProcessor,
-                final ConnectionReuseStrategy reuseStrategy,
-                final HttpAsyncRequestHandlerMapper handlerResolver) {
-            super(httpProcessor, reuseStrategy, null, handlerResolver, null);
-        }
-
-        @Override
-        protected void log(final Exception ex) {
-            ex.printStackTrace();
-        }
-
-        @Override
-        public void connected(final NHttpServerConnection conn) {
-            System.out.println("[client->proxy] connection open " + conn);
-            super.connected(conn);
-        }
-
-        @Override
-        public void closed(final NHttpServerConnection conn) {
-            System.out.println("[client->proxy] connection closed " + conn);
-            super.closed(conn);
-        }
-
-    }
-
-    static class ProxyClientProtocolHandler extends HttpAsyncRequestExecutor {
-
-        public ProxyClientProtocolHandler() {
-            super(HttpAsyncRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE, new ProxyOutgoingConnectionReuseStrategy(), null);
-        }
-
-        @Override
-        protected void log(final Exception ex) {
-            ex.printStackTrace();
-        }
-
-        @Override
-        public void connected(final NHttpClientConnection conn,
-                final Object attachment) throws IOException, HttpException {
-            System.out.println("[proxy->origin] connection open " + conn);
-            super.connected(conn, attachment);
-        }
-
-        @Override
-        public void closed(final NHttpClientConnection conn) {
-            System.out.println("[proxy->origin] connection closed " + conn);
-            super.closed(conn);
-        }
-
-    }
-
-    static class ProxyConnPool extends BasicNIOConnPool {
-
-        public ProxyConnPool(
-                final ConnectingIOReactor ioreactor,
+        ProxyConnPool(
+                final ConnectionInitiator connectionInitiator,
                 final int connectTimeout) {
-            super(ioreactor, connectTimeout);
+            super(connectionInitiator, connectTimeout);
         }
 
         @Override
         public void release(final BasicNIOPoolEntry entry, boolean reusable) {
-            System.out.println("[proxy->origin] connection released " + entry.getConnection());
             super.release(entry, reusable);
             StringBuilder buf = new StringBuilder();
             PoolStats totals = getTotalStats();

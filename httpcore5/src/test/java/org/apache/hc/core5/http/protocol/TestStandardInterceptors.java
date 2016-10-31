@@ -31,21 +31,21 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.entity.BasicHttpEntity;
-import org.apache.hc.core5.http.entity.HttpEntityWithTrailers;
-import org.apache.hc.core5.http.entity.StringEntity;
-import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.io.entity.BasicHttpEntity;
+import org.apache.hc.core5.http.io.entity.HttpEntityWithTrailers;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -568,7 +568,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlEntityUnknownContentLength() throws Exception {
+    public void testResponseConnControlEntityUnknownContentLengthExplicitKeepAlive() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
@@ -580,7 +580,7 @@ public class TestStandardInterceptors {
         interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
-        Assert.assertEquals("close", header.getValue());
+        Assert.assertEquals("keep-alive", header.getValue());
     }
 
     @Test
@@ -749,17 +749,6 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentStatusResetContent() throws Exception {
-        final HttpContext context = new BasicHttpContext(null);
-        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-        response.setCode(HttpStatus.SC_RESET_CONTENT);
-        final ResponseContent interceptor = new ResponseContent();
-        interceptor.process(response, response.getEntity(), context);
-        final Header header = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
-        Assert.assertNull(header);
-    }
-
-    @Test
     public void testResponseContentStatusNotModified() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
@@ -811,7 +800,8 @@ public class TestStandardInterceptors {
         final ResponseContent interceptor = new ResponseContent();
         interceptor.process(response, response.getEntity(), context);
         final Header h1 = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
-        Assert.assertNull(h1);
+        Assert.assertNotNull(h1);
+        Assert.assertEquals("chunked", h1.getValue());
         final Header h2 = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNull(h2);
     }

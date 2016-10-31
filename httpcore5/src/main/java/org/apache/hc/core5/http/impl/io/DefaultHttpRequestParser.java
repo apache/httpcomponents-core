@@ -36,8 +36,7 @@ import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.DefaultHttpRequestFactory;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -58,24 +57,24 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
      * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
      * @param requestFactory the response factory. If {@code null}
-     *   {@link DefaultHttpRequestFactory#INSTANCE} will be used.
+     *   {@link DefaultClassicHttpRequestFactory#INSTANCE} will be used.
      * @param constraints the message constraints. If {@code null}
-     *   {@link MessageConstraints#DEFAULT} will be used.
+     *   {@link H1Config#DEFAULT} will be used.
      *
      * @since 4.3
      */
     public DefaultHttpRequestParser(
             final LineParser lineParser,
             final HttpRequestFactory<ClassicHttpRequest> requestFactory,
-            final MessageConstraints constraints) {
+            final H1Config constraints) {
         super(lineParser, constraints);
-        this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
+        this.requestFactory = requestFactory != null ? requestFactory : DefaultClassicHttpRequestFactory.INSTANCE;
     }
 
     /**
      * @since 4.3
      */
-    public DefaultHttpRequestParser(final MessageConstraints constraints) {
+    public DefaultHttpRequestParser(final H1Config constraints) {
         this(null, null, constraints);
     }
 
@@ -83,7 +82,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
      * @since 4.3
      */
     public DefaultHttpRequestParser() {
-        this(MessageConstraints.DEFAULT);
+        this(H1Config.DEFAULT);
     }
 
     @Override

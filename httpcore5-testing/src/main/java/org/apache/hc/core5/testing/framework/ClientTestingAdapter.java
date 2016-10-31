@@ -44,7 +44,7 @@ import java.util.Map;
 *
 * isRequestSupported
 * modifyRequest
-* execute
+* start
 *
 * </pre>
 *
@@ -67,8 +67,8 @@ public class ClientTestingAdapter {
 
     /*
      * The following is not expected to be changed to true, but it is to highlight
-     * where the execute method can call the requestHandler's assertNothingThrown()
-     * method if desired.  Since this adapter's execute method does not check
+     * where the start method can call the requestHandler's assertNothingThrown()
+     * method if desired.  Since this adapter's start method does not check
      * the response, there is no need to call it.
      */
     protected boolean callAssertNothingThrown;
@@ -88,17 +88,17 @@ public class ClientTestingAdapter {
      * it can optionally call assertNothingThrown() before checking the response
      * further.  It is optional because the test framework will call it later.
      *
-     * @param defaultURI           See execute method of {@link ClientPOJOAdapter}.
-     * @param request              See execute method of {@link ClientPOJOAdapter}.
+     * @param defaultURI           See start method of {@link ClientPOJOAdapter}.
+     * @param request              See start method of {@link ClientPOJOAdapter}.
      * @param requestHandler       The request handler that checks the received HTTP request
      *                             with the request that was intended.  If there is a
      *                             mismatch of expectations, then the requestHandler will
-     *                             throw an exception.  If this execute method does not want
+     *                             throw an exception.  If this start method does not want
      *                             to make further checks of the response in the case
      *                             the responseHandler threw, then the assertNothingThrown()
      *                             method should be called before doing further checks.
      * @param responseExpectations The response expectations of the test.
-     * @return See return of the execute method of {@link ClientPOJOAdapter}.
+     * @return See return of the start method of {@link ClientPOJOAdapter}.
      * @throws TestingFrameworkException in the case of a problem.
      */
     public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,
@@ -109,7 +109,7 @@ public class ClientTestingAdapter {
             if (adapter == null) {
                 throw new TestingFrameworkException("adapter cannot be null");
             }
-            // Call the adapter's execute method to actually make the HTTP request.
+            // Call the adapter's start method to actually make the HTTP request.
             final Map<String, Object> response = adapter.execute(defaultURI, request);
 
             /*

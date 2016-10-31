@@ -30,13 +30,14 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
-import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -56,8 +57,10 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
-            final Http2StreamListener callback) {
-        super(Mode.SERVER, ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charset, h2Config, callback);
+            final ConnectionListener connectionListener,
+            final Http2StreamListener streamListener) {
+        super(Mode.SERVER, ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charset,
+                h2Config, connectionListener, streamListener);
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
     }
 
@@ -67,7 +70,8 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charset, h2Config, null);
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charset,
+                h2Config, null, null);
     }
 
     @Override
@@ -75,7 +79,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics) throws IOException {
-        return new ServerHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory);
+        return new ServerHttp2StreamHandler(this, channel, httpProcessor, connMetrics, exchangeHandlerFactory);
     }
 
 }

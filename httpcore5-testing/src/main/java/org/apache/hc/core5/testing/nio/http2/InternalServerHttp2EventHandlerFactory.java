@@ -32,19 +32,23 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.ServerHttp2StreamMultiplexer;
 import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiator;
-import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.testing.nio.LoggingIOEventHandler;
+import org.apache.hc.core5.testing.nio.LoggingIOSession;
 import org.apache.hc.core5.util.Args;
 
-public class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
+class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
     private static final AtomicLong COUNT = new AtomicLong();
 
@@ -68,15 +72,39 @@ public class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFac
     public IOEventHandler createHandler(final IOSession ioSession) {
         final String id = "http2-incoming-" + COUNT.incrementAndGet();
         final Log sessionLog = LogFactory.getLog(ioSession.getClass());
-        final InternalHttp2StreamListener streamListener = new InternalHttp2StreamListener(id);
-        final ExceptionListener errorListener = new InternalHttpErrorListener(sessionLog);
-        return new ServerHttpProtocolNegotiator(httpProcessor, exchangeHandlerFactory, charset, h2Config, streamListener, errorListener) {
+        return new LoggingIOEventHandler(new ServerHttpProtocolNegotiator(
+                ioSession, httpProcessor, exchangeHandlerFactory, charset, h2Config,
+                new ConnectionListener() {
+
+                    @Override
+                    public void onConnect(final HttpConnection connection) {
+                        if (sessionLog.isDebugEnabled()) {
+                            sessionLog.debug(id + ": "  + connection + " connected");
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnect(final HttpConnection connection) {
+                        if (sessionLog.isDebugEnabled()) {
+                            sessionLog.debug(id + ": "  + connection + " disconnected");
+                        }
+                    }
+
+                    @Override
+                    public void onError(final HttpConnection connection, final Exception ex) {
+                        if (ex instanceof ConnectionClosedException) {
+                            return;
+                        }
+                        sessionLog.error(id + ": "  + ex.getMessage(), ex);
+                    }
+
+                }, new InternalHttp2StreamListener(id)) {
 
             @Override
             protected ServerHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
                 return super.createStreamMultiplexer(new LoggingIOSession(ioSession, id, sessionLog));
             }
-        };
+        }, id, sessionLog);
 
     }
 }

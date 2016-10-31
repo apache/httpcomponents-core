@@ -41,8 +41,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.impl.nio.entity.SharedOutputBuffer;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http2.WritableByteChannelMock;
-import org.apache.hc.core5.http2.nio.DataStreamChannel;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -97,7 +98,7 @@ public class TestSharedOutputBuffer {
         Mockito.verifyZeroInteractions(dataStreamChannel);
 
         Assert.assertEquals(0, outputBuffer.length());
-        Assert.assertEquals(30, outputBuffer.available());
+        Assert.assertEquals(30, outputBuffer.capacity());
 
         final byte[] tmp = "1234567890".getBytes(charset);
         outputBuffer.write(tmp, 0, tmp.length);
@@ -106,7 +107,7 @@ public class TestSharedOutputBuffer {
         outputBuffer.write('2');
 
         Assert.assertEquals(22, outputBuffer.length());
-        Assert.assertEquals(8, outputBuffer.available());
+        Assert.assertEquals(8, outputBuffer.capacity());
 
         Mockito.verifyZeroInteractions(dataStreamChannel);
     }
@@ -122,7 +123,7 @@ public class TestSharedOutputBuffer {
         outputBuffer.flush(dataStreamChannel);
 
         Assert.assertEquals(0, outputBuffer.length());
-        Assert.assertEquals(30, outputBuffer.available());
+        Assert.assertEquals(30, outputBuffer.capacity());
 
         final byte[] tmp = "1234567890".getBytes(charset);
         outputBuffer.write(tmp, 0, tmp.length);
@@ -133,7 +134,7 @@ public class TestSharedOutputBuffer {
         outputBuffer.flush(dataStreamChannel);
 
         Assert.assertEquals(0, outputBuffer.length());
-        Assert.assertEquals(30, outputBuffer.available());
+        Assert.assertEquals(30, outputBuffer.capacity());
     }
 
     @Test

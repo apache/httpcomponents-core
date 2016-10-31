@@ -33,25 +33,29 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.impl.LazyEntityDetails;
+import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
-import org.apache.hc.core5.http2.impl.IncomingEntityDetails;
-import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.util.Asserts;
 
 class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
+    private final HttpConnection connection;
     private final Http2StreamChannel internalOutputChannel;
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
@@ -65,10 +69,12 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
     private volatile MessageState responseState;
 
     ClientPushHttp2StreamHandler(
+            final HttpConnection connection,
             final Http2StreamChannel outputChannel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) {
+        this.connection = connection;
         this.internalOutputChannel = outputChannel;
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
@@ -94,19 +100,25 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
             request = DefaultH2RequestConverter.INSTANCE.convert(headers);
 
+            final AsyncPushConsumer handler;
+            try {
+                handler = pushHandlerFactory != null ? pushHandlerFactory.create(request) : null;
+            } catch (ProtocolException ex) {
+                throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+            }
+            if (handler == null) {
+                throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
+            }
+            exchangeHandler = handler;
+
             context.setProtocolVersion(HttpVersion.HTTP_2);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, this);
+            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
             httpProcessor.process(request, null, context);
             connMetrics.incrementRequestCount();
 
-            exchangeHandler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
-            if (exchangeHandler == null) {
-                releaseResources();
-                throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
-            }
         } else {
-            throw new ProtocolException("Unexpected promise");
+            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected promise");
         }
     }
 
@@ -117,7 +129,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
             Asserts.notNull(exchangeHandler, "Exchange handler");
 
             final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
-            final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(request);
+            final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(request);
 
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, entityDetails, context);

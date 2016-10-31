@@ -27,9 +27,11 @@
 
 package org.apache.hc.core5.testing.classic;
 
+import java.nio.ByteBuffer;
+
 import org.apache.commons.logging.Log;
 
-class Wire {
+public class Wire {
 
     private final Log log;
     private final String id;
@@ -74,11 +76,11 @@ class Wire {
     }
 
     public void output(final byte[] b, final int pos, final int off) {
-        wire("<< ", b, pos, off);
+        wire(">> ", b, pos, off);
     }
 
     public void input(final byte[] b, final int pos, final int off) {
-        wire(">> ", b, pos, off);
+        wire("<< ", b, pos, off);
     }
 
     public void output(final byte[] b) {
@@ -95,6 +97,26 @@ class Wire {
 
     public void input(final int b) {
         input(new byte[] {(byte) b});
+    }
+
+    public void output(final ByteBuffer b) {
+        if (b.hasArray()) {
+            output(b.array(), b.arrayOffset() + b.position(), b.remaining());
+        } else {
+            final byte[] tmp = new byte[b.remaining()];
+            b.get(tmp);
+            output(tmp);
+        }
+    }
+
+    public void input(final ByteBuffer b) {
+        if (b.hasArray()) {
+            input(b.array(), b.arrayOffset() + b.position(), b.remaining());
+        } else {
+            final byte[] tmp = new byte[b.remaining()];
+            b.get(tmp);
+            input(tmp);
+        }
     }
 
 }

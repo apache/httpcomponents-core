@@ -37,7 +37,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http2.nio.CapacityChannel;
+import org.apache.hc.core5.http.impl.nio.entity.SharedInputBuffer;
+import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -199,7 +200,7 @@ public class TestSharedInputBuffer {
 
         Assert.assertEquals(Boolean.TRUE, task1.get(5, TimeUnit.SECONDS));
         Assert.assertEquals("12345678901234567890123456789012345678901234567890", task2.get(5, TimeUnit.SECONDS));
-        Mockito.verify(capacityChannel, Mockito.atLeast(1)).update(10);
+        Mockito.verify(capacityChannel, Mockito.atLeast(1)).update(Mockito.anyInt());
     }
 
     @Test

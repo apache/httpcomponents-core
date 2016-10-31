@@ -36,7 +36,7 @@ import java.nio.charset.CoderResult;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -61,7 +61,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     private final byte[] buffer;
     private final ByteArrayBuffer linebuffer;
     private final int minChunkLimit;
-    private final MessageConstraints constraints;
+    private final H1Config constraints;
     private final CharsetDecoder decoder;
 
     private int bufferpos;
@@ -79,7 +79,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      *   between performance of memory copy operations and that of native method invocation.
      *   If negative default chunk limited will be used.
      * @param constraints Message constraints. If {@code null}
-     *   {@link MessageConstraints#DEFAULT} will be used.
+     *   {@link H1Config#DEFAULT} will be used.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      */
@@ -87,7 +87,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
             final BasicHttpTransportMetrics metrics,
             final int buffersize,
             final int minChunkLimit,
-            final MessageConstraints constraints,
+            final H1Config constraints,
             final CharsetDecoder chardecoder) {
         Args.notNull(metrics, "HTTP transport metrcis");
         Args.positive(buffersize, "Buffer size");
@@ -96,7 +96,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         this.bufferpos = 0;
         this.bufferlen = 0;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
-        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
+        this.constraints = constraints != null ? constraints : H1Config.DEFAULT;
         this.linebuffer = new ByteArrayBuffer(buffersize);
         this.decoder = chardecoder;
     }
@@ -107,7 +107,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         this(metrics, buffersize, buffersize, null, null);
     }
 
-    public SessionInputBufferImpl(final int buffersize, final MessageConstraints constraints) {
+    public SessionInputBufferImpl(final int buffersize, final H1Config constraints) {
         this(new BasicHttpTransportMetrics(), buffersize, buffersize, constraints, null);
     }
 

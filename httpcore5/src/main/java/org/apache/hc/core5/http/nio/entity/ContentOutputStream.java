@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.nio.entity;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.apache.hc.core5.http.nio.ContentOutputBuffer;
 import org.apache.hc.core5.util.Args;
 
 /**

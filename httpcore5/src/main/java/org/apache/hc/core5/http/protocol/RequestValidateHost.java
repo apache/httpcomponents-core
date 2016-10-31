@@ -67,6 +67,8 @@ public class RequestValidateHost implements HttpRequestInterceptor {
             final String authority = header.getValue();
             if (!TextUtils.isBlank(authority)) {
                 request.setAuthority(authority);
+            } else {
+                throw new ProtocolException("Host header is empty");
             }
         } else {
             final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;

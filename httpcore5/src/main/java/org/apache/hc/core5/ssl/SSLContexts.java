@@ -46,7 +46,7 @@ import javax.net.ssl.SSLContext;
  * </a>
  * @since 4.4
  */
-public class SSLContexts {
+public final class SSLContexts {
 
     private SSLContexts() {
         // Do not allow utility class to be instantiated.

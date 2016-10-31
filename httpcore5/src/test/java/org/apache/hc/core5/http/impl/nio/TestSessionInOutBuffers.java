@@ -44,7 +44,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.ByteBufferAllocator;
@@ -139,7 +139,7 @@ public class TestSessionInOutBuffers {
         final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
         final CharArrayBuffer line = new CharArrayBuffer(64);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(128, 128,
-                MessageConstraints.DEFAULT, null, this.allocator);
+                H1Config.DEFAULT, null, this.allocator);
         final ReadableByteChannel channel1 = newChannel(s);
         inbuf1.fill(channel1);
 
@@ -147,7 +147,7 @@ public class TestSessionInOutBuffers {
 
         line.clear();
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(128, 128,
-                MessageConstraints.lineLen(10), null, this.allocator);
+                H1Config.custom().setMaxLineLength(10).build(), null, this.allocator);
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
         try {
@@ -162,7 +162,7 @@ public class TestSessionInOutBuffers {
         final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
         final CharArrayBuffer line = new CharArrayBuffer(64);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(32, 32,
-                MessageConstraints.DEFAULT, null, this.allocator);
+                H1Config.DEFAULT, null, this.allocator);
         final ReadableByteChannel channel1 = newChannel(s);
         inbuf1.fill(channel1);
 
@@ -170,7 +170,7 @@ public class TestSessionInOutBuffers {
 
         line.clear();
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(32, 32,
-                MessageConstraints.lineLen(10), null, this.allocator);
+                H1Config.custom().setMaxLineLength(10).build(), null, this.allocator);
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
         try {

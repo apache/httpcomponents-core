@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.LengthRequiredException;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpMessageParser;
@@ -73,7 +73,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param constraints Message constraints. If {@code null}
-     *   {@link MessageConstraints#DEFAULT} will be used.
+     *   {@link H1Config#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
      * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
@@ -88,7 +88,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final MessageConstraints constraints,
+            final H1Config constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
@@ -109,7 +109,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final MessageConstraints constraints) {
+            final H1Config constraints) {
         this(buffersize, buffersize, chardecoder, charencoder, constraints, null, null, null, null);
     }
 

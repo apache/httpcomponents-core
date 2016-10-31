@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.io.IOException;
 
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.LineFormatter;
@@ -37,12 +37,11 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Default {@link org.apache.hc.core5.http.nio.NHttpMessageWriter} implementation
- * for {@link ClassicHttpResponse}s.
+ * Default {@link org.apache.hc.core5.http.nio.NHttpMessageWriter} implementation for {@link HttpResponse}s.
  *
  * @since 4.1
  */
-public class DefaultHttpResponseWriter extends AbstractMessageWriter<ClassicHttpResponse> {
+public class DefaultHttpResponseWriter<T extends HttpResponse> extends AbstractMessageWriter<T> {
 
     /**
      * Creates an instance of DefaultHttpResponseWriter.
@@ -64,7 +63,7 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<ClassicHttp
     }
 
     @Override
-    protected void writeHeadLine(final ClassicHttpResponse message, final CharArrayBuffer lineBuf) throws IOException {
+    protected void writeHeadLine(final T message, final CharArrayBuffer lineBuf) throws IOException {
         lineBuf.clear();
         ProtocolVersion transportVersion = message.getVersion();
         if (transportVersion == null || transportVersion.greaterEquals(HttpVersion.HTTP_2_0)) {

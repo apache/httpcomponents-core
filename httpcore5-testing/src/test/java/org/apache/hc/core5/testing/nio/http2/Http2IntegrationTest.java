@@ -39,7 +39,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -51,7 +50,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.EntityDetails;
@@ -62,42 +60,46 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.entity.ContentType;
+import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
+import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
+import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;
+import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.AsyncResponseProducer;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.BasicPushProducer;
+import org.apache.hc.core5.http.nio.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.BasicResponseProducer;
+import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.ExpectationChannel;
+import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.support.BasicAsyncPushHandler;
+import org.apache.hc.core5.http.nio.support.ResponseTrigger;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.nio.BasicAsyncPushHandler;
-import org.apache.hc.core5.http2.nio.BasicServerExchangeHandler;
-import org.apache.hc.core5.http2.impl.nio.AbstractClassicServerExchangeHandler;
-import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http2.nio.AsyncResponseProducer;
-import org.apache.hc.core5.http2.nio.AsyncResponseTrigger;
-import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http2.nio.BasicPushProducer;
-import org.apache.hc.core5.http2.nio.BasicRequestProducer;
-import org.apache.hc.core5.http2.nio.BasicResponseConsumer;
-import org.apache.hc.core5.http2.nio.BasicResponseProducer;
-import org.apache.hc.core5.http2.nio.CapacityChannel;
-import org.apache.hc.core5.http2.nio.DataStreamChannel;
-import org.apache.hc.core5.http2.nio.ExpectationChannel;
-import org.apache.hc.core5.http2.nio.ResponseChannel;
-import org.apache.hc.core5.http2.nio.StreamChannel;
-import org.apache.hc.core5.http2.nio.Supplier;
-import org.apache.hc.core5.http2.nio.command.ClientCommandEndpoint;
-import org.apache.hc.core5.http2.nio.entity.AbstractCharAsyncEntityProducer;
-import org.apache.hc.core5.http2.impl.nio.entity.AbstractClassicEntityConsumer;
-import org.apache.hc.core5.http2.impl.nio.entity.AbstractClassicEntityProducer;
-import org.apache.hc.core5.http2.nio.entity.NoopEntityConsumer;
-import org.apache.hc.core5.http2.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http2.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.testing.nio.http.EchoHandler;
+import org.apache.hc.core5.testing.nio.http.MessageExchangeHandler;
+import org.apache.hc.core5.testing.nio.http.MultiLineEntityProducer;
+import org.apache.hc.core5.testing.nio.http.MultiLineResponseHandler;
+import org.apache.hc.core5.testing.nio.http.SingleLineResponseHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 public class Http2IntegrationTest extends InternalServerTestBase {
+
+    private static final long TIMEOUT = 5;
 
     private Http2TestClient client;
 
@@ -121,36 +123,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         }
     }
 
-    static class SingleLineEntityProducer extends StringAsyncEntityProducer {
-
-        SingleLineEntityProducer(final String message) {
-            super(message, ContentType.TEXT_PLAIN);
-        }
-
-    }
-
-    static class SingleLineResponseHandler extends BasicServerExchangeHandler<String> {
-
-        private final String message;
-
-        SingleLineResponseHandler(final String message) {
-            super(new StringAsyncEntityConsumer());
-            this.message = message;
-        }
-
-        @Override
-        protected void handle(
-                final Message<HttpRequest, String> request,
-                final AsyncResponseTrigger responseTrigger) throws IOException, HttpException {
-            responseTrigger.submitResponse(new BasicResponseProducer(
-                    HttpStatus.SC_OK, new SingleLineEntityProducer(message)));
-        }
-
-    }
-
     @Test
     public void testSimpleGet() throws Exception {
-        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -161,14 +136,14 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/hello"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, null),
+                new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
@@ -177,85 +152,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         Assert.assertEquals("Hi there", entity1);
     }
 
-    static class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
-
-        private final String text;
-        private final int total;
-        private final CharBuffer charbuf;
-
-        private int count;
-
-        MultiLineEntityProducer(final String text, final int total) {
-            super(1024, ContentType.TEXT_PLAIN);
-            this.text = text;
-            this.total = total;
-            this.charbuf = CharBuffer.allocate(4096);
-            this.count = 0;
-        }
-
-        @Override
-        public long getContentLength() {
-            return -1;
-        }
-
-        @Override
-        protected void dataStart(final StreamChannel<CharBuffer> channel) throws IOException {
-            produceData(channel);
-        }
-
-        @Override
-        public int available() {
-            return Integer.MAX_VALUE;
-        }
-
-        @Override
-        protected void produceData(final StreamChannel<CharBuffer> channel) throws IOException {
-            while (charbuf.remaining() > text.length() + 2 && count < total) {
-                charbuf.put(text + "\r\n");
-                count++;
-            }
-            if (charbuf.position() > 0) {
-                charbuf.flip();
-                channel.write(charbuf);
-                charbuf.compact();
-            }
-            if (count >= total && charbuf.position() == 0) {
-                channel.endStream();
-            }
-        }
-
-        @Override
-        public void releaseResources() {
-        }
-
-    }
-
-    static class MultiLineResponseHandler extends BasicServerExchangeHandler<String> {
-
-        private final String message;
-        private final int count;
-
-        MultiLineResponseHandler(final String message, final int count) {
-            super(new StringAsyncEntityConsumer());
-            this.message = message;
-            this.count = count;
-        }
-
-        @Override
-        protected void handle(
-                final Message<HttpRequest, String> request,
-                final AsyncResponseTrigger responseTrigger) throws IOException, HttpException {
-            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-            responseTrigger.submitResponse(new BasicResponseProducer(
-                    response,
-                    new MultiLineEntityProducer(message, count)));
-        }
-
-    }
-
     @Test
     public void testLargeGet() throws Exception {
-        server.registerHandler("/", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -266,20 +165,19 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, null),
+                new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/"), null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
-        final HttpRequest request2 = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/"));
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
-                new BasicRequestProducer(request2, null),
+                new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer(512)), null);
 
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -291,7 +189,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
             Assert.assertEquals("0123456789abcdef", t1.nextToken());
         }
 
-        final Message<HttpResponse, String> result2 = future2.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         Assert.assertNotNull(response2);
@@ -306,7 +204,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testBasicPost() throws Exception {
-        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -317,14 +215,15 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/hello"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new SingleLineEntityProducer("Hi there")),
+                new BasicRequestProducer(request1, new BasicAsyncEntityProducer("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
@@ -333,123 +232,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         Assert.assertEquals("Hi back", entity1);
     }
 
-    static class EchoHandler implements AsyncServerExchangeHandler {
-
-        private volatile ByteBuffer buffer;
-        private volatile CapacityChannel inputCapacityChannel;
-        private volatile DataStreamChannel outputDataChannel;
-        private volatile boolean endStream;
-
-        EchoHandler(final int bufferSize) {
-            this.buffer = ByteBuffer.allocate(bufferSize);
-        }
-
-        private void ensureCapacity(final int chunk) {
-            if (buffer.remaining() < chunk) {
-                final ByteBuffer oldBuffer = buffer;
-                oldBuffer.flip();
-                buffer = ByteBuffer.allocate(oldBuffer.remaining() + (chunk > 2048 ? chunk : 2048));
-                buffer.put(oldBuffer);
-            }
-        }
-
-        @Override
-        public void verify(
-                final HttpRequest request,
-                final EntityDetails entityDetails,
-                final ExpectationChannel expectationChannel) throws HttpException, IOException {
-            expectationChannel.sendContinue();
-        }
-
-        @Override
-        public void handleRequest(
-                final HttpRequest request,
-                final EntityDetails entityDetails,
-                final ResponseChannel responseChannel) throws HttpException, IOException {
-            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-            responseChannel.sendResponse(response, entityDetails);
-        }
-
-        @Override
-        public void consume(final ByteBuffer src) throws IOException {
-            if (buffer.position() == 0) {
-                if (outputDataChannel != null) {
-                    outputDataChannel.write(src);
-                }
-            }
-            if (src.hasRemaining()) {
-                ensureCapacity(src.remaining());
-                buffer.put(src);
-                if (outputDataChannel != null) {
-                    outputDataChannel.requestOutput();
-                }
-            }
-        }
-
-        @Override
-        public int capacity() {
-            return buffer.remaining();
-        }
-
-        @Override
-        public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-            if (buffer.hasRemaining()) {
-                capacityChannel.update(buffer.remaining());
-                inputCapacityChannel = null;
-            } else {
-                inputCapacityChannel = capacityChannel;
-            }
-        }
-
-        @Override
-        public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
-            endStream = true;
-            if (buffer.position() == 0) {
-                if (outputDataChannel != null) {
-                    outputDataChannel.endStream();
-                }
-            } else {
-                if (outputDataChannel != null) {
-                    outputDataChannel.requestOutput();
-                }
-            }
-        }
-
-        @Override
-        public int available() {
-            return buffer.position();
-        }
-
-        @Override
-        public void produce(final DataStreamChannel channel) throws IOException {
-            outputDataChannel = channel;
-            buffer.flip();
-            if (buffer.hasRemaining()) {
-                channel.write(buffer);
-            }
-            buffer.compact();
-            if (buffer.position() == 0 && endStream) {
-                channel.endStream();
-            }
-            final CapacityChannel capacityChannel = inputCapacityChannel;
-            if (capacityChannel != null && buffer.hasRemaining()) {
-                capacityChannel.update(buffer.remaining());
-            }
-        }
-
-        @Override
-        public void failed(final Exception cause) {
-        }
-
-        @Override
-        public void releaseResources() {
-        }
-
-    }
-
     @Test
     public void testLargePost() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -460,14 +245,15 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                new BasicRequestProducer("POST", createRequestURI(serverEndpoint, "/echo"),
+                        new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -482,7 +268,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testSlowResponseConsumer() throws Exception {
-        server.registerHandler("/", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -493,12 +279,12 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start(H2Config.custom().setInitialWindowSize(16).build());
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, null),
+                new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/"), null),
                 new BasicResponseConsumer<>(new AbstractClassicEntityConsumer<String>(16, Executors.newSingleThreadExecutor()) {
 
                     @Override
@@ -509,7 +295,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                             charset = StandardCharsets.US_ASCII;
                         }
 
-                        final StringBuffer buffer = new StringBuffer();
+                        final StringBuilder buffer = new StringBuilder();
                         try {
                             final byte[] tmp = new byte[16];
                             int l;
@@ -526,7 +312,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                 }),
                 null);
 
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -541,7 +327,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testSlowRequestProducer() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -552,8 +338,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
@@ -581,7 +368,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
                 }),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -596,7 +383,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testSlowResponseProducer() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -607,7 +394,8 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                             final HttpRequest request,
                             final InputStream requestStream,
                             final HttpResponse response,
-                            final OutputStream responseStream) throws IOException, HttpException {
+                            final OutputStream responseStream,
+                            final HttpContext context) throws IOException, HttpException {
 
                         if (!"/hello".equals(request.getPath())) {
                             response.setCode(HttpStatus.SC_NOT_FOUND);
@@ -658,14 +446,15 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                 .setInitialWindowSize(512)
                 .build());
 
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/hello"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcd", 2000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -681,25 +470,23 @@ public class Http2IntegrationTest extends InternalServerTestBase {
     @Test
     public void testPush() throws Exception {
         final InetSocketAddress serverEndpoint = server.start();
-        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<Void>(new NoopEntityConsumer()) {
-
-
+                return new MessageExchangeHandler<Void>(new NoopEntityConsumer()) {
 
                     @Override
                     protected void handle(
                             final Message<HttpRequest, Void> request,
-                            final AsyncResponseTrigger responseTrigger) throws IOException, HttpException {
-
+                            final ResponseTrigger responseTrigger,
+                            final HttpContext context) throws IOException, HttpException {
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/stuff")),
                                 new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
-                                new SingleLineEntityProducer("Hi there")));
+                                new BasicAsyncEntityProducer("Hi there")));
                     }
                 };
             }
@@ -709,7 +496,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         client.start(H2Config.custom().setPushEnabled(true).build());
 
         final BlockingQueue<Message<HttpResponse, String>> pushMessageQueue = new LinkedBlockingDeque<>();
-        client.registerHandler("*", new Supplier<AsyncPushConsumer>() {
+        client.register("*", new Supplier<AsyncPushConsumer>() {
 
             @Override
             public AsyncPushConsumer get() {
@@ -732,13 +519,14 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
         });
 
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
@@ -762,20 +550,21 @@ public class Http2IntegrationTest extends InternalServerTestBase {
     public void testPushRefused() throws Exception {
         final BlockingQueue<Exception> pushResultQueue = new LinkedBlockingDeque<>();
         final InetSocketAddress serverEndpoint = server.start();
-        server.registerHandler("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<Void>(new NoopEntityConsumer()) {
+                return new MessageExchangeHandler<Void>(new NoopEntityConsumer()) {
 
                     @Override
                     protected void handle(
                             final Message<HttpRequest, Void> request,
-                            final AsyncResponseTrigger responseTrigger) throws IOException, HttpException {
+                            final ResponseTrigger responseTrigger,
+                            final HttpContext context) throws IOException, HttpException {
 
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/stuff")),
-                                new BasicPushProducer(new SingleLineEntityProducer("Pushing all sorts of stuff")) {
+                                new BasicPushProducer(new BasicAsyncEntityProducer("Pushing all sorts of stuff")) {
 
                             @Override
                             public void failed(final Exception cause) {
@@ -797,7 +586,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                         });
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
-                                new SingleLineEntityProducer("Hi there")));
+                                new BasicAsyncEntityProducer("Hi there")));
                     }
                 };
             }
@@ -806,13 +595,14 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
         client.start(H2Config.custom().setPushEnabled(true).build());
 
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
@@ -833,7 +623,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testExcessOfConcurrentStreams() throws Exception {
-        server.registerHandler("/", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
@@ -844,8 +634,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom().setMaxConcurrentStreams(20).build());
 
         client.start(H2Config.custom().setMaxConcurrentStreams(20).build());
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, Void>>> queue = new LinkedList<>();
         for (int i = 0; i < 2000; i++) {
@@ -858,7 +649,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, Void>> future = queue.remove();
-            final Message<HttpResponse, Void> result = future.get(5, TimeUnit.SECONDS);
+            final Message<HttpResponse, Void> result = future.get(TIMEOUT, TimeUnit.SECONDS);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             Assert.assertNotNull(response);
@@ -867,15 +658,17 @@ public class Http2IntegrationTest extends InternalServerTestBase {
     }
 
     @Test
-    public void testExpecationFailed() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
+    public void testExpectationFailed() throws Exception {
+        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<String>(new StringAsyncEntityConsumer()) {
+                return new MessageExchangeHandler<Void>(new NoopEntityConsumer()) {
 
                     @Override
-                    protected AsyncResponseProducer verify(final HttpRequest request) throws IOException, HttpException {
+                    protected AsyncResponseProducer verify(
+                            final HttpRequest request,
+                            final HttpContext context) throws IOException, HttpException {
                         final Header h = request.getFirstHeader("password");
                         if (h != null && "secret".equals(h.getValue())) {
                             return null;
@@ -886,8 +679,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
                     @Override
                     protected void handle(
-                            final Message<HttpRequest, String> request,
-                            final AsyncResponseTrigger responseTrigger) throws IOException, HttpException {
+                            final Message<HttpRequest, Void> request,
+                            final ResponseTrigger responseTrigger,
+                            final HttpContext context) throws IOException, HttpException {
                         responseTrigger.submitResponse(
                                 new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
 
@@ -899,15 +693,16 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         request1.addHeader("password", "secret");
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -918,7 +713,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result2 = future2.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         Assert.assertNotNull(response2);
@@ -928,14 +723,17 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Test
     public void testPrematureResponse() throws Exception {
-        server.registerHandler("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
                 return new AsyncServerExchangeHandler() {
 
                     private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
-                    private final AtomicBoolean dataStarted = new AtomicBoolean(false);
+
+                    @Override
+                    public void setContext(final HttpContext context) {
+                    }
 
                     @Override
                     public void verify(
@@ -946,17 +744,13 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                     }
 
                     @Override
-                    public int capacity() {
-                        return Integer.MAX_VALUE;
-                    }
-
-                    @Override
                     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
                         capacityChannel.update(Integer.MAX_VALUE);
                     }
 
                     @Override
-                    public void consume(final ByteBuffer src) throws IOException {
+                    public int consume(final ByteBuffer src) throws IOException {
+                        return Integer.MAX_VALUE;
                     }
 
                     @Override
@@ -988,9 +782,6 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                     @Override
                     public void produce(final DataStreamChannel channel) throws IOException {
                         final AsyncResponseProducer producer = this.responseProducer.get();
-                        if (dataStarted.compareAndSet(false, true)) {
-                            producer.dataStart(channel);
-                        }
                         producer.produce(channel);
                     }
 
@@ -1008,14 +799,15 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientCommandEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), 5000);
-        final ClientCommandEndpoint streamEndpoint = connectFuture.get();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(5, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);

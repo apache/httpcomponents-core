@@ -218,7 +218,7 @@ class IOSessionImpl implements IOSession, SocketAccessor {
 
     @Override
     public boolean isClosed() {
-        return this.status.get() == CLOSED;
+        return this.status.get() == CLOSED || !this.channel.isOpen();
     }
 
     @Override
@@ -321,10 +321,7 @@ class IOSessionImpl implements IOSession, SocketAccessor {
 
     @Override
     public Socket getSocket() {
-        if (this.channel instanceof SocketChannel) {
-            return ((SocketChannel) this.channel).socket();
-        }
-        return null;
+        return this.channel.socket();
     }
 
     @Override

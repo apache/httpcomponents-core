@@ -50,9 +50,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.bootstrap.io.HttpServer;
-import org.apache.hc.core5.http.bootstrap.io.ServerBootstrap;
 import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.impl.io.bootstrap.HttpServer;
+import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap;
 
 /**
  * <p>This testing framework starts an in-process {@link HttpServer} which will use an

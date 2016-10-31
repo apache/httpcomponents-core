@@ -31,8 +31,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
-import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.DefaultHttpRequestFactory;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.message.LazyLineParser;
@@ -55,7 +54,7 @@ public class DefaultHttpRequestParserFactory implements HttpMessageParserFactory
             final HttpRequestFactory requestFactory) {
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
-        this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
+        this.requestFactory = requestFactory != null ? requestFactory : DefaultClassicHttpRequestFactory.INSTANCE;
     }
 
     public DefaultHttpRequestParserFactory() {
@@ -63,7 +62,7 @@ public class DefaultHttpRequestParserFactory implements HttpMessageParserFactory
     }
 
     @Override
-    public HttpMessageParser<ClassicHttpRequest> create(final MessageConstraints constraints) {
+    public HttpMessageParser<ClassicHttpRequest> create(final H1Config constraints) {
         return new DefaultHttpRequestParser(this.lineParser, this.requestFactory, constraints);
     }
 

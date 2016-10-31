@@ -58,7 +58,7 @@ public interface SessionOutputBuffer {
      *
      * @return available space.
      */
-    int available();
+    int capacity();
 
     /**
      * Returns the length of this buffer.

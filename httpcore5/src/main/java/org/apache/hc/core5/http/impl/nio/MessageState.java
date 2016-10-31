@@ -26,8 +26,4 @@
  */
 package org.apache.hc.core5.http.impl.nio;
 
-enum MessageState {
-
-    READY, INIT, ACK_EXPECTED, BODY_STREAM, COMPLETED
-
-}
+public enum MessageState { IDLE, HEADERS, ACK, BODY, COMPLETE }

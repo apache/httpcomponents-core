@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
+import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -110,7 +110,7 @@ public class HttpServer {
                         final HttpService httpService = new HttpService(
                                 httpproc,
                                 DefaultConnectionReuseStrategy.INSTANCE,
-                                DefaultHttpResponseFactory.INSTANCE,
+                                DefaultClassicHttpResponseFactory.INSTANCE,
                                 reqistry,
                                 null);
                         // Start worker thread

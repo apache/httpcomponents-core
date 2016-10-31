@@ -31,16 +31,22 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Set;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpResponseInterceptor;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
@@ -50,20 +56,11 @@ import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
+import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.http.protocol.ResponseConnControl;
-import org.apache.hc.core5.http.protocol.ResponseContent;
-import org.apache.hc.core5.http.protocol.ResponseDate;
-import org.apache.hc.core5.http.protocol.ResponseServer;
 
 /**
  * Elemental HTTP/1.1 reverse proxy.
@@ -91,19 +88,27 @@ public class ElementalReverseProxy {
         t.start();
     }
 
+    private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
+            HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
+            HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
+            "Keep-Alive".toLowerCase(Locale.ROOT),
+            "Proxy-Authenticate".toLowerCase(Locale.ROOT),
+            HttpHeaders.TE.toLowerCase(Locale.ROOT),
+            HttpHeaders.TRAILER.toLowerCase(Locale.ROOT),
+            HttpHeaders.UPGRADE.toLowerCase(Locale.ROOT))));
+
+
     static class ProxyHandler implements HttpRequestHandler  {
 
-        private final HttpHost target;
         private final HttpProcessor httpproc;
         private final HttpRequestExecutor httpexecutor;
         private final ConnectionReuseStrategy connStrategy;
 
         public ProxyHandler(
-                final HttpHost target,
                 final HttpProcessor httpproc,
                 final HttpRequestExecutor httpexecutor) {
             super();
-            this.target = target;
             this.httpproc = httpproc;
             this.httpexecutor = httpexecutor;
             this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
@@ -111,8 +116,8 @@ public class ElementalReverseProxy {
 
         @Override
         public void handle(
-                final ClassicHttpRequest request,
-                final ClassicHttpResponse response,
+                final ClassicHttpRequest incomingRequest,
+                final ClassicHttpResponse outgoingResponse,
                 final HttpContext context) throws HttpException, IOException {
 
             final HttpClientConnection conn = (HttpClientConnection) context.getAttribute(
@@ -120,38 +125,31 @@ public class ElementalReverseProxy {
 
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
-            System.out.println(">> Request URI: " + request.getPath());
+            System.out.println(">> Request URI: " + incomingRequest.getPath());
 
-            // Remove hop-by-hop headers
-            request.removeHeaders(HttpHeaders.CONTENT_LENGTH);
-            request.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
-            request.removeHeaders(HttpHeaders.CONNECTION);
-            request.removeHeaders("Keep-Alive");
-            request.removeHeaders("Proxy-Authenticate");
-            request.removeHeaders(HttpHeaders.TE);
-            request.removeHeaders(HttpHeaders.TRAILER);
-            request.removeHeaders(HttpHeaders.UPGRADE);
+            ClassicHttpRequest outgoingRequest = new BasicClassicHttpRequest(incomingRequest.getMethod(), incomingRequest.getPath());
+            for (Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
+                Header header = it.next();
+                if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
+                    outgoingRequest.addHeader(header);
+                }
+            }
+            this.httpexecutor.preProcess(outgoingRequest, this.httpproc, context);
+            final ClassicHttpResponse incomingResponse = this.httpexecutor.execute(outgoingRequest, conn, context);
+            this.httpexecutor.postProcess(incomingResponse, this.httpproc, context);
 
-            this.httpexecutor.preProcess(request, this.httpproc, context);
-            final ClassicHttpResponse targetResponse = this.httpexecutor.execute(request, conn, context);
-            this.httpexecutor.postProcess(response, this.httpproc, context);
+            outgoingResponse.setCode(incomingResponse.getCode());
+            for (Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
+                Header header = it.next();
+                if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
+                    outgoingResponse.addHeader(header);
+                }
+            }
+            outgoingResponse.setEntity(incomingResponse.getEntity());
 
-            // Remove hop-by-hop headers
-            targetResponse.removeHeaders(HttpHeaders.CONTENT_LENGTH);
-            targetResponse.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
-            targetResponse.removeHeaders(HttpHeaders.CONNECTION);
-            targetResponse.removeHeaders("Keep-Alive");
-            targetResponse.removeHeaders("TE");
-            targetResponse.removeHeaders("Trailers");
-            targetResponse.removeHeaders("Upgrade");
+            System.out.println("<< Response: " + outgoingResponse.getCode());
 
-            response.setCode(targetResponse.getCode());
-            response.setHeaders(targetResponse.getAllHeaders());
-            response.setEntity(targetResponse.getEntity());
-
-            System.out.println("<< Response: " + response.getCode());
-
-            final boolean keepalive = this.connStrategy.keepAlive(request, response, context);
+            final boolean keepalive = this.connStrategy.keepAlive(incomingRequest, outgoingResponse, context);
             context.setAttribute(HTTP_CONN_KEEPALIVE, new Boolean(keepalive));
         }
 
@@ -168,33 +166,17 @@ public class ElementalReverseProxy {
             this.serversocket = new ServerSocket(port);
 
             // Set up HTTP protocol processor for incoming connections
-            final HttpProcessor inhttpproc = new DefaultHttpProcessor(
-                    new HttpRequestInterceptor[] {
-                            new RequestContent(),
-                            new RequestTargetHost(),
-                            new RequestConnControl(),
-                            new RequestUserAgent("Test/1.1"),
-                            new RequestExpectContinue()
-             });
+            final HttpProcessor inhttpproc = HttpProcessors.client();
 
             // Set up HTTP protocol processor for outgoing connections
-            final HttpProcessor outhttpproc = new DefaultHttpProcessor(
-                    new HttpResponseInterceptor[] {
-                            new ResponseDate(),
-                            new ResponseServer("Test/1.1"),
-                            new ResponseContent(),
-                            new ResponseConnControl()
-            });
+            final HttpProcessor outhttpproc = HttpProcessors.server();
 
             // Set up outgoing request executor
             final HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
             // Set up incoming request handler
             final UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
-            reqistry.register("*", new ProxyHandler(
-                    this.target,
-                    outhttpproc,
-                    httpexecutor));
+            reqistry.register("*", new ProxyHandler(outhttpproc, httpexecutor));
 
             // Set up the HTTP service
             this.httpService = new HttpService(inhttpproc, reqistry);

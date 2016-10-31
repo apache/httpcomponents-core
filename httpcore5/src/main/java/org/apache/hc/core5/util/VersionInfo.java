@@ -301,7 +301,7 @@ public class VersionInfo {
     }
 
     /**
-     * Sets the user agent to {@code "<name>/<release> (Java/<java.version>)"}. If release is
+     * Gets software information as {@code "<name>/<release> (Java/<java.version>)"}. If release is
      * {@link #UNAVAILABLE}, it will be omitted.
      * <p>
      * For example:
@@ -315,7 +315,7 @@ public class VersionInfo {
      *            the class' class loader to load from, or {@code null} for the thread context class loader
      * @since 4.3
      */
-    public static String getUserAgent(final String name, final String pkg, final Class<?> cls) {
+    public static String getSoftwareInfo(final String name, final String pkg, final Class<?> cls) {
         // determine the release version from packaged version info
         final VersionInfo vi = VersionInfo.loadVersionInfo(pkg, cls.getClassLoader());
         final String release = (vi != null) ? vi.getRelease() : VersionInfo.UNAVAILABLE;
@@ -329,4 +329,4 @@ public class VersionInfo {
         return String.format("%s (Java/%s)", nameAndRelease, javaVersion);
     }
 
-} // class VersionInfo
+}

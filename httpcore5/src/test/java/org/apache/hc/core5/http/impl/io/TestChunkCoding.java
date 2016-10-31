@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.TruncatedChunkException;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicHeader;
@@ -300,14 +300,14 @@ public class TestChunkCoding {
     @Test
     public void testTooLongChunkHeader() throws IOException {
         final String s = "5; and some very looooong commend\r\n12345\r\n0\r\n";
-        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16, MessageConstraints.DEFAULT);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16, H1Config.DEFAULT);
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in1 = new ChunkedInputStream(inbuffer1, inputStream1);
         final byte[] buffer = new byte[300];
         Assert.assertEquals(5, in1.read(buffer));
         in1.close();
 
-        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16, MessageConstraints.lineLen(10));
+        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16, H1Config.custom().setMaxLineLength(10).build());
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in2 = new ChunkedInputStream(inbuffer2, inputStream2);
         try {

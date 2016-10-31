@@ -41,7 +41,6 @@ public class PrintVersionInfo {
     /** A default list of module packages. */
     private final static String[] MODULE_LIST = {
         "org.apache.http",              // HttpCore
-        "org.apache.http.nio",          // HttpCore NIO
         "org.apache.http.client",       // HttpClient
     };
 

@@ -27,65 +27,62 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.StatusLine;
+import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Default {@link org.apache.hc.core5.http.nio.NHttpMessageParser} implementation
- * for {@link ClassicHttpResponse}s.
+ * Default {@link org.apache.hc.core5.http.nio.NHttpMessageParser} implementation for {@link HttpResponse}s.
  *
  * @since 4.1
  */
-public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttpResponse> {
+public class DefaultHttpResponseParser<T extends HttpResponse> extends AbstractMessageParser<T> {
 
-    private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
+    private final HttpResponseFactory<T> responseFactory;
 
     /**
      * Creates an instance of DefaultHttpResponseParser.
      *
+     * @param responseFactory the response factory.
      * @param parser the line parser. If {@code null}
      *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param responseFactory the response factory. If {@code null}
-     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
      * @param constraints Message constraints. If {@code null}
-     *   {@link MessageConstraints#DEFAULT} will be used.
+     *   {@link H1Config#DEFAULT} will be used.
      *
      * @since 4.3
      */
     public DefaultHttpResponseParser(
+            final HttpResponseFactory<T> responseFactory,
             final LineParser parser,
-            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
-            final MessageConstraints constraints) {
+            final H1Config constraints) {
         super(parser, constraints);
-        this.responseFactory = responseFactory != null ? responseFactory :
-            DefaultHttpResponseFactory.INSTANCE;
+        this.responseFactory = Args.notNull(responseFactory, "Response factory");
     }
 
     /**
      * @since 4.3
      */
-    public DefaultHttpResponseParser(final MessageConstraints constraints) {
-        this(null, null, constraints);
+    public DefaultHttpResponseParser(final HttpResponseFactory<T> responseFactory, final H1Config constraints) {
+        this(responseFactory, null, constraints);
     }
 
     /**
      * @since 4.3
      */
-    public DefaultHttpResponseParser() {
-        this(null);
+    public DefaultHttpResponseParser(final HttpResponseFactory<T> responseFactory) {
+        this(responseFactory, null);
     }
 
     @Override
-    protected ClassicHttpResponse createMessage(final CharArrayBuffer buffer) throws HttpException {
+    protected T createMessage(final CharArrayBuffer buffer) throws HttpException {
         final StatusLine statusLine = getLineParser().parseStatusLine(buffer);
         final ProtocolVersion transportVersion = statusLine.getProtocolVersion();
         if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {

@@ -28,38 +28,40 @@ package org.apache.hc.core5.http.examples;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLDecoder;
+import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import javax.net.ssl.SSLContext;
-
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.MethodNotSupportedException;
-import org.apache.hc.core5.http.bootstrap.nio.HttpServer;
-import org.apache.hc.core5.http.bootstrap.nio.ServerBootstrap;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestConsumer;
-import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseProducer;
-import org.apache.hc.core5.http.nio.HttpAsyncExchange;
-import org.apache.hc.core5.http.nio.HttpAsyncRequestConsumer;
-import org.apache.hc.core5.http.nio.HttpAsyncRequestHandler;
-import org.apache.hc.core5.http.nio.entity.NFileEntity;
-import org.apache.hc.core5.http.nio.entity.NStringEntity;
+import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
+import org.apache.hc.core5.http.nio.BasicRequestConsumer;
+import org.apache.hc.core5.http.nio.BasicResponseProducer;
+import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
+import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
+import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
+import org.apache.hc.core5.http.nio.support.ResponseHandler;
+import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.reactor.ListenerEndpoint;
 
 /**
- * Embedded HTTP/1.1 file server based on a non-blocking I/O model and capable of direct channel
- * (zero copy) data transfer.
+ * Asynchronous embedded HTTP/1.1 file server.
  */
 public class NHttpFileServer {
 
@@ -69,23 +71,10 @@ public class NHttpFileServer {
             System.exit(1);
         }
         // Document root directory
-        File docRoot = new File(args[0]);
+        final File docRoot = new File(args[0]);
         int port = 8080;
         if (args.length >= 2) {
             port = Integer.parseInt(args[1]);
-        }
-
-        SSLContext sslcontext = null;
-        if (port == 8443) {
-            // Initialize SSL context
-            URL url = NHttpFileServer.class.getResource("/my.keystore");
-            if (url == null) {
-                System.out.println("Keystore not found");
-                System.exit(1);
-            }
-            sslcontext = SSLContexts.custom()
-                    .loadKeyMaterial(url, "secret".toCharArray(), "secret".toCharArray())
-                    .build();
         }
 
         IOReactorConfig config = IOReactorConfig.custom()
@@ -93,96 +82,122 @@ public class NHttpFileServer {
                 .setTcpNoDelay(true)
                 .build();
 
-        final HttpServer server = ServerBootstrap.bootstrap()
-                .setListenerPort(port)
-                .setServerInfo("Test/1.1")
+        final HttpAsyncServer server = ServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .setSslContext(sslcontext)
-                .setExceptionListener(ExceptionListener.STD_ERR)
-                .registerHandler("*", new HttpFileHandler(docRoot))
-                .create();
+                .setExceptionListener(new ExceptionListener() {
 
-        server.start();
-        server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+                    @Override
+                    public void onError(final Exception ex) {
+                        if (ex instanceof ConnectionClosedException) {
+                            return;
+                        }
+                        if (ex instanceof SocketTimeoutException) {
+                            System.out.println("Timeout");
+                        } else if (ex instanceof IOException) {
+                            System.out.println("I/O error: " + ex.getMessage());
+                        } else {
+                            ex.printStackTrace();
+                        }
+                    }
+                })
+                .setConnectionListener(new ConnectionListener() {
+
+                    @Override
+                    public void onConnect(final HttpConnection connection) {
+                        System.out.println(connection + " connected");
+                    }
+
+                    @Override
+                    public void onError(final HttpConnection connection, final Exception ex) {
+                        System.err.println(connection + " error: " + ex.getMessage());
+                    }
+
+                    @Override
+                    public void onDisconnect(final HttpConnection connection) {
+                        System.out.println(connection + " disconnected");
+                    }
+
+                })
+                .register("*", new RequestConsumerSupplier<Message<HttpRequest, Void>>() {
+
+                    @Override
+                    public AsyncRequestConsumer<Message<HttpRequest, Void>> get(
+                            final HttpRequest request,
+                            final HttpContext context) throws HttpException {
+                        return new BasicRequestConsumer<>(new NoopEntityConsumer());
+                    }
+
+                }, new ResponseHandler<Message<HttpRequest, Void>>() {
+
+                    @Override
+                    public void handle(
+                            final Message<HttpRequest, Void> message,
+                            final ResponseTrigger responseTrigger,
+                            final HttpContext context) throws HttpException, IOException {
+                        HttpRequest request = message.getHead();
+                        URI requestUri;
+                        try {
+                            requestUri = request.getUri();
+                        } catch (URISyntaxException ex) {
+                            throw new ProtocolException(ex.getMessage(), ex);
+                        }
+                        String path = requestUri.getPath();
+                        final File file = new File(docRoot, path);
+                        if (!file.exists()) {
+
+                            System.out.println("File " + file.getPath() + " not found");
+                            responseTrigger.submitResponse(new BasicResponseProducer(
+                                    HttpStatus.SC_NOT_FOUND,
+                                    "<html><body><h1>File" + file.getPath() +
+                                            " not found</h1></body></html>",
+                                    ContentType.TEXT_HTML));
+
+                        } else if (!file.canRead() || file.isDirectory()) {
+
+                            System.out.println("Cannot read file " + file.getPath());
+                            responseTrigger.submitResponse(new BasicResponseProducer(
+                                    HttpStatus.SC_FORBIDDEN,
+                                    "<html><body><h1>Access denied</h1></body></html>",
+                                    ContentType.TEXT_HTML));
+
+                        } else {
+
+                            final ContentType contentType;
+                            final String filename = file.getName().toLowerCase(Locale.ROOT);
+                            if (filename.endsWith(".txt")) {
+                                contentType = ContentType.TEXT_PLAIN;
+                            } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {
+                                contentType = ContentType.TEXT_HTML;
+                            } else if (filename.endsWith(".xml")) {
+                                contentType = ContentType.TEXT_XML;
+                            } else {
+                                contentType = ContentType.DEFAULT_BINARY;
+                            }
+
+                            final HttpConnection connection = (HttpConnection) context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
+
+                            System.out.println(connection + " serving file " + file.getPath());
+                            responseTrigger.submitResponse(new BasicResponseProducer(
+                                    HttpStatus.SC_OK, new FileEntityProducer(file, contentType)));
+                        }
+                    }
+
+                })
+                .create();
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
+                System.out.println("HTTP server shutting down");
                 server.shutdown(5, TimeUnit.SECONDS);
             }
         });
 
-    }
-
-    static class HttpFileHandler implements HttpAsyncRequestHandler<ClassicHttpRequest> {
-
-        private final File docRoot;
-
-        public HttpFileHandler(final File docRoot) {
-            super();
-            this.docRoot = docRoot;
-        }
-
-        @Override
-        public HttpAsyncRequestConsumer<ClassicHttpRequest> processRequest(
-                final ClassicHttpRequest request,
-                final HttpContext context) {
-            // Buffer request content in memory for simplicity
-            return new BasicAsyncRequestConsumer();
-        }
-
-        @Override
-        public void handle(
-                final ClassicHttpRequest request,
-                final HttpAsyncExchange httpexchange,
-                final HttpContext context) throws HttpException, IOException {
-            ClassicHttpResponse response = httpexchange.getResponse();
-            handleInternal(request, response, context);
-            httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
-        }
-
-        private void handleInternal(
-                final ClassicHttpRequest request,
-                final ClassicHttpResponse response,
-                final HttpContext context) throws HttpException, IOException {
-
-            String method = request.getMethod().toUpperCase(Locale.ENGLISH);
-            if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
-                throw new MethodNotSupportedException(method + " method not supported");
-            }
-
-            String path = request.getPath();
-            final File file = new File(this.docRoot, URLDecoder.decode(path, "UTF-8"));
-            if (!file.exists()) {
-
-                response.setCode(HttpStatus.SC_NOT_FOUND);
-                NStringEntity entity = new NStringEntity(
-                        "<html><body><h1>File" + file.getPath() +
-                        " not found</h1></body></html>",
-                        ContentType.create("text/html", "UTF-8"));
-                response.setEntity(entity);
-                System.out.println("File " + file.getPath() + " not found");
-
-            } else if (!file.canRead() || file.isDirectory()) {
-
-                response.setCode(HttpStatus.SC_FORBIDDEN);
-                NStringEntity entity = new NStringEntity(
-                        "<html><body><h1>Access denied</h1></body></html>",
-                        ContentType.create("text/html", "UTF-8"));
-                response.setEntity(entity);
-                System.out.println("Cannot read file " + file.getPath());
-
-            } else {
-
-                HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                HttpConnection conn = coreContext.getConnection(HttpConnection.class);
-                response.setCode(HttpStatus.SC_OK);
-                NFileEntity body = new NFileEntity(file, ContentType.create("text/html"));
-                response.setEntity(body);
-                System.out.println(conn + ": serving file " + file.getPath());
-            }
-        }
-
+        server.start();
+        ListenerEndpoint listenerEndpoint = server.listen(new InetSocketAddress(port));
+        listenerEndpoint.waitFor();
+        System.out.print("Listening on " + listenerEndpoint.getAddress());
+        server.awaitShutdown(Long.MAX_VALUE, TimeUnit.DAYS);
     }
 
 }

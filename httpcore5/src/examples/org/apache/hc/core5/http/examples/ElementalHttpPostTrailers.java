@@ -30,36 +30,27 @@ package org.apache.hc.core5.http.examples;
 import java.net.Socket;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.entity.EntityUtils;
-import org.apache.hc.core5.http.entity.HttpEntityWithTrailers;
-import org.apache.hc.core5.http.entity.StringEntity;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
-import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.HttpEntityWithTrailers;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
 
 /**
  * Elemental example for executing POST request with trailing headers
  */
 public class ElementalHttpPostTrailers {
     public static void main(String[] args) throws Exception {
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
-                .add(new RequestContent())
-                .add(new RequestTargetHost())
-                .add(new RequestConnControl())
-                .add(new RequestUserAgent("Test/1.1"))
-                .build();
+        HttpProcessor httpproc = HttpProcessors.client();
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
         HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost host = new HttpHost("localhost", 8080);

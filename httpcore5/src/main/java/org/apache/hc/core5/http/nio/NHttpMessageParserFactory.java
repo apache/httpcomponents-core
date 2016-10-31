@@ -28,15 +28,15 @@
 package org.apache.hc.core5.http.nio;
 
 import org.apache.hc.core5.http.MessageHeaders;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 
 /**
- * Factory for {@link org.apache.hc.core5.http.nio.NHttpMessageParser} instances.
+ * Factory for {@link NHttpMessageParser} instances.
  *
  * @since 4.3
  */
 public interface NHttpMessageParserFactory<T extends MessageHeaders> {
 
-    NHttpMessageParser<T> create(MessageConstraints constraints);
+    NHttpMessageParser<T> create(H1Config constraints);
 
 }

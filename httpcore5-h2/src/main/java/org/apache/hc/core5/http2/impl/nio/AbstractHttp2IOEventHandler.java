@@ -27,19 +27,21 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
-import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.reactor.IOEventHandler;
+import java.io.IOException;
+import java.net.SocketAddress;
+
+import org.apache.hc.core5.http.HttpConnectionMetrics;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
-class AbstractHttp2IOEventHandler implements IOEventHandler {
+class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
 
     private final AbstractHttp2StreamMultiplexer streamMultiplexer;
-    private final ExceptionListener errorListener;
 
-    AbstractHttp2IOEventHandler(final AbstractHttp2StreamMultiplexer streamMultiplexer, final ExceptionListener errorListener) {
+    AbstractHttp2IOEventHandler(final AbstractHttp2StreamMultiplexer streamMultiplexer) {
         this.streamMultiplexer = Args.notNull(streamMultiplexer, "Stream multiplexer");
-        this.errorListener = errorListener;
     }
 
     @Override
@@ -48,9 +50,6 @@ class AbstractHttp2IOEventHandler implements IOEventHandler {
             streamMultiplexer.onConnect(null);
         } catch (final Exception ex) {
             streamMultiplexer.onException(ex);
-            if (errorListener != null) {
-                errorListener.onError(ex);
-            }
         }
     }
 
@@ -60,9 +59,6 @@ class AbstractHttp2IOEventHandler implements IOEventHandler {
             streamMultiplexer.onInput();
         } catch (final Exception ex) {
             streamMultiplexer.onException(ex);
-            if (errorListener != null) {
-                errorListener.onError(ex);
-            }
         }
     }
 
@@ -72,9 +68,6 @@ class AbstractHttp2IOEventHandler implements IOEventHandler {
             streamMultiplexer.onOutput();
         } catch (final Exception ex) {
             streamMultiplexer.onException(ex);
-            if (errorListener != null) {
-                errorListener.onError(ex);
-            }
         }
     }
 
@@ -84,14 +77,61 @@ class AbstractHttp2IOEventHandler implements IOEventHandler {
             streamMultiplexer.onTimeout();
         } catch (final Exception ex) {
             streamMultiplexer.onException(ex);
-            if (errorListener != null) {
-                errorListener.onError(ex);
-            }
         }
     }
 
     @Override
     public void disconnected(final IOSession session) {
+        streamMultiplexer.onDisconnect();
     }
 
+    @Override
+    public void close() throws IOException {
+        streamMultiplexer.close();
+    }
+
+    @Override
+    public void shutdown() throws IOException {
+        streamMultiplexer.shutdown();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return streamMultiplexer.isOpen();
+    }
+
+    @Override
+    public void setSocketTimeout(final int timeout) {
+        streamMultiplexer.setSocketTimeout(timeout);
+    }
+
+    @Override
+    public HttpConnectionMetrics getMetrics() {
+        return streamMultiplexer.getMetrics();
+    }
+
+    @Override
+    public int getSocketTimeout() {
+        return streamMultiplexer.getSocketTimeout();
+    }
+
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        return streamMultiplexer.getProtocolVersion();
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() {
+        return streamMultiplexer.getRemoteAddress();
+    }
+
+    @Override
+    public SocketAddress getLocalAddress() {
+        return streamMultiplexer.getLocalAddress();
+    }
+
+    @Override
+    public String toString() {
+        return streamMultiplexer.toString();
+    }
 }

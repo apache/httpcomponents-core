@@ -33,8 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Test;
@@ -168,19 +166,6 @@ public class TestURLEncodedUtils {
         assertNameValuePair(result.get(0), "name", "%wa ");
     }
 
-    @Test
-    public void testParseEntity() throws Exception {
-        final StringEntity entity = new StringEntity("Name1=Value1");
-
-        entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
-        final List <NameValuePair> result = URLEncodedUtils.parse(entity);
-        Assert.assertEquals(1, result.size());
-        assertNameValuePair(result.get(0), "Name1", "Value1");
-
-        entity.setContentType("text/test");
-        Assert.assertTrue(URLEncodedUtils.parse(entity).isEmpty());
-    }
-
     private static final int SWISS_GERMAN_HELLO [] = {
         0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
     };
@@ -198,27 +183,6 @@ public class TestURLEncodedUtils {
             }
         }
         return buffer.toString();
-    }
-
-    @Test
-    public void testParseUTF8Entity() throws Exception {
-        final String ru_hello = constructString(RUSSIAN_HELLO);
-        final String ch_hello = constructString(SWISS_GERMAN_HELLO);
-        final List <NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("russian", ru_hello));
-        parameters.add(new BasicNameValuePair("swiss", ch_hello));
-
-        final String s = URLEncodedUtils.format(parameters, StandardCharsets.UTF_8);
-
-        Assert.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
-                "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);
-
-        final StringEntity entity = new StringEntity(s, ContentType.create(
-                URLEncodedUtils.CONTENT_TYPE, StandardCharsets.UTF_8));
-        final List <NameValuePair> result = URLEncodedUtils.parse(entity);
-        Assert.assertEquals(2, result.size());
-        assertNameValuePair(result.get(0), "russian", ru_hello);
-        assertNameValuePair(result.get(1), "swiss", ch_hello);
     }
 
     @Test
@@ -265,40 +229,6 @@ public class TestURLEncodedUtils {
         Assert.assertEquals(2, result2.size());
         assertNameValuePair(result2.get(0), "russian", ru_hello);
         assertNameValuePair(result2.get(1), "swiss", ch_hello);
-    }
-
-    @Test
-    public void testParseEntityDefaultContentType() throws Exception {
-        final String ch_hello = constructString(SWISS_GERMAN_HELLO);
-        final String us_hello = "hi there";
-        final List <NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("english", us_hello));
-        parameters.add(new BasicNameValuePair("swiss", ch_hello));
-
-        final String s = URLEncodedUtils.format(parameters, StandardCharsets.ISO_8859_1);
-
-        Assert.assertEquals("english=hi+there&swiss=Gr%FCezi_z%E4m%E4", s);
-
-        final StringEntity entity = new StringEntity(s, ContentType.create(
-                URLEncodedUtils.CONTENT_TYPE, StandardCharsets.ISO_8859_1));
-        final List <NameValuePair> result = URLEncodedUtils.parse(entity);
-        Assert.assertEquals(2, result.size());
-        assertNameValuePair(result.get(0), "english", us_hello);
-        assertNameValuePair(result.get(1), "swiss", ch_hello);
-    }
-
-    @Test
-    public void testIsEncoded() throws Exception {
-        final StringEntity entity = new StringEntity("...");
-
-        entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
-        Assert.assertTrue(URLEncodedUtils.isEncoded(entity));
-
-        entity.setContentType(URLEncodedUtils.CONTENT_TYPE + "; charset=US-ASCII");
-        Assert.assertTrue(URLEncodedUtils.isEncoded(entity));
-
-        entity.setContentType("text/test");
-        Assert.assertFalse(URLEncodedUtils.isEncoded(entity));
     }
 
     @Test

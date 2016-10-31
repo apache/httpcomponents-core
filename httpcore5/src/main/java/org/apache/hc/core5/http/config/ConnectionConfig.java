@@ -36,7 +36,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
- * HTTP connection configuration.
+ * HTTP/1.1 connection configuration.
  *
  * @since 4.3
  */
@@ -50,22 +50,19 @@ public class ConnectionConfig {
     private final Charset charset;
     private final CodingErrorAction malformedInputAction;
     private final CodingErrorAction unmappableInputAction;
-    private final MessageConstraints messageConstraints;
 
     ConnectionConfig(
             final int bufferSize,
             final int fragmentSizeHint,
             final Charset charset,
             final CodingErrorAction malformedInputAction,
-            final CodingErrorAction unmappableInputAction,
-            final MessageConstraints messageConstraints) {
+            final CodingErrorAction unmappableInputAction) {
         super();
         this.bufferSize = bufferSize;
         this.fragmentSizeHint = fragmentSizeHint;
         this.charset = charset;
         this.malformedInputAction = malformedInputAction;
         this.unmappableInputAction = unmappableInputAction;
-        this.messageConstraints = messageConstraints;
     }
 
     public int getBufferSize() {
@@ -88,10 +85,6 @@ public class ConnectionConfig {
         return unmappableInputAction;
     }
 
-    public MessageConstraints getMessageConstraints() {
-        return messageConstraints;
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -100,7 +93,6 @@ public class ConnectionConfig {
                 .append(", charset=").append(this.charset)
                 .append(", malformedInputAction=").append(this.malformedInputAction)
                 .append(", unmappableInputAction=").append(this.unmappableInputAction)
-                .append(", messageConstraints=").append(this.messageConstraints)
                 .append("]");
         return builder.toString();
     }
@@ -116,8 +108,7 @@ public class ConnectionConfig {
             .setCharset(config.getCharset())
             .setFragmentSizeHint(config.getFragmentSizeHint())
             .setMalformedInputAction(config.getMalformedInputAction())
-            .setUnmappableInputAction(config.getUnmappableInputAction())
-            .setMessageConstraints(config.getMessageConstraints());
+            .setUnmappableInputAction(config.getUnmappableInputAction());
     }
 
     public static class Builder {
@@ -127,7 +118,6 @@ public class ConnectionConfig {
         private Charset charset;
         private CodingErrorAction malformedInputAction;
         private CodingErrorAction unmappableInputAction;
-        private MessageConstraints messageConstraints;
 
         Builder() {
             this.fragmentSizeHint = -1;
@@ -164,11 +154,6 @@ public class ConnectionConfig {
             return this;
         }
 
-        public Builder setMessageConstraints(final MessageConstraints messageConstraints) {
-            this.messageConstraints = messageConstraints;
-            return this;
-        }
-
         public ConnectionConfig build() {
             Charset cs = charset;
             if (cs == null && (malformedInputAction != null || unmappableInputAction != null)) {
@@ -181,8 +166,7 @@ public class ConnectionConfig {
                     fragmentHintSize,
                     cs,
                     malformedInputAction,
-                    unmappableInputAction,
-                    messageConstraints);
+                    unmappableInputAction);
         }
 
     }

@@ -52,8 +52,7 @@ import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.pool.PoolEntryCallback;
 import org.apache.hc.core5.pool.PoolStats;
-import org.apache.hc.core5.reactor.ConnectingIOReactor;
-import org.apache.hc.core5.reactor.IOReactorStatus;
+import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
@@ -73,7 +72,7 @@ import org.apache.hc.core5.util.Asserts;
 public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                                                   implements ConnPool<T, E>, ConnPoolControl<T> {
 
-    private final ConnectingIOReactor ioreactor;
+    private final ConnectionInitiator connectionInitiator;
     private final NIOConnFactory<T, C> connFactory;
     private final SocketAddressResolver<T> addressResolver;
     private final SessionRequestCallback sessionRequestCallback;
@@ -94,18 +93,18 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
      * @since 4.3
      */
     public AbstractNIOConnPool(
-            final ConnectingIOReactor ioreactor,
+            final ConnectionInitiator connectionInitiator,
             final NIOConnFactory<T, C> connFactory,
             final SocketAddressResolver<T> addressResolver,
             final int defaultMaxPerRoute,
             final int maxTotal) {
         super();
-        Args.notNull(ioreactor, "I/O reactor");
+        Args.notNull(connectionInitiator, "I/O reactor");
         Args.notNull(connFactory, "Connection factory");
         Args.notNull(addressResolver, "Address resolver");
         Args.positive(defaultMaxPerRoute, "Max per route value");
         Args.positive(maxTotal, "Max total value");
-        this.ioreactor = ioreactor;
+        this.connectionInitiator = connectionInitiator;
         this.connFactory = connFactory;
         this.addressResolver = addressResolver;
         this.sessionRequestCallback = new InternalSessionRequestCallback();
@@ -146,8 +145,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         return this.isShutDown.get();
     }
 
-    public void shutdown(final long deadline, final TimeUnit timeUnit) throws IOException {
-        Args.notNull(timeUnit, "Time unit");
+    public void shutdown() {
         if (this.isShutDown.compareAndSet(false, true)) {
             fireCallbacks();
             this.lock.lock();
@@ -169,7 +167,6 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 this.pending.clear();
                 this.available.clear();
                 this.leasingRequests.clear();
-                this.ioreactor.shutdown(deadline, timeUnit);
             } finally {
                 this.lock.unlock();
             }
@@ -372,7 +369,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 return false;
             }
 
-            final SessionRequest sessionRequest = this.ioreactor.connect(
+            final SessionRequest sessionRequest = this.connectionInitiator.connect(
                     remoteAddress, localAddress, route, this.sessionRequestCallback);
             final int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
                     (int) request.getConnectTimeout() : Integer.MAX_VALUE;
@@ -459,9 +456,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             this.pending.remove(request);
             final RouteSpecificPool<T, C, E> pool = getPool(route);
             pool.cancelled(request);
-            if (this.ioreactor.getStatus().compareTo(IOReactorStatus.ACTIVE) <= 0) {
-                processNextPendingRequest();
-            }
+            processNextPendingRequest();
         } finally {
             this.lock.unlock();
         }

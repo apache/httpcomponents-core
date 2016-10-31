@@ -38,10 +38,10 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.entity.EntityUtils;
-import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
 
@@ -136,7 +136,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             client.setTimeout((int) timeout);
         }
 
-        // Now execute the request.
+        // Now start the request.
         final DefaultBHttpClientConnection conn = client.createConnection();
         final HttpHost host = new HttpHost(uri.getHost(), uri.getPort());
 

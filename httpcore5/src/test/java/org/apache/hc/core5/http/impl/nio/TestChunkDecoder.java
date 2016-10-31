@@ -36,8 +36,9 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
+import org.apache.hc.core5.http.ReadableByteChannelMock;
 import org.apache.hc.core5.http.TruncatedChunkException;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.junit.Assert;
@@ -407,7 +408,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.DEFAULT, null, null);
+                H1Config.DEFAULT, null, null);
         final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
@@ -423,7 +424,7 @@ public class TestChunkDecoder {
                 new String[] {s}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.lineLen(10), null, null);
+                H1Config.custom().setMaxLineLength(10).build(), null, null);
         final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
@@ -444,7 +445,7 @@ public class TestChunkDecoder {
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
+                H1Config.DEFAULT, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
@@ -460,7 +461,7 @@ public class TestChunkDecoder {
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.lineLen(25), StandardCharsets.US_ASCII);
+                H1Config.custom().setMaxLineLength(25).build(), StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
@@ -479,7 +480,7 @@ public class TestChunkDecoder {
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
+                H1Config.DEFAULT, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
@@ -492,7 +493,9 @@ public class TestChunkDecoder {
         Assert.assertNotNull(footers);
         Assert.assertEquals(1, footers.length);
 
-        final MessageConstraints constraints = MessageConstraints.lineLen(25);
+        final H1Config constraints = H1Config.custom()
+                .setMaxLineLength(25)
+                .build();
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
@@ -515,7 +518,7 @@ public class TestChunkDecoder {
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256,
-                MessageConstraints.DEFAULT, StandardCharsets.US_ASCII);
+                H1Config.DEFAULT, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics1 = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder1 = new ChunkDecoder(channel1, inbuf1, metrics1);
 
@@ -528,7 +531,7 @@ public class TestChunkDecoder {
         Assert.assertNotNull(footers);
         Assert.assertEquals(4, footers.length);
 
-        final MessageConstraints constraints = MessageConstraints.custom()
+        final H1Config constraints = H1Config.custom()
                 .setMaxHeaderCount(3).build();
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);

@@ -26,133 +26,86 @@
  */
 package org.apache.hc.core5.http.examples;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
+import java.net.URI;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.ConnectionConfig;
-import org.apache.hc.core5.http.impl.nio.BasicAsyncRequestProducer;
-import org.apache.hc.core5.http.impl.nio.BasicAsyncResponseConsumer;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpClientIOEventHandlerFactory;
-import org.apache.hc.core5.http.impl.nio.HttpAsyncRequestExecutor;
-import org.apache.hc.core5.http.impl.nio.HttpAsyncRequester;
-import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.pool.nio.BasicNIOConnPool;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
+import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http.impl.nio.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.nio.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.reactor.ConnectingIOReactor;
-import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 
 /**
- * Minimal asynchronous HTTP/1.1 client.
- * <p>
- * Please note that this example represents a minimal HTTP client implementation.
- * It does not support HTTPS as is.
- * You either need to provide BasicNIOConnPool with a connection factory
- * that supports SSL or use a more complex HttpAsyncClient.
+ * Asynchronous HTTP/1.1 request executor.
  */
 public class NHttpClient {
 
     public static void main(String[] args) throws Exception {
-        // Create HTTP protocol processing chain
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
-                // Use standard client-side protocol interceptors
-                .add(new RequestContent())
-                .add(new RequestTargetHost())
-                .add(new RequestConnControl())
-                .add(new RequestUserAgent("Test/1.1"))
-                .add(new RequestExpectContinue()).build();
-        // Create client-side HTTP protocol handler
-        HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
-        // Create client-side I/O event handler factory
-        final IOEventHandlerFactory eventHandlerFactory = new DefaultHttpClientIOEventHandlerFactory(
-                protocolHandler,
-                ConnectionConfig.DEFAULT);
-        // Create client-side I/O reactor
-        final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(
-                eventHandlerFactory,
-                IOReactorConfig.DEFAULT);
-        // Create HTTP connection pool
-        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor);
-        // Limit total number of connections to just two
-        pool.setDefaultMaxPerRoute(2);
-        pool.setMaxTotal(2);
-        // Run the I/O reactor in a separate thread
-        Thread t = new Thread(new Runnable() {
 
+        // Create and start requester
+        final HttpAsyncRequester requester = RequesterBootstrap.bootstrap().create();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                try {
-                    // Ready to go!
-                    ioReactor.execute();
-                } catch (InterruptedIOException ex) {
-                    System.err.println("Interrupted");
-                } catch (IOException e) {
-                    System.err.println("I/O error: " + e.getMessage());
-                }
-                System.out.println("Shutdown");
+                System.out.println("HTTP requester shutting down");
+                requester.shutdown(3, TimeUnit.SECONDS);
             }
-
         });
-        // Start the client thread
-        t.start();
-        // Create HTTP requester
-        HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
+        requester.start();
+
         // Execute HTTP GETs to the following hosts and
         HttpHost[] targets = new HttpHost[] {
                 new HttpHost("www.apache.org", 80, "http"),
-                new HttpHost("www.verisign.com", 443, "https"),
-                new HttpHost("www.google.com", 80, "http")
+                new HttpHost("hc.apache.org", 80, "http")
         };
+
         final CountDownLatch latch = new CountDownLatch(targets.length);
         for (final HttpHost target: targets) {
-            ClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
+            final Future<ClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+            final ClientEndpoint clientEndpoint = future.get();
             HttpCoreContext coreContext = HttpCoreContext.create();
-            requester.execute(
-                    new BasicAsyncRequestProducer(target, request),
-                    new BasicAsyncResponseConsumer(),
-                    pool,
-                    coreContext,
-                    // Handle HTTP response from a callback
-                    new FutureCallback<ClassicHttpResponse>() {
+            clientEndpoint.execute(
+                    new BasicRequestProducer("GET", URI.create("/")),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                    coreContext, new FutureCallback<Message<HttpResponse, String>>() {
 
-                @Override
-                public void completed(final ClassicHttpResponse response) {
-                    latch.countDown();
-                    System.out.println(target + "->" + response.getCode());
-                }
+                        @Override
+                        public void completed(final Message<HttpResponse, String> message) {
+                            latch.countDown();
+                            clientEndpoint.shutdown(ShutdownType.IMMEDIATE);
+                            HttpResponse response = message.getHead();
+                            System.out.println(target + "->" + response.getCode());
+                        }
 
-                @Override
-                public void failed(final Exception ex) {
-                    latch.countDown();
-                    System.out.println(target + "->" + ex);
-                }
+                        @Override
+                        public void failed(final Exception ex) {
+                            latch.countDown();
+                            clientEndpoint.shutdown(ShutdownType.IMMEDIATE);
+                            System.out.println(target + "->" + ex);
+                        }
 
-                @Override
-                public void cancelled() {
-                    latch.countDown();
-                    System.out.println(target + " cancelled");
-                }
+                        @Override
+                        public void cancelled() {
+                            latch.countDown();
+                            clientEndpoint.shutdown(ShutdownType.IMMEDIATE);
+                            System.out.println(target + " cancelled");
+                        }
 
-            });
+                    });
         }
+
         latch.await();
         System.out.println("Shutting down I/O reactor");
-        ioReactor.shutdown(3, TimeUnit.SECONDS);
-        System.out.println("Done");
+        requester.initiateShutdown();
     }
 
 }

@@ -88,7 +88,7 @@ public class Common {
                         "org.apache.hc.core5.concurrent",
                         "org.apache.hc.core5.http",
                         "org.apache.hc.core5.http.config",
-                        "org.apache.hc.core5.http.entity",
+                        "org.apache.hc.core5.http.io.entity",
                         "org.apache.hc.core5.http.message",
                         "org.apache.hc.core5.http.protocol",
                         "org.apache.hc.core5.http.impl",

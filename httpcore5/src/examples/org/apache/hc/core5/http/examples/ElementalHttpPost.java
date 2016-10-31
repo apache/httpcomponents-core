@@ -31,28 +31,23 @@ import java.io.ByteArrayInputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.entity.ByteArrayEntity;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.entity.EntityUtils;
-import org.apache.hc.core5.http.entity.InputStreamEntity;
-import org.apache.hc.core5.http.entity.StringEntity;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
 
 /**
  * Elemental example for executing multiple POST requests sequentially.
@@ -60,13 +55,7 @@ import org.apache.hc.core5.http.protocol.RequestUserAgent;
 public class ElementalHttpPost {
 
     public static void main(String[] args) throws Exception {
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
-            .add(new RequestContent())
-            .add(new RequestTargetHost())
-            .add(new RequestConnControl())
-            .add(new RequestUserAgent("Test/1.1"))
-            .add(new RequestExpectContinue()).build();
-
+        HttpProcessor httpproc = HttpProcessors.client();
         HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
         HttpCoreContext coreContext = HttpCoreContext.create();

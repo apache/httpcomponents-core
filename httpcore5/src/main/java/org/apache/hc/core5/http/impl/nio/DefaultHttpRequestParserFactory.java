@@ -29,10 +29,9 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
-import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.DefaultHttpRequestFactory;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
@@ -44,27 +43,30 @@ import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactory<ClassicHttpRequest> {
+public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactory<HttpRequest> {
 
     public static final DefaultHttpRequestParserFactory INSTANCE = new DefaultHttpRequestParserFactory();
 
     private final LineParser lineParser;
-    private final HttpRequestFactory requestFactory;
+    private final HttpRequestFactory<HttpRequest> requestFactory;
 
-    public DefaultHttpRequestParserFactory(final LineParser lineParser,
-            final HttpRequestFactory requestFactory) {
+    public DefaultHttpRequestParserFactory(final HttpRequestFactory<HttpRequest> requestFactory, final LineParser lineParser) {
         super();
-        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
+    }
+
+    public DefaultHttpRequestParserFactory(final HttpRequestFactory<HttpRequest> requestFactory) {
+        this(requestFactory, null);
     }
 
     public DefaultHttpRequestParserFactory() {
-        this(null, null);
+        this(null);
     }
 
     @Override
-    public NHttpMessageParser<ClassicHttpRequest> create(final MessageConstraints constraints) {
-        return new DefaultHttpRequestParser(lineParser, requestFactory, constraints);
+    public NHttpMessageParser<HttpRequest> create(final H1Config constraints) {
+        return new DefaultHttpRequestParser<>(requestFactory, lineParser, constraints);
     }
 
 }

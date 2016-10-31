@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http2.nio.ResourceHolder;
+import org.apache.hc.core5.http.nio.ResourceHolder;
 
 interface Http2StreamHandler extends ResourceHolder {
 

@@ -159,7 +159,7 @@ public class ExpandableBuffer {
      *
      * @return buffer length.
      */
-    public int available() {
+    public int capacity() {
         setInputMode();
         return this.buffer.remaining();
     }

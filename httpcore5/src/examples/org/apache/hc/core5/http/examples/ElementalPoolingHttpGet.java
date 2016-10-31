@@ -35,22 +35,17 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.entity.EntityUtils;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
+import org.apache.hc.core5.http.impl.io.pool.BasicConnFactory;
+import org.apache.hc.core5.http.impl.io.pool.BasicConnPool;
+import org.apache.hc.core5.http.impl.io.pool.BasicPoolEntry;
 import org.apache.hc.core5.http.io.HttpClientConnection;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.pool.io.BasicConnFactory;
-import org.apache.hc.core5.http.pool.io.BasicConnPool;
-import org.apache.hc.core5.http.pool.io.BasicPoolEntry;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
 
 /**
  * Elemental example for executing multiple GET requests from different threads using a connection
@@ -59,13 +54,7 @@ import org.apache.hc.core5.http.protocol.RequestUserAgent;
 public class ElementalPoolingHttpGet {
 
     public static void main(String[] args) throws Exception {
-        final HttpProcessor httpproc = HttpProcessorBuilder.create()
-            .add(new RequestContent())
-            .add(new RequestTargetHost())
-            .add(new RequestConnControl())
-            .add(new RequestUserAgent("Test/1.1"))
-            .add(new RequestExpectContinue()).build();
-
+        final HttpProcessor httpproc = HttpProcessors.client();
         final HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
 
         final BasicConnPool pool = new BasicConnPool(new BasicConnFactory());

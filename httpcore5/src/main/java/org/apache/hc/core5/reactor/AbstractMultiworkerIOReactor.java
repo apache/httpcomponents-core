@@ -397,6 +397,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @since 5.0
      */
     public void enumSessions(final IOSessionCallback callback) throws IOException {
+        if (callback == null) {
+            return;
+        }
         for (BaseIOReactor dispatcher: dispatchers) {
             if (dispatcher != null) {
                 dispatcher.enumSessions(callback);

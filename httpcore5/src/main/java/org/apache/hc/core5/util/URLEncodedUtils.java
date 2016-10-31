@@ -27,10 +27,6 @@
 
 package org.apache.hc.core5.util;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -41,9 +37,7 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.entity.ContentType;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.http.message.TokenParser;
@@ -88,61 +82,6 @@ public class URLEncodedUtils {
             return parse(query, charset);
         }
         return Collections.emptyList();
-    }
-
-    /**
-     * Returns a list of {@link NameValuePair NameValuePairs} as parsed from an {@link HttpEntity}.
-     * The encoding is taken from the entity's Content-Encoding header.
-     * <p>
-     * This is typically used while parsing an HTTP POST.
-     *
-     * @param entity
-     *            The entity to parse
-     * @return a list of {@link NameValuePair} as built from the URI's query portion.
-     * @throws IOException
-     *             If there was an exception getting the entity's data.
-     */
-    public static List <NameValuePair> parse(
-            final HttpEntity entity) throws IOException {
-        Args.notNull(entity, "HTTP entity");
-        final ContentType contentType = ContentType.get(entity);
-        if (contentType == null || !contentType.getMimeType().equalsIgnoreCase(CONTENT_TYPE)) {
-            return Collections.emptyList();
-        }
-        final long len = entity.getContentLength();
-        Args.check(len <= Integer.MAX_VALUE, "HTTP entity is too large");
-        final Charset charset = contentType.getCharset() != null ? contentType.getCharset() : StandardCharsets.ISO_8859_1;
-        final InputStream instream = entity.getContent();
-        if (instream == null) {
-            return Collections.emptyList();
-        }
-        final CharArrayBuffer buf;
-        try {
-            buf = new CharArrayBuffer(len > 0 ? (int) len : 1024);
-            final Reader reader = new InputStreamReader(instream, charset);
-            final char[] tmp = new char[1024];
-            int l;
-            while((l = reader.read(tmp)) != -1) {
-                buf.append(tmp, 0, l);
-            }
-
-        } finally {
-            instream.close();
-        }
-        if (buf.length() == 0) {
-            return Collections.emptyList();
-        }
-        return parse(buf, charset, QP_SEP_A);
-    }
-
-    /**
-     * Returns true if the entity's Content-Type header is
-     * {@code application/x-www-form-urlencoded}.
-     */
-    public static boolean isEncoded(final HttpEntity entity) {
-        Args.notNull(entity, "HTTP entity");
-        final ContentType contentType = ContentType.parse(entity.getContentType());
-        return contentType != null && CONTENT_TYPE.equalsIgnoreCase(contentType.getMimeType());
     }
 
     /**

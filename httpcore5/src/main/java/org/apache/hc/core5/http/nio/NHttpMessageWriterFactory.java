@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.nio;
 import org.apache.hc.core5.http.MessageHeaders;
 
 /**
- * Factory for {@link org.apache.hc.core5.http.nio.NHttpMessageWriter} instances.
+ * Factory for {@link NHttpMessageWriter} instances.
  *
  * @since 4.3
  */

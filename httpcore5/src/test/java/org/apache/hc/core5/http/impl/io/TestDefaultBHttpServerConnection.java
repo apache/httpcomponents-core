@@ -37,9 +37,9 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.entity.StringEntity;
+import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.junit.Assert;
@@ -61,7 +61,7 @@ public class TestDefaultBHttpServerConnection {
         MockitoAnnotations.initMocks(this);
         conn = new DefaultBHttpServerConnection(1024, 1024,
             null, null,
-            MessageConstraints.DEFAULT,
+            H1Config.DEFAULT,
             DefaultContentLengthStrategy.INSTANCE,
             DefaultContentLengthStrategy.INSTANCE,
             DefaultHttpRequestParserFactory.INSTANCE,

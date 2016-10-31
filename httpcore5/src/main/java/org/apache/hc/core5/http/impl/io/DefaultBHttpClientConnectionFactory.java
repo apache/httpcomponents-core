@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
@@ -94,7 +95,7 @@ public class DefaultBHttpClientConnectionFactory
                 this.cconfig.getFragmentSizeHint(),
                 ConnSupport.createDecoder(this.cconfig),
                 ConnSupport.createEncoder(this.cconfig),
-                this.cconfig.getMessageConstraints(),
+                H1Config.DEFAULT,
                 this.incomingContentStrategy,
                 this.outgoingContentStrategy,
                 this.requestWriterFactory,

@@ -28,49 +28,83 @@
 package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
+import java.nio.channels.SelectionKey;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http2.bootstrap.nio.AsyncRequester;
-import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
-import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.MisdirectedRequestException;
+import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
+import org.apache.hc.core5.http2.bootstrap.Http2Processors;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http2.nio.HandlerFactory;
-import org.apache.hc.core5.http2.nio.Supplier;
-import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
-import org.apache.hc.core5.http2.protocol.H2RequestContent;
-import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionCallback;
+import org.apache.hc.core5.reactor.SessionRequest;
+import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
 
 public class Http2TestClient extends AsyncRequester {
 
     private final UriPatternMatcher<Supplier<AsyncPushConsumer>> pushHandlerMatcher;
 
-    public Http2TestClient() throws IOException {
-        super(new InternalHttpErrorListener(LogFactory.getLog(Http2TestClient.class)));
+    public Http2TestClient(final IOReactorConfig ioReactorConfig) throws IOException {
+        super(ioReactorConfig, new ExceptionListener() {
+
+            private final Log log = LogFactory.getLog(Http2TestClient.class);
+
+            @Override
+            public void onError(final Exception ex) {
+                log.error(ex.getMessage(), ex);
+            }
+
+        }, new IOSessionCallback() {
+
+            @Override
+            public void execute(final IOSession session) throws IOException {
+                session.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+                session.setEvent(SelectionKey.OP_WRITE);
+            }
+
+        });
         this.pushHandlerMatcher = new UriPatternMatcher<>();
     }
 
-    private AsyncPushConsumer createHandler(final HttpRequest request) throws HttpException, IOException {
+    public Http2TestClient() throws IOException {
+        this(IOReactorConfig.DEFAULT);
+    }
+
+    private AsyncPushConsumer createHandler(final HttpRequest request) throws HttpException {
 
         final HttpHost authority;
         try {
-            authority = HttpHost.create(request.getAuthority());
+            authority = request.getAuthority() != null ? HttpHost.create(request.getAuthority()) : null;
         } catch (IllegalArgumentException ex) {
-            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+            throw new ProtocolException("Invalid authority");
         }
-        if (!"localhost".equalsIgnoreCase(authority.getHostName())) {
-            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Not authoritative");
+        if (authority != null && !"localhost".equalsIgnoreCase(authority.getHostName())) {
+            throw new MisdirectedRequestException("Not authoritative");
         }
         String path = request.getPath();
         final int i = path.indexOf("?");
@@ -85,36 +119,84 @@ public class Http2TestClient extends AsyncRequester {
         }
     }
 
-    public void registerHandler(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+    public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
         pushHandlerMatcher.register(uriPattern, supplier);
     }
 
-    public void start() throws Exception {
-        start(H2Config.DEFAULT);
+    public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
+        super.execute(handlerFactory);
     }
 
-    public void start(final H2Config h2Config) throws IOException {
-        final HttpProcessor httpProcessor = new DefaultHttpProcessor(
-                new H2RequestContent(),
-                new H2RequestTargetHost(),
-                new H2RequestConnControl(),
-                new RequestUserAgent("TEST-CLIENT/1.1"),
-                new RequestExpectContinue());
+    public void start(final HttpProcessor httpProcessor, final H2Config h2Config) throws IOException {
         start(new InternalClientHttp2EventHandlerFactory(
                 httpProcessor,
                 new HandlerFactory<AsyncPushConsumer>() {
 
                     @Override
-                    public AsyncPushConsumer create(
-                            final HttpRequest request, final HttpContext context) throws HttpException, IOException {
+                    public AsyncPushConsumer create(final HttpRequest request) throws HttpException {
                         return createHandler(request);
                     }
 
                 },
                 StandardCharsets.US_ASCII,
                 h2Config));
+    }
+
+    public void start(final H2Config h2Config) throws IOException {
+        start(Http2Processors.client(), h2Config);
+    }
+
+    public void start() throws Exception {
+        start(H2Config.DEFAULT);
+    }
+
+    public Future<ClientEndpoint> connect(
+            final InetSocketAddress address,
+            final long timeout,
+            final TimeUnit timeUnit,
+            final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
+        final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
+        requestSession(address, timeout, timeUnit, new SessionRequestCallback() {
+
+            @Override
+            public void completed(final SessionRequest request) {
+                final IOSession session = request.getSession();
+                future.completed(new ClientEndpointImpl(session));
+            }
+
+            @Override
+            public void failed(final SessionRequest request) {
+                future.failed(request.getException());
+            }
+
+            @Override
+            public void timeout(final SessionRequest request) {
+                future.failed(new SocketTimeoutException("Connect timeout"));
+            }
+
+            @Override
+            public void cancelled(final SessionRequest request) {
+                future.cancel();
+            }
+        });
+        return future;
+    }
+
+    public Future<ClientEndpoint> connect(
+            final InetSocketAddress address,
+            final long timeout,
+            final TimeUnit timeUnit) throws InterruptedException {
+        return connect(address, timeout, timeUnit, null);
+    }
+
+    public Future<ClientEndpoint> connect(
+            final String hostname,
+            final int port,
+            final long timeout,
+            final TimeUnit timeUnit) throws InterruptedException {
+        return connect(new InetSocketAddress(hostname, port), timeout, timeUnit);
     }
 
 }

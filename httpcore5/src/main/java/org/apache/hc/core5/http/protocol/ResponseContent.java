@@ -109,19 +109,17 @@ public class ResponseContent implements HttpResponseInterceptor {
         final ProtocolVersion ver = context.getProtocolVersion();
         if (entity != null) {
             final long len = entity.getContentLength();
-            if (entity.isChunked() && !ver.lessEquals(HttpVersion.HTTP_1_0)) {
+            if (len >= 0 && !entity.isChunked()) {
+                response.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
+            } else if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
                 response.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
                 MessageSupport.addTrailerHeader(response, entity);
-            } else if (len >= 0) {
-                response.addHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(entity.getContentLength()));
             }
             MessageSupport.addContentTypeHeader(response, entity);
             MessageSupport.addContentEncodingHeader(response, entity);
         } else {
             final int status = response.getCode();
-            if (status != HttpStatus.SC_NO_CONTENT
-                    && status != HttpStatus.SC_NOT_MODIFIED
-                    && status != HttpStatus.SC_RESET_CONTENT) {
+            if (status != HttpStatus.SC_NO_CONTENT && status != HttpStatus.SC_NOT_MODIFIED) {
                 response.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
             }
         }

@@ -30,13 +30,14 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
-import org.apache.hc.core5.http2.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
 
 /**
@@ -55,8 +56,10 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
+            final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
-        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charset, h2Config, streamListener);
+        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charset,
+                h2Config, connectionListener, streamListener);
         this.pushHandlerFactory = pushHandlerFactory;
     }
 
@@ -66,7 +69,8 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Charset charset,
             final H2Config h2Config) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, charset, h2Config, null);
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, charset,
+                h2Config, null, null);
     }
 
     public ClientHttp2StreamMultiplexer(
@@ -82,7 +86,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics) throws IOException {
-        return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics, pushHandlerFactory);
+        return new ClientPushHttp2StreamHandler(this, channel, httpProcessor, connMetrics, pushHandlerFactory);
     }
 
 }

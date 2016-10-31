@@ -1007,10 +1007,7 @@ public class TestNIOConnPool {
     public void testShutdown() throws Exception {
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         final LocalSessionPool pool = new LocalSessionPool(ioreactor, 2, 2);
-        pool.shutdown(1, TimeUnit.SECONDS);
-        Mockito.verify(ioreactor, Mockito.times(1)).shutdown(1, TimeUnit.SECONDS);
-        pool.shutdown(1, TimeUnit.SECONDS);
-        Mockito.verify(ioreactor, Mockito.times(1)).shutdown(1, TimeUnit.SECONDS);
+        pool.shutdown();
         try {
             pool.lease("somehost", null);
             Assert.fail("IllegalStateException should have been thrown");

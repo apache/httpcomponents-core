@@ -29,10 +29,9 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.config.MessageConstraints;
-import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.LazyLaxLineParser;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
@@ -44,27 +43,30 @@ import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultHttpResponseParserFactory implements NHttpMessageParserFactory<ClassicHttpResponse> {
+public class DefaultHttpResponseParserFactory implements NHttpMessageParserFactory<HttpResponse> {
 
     public static final DefaultHttpResponseParserFactory INSTANCE = new DefaultHttpResponseParserFactory();
 
+    private final HttpResponseFactory<HttpResponse> responseFactory;
     private final LineParser lineParser;
-    private final HttpResponseFactory responseFactory;
 
-    public DefaultHttpResponseParserFactory(final LineParser lineParser,
-            final HttpResponseFactory responseFactory) {
+    public DefaultHttpResponseParserFactory(final HttpResponseFactory<HttpResponse> responseFactory, final LineParser lineParser) {
         super();
-        this.lineParser = lineParser != null ? lineParser : LazyLaxLineParser.INSTANCE;
         this.responseFactory = responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE;
+        this.lineParser = lineParser != null ? lineParser : LazyLaxLineParser.INSTANCE;
+    }
+
+    public DefaultHttpResponseParserFactory(final HttpResponseFactory<HttpResponse> responseFactory) {
+        this(responseFactory, null);
     }
 
     public DefaultHttpResponseParserFactory() {
-        this(null, null);
+        this(null);
     }
 
     @Override
-    public NHttpMessageParser<ClassicHttpResponse> create(final MessageConstraints constraints) {
-        return new DefaultHttpResponseParser(this.lineParser, this.responseFactory, constraints);
+    public NHttpMessageParser<HttpResponse> create(final H1Config constraints) {
+        return new DefaultHttpResponseParser<>(this.responseFactory, this.lineParser, constraints);
     }
 
 }

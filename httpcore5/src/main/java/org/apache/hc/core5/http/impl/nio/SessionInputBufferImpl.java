@@ -38,7 +38,7 @@ import java.nio.charset.CoderResult;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteBufferAllocator;
@@ -54,7 +54,7 @@ import org.apache.hc.core5.util.HeapByteBufferAllocator;
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
     private final CharsetDecoder chardecoder;
-    private final MessageConstraints constraints;
+    private final H1Config constraints;
     private final int lineBuffersize;
 
     private CharBuffer charbuffer;
@@ -68,7 +68,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param constraints Message constraints. If {@code null}
-     *   {@link MessageConstraints#DEFAULT} will be used.
+     *   {@link H1Config#DEFAULT} will be used.
      * @param allocator memory allocator.
      *   If {@code null} {@link HeapByteBufferAllocator#INSTANCE} will be used.
      *
@@ -77,12 +77,12 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     public SessionInputBufferImpl(
             final int buffersize,
             final int lineBuffersize,
-            final MessageConstraints constraints,
+            final H1Config constraints,
             final CharsetDecoder chardecoder,
             final ByteBufferAllocator allocator) {
         super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        this.constraints = constraints != null ? constraints : MessageConstraints.DEFAULT;
+        this.constraints = constraints != null ? constraints : H1Config.DEFAULT;
         this.chardecoder = chardecoder;
     }
 
@@ -124,7 +124,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     public SessionInputBufferImpl(
             final int buffersize,
             final int lineBuffersize,
-            final MessageConstraints constraints,
+            final H1Config constraints,
             final Charset charset) {
         this(buffersize, lineBuffersize, constraints,
                 charset != null ? charset.newDecoder() : null, HeapByteBufferAllocator.INSTANCE);

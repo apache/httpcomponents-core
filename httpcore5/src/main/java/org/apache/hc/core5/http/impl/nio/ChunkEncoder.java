@@ -90,7 +90,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
         while (src.hasRemaining()) {
             int chunk = src.remaining();
             int avail;
-            avail = this.buffer.available();
+            avail = this.buffer.capacity();
 
             // subtract the length of the longest chunk header
             // 12345678\r\n

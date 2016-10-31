@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.util;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 /**
@@ -116,6 +118,20 @@ public class InetAddressUtils {
      */
     public static boolean isIPv6Address(final String input) {
         return isIPv6StdAddress(input) || isIPv6HexCompressedAddress(input);
+    }
+
+    /**
+     * Returns canonical name (fully qualified domain name) of the localhost.
+     *
+     * @since 5.0
+     */
+    public static String getCanonicalLocalHostName() {
+        try {
+            final InetAddress localHost = InetAddress.getLocalHost();
+            return localHost.getCanonicalHostName();
+        } catch (UnknownHostException ex) {
+            return "localhost";
+        }
     }
 
 }

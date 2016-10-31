@@ -34,7 +34,7 @@ import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.TrailerSupplier;
-import org.apache.hc.core5.http.entity.AbstractImmutableHttpEntity;
+import org.apache.hc.core5.http.io.entity.AbstractImmutableHttpEntity;
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 
 /**

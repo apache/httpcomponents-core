@@ -63,8 +63,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-
-        final HttpCoreContext corecontext = HttpCoreContext.adapt(context);
+        Args.notNull(context, "HTTP context");
 
         // Always drop connection after certain type of responses
         final int status = response.getCode();
@@ -78,29 +77,24 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
             return;
         }
-        final Header explicit = response.getFirstHeader(HttpHeaders.CONNECTION);
-        if (explicit != null && HeaderElements.CLOSE.equalsIgnoreCase(explicit.getValue())) {
-            // Connection persistence explicitly disabled
-            return;
-        }
-        // Always drop connection for HTTP/1.0 responses and below
-        // if the content body cannot be correctly delimited
-        final ProtocolVersion ver = context.getProtocolVersion();
-        if (entity != null) {
-            if (entity.getContentLength() < 0 &&
-                    (!entity.isChunked() || ver.lessEquals(HttpVersion.HTTP_1_0))) {
+        if (!response.containsHeader(HttpHeaders.CONNECTION)) {
+            // Always drop connection for HTTP/1.0 responses and below
+            // if the content body cannot be correctly delimited
+            final ProtocolVersion ver = context.getProtocolVersion();
+            if (entity != null && entity.getContentLength() < 0 && ver.lessEquals(HttpVersion.HTTP_1_0)) {
                 response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                return;
-            }
-        }
-        // Drop connection if requested by the client or request was <= 1.0
-        final HttpRequest request = corecontext.getRequest();
-        if (request != null) {
-            final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
-            if (header != null) {
-                response.setHeader(HttpHeaders.CONNECTION, header.getValue());
-            } else if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+            } else {
+                final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                final HttpRequest request = coreContext.getRequest();
+                // Drop connection if requested by the client or request was <= 1.0
+                if (request != null) {
+                    final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
+                    if (header != null) {
+                        response.setHeader(HttpHeaders.CONNECTION, header.getValue());
+                    } else if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                        response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                    }
+                }
             }
         }
     }

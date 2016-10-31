@@ -45,17 +45,16 @@ import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.entity.ContentType;
-import org.apache.hc.core5.http.entity.EntityUtils;
-import org.apache.hc.core5.http.entity.StringEntity;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.DefaultHttpResponseFactory;
+import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandlerMapper;
 import org.apache.hc.core5.http.io.HttpServerConnection;
+import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.util.Args;
 
@@ -94,7 +93,7 @@ public class HttpService {
      * @param connStrategy the connection reuse strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
      * @param responseFactory  the response factory. If {@code null}
-     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
+     *   {@link DefaultClassicHttpResponseFactory#INSTANCE} will be used.
      * @param handlerMapper  the handler mapper. May be null.
      * @param expectationVerifier the expectation verifier. May be null.
      *
@@ -111,7 +110,7 @@ public class HttpService {
         this.connStrategy = connStrategy != null ? connStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
         this.responseFactory = responseFactory != null ? responseFactory :
-            DefaultHttpResponseFactory.INSTANCE;
+            DefaultClassicHttpResponseFactory.INSTANCE;
         this.handlerMapper = handlerMapper;
         this.expectationVerifier = expectationVerifier;
     }
@@ -123,7 +122,7 @@ public class HttpService {
      * @param connStrategy the connection reuse strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
      * @param responseFactory  the response factory. If {@code null}
-     *   {@link DefaultHttpResponseFactory#INSTANCE} will be used.
+     *   {@link DefaultClassicHttpResponseFactory#INSTANCE} will be used.
      * @param handlerMapper  the handler mapper. May be null.
      *
      * @since 4.3
@@ -245,8 +244,7 @@ public class HttpService {
         final int status = response.getCode();
         return status >= HttpStatus.SC_SUCCESS
                 && status != HttpStatus.SC_NO_CONTENT
-                && status != HttpStatus.SC_NOT_MODIFIED
-                && status != HttpStatus.SC_RESET_CONTENT;
+                && status != HttpStatus.SC_NOT_MODIFIED;
     }
 
     /**

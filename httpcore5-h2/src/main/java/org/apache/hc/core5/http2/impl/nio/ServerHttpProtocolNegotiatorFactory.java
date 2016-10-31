@@ -32,11 +32,11 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http2.nio.HandlerFactory;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -51,35 +51,36 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
+    private final ConnectionListener connectionListener;
     private final Http2StreamListener streamListener;
-    private final ExceptionListener errorListener;
 
     public ServerHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final Charset charset,
             final H2Config h2Config,
-            final Http2StreamListener streamListener,
-            final ExceptionListener errorListener) {
+            final ConnectionListener connectionListener,
+            final Http2StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
+        this.connectionListener = connectionListener;
         this.streamListener = streamListener;
-        this.errorListener = errorListener;
     }
 
     public ServerHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final Http2StreamListener streamListener,
-            final ExceptionListener errorListener) {
-        this(httpProcessor, exchangeHandlerFactory, null, null, streamListener, errorListener);
+            final ConnectionListener connectionListener,
+            final Http2StreamListener streamListener) {
+        this(httpProcessor, exchangeHandlerFactory, null, null, connectionListener, streamListener);
     }
 
     @Override
     public ServerHttpProtocolNegotiator createHandler(final IOSession ioSession) {
-        return new ServerHttpProtocolNegotiator(httpProcessor, exchangeHandlerFactory, charset, h2Config, streamListener, errorListener);
+        return new ServerHttpProtocolNegotiator(ioSession, httpProcessor, exchangeHandlerFactory,
+                charset, h2Config, connectionListener, streamListener);
     }
 
 }

@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http.io;
 
 import org.apache.hc.core5.http.MessageHeaders;
-import org.apache.hc.core5.http.config.MessageConstraints;
+import org.apache.hc.core5.http.config.H1Config;
 
 /**
  * Factory for {@link HttpMessageParser} instances.
@@ -37,6 +37,6 @@ import org.apache.hc.core5.http.config.MessageConstraints;
  */
 public interface HttpMessageParserFactory<T extends MessageHeaders> {
 
-    HttpMessageParser<T> create(MessageConstraints constraints);
+    HttpMessageParser<T> create(H1Config constraints);
 
 }

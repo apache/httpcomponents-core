@@ -141,8 +141,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         final int status = response.getCode();
         return status >= HttpStatus.SC_SUCCESS
             && status != HttpStatus.SC_NO_CONTENT
-            && status != HttpStatus.SC_NOT_MODIFIED
-            && status != HttpStatus.SC_RESET_CONTENT;
+            && status != HttpStatus.SC_NOT_MODIFIED;
     }
 
 }
