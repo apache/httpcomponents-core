@@ -28,18 +28,19 @@
 package org.apache.hc.core5.http.examples;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
-import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
+import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
+import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.io.ResponseHandler;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -47,25 +48,19 @@ import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
 
 /**
- * Elemental example for executing multiple POST requests sequentially.
+ * Example of POST requests execution using classic I/O.
  */
-public class ElementalHttpPost {
+public class ClassicPostExecutionExample {
 
     public static void main(String[] args) throws Exception {
-        HttpProcessor httpproc = HttpProcessors.client();
-        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
-
-        HttpCoreContext coreContext = HttpCoreContext.create();
+        HttpRequester httpRequester = RequesterBootstrap.bootstrap().create();
         HttpHost host = new HttpHost("localhost", 8080);
 
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
-        ConnectionReuseStrategy connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
+        try (DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024)) {
 
-        try {
-
+            HttpCoreContext coreContext = HttpCoreContext.create();
             HttpEntity[] requestBodies = {
                     new StringEntity(
                             "This is the first test request",
@@ -76,7 +71,7 @@ public class ElementalHttpPost {
                     new InputStreamEntity(
                             new ByteArrayInputStream(
                                     "This is the third test request (will be chunked)"
-                                    .getBytes(StandardCharsets.UTF_8)),
+                                            .getBytes(StandardCharsets.UTF_8)),
                             ContentType.APPLICATION_OCTET_STREAM)
             };
 
@@ -86,25 +81,21 @@ public class ElementalHttpPost {
                     conn.bind(socket);
                 }
                 ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host,
-                        "/servlets-examples/servlet/RequestInfoExample");
+                        "/examples/servlets/servlet/RequestInfoExample");
                 request.setEntity(requestBodies[i]);
                 System.out.println(">> Request URI: " + request.getUri());
+                httpRequester.execute(conn, request, coreContext, new ResponseHandler<Void>() {
 
-                httpexecutor.preProcess(request, httpproc, coreContext);
-                ClassicHttpResponse response = httpexecutor.execute(request, conn, coreContext);
-                httpexecutor.postProcess(response, httpproc, coreContext);
+                    @Override
+                    public Void handleResponse(final ClassicHttpResponse response) throws HttpException, IOException {
+                        System.out.println("<< Response: " + response.getCode());
+                        System.out.println(EntityUtils.toString(response.getEntity()));
+                        System.out.println("==============");
+                        return null;
+                    }
 
-                System.out.println("<< Response: " + response.getCode());
-                System.out.println(EntityUtils.toString(response.getEntity()));
-                System.out.println("==============");
-                if (!connStrategy.keepAlive(request, response, coreContext)) {
-                    conn.close();
-                } else {
-                    System.out.println("Connection kept alive...");
-                }
+                });
             }
-        } finally {
-            conn.close();
         }
     }
 

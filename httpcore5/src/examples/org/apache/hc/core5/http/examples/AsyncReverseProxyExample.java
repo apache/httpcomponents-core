@@ -87,13 +87,13 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.HeapByteBufferAllocator;
 
 /**
- * Asynchronous embedded  HTTP/1.1 reverse proxy with full content streaming.
+ * Example of asynchronous embedded  HTTP/1.1 reverse proxy with full content streaming.
  */
-public class NHttpReverseProxy {
+public class AsyncReverseProxyExample {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("Usage: NHttpReverseProxy <hostname> [listener port]");
+            System.out.println("Usage: <hostname[:port]> [listener port]");
             System.exit(1);
         }
         // Target host
@@ -210,6 +210,7 @@ public class NHttpReverseProxy {
         requester.start();
         server.start();
         server.listen(new InetSocketAddress(port));
+        System.out.println("Listening on port " + port);
 
         server.awaitShutdown(Integer.MAX_VALUE, TimeUnit.DAYS);
     }

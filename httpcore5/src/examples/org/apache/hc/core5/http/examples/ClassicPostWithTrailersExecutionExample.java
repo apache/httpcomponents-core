@@ -27,15 +27,17 @@
 
 package org.apache.hc.core5.http.examples;
 
-import java.net.Socket;
+import java.io.IOException;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
-import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
+import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
+import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.io.ResponseHandler;
 import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWithTrailers;
@@ -43,33 +45,38 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
 
 /**
- * Elemental example for executing POST request with trailing headers
+ * Example of POST request with trailers execution using classic I/O.
  */
-public class ElementalHttpPostTrailers {
+public class ClassicPostWithTrailersExecutionExample {
     public static void main(String[] args) throws Exception {
-        HttpProcessor httpproc = HttpProcessors.client();
-        HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
-        HttpCoreContext coreContext = HttpCoreContext.create();
+        HttpRequester httpRequester = RequesterBootstrap.bootstrap().create();
         HttpHost host = new HttpHost("localhost", 8080);
-        DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024);
-        HttpEntity requestBody = new HttpEntityWithTrailers(
-                new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
-                new BasicHeader("t1","Hello world"));
-        Socket socket = new Socket(host.getHostName(), host.getPort());
-        conn.bind(socket);
-        ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host, "/");
-        request.setEntity(requestBody);
-        httpexecutor.preProcess(request, httpproc, coreContext);
-        ClassicHttpResponse response = httpexecutor.execute(request, conn, coreContext);
-        httpexecutor.postProcess(response, httpproc, coreContext);
 
-        System.out.println("<< Response: " + response.getCode());
-        System.out.println(EntityUtils.toString(response.getEntity()));
-        System.out.println("==============");
-        conn.close();
+        try (DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024)) {
+
+            HttpCoreContext coreContext = HttpCoreContext.create();
+
+            ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host, "/");
+            HttpEntity requestBody = new HttpEntityWithTrailers(
+                    new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
+                    new BasicHeader("t1","Hello world"));
+            request.setEntity(requestBody);
+
+            System.out.println(">> Request URI: " + request.getUri());
+            httpRequester.execute(conn, request, coreContext, new ResponseHandler<Void>() {
+
+                @Override
+                public Void handleResponse(final ClassicHttpResponse response) throws HttpException, IOException {
+                    System.out.println("<< Response: " + response.getCode());
+                    System.out.println(EntityUtils.toString(response.getEntity()));
+                    System.out.println("==============");
+                    return null;
+                }
+
+            });
+        }
     }
 
 }

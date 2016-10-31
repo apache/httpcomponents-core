@@ -45,9 +45,9 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 
 /**
- * Asynchronous HTTP/1.1 request executor.
+ * Example of asynchronous HTTP/1.1 request execution.
  */
-public class NHttpClient {
+public class AsyncRequestExecutionExample {
 
     public static void main(String[] args) throws Exception {
 

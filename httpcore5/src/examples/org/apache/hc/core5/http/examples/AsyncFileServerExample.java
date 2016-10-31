@@ -61,9 +61,9 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 
 /**
- * Asynchronous embedded HTTP/1.1 file server.
+ * Example of asynchronous embedded HTTP/1.1 file server.
  */
-public class NHttpFileServer {
+public class AsyncFileServerExample {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {

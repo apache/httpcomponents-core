@@ -60,9 +60,9 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.ssl.SSLContexts;
 
 /**
- * Embedded HTTP/1.1 file server based on a classic (blocking) I/O model.
+ * Example of embedded HTTP/1.1 file server using classic I/O.
  */
-public class HttpFileServer {
+public class ClassicFileServerExample {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
@@ -79,7 +79,7 @@ public class HttpFileServer {
         SSLContext sslcontext = null;
         if (port == 8443) {
             // Initialize SSL context
-            URL url = HttpFileServer.class.getResource("/my.keystore");
+            URL url = ClassicFileServerExample.class.getResource("/my.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
                 System.exit(1);
@@ -98,33 +98,33 @@ public class HttpFileServer {
                 .setListenerPort(port)
                 .setSocketConfig(socketConfig)
                 .setSslContext(sslcontext)
-                .setExceptionListener(new StdErrorExceptionListener())
+                .setExceptionListener(new ExceptionListener() {
+
+                    @Override
+                    public void onError(final Exception ex) {
+                        if (ex instanceof SocketTimeoutException) {
+                            System.err.println("Connection timed out");
+                        } else if (ex instanceof ConnectionClosedException) {
+                            System.err.println(ex.getMessage());
+                        } else {
+                            ex.printStackTrace();
+                        }
+                    }
+
+                })
                 .registerHandler("*", new HttpFileHandler(docRoot))
                 .create();
 
         server.start();
-        server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 server.shutdown(5, TimeUnit.SECONDS);
             }
         });
-    }
+        System.out.println("Listening on port " + port);
 
-    static class StdErrorExceptionListener implements ExceptionListener {
-
-        @Override
-        public void onError(final Exception ex) {
-            if (ex instanceof SocketTimeoutException) {
-                System.err.println("Connection timed out");
-            } else if (ex instanceof ConnectionClosedException) {
-                System.err.println(ex.getMessage());
-            } else {
-                ex.printStackTrace();
-            }
-        }
+        server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 
     }
 
