@@ -30,8 +30,6 @@ package org.apache.hc.core5.reactor;
 import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -43,7 +41,6 @@ import java.util.Set;
 public class BaseIOReactor extends AbstractIOReactor {
 
     private final long timeoutCheckInterval;
-    private final Set<IOSession> bufferingSessions;
     private final IOReactorExceptionHandler exceptionHandler;
 
     private long lastTimeoutCheck;
@@ -59,7 +56,6 @@ public class BaseIOReactor extends AbstractIOReactor {
             final IOReactorConfig reactorConfig,
             final IOReactorExceptionHandler exceptionHandler) {
         super(eventHandlerFactory, reactorConfig);
-        this.bufferingSessions = new HashSet<>();
         this.timeoutCheckInterval = reactorConfig.getSelectInterval();
         this.exceptionHandler = exceptionHandler;
         this.lastTimeoutCheck = System.currentTimeMillis();
@@ -122,19 +118,7 @@ public class BaseIOReactor extends AbstractIOReactor {
         final IOSession session = getSession(key);
         try {
             final IOEventHandler eventHandler = ensureEventHandler(session);
-            // Try to gently feed more data to the event dispatcher
-            // if the session input buffer has not been fully exhausted
-            // (the choice of 5 iterations is purely arbitrary)
-            for (int i = 0; i < 5; i++) {
-                eventHandler.inputReady(session);
-                if (!session.hasBufferedInput()
-                        || (session.getEventMask() & SelectionKey.OP_READ) == 0) {
-                    break;
-                }
-            }
-            if (session.hasBufferedInput()) {
-                this.bufferingSessions.add(session);
-            }
+            eventHandler.inputReady(session);
         } catch (final CancelledKeyException ex) {
             session.shutdown();
             key.attach(null);
@@ -175,29 +159,6 @@ public class BaseIOReactor extends AbstractIOReactor {
             if (keys != null) {
                 for (final SelectionKey key : keys) {
                     timeoutCheck(key, currentTime);
-                }
-            }
-        }
-        if (!this.bufferingSessions.isEmpty()) {
-            for (final Iterator<IOSession> it = this.bufferingSessions.iterator(); it.hasNext(); ) {
-                final IOSession session = it.next();
-                if (!session.hasBufferedInput()) {
-                    it.remove();
-                    continue;
-                }
-                try {
-                    if ((session.getEventMask() & EventMask.READ) > 0) {
-                        final IOEventHandler eventHandler = ensureEventHandler(session);
-                        eventHandler.inputReady(session);
-                        if (!session.hasBufferedInput()) {
-                            it.remove();
-                        }
-                    }
-                } catch (final CancelledKeyException ex) {
-                    it.remove();
-                    session.shutdown();
-                } catch (final RuntimeException ex) {
-                    handleRuntimeException(ex);
                 }
             }
         }

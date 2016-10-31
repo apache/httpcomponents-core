@@ -29,7 +29,6 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
@@ -51,7 +50,7 @@ import org.apache.hc.core5.util.Args;
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-class IOSessionImpl implements IOSession, SocketAccessor {
+class IOSessionImpl implements IOSession {
 
     private final SelectionKey key;
     private final SocketChannel channel;
@@ -64,7 +63,6 @@ class IOSessionImpl implements IOSession, SocketAccessor {
     private final Deque<Command> commandQueue;
 
     private volatile IOEventHandler eventHandler;
-    private volatile SessionBufferStatus bufferStatus;
     private volatile int socketTimeout;
 
     private volatile long lastReadTime;
@@ -228,42 +226,6 @@ class IOSessionImpl implements IOSession, SocketAccessor {
         close();
     }
 
-    @Override
-    public boolean hasBufferedInput() {
-        final SessionBufferStatus buffStatus = this.bufferStatus;
-        return buffStatus != null && buffStatus.hasBufferedInput();
-    }
-
-    @Override
-    public boolean hasBufferedOutput() {
-        final SessionBufferStatus buffStatus = this.bufferStatus;
-        return buffStatus != null && buffStatus.hasBufferedOutput();
-    }
-
-    @Override
-    public void setBufferStatus(final SessionBufferStatus bufferStatus) {
-        this.bufferStatus = bufferStatus;
-    }
-
-    @Override
-    public Object getAttribute(final String name) {
-        return this.attributes.get(name);
-    }
-
-    @Override
-    public Object removeAttribute(final String name) {
-        return this.attributes.remove(name);
-    }
-
-    @Override
-    public void setAttribute(final String name, final Object obj) {
-        if (obj == null) {
-            this.attributes.remove(name);
-        } else {
-            this.attributes.put(name, obj);
-        }
-    }
-
     public long getStartedTime() {
         return this.startedTime;
     }
@@ -317,11 +279,6 @@ class IOSessionImpl implements IOSession, SocketAccessor {
         } else {
             buffer.append(socketAddress);
         }
-    }
-
-    @Override
-    public Socket getSocket() {
-        return this.channel.socket();
     }
 
     @Override

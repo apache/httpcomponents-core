@@ -28,7 +28,6 @@
 package org.apache.hc.core5.reactor.ssl;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
@@ -52,8 +51,6 @@ import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionBufferStatus;
-import org.apache.hc.core5.reactor.SocketAccessor;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
@@ -75,7 +72,7 @@ import org.apache.hc.core5.util.Asserts;
  * @since 4.2
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAccessor {
+public class SSLIOSession implements IOSession {
 
     /**
      * Name of the context attribute key, which can be used to obtain the
@@ -95,7 +92,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private final SSLSetupHandler handler;
 
     private int appEventMask;
-    private SessionBufferStatus appBufferStatus;
 
     private boolean endOfStream;
     private volatile SSLMode sslMode;
@@ -149,9 +145,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.appEventMask = session.getEventMask();
         this.channel = new InternalByteChannel();
         this.handler = handler;
-
-        // Override the status buffer interface
-        this.session.setBufferStatus(this);
 
         if (this.sslMode == SSLMode.CLIENT && host != null) {
             this.sslEngine = sslContext.createSSLEngine(host.getHostName(), host.getPort());
@@ -502,9 +495,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         } while (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK);
         // Some decrypted data is available or at the end of stream
         return (this.appEventMask & SelectionKey.OP_READ) > 0
-            && (this.inPlain.hasData()
-                    || (this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput())
-                    || (this.endOfStream && this.status == ACTIVE));
+            && (this.inPlain.hasData() || (this.endOfStream && this.status == ACTIVE));
     }
 
     /**
@@ -706,40 +697,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     }
 
     @Override
-    public synchronized boolean hasBufferedInput() {
-        return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput())
-            || this.inEncrypted.hasData()
-            || this.inPlain.hasData();
-    }
-
-    @Override
-    public synchronized boolean hasBufferedOutput() {
-        return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedOutput())
-            || this.outEncrypted.hasData()
-            || this.outPlain.hasData();
-    }
-
-    @Override
-    public synchronized void setBufferStatus(final SessionBufferStatus status) {
-        this.appBufferStatus = status;
-    }
-
-    @Override
-    public Object getAttribute(final String name) {
-        return this.session.getAttribute(name);
-    }
-
-    @Override
-    public Object removeAttribute(final String name) {
-        return this.session.removeAttribute(name);
-    }
-
-    @Override
-    public void setAttribute(final String name, final Object obj) {
-        this.session.setAttribute(name, obj);
-    }
-
-    @Override
     public IOEventHandler getHandler() {
         return this.session.getHandler();
     }
@@ -797,14 +754,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         buffer.append(!this.outPlain.hasData() ? 0 : outPlain.acquire().position());
         buffer.append("]");
         return buffer.toString();
-    }
-
-    @Override
-    public Socket getSocket(){
-        if (this.session instanceof SocketAccessor){
-            return ((SocketAccessor) this.session).getSocket();
-        }
-        return null;
     }
 
     private class InternalByteChannel implements ByteChannel {

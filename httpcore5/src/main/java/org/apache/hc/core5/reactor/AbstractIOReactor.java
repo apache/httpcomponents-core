@@ -343,7 +343,6 @@ abstract class AbstractIOReactor implements IOReactor {
             try {
                 final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;
                 if (sessionRequest != null) {
-                    session.setAttribute(IOSession.ATTACHMENT_KEY, sessionRequest.getAttachment());
                     sessionRequest.completed(session);
                 }
                 sessionCreated(session);

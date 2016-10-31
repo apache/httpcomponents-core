@@ -35,11 +35,10 @@ import java.nio.channels.SelectionKey;
 import java.util.Deque;
 
 import org.apache.commons.logging.Log;
-import org.apache.hc.core5.testing.classic.Wire;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionBufferStatus;
+import org.apache.hc.core5.testing.classic.Wire;
 
 /**
  * Decorator class intended to transparently extend an {@link IOSession}
@@ -172,42 +171,6 @@ public class LoggingIOSession implements IOSession {
             this.log.debug(this.id + " " + this.session + ": Set timeout " + timeout);
         }
         this.session.setSocketTimeout(timeout);
-    }
-
-    @Override
-    public void setBufferStatus(final SessionBufferStatus status) {
-        this.session.setBufferStatus(status);
-    }
-
-    @Override
-    public boolean hasBufferedInput() {
-        return this.session.hasBufferedInput();
-    }
-
-    @Override
-    public boolean hasBufferedOutput() {
-        return this.session.hasBufferedOutput();
-    }
-
-    @Override
-    public Object getAttribute(final String name) {
-        return this.session.getAttribute(name);
-    }
-
-    @Override
-    public void setAttribute(final String name, final Object obj) {
-        if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Set attribute " + name);
-        }
-        this.session.setAttribute(name, obj);
-    }
-
-    @Override
-    public Object removeAttribute(final String name) {
-        if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Remove attribute " + name);
-        }
-        return this.session.removeAttribute(name);
     }
 
     @Override
