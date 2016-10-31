@@ -33,12 +33,12 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
 import org.apache.hc.core5.testing.classic.ClassicTestServer;
 import org.junit.After;
@@ -104,23 +104,16 @@ public class ActuallyConnectIT {
 
         this.server.start();
 
-        final DefaultBHttpClientConnection conn = client.createConnection();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost("localhost", this.server.getPort());
 
         try {
-            if (!conn.isOpen()) {
-                client.connect(host, conn);
-            }
-
             final BasicClassicHttpRequest get = new BasicClassicHttpRequest("GET", "/");
-            final ClassicHttpResponse response = this.client.execute(get, host, conn);
+            final ClassicHttpResponse response = this.client.execute(host, get, context);
             Assert.assertEquals(200, response.getCode());
             Assert.assertEquals("Hi there", EntityUtils.toString(response.getEntity()));
-            if (!this.client.keepAlive(get, response)) {
-                conn.close();
-            }
+            this.client.keepAlive(get, response, context);
         } finally {
-            conn.close();
             this.server.shutdown();
         }
     }

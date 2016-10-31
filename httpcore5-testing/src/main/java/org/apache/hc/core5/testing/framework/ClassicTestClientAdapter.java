@@ -38,11 +38,11 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
 
 /**
@@ -135,25 +135,19 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             final long timeout = (long) request.get(TIMEOUT);
             client.setTimeout((int) timeout);
         }
+        client.start();
 
         // Now start the request.
-        final DefaultBHttpClientConnection conn = client.createConnection();
         final HttpHost host = new HttpHost(uri.getHost(), uri.getPort());
-
-        if (!conn.isOpen()) {
-            client.connect(host, conn);
-        }
-
-        final ClassicHttpResponse response = client.execute(httpRequest, host, conn);
+        final HttpCoreContext context = HttpCoreContext.create();
+        final ClassicHttpResponse response = client.execute(host, httpRequest, context);
 
         // Prepare the response.  It will contain status, body, headers, and contentType.
         final HttpEntity entity = response.getEntity();
         final String body = entity == null ? null : EntityUtils.toString(entity);
         final String contentType = entity == null ? null : entity.getContentType();
 
-        if (!client.keepAlive(httpRequest, response)) {
-            conn.close();
-        }
+        client.keepAlive(httpRequest, response, context);
 
         // prepare the returned information
         final Map<String, Object> ret = new HashMap<String, Object>();

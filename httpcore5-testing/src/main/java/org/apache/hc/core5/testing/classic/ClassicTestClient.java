@@ -31,53 +31,34 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
-import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
-import org.apache.hc.core5.http.io.HttpClientConnection;
+import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
+import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.LangUtils;
 
 public class ClassicTestClient {
 
-    private final HttpProcessor httpproc;
-    private final HttpRequestExecutor httpexecutor;
-    private final ConnectionReuseStrategy connStrategy;
-    private final HttpCoreContext context;
-
+    private final DefaultBHttpClientConnection connection;
+    private volatile HttpProcessor httpProcessor;
     private volatile int timeout;
+    private volatile HttpHost host;
 
-    public ClassicTestClient(final HttpProcessor httpproc) {
-        super();
-        this.httpproc = httpproc;
-        this.connStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-        this.httpexecutor = new HttpRequestExecutor();
-        this.context = new HttpCoreContext();
-    }
+    private volatile HttpRequester requester;
 
     public ClassicTestClient() {
-        this(new DefaultHttpProcessor(
-                new RequestContent(),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent("TEST-CLIENT/1.1"),
-                new RequestExpectContinue()));
+        super();
+        this.connection = new DefaultBHttpClientConnection(8192);
     }
 
-    public HttpContext getContext() {
-        return this.context;
+    public void setHttpProcessor(final HttpProcessor httpProcessor) {
+        this.httpProcessor = httpProcessor;
     }
 
     public int getTimeout() {
@@ -88,33 +69,48 @@ public class ClassicTestClient {
         this.timeout = timeout;
     }
 
-    public DefaultBHttpClientConnection createConnection() {
-        return new LoggingBHttpClientConnection(8 * 1024);
+    public void start() {
+        Asserts.check(this.requester == null, "Client already running");
+        this.requester = RequesterBootstrap.bootstrap()
+                .setHttpProcessor(httpProcessor)
+                .create();
+
     }
 
-    public void connect(final HttpHost host, final DefaultBHttpClientConnection conn) throws IOException {
-        final Socket socket = new Socket();
-        socket.connect(new InetSocketAddress(host.getHostName(), host.getPort()), this.timeout);
-        conn.bind(socket);
-        conn.setSocketTimeout(this.timeout);
+    public void shutdown() {
+        try {
+            this.connection.close();
+        } catch (IOException ignore) {
+        }
     }
 
     public ClassicHttpResponse execute(
-            final ClassicHttpRequest request,
             final HttpHost targetHost,
-            final HttpClientConnection conn) throws HttpException, IOException {
+            final ClassicHttpRequest request,
+            final HttpContext context) throws HttpException, IOException {
+        Asserts.check(this.requester != null, "Client not running");
+        if (LangUtils.equals(this.host, targetHost)) {
+            this.connection.close();
+        }
+        this.host = targetHost;
+        if (!this.connection.isOpen()) {
+            final Socket socket = new Socket();
+            socket.connect(new InetSocketAddress(this.host.getHostName(), this.host.getPort()), this.timeout);
+            this.connection.bind(socket);
+            this.connection.setSocketTimeout(this.timeout);
+        }
         if (request.getAuthority() == null) {
             request.setAuthority(targetHost.toHostString());
             request.setScheme(targetHost.getSchemeName());
         }
-        this.httpexecutor.preProcess(request, this.httpproc, this.context);
-        final ClassicHttpResponse response = this.httpexecutor.execute(request, conn, this.context);
-        this.httpexecutor.postProcess(response, this.httpproc, this.context);
-        return response;
+        return this.requester.execute(this.connection, request, context);
     }
 
-    public boolean keepAlive(final ClassicHttpRequest request, final ClassicHttpResponse response) {
-        return this.connStrategy.keepAlive(request, response, this.context);
+    public boolean keepAlive(
+            final ClassicHttpRequest request,
+            final ClassicHttpResponse response,
+            final HttpContext context) throws IOException {
+        return this.requester.keepAlive(this.connection, request, response, context);
     }
 
 }
