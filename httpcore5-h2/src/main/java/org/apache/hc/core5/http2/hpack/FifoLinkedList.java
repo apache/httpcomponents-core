@@ -126,6 +126,7 @@ final class FifoLinkedList {
             this.header = header;
         }
 
+        @Override
         public HPackHeader getHeader() {
             return header;
         }

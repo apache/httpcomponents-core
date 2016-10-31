@@ -663,6 +663,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                         }
                     }
 
+                    @Override
                     protected void handle(
                             final Message<HttpRequest, String> request,
                             final ResponseTrigger responseTrigger,

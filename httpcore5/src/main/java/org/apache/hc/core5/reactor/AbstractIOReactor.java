@@ -218,6 +218,7 @@ abstract class AbstractIOReactor implements IOReactor {
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
 
+    @Override
     public void execute() throws InterruptedIOException, IOReactorException {
         if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE)) {
             doExecute();

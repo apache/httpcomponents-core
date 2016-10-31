@@ -90,6 +90,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> implements AsyncEntityC
         charbuf.compact();
     }
 
+    @Override
     public final int consume(final ByteBuffer src) throws IOException {
         Args.notNull(src, "ByteBuffer");
         if (charsetDecoder == null) {

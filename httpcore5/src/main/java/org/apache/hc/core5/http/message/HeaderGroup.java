@@ -177,6 +177,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @return an array of length &ge; 0
      */
+    @Override
     public Header[] getHeaders(final String name) {
         List<Header> headersFound = null;
         for (int i = 0; i < this.headers.size(); i++) {
@@ -199,6 +200,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @param name the name of the header to get
      * @return the first header or {@code null}
      */
+    @Override
     public Header getFirstHeader(final String name) {
         for (int i = 0; i < this.headers.size(); i++) {
             final Header header = this.headers.get(i);
@@ -218,6 +220,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @return the first header or {@code null}
      * @throws ProtocolException in case multiple headers with the given name are found.
      */
+    @Override
     public Header getSingleHeader(final String name) throws ProtocolException {
         int count = 0;
         Header singleHeader = null;
@@ -242,6 +245,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @param name the name of the header to get
      * @return the last header or {@code null}
      */
+    @Override
     public Header getLastHeader(final String name) {
         // start at the end of the list and work backwards
         for (int i = headers.size() - 1; i >= 0; i--) {
@@ -259,6 +263,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @return an array of length &ge; 0
      */
+    @Override
     public Header[] getAllHeaders() {
         return headers.toArray(new Header[headers.size()]);
     }
@@ -272,6 +277,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @return {@code true} if at least one header with the name is
      * contained, {@code false} otherwise
      */
+    @Override
     public boolean containsHeader(final String name) {
         // HTTPCORE-361 : we don't use the for-each syntax, i.e.
         //     for (Header header : headers)
@@ -293,6 +299,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @param name the header name to check for.
      * @return number of occurrences of the header in the message.
      */
+    @Override
     public int containsHeaders(final String name) {
         // HTTPCORE-361 : we don't use the for-each syntax, i.e.
         //     for (Header header : headers)
@@ -314,6 +321,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @since 5.0
      */
+    @Override
     public Iterator<Header> headerIterator() {
         return new BasicListHeaderIterator(this.headers, null);
     }
@@ -328,6 +336,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @since 5.0
      */
+    @Override
     public Iterator<Header> headerIterator(final String name) {
         return new BasicListHeaderIterator(this.headers, name);
     }

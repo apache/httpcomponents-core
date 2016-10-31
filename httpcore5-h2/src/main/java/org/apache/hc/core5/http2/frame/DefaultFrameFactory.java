@@ -35,12 +35,14 @@ public class DefaultFrameFactory extends FrameFactory {
 
     public static final FrameFactory INSTANCE = new DefaultFrameFactory();
 
+    @Override
     public RawFrame createHeaders(final int streamId, final ByteBuffer payload, final boolean endHeaders, final boolean endStream) {
         Args.positive(streamId, "Stream id");
         final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0) | (endStream ? FrameFlag.END_STREAM.value : 0);
         return new RawFrame(FrameType.HEADERS.getValue(), flags, streamId, payload);
     }
 
+    @Override
     public RawFrame createContinuation(final int streamId, final ByteBuffer payload, final boolean endHeaders) {
         Args.positive(streamId, "Stream id");
         final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0);
@@ -54,6 +56,7 @@ public class DefaultFrameFactory extends FrameFactory {
         return new RawFrame(FrameType.PUSH_PROMISE.getValue(), flags, streamId, payload);
     }
 
+    @Override
     public RawFrame createData(final int streamId, final ByteBuffer payload, final boolean endStream) {
         Args.positive(streamId, "Stream id");
         final int flags = (endStream ? FrameFlag.END_STREAM.value : 0);

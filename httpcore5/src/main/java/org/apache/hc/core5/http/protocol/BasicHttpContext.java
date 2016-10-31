@@ -99,6 +99,7 @@ public class BasicHttpContext implements HttpContext {
     /**
      * @since 5.0
      */
+    @Override
     public void setProtocolVersion(final ProtocolVersion version) {
         this.version = version;
     }
