@@ -29,7 +29,6 @@ package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ExceptionListener;
@@ -70,8 +69,7 @@ public class Http2TestServer extends AsyncServer {
 
             @Override
             public void execute(final IOSession session) throws IOException {
-                session.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-                session.setEvent(SelectionKey.OP_WRITE);
+                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 
         });

@@ -35,7 +35,6 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.WritableByteChannel;
-import java.util.Deque;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -164,7 +163,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     private void processCommands() throws HttpException, IOException {
         for (;;) {
-            final Command command = ioSession.getCommandQueue().poll();
+            final Command command = ioSession.getCommand();
             if (command == null) {
                 return;
             }
@@ -320,9 +319,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     private void cancelPendingCommands() {
-        final Deque<Command> commandQueue = ioSession.getCommandQueue();
         for (;;) {
-            final Command command = commandQueue.poll();
+            final Command command = ioSession.getCommand();
             if (command != null) {
                 command.cancel();
             } else {
@@ -433,14 +431,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     @Override
     public void close() throws IOException {
-        ioSession.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-        ioSession.setEvent(SelectionKey.OP_WRITE);
+        ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
     }
 
     @Override
     public void shutdown() throws IOException {
-        ioSession.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.IMMEDIATE));
-        ioSession.setEvent(SelectionKey.OP_WRITE);
+        ioSession.addFirst(new ShutdownCommand(ShutdownType.IMMEDIATE));
     }
 
     @Override

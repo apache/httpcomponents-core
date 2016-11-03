@@ -29,7 +29,6 @@ package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
-import java.util.Deque;
 
 /**
  * IOSession interface represents a sequence of logically related data exchanges
@@ -48,12 +47,6 @@ import java.util.Deque;
  * @since 4.0
  */
 public interface IOSession {
-
-    /**
-     * Name of the context attribute key, which can be used to obtain the
-     * session attachment object.
-     */
-    String ATTACHMENT_KEY = "http.session.attachment";
 
     int ACTIVE       = 0;
     int CLOSING      = 1;
@@ -74,11 +67,24 @@ public interface IOSession {
     void setHandler(IOEventHandler handler);
 
     /**
-     * Returns the command queue for this session.
+     * Inserts {@link Command} at the end of the command queue.
      *
      * @since 5.0
      */
-    Deque<Command> getCommandQueue();
+    void addLast(Command command);
+
+    /**
+     * Inserts {@link Command} at the front of the command queue.
+     *
+     * @since 5.0
+     */
+    void addFirst(Command command);
+    /**
+     * Retrieves and removes first {@link Command} from the command queue.
+     *
+     * @since 5.0
+     */
+    Command getCommand();
 
     /**
      * Returns the underlying I/O channel associated with this session.

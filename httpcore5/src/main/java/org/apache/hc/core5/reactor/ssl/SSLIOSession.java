@@ -34,7 +34,6 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
-import java.util.Deque;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -58,27 +57,11 @@ import org.apache.hc.core5.util.Asserts;
  * {@code SSLIOSession} is a decorator class intended to transparently extend
  * an {@link IOSession} with transport layer security capabilities based on
  * the SSL/TLS protocol.
- * <p>
- * The resultant instance of {@code SSLIOSession} must be added to the original
- * I/O session as an attribute with the {@link #SESSION_KEY} key.
- * <pre>
- *  SSLContext sslcontext = SSLContext.getInstance("SSL");
- *  sslcontext.init(null, null, null);
- *  SSLIOSession sslsession = new SSLIOSession(
- *      iosession, SSLMode.CLIENT, sslcontext, null);
- *  iosession.setAttribute(SSLIOSession.SESSION_KEY, sslsession);
- * </pre>
  *
  * @since 4.2
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class SSLIOSession implements IOSession {
-
-    /**
-     * Name of the context attribute key, which can be used to obtain the
-     * SSL session.
-     */
-    public static final String SESSION_KEY = "http.session.ssl";
 
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
 
@@ -177,10 +160,6 @@ public class SSLIOSession implements IOSession {
             final SSLContext sslContext,
             final SSLSetupHandler handler) {
         this(session, sslMode, null, sslContext, handler);
-    }
-
-    protected SSLSetupHandler getSSLSetupHandler() {
-        return this.handler;
     }
 
     /**
@@ -644,8 +623,18 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public Deque<Command> getCommandQueue() {
-        return this.session.getCommandQueue();
+    public void addLast(final Command command) {
+        this.session.addLast(command);
+    }
+
+    @Override
+    public void addFirst(final Command command) {
+        this.session.addFirst(command);
+    }
+
+    @Override
+    public Command getCommand() {
+        return this.session.getCommand();
     }
 
     @Override

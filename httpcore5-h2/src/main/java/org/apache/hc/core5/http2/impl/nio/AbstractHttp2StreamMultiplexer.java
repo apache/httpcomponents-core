@@ -36,7 +36,6 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -506,9 +505,11 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     private void processPendingCommands() throws IOException, HttpException {
-        final Queue<Command> commandQueue = ioSession.getCommandQueue();
-        while (!commandQueue.isEmpty() && streamMap.size() < remoteConfig.getMaxConcurrentStreams()) {
-            final Command command = commandQueue.remove();
+        while (streamMap.size() < remoteConfig.getMaxConcurrentStreams()) {
+            final Command command = ioSession.getCommand();
+            if (command == null) {
+                break;
+            }
             if (command instanceof ShutdownCommand) {
                 final ShutdownCommand shutdownCommand = (ShutdownCommand) command;
                 if (shutdownCommand.getType() == ShutdownType.IMMEDIATE) {
@@ -558,9 +559,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     private void cancelPendingCommands() {
-        final Deque<Command> commandQueue = ioSession.getCommandQueue();
         for (;;) {
-            final Command command = commandQueue.poll();
+            final Command command = ioSession.getCommand();
             if (command != null) {
                 command.cancel();
             } else {
@@ -1063,14 +1063,12 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
     @Override
     public void close() throws IOException {
-        ioSession.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-        ioSession.setEvent(SelectionKey.OP_WRITE);
+        ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
     }
 
     @Override
     public void shutdown() throws IOException {
-        ioSession.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.IMMEDIATE));
-        ioSession.setEvent(SelectionKey.OP_WRITE);
+        ioSession.addFirst(new ShutdownCommand(ShutdownType.IMMEDIATE));
     }
 
     @Override

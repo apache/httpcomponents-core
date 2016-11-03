@@ -49,7 +49,7 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * Generic implementation of {@link IOReactor} that can run multiple
- * {@link BaseIOReactor} instance in separate worker threads and distribute
+ * {@link IOReactorImpl} instance in separate worker threads and distribute
  * newly created I/O session equally across those I/O reactors for a more
  * optimal resource utilization and a better I/O performance. Usually it is
  * recommended to have one worker I/O reactor per physical CPU core.
@@ -94,7 +94,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private final int workerCount;
     private final IOEventHandlerFactory eventHandlerFactory;
     private final ThreadFactory threadFactory;
-    private final BaseIOReactor[] dispatchers;
+    private final IOReactorImpl[] dispatchers;
     private final Worker[] workers;
     private final Thread[] threads;
     private final AtomicReference<IOReactorStatus> status;
@@ -136,7 +136,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.auditLog = new ArrayList<>();
         this.workerCount = this.reactorConfig.getIoThreadCount();
-        this.dispatchers = new BaseIOReactor[workerCount];
+        this.dispatchers = new IOReactorImpl[workerCount];
         this.workers = new Worker[workerCount];
         this.threads = new Thread[workerCount];
         this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
@@ -257,11 +257,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         try {
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
-                final BaseIOReactor dispatcher = new BaseIOReactor(this.eventHandlerFactory, this.reactorConfig, this.exceptionHandler);
+                final IOReactorImpl dispatcher = new IOReactorImpl(this.eventHandlerFactory, this.reactorConfig, this.exceptionHandler);
                 this.dispatchers[i] = dispatcher;
             }
             for (int i = 0; i < this.workerCount; i++) {
-                final BaseIOReactor dispatcher = this.dispatchers[i];
+                final IOReactorImpl dispatcher = this.dispatchers[i];
                 this.workers[i] = new Worker(dispatcher);
                 this.threads[i] = this.threadFactory.newThread(this.workers[i]);
             }
@@ -400,7 +400,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         if (callback == null) {
             return;
         }
-        for (BaseIOReactor dispatcher: dispatchers) {
+        for (IOReactorImpl dispatcher: dispatchers) {
             if (dispatcher != null) {
                 dispatcher.enumSessions(callback);
             }
@@ -412,7 +412,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
             selector.wakeup();
             for (int i = 0; i < this.workerCount; i++) {
-                final BaseIOReactor dispatcher = this.dispatchers[i];
+                final IOReactorImpl dispatcher = this.dispatchers[i];
                 if (dispatcher != null) {
                     dispatcher.initiateShutdown();
                 }
@@ -439,7 +439,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             }
         }
         for (int i = 0; i < this.dispatchers.length; i++) {
-            final BaseIOReactor dispatcher = this.dispatchers[i];
+            final IOReactorImpl dispatcher = this.dispatchers[i];
             if (dispatcher != null) {
                 if (dispatcher.getStatus().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                     dispatcher.awaitShutdown(remaining, TimeUnit.MILLISECONDS);
@@ -464,7 +464,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.status.set(IOReactorStatus.SHUT_DOWN);
         this.selector.wakeup();
         for (int i = 0; i < this.dispatchers.length; i++) {
-            final BaseIOReactor dispatcher = this.dispatchers[i];
+            final IOReactorImpl dispatcher = this.dispatchers[i];
             if (dispatcher != null) {
                 dispatcher.forceShutdown();
             }
@@ -503,11 +503,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     static class Worker implements Runnable {
 
-        final BaseIOReactor dispatcher;
+        final IOReactorImpl dispatcher;
 
         private volatile Exception exception;
 
-        public Worker(final BaseIOReactor dispatcher) {
+        public Worker(final IOReactorImpl dispatcher) {
             super();
             this.dispatcher = dispatcher;
         }

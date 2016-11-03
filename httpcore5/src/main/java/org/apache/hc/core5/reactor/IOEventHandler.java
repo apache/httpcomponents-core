@@ -67,6 +67,13 @@ public interface IOEventHandler {
     void timeout(IOSession session);
 
     /**
+     * Triggered when the given session throws a exception.
+     *
+     * @param session the I/O session.
+     */
+    void exception(IOSession session, Exception cause);
+
+    /**
      * Triggered when the given session has been terminated.
      *
      * @param session the I/O session.

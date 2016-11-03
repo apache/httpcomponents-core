@@ -32,7 +32,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
-import java.util.Deque;
 
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
@@ -61,8 +60,18 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public Deque<Command> getCommandQueue() {
-        return this.session.getCommandQueue();
+    public void addLast(final Command command) {
+        this.session.addLast(command);
+    }
+
+    @Override
+    public void addFirst(final Command command) {
+        this.session.addFirst(command);
+    }
+
+    @Override
+    public Command getCommand() {
+        return this.session.getCommand();
     }
 
     @Override

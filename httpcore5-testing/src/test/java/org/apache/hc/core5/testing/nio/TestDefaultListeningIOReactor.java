@@ -82,6 +82,10 @@ public class TestDefaultListeningIOReactor {
                     }
 
                     @Override
+                    public void exception(final IOSession session, final Exception cause) {
+                    }
+
+                    @Override
                     public void disconnected(final IOSession session) {
                     }
                 };

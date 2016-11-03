@@ -80,6 +80,11 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
+    public void exception(final IOSession session, final Exception cause) {
+        streamDuplexer.onException(cause);
+    }
+
+    @Override
     public void disconnected(final IOSession session) {
         streamDuplexer.onDisconnect();
     }

@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.impl.nio.bootstrap;
 
-import java.nio.channels.SelectionKey;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -68,8 +67,7 @@ public final class ClientEndpointImpl implements ClientEndpoint {
         final Command executionCommand = new ExecutionCommand(
                 exchangeHandler,
                 context != null ? context : HttpCoreContext.create());
-        ioSession.getCommandQueue().add(executionCommand);
-        ioSession.setEvent(SelectionKey.OP_WRITE);
+        ioSession.addLast(executionCommand);
         if (ioSession.isClosed()) {
             executionCommand.cancel();
         }
@@ -120,8 +118,7 @@ public final class ClientEndpointImpl implements ClientEndpoint {
 
     @Override
     public void shutdown(final ShutdownType type) {
-        ioSession.getCommandQueue().addFirst(new ShutdownCommand(type));
-        ioSession.setEvent(SelectionKey.OP_WRITE);
+        ioSession.addFirst(new ShutdownCommand(type));
     }
 
 }

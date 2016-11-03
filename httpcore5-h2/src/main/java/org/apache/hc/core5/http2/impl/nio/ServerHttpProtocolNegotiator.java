@@ -126,6 +126,11 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void timeout(final IOSession session) {
+        exception(session, new SocketTimeoutException());
+    }
+
+    @Override
+    public void exception(final IOSession session, final Exception cause) {
         session.close();
         if (connectionListener != null) {
             connectionListener.onError(this, new SocketTimeoutException());

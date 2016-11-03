@@ -34,9 +34,6 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Deque;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -54,10 +51,6 @@ class IOSessionImpl implements IOSession {
 
     private final SelectionKey key;
     private final SocketChannel channel;
-    private final Map<String, Object> attributes;
-    private final Queue<IOSession> closedSessions;
-
-    private final long startedTime;
     private final AtomicInteger status;
     private final AtomicInteger eventMask;
     private final Deque<Command> commandQueue;
@@ -65,37 +58,22 @@ class IOSessionImpl implements IOSession {
     private volatile IOEventHandler eventHandler;
     private volatile int socketTimeout;
 
-    private volatile long lastReadTime;
-    private volatile long lastWriteTime;
-    private volatile long lastAccessTime;
-
     /**
      * Creates new instance of IOSessionImpl.
      *
      * @param key the selection key.
      * @param socketChannel the socket channel
-     * @param closedSessions the queue containing closed sessions
      *
      * @since 4.1
      */
-    public IOSessionImpl(
-            final SelectionKey key,
-            final SocketChannel socketChannel,
-            final Queue<IOSession> closedSessions) {
+    public IOSessionImpl(final SelectionKey key, final SocketChannel socketChannel) {
         super();
         this.key = Args.notNull(key, "Selection key");
         this.channel = Args.notNull(socketChannel, "Socket channel");
-        this.closedSessions = closedSessions;
-        this.attributes = new ConcurrentHashMap<>();
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.socketTimeout = 0;
         this.eventMask = new AtomicInteger(key.interestOps());
         this.status = new AtomicInteger(ACTIVE);
-        final long now = System.currentTimeMillis();
-        this.startedTime = now;
-        this.lastReadTime = now;
-        this.lastWriteTime = now;
-        this.lastAccessTime = now;
     }
 
     @Override
@@ -109,8 +87,20 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public Deque<Command> getCommandQueue() {
-        return commandQueue;
+    public void addLast(final Command command) {
+        commandQueue.addLast(command);
+        setEvent(SelectionKey.OP_WRITE);
+    }
+
+    @Override
+    public void addFirst(final Command command) {
+        commandQueue.addFirst(command);
+        setEvent(SelectionKey.OP_WRITE);
+    }
+
+    @Override
+    public Command getCommand() {
+        return commandQueue.poll();
     }
 
     @Override
@@ -188,15 +178,11 @@ class IOSessionImpl implements IOSession {
     @Override
     public void setSocketTimeout(final int timeout) {
         this.socketTimeout = timeout;
-        this.lastAccessTime = System.currentTimeMillis();
     }
 
     @Override
     public void close() {
         if (this.status.compareAndSet(ACTIVE, CLOSED)) {
-            if (this.closedSessions != null) {
-                this.closedSessions.add(this);
-            }
             this.key.cancel();
             this.key.attach(null);
             try {
@@ -224,34 +210,6 @@ class IOSessionImpl implements IOSession {
         // For this type of session, a close() does exactly
         // what we need and nothing more.
         close();
-    }
-
-    public long getStartedTime() {
-        return this.startedTime;
-    }
-
-    public long getLastReadTime() {
-        return this.lastReadTime;
-    }
-
-    public long getLastWriteTime() {
-        return this.lastWriteTime;
-    }
-
-    public long getLastAccessTime() {
-        return this.lastAccessTime;
-    }
-
-    void resetLastRead() {
-        final long now = System.currentTimeMillis();
-        this.lastReadTime = now;
-        this.lastAccessTime = now;
-    }
-
-    void resetLastWrite() {
-        final long now = System.currentTimeMillis();
-        this.lastWriteTime = now;
-        this.lastAccessTime = now;
     }
 
     private static void formatOps(final StringBuilder buffer, final int ops) {

@@ -27,7 +27,6 @@
 package org.apache.hc.core5.http.impl.nio.bootstrap;
 
 import java.io.IOException;
-import java.nio.channels.SelectionKey;
 
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
@@ -53,8 +52,7 @@ public class HttpAsyncServer extends AsyncServer {
 
             @Override
             public void execute(final IOSession session) throws IOException {
-                session.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-                session.setEvent(SelectionKey.OP_WRITE);
+                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 
         });

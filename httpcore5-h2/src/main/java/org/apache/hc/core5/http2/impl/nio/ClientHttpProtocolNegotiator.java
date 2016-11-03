@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.charset.Charset;
@@ -125,6 +126,15 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void timeout(final IOSession session) {
+        exception(session, new SocketTimeoutException());
+    }
+
+    @Override
+    public void exception(final IOSession session, final Exception cause) {
+        session.close();
+        if (connectionListener != null) {
+            connectionListener.onError(this, new SocketTimeoutException());
+        }
     }
 
     @Override

@@ -84,6 +84,11 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
+    public void exception(final IOSession session, final Exception cause) {
+        handler.exception(session, cause);
+    }
+
+    @Override
     public void disconnected(final IOSession session) {
         if (log.isDebugEnabled()) {
             log.debug(id + " " + session + " disconnected");

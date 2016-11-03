@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl.nio.bootstrap;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
-import java.nio.channels.SelectionKey;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -63,8 +62,7 @@ public class HttpAsyncRequester extends AsyncRequester {
 
             @Override
             public void execute(final IOSession session) throws IOException {
-                session.getCommandQueue().addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-                session.setEvent(SelectionKey.OP_WRITE);
+                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 
         });
