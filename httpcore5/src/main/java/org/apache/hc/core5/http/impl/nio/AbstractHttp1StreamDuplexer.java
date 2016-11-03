@@ -59,12 +59,12 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.HeapByteBufferAllocator;
-import org.apache.hc.core5.util.NetUtils;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
         implements ResourceHolder, HttpConnection {
@@ -479,9 +479,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         final SocketAddress remoteAddress = ioSession.getRemoteAddress();
         final SocketAddress localAddress = ioSession.getLocalAddress();
         final StringBuilder buffer = new StringBuilder();
-        NetUtils.formatAddress(buffer, localAddress);
+        InetAddressUtils.formatAddress(buffer, localAddress);
         buffer.append("->");
-        NetUtils.formatAddress(buffer, remoteAddress);
+        InetAddressUtils.formatAddress(buffer, remoteAddress);
         return buffer.toString();
     }
 

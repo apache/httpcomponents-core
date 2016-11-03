@@ -25,11 +25,15 @@
  *
  */
 
-package org.apache.hc.core5.util;
+package org.apache.hc.core5.net;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.regex.Pattern;
+
+import org.apache.hc.core5.util.Args;
 
 /**
  * A collection of utilities relating to InetAddresses.
@@ -118,6 +122,28 @@ public class InetAddressUtils {
      */
     public static boolean isIPv6Address(final String input) {
         return isIPv6StdAddress(input) || isIPv6HexCompressedAddress(input);
+    }
+
+    /**
+     * Formats {@link SocketAddress} as text.
+     *
+     * @since 5.0
+     */
+    public static void formatAddress(
+            final StringBuilder buffer,
+            final SocketAddress socketAddress) {
+        Args.notNull(buffer, "Buffer");
+        if (socketAddress instanceof InetSocketAddress) {
+            final InetSocketAddress socketaddr = (InetSocketAddress) socketAddress;
+            final InetAddress inetaddr = socketaddr.getAddress();
+            if (inetaddr != null) {
+                buffer.append(inetaddr.getHostAddress()).append(':').append(socketaddr.getPort());
+            } else {
+                buffer.append(socketAddress);
+            }
+        } else {
+            buffer.append(socketAddress);
+        }
     }
 
     /**

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.util;
+package org.apache.hc.core5.net;
 
 import org.junit.Assert;
 import org.junit.Test;

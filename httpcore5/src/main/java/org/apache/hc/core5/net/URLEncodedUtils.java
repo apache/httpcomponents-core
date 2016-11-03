@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.util;
+package org.apache.hc.core5.net;
 
 import java.net.URI;
 import java.nio.ByteBuffer;
@@ -41,6 +41,8 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.http.message.TokenParser;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * A collection of utilities for encoding URLs.

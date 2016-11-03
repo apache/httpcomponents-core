@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.util;
+package org.apache.hc.core5.net;
 
 import java.net.URI;
 import java.net.URISyntaxException;

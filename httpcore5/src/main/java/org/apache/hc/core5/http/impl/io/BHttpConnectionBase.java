@@ -47,14 +47,14 @@ import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.NetUtils;
 
 class BHttpConnectionBase implements BHttpConnection {
 
@@ -324,9 +324,9 @@ class BHttpConnectionBase implements BHttpConnection {
             final SocketAddress remoteAddress = socket.getRemoteSocketAddress();
             final SocketAddress localAddress = socket.getLocalSocketAddress();
             if (remoteAddress != null && localAddress != null) {
-                NetUtils.formatAddress(buffer, localAddress);
+                InetAddressUtils.formatAddress(buffer, localAddress);
                 buffer.append("<->");
-                NetUtils.formatAddress(buffer, remoteAddress);
+                InetAddressUtils.formatAddress(buffer, remoteAddress);
             }
             return buffer.toString();
         }

@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.InetAddressUtils;
+import org.apache.hc.core5.net.InetAddressUtils;
 
 /**
  * @since 4.4

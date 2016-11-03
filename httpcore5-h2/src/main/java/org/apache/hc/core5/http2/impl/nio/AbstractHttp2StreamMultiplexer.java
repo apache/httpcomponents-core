@@ -71,11 +71,11 @@ import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HPackDecoder;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.apache.hc.core5.util.NetUtils;
 
 abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
@@ -1111,9 +1111,9 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         final SocketAddress remoteAddress = ioSession.getRemoteAddress();
         final SocketAddress localAddress = ioSession.getLocalAddress();
         final StringBuilder buffer = new StringBuilder();
-        NetUtils.formatAddress(buffer, localAddress);
+        InetAddressUtils.formatAddress(buffer, localAddress);
         buffer.append("->");
-        NetUtils.formatAddress(buffer, remoteAddress);
+        InetAddressUtils.formatAddress(buffer, remoteAddress);
         return buffer.toString();
     }
 
