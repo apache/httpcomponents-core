@@ -84,7 +84,6 @@ import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.util.HeapByteBufferAllocator;
 
 /**
  * Example of asynchronous embedded  HTTP/1.1 reverse proxy with full content streaming.
@@ -218,7 +217,7 @@ public class AsyncReverseProxyExample {
     private static class ProxyBuffer extends ExpandableBuffer {
 
         ProxyBuffer(int buffersize) {
-            super(buffersize, HeapByteBufferAllocator.INSTANCE);
+            super(buffersize);
         }
 
         void put(final ByteBuffer src) {

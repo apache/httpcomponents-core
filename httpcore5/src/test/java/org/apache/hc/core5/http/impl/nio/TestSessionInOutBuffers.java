@@ -40,43 +40,19 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
 
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
-import org.apache.hc.core5.util.ByteBufferAllocator;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.apache.hc.core5.util.DirectByteBufferAllocator;
-import org.apache.hc.core5.util.HeapByteBufferAllocator;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 
 /**
  * Simple tests for {@link SessionInputBuffer} and {@link SessionOutputBuffer}.
  */
-@RunWith(Parameterized.class)
 public class TestSessionInOutBuffers {
-
-    private final ByteBufferAllocator allocator;
-
-    public TestSessionInOutBuffers(final ByteBufferAllocator allocator) {
-        super();
-        this.allocator = allocator;
-    }
-
-    @Parameters
-    public static Collection<Object[]> getParameters() {
-
-        return Arrays.asList(
-                new Object[] { HeapByteBufferAllocator.INSTANCE },
-                new Object[] { DirectByteBufferAllocator.INSTANCE });
-    }
 
     private static WritableByteChannel newChannel(final ByteArrayOutputStream outstream) {
         return Channels.newChannel(outstream);
@@ -98,7 +74,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testReadLineChunks() throws Exception {
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16);
 
         ReadableByteChannel channel = newChannel("One\r\nTwo\r\nThree");
 
@@ -138,8 +114,7 @@ public class TestSessionInOutBuffers {
     public void testLineLimit() throws Exception {
         final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
         final CharArrayBuffer line = new CharArrayBuffer(64);
-        final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(128, 128,
-                H1Config.DEFAULT, null, this.allocator);
+        final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(128, 128);
         final ReadableByteChannel channel1 = newChannel(s);
         inbuf1.fill(channel1);
 
@@ -147,7 +122,7 @@ public class TestSessionInOutBuffers {
 
         line.clear();
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(128, 128,
-                H1Config.custom().setMaxLineLength(10).build(), null, this.allocator);
+                H1Config.custom().setMaxLineLength(10).build());
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
         try {
@@ -161,8 +136,7 @@ public class TestSessionInOutBuffers {
     public void testLineLimitBufferFull() throws Exception {
         final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
         final CharArrayBuffer line = new CharArrayBuffer(64);
-        final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(32, 32,
-                H1Config.DEFAULT, null, this.allocator);
+        final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(32, 32);
         final ReadableByteChannel channel1 = newChannel(s);
         inbuf1.fill(channel1);
 
@@ -170,7 +144,7 @@ public class TestSessionInOutBuffers {
 
         line.clear();
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(32, 32,
-                H1Config.custom().setMaxLineLength(10).build(), null, this.allocator);
+                H1Config.custom().setMaxLineLength(10).build());
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
         try {
@@ -182,8 +156,8 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteLineChunks() throws Exception {
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16, null, this.allocator);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null);
 
         ReadableByteChannel inChannel = newChannel("One\r\nTwo\r\nThree");
 
@@ -251,7 +225,7 @@ public class TestSessionInOutBuffers {
         teststrs[4] = "And goodbye";
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         for (final String teststr : teststrs) {
             chbuffer.clear();
             chbuffer.append(teststr);
@@ -266,7 +240,7 @@ public class TestSessionInOutBuffers {
 
         final ReadableByteChannel channel = newChannel(outstream.toByteArray());
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null);
         inbuf.fill(channel);
 
         for (final String teststr : teststrs) {
@@ -282,7 +256,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testComplexReadWriteLine() throws Exception {
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         outbuf.write(ByteBuffer.wrap(new byte[] {'a', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\r', '\n'}));
@@ -320,7 +294,7 @@ public class TestSessionInOutBuffers {
 
         final ReadableByteChannel channel = newChannel(outstream.toByteArray());
 
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, null);
         inbuf.fill(channel);
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
@@ -364,7 +338,7 @@ public class TestSessionInOutBuffers {
             out[i] = (byte)('0' + i);
         }
         final ReadableByteChannel channel = newChannel(out);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, null);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -381,7 +355,7 @@ public class TestSessionInOutBuffers {
     public void testReadByteBuffer() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null);
         while (inbuf.fill(channel) > 0) {
         }
         final ByteBuffer dst = ByteBuffer.allocate(10);
@@ -398,7 +372,7 @@ public class TestSessionInOutBuffers {
     public void testReadByteBufferWithMaxLen() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null);
         while (inbuf.fill(channel) > 0) {
         }
         final ByteBuffer dst = ByteBuffer.allocate(16);
@@ -418,7 +392,7 @@ public class TestSessionInOutBuffers {
     public void testReadToChannel() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -433,7 +407,7 @@ public class TestSessionInOutBuffers {
     public void testReadToChannelWithMaxLen() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, null);
         while (inbuf.fill(channel) > 0) {
         }
 
@@ -450,7 +424,7 @@ public class TestSessionInOutBuffers {
     public void testWriteByteBuffer() throws Exception {
         final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024);
         final ReadableByteChannel src = newChannel(pattern);
         outbuf.write(src);
 
@@ -465,7 +439,7 @@ public class TestSessionInOutBuffers {
     public void testWriteFromChannel() throws Exception {
         final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024);
         outbuf.write(ByteBuffer.wrap(pattern, 0, 16));
         outbuf.write(ByteBuffer.wrap(pattern, 16, 10));
         outbuf.write(ByteBuffer.wrap(pattern, 26, 6));
@@ -503,7 +477,7 @@ public class TestSessionInOutBuffers {
         final String s3 = "Like hello and stuff";
 
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16,
-                StandardCharsets.UTF_8.newEncoder(), this.allocator);
+                StandardCharsets.UTF_8.newEncoder());
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         for (int i = 0; i < 10; i++) {
@@ -525,8 +499,8 @@ public class TestSessionInOutBuffers {
         final byte[] tmp = outstream.toByteArray();
 
         final ReadableByteChannel channel = newChannel(tmp);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16,
-                StandardCharsets.UTF_8.newDecoder(), this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, H1Config.DEFAULT,
+                StandardCharsets.UTF_8.newDecoder());
 
         while (inbuf.fill(channel) > 0) {
         }
@@ -547,7 +521,7 @@ public class TestSessionInOutBuffers {
     @Test
     public void testInputMatchesBufferLength() throws Exception {
         final String s1 = "abcde";
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5, null, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s1);
         outbuf.writeLine(chbuffer);
@@ -561,7 +535,7 @@ public class TestSessionInOutBuffers {
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, H1Config.DEFAULT, decoder);
         final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
@@ -577,7 +551,7 @@ public class TestSessionInOutBuffers {
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.IGNORE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, H1Config.DEFAULT, decoder);
         final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
@@ -594,7 +568,7 @@ public class TestSessionInOutBuffers {
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
         decoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, decoder, this.allocator);
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, H1Config.DEFAULT, decoder);
         final ReadableByteChannel channel = newChannel(tmp);
         while (inbuf.fill(channel) > 0) {
         }
@@ -609,7 +583,7 @@ public class TestSessionInOutBuffers {
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s);
         outbuf.writeLine(chbuffer);
@@ -621,7 +595,7 @@ public class TestSessionInOutBuffers {
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.IGNORE);
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final WritableByteChannel channel = newChannel(baos);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
@@ -639,7 +613,7 @@ public class TestSessionInOutBuffers {
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
         encoder.onUnmappableCharacter(CodingErrorAction.REPLACE);
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder, this.allocator);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder);
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final WritableByteChannel channel = newChannel(baos);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);

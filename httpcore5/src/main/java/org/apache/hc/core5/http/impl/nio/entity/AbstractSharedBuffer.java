@@ -33,7 +33,6 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.HeapByteBufferAllocator;
 
 /**
  * @since 5.0
@@ -48,7 +47,7 @@ abstract class AbstractSharedBuffer extends ExpandableBuffer {
     volatile boolean aborted;
 
     public AbstractSharedBuffer(final ReentrantLock lock, final int initialBufferSize) {
-        super(initialBufferSize, HeapByteBufferAllocator.INSTANCE);
+        super(initialBufferSize);
         this.lock = Args.notNull(lock, "Lock");
         this.condition = lock.newCondition();
     }

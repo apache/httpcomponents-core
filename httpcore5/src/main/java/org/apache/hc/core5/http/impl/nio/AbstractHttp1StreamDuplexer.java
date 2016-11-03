@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.ConnSupport;
@@ -64,7 +65,6 @@ import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.HeapByteBufferAllocator;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
         implements ResourceHolder, HttpConnection {
@@ -97,13 +97,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.ioSession = Args.notNull(ioSession, "I/O session");
         final int bufferSize = connectionConfig.getBufferSize();
         this.inbuf = new SessionInputBufferImpl(bufferSize,
-                bufferSize < 512 ? bufferSize : 512,
-                ConnSupport.createDecoder(connectionConfig),
-                HeapByteBufferAllocator.INSTANCE);
+                bufferSize < 512 ? bufferSize : 512, H1Config.DEFAULT,
+                ConnSupport.createDecoder(connectionConfig));
         this.outbuf = new SessionOutputBufferImpl(bufferSize,
                 bufferSize < 512 ? bufferSize : 512,
-                ConnSupport.createEncoder(connectionConfig),
-                HeapByteBufferAllocator.INSTANCE);
+                ConnSupport.createEncoder(connectionConfig));
         this.inTransportMetrics = new BasicHttpTransportMetrics();
         this.outTransportMetrics = new BasicHttpTransportMetrics();
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);

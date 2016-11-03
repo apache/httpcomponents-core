@@ -46,9 +46,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.util.URLEncodedUtils; public class FrameworkTest {
-    private Map<String, Object> request = new HashMap<String, Object>();
-    private Map<String, Object> response = new HashMap<String, Object>();
+import org.apache.hc.core5.net.URLEncodedUtils;
+
+public class FrameworkTest {
+
+    private Map<String, Object> request = new HashMap<>();
+    private Map<String, Object> response = new HashMap<>();
 
     /**
      * Constructs a test with default values.

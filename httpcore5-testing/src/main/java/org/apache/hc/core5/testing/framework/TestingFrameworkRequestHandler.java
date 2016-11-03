@@ -55,7 +55,9 @@ import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.URLEncodedUtils; public class TestingFrameworkRequestHandler implements HttpRequestHandler {
+import org.apache.hc.core5.net.URLEncodedUtils;
+
+public class TestingFrameworkRequestHandler implements HttpRequestHandler {
     protected Throwable thrown;
     protected Map<String, Object> requestExpectations;
     protected Map<String, Object> desiredResponse;

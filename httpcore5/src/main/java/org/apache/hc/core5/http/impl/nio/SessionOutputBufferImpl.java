@@ -40,9 +40,7 @@ import java.nio.charset.CoderResult;
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.ByteBufferAllocator;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.apache.hc.core5.util.HeapByteBufferAllocator;
 
 /**
  * Default implementation of {@link SessionOutputBuffer} based on
@@ -67,26 +65,16 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      *   {@code charencoder} is not {@code null}.
      * @param charencoder charencoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
-     * @param allocator memory allocator.
-     *   If {@code null} {@link HeapByteBufferAllocator#INSTANCE} will be used.
      *
      * @since 4.3
      */
     public SessionOutputBufferImpl(
             final int buffersize,
             final int lineBuffersize,
-            final CharsetEncoder charencoder,
-            final ByteBufferAllocator allocator) {
-        super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
+            final CharsetEncoder charencoder) {
+        super(buffersize);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
         this.charencoder = charencoder;
-    }
-
-    /**
-     * @since 4.3
-     */
-    public SessionOutputBufferImpl(final int buffersize) {
-        this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
     }
 
     /**
@@ -96,8 +84,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
             final int buffersize,
             final int linebuffersize,
             final Charset charset) {
-        this(buffersize, linebuffersize,
-                charset != null ? charset.newEncoder() : null, HeapByteBufferAllocator.INSTANCE);
+        this(buffersize, linebuffersize, charset != null ? charset.newEncoder() : null);
     }
 
     /**
@@ -106,7 +93,14 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     public SessionOutputBufferImpl(
             final int buffersize,
             final int linebuffersize) {
-        this(buffersize, linebuffersize, null, HeapByteBufferAllocator.INSTANCE);
+        this(buffersize, linebuffersize, (CharsetEncoder) null);
+    }
+
+    /**
+     * @since 4.3
+     */
+    public SessionOutputBufferImpl(final int buffersize) {
+        this(buffersize, 256);
     }
 
     @Override

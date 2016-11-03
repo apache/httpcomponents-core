@@ -29,13 +29,9 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.ByteBufferAllocator;
-
 /**
- * A buffer that expand its capacity on demand using {@link ByteBufferAllocator}
- * interface. Internally, this class is backed by an instance of
- * {@link ByteBuffer}.
+ * A buffer that expand its capacity on demand. Internally, this class is backed
+ * by an instance of {@link ByteBuffer}.
  * <p>
  * This class is not thread safe.
  *
@@ -46,8 +42,6 @@ public class ExpandableBuffer {
     public final static int INPUT_MODE = 0;
     public final static int OUTPUT_MODE = 1;
 
-    private final ByteBufferAllocator allocator;
-
     private int mode;
     private ByteBuffer buffer;
 
@@ -55,13 +49,10 @@ public class ExpandableBuffer {
      * Allocates buffer of the given size using the given allocator.
      *
      * @param buffersize the buffer size.
-     * @param allocator allocator to be used to allocate {@link ByteBuffer}s.
      */
-    protected ExpandableBuffer(final int buffersize, final ByteBufferAllocator allocator) {
+    protected ExpandableBuffer(final int buffersize) {
         super();
-        Args.notNull(allocator, "ByteBuffer allocator");
-        this.allocator = allocator;
-        this.buffer = allocator.allocate(buffersize);
+        this.buffer = ByteBuffer.allocate(buffersize);
         this.mode = INPUT_MODE;
     }
 
@@ -108,7 +99,7 @@ public class ExpandableBuffer {
 
     private void expandCapacity(final int capacity) {
         final ByteBuffer oldbuffer = this.buffer;
-        this.buffer = allocator.allocate(capacity);
+        this.buffer = ByteBuffer.allocate(capacity);
         oldbuffer.flip();
         this.buffer.put(oldbuffer);
     }
