@@ -141,7 +141,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             SessionOutputBuffer buffer,
             BasicHttpTransportMetrics metrics) throws HttpException;
 
-    abstract void consumeData(ContentDecoder contentDecoder) throws HttpException, IOException;
+    abstract int consumeData(ContentDecoder contentDecoder) throws HttpException, IOException;
 
     abstract boolean isOutputReady();
 
@@ -234,10 +234,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
             if (incomingMessage != null) {
                 final ContentDecoder contentDecoder = incomingMessage.getBody();
-                consumeData(contentDecoder);
+                final int bytesRead = consumeData(contentDecoder);
                 if (contentDecoder.isCompleted()) {
                     incomingMessage = null;
                     inputEnd();
+                }
+                if (bytesRead == 0) {
+                    break;
                 }
             }
         } while (connState.compareTo(ConnectionState.SHUTDOWN) < 0 && inbuf.hasData());

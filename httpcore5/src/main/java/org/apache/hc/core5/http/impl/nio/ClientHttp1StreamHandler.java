@@ -255,11 +255,14 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
     }
 
-    void consumeData(final ContentDecoder contentDecoder) throws HttpException, IOException {
+    int consumeData(final ContentDecoder contentDecoder) throws HttpException, IOException {
         if (done.get() || responseState != MessageState.BODY) {
             throw new ProtocolException("Unexpected message data");
         }
-        while (contentDecoder.read(inputBuffer) > 0) {
+        int total = 0;
+        int byteRead;
+        while ((byteRead = contentDecoder.read(inputBuffer)) > 0) {
+            total += byteRead;
             inputBuffer.flip();
             final int capacity = exchangeHandler.consume(inputBuffer);
             inputBuffer.clear();
@@ -274,6 +277,9 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         if (contentDecoder.isCompleted()) {
             responseState = MessageState.COMPLETE;
             exchangeHandler.streamEnd(null);
+            return total > 0 ? total : -1;
+        } else {
+            return total;
         }
     }
 
