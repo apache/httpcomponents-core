@@ -88,6 +88,10 @@ public class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler
     }
 
     @Override
+    public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
+    }
+
+    @Override
     public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
         if (response.getCode() >= HttpStatus.SC_CLIENT_ERROR) {
             outputTerminated.set(true);

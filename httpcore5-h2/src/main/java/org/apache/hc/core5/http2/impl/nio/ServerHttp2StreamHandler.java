@@ -35,7 +35,6 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -44,11 +43,9 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -119,11 +116,27 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
         this.responseState = MessageState.IDLE;
     }
 
+    private void commitInformation(final HttpResponse response) throws IOException, HttpException {
+        if (responseCommitted.get()) {
+            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Response already committed");
+        }
+        final int status = response.getCode();
+        if (status < HttpStatus.SC_INFORMATIONAL || status >= HttpStatus.SC_SUCCESS) {
+            throw new HttpException("Invalid intermediate response: " + status);
+        }
+        final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
+        outputChannel.submit(responseHeaders, false);
+    }
+
     private void commitResponse(
             final HttpResponse response,
             final EntityDetails responseEntityDetails) throws HttpException, IOException {
         if (responseCommitted.compareAndSet(false, true)) {
 
+            final int status = response.getCode();
+            if (status < HttpStatus.SC_SUCCESS) {
+                throw new HttpException("Invalid response: " + status);
+            }
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, responseEntityDetails, context);
 
@@ -135,7 +148,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
                 responseState = MessageState.COMPLETE;
             } else {
                 responseState = MessageState.BODY;
-                exchangeHandler.produce(dataChannel);
+                exchangeHandler.produce(outputChannel);
             }
         } else {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Response already committed");
@@ -151,13 +164,6 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
         final List<Header> promiseHeaders = DefaultH2RequestConverter.INSTANCE.convert(promise);
         outputChannel.push(promiseHeaders, pushProducer);
         connMetrics.incrementRequestCount();
-    }
-
-    private void commitContinue() throws IOException, HttpException {
-        final HttpResponse ack = new BasicHttpResponse(HttpStatus.SC_CONTINUE);
-        final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(ack);
-
-        outputChannel.submit(responseHeaders, false);
     }
 
     @Override
@@ -184,10 +190,6 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
         if (handler == null) {
             throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
         }
-        if (handler == null) {
-            throw new H2ConnectionException(H2Error.INTERNAL_ERROR,
-                    "Unable to handle " + request.getMethod() + " " + request.getPath());
-        }
         exchangeHandler = handler;
 
         context.setProtocolVersion(HttpVersion.HTTP_2);
@@ -198,61 +200,26 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
         httpProcessor.process(request, requestEntityDetails, context);
         connMetrics.incrementRequestCount();
 
-        boolean expectContinue = false;
-        if (requestEntityDetails != null) {
-            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
-                expectContinue = true;
+        exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
+
+            @Override
+            public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+                commitInformation(response);
             }
-        }
 
-        if (expectContinue) {
-            exchangeHandler.verify(request, requestEntityDetails, new ExpectationChannel() {
+            @Override
+            public void sendResponse(
+                    final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
+                commitResponse(response, responseEntityDetails);
+            }
 
-                @Override
-                public void sendResponse(
-                        final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                    commitResponse(response, responseEntityDetails);
-                }
+            @Override
+            public void pushPromise(
+                    final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                commitPromise(promise, pushProducer);
+            }
 
-                @Override
-                public void sendContinue() throws HttpException, IOException {
-                    commitContinue();
-                    exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
-
-                        @Override
-                        public void sendResponse(
-                                final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                            commitResponse(response, responseEntityDetails);
-                        }
-
-                        @Override
-                        public void pushPromise(
-                                final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                            commitPromise(promise, pushProducer);
-                        }
-
-                    });
-                }
-
-            });
-        } else {
-            exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
-
-                @Override
-                public void sendResponse(
-                        final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                    commitResponse(response, responseEntityDetails);
-                }
-
-                @Override
-                public void pushPromise(
-                        final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                    commitPromise(promise, pushProducer);
-                }
-
-            });
-        }
+        });
     }
 
     @Override

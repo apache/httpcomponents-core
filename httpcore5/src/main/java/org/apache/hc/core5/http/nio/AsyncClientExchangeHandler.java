@@ -44,6 +44,8 @@ public interface AsyncClientExchangeHandler extends AsyncDataConsumer, AsyncData
 
     void consumeResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
 
+    void consumeInformation(HttpResponse response) throws HttpException, IOException;
+
     void failed(Exception cause);
 
     void cancel();

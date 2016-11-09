@@ -33,6 +33,7 @@ import java.util.List;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -40,7 +41,6 @@ import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
@@ -69,18 +69,16 @@ public class EchoHandler implements AsyncServerExchangeHandler {
     }
 
     @Override
-    public void verify(
-            final HttpRequest request,
-            final EntityDetails entityDetails,
-            final ExpectationChannel expectationChannel) throws HttpException, IOException {
-        expectationChannel.sendContinue();
-    }
-
-    @Override
     public void handleRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
             final ResponseChannel responseChannel) throws HttpException, IOException {
+        if (entityDetails != null) {
+            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
+            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+            }
+        }
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
         responseChannel.sendResponse(response, entityDetails);
     }

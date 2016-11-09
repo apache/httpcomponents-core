@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -53,7 +54,6 @@ import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
-import org.apache.hc.core5.http.impl.LazyEntityDetails;
 
 class ClientHttp2StreamHandler implements Http2StreamHandler {
 
@@ -142,7 +142,12 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
             } else {
                 final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
                 final boolean expectContinue = h != null && "100-continue".equalsIgnoreCase(h.getValue());
-                requestState = expectContinue ? MessageState.ACK : MessageState.BODY;
+                if (expectContinue) {
+                    requestState = MessageState.ACK;
+                } else {
+                    requestState = MessageState.BODY;
+                    exchangeHandler.produce(dataChannel);
+                }
             }
         } else {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Request already committed");
@@ -180,16 +185,24 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
             throw new ProtocolException("Unexpected message headers");
         }
         final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
-        final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(response);
-
-        if (response.getCode() < 200) {
-            if (response.getCode() == HttpStatus.SC_CONTINUE && requestState == MessageState.ACK) {
+        final int status = response.getCode();
+        if (status < HttpStatus.SC_INFORMATIONAL) {
+            throw new ProtocolException("Invalid response: " + status);
+        }
+        if (status < HttpStatus.SC_SUCCESS) {
+            exchangeHandler.consumeInformation(response);
+        }
+        if (requestState == MessageState.ACK) {
+            if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
                 requestState = MessageState.BODY;
                 exchangeHandler.produce(dataChannel);
             }
+        }
+        if (status < HttpStatus.SC_SUCCESS) {
             return;
         }
 
+        final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(response);
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         httpProcessor.process(response, entityDetails, context);
         connMetrics.incrementResponseCount();

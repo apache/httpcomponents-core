@@ -35,8 +35,10 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
@@ -44,7 +46,6 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Asserts;
@@ -86,21 +87,6 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
     }
 
     @Override
-    public final void verify(
-            final HttpRequest request,
-            final EntityDetails entityDetails,
-            final ExpectationChannel expectationChannel) throws HttpException, IOException {
-        final AsyncResponseProducer producer = verify(request, context);
-        if (producer != null) {
-            expectationFailed = true;
-            responseProducerRef.set(producer);
-            expectationChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
-        } else {
-            expectationChannel.sendContinue();
-        }
-    }
-
-    @Override
     public final void handleRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
@@ -111,6 +97,21 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
             throw new HttpException("Unable to handle request");
         }
         requestConsumerRef.set(requestConsumer);
+
+        if (entityDetails != null) {
+            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
+            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                final AsyncResponseProducer producer = verify(request, context);
+                if (producer != null) {
+                    expectationFailed = true;
+                    responseProducerRef.set(producer);
+                    responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
+                    return;
+                } else {
+                    responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+                }
+            }
+        }
         final ResponseTrigger responseTrigger = new ResponseTrigger() {
 
             @Override

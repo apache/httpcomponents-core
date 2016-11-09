@@ -75,7 +75,6 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.Supplier;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
@@ -733,14 +732,6 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
                     @Override
                     public void setContext(final HttpContext context) {
-                    }
-
-                    @Override
-                    public void verify(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ExpectationChannel expectationChannel) throws HttpException, IOException {
-                        expectationChannel.sendContinue();
                     }
 
                     @Override

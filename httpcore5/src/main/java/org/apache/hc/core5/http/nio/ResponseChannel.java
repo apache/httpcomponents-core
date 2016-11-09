@@ -46,6 +46,8 @@ import org.apache.hc.core5.http.HttpResponse;
 @Contract(threading = ThreadingBehavior.SAFE)
 public interface ResponseChannel {
 
+    void sendInformation(HttpResponse response) throws HttpException, IOException;
+
     void sendResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
 
     void pushPromise(HttpRequest promise, AsyncPushProducer pushProducer) throws HttpException, IOException;

@@ -175,6 +175,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                     connection.setSocketTimeout(h1Config.getWaitForContinueTimeout());
                 } else {
                     requestState = MessageState.BODY;
+                    exchangeHandler.produce(internalDataChannel);
                 }
             }
         } else {
@@ -204,36 +205,32 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
     }
 
-    private void validateStatus(final HttpResponse response) throws ProtocolException {
-        if (response.getCode() < HttpStatus.SC_INFORMATIONAL) {
-            throw new ProtocolException("Invalid response code");
-        }
-        if (response.getCode() < HttpStatus.SC_SUCCESS) {
-            if (response.getCode() != HttpStatus.SC_CONTINUE) {
-                throw new ProtocolException("Unsupported intermediate response code");
-            }
-        }
-    }
-
     void consumeHeader(final HttpResponse response, final boolean endStream) throws HttpException, IOException {
         if (done.get() || responseState != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
         }
 
-        validateStatus(response);
-
+        final int status = response.getCode();
+        if (status < HttpStatus.SC_INFORMATIONAL) {
+            throw new ProtocolException("Invalid response: " + status);
+        }
+        if (status < HttpStatus.SC_SUCCESS) {
+            exchangeHandler.consumeInformation(response);
+        }
         if (requestState == MessageState.ACK) {
-            connection.setSocketTimeout(timeout);
-            requestState = MessageState.BODY;
-            if (response.getCode() < HttpStatus.SC_CLIENT_ERROR) {
-                exchangeHandler.produce(internalDataChannel);
+            if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
+                connection.setSocketTimeout(timeout);
+                requestState = MessageState.BODY;
+                if (status < HttpStatus.SC_CLIENT_ERROR) {
+                    exchangeHandler.produce(internalDataChannel);
+                }
             }
         }
-        if (response.getCode() == HttpStatus.SC_CONTINUE) {
+        if (status < HttpStatus.SC_SUCCESS) {
             return;
         }
         if (requestState == MessageState.BODY) {
-            boolean keepAlive = response.getCode() < HttpStatus.SC_CLIENT_ERROR;
+            boolean keepAlive = status < HttpStatus.SC_CLIENT_ERROR;
             if (keepAlive) {
                 final Header h = response.getFirstHeader(HttpHeaders.CONNECTION);
                 if (h != null && HeaderElements.CLOSE.equalsIgnoreCase(h.getValue())) {

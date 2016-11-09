@@ -42,7 +42,6 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -77,14 +76,6 @@ public final class ImmediateResponseExchangeHandler implements AsyncServerExchan
             final EntityDetails entityDetails,
             final ResponseChannel responseChannel) throws HttpException, IOException {
         responseChannel.sendResponse(responseProducer.produceResponse(), responseProducer.getEntityDetails());
-    }
-
-    @Override
-    public void verify(
-            final HttpRequest request,
-            final EntityDetails entityDetails,
-            final ExpectationChannel expectationChannel) throws HttpException, IOException {
-        expectationChannel.sendContinue();
     }
 
     @Override

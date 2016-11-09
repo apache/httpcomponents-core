@@ -43,11 +43,6 @@ public interface AsyncServerExchangeHandler extends AsyncDataConsumer, AsyncData
 
     void setContext(HttpContext context);
 
-    void verify(
-            HttpRequest request,
-            EntityDetails entityDetails,
-            ExpectationChannel expectationChannel) throws HttpException, IOException;
-
     void handleRequest(
             HttpRequest request,
             EntityDetails entityDetails,

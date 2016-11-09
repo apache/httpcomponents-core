@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -46,6 +47,8 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.H2ConnectionException;
+import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
 
@@ -58,6 +61,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
     private final BasicHttpConnectionMetrics connMetrics;
     private final AsyncPushProducer pushProducer;
     private final HttpCoreContext context;
+    private final AtomicBoolean responseCommitted;
     private final AtomicBoolean done;
 
     private volatile MessageState requestState;
@@ -100,6 +104,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
         this.connMetrics = connMetrics;
         this.pushProducer = pushProducer;
         this.context = HttpCoreContext.create();
+        this.responseCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.COMPLETE;
         this.responseState = MessageState.IDLE;
@@ -136,6 +141,55 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
         }
     }
 
+    private void commitInformation(final HttpResponse response) throws IOException, HttpException {
+        if (responseCommitted.get()) {
+            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Response already committed");
+        }
+        final int status = response.getCode();
+        if (status < HttpStatus.SC_INFORMATIONAL || status >= HttpStatus.SC_SUCCESS) {
+            throw new HttpException("Invalid intermediate response: " + status);
+        }
+        final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
+        outputChannel.submit(responseHeaders, false);
+    }
+
+    private void commitResponse(
+            final HttpResponse response,
+            final EntityDetails responseEntityDetails) throws HttpException, IOException {
+        if (responseCommitted.compareAndSet(false, true)) {
+
+            context.setProtocolVersion(HttpVersion.HTTP_2);
+            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
+            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+            httpProcessor.process(response, responseEntityDetails, context);
+
+            final List<Header> headers = DefaultH2ResponseConverter.INSTANCE.convert(response);
+            outputChannel.submit(headers, responseEntityDetails == null);
+            connMetrics.incrementResponseCount();
+            if (responseEntityDetails == null) {
+                responseState = MessageState.COMPLETE;
+            } else {
+                responseState = MessageState.BODY;
+                pushProducer.produce(outputChannel);
+            }
+        }
+    }
+
+    private void commitPromise(
+            final HttpRequest promise,
+            final AsyncPushProducer pushProducer) throws HttpException, IOException {
+
+        context.setProtocolVersion(HttpVersion.HTTP_2);
+        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
+        context.setAttribute(HttpCoreContext.HTTP_REQUEST, promise);
+        httpProcessor.process(promise, null, context);
+
+        final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(promise);
+
+        outputChannel.push(headers, pushProducer);
+        connMetrics.incrementRequestCount();
+    }
+
     @Override
     public void produceOutput() throws HttpException, IOException {
         switch (responseState) {
@@ -143,38 +197,21 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
                 responseState = MessageState.HEADERS;
                 pushProducer.produceResponse(new ResponseChannel() {
 
-                    private final AtomicBoolean responseCommitted = new AtomicBoolean(false);
+                    @Override
+                    public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+                        commitInformation(response);
+                    }
 
                     @Override
                     public void sendResponse(
                             final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
-                        if (responseCommitted.compareAndSet(false, true)) {
-
-                            context.setProtocolVersion(HttpVersion.HTTP_2);
-                            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
-                            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-                            httpProcessor.process(response, entityDetails, context);
-
-                            final List<Header> headers = DefaultH2ResponseConverter.INSTANCE.convert(response);
-                            outputChannel.submit(headers, entityDetails == null);
-                            responseState = entityDetails == null ? MessageState.COMPLETE : MessageState.BODY;
-                            connMetrics.incrementResponseCount();
-                        }
+                        commitResponse(response, entityDetails);
                     }
 
                     @Override
                     public void pushPromise(
                             final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-
-                        context.setProtocolVersion(HttpVersion.HTTP_2);
-                        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
-                        context.setAttribute(HttpCoreContext.HTTP_REQUEST, promise);
-                        httpProcessor.process(promise, null, context);
-
-                        final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(promise);
-
-                        outputChannel.push(headers, pushProducer);
-                        connMetrics.incrementRequestCount();
+                        commitPromise(promise, pushProducer);
                     }
 
                 });

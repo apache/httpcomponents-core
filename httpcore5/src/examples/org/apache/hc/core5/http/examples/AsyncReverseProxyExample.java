@@ -75,7 +75,6 @@ import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.Supplier;
@@ -286,14 +285,6 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void verify(
-                final HttpRequest request,
-                final EntityDetails entityDetails,
-                final ExpectationChannel expectationChannel) throws HttpException, IOException {
-            expectationChannel.sendContinue();
-        }
-
-        @Override
         public void handleRequest(
                 final HttpRequest incomingRequest,
                 final EntityDetails entityDetails,
@@ -305,6 +296,13 @@ public class AsyncReverseProxyExample {
                 exchangeState.request = incomingRequest;
                 exchangeState.inputEnd = entityDetails == null;
                 exchangeState.responseMessageChannel = responseChannel;
+
+                if (entityDetails != null) {
+                    final Header h = incomingRequest.getFirstHeader(HttpHeaders.EXPECT);
+                    if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                        responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+                    }
+                }
             }
 
             System.out.println("[proxy->origin] " + exchangeState.id + " request connection to " + targetHost);

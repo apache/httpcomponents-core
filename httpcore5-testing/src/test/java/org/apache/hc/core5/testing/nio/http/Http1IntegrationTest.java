@@ -93,7 +93,6 @@ import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
@@ -708,7 +707,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result2 = future2.get(50000, TimeUnit.SECONDS);
+        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT, TimeUnit.SECONDS);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         Assert.assertNotNull(response2);
@@ -762,29 +761,29 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                     }
 
                     @Override
-                    public void verify(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ExpectationChannel expectationChannel) throws HttpException, IOException {
-                        Executors.newSingleThreadExecutor().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    Thread.sleep(random.nextInt(1000));
-                                    expectationChannel.sendContinue();
-                                } catch (Exception ignore) {
-                                }
-                            }
-                        });
-                    }
-
-                    @Override
                     public void handleRequest(
                             final HttpRequest request,
                             final EntityDetails entityDetails,
                             final ResponseChannel responseChannel) throws HttpException, IOException {
-                        final HttpResponse response = new BasicHttpResponse(200);
-                        responseChannel.sendResponse(response, entityProducer);
+
+                        Executors.newSingleThreadExecutor().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (entityDetails != null) {
+                                        final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
+                                        if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                                            Thread.sleep(random.nextInt(1000));
+                                            responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+                                        }
+                                        final HttpResponse response = new BasicHttpResponse(200);
+                                        responseChannel.sendResponse(response, entityProducer);
+                                    }
+                                } catch (Exception ignore) {
+                                }
+                            }
+                        });
+
                     }
 
                     @Override
@@ -803,12 +802,16 @@ public class Http1IntegrationTest extends InternalServerTestBase {
 
                     @Override
                     public int available() {
-                        return entityProducer.available();
+                        synchronized (entityProducer) {
+                            return entityProducer.available();
+                        }
                     }
 
                     @Override
                     public void produce(final DataStreamChannel channel) throws IOException {
-                        entityProducer.produce(channel);
+                        synchronized (entityProducer) {
+                            entityProducer.produce(channel);
+                        }
                     }
 
                     @Override
@@ -863,11 +866,19 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                     }
 
                     @Override
-                    public void verify(
+                    public void handleRequest(
                             final HttpRequest request,
                             final EntityDetails entityDetails,
-                            final ExpectationChannel expectationChannel) throws HttpException, IOException {
-                        expectationChannel.sendContinue();
+                            final ResponseChannel responseChannel) throws HttpException, IOException {
+                        final AsyncResponseProducer producer;
+                        final Header h = request.getFirstHeader("password");
+                        if (h != null && "secret".equals(h.getValue())) {
+                            producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
+                        } else {
+                            producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                        }
+                        responseProducer.set(producer);
+                        responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
                     }
 
                     @Override
@@ -882,22 +893,6 @@ public class Http1IntegrationTest extends InternalServerTestBase {
 
                     @Override
                     public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
-                    }
-
-                    @Override
-                    public void handleRequest(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel) throws HttpException, IOException {
-                        final AsyncResponseProducer producer;
-                        final Header h = request.getFirstHeader("password");
-                        if (h != null && "secret".equals(h.getValue())) {
-                            producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
-                        } else {
-                            producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
-                        }
-                        responseProducer.set(producer);
-                        responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
                     }
 
                     @Override

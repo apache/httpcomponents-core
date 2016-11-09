@@ -35,6 +35,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.WritableByteChannel;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -81,6 +82,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter;
     private final ConnectionListener connectionListener;
     private final Lock outputLock;
+    private final AtomicInteger outputRequests;
 
     private volatile Message<IncomingMessage, ContentDecoder> incomingMessage;
     private volatile Message<OutgoingMessage, ContentEncoder> outgoingMessage;
@@ -109,6 +111,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.outgoingMessageWriter = outgoingMessageWriter;
         this.connectionListener = connectionListener;
         this.outputLock = new ReentrantLock();
+        this.outputRequests = new AtomicInteger(0);
         this.connState = ConnectionState.READY;
     }
 
@@ -218,6 +221,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                             break;
                         } else {
                             inputEnd();
+                            ioSession.setEvent(SelectionKey.OP_READ);
                         }
                     }
                 } while (bytesRead > 0);
@@ -238,6 +242,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 if (contentDecoder.isCompleted()) {
                     incomingMessage = null;
                     inputEnd();
+                    ioSession.setEvent(SelectionKey.OP_READ);
                 }
                 if (bytesRead == 0) {
                     break;
@@ -262,15 +267,21 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (isOutputReady()) {
                 produceOutput();
             } else {
+                final int pendingOutputRequests = outputRequests.get();
+                final boolean outputPending;
                 outputLock.lock();
                 try {
-                    if (!outbuf.hasData()) {
-                        ioSession.clearEvent(SelectionKey.OP_WRITE);
-                    }
+                    outputPending = outbuf.hasData();
                 } finally {
                     outputLock.unlock();
                 }
+                if (!outputPending && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
+                    ioSession.clearEvent(SelectionKey.OP_WRITE);
+                } else {
+                    outputRequests.addAndGet(-pendingOutputRequests);
+                }
             }
+
             outputLock.lock();
             final boolean outputEnd;
             try {
@@ -280,21 +291,17 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             if (outputEnd) {
                 outputEnd();
-                processCommands();
+                if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
+                    processCommands();
+                } else if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inputIdle() && outputIdle()) {
+                    connState = ConnectionState.SHUTDOWN;
+                }
             }
         }
-        outputLock.lock();
-        try {
-            if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inputIdle() && outputIdle()) {
-                connState = ConnectionState.SHUTDOWN;
-            }
-            if (!outbuf.hasData() && connState.compareTo(ConnectionState.SHUTDOWN) >= 0) {
-                ioSession.close();
-                cancelPendingCommands();
-                releaseResources();
-            }
-        } finally {
-            outputLock.unlock();
+        if (connState.compareTo(ConnectionState.SHUTDOWN) >= 0) {
+            ioSession.close();
+            cancelPendingCommands();
+            releaseResources();
         }
     }
 
@@ -371,6 +378,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     void requestSessionOutput() {
+        outputRequests.incrementAndGet();
         ioSession.setEvent(SelectionKey.OP_WRITE);
     }
 

@@ -52,7 +52,6 @@ import org.apache.hc.core5.http.message.HttpResponseWrapper;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.ContentInputStream;
 import org.apache.hc.core5.http.nio.entity.ContentOutputStream;
@@ -98,19 +97,17 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
             HttpContext context) throws IOException, HttpException;
 
     @Override
-    public final void verify(
-            final HttpRequest request,
-            final EntityDetails entityDetails,
-            final ExpectationChannel expectationChannel) throws HttpException, IOException {
-        expectationChannel.sendContinue();
-    }
-
-    @Override
     public final void handleRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
             final ResponseChannel responseChannel) throws HttpException, IOException {
 
+        if (entityDetails != null) {
+            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
+            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+            }
+        }
         final AtomicBoolean responseCommitted = new AtomicBoolean(false);
 
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);

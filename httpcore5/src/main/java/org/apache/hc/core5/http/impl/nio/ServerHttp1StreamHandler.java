@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -47,14 +46,12 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.ExpectationChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.ResponseChannel;
@@ -145,6 +142,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             final EntityDetails responseEntityDetails) throws HttpException, IOException {
         if (responseCommitted.compareAndSet(false, true)) {
 
+            final int status = response.getCode();
+            if (status < HttpStatus.SC_SUCCESS) {
+                throw new HttpException("Invalid response: " + status);
+            }
+
             Asserts.notNull(receivedRequest, "Received request");
             final String method = receivedRequest.getMethod();
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
@@ -164,14 +166,19 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
     }
 
-    private void commitContinue() throws IOException, HttpException {
-        final HttpResponse ack = new BasicHttpResponse(HttpStatus.SC_CONTINUE);
-        outputChannel.submit(ack, false);
-        responseState = MessageState.ACK;
+    private void commitInformation(final HttpResponse response) throws IOException, HttpException {
+        if (responseCommitted.get()) {
+            throw new HttpException("Response already committed");
+        }
+        final int status = response.getCode();
+        if (status < HttpStatus.SC_INFORMATIONAL || status >= HttpStatus.SC_SUCCESS) {
+            throw new HttpException("Invalid intermediate response: " + status);
+        }
+        outputChannel.submit(response, true);
     }
 
     private void commitPromise() throws HttpException {
-        throw new ProtocolException("HTTP/1.1 does not support server push");
+        throw new HttpException("HTTP/1.1 does not support server push");
     }
 
     void activateChannel() throws IOException, HttpException {
@@ -218,15 +225,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         receivedRequest = request;
         requestState = requestEndStream ? MessageState.COMPLETE : MessageState.BODY;
 
-        final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
-        boolean expectContinue = false;
-        if (requestEntityDetails != null) {
-            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
-                expectContinue = true;
-            }
-        }
-
         AsyncServerExchangeHandler handler;
         try {
             handler = exchangeHandlerFactory.create(request);
@@ -248,54 +246,41 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
         exchangeHandler.setContext(context);
 
+        final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
         try {
             httpProcessor.process(request, requestEntityDetails, context);
         } catch (HttpException ex) {
-            expectContinue = false;
             final AsyncResponseProducer responseProducer = handleException(ex);
             exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
+            exchangeHandler.setContext(context);
         }
 
-        if (expectContinue) {
-            exchangeHandler.verify(request, requestEntityDetails, new ExpectationChannel() {
+        exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
 
-                @Override
-                public void sendResponse(
-                        final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                    validateResponse(response, responseEntityDetails);
-                    commitResponse(response, responseEntityDetails);
-                }
+            @Override
+            public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+                commitInformation(response);
+            }
 
-                @Override
-                public void sendContinue() throws HttpException, IOException {
-                    commitContinue();
-                }
+            @Override
+            public void sendResponse(
+                    final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
+                validateResponse(response, responseEntityDetails);
+                commitResponse(response, responseEntityDetails);
+            }
 
-            });
-        } else {
-            exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
+            @Override
+            public void pushPromise(
+                    final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                commitPromise();
+            }
 
-                @Override
-                public void sendResponse(
-                        final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                    validateResponse(response, responseEntityDetails);
-                    commitResponse(response, responseEntityDetails);
-                }
+        });
 
-                @Override
-                public void pushPromise(
-                        final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                    commitPromise();
-                }
-
-            });
-        }
     }
 
     boolean isOutputReady() {
         switch (responseState) {
-            case ACK:
-                return true;
             case BODY:
                 return exchangeHandler.available() > 0;
             default:
@@ -305,26 +290,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
     void produceOutput() throws HttpException, IOException {
         switch (responseState) {
-            case ACK:
-                responseState = MessageState.HEADERS;
-                Asserts.notNull(receivedRequest, "Received request");
-                exchangeHandler.handleRequest(receivedRequest, new LazyEntityDetails(receivedRequest), new ResponseChannel() {
-
-                    @Override
-                    public void sendResponse(
-                            final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                        validateResponse(response, responseEntityDetails);
-                        commitResponse(response, responseEntityDetails);
-                    }
-
-                    @Override
-                    public void pushPromise(
-                            final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                        commitPromise();
-                    }
-
-                });
-                break;
             case BODY:
                 exchangeHandler.produce(internalDataChannel);
                 break;
