@@ -40,7 +40,6 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
@@ -107,9 +106,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
     @Override
     protected void onResponseReceived(final ClassicHttpResponse response) {
         if (response != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(this.id + " << " + new StatusLine(
-                    response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1,
-                    response.getCode(), response.getReasonPhrase()));
+            this.headerlog.debug(this.id + " << " + new StatusLine(response));
             final Header[] headers = response.getAllHeaders();
             for (final Header header : headers) {
                 this.headerlog.debug(this.id + " << " + header.toString());
@@ -120,8 +117,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
     @Override
     protected void onRequestSubmitted(final ClassicHttpRequest request) {
         if (request != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(id + " >> " + new RequestLine(request.getMethod(), request.getPath(),
-                    request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
+            this.headerlog.debug(id + " >> " + new RequestLine(request));
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {
                 this.headerlog.debug(this.id + " >> " + header.toString());

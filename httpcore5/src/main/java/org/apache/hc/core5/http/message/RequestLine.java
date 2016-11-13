@@ -31,6 +31,8 @@ import java.io.Serializable;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
@@ -48,13 +50,21 @@ public final class RequestLine implements Serializable {
     private final String method;
     private final String uri;
 
+    public RequestLine(final HttpRequest request) {
+        super();
+        Args.notNull(request, "Request");
+        this.method = request.getMethod();
+        this.uri = request.getPath();
+        this.protoversion = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
+    }
+
     public RequestLine(final String method,
                        final String uri,
                        final ProtocolVersion version) {
         super();
         this.method = Args.notNull(method, "Method");
         this.uri = Args.notNull(uri, "URI");
-        this.protoversion = Args.notNull(version, "Version");
+        this.protoversion = version != null ? version : HttpVersion.HTTP_1_1;
     }
 
     public String getMethod() {

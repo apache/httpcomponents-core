@@ -41,7 +41,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -67,7 +66,9 @@ import org.apache.hc.core5.testing.nio.LoggingIOEventHandler;
 import org.apache.hc.core5.testing.nio.LoggingIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger; @Contract(threading = ThreadingBehavior.IMMUTABLE)
+import org.apache.logging.log4j.Logger;
+
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 
 /**
  * @since 5.0
@@ -168,8 +169,7 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
                         if (headerLog.isDebugEnabled()) {
-                            headerLog.debug(id + " << " + new RequestLine(request.getMethod(), request.getPath(),
-                                    request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1));
+                            headerLog.debug(id + " << " + new RequestLine(request));
                             for (final Iterator<Header> it = request.headerIterator(); it.hasNext(); ) {
                                 headerLog.debug(id + " << " + it.next());
                             }
@@ -179,9 +179,7 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
                     @Override
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
                         if (headerLog.isDebugEnabled()) {
-                            headerLog.debug(id + " >> " + new StatusLine(
-                                    response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1,
-                                    response.getCode(), response.getReasonPhrase()));
+                            headerLog.debug(id + " >> " + new StatusLine(response));
                             for (final Iterator<Header> it = response.headerIterator(); it.hasNext(); ) {
                                 headerLog.debug(id + " >> " + it.next());
                             }

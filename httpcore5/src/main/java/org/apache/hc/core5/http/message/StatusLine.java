@@ -31,6 +31,8 @@ import java.io.Serializable;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
@@ -53,6 +55,13 @@ public final class StatusLine implements Serializable {
     /** The reason phrase. */
     private final String reasonPhrase;
 
+    public StatusLine(final HttpResponse response) {
+        super();
+        Args.notNull(response, "Response");
+        this.protoVersion = response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1;
+        this.statusCode = response.getCode();
+        this.reasonPhrase = response.getReasonPhrase();
+    }
     /**
      * Creates a new status line with the given version, status, and reason.
      *
@@ -64,8 +73,8 @@ public final class StatusLine implements Serializable {
     public StatusLine(final ProtocolVersion version, final int statusCode,
                       final String reasonPhrase) {
         super();
-        this.protoVersion = Args.notNull(version, "Version");
         this.statusCode = Args.notNegative(statusCode, "Status code");
+        this.protoVersion = version != null ? version : HttpVersion.HTTP_1_1;
         this.reasonPhrase = reasonPhrase;
     }
 
