@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.message;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -51,7 +50,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     private String scheme;
     private String authority;
     private ProtocolVersion version;
-    private HttpEntity entity;
+    private URI requestUri;
 
     /**
      * Creates request message with the given method and request path.
@@ -141,8 +140,9 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     @Override
-    public void setPath(final String requestUri) {
-        this.path = requestUri;
+    public void setPath(final String path) {
+        this.path = path;
+        this.requestUri = null;
     }
 
     @Override
@@ -153,6 +153,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     @Override
     public void setScheme(final String scheme) {
         this.scheme = scheme;
+        this.requestUri = null;
     }
 
     @Override
@@ -163,23 +164,26 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     @Override
     public void setAuthority(final String authority) {
         this.authority = authority;
+        this.requestUri = null;
     }
 
     @Override
     public URI getUri() throws URISyntaxException {
-        final StringBuilder buf = new StringBuilder();
-        if (this.authority != null) {
-            buf.append(this.scheme != null ? this.scheme : "http").append("://").append(this.authority);
+        if (this.requestUri == null) {
+            final StringBuilder buf = new StringBuilder();
+            if (this.authority != null) {
+                buf.append(this.scheme != null ? this.scheme : "http").append("://").append(this.authority);
+            }
+            buf.append(this.path != null ? this.path : "/");
+            this.requestUri = new URI(buf.toString());
         }
-        buf.append(this.path != null ? this.path : "/");
-        return new URI(buf.toString());
+        return this.requestUri;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(this.method).append(" ").append(this.scheme).append("://").append(this.authority).append("/").append(this.path).append(" ")
-                .append(super.toString());
+        sb.append(this.method).append(" ").append(this.scheme).append("://").append(this.authority).append("/").append(this.path);
         return sb.toString();
     }
 

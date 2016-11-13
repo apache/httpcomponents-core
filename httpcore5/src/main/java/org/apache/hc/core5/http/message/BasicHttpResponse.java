@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Locale;
 
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
@@ -51,7 +50,6 @@ public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
     private Locale locale;
     private int code;
     private String reasonPhrase;
-    private HttpEntity entity;
 
     /**
      * Creates a new response.
@@ -167,7 +165,7 @@ public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(this.code).append(" ").append(this.code).append(this.reasonPhrase).append(" ").append(super.toString());
+        sb.append(this.code).append(" ").append(this.code).append(this.reasonPhrase);
         return sb.toString();
     }
 
