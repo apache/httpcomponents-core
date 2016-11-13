@@ -41,7 +41,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.util.Args;
 

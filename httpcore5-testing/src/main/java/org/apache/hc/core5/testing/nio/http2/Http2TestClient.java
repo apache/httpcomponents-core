@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;

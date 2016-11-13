@@ -51,7 +51,7 @@ import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandlerMapper;
 import org.apache.hc.core5.http.io.HttpServerConnection;
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;

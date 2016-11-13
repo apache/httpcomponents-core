@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.util.Args;

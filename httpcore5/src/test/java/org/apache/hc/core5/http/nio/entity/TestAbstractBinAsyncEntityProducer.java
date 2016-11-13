@@ -32,7 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.WritableByteChannelMock;
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;

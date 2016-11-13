@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.io.entity;
+package org.apache.hc.core5.http;
 
 import java.io.Serializable;
 import java.nio.charset.Charset;
@@ -41,9 +41,6 @@ import java.util.Map;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HeaderElement;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicHeaderValueFormatter;
 import org.apache.hc.core5.http.message.BasicHeaderValueParser;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
@@ -292,6 +289,19 @@ public final class ContentType implements Serializable {
         return parse(s, true);
     }
 
+    /**
+     * Parses textual representation of {@code Content-Type} value ignoring invalid charsets.
+     *
+     * @param s text
+     * @return content type
+     * {@code Content-Type} value.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * this instance of the Java virtual machine
+     */
+    public static ContentType parseLenient(final CharSequence s) throws UnsupportedCharsetException {
+        return parse(s, false);
+    }
+
     private static ContentType parse(final CharSequence s, final boolean strict) throws UnsupportedCharsetException {
         if (TextUtils.isBlank(s)) {
             return null;
@@ -303,79 +313,6 @@ public final class ContentType implements Serializable {
         }
         return null;
     }
-
-    /**
-     * Extracts {@code Content-Type} value from {@link HttpEntity} exactly as
-     * specified by the {@code Content-Type} header of the entity. Returns {@code null}
-     * if not specified.
-     *
-     * @param entity HTTP entity
-     * @return content type
-     * {@code Content-Type} value.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
-     * this instance of the Java virtual machine
-     */
-    public static ContentType get(final HttpEntity entity) throws UnsupportedCharsetException {
-        if (entity == null) {
-            return null;
-        }
-        final String contentType = entity.getContentType();
-        if (contentType != null) {
-            return parse(contentType);
-        }
-        return null;
-    }
-
-    /**
-     * Extracts {@code Content-Type} value from {@link HttpEntity}. Returns {@code null}
-     * if not specified or incorrect (could not be parsed)..
-     *
-     * @param entity HTTP entity
-     * @return content type
-     *
-     * @since 4.4
-     *
-     */
-    public static ContentType getLenient(final HttpEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        final String contentType = entity.getContentType();
-        if (contentType != null) {
-            return parse(contentType, false);
-        }
-        return null;
-    }
-
-    /**
-     * Extracts {@code Content-Type} value from {@link HttpEntity} or returns the default value
-     * {@link #DEFAULT_TEXT} if not explicitly specified.
-     *
-     * @param entity HTTP entity
-     * @return content type
-     * {@code Content-Type} value.
-     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
-     * this instance of the Java virtual machine
-     */
-    public static ContentType getOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
-        final ContentType contentType = get(entity);
-        return contentType != null ? contentType : DEFAULT_TEXT;
-    }
-
-    /**
-     * Extracts {@code Content-Type} value from {@link HttpEntity} or returns the default value
-     * {@link #DEFAULT_TEXT} if not explicitly specified or incorrect (could not be parsed).
-     *
-     * @param entity HTTP entity
-     * @return content type
-     *
-     * @since 4.4
-     */
-    public static ContentType getLenientOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
-        final ContentType contentType = get(entity);
-        return contentType != null ? contentType : DEFAULT_TEXT;
-    }
-
 
     /**
      * Returns {@code Content-Type} for the given MIME type.

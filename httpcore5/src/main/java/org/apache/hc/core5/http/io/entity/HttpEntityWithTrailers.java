@@ -37,7 +37,7 @@ import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.util.Args;
 
 /**

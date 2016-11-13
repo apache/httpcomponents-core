@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.impl;
 import java.util.Set;
 
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 
 /**
  * Basic HTTP message entity details.

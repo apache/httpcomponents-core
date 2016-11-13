@@ -54,7 +54,7 @@ import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
 

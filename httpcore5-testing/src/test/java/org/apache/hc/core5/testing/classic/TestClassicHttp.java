@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
@@ -55,7 +56,6 @@ import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
-import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -633,7 +633,7 @@ public class TestClassicHttp {
                 final HttpEntity incoming = request.getEntity();
                 if (incoming != null) {
                     final String line = EntityUtils.toString(incoming);
-                    final ContentType contentType = ContentType.getOrDefault(incoming);
+                    final ContentType contentType = EntityUtils.getContentTypeOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
                         charset = StandardCharsets.ISO_8859_1;
@@ -664,7 +664,7 @@ public class TestClassicHttp {
                 final HttpEntity incoming = response.getEntity();
                 Assert.assertNotNull(incoming);
                 final InputStream instream = incoming.getContent();
-                final ContentType contentType = ContentType.getOrDefault(incoming);
+                final ContentType contentType = EntityUtils.getContentTypeOrDefault(incoming);
                 Charset charset = contentType.getCharset();
                 if (charset == null) {
                     charset = StandardCharsets.ISO_8859_1;

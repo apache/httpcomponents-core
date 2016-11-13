@@ -29,7 +29,7 @@ package org.apache.hc.core5.testing.nio.http;
 import java.io.IOException;
 import java.nio.CharBuffer;
 
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.StreamChannel;
 import org.apache.hc.core5.http.nio.entity.AbstractCharAsyncEntityProducer;
 

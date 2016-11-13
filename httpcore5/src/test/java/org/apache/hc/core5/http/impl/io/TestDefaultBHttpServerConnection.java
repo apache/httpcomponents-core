@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;

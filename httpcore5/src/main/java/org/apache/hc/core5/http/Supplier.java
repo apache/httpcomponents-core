@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.nio;
+package org.apache.hc.core5.http;
 
 /**
  * Abstract object supplier.

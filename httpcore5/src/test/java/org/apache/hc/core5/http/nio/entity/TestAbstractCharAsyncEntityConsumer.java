@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.junit.Assert;

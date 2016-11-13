@@ -36,18 +36,19 @@ import java.util.Iterator;
 
 import javax.net.SocketFactory;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
@@ -171,7 +172,7 @@ class BenchmarkWorker implements Runnable {
 
                 final HttpEntity entity = response.getEntity();
                 if (entity != null) {
-                    final ContentType ct = ContentType.getOrDefault(entity);
+                    final ContentType ct = EntityUtils.getContentTypeOrDefault(entity);
                     Charset charset = ct.getCharset();
                     if (charset == null) {
                         charset = StandardCharsets.ISO_8859_1;

@@ -34,6 +34,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
 /**

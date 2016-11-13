@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.Http1StreamListener;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;

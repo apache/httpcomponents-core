@@ -32,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
 /**

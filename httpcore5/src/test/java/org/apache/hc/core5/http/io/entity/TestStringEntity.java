@@ -31,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.ContentType;
 import org.junit.Assert;
 import org.junit.Test;
 

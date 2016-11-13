@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 
+import org.apache.hc.core5.http.ContentType;
 import org.junit.Assert;
 import org.junit.Test;
 

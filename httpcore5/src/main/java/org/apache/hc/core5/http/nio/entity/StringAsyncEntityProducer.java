@@ -30,7 +30,7 @@ import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.StreamChannel;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;

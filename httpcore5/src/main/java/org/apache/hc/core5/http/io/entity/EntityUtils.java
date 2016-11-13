@@ -27,6 +27,9 @@
 
 package org.apache.hc.core5.http.io.entity;
 
+import static org.apache.hc.core5.http.ContentType.DEFAULT_TEXT;
+import static org.apache.hc.core5.http.ContentType.parse;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -37,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
@@ -106,6 +110,78 @@ public final class EntityUtils {
         Args.notNull(response, "Response");
         consume(response.getEntity());
         response.setEntity(entity);
+    }
+
+    /**
+     * Extracts {@code Content-Type} value from {@link HttpEntity} exactly as
+     * specified by the {@code Content-Type} header of the entity. Returns {@code null}
+     * if not specified.
+     *
+     * @param entity HTTP entity
+     * @return content type
+     * {@code Content-Type} value.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * this instance of the Java virtual machine
+     */
+    public static ContentType getContentType(final HttpEntity entity) throws UnsupportedCharsetException {
+        if (entity == null) {
+            return null;
+        }
+        final String contentType = entity.getContentType();
+        if (contentType != null) {
+            return parse(contentType);
+        }
+        return null;
+    }
+
+    /**
+     * Extracts {@code Content-Type} value from {@link HttpEntity}. Returns {@code null}
+     * if not specified or incorrect (could not be parsed)..
+     *
+     * @param entity HTTP entity
+     * @return content type
+     *
+     * @since 4.4
+     *
+     */
+    public static ContentType getContentTypeLenient(final HttpEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        final String contentType = entity.getContentType();
+        if (contentType != null) {
+            return ContentType.parseLenient(contentType);
+        }
+        return null;
+    }
+
+    /**
+     * Extracts {@code Content-Type} value from {@link HttpEntity} or returns the default value
+     * {@link ContentType#DEFAULT_TEXT} if not explicitly specified.
+     *
+     * @param entity HTTP entity
+     * @return content type
+     * {@code Content-Type} value.
+     * @throws UnsupportedCharsetException Thrown when the named charset is not available in
+     * this instance of the Java virtual machine
+     */
+    public static ContentType getContentTypeOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
+        final ContentType contentType = getContentType(entity);
+        return contentType != null ? contentType : DEFAULT_TEXT;
+    }
+
+    /**
+     * Extracts {@code Content-Type} value from {@link HttpEntity} or returns the default value
+     * {@link ContentType#DEFAULT_TEXT} if not explicitly specified or incorrect (could not be parsed).
+     *
+     * @param entity HTTP entity
+     * @return content type
+     *
+     * @since 4.4
+     */
+    public static ContentType getContentTypeLenientOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
+        final ContentType contentType = getContentType(entity);
+        return contentType != null ? contentType : DEFAULT_TEXT;
     }
 
     /**
@@ -201,7 +277,7 @@ public final class EntityUtils {
         Args.notNull(entity, "Entity");
         ContentType contentType = null;
         try {
-            contentType = ContentType.get(entity);
+            contentType = getContentType(entity);
         } catch (final UnsupportedCharsetException ex) {
             if (defaultCharset == null) {
                 throw new UnsupportedEncodingException(ex.getMessage());
@@ -212,7 +288,7 @@ public final class EntityUtils {
                 contentType = contentType.withCharset(defaultCharset);
             }
         } else {
-            contentType = ContentType.DEFAULT_TEXT.withCharset(defaultCharset);
+            contentType = DEFAULT_TEXT.withCharset(defaultCharset);
         }
         return toString(entity, contentType);
     }
@@ -252,7 +328,7 @@ public final class EntityUtils {
      */
     public static String toString(final HttpEntity entity) throws IOException, ParseException {
         Args.notNull(entity, "Entity");
-        return toString(entity, ContentType.get(entity));
+        return toString(entity, getContentType(entity));
     }
 
 }

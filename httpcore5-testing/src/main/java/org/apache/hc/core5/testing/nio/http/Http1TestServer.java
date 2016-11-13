@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServer;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;

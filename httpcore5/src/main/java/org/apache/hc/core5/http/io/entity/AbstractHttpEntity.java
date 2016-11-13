@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.nio.Supplier;
+import org.apache.hc.core5.http.Supplier;
 
 /**
  * Abstract base class for mutable entities. Provides the commonly used attributes for streamed and

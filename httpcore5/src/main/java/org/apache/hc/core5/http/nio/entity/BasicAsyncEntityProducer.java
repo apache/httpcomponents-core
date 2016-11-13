@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.http.io.entity.ContentType;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Args;
