@@ -30,7 +30,9 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.List;
 
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
@@ -90,8 +92,12 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
     }
 
     @Override
-    public void complete() throws IOException {
+    public void complete(final List<? extends Header> trailers) throws IOException {
         this.completed = true;
+    }
+
+    public final void complete() throws IOException {
+        complete(null);
     }
 
     protected void assertNotCompleted() {

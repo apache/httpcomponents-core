@@ -30,12 +30,14 @@ package org.apache.hc.core5.http.io.entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.TrailerSupplier;
+import org.apache.hc.core5.http.nio.Supplier;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,7 +48,7 @@ import org.apache.hc.core5.util.Args;
 public class HttpEntityWithTrailers implements HttpEntity {
 
     private final HttpEntity wrappedEntity;
-    private final Header[] trailers;
+    private final List<Header> trailers;
 
     /**
      * Creates a new entity wrapper.
@@ -54,7 +56,7 @@ public class HttpEntityWithTrailers implements HttpEntity {
     public HttpEntityWithTrailers(final HttpEntity wrappedEntity, final Header... trailers) {
         super();
         this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
-        this.trailers = trailers;
+        this.trailers = Arrays.asList(trailers);
     }
 
     @Override
@@ -100,10 +102,10 @@ public class HttpEntityWithTrailers implements HttpEntity {
     }
 
     @Override
-    public TrailerSupplier getTrailers() {
-        return new TrailerSupplier() {
+    public Supplier<List<? extends Header>> getTrailers() {
+        return new Supplier<List<? extends Header>>() {
             @Override
-            public Header[] get() {
+            public List<? extends Header> get() {
                 return trailers;
             }
         };

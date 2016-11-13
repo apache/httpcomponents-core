@@ -29,6 +29,9 @@ package org.apache.hc.core5.http.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
+
+import org.apache.hc.core5.http.Header;
 
 /**
  * Abstract HTTP content decoder. HTTP content decoders can be used
@@ -57,5 +60,14 @@ public interface ContentDecoder {
      * {@code false} otherwise.
      */
     boolean isCompleted();
+
+    /**
+     * Returns content trailers if available
+     *
+     * @return list of trailers
+     *
+     * @since 5.0
+     */
+    List<? extends Header> getTrailers();
 
 }

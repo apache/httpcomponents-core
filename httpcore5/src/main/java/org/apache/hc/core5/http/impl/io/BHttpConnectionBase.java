@@ -36,16 +36,17 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -53,6 +54,7 @@ import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
+import org.apache.hc.core5.http.nio.Supplier;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
 
@@ -134,7 +136,7 @@ class BHttpConnectionBase implements BHttpConnection {
             final long len,
             final SessionOutputBuffer buffer,
             final OutputStream outputStream,
-            final TrailerSupplier trailers) {
+            final Supplier<List<? extends Header>> trailers) {
         if (len >= 0) {
             return new ContentLengthOutputStream(buffer, outputStream, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {

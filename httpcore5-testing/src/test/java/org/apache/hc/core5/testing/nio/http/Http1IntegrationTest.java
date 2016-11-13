@@ -44,8 +44,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -87,9 +90,11 @@ import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
+import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
@@ -103,8 +108,11 @@ import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.Supplier;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.DigestingEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -118,6 +126,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.TextUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -819,7 +828,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                     }
 
                     @Override
-                    public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
                     }
 
                     @Override
@@ -914,7 +923,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                     }
 
                     @Override
-                    public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
                     }
 
                     @Override
@@ -1296,8 +1305,8 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         }
 
         @Override
-        public void complete() throws IOException {
-            super.complete();
+        public void complete(final List<? extends Header> trailers) throws IOException {
+            super.complete(trailers);
         }
 
         @Override
@@ -1549,6 +1558,66 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         Assert.assertNotNull(response2);
         Assert.assertEquals(400, response2.getCode());
         Assert.assertEquals("Host header is absent", result2.getBody());
+    }
+
+    @Test
+    public void testMessageWithTrailers() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
+
+                    @Override
+                    protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
+                            final HttpRequest request, final HttpContext context) throws HttpException {
+                        return new BasicRequestConsumer<>(new StringAsyncEntityConsumer());
+                    }
+
+                    @Override
+                    protected void handle(
+                            final Message<HttpRequest, String> requestMessage,
+                            final ResponseTrigger responseTrigger,
+                            final HttpContext context) throws HttpException, IOException {
+                        responseTrigger.submitResponse(new BasicResponseProducer(
+                                HttpStatus.SC_OK,
+                                new DigestingEntityProducer("MD5",
+                                        new StringAsyncEntityProducer("Hello back with some trailers"))));
+                    }
+                };
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request1 = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/hello"));
+        final DigestingEntityConsumer<String> entityConsumer = new DigestingEntityConsumer<>("MD5", new StringAsyncEntityConsumer());
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, null),
+                new BasicResponseConsumer<>(entityConsumer), null);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(200, response1.getCode());
+        Assert.assertEquals("Hello back with some trailers", result1.getBody());
+
+        final List<Header> trailers = entityConsumer.getTrailers();
+        Assert.assertNotNull(trailers);
+        Assert.assertEquals(2, trailers.size());
+        final Map<String, String> map = new HashMap<>();
+        for (Header header: trailers) {
+            map.put(header.getName().toLowerCase(Locale.ROOT), header.getValue());
+        }
+        final String digest = TextUtils.toHexString(entityConsumer.getDigest());
+        Assert.assertEquals("MD5", map.get("digest-algo"));
+        Assert.assertEquals(digest, map.get("digest"));
     }
 
 }

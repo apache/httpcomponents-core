@@ -76,4 +76,19 @@ public final class TextUtils {
         return false;
     }
 
+    public static String toHexString(final byte[] bytes) {
+        if (bytes == null) {
+            return null;
+        }
+        final StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            final byte b = bytes[i];
+            if (b < 16) {
+                buffer.append('0');
+            }
+            buffer.append(Integer.toHexString(b & 0xff));
+        }
+        return buffer.toString();
+    }
+
 }

@@ -390,7 +390,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+        public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
             synchronized (exchangeState) {
                 System.out.println("[client->proxy] " + exchangeState.id + " end of input");
                 exchangeState.inputEnd = true;
@@ -615,7 +615,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+        public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
             synchronized (exchangeState) {
                 System.out.println("[proxy<-origin] " + exchangeState.id + " end of input");
                 exchangeState.outputEnd = true;

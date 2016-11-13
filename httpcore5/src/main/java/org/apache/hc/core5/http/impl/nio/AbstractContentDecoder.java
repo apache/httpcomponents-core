@@ -30,7 +30,9 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.util.List;
 
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
@@ -142,6 +144,11 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
             this.metrics.incrementBytesTransferred(bytesRead);
         }
         return bytesRead;
+    }
+
+    @Override
+    public List<? extends Header> getTrailers() {
+        return null;
     }
 
 }

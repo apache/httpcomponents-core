@@ -189,7 +189,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
     }
 
     @Override
-    public final void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+    public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         if (!expectationFailed) {
             final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.get();
             Asserts.notNull(requestConsumer, "Data consumer");

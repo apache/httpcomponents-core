@@ -30,10 +30,12 @@ package org.apache.hc.core5.http.io.entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.Set;
 
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.TrailerSupplier;
+import org.apache.hc.core5.http.nio.Supplier;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -101,7 +103,7 @@ public class HttpEntityWrapper implements HttpEntity {
     }
 
     @Override
-    public TrailerSupplier getTrailers() {
+    public Supplier<List<? extends Header>> getTrailers() {
         return wrappedEntity.getTrailers();
     }
 

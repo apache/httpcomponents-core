@@ -32,18 +32,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.StreamClosedException;
-import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.nio.Supplier;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -373,15 +375,15 @@ public class TestChunkCoding {
     public void testChunkedOutputStreamWithTrailers() throws IOException {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(2, outbuffer, outputStream, new TrailerSupplier() {
+        final ChunkedOutputStream out = new ChunkedOutputStream(2, outbuffer, outputStream, new Supplier<List<? extends Header>>() {
             @Override
-            public Header[] get() {
-                return new Header[] {
+            public List<? extends Header> get() {
+                return Arrays.asList(
                         new BasicHeader("E", ""),
-                        new BasicHeader("Y", "Z")
-                };
+                        new BasicHeader("Y", "Z"));
+                }
             }
-        });
+        );
         out.write('x');
         out.finish();
         out.close();

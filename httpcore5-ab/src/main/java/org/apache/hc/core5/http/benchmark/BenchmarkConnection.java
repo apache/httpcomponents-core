@@ -28,11 +28,13 @@ package org.apache.hc.core5.http.benchmark;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
-import org.apache.hc.core5.http.TrailerSupplier;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
+import org.apache.hc.core5.http.nio.Supplier;
 
 class BenchmarkConnection extends DefaultBHttpClientConnection {
 
@@ -47,7 +49,7 @@ class BenchmarkConnection extends DefaultBHttpClientConnection {
     protected OutputStream createContentOutputStream(final long len,
                                                      final SessionOutputBuffer outbuffer,
                                                      final OutputStream outputStream,
-                                                     final TrailerSupplier trailers) {
+                                                     final Supplier<List<? extends Header>> trailers) {
         return new CountingOutputStream(
                 super.createContentOutputStream(len, outbuffer, outputStream, trailers),
                 this.stats);

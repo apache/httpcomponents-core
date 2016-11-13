@@ -35,6 +35,7 @@ import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.WritableByteChannel;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -42,6 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpException;
@@ -411,14 +413,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     enum MessageDelineation { NONE, CHUNK_CODED, MESSAGE_HEAD}
 
-    MessageDelineation endOutputStream() throws IOException {
+    MessageDelineation endOutputStream(final List<? extends Header> trailers) throws IOException {
         outputLock.lock();
         try {
             if (outgoingMessage == null) {
                 return MessageDelineation.NONE;
             }
             final ContentEncoder contentEncoder = outgoingMessage.getBody();
-            contentEncoder.complete();
+            contentEncoder.complete(trailers);
             ioSession.setEvent(SelectionKey.OP_WRITE);
             outgoingMessage = null;
             if (contentEncoder instanceof ChunkEncoder) {

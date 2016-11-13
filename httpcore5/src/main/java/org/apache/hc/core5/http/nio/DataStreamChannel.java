@@ -47,6 +47,6 @@ public interface DataStreamChannel extends StreamChannel<ByteBuffer> {
 
     void requestOutput();
 
-    void endStream(List<Header> trailers) throws IOException;
+    void endStream(List<? extends Header> trailers) throws IOException;
 
 }

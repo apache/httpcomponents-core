@@ -82,7 +82,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     }
 
     @Override
-    public void onHeaderInput(final List<Header> headers) {
+    public void onHeaderInput(final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             for (int i = 0; i < headers.size(); i++) {
                 headerLog.debug(id + " << " + headers.get(i));
@@ -91,7 +91,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     }
 
     @Override
-    public void onHeaderOutput(final List<Header> headers) {
+    public void onHeaderOutput(final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             for (int i = 0; i < headers.size(); i++) {
                 headerLog.debug(id + " >> " + headers.get(i));

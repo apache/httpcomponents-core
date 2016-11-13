@@ -93,8 +93,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             }
 
             @Override
-            public void endStream(final List<Header> trailers) throws IOException {
-                outputChannel.complete();
+            public void endStream(final List<? extends Header> trailers) throws IOException {
+                outputChannel.complete(trailers);
                 requestState = MessageState.COMPLETE;
             }
 
@@ -273,7 +273,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
         if (contentDecoder.isCompleted()) {
             responseState = MessageState.COMPLETE;
-            exchangeHandler.streamEnd(null);
+            exchangeHandler.streamEnd(contentDecoder.getTrailers());
             return total > 0 ? total : -1;
         } else {
             return total;

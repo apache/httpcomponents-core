@@ -42,12 +42,12 @@ import org.junit.Test;
 
 public class TestAbstractBinAsyncEntityProducer {
 
-    static private class ChunkCharAsyncEntityProducer extends AbstractBinAsyncEntityProducer {
+    static private class ChunkByteAsyncEntityProducer extends AbstractBinAsyncEntityProducer {
 
         private final byte[][] content;
         private int count = 0;
 
-        public ChunkCharAsyncEntityProducer(
+        public ChunkByteAsyncEntityProducer(
                 final int bufferSize,
                 final int fragmentSizeHint,
                 final ContentType contentType,
@@ -90,7 +90,7 @@ public class TestAbstractBinAsyncEntityProducer {
     @Test
     public void testProduceDataNoBuffering() throws Exception {
 
-        final AsyncEntityProducer producer = new ChunkCharAsyncEntityProducer(
+        final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 256, 0, ContentType.TEXT_PLAIN,
                 new byte[] { '1', '2', '3' }, new byte[] { '4', '5', '6' });
 
@@ -115,7 +115,7 @@ public class TestAbstractBinAsyncEntityProducer {
     @Test
     public void testProduceDataWithBuffering() throws Exception {
 
-        final AsyncEntityProducer producer = new ChunkCharAsyncEntityProducer(
+        final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 256, 5, ContentType.TEXT_PLAIN,
                 new byte[] { '1', '2', '3' },
                 new byte[] { '4', '5', '6' },

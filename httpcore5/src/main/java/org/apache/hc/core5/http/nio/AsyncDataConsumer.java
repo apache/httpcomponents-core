@@ -44,6 +44,6 @@ public interface AsyncDataConsumer extends ResourceHolder {
 
     int consume(ByteBuffer src) throws IOException;
 
-    void streamEnd(List<Header> trailers) throws HttpException, IOException;
+    void streamEnd(List<? extends Header> trailers) throws HttpException, IOException;
 
 }

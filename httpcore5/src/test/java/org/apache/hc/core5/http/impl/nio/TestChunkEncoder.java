@@ -30,9 +30,8 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BasicHeader;
@@ -123,7 +122,7 @@ public class TestChunkEncoder {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(1024));
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 1024);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
-        final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 1024, null);
+        final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 1024);
 
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
@@ -237,18 +236,10 @@ public class TestChunkEncoder {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
-        final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 0,
-                new TrailerSupplier() {
-                    @Override
-                    public Header[] get() {
-                        return new Header[] {
-                                new BasicHeader("E", ""),
-                                new BasicHeader("Y", "Z")};
-                    }
-                });
+        final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 0);
         encoder.write(CodecTestUtils.wrap("1"));
         encoder.write(CodecTestUtils.wrap("23"));
-        encoder.complete();
+        encoder.complete(Arrays.asList(new BasicHeader("E", ""), new BasicHeader("Y", "Z")));
 
         outbuf.flush(channel);
 

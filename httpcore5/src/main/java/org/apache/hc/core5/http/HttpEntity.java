@@ -31,6 +31,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+
+import org.apache.hc.core5.http.nio.Supplier;
 
 /**
  * An entity that can be sent or received with an HTTP message.
@@ -124,6 +127,6 @@ public interface HttpEntity extends EntityDetails, Closeable {
      *
      * @since 5.0
      */
-     TrailerSupplier getTrailers();
+    Supplier<List<? extends Header>> getTrailers();
 
 }

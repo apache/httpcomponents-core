@@ -28,9 +28,11 @@
 package org.apache.hc.core5.http.io.entity;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.hc.core5.http.TrailerSupplier;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.nio.Supplier;
 
 /**
  * Abstract base class for mutable entities. Provides the commonly used attributes for streamed and
@@ -79,7 +81,7 @@ public abstract class AbstractHttpEntity extends AbstractImmutableHttpEntity {
     }
 
     @Override
-    public TrailerSupplier getTrailers() {
+    public Supplier<List<? extends Header>> getTrailers() {
         return null;
     }
 

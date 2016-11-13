@@ -31,12 +31,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -148,8 +150,8 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public void complete() throws IOException {
-                endOutputStream();
+            public void complete(final List<? extends Header> trailers) throws IOException {
+                endOutputStream(trailers);
             }
 
             @Override
@@ -159,7 +161,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
             @Override
             public void abortOutput() throws IOException {
-                final MessageDelineation messageDelineation = endOutputStream();
+                final MessageDelineation messageDelineation = endOutputStream(null);
                 if (messageDelineation == MessageDelineation.MESSAGE_HEAD) {
                     inconsistent = true;
                     requestShutdown(ShutdownType.GRACEFUL);
@@ -266,7 +268,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         if (len >= 0) {
             return new LengthDelimitedEncoder(channel, buffer, metrics, len, fragmentSizeHint);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkEncoder(channel, buffer, metrics, fragmentSizeHint, null);
+            return new ChunkEncoder(channel, buffer, metrics, fragmentSizeHint);
         } else {
             throw new LengthRequiredException("Length required");
         }

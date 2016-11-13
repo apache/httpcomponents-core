@@ -87,7 +87,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> implements AsyncEntityC
         if (chunk > 0) {
             consumeData(charbuf);
         }
-        charbuf.compact();
+        charbuf.clear();
     }
 
     @Override
@@ -107,11 +107,11 @@ public abstract class AbstractCharAsyncEntityConsumer<T> implements AsyncEntityC
             checkResult(charsetDecoder.decode(src, charbuf, false));
             doDecode();
         }
-        return charbuf.remaining();
+        return Integer.MAX_VALUE;
     }
 
     @Override
-    public final void streamEnd(final List<Header> trailers) throws IOException {
+    public final void streamEnd(final List<? extends Header> trailers) throws IOException {
         if (charsetDecoder != null) {
             if (charbuf == null) {
                 charbuf = CharBuffer.allocate(512);

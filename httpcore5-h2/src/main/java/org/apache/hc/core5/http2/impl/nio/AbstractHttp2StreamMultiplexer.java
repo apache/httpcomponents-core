@@ -215,10 +215,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     private void commitHeaders(
-            final int streamId, final List<Header> headers, final boolean endStream) throws IOException {
-        if (headers == null || headers.isEmpty()) {
-            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
-        }
+            final int streamId, final List<? extends Header> headers, final boolean endStream) throws IOException {
         if (streamListener != null) {
             streamListener.onHeaderOutput(headers);
         }
@@ -1178,6 +1175,9 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         public void submit(final List<Header> headers, final boolean endStream) throws IOException {
             outputLock.lock();
             try {
+                if (headers == null || headers.isEmpty()) {
+                    throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
+                }
                 if (localEndStream) {
                     return;
                 }
@@ -1193,7 +1193,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         @Override
         public void push(final List<Header> headers, final AsyncPushProducer pushProducer) throws HttpException, IOException {
             if (mode == Mode.CLIENT) {
-                throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to pushPromise a response");
+                throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to push a response");
             }
             final int promisedStreamId = generateStreamId();
             final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
@@ -1239,15 +1239,19 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         }
 
         @Override
-        public void endStream(final List<Header> trailers) throws IOException {
+        public void endStream(final List<? extends Header> trailers) throws IOException {
             outputLock.lock();
             try {
                 if (localEndStream) {
                     return;
                 }
                 localEndStream = true;
-                final RawFrame frame = frameFactory.createData(id, null, true);
-                commitFrameInternal(frame);
+                if (trailers != null && !trailers.isEmpty()) {
+                    commitHeaders(id, trailers, true);
+                } else {
+                    final RawFrame frame = frameFactory.createData(id, null, true);
+                    commitFrameInternal(frame);
+                }
             } finally {
                 outputLock.unlock();
             }

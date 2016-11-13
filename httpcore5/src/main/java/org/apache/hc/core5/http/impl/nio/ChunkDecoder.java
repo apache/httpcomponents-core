@@ -68,8 +68,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
 
     private final H1Config constraints;
     private final List<CharArrayBuffer> trailerBufs;
-
-    private Header[] footers;
+    private final List<Header> trailers;
 
     /**
      * @since 4.4
@@ -87,6 +86,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.endOfStream = false;
         this.constraints = constraints != null ? constraints : H1Config.DEFAULT;
         this.trailerBufs = new ArrayList<>();
+        this.trailers = new ArrayList<>();
     }
 
     public ChunkDecoder(
@@ -169,10 +169,10 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private void processFooters() throws IOException {
         final int count = this.trailerBufs.size();
         if (count > 0) {
-            this.footers = new Header[this.trailerBufs.size()];
+            this.trailers.clear();
             for (int i = 0; i < this.trailerBufs.size(); i++) {
                 try {
-                    this.footers[i] = new BufferedHeader(this.trailerBufs.get(i));
+                    this.trailers.add(new BufferedHeader(this.trailerBufs.get(i)));
                 } catch (final ParseException ex) {
                     throw new IOException(ex.getMessage());
                 }
@@ -269,11 +269,9 @@ public class ChunkDecoder extends AbstractContentDecoder {
         return totalRead;
     }
 
-    public Header[] getFooters() {
-        if (this.footers != null) {
-            return this.footers.clone();
-        }
-        return new Header[] {};
+    @Override
+    public List<? extends Header> getTrailers() {
+        return this.trailers.isEmpty() ? null : new ArrayList<>(this.trailers);
     }
 
     @Override

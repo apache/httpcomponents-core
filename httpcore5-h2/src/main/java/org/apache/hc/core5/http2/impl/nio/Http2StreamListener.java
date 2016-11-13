@@ -38,9 +38,9 @@ import org.apache.hc.core5.http2.frame.RawFrame;
  */
 public interface Http2StreamListener {
 
-    void onHeaderInput(List<Header> headers);
+    void onHeaderInput(List<? extends Header> headers);
 
-    void onHeaderOutput(List<Header> headers);
+    void onHeaderOutput(List<? extends Header> headers);
 
     void onFrameInput(RawFrame frame);
 

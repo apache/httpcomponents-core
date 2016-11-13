@@ -38,13 +38,14 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.util.Args;
 
 public abstract class AbstractBinAsyncEntityConsumer<T> implements AsyncEntityConsumer<T> {
 
     protected abstract void dataStart(ContentType contentType, FutureCallback<T> resultCallback) throws HttpException, IOException;
 
-    protected abstract int consumeData(ByteBuffer src) throws IOException;
+    protected abstract void consumeData(ByteBuffer src) throws IOException;
 
     protected abstract void dataEnd() throws IOException;
 
@@ -62,12 +63,18 @@ public abstract class AbstractBinAsyncEntityConsumer<T> implements AsyncEntityCo
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        return consumeData(src);
+    public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+        capacityChannel.update(Integer.MAX_VALUE);
     }
 
     @Override
-    public final void streamEnd(final List<Header> trailers) throws IOException {
+    public final int consume(final ByteBuffer src) throws IOException {
+        consumeData(src);
+        return Integer.MAX_VALUE;
+    }
+
+    @Override
+    public final void streamEnd(final List<? extends Header> trailers) throws IOException {
         dataEnd();
     }
 

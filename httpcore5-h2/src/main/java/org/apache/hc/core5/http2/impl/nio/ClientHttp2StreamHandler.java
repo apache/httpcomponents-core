@@ -92,7 +92,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
             }
 
             @Override
-            public void endStream(final List<Header> trailers) throws IOException {
+            public void endStream(final List<? extends Header> trailers) throws IOException {
                 outputChannel.endStream(trailers);
                 requestState = MessageState.COMPLETE;
             }
@@ -181,34 +181,44 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
 
     @Override
     public void consumeHeader(final List<Header> headers, final boolean endStream) throws HttpException, IOException {
-        if (done.get() || responseState != MessageState.HEADERS) {
+        if (done.get()) {
             throw new ProtocolException("Unexpected message headers");
         }
-        final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
-        final int status = response.getCode();
-        if (status < HttpStatus.SC_INFORMATIONAL) {
-            throw new ProtocolException("Invalid response: " + status);
-        }
-        if (status < HttpStatus.SC_SUCCESS) {
-            exchangeHandler.consumeInformation(response);
-        }
-        if (requestState == MessageState.ACK) {
-            if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
-                requestState = MessageState.BODY;
-                exchangeHandler.produce(dataChannel);
-            }
-        }
-        if (status < HttpStatus.SC_SUCCESS) {
-            return;
-        }
+        switch (responseState) {
+            case HEADERS:
+                final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
+                final int status = response.getCode();
+                if (status < HttpStatus.SC_INFORMATIONAL) {
+                    throw new ProtocolException("Invalid response: " + status);
+                }
+                if (status < HttpStatus.SC_SUCCESS) {
+                    exchangeHandler.consumeInformation(response);
+                }
+                if (requestState == MessageState.ACK) {
+                    if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
+                        requestState = MessageState.BODY;
+                        exchangeHandler.produce(dataChannel);
+                    }
+                }
+                if (status < HttpStatus.SC_SUCCESS) {
+                    return;
+                }
 
-        final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(response);
-        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-        httpProcessor.process(response, entityDetails, context);
-        connMetrics.incrementResponseCount();
+                final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(response);
+                context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+                httpProcessor.process(response, entityDetails, context);
+                connMetrics.incrementResponseCount();
 
-        exchangeHandler.consumeResponse(response, entityDetails);
-        responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
+                exchangeHandler.consumeResponse(response, entityDetails);
+                responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
+                break;
+            case BODY:
+                responseState = MessageState.COMPLETE;
+                exchangeHandler.streamEnd(headers);
+                break;
+            default:
+                throw new ProtocolException("Unexpected message headers");
+        }
     }
 
     @Override

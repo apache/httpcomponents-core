@@ -30,10 +30,10 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.List;
 
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
@@ -46,9 +46,9 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * @since 4.0
  */
 public class ChunkEncoder extends AbstractContentEncoder {
+
     private final int fragHint;
     private final CharArrayBuffer lineBuffer;
-    private final TrailerSupplier trailers;
 
     /**
      * @param channel underlying channel.
@@ -64,19 +64,17 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics,
-            final int fragementSizeHint,
-            final TrailerSupplier trailers) {
+            final int fragementSizeHint) {
         super(channel, buffer, metrics);
         this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
-        this.trailers = trailers;
     }
 
     public ChunkEncoder(
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics) {
-        this(channel, buffer, metrics, 0, null);
+        this(channel, buffer, metrics, 0);
     }
 
     @Override
@@ -129,21 +127,21 @@ public class ChunkEncoder extends AbstractContentEncoder {
     }
 
     @Override
-    public void complete() throws IOException {
+    public void complete(final List<? extends Header> trailers) throws IOException {
         assertNotCompleted();
         this.lineBuffer.clear();
         this.lineBuffer.append("0");
         this.buffer.writeLine(this.lineBuffer);
-        writeTrailers();
+        writeTrailers(trailers);
         this.lineBuffer.clear();
         this.buffer.writeLine(this.lineBuffer);
-        super.complete();
+        super.complete(trailers);
     }
 
-    private void writeTrailers() throws IOException {
-        final Header[] headers = this.trailers != null ? this.trailers.get() : null;
-        if (headers != null) {
-            for (final Header header: headers) {
+    private void writeTrailers(final List<? extends Header> trailers) throws IOException {
+        if (trailers != null) {
+            for (int i = 0; i < trailers.size(); i++) {
+                final Header header = trailers.get(i);
                 if (header instanceof FormattedHeader) {
                     final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
                     buffer.writeLine(chbuffer);

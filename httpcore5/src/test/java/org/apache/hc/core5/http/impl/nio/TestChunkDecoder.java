@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
@@ -63,8 +64,8 @@ public class TestChunkDecoder {
         int bytesRead = decoder.read(dst);
         Assert.assertEquals(16, bytesRead);
         Assert.assertEquals("0123456789abcdef", CodecTestUtils.convert(dst));
-        final Header[] footers = decoder.getFooters();
-        Assert.assertEquals(0, footers.length);
+        final List<? extends Header> trailers = decoder.getTrailers();
+        Assert.assertEquals(null, trailers);
 
         dst.clear();
         bytesRead = decoder.read(dst);
@@ -97,12 +98,12 @@ public class TestChunkDecoder {
         Assert.assertEquals(26, bytesRead);
         Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
 
-        final Header[] footers = decoder.getFooters();
-        Assert.assertEquals(2, footers.length);
-        Assert.assertEquals("Footer1", footers[0].getName());
-        Assert.assertEquals("abcde", footers[0].getValue());
-        Assert.assertEquals("Footer2", footers[1].getName());
-        Assert.assertEquals("fghij", footers[1].getValue());
+        final List<? extends Header> trailers = decoder.getTrailers();
+        Assert.assertEquals(2, trailers.size());
+        Assert.assertEquals("Footer1", trailers.get(0).getName());
+        Assert.assertEquals("abcde", trailers.get(0).getValue());
+        Assert.assertEquals("Footer2", trailers.get(1).getName());
+        Assert.assertEquals("fghij", trailers.get(1).getValue());
 
         dst.clear();
         bytesRead = decoder.read(dst);
@@ -201,12 +202,12 @@ public class TestChunkDecoder {
         Assert.assertEquals("123456789012345612345abcdef", CodecTestUtils.convert(dst));
         Assert.assertTrue(decoder.isCompleted());
 
-        final Header[] footers = decoder.getFooters();
-        Assert.assertEquals(2, footers.length);
-        Assert.assertEquals("Footer1", footers[0].getName());
-        Assert.assertEquals("abcde", footers[0].getValue());
-        Assert.assertEquals("Footer2", footers[1].getName());
-        Assert.assertEquals("fghij", footers[1].getValue());
+        final List<? extends Header> trailers = decoder.getTrailers();
+        Assert.assertEquals(2, trailers.size());
+        Assert.assertEquals("Footer1", trailers.get(0).getName());
+        Assert.assertEquals("abcde", trailers.get(0).getValue());
+        Assert.assertEquals("Footer2", trailers.get(1).getName());
+        Assert.assertEquals("fghij", trailers.get(1).getValue());
 
         dst.clear();
         bytesRead = decoder.read(dst);
@@ -274,10 +275,10 @@ public class TestChunkDecoder {
         Assert.assertEquals(26, bytesRead);
         Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
 
-        final Header[] footers = decoder.getFooters();
-        Assert.assertEquals(1, footers.length);
-        Assert.assertEquals("Footer1", footers[0].getName());
-        Assert.assertEquals("abcde  fghij", footers[0].getValue());
+        final List<? extends Header> trailers = decoder.getTrailers();
+        Assert.assertEquals(1, trailers.size());
+        Assert.assertEquals("Footer1", trailers.get(0).getName());
+        Assert.assertEquals("abcde  fghij", trailers.get(0).getValue());
     }
 
     @Test(expected=IOException.class)
@@ -453,9 +454,9 @@ public class TestChunkDecoder {
         final int bytesRead = decoder1.read(dst);
         Assert.assertEquals(16, bytesRead);
         Assert.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
-        final Header[] footers = decoder1.getFooters();
-        Assert.assertNotNull(footers);
-        Assert.assertEquals(1, footers.length);
+        final List<? extends Header> trailers = decoder1.getTrailers();
+        Assert.assertNotNull(trailers);
+        Assert.assertEquals(1, trailers.size());
 
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -488,9 +489,9 @@ public class TestChunkDecoder {
         final int bytesRead = decoder1.read(dst);
         Assert.assertEquals(16, bytesRead);
         Assert.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
-        final Header[] footers = decoder1.getFooters();
-        Assert.assertNotNull(footers);
-        Assert.assertEquals(1, footers.length);
+        final List<? extends Header> trailers = decoder1.getTrailers();
+        Assert.assertNotNull(trailers);
+        Assert.assertEquals(1, trailers.size());
 
         final H1Config constraints = H1Config.custom()
                 .setMaxLineLength(25)
@@ -526,9 +527,9 @@ public class TestChunkDecoder {
         final int bytesRead = decoder1.read(dst);
         Assert.assertEquals(16, bytesRead);
         Assert.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
-        final Header[] footers = decoder1.getFooters();
-        Assert.assertNotNull(footers);
-        Assert.assertEquals(4, footers.length);
+        final List<? extends Header> trailers = decoder1.getTrailers();
+        Assert.assertNotNull(trailers);
+        Assert.assertEquals(4, trailers.size());
 
         final H1Config constraints = H1Config.custom()
                 .setMaxHeaderCount(3).build();

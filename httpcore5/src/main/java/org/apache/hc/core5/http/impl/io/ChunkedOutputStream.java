@@ -29,13 +29,14 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.StreamClosedException;
-import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
+import org.apache.hc.core5.http.nio.Supplier;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -61,7 +62,7 @@ public class ChunkedOutputStream extends OutputStream {
     private boolean wroteLastChunk = false;
     private boolean closed = false;
     private final CharArrayBuffer lineBuffer;
-    private final TrailerSupplier trailers;
+    private final Supplier<List<? extends Header>> trailerSupplier;
 
     /**
      * Default constructor.
@@ -69,17 +70,18 @@ public class ChunkedOutputStream extends OutputStream {
      * @param minChunkSize The minimum chunk size (excluding last chunk)
      * @param buffer Session output buffer
      * @param outputStream Output stream
-     * @param trailers Trailer supplier. May be {@code null}
+     * @param trailerSupplier Trailer supplier. May be {@code null}
      *
      * @since 5.0
      */
-    public ChunkedOutputStream(final int minChunkSize, final SessionOutputBuffer buffer, final OutputStream outputStream, final TrailerSupplier trailers) {
+    public ChunkedOutputStream(final int minChunkSize, final SessionOutputBuffer buffer, final OutputStream outputStream,
+                               final Supplier<List<? extends Header>> trailerSupplier) {
         super();
         this.buffer = Args.notNull(buffer, "Session output buffer");
         this.outputStream = Args.notNull(outputStream, "Output stream");
         this.cache = new byte[minChunkSize];
         this.lineBuffer = new CharArrayBuffer(32);
-        this.trailers = trailers;
+        this.trailerSupplier = trailerSupplier;
     }
 
     /**
@@ -134,9 +136,10 @@ public class ChunkedOutputStream extends OutputStream {
     }
 
     private void writeTrailers() throws IOException {
-        final Header[] headers = this.trailers != null ? this.trailers.get() : null;
-        if (headers != null) {
-            for (final Header header: headers) {
+        final List<? extends Header> trailers = this.trailerSupplier != null ? this.trailerSupplier.get() : null;
+        if (trailers != null) {
+            for (int i = 0; i < trailers.size(); i++) {
+                final Header header = trailers.get(i);
                 if (header instanceof FormattedHeader) {
                     final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
                     this.buffer.writeLine(chbuffer, this.outputStream);

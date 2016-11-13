@@ -136,7 +136,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder implements Fi
             }
         }
         if (this.remaining <= 0) {
-            super.complete();
+            super.complete(null);
         }
         return total;
     }
@@ -164,7 +164,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder implements Fi
         }
         this.remaining -= bytesWritten;
         if (this.remaining <= 0) {
-            super.complete();
+            super.complete(null);
         }
         return bytesWritten;
     }

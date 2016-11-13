@@ -94,7 +94,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
             }
 
             @Override
-            public void endStream(final List<Header> trailers) throws IOException {
+            public void endStream(final List<? extends Header> trailers) throws IOException {
                 outputChannel.endStream(trailers);
                 responseState = MessageState.COMPLETE;
             }
@@ -172,54 +172,64 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
     }
 
     @Override
-    public void consumeHeader(final List<Header> requestHeaders, final boolean requestEndStream) throws HttpException, IOException {
-        if (done.get() || requestState != MessageState.HEADERS) {
+    public void consumeHeader(final List<Header> headers, final boolean endStream) throws HttpException, IOException {
+        if (done.get()) {
             throw new ProtocolException("Unexpected message headers");
         }
-        requestState = requestEndStream ? MessageState.COMPLETE : MessageState.BODY;
+        switch (requestState) {
+            case HEADERS:
+                requestState = endStream ? MessageState.COMPLETE : MessageState.BODY;
 
-        final HttpRequest request = DefaultH2RequestConverter.INSTANCE.convert(requestHeaders);
-        final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
+                final HttpRequest request = DefaultH2RequestConverter.INSTANCE.convert(headers);
+                final EntityDetails requestEntityDetails = endStream ? null : new LazyEntityDetails(request);
 
-        final AsyncServerExchangeHandler handler;
-        try {
-            handler = exchangeHandlerFactory != null ? exchangeHandlerFactory.create(request) : null;
-        } catch (ProtocolException ex) {
-            throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                final AsyncServerExchangeHandler handler;
+                try {
+                    handler = exchangeHandlerFactory != null ? exchangeHandlerFactory.create(request) : null;
+                } catch (ProtocolException ex) {
+                    throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                }
+                if (handler == null) {
+                    throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
+                }
+                exchangeHandler = handler;
+
+                context.setProtocolVersion(HttpVersion.HTTP_2);
+                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+                context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
+                exchangeHandler.setContext(context);
+
+                httpProcessor.process(request, requestEntityDetails, context);
+                connMetrics.incrementRequestCount();
+
+                exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
+
+                    @Override
+                    public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+                        commitInformation(response);
+                    }
+
+                    @Override
+                    public void sendResponse(
+                            final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
+                        commitResponse(response, responseEntityDetails);
+                    }
+
+                    @Override
+                    public void pushPromise(
+                            final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                        commitPromise(promise, pushProducer);
+                    }
+
+                });
+                break;
+            case BODY:
+                responseState = MessageState.COMPLETE;
+                exchangeHandler.streamEnd(headers);
+                break;
+            default:
+                throw new ProtocolException("Unexpected message headers");
         }
-        if (handler == null) {
-            throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
-        }
-        exchangeHandler = handler;
-
-        context.setProtocolVersion(HttpVersion.HTTP_2);
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
-        exchangeHandler.setContext(context);
-
-        httpProcessor.process(request, requestEntityDetails, context);
-        connMetrics.incrementRequestCount();
-
-        exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
-
-            @Override
-            public void sendInformation(final HttpResponse response) throws HttpException, IOException {
-                commitInformation(response);
-            }
-
-            @Override
-            public void sendResponse(
-                    final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                commitResponse(response, responseEntityDetails);
-            }
-
-            @Override
-            public void pushPromise(
-                    final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                commitPromise(promise, pushProducer);
-            }
-
-        });
     }
 
     @Override

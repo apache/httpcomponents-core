@@ -97,7 +97,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
-    public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         dataConsumer.streamEnd(trailers);
     }
 

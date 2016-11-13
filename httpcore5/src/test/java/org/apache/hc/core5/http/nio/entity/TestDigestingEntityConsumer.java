@@ -25,15 +25,29 @@
  *
  */
 
-package org.apache.hc.core5.http;
+package org.apache.hc.core5.http.nio.entity;
 
-/**
- * Supplier of trailing headers to be sent after message body.
- *
- * @since 5.0
- */
-public interface TrailerSupplier {
+import java.nio.ByteBuffer;
 
-    Header[] get();
+import org.apache.hc.core5.util.TextUtils;
+import org.junit.Assert;
+import org.junit.Test;
+
+public class TestDigestingEntityConsumer {
+
+    @Test
+    public void testConsumeData() throws Exception {
+
+        final DigestingEntityConsumer<String> consumer = new DigestingEntityConsumer<>("MD5",
+                new StringAsyncEntityConsumer());
+
+        consumer.consume(ByteBuffer.wrap(new byte[]{'1', '2', '3'}));
+        consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
+        consumer.consume(ByteBuffer.wrap(new byte[]{}));
+        consumer.streamEnd(null);
+
+        Assert.assertEquals("12345", consumer.getContent());
+        Assert.assertEquals("0827c0cb0e0ea08a706c4c340a1680910f84e7b", TextUtils.toHexString(consumer.getDigest()));
+    }
 
 }

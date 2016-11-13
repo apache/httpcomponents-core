@@ -69,7 +69,7 @@ public class TestSharedOutputBuffer {
         }
 
         @Override
-        public synchronized void endStream(final List<Header> trailers) throws IOException {
+        public synchronized void endStream(final List<? extends Header> trailers) throws IOException {
             channel.close();
             notifyAll();
         }

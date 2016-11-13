@@ -88,7 +88,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
             }
 
             @Override
-            public void endStream(final List<Header> trailers) throws IOException {
+            public void endStream(final List<? extends Header> trailers) throws IOException {
                 outputChannel.endStream(trailers);
                 responseState = MessageState.COMPLETE;
             }

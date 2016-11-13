@@ -28,6 +28,9 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -36,50 +39,77 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
  */
-public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
+public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {
 
-    private volatile FutureCallback<Void> resultCallback;
+    private final AsyncEntityConsumer<T> wrapped;
+    private final List<Header> trailers;
+    private final MessageDigest digester;
+
+    private volatile byte[] digest;
+
+    public DigestingEntityConsumer(
+            final String algo,
+            final AsyncEntityConsumer<T> wrapped) throws NoSuchAlgorithmException {
+        this.wrapped = Args.notNull(wrapped, "Entity consumer");
+        this.trailers = new ArrayList<>();
+        this.digester = MessageDigest.getInstance(algo);
+    }
 
     @Override
-    public final void streamStart(
+    public void streamStart(
             final EntityDetails entityDetails,
-            final FutureCallback<Void> resultCallback) throws IOException, HttpException {
-        this.resultCallback = resultCallback;
+            final FutureCallback<T> resultCallback) throws IOException, HttpException {
+        wrapped.streamStart(entityDetails, resultCallback);
     }
 
     @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-        capacityChannel.update(Integer.MAX_VALUE);
+        wrapped.updateCapacity(capacityChannel);
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        return Integer.MAX_VALUE;
+    public int consume(final ByteBuffer src) throws IOException {
+        src.mark();
+        digester.update(src);
+        src.reset();
+        return wrapped.consume(src);
     }
 
     @Override
-    public final void streamEnd(final List<? extends Header> trailers) throws IOException {
-        if (resultCallback != null) {
-            resultCallback.completed(null);
+    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+        if (trailers != null) {
+            this.trailers.addAll(trailers);
         }
+        digest = digester.digest();
+        wrapped.streamEnd(trailers);
     }
 
     @Override
     public void failed(final Exception cause) {
-        releaseResources();
+        wrapped.failed(cause);
     }
 
     @Override
-    public Void getContent() {
-        return null;
+    public T getContent() {
+        return wrapped.getContent();
     }
 
     @Override
     public void releaseResources() {
+        wrapped.releaseResources();
+    }
+
+    public List<Header> getTrailers() {
+        return trailers != null ? new ArrayList<>(trailers) : null;
+    }
+
+    public byte[] getDigest() {
+        return digest;
     }
 
 }

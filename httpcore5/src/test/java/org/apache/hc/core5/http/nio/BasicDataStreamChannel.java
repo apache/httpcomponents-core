@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
@@ -37,6 +38,7 @@ import org.apache.hc.core5.http.Header;
 public class BasicDataStreamChannel implements DataStreamChannel {
 
     private final WritableByteChannel byteChannel;
+    private List<Header> trailers;
 
     public BasicDataStreamChannel(final WritableByteChannel byteChannel) {
         this.byteChannel = byteChannel;
@@ -59,8 +61,16 @@ public class BasicDataStreamChannel implements DataStreamChannel {
     }
 
     @Override
-    public void endStream(final List<Header> trailers) throws IOException {
+    public void endStream(final List<? extends Header> trailers) throws IOException {
         endStream();
+        if (trailers != null) {
+            this.trailers = new ArrayList<>();
+            this.trailers.addAll(trailers);
+        }
+    }
+
+    public List<Header> getTrailers() {
+        return trailers;
     }
 
 }

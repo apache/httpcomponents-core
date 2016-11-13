@@ -295,7 +295,7 @@ public final class HPackEncoder {
     }
 
     void encodeHeaders(
-            final ByteArrayBuffer dst, final List<Header> headers,
+            final ByteArrayBuffer dst, final List<? extends Header> headers,
             final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException {
         for (int i = 0; i < headers.size(); i++) {
             encodeHeader(dst, headers.get(i), noIndexing, useHuffman);
@@ -317,7 +317,7 @@ public final class HPackEncoder {
     }
 
     public void encodeHeaders(
-            final ByteArrayBuffer dst, final List<Header> headers) throws CharacterCodingException {
+            final ByteArrayBuffer dst, final List<? extends Header> headers) throws CharacterCodingException {
         Args.notNull(dst, "ByteArrayBuffer");
         Args.notEmpty(headers, "Header list");
         encodeHeaders(dst, headers, false, true);

@@ -29,6 +29,9 @@ package org.apache.hc.core5.http.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.List;
+
+import org.apache.hc.core5.http.Header;
 
 /**
  * Abstract HTTP content encoder. HTTP content encoders can be used
@@ -53,7 +56,7 @@ public interface ContentEncoder {
      *
      * @throws IOException if I/O error occurs while writing content
      */
-    void complete() throws IOException;
+    void complete(List<? extends Header> trailers) throws IOException;
 
     /**
      * Returns {@code true} if the entity has been transferred in its

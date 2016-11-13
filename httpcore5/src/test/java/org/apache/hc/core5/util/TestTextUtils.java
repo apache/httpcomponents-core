@@ -61,4 +61,10 @@ public class TestTextUtils {
         Assert.assertFalse(TextUtils.containsBlanks("a"));
     }
 
+    @Test
+    public void testToHexString() {
+        Assert.assertEquals("000c2001", TextUtils.toHexString(new byte[] { 0, 12, 32, 1 }));
+        Assert.assertEquals(null, TextUtils.toHexString(null));
+    }
+
 }

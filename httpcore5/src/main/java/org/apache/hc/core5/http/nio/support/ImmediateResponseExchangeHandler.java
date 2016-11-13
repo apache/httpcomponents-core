@@ -89,7 +89,7 @@ public final class ImmediateResponseExchangeHandler implements AsyncServerExchan
     }
 
     @Override
-    public void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
     }
 
     @Override

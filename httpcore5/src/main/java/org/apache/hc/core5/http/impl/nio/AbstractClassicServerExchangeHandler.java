@@ -271,7 +271,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
     }
 
     @Override
-    public final void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+    public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         Asserts.notNull(inputBuffer, "Input buffer");
         inputBuffer.markEndStream();
     }

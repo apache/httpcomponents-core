@@ -30,12 +30,13 @@ package org.apache.hc.core5.http.impl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.TrailerSupplier;
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.apache.hc.core5.http.io.entity.AbstractImmutableHttpEntity;
+import org.apache.hc.core5.http.nio.Supplier;
 
 /**
  * Represents entity received from an open connection.
@@ -94,7 +95,7 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
     }
 
     @Override
-    public TrailerSupplier getTrailers() {
+    public Supplier<List<? extends Header>> getTrailers() {
         return null;
     }
 

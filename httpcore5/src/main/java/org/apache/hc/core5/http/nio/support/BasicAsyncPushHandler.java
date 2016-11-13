@@ -101,7 +101,7 @@ public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
     }
 
     @Override
-    public final void streamEnd(final List<Header> trailers) throws HttpException, IOException {
+    public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         responseConsumer.streamEnd(trailers);
     }
 
