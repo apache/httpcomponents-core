@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.reactor.ssl;
 
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
@@ -39,18 +38,7 @@ import org.apache.hc.core5.reactor.IOSession;
  *
  * @since 4.2
  */
-public interface SSLSetupHandler {
-
-    /**
-     * Triggered when the SSL connection is being initialized. Custom handlers
-     * can use this callback to customize properties of the {@link SSLEngine}
-     * used to establish the SSL session.
-     *
-     * @param sslengine the SSL engine.
-     * @throws SSLException if case of SSL protocol error.
-     */
-    //FIXME: fix type
-    void initalize(SSLEngine sslengine) throws SSLException;
+public interface SSLSessionVerifier {
 
     /**
      * Triggered when the SSL connection has been established and initial SSL

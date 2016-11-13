@@ -79,6 +79,7 @@ public interface IOSession {
      * @since 5.0
      */
     void addFirst(Command command);
+
     /**
      * Retrieves and removes first {@link Command} from the command queue.
      *

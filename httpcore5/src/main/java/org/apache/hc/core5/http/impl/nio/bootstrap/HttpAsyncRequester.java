@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.impl.nio.bootstrap;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -36,9 +35,9 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -74,14 +73,14 @@ public class HttpAsyncRequester extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final InetSocketAddress address,
+            final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit,
             final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
-        Args.notNull(address, "Address");
+        Args.notNull(remoteEndpoint, "Remote endpoint");
         Args.notNull(timeUnit, "Time unit");
         final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
-        requestSession(address, timeout, timeUnit, new SessionRequestCallback() {
+        requestSession(remoteEndpoint, timeout, timeUnit, new SessionRequestCallback() {
 
             @Override
             public void completed(final SessionRequest request) {
@@ -108,21 +107,10 @@ public class HttpAsyncRequester extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final InetSocketAddress address,
+            final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(address, timeout, timeUnit, null);
-    }
-
-    public Future<ClientEndpoint> connect(
-            final HttpHost host,
-            final long timeout,
-            final TimeUnit timeUnit) throws InterruptedException {
-        Args.notNull(host, "HTTP host");
-        final InetSocketAddress address = host.getAddress() != null ?
-                new InetSocketAddress(host.getAddress(), host.getPort()) :
-                new InetSocketAddress(host.getHostName(), host.getPort());
-        return connect(address, timeout, timeUnit);
+        return connect(remoteEndpoint, timeout, timeUnit, null);
     }
 
 }

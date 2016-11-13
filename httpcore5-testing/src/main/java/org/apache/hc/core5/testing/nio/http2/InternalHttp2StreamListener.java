@@ -50,9 +50,9 @@ class InternalHttp2StreamListener implements Http2StreamListener {
         this.id = id;
         this.framePrinter = new FramePrinter();
         this.headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
-        this.frameLog = LogManager.getLogger("org.apache.hc.core5.http.frame");
-        this.framePayloadLog = LogManager.getLogger("org.apache.hc.core5.http.frame.payload");
-        this.flowCtrlLog = LogManager.getLogger("org.apache.hc.core5.http.flow");
+        this.frameLog = LogManager.getLogger("org.apache.hc.core5.http2.frame");
+        this.framePayloadLog = LogManager.getLogger("org.apache.hc.core5.http2.frame.payload");
+        this.flowCtrlLog = LogManager.getLogger("org.apache.hc.core5.http2.flow");
     }
 
     private void logFrameInfo(final String prefix, final RawFrame frame) {

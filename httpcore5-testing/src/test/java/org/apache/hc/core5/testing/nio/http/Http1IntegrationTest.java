@@ -42,6 +42,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -60,6 +62,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -110,15 +113,32 @@ import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.reactor.IOEventHandler;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
+import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class Http1IntegrationTest extends InternalServerTestBase {
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                { ProtocolScheme.HTTP },
+                { ProtocolScheme.HTTPS }
+        });
+    }
+
+    public Http1IntegrationTest(final ProtocolScheme scheme) {
+        super(scheme);
+    }
 
     private static final long TIMEOUT = 5;
 
@@ -126,7 +146,9 @@ public class Http1IntegrationTest extends InternalServerTestBase {
 
     @Before
     public void setup() throws Exception {
-        client = new Http1TestClient();
+        client = new Http1TestClient(
+                IOReactorConfig.DEFAULT,
+                scheme == ProtocolScheme.HTTPS ? createClientSSLContext() : null);
     }
 
     @After
@@ -679,7 +701,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
 
         client.start();
         final SessionRequest sessionRequest = client.requestSession(
-                new InetSocketAddress("localhost", serverEndpoint.getPort()), TIMEOUT, TimeUnit.SECONDS, null);
+                new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, TimeUnit.SECONDS, null);
         sessionRequest.waitFor();
         final IOSession ioSession = sessionRequest.getSession();
         final ClientEndpoint streamEndpoint = new ClientEndpointImpl(ioSession);
@@ -1328,7 +1350,8 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                 },
                 H1Config.DEFAULT,
                 ConnectionConfig.DEFAULT,
-                DefaultConnectionReuseStrategy.INSTANCE) {
+                DefaultConnectionReuseStrategy.INSTANCE,
+                scheme == ProtocolScheme.HTTPS ? createServerSSLContext() : null) {
 
             @Override
             protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(
@@ -1383,7 +1406,6 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
             Assert.assertTrue(cause instanceof MalformedChunkCodingException);
-            Assert.assertTrue(responseConsumer.getException() instanceof MalformedChunkCodingException);
             Assert.assertEquals("garbage", responseConsumer.getResponseContent());
         }
     }

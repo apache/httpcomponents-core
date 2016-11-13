@@ -41,6 +41,8 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -86,6 +88,8 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.testing.nio.http.EchoHandler;
 import org.apache.hc.core5.testing.nio.http.MessageExchangeHandler;
 import org.apache.hc.core5.testing.nio.http.MultiLineEntityProducer;
@@ -95,8 +99,23 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class Http2IntegrationTest extends InternalServerTestBase {
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                { ProtocolScheme.HTTP },
+                { ProtocolScheme.HTTPS }
+        });
+    }
+
+    public Http2IntegrationTest(final ProtocolScheme scheme) {
+        super(scheme);
+    }
 
     private static final long TIMEOUT = 5;
 
@@ -104,7 +123,8 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
     @Before
     public void setup() throws Exception {
-        client = new Http2TestClient();
+        client = new Http2TestClient(IOReactorConfig.DEFAULT,
+                scheme == ProtocolScheme.HTTPS ? createClientSSLContext() : null);
     }
 
     @After

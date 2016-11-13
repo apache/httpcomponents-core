@@ -24,19 +24,28 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.reactor.ssl;
+
+package org.apache.hc.core5.net;
 
 /**
- * Encapsulates logic to manager SSL input/output buffers.
+ * Endpoint identified by name (usually a fully qualified domain name) and port.
+ *
+ * @since 5.0
  */
-public interface SSLBufferManagementStrategy {
+public interface NamedEndpoint {
 
     /**
-     * Creates a {@link SSLBuffer} of {@code size}.
-     * @param size size of the buffer to create
-     * @return constructed buffer
-     * @throws IllegalArgumentException if {@code size} is not greater than {@code 0}
+     * Returns name (IP or DNS name).
+     *
+     * @return the host name (IP or DNS name)
      */
-    SSLBuffer constructBuffer(int size);
+    String getHostName();
+
+    /**
+     * Returns the port.
+     *
+     * @return the host port, or {@code -1} if not set
+     */
+    int getPort();
 
 }

@@ -24,51 +24,24 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.hc.core5.reactor.ssl;
 
-import java.nio.ByteBuffer;
-
-import org.apache.hc.core5.util.Args;
+import javax.net.ssl.SSLContext;
 
 /**
- * A {@link SSLBufferManagementStrategy} that never releases the underlying buffer.
+ * Represents capability to start a TLS session.
+ *
+ * @since 5.0
  */
-public class PermanentSSLBufferManagementStrategy implements SSLBufferManagementStrategy {
+public interface TlsCapable {
 
-    @Override
-    public SSLBuffer constructBuffer(final int size) {
-        return new InternalBuffer(size);
-    }
+    void startTls(
+            SSLContext sslContext,
+            SSLBufferManagement sslBufferManagement,
+            SSLSessionInitializer initializer,
+            SSLSessionVerifier verifier) throws UnsupportedOperationException;
 
+    boolean isTlsActive();
 
-    private static final class InternalBuffer implements SSLBuffer {
-
-        private final ByteBuffer buffer;
-
-        public InternalBuffer(final int size) {
-            Args.positive(size, "size");
-            buffer = ByteBuffer.allocate(size);
-        }
-
-        @Override
-        public ByteBuffer acquire() {
-            return buffer;
-        }
-
-        @Override
-        public void release() {
-            // do nothing
-        }
-
-        @Override
-        public boolean isAcquired() {
-            return true;
-        }
-
-        @Override
-        public boolean hasData() {
-            return buffer.position() > 0;
-        }
-
-    }
 }

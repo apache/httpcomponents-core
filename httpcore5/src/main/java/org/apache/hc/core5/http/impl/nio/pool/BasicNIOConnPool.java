@@ -27,7 +27,6 @@
 package org.apache.hc.core5.http.impl.nio.pool;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +36,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.pool.nio.AbstractNIOConnPool;
 import org.apache.hc.core5.pool.nio.NIOConnFactory;
 import org.apache.hc.core5.pool.nio.SocketAddressResolver;
@@ -71,17 +71,18 @@ public class BasicNIOConnPool extends AbstractNIOConnPool<HttpHost, IOSession, B
         }
 
         @Override
-        public SocketAddress resolveRemoteAddress(final HttpHost host) {
+        public NamedEndpoint resolveRemoteEndpoint(final HttpHost host) {
+            final String schemeName = host.getSchemeName();
             final String hostname = host.getHostName();
             int port = host.getPort();
             if (port == -1) {
-                if (host.getSchemeName().equalsIgnoreCase("http")) {
+                if (schemeName.equalsIgnoreCase("http")) {
                     port = 80;
-                } else if (host.getSchemeName().equalsIgnoreCase("https")) {
+                } else if (schemeName.equalsIgnoreCase("https")) {
                     port = 443;
                 }
             }
-            return new InetSocketAddress(hostname, port);
+            return new HttpHost(hostname, port, schemeName);
         }
 
     }

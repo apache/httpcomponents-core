@@ -29,6 +29,8 @@ package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
 
+import org.apache.hc.core5.net.NamedEndpoint;
+
 /**
  * Non-blocking connection initiator.
  *
@@ -61,15 +63,15 @@ public interface ConnectionInitiator {
      * to session requests, such as request completion, cancellation, failure or
      * timeout.
      *
-     * @param remoteAddress the socket address of the remote host.
-     * @param localAddress the local socket address. Can be {@code null},
+     * @param remoteEndpoint name of the remote host.
+     * @param localAddress local socket address. Can be {@code null},
      *    in which can the default local address and a random port will be used.
      * @param attachment the attachment object. Can be {@code null}.
      * @param callback interface. Can be {@code null}.
      * @return session request object.
      */
     SessionRequest connect(
-            SocketAddress remoteAddress,
+            NamedEndpoint remoteEndpoint,
             SocketAddress localAddress,
             Object attachment,
             SessionRequestCallback callback);

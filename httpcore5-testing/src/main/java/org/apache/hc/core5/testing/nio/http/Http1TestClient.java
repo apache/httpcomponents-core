@@ -28,14 +28,16 @@
 package org.apache.hc.core5.testing.nio.http;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -46,6 +48,7 @@ import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionCallback;
@@ -55,7 +58,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 public class Http1TestClient extends AsyncRequester {
 
-    public Http1TestClient(final IOReactorConfig ioReactorConfig) throws IOException {
+    private final SSLContext sslContext;
+
+    public Http1TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
 
             private final Logger log = LogManager.getLogger(Http1TestClient.class);
@@ -71,10 +76,11 @@ public class Http1TestClient extends AsyncRequester {
                 session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
         });
+        this.sslContext = sslContext;
     }
 
     public Http1TestClient() throws IOException {
-        this(IOReactorConfig.DEFAULT);
+        this(IOReactorConfig.DEFAULT, null);
     }
 
     public void start(
@@ -85,7 +91,8 @@ public class Http1TestClient extends AsyncRequester {
                 httpProcessor,
                 h1Config,
                 connectionConfig,
-                DefaultConnectionReuseStrategy.INSTANCE));
+                DefaultConnectionReuseStrategy.INSTANCE,
+                sslContext));
     }
 
     public void start(final H1Config h1Config, final ConnectionConfig connectionConfig) throws IOException {
@@ -102,20 +109,20 @@ public class Http1TestClient extends AsyncRequester {
 
     @Override
     public SessionRequest requestSession(
-            final InetSocketAddress address,
+            final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit,
             final SessionRequestCallback callback) throws InterruptedException {
-        return super.requestSession(address, timeout, timeUnit, callback);
+        return super.requestSession(remoteEndpoint, timeout, timeUnit, callback);
     }
 
     public Future<ClientEndpoint> connect(
-            final InetSocketAddress address,
+            final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit,
             final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
         final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
-        requestSession(address, timeout, timeUnit, new SessionRequestCallback() {
+        requestSession(remoteEndpoint, timeout, timeUnit, new SessionRequestCallback() {
 
             @Override
             public void completed(final SessionRequest request) {
@@ -142,10 +149,10 @@ public class Http1TestClient extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final InetSocketAddress address,
+            final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(address, timeout, timeUnit, null);
+        return connect(remoteEndpoint, timeout, timeUnit, null);
     }
 
     public Future<ClientEndpoint> connect(
@@ -153,7 +160,7 @@ public class Http1TestClient extends AsyncRequester {
             final int port,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(new InetSocketAddress(hostname, port), timeout, timeUnit);
+        return connect(new HttpHost(hostname, port), timeout, timeUnit);
     }
 
 }

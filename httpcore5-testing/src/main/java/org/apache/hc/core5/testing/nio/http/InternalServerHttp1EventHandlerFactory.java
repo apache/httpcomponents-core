@@ -30,6 +30,8 @@ package org.apache.hc.core5.testing.nio.http;
 import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -60,6 +62,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.TlsCapable;
 import org.apache.hc.core5.testing.nio.LoggingIOEventHandler;
 import org.apache.hc.core5.testing.nio.LoggingIOSession;
 import org.apache.hc.core5.util.Args;
@@ -78,19 +81,22 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
     private final H1Config h1Config;
     private final ConnectionConfig connectionConfig;
     private final ConnectionReuseStrategy connectionReuseStrategy;
+    private final SSLContext sslContext;
 
     InternalServerHttp1EventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final H1Config h1Config,
             final ConnectionConfig connectionConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy) {
+            final ConnectionReuseStrategy connectionReuseStrategy,
+            final SSLContext sslContext) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.connectionConfig = connectionConfig != null ? connectionConfig: ConnectionConfig.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
+        this.sslContext = sslContext;
     }
 
     protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(
@@ -114,6 +120,9 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final IOSession ioSession) {
         final String id = "http1-incoming-" + COUNT.incrementAndGet();
+        if (sslContext != null && ioSession instanceof TlsCapable) {
+            ((TlsCapable) ioSession).startTls(sslContext, null ,null, null);
+        }
         final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
         final Logger wireLog = LogManager.getLogger("org.apache.hc.core5.http.wire");
         final Logger headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
@@ -191,7 +200,6 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
                     }
 
                 });
-
         return new LoggingIOEventHandler(new ServerHttp1IOEventHandler(streamDuplexer), id, sessionLog);
     }
 

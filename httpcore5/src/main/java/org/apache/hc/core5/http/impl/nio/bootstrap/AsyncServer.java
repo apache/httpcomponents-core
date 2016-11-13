@@ -48,7 +48,7 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
         super(ioReactorConfig,
                 exceptionListener,
                 new ThreadFactoryImpl("listener"),
-                new ThreadFactoryImpl("i/o dispatch", true),
+                new ThreadFactoryImpl("server-dispatch", true),
                 sessionShutdownCallback);
     }
 

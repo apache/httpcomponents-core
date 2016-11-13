@@ -34,17 +34,26 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLIOSession;
+import org.apache.hc.core5.reactor.ssl.SSLMode;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.reactor.ssl.TlsCapable;
 import org.apache.hc.core5.util.Asserts;
 
 /**
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-class ManagedIOSession implements IOSession {
+class ManagedIOSession implements IOSession, TlsCapable {
 
+    private final NamedEndpoint namedEndpoint;
     private final IOSession ioSession;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<ManagedIOSession> closedSessions;
@@ -52,7 +61,11 @@ class ManagedIOSession implements IOSession {
 
     private volatile long lastAccessTime;
 
-    ManagedIOSession(final IOSession ioSession, final Queue<ManagedIOSession> closedSessions) {
+    ManagedIOSession(
+            final NamedEndpoint namedEndpoint,
+            final IOSession ioSession,
+            final Queue<ManagedIOSession> closedSessions) {
+        this.namedEndpoint = namedEndpoint;
         this.ioSession = ioSession;
         this.closedSessions = closedSessions;
         this.tlsSessionRef = new AtomicReference<>(null);
@@ -89,7 +102,7 @@ class ManagedIOSession implements IOSession {
             final SSLIOSession tlsSession = tlsSessionRef.get();
             if (tlsSession != null) {
                 try {
-                    if (tlsSession.isInitialized()) {
+                    if (!tlsSession.isInitialized()) {
                         tlsSession.initialize();
                     }
                     handler.connected(this);
@@ -115,7 +128,9 @@ class ManagedIOSession implements IOSession {
                         tlsSession.initialize();
                     }
                     if (tlsSession.isAppInputReady()) {
-                        handler.inputReady(this);
+                        do {
+                            handler.inputReady(this);
+                        } while (tlsSession.hasInputDate());
                     }
                     tlsSession.inboundTransport();
                 } catch (final IOException ex) {
@@ -180,6 +195,28 @@ class ManagedIOSession implements IOSession {
     }
 
     @Override
+    public void startTls(
+            final SSLContext sslContext,
+            final SSLBufferManagement sslBufferManagement,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        if (!tlsSessionRef.compareAndSet(null, new SSLIOSession(
+                namedEndpoint,
+                ioSession,
+                namedEndpoint != null ? SSLMode.CLIENT : SSLMode.SERVER,
+                sslContext,
+                sslBufferManagement,
+                initializer,
+                verifier))) {
+            throw new IllegalStateException("TLS already activated");
+        }
+    }
+
+    @Override
+    public boolean isTlsActive() {
+        return tlsSessionRef.get() != null;
+    }
+
     public void close() {
         if (closed.compareAndSet(false, true)) {
             try {
@@ -222,17 +259,17 @@ class ManagedIOSession implements IOSession {
 
     @Override
     public void addLast(final Command command) {
-        ioSession.addLast(command);
+        getSessionImpl().addLast(command);
     }
 
     @Override
     public void addFirst(final Command command) {
-        ioSession.addFirst(command);
+        getSessionImpl().addFirst(command);
     }
 
     @Override
     public Command getCommand() {
-        return ioSession.getCommand();
+        return getSessionImpl().getCommand();
     }
 
     @Override

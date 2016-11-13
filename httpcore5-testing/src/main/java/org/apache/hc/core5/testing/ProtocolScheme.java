@@ -25,22 +25,6 @@
  *
  */
 
-package org.apache.hc.core5.pool.nio;
+package org.apache.hc.core5.testing;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-
-import org.apache.hc.core5.net.NamedEndpoint;
-
-/**
- * Strategy that resolves an abstract connection route to a local or a remote {@link SocketAddress}.
- *
- * @since 4.3
- */
-public interface SocketAddressResolver<T> {
-
-    NamedEndpoint resolveRemoteEndpoint(T route) throws IOException;
-
-    SocketAddress resolveLocalAddress(T route) throws IOException;
-
-}
+public enum ProtocolScheme { HTTP, HTTPS }

@@ -28,7 +28,6 @@ package org.apache.hc.core5.pool.nio;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
@@ -37,6 +36,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.reactor.ConnectingIOReactor;
@@ -92,8 +93,8 @@ public class TestNIOConnPool {
         }
 
         @Override
-        public SocketAddress resolveRemoteAddress(final String route) {
-            return InetSocketAddress.createUnresolved(route, 80);
+        public NamedEndpoint resolveRemoteEndpoint(final String route) {
+            return new HttpHost(route, 80);
         }
 
     }
@@ -173,7 +174,7 @@ public class TestNIOConnPool {
         Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
@@ -206,7 +207,7 @@ public class TestNIOConnPool {
         Mockito.when(sessionRequest.getException()).thenReturn(new IOException());
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
@@ -243,7 +244,7 @@ public class TestNIOConnPool {
         Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
@@ -277,7 +278,7 @@ public class TestNIOConnPool {
         Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
@@ -314,7 +315,7 @@ public class TestNIOConnPool {
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         @SuppressWarnings("unchecked")
         final SocketAddressResolver<String> addressResolver = Mockito.mock(SocketAddressResolver.class);
-        Mockito.when(addressResolver.resolveRemoteAddress("somehost")).thenThrow(new UnknownHostException());
+        Mockito.when(addressResolver.resolveRemoteEndpoint("somehost")).thenThrow(new UnknownHostException());
         final LocalSessionPool pool = new LocalSessionPool(ioreactor, addressResolver, 2, 10);
         final Future<LocalPoolEntry> future = pool.lease("somehost", null);
 
@@ -342,12 +343,12 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest2);
@@ -416,12 +417,12 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest2);
@@ -475,7 +476,7 @@ public class TestNIOConnPool {
         Assert.assertFalse(future9.isDone());
 
         Mockito.verify(ioreactor, Mockito.times(3)).connect(
-                Matchers.any(SocketAddress.class), Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class), Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         pool.release(entry4, true);
@@ -487,7 +488,7 @@ public class TestNIOConnPool {
         Assert.assertTrue(future9.isDone());
 
         Mockito.verify(ioreactor, Mockito.times(4)).connect(
-                Matchers.any(SocketAddress.class), Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class), Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
     }
 
@@ -515,12 +516,12 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1, sessionRequest2, sessionRequest1);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest3, sessionRequest4, sessionRequest3);
@@ -536,12 +537,12 @@ public class TestNIOConnPool {
         final Future<LocalPoolEntry> future4 = pool.lease("otherhost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         Mockito.verify(ioreactor, Mockito.never()).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -567,12 +568,12 @@ public class TestNIOConnPool {
         pool.release(entry2, true);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -595,12 +596,12 @@ public class TestNIOConnPool {
         final Future<LocalPoolEntry> future6 = pool.lease("otherhost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -608,12 +609,12 @@ public class TestNIOConnPool {
         pool.release(entry4, true);
 
         Mockito.verify(ioreactor, Mockito.times(3)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -635,12 +636,12 @@ public class TestNIOConnPool {
         pool.release(entry6, true);
 
         Mockito.verify(ioreactor, Mockito.times(3)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("otherhost", 80)),
+                Matchers.eq(new HttpHost("otherhost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -669,7 +670,7 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1, sessionRequest2, sessionRequest3);
@@ -682,7 +683,7 @@ public class TestNIOConnPool {
         final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -717,7 +718,7 @@ public class TestNIOConnPool {
         Assert.assertNotNull(entry4);
 
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -734,7 +735,7 @@ public class TestNIOConnPool {
         Assert.assertFalse(future5.isDone());
 
         Mockito.verify(ioreactor, Mockito.times(3)).connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
@@ -757,7 +758,7 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.eq(InetSocketAddress.createUnresolved("somehost", 80)),
+                Matchers.eq(new HttpHost("somehost", 80)),
                 Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1);
@@ -767,7 +768,7 @@ public class TestNIOConnPool {
         final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
 
         Mockito.verify(ioreactor, Mockito.times(1)).connect(
-                Matchers.any(SocketAddress.class), Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class), Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         pool.requestCompleted(sessionRequest1);
@@ -787,7 +788,7 @@ public class TestNIOConnPool {
 
         Mockito.verify(iosession1).close();
         Mockito.verify(ioreactor, Mockito.times(2)).connect(
-                Matchers.any(SocketAddress.class), Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class), Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class));
 
         final PoolStats totals = pool.getTotalStats();
@@ -816,7 +817,7 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.any(SocketAddress.class), Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class), Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1, sessionRequest2);
 
@@ -872,7 +873,7 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.any(SocketAddress.class), Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class), Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1, sessionRequest2);
 
@@ -937,7 +938,7 @@ public class TestNIOConnPool {
 
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
-                Matchers.any(SocketAddress.class), Matchers.any(SocketAddress.class),
+                Matchers.any(NamedEndpoint.class), Matchers.any(SocketAddress.class),
                 Matchers.any(), Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest1);
 

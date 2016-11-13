@@ -44,8 +44,6 @@ import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
@@ -71,6 +69,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final ConnectionListener connectionListener;
     private final Http2StreamListener streamListener;
+    private final ByteBuffer preface;
 
     public ClientHttpProtocolNegotiator(
             final IOSession ioSession,
@@ -87,6 +86,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.streamListener = streamListener;
         this.connectionListener = connectionListener;
+        this.preface = ByteBuffer.wrap(PREFACE);
     }
 
     protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
@@ -96,24 +96,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void connected(final IOSession ioSession) {
-        try {
-            final ByteChannel channel = ioSession.channel();
-            final ByteBuffer preface = ByteBuffer.wrap(PREFACE);
-            final int bytesWritten = channel.write(preface);
-            if (bytesWritten != PREFACE.length) {
-                throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "HTTP/2 preface failed");
-            }
-        } catch (IOException ex) {
-            ioSession.shutdown();
-            if (connectionListener != null) {
-                connectionListener.onError(this, ex);
-            }
-            return;
-        }
-        final ClientHttp2StreamMultiplexer streamMultiplexer = createStreamMultiplexer(ioSession);
-        final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
-        newHandler.connected(ioSession);
-        ioSession.setHandler(newHandler);
+        outputReady(ioSession);
     }
 
     @Override
@@ -122,6 +105,24 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void outputReady(final IOSession session) {
+        if (preface.hasRemaining()) {
+            try {
+                final ByteChannel channel = ioSession.channel();
+                channel.write(preface);
+            } catch (IOException ex) {
+                ioSession.shutdown();
+                if (connectionListener != null) {
+                    connectionListener.onError(this, ex);
+                }
+                return;
+            }
+        }
+        if (!preface.hasRemaining()) {
+            final ClientHttp2StreamMultiplexer streamMultiplexer = createStreamMultiplexer(ioSession);
+            final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
+            newHandler.connected(ioSession);
+            ioSession.setHandler(newHandler);
+        }
     }
 
     @Override

@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 /**
  * Managed internal SSL buffer.
  */
-public interface SSLBuffer {
+interface SSLBuffer {
     /**
      * Allocates the resources required for this buffer, or returns the resources already allocated for this buffer.
      * Unless {@link #release() } is called, multiple invokations to this method must return the same

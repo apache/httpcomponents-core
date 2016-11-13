@@ -34,6 +34,7 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -47,6 +48,7 @@ public class SessionRequestImpl implements SessionRequest {
     private volatile boolean completed;
     private volatile SelectionKey key;
 
+    private final NamedEndpoint remoteEndpoint;
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
     private final Object attachment;
@@ -57,17 +59,23 @@ public class SessionRequestImpl implements SessionRequest {
     private volatile IOException exception = null;
 
     public SessionRequestImpl(
+            final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
             final Object attachment,
             final SessionRequestCallback callback) {
         super();
-        Args.notNull(remoteAddress, "Remote address");
-        this.remoteAddress = remoteAddress;
+        this.remoteEndpoint = Args.notNull(remoteEndpoint, "Remote endpoint");
+        this.remoteAddress = Args.notNull(remoteAddress, "Remote address");
         this.localAddress = localAddress;
         this.attachment = attachment;
         this.callback = callback;
         this.connectTimeout = 0;
+    }
+
+    @Override
+    public NamedEndpoint getRemoteEndpoint() {
+        return this.remoteEndpoint;
     }
 
     @Override

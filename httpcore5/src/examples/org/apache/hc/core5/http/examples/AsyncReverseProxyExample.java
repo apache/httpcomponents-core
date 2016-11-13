@@ -542,6 +542,10 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
+        public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
+        }
+
+        @Override
         public void consumeResponse(
                 final HttpResponse incomingResponse,
                 final EntityDetails entityDetails) throws HttpException, IOException {

@@ -222,9 +222,13 @@ class IOReactorImpl implements IOReactor {
             final ManagedIOSession session;
             try {
                 final SocketChannel socketChannel = pendingSession.socketChannel;
+                final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;
                 socketChannel.configureBlocking(false);
                 final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_READ);
-                session = new ManagedIOSession(new IOSessionImpl(key, socketChannel), closedSessions);
+                session = new ManagedIOSession(
+                        sessionRequest != null ?  sessionRequest.getRemoteEndpoint() : null,
+                        new IOSessionImpl(key, socketChannel),
+                        closedSessions);
                 session.setHandler(this.eventHandlerFactory.createHandler(session));
                 session.setSocketTimeout(this.reactorConfig.getSoTimeout());
                 key.attach(session);

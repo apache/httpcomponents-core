@@ -30,6 +30,8 @@ package org.apache.hc.core5.testing.nio.http2;
 import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.impl.nio.ConnectionListener;
@@ -42,6 +44,7 @@ import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiator;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.TlsCapable;
 import org.apache.hc.core5.testing.nio.LoggingIOEventHandler;
 import org.apache.hc.core5.testing.nio.LoggingIOSession;
 import org.apache.hc.core5.util.Args;
@@ -56,21 +59,27 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
     private final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory;
     private final Charset charset;
     private final H2Config h2Config;
+    private final SSLContext sslContext;
 
     InternalClientHttp2EventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory,
             final Charset charset,
-            final H2Config h2Config) {
+            final H2Config h2Config,
+            final SSLContext sslContext) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.charset = charset;
         this.h2Config = h2Config;
+        this.sslContext = sslContext;
     }
 
     @Override
     public IOEventHandler createHandler(final IOSession ioSession) {
         final String id = "http2-outgoing-" + COUNT.incrementAndGet();
+        if (sslContext != null && ioSession instanceof TlsCapable) {
+            ((TlsCapable) ioSession).startTls(sslContext, null ,null, null);
+        }
         final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
         return new LoggingIOEventHandler(new ClientHttpProtocolNegotiator(
                 ioSession, httpProcessor, exchangeHandlerFactory, charset, h2Config,

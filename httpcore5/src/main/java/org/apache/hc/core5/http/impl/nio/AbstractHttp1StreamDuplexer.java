@@ -39,6 +39,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
@@ -65,10 +67,14 @@ import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.reactor.ssl.TlsCapable;
 import org.apache.hc.core5.util.Args;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
-        implements ResourceHolder, HttpConnection {
+        implements ResourceHolder, HttpConnection, TlsCapable {
 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
@@ -120,7 +126,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         try {
             terminate(exception);
         } finally {
-            ioSession.shutdown();
+            ioSession.close();
         }
     }
 
@@ -435,6 +441,28 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             return contentEncoder.isCompleted();
         } finally {
             outputLock.unlock();
+        }
+    }
+
+    @Override
+    public void startTls(
+            final SSLContext sslContext,
+            final SSLBufferManagement sslBufferManagement,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) throws UnsupportedOperationException {
+        if (ioSession instanceof TlsCapable) {
+            ((TlsCapable) ioSession).startTls(sslContext, sslBufferManagement, initializer, verifier);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public boolean isTlsActive() {
+        if (ioSession instanceof TlsCapable) {
+            return ((TlsCapable) ioSession).isTlsActive();
+        } else {
+            return false;
         }
     }
 

@@ -47,6 +47,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.pool.ConnPool;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.PoolEntry;
@@ -359,18 +360,17 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 }
             }
 
+            final NamedEndpoint remoteEndpoint;
             final SocketAddress localAddress;
-            final SocketAddress remoteAddress;
             try {
-                remoteAddress = this.addressResolver.resolveRemoteAddress(route);
+                remoteEndpoint = this.addressResolver.resolveRemoteEndpoint(route);
                 localAddress = this.addressResolver.resolveLocalAddress(route);
             } catch (final IOException ex) {
                 request.failed(ex);
                 return false;
             }
-
             final SessionRequest sessionRequest = this.connectionInitiator.connect(
-                    remoteAddress, localAddress, route, this.sessionRequestCallback);
+                    remoteEndpoint, localAddress, route, this.sessionRequestCallback);
             final int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
                     (int) request.getConnectTimeout() : Integer.MAX_VALUE;
             sessionRequest.setConnectTimeout(timout);

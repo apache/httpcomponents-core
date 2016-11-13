@@ -28,11 +28,12 @@
 package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -54,6 +55,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.bootstrap.Http2Processors;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -65,9 +67,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 public class Http2TestClient extends AsyncRequester {
 
+    private final SSLContext sslContext;
     private final UriPatternMatcher<Supplier<AsyncPushConsumer>> pushHandlerMatcher;
 
-    public Http2TestClient(final IOReactorConfig ioReactorConfig) throws IOException {
+    public Http2TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
 
             private final Logger log = LogManager.getLogger(Http2TestClient.class);
@@ -85,11 +88,12 @@ public class Http2TestClient extends AsyncRequester {
             }
 
         });
+        this.sslContext = sslContext;
         this.pushHandlerMatcher = new UriPatternMatcher<>();
     }
 
     public Http2TestClient() throws IOException {
-        this(IOReactorConfig.DEFAULT);
+        this(IOReactorConfig.DEFAULT, null);
     }
 
     private AsyncPushConsumer createHandler(final HttpRequest request) throws HttpException {
@@ -138,7 +142,8 @@ public class Http2TestClient extends AsyncRequester {
 
                 },
                 StandardCharsets.US_ASCII,
-                h2Config));
+                h2Config,
+                sslContext));
     }
 
     public void start(final H2Config h2Config) throws IOException {
@@ -150,12 +155,12 @@ public class Http2TestClient extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final InetSocketAddress address,
+            final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit,
             final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
         final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
-        requestSession(address, timeout, timeUnit, new SessionRequestCallback() {
+        requestSession(remoteEndpoint, timeout, timeUnit, new SessionRequestCallback() {
 
             @Override
             public void completed(final SessionRequest request) {
@@ -182,10 +187,10 @@ public class Http2TestClient extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final InetSocketAddress address,
+            final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(address, timeout, timeUnit, null);
+        return connect(remoteEndpoint, timeout, timeUnit, null);
     }
 
     public Future<ClientEndpoint> connect(
@@ -193,7 +198,7 @@ public class Http2TestClient extends AsyncRequester {
             final int port,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(new InetSocketAddress(hostname, port), timeout, timeUnit);
+        return connect(new HttpHost(hostname, port), timeout, timeUnit);
     }
 
 }

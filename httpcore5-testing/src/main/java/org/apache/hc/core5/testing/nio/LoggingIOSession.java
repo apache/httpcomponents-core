@@ -33,12 +33,18 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.reactor.ssl.TlsCapable;
 import org.apache.hc.core5.testing.classic.Wire;
 import org.apache.logging.log4j.Logger;
-public class LoggingIOSession implements IOSession {
+public class LoggingIOSession implements IOSession, TlsCapable {
 
     private final Logger log;
     private final Wire wirelog;
@@ -184,6 +190,28 @@ public class LoggingIOSession implements IOSession {
     @Override
     public void setHandler(final IOEventHandler handler) {
         this.session.setHandler(handler);
+    }
+
+    @Override
+    public void startTls(
+            final SSLContext sslContext,
+            final SSLBufferManagement sslBufferManagement,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) throws UnsupportedOperationException {
+        if (session instanceof TlsCapable) {
+            ((TlsCapable) session).startTls(sslContext, sslBufferManagement, initializer, verifier);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public boolean isTlsActive() {
+        if (session instanceof TlsCapable) {
+            return ((TlsCapable) session).isTlsActive();
+        } else {
+            return false;
+        }
     }
 
     @Override

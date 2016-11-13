@@ -45,7 +45,7 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOEventHandler;
@@ -71,8 +71,9 @@ public class SSLIOSession implements IOSession {
     private final SSLBuffer outEncrypted;
     private final SSLBuffer inPlain;
     private final SSLBuffer outPlain;
-    private final InternalByteChannel channel;
-    private final SSLSetupHandler handler;
+    private final ByteChannel channel;
+    private final SSLSessionInitializer initializer;
+    private final SSLSessionVerifier verifier;
 
     private int appEventMask;
 
@@ -82,24 +83,25 @@ public class SSLIOSession implements IOSession {
     private volatile boolean initialized;
 
     /**
-     * Creates new instance of {@code SSLIOSession} class. The instances created uses a
-     * {@link PermanentSSLBufferManagementStrategy} to manage its buffers.
+     * Creates new instance of {@code SSLIOSession} class with static SSL buffers.
      *
+     * @param targetEndpoint target endpoint (applicable in client mode only). May be {@code null}.
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
      * @param sslMode SSL mode (client or server)
-     * @param host original host (applicable in client mode only)
      * @param sslContext SSL context to use for this I/O session.
-     * @param handler optional SSL setup handler. May be {@code null}.
+     * @param initializer optional SSL session initializer. May be {@code null}.
+     * @param verifier optional SSL session verifier. May be {@code null}.
      *
-     * @since 4.4
+     * @since 5.0
      */
     public SSLIOSession(
+            final NamedEndpoint targetEndpoint,
             final IOSession session,
             final SSLMode sslMode,
-            final HttpHost host,
             final SSLContext sslContext,
-            final SSLSetupHandler handler) {
-        this(session, sslMode, host, sslContext, handler, new PermanentSSLBufferManagementStrategy());
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        this(targetEndpoint, session, sslMode, sslContext, SSLBufferManagement.STATIC, initializer, verifier);
     }
 
     /**
@@ -107,59 +109,70 @@ public class SSLIOSession implements IOSession {
      *
      * @param session I/O session to be decorated with the TLS/SSL capabilities.
      * @param sslMode SSL mode (client or server)
-     * @param host original host (applicable in client mode only)
+     * @param targetEndpoint target endpoint (applicable in client mode only). May be {@code null}.
      * @param sslContext SSL context to use for this I/O session.
-     * @param handler optional SSL setup handler. May be {@code null}.
-     * @param bufferManagementStrategy buffer management strategy
+     * @param sslBufferManagement buffer management mode
+     * @param initializer optional SSL session initializer. May be {@code null}.
+     * @param verifier optional SSL session verifier. May be {@code null}.
+     *
+     * @since 5.0
      */
     public SSLIOSession(
+            final NamedEndpoint targetEndpoint,
             final IOSession session,
             final SSLMode sslMode,
-            final HttpHost host,
             final SSLContext sslContext,
-            final SSLSetupHandler handler,
-            final SSLBufferManagementStrategy bufferManagementStrategy) {
+            final SSLBufferManagement sslBufferManagement,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
         super();
         Args.notNull(session, "IO session");
         Args.notNull(sslContext, "SSL context");
-        Args.notNull(bufferManagementStrategy, "Buffer management strategy");
         this.session = session;
         this.sslMode = sslMode;
-        this.appEventMask = session.getEventMask();
-        this.channel = new InternalByteChannel();
-        this.handler = handler;
+        this.initializer = initializer;
+        this.verifier = verifier;
 
-        if (this.sslMode == SSLMode.CLIENT && host != null) {
-            this.sslEngine = sslContext.createSSLEngine(host.getHostName(), host.getPort());
+        this.appEventMask = session.getEventMask();
+        if (this.sslMode == SSLMode.CLIENT && targetEndpoint != null) {
+            this.sslEngine = sslContext.createSSLEngine(targetEndpoint.getHostName(), targetEndpoint.getPort());
         } else {
             this.sslEngine = sslContext.createSSLEngine();
         }
 
+        final SSLSession sslSession = this.sslEngine.getSession();
         // Allocate buffers for network (encrypted) data
-        final int netBuffersize = this.sslEngine.getSession().getPacketBufferSize();
-        this.inEncrypted = bufferManagementStrategy.constructBuffer(netBuffersize);
-        this.outEncrypted = bufferManagementStrategy.constructBuffer(netBuffersize);
+        final int netBufferSize = sslSession.getPacketBufferSize();
+        this.inEncrypted = SSLBufferManagement.create(sslBufferManagement, netBufferSize);
+        this.outEncrypted = SSLBufferManagement.create(sslBufferManagement, netBufferSize);
 
         // Allocate buffers for application (unencrypted) data
-        final int appBuffersize = this.sslEngine.getSession().getApplicationBufferSize();
-        this.inPlain = bufferManagementStrategy.constructBuffer(appBuffersize);
-        this.outPlain = bufferManagementStrategy.constructBuffer(appBuffersize);
-    }
+        final int appBufferSize = sslSession.getApplicationBufferSize();
+        this.inPlain = SSLBufferManagement.create(sslBufferManagement, appBufferSize);
+        this.outPlain = SSLBufferManagement.create(sslBufferManagement, appBufferSize);
+        this.channel = new ByteChannel() {
 
-    /**
-     * Creates new instance of {@code SSLIOSession} class.
-     *
-     * @param session I/O session to be decorated with the TLS/SSL capabilities.
-     * @param sslMode SSL mode (client or server)
-     * @param sslContext SSL context to use for this I/O session.
-     * @param handler optional SSL setup handler. May be {@code null}.
-     */
-    public SSLIOSession(
-            final IOSession session,
-            final SSLMode sslMode,
-            final SSLContext sslContext,
-            final SSLSetupHandler handler) {
-        this(session, sslMode, null, sslContext, handler);
+            @Override
+            public int write(final ByteBuffer src) throws IOException {
+                return SSLIOSession.this.writePlain(src);
+            }
+
+            @Override
+            public int read(final ByteBuffer dst) throws IOException {
+                return SSLIOSession.this.readPlain(dst);
+            }
+
+            @Override
+            public void close() throws IOException {
+                SSLIOSession.this.close();
+            }
+
+            @Override
+            public boolean isOpen() {
+                return !SSLIOSession.this.isClosed();
+            }
+
+        };
     }
 
     /**
@@ -172,8 +185,8 @@ public class SSLIOSession implements IOSession {
 
     /**
      * Initializes the session. This method invokes the {@link
-     * SSLSetupHandler#initalize(SSLEngine)} callback if an instance of
-     * {@link SSLSetupHandler} was specified at the construction time.
+     * SSLSessionInitializer#initialize(SSLEngine)} callback if an instance of
+     * {@link SSLSessionInitializer} was specified at the construction time.
      *
      * @throws SSLException in case of a SSL protocol exception.
      * @throws IllegalStateException if the session has already been initialized.
@@ -191,8 +204,8 @@ public class SSLIOSession implements IOSession {
             this.sslEngine.setUseClientMode(false);
             break;
         }
-        if (this.handler != null) {
-            this.handler.initalize(this.sslEngine);
+        if (this.initializer != null) {
+            this.initializer.initialize(this.sslEngine);
         }
         this.initialized = true;
         this.sslEngine.beginHandshake();
@@ -259,7 +272,7 @@ public class SSLIOSession implements IOSession {
                 // Generate outgoing handshake data
 
                 // Acquire buffers
-                ByteBuffer outPlainBuf = this.outPlain.acquire();
+                final ByteBuffer outPlainBuf = this.outPlain.acquire();
                 final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
 
                 // Perform operations
@@ -270,9 +283,7 @@ public class SSLIOSession implements IOSession {
                 // Release outPlain if empty
                 if (outPlainBuf.position() == 0) {
                     this.outPlain.release();
-                    outPlainBuf = null;
                 }
-
 
                 if (result.getStatus() != Status.OK) {
                     handshaking = false;
@@ -289,7 +300,6 @@ public class SSLIOSession implements IOSession {
                 inEncryptedBuf.flip();
                 result = doUnwrap(inEncryptedBuf, inPlainBuf);
                 inEncryptedBuf.compact();
-
 
                 try {
                     if (!inEncryptedBuf.hasRemaining() && result.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
@@ -324,14 +334,17 @@ public class SSLIOSession implements IOSession {
         // to SSLEngine.wrap()/unwrap() when that call finishes a handshake.
         // It is never generated by SSLEngine.getHandshakeStatus().
         if (result != null && result.getHandshakeStatus() == HandshakeStatus.FINISHED) {
-            if (this.handler != null) {
-                this.handler.verify(this.session, this.sslEngine.getSession());
+            if (this.verifier != null) {
+                this.verifier.verify(this.session, this.sslEngine.getSession());
             }
         }
     }
 
     private void updateEventMask() {
         // Graceful session termination
+        if (this.status == CLOSING && !this.outEncrypted.hasData()) {
+            this.sslEngine.closeOutbound();
+        }
         if (this.status == CLOSING && this.sslEngine.isOutboundDone()
                 && (this.endOfStream || this.sslEngine.isInboundDone())) {
             this.status = CLOSED;
@@ -388,9 +401,12 @@ public class SSLIOSession implements IOSession {
         final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
 
         // Perform operation
-        outEncryptedBuf.flip();
-        final int bytesWritten = this.session.channel().write(outEncryptedBuf);
-        outEncryptedBuf.compact();
+        int bytesWritten = 0;
+        if (outEncryptedBuf.position() > 0) {
+            outEncryptedBuf.flip();
+            bytesWritten = this.session.channel().write(outEncryptedBuf);
+            outEncryptedBuf.compact();
+        }
 
         // Release if empty
         if (outEncryptedBuf.position() == 0) {
@@ -473,8 +489,7 @@ public class SSLIOSession implements IOSession {
             }
         } while (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK);
         // Some decrypted data is available or at the end of stream
-        return (this.appEventMask & SelectionKey.OP_READ) > 0
-            && (this.inPlain.hasData() || (this.endOfStream && this.status == ACTIVE));
+        return this.inPlain.hasData() || (this.endOfStream && this.status == ACTIVE);
     }
 
     /**
@@ -504,6 +519,9 @@ public class SSLIOSession implements IOSession {
      * @throws IOException in case of an I/O error.
      */
     public synchronized void outboundTransport() throws IOException {
+        if (this.session.isClosed()) {
+            return;
+        }
         sendEncryptedData();
         doHandshake();
         updateEventMask();
@@ -580,6 +598,20 @@ public class SSLIOSession implements IOSession {
         return 0;
     }
 
+    /**
+     * @since 5.0
+     */
+    public synchronized boolean hasInputDate() {
+        return this.inPlain.hasData();
+    }
+
+    /**
+     * @since 5.0
+     */
+    public synchronized boolean hasOutputDate() {
+        return this.outPlain.hasData();
+    }
+
     @Override
     public synchronized void close() {
         if (this.status >= CLOSING) {
@@ -589,7 +621,6 @@ public class SSLIOSession implements IOSession {
         if (this.session.getSocketTimeout() == 0) {
             this.session.setSocketTimeout(1000);
         }
-        this.sslEngine.closeOutbound();
         try {
             updateEventMask();
         } catch (CancelledKeyException ex) {
@@ -602,14 +633,13 @@ public class SSLIOSession implements IOSession {
         if (this.status == CLOSED) {
             return;
         }
-        this.status = CLOSED;
-        this.session.shutdown();
-
         this.inEncrypted.release();
         this.outEncrypted.release();
         this.inPlain.release();
         this.outPlain.release();
 
+        this.status = CLOSED;
+        this.session.shutdown();
     }
 
     @Override
@@ -623,13 +653,15 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public void addLast(final Command command) {
+    public synchronized void addLast(final Command command) {
         this.session.addLast(command);
+        setEvent(SelectionKey.OP_WRITE);
     }
 
     @Override
-    public void addFirst(final Command command) {
+    public synchronized void addFirst(final Command command) {
         this.session.addFirst(command);
+        setEvent(SelectionKey.OP_WRITE);
     }
 
     @Override
@@ -743,30 +775,6 @@ public class SSLIOSession implements IOSession {
         buffer.append(!this.outPlain.hasData() ? 0 : outPlain.acquire().position());
         buffer.append("]");
         return buffer.toString();
-    }
-
-    private class InternalByteChannel implements ByteChannel {
-
-        @Override
-        public int write(final ByteBuffer src) throws IOException {
-            return SSLIOSession.this.writePlain(src);
-        }
-
-        @Override
-        public int read(final ByteBuffer dst) throws IOException {
-            return SSLIOSession.this.readPlain(dst);
-        }
-
-        @Override
-        public void close() throws IOException {
-            SSLIOSession.this.close();
-        }
-
-        @Override
-        public boolean isOpen() {
-            return !SSLIOSession.this.isClosed();
-        }
-
     }
 
 }

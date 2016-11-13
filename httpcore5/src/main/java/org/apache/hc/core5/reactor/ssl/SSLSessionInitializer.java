@@ -25,22 +25,27 @@
  *
  */
 
-package org.apache.hc.core5.pool.nio;
+package org.apache.hc.core5.reactor.ssl;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-
-import org.apache.hc.core5.net.NamedEndpoint;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 
 /**
- * Strategy that resolves an abstract connection route to a local or a remote {@link SocketAddress}.
+ * Callback interface that can be used to customize various aspects of
+ * the TLS/SSl protocol.
  *
- * @since 4.3
+ * @since 4.2
  */
-public interface SocketAddressResolver<T> {
+public interface SSLSessionInitializer {
 
-    NamedEndpoint resolveRemoteEndpoint(T route) throws IOException;
-
-    SocketAddress resolveLocalAddress(T route) throws IOException;
+    /**
+     * Triggered when the SSL connection is being initialized. Custom handlers
+     * can use this callback to customize properties of the {@link SSLEngine}
+     * used to establish the SSL session.
+     *
+     * @param sslengine the SSL engine.
+     * @throws SSLException if case of SSL protocol error.
+     */
+    void initialize(SSLEngine sslengine) throws SSLException;
 
 }

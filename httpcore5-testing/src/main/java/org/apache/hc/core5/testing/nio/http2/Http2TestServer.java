@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServer;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServerExchangeHandlerRegistry;
@@ -53,9 +55,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 public class Http2TestServer extends AsyncServer {
 
+    private final SSLContext sslContext;
     private final AsyncServerExchangeHandlerRegistry handlerRegistry;
 
-    public Http2TestServer(final IOReactorConfig ioReactorConfig) throws IOException {
+    public Http2TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
 
             private final Logger log = LogManager.getLogger(Http2TestServer.class);
@@ -73,11 +76,12 @@ public class Http2TestServer extends AsyncServer {
             }
 
         });
+        this.sslContext = sslContext;
         this.handlerRegistry = new AsyncServerExchangeHandlerRegistry("localhost");
     }
 
     public Http2TestServer() throws IOException {
-        this(IOReactorConfig.DEFAULT);
+        this(IOReactorConfig.DEFAULT, null);
     }
 
     public InetSocketAddress start() throws Exception {
@@ -111,7 +115,8 @@ public class Http2TestServer extends AsyncServer {
                 httpProcessor,
                 handlerRegistry,
                 StandardCharsets.US_ASCII,
-                h2Config));
+                h2Config,
+                sslContext));
         final ListenerEndpoint listener = listen(new InetSocketAddress(0));
         listener.waitFor();
         return (InetSocketAddress) listener.getAddress();

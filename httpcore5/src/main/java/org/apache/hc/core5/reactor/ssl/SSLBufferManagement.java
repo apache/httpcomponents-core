@@ -24,6 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.hc.core5.reactor.ssl;
 
 import java.nio.ByteBuffer;
@@ -31,22 +32,54 @@ import java.nio.ByteBuffer;
 import org.apache.hc.core5.util.Args;
 
 /**
- * A {@link SSLBufferManagementStrategy} that releases the underlying buffer when deactivated.
+ * @since 5.0
  */
-public class ReleasableSSLBufferManagementStrategy implements SSLBufferManagementStrategy {
+public enum SSLBufferManagement {
 
-    @Override
-    public SSLBuffer constructBuffer(final int size) {
-        return new InternalBuffer(size);
+    STATIC,
+    DYNAMIC;
+
+    static SSLBuffer create(final SSLBufferManagement mode, final int size) {
+        return mode == DYNAMIC ? new DynamicBuffer(size) : new StaticBuffer(size);
     }
 
+    private static final class StaticBuffer implements SSLBuffer {
 
-    private static final class InternalBuffer implements SSLBuffer {
+        private final ByteBuffer buffer;
+
+        public StaticBuffer(final int size) {
+            Args.positive(size, "size");
+            buffer = ByteBuffer.allocate(size);
+        }
+
+        @Override
+        public ByteBuffer acquire() {
+            return buffer;
+        }
+
+        @Override
+        public void release() {
+            // do nothing
+        }
+
+        @Override
+        public boolean isAcquired() {
+            return true;
+        }
+
+        @Override
+        public boolean hasData() {
+            return buffer.position() > 0;
+        }
+
+    }
+
+    private static final class DynamicBuffer implements SSLBuffer {
 
         private ByteBuffer wrapped;
         private final int length;
 
-        public InternalBuffer(final int size) {
+        public DynamicBuffer(final int size) {
             Args.positive(size, "size");
             this.length = size;
         }
@@ -76,4 +109,5 @@ public class ReleasableSSLBufferManagementStrategy implements SSLBufferManagemen
         }
 
     }
+
 }

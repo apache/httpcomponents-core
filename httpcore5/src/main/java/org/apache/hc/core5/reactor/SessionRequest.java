@@ -30,6 +30,8 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import org.apache.hc.core5.net.NamedEndpoint;
+
 /**
  * SessionRequest interface represents a request to establish a new connection
  * (or session) to a remote host. It can be used to monitor the status of the
@@ -40,6 +42,13 @@ import java.net.SocketAddress;
  * @since 4.0
  */
 public interface SessionRequest {
+
+    /**
+     * Returns remote endpoint.
+     *
+     * @return named endpoint
+     */
+    NamedEndpoint getRemoteEndpoint();
 
     /**
      * Returns socket address of the remote host.

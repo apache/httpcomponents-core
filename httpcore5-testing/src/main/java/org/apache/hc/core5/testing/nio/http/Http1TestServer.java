@@ -30,6 +30,8 @@ package org.apache.hc.core5.testing.nio.http;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -55,8 +57,9 @@ import org.apache.logging.log4j.Logger;
 public class Http1TestServer extends AsyncServer {
 
     private final AsyncServerExchangeHandlerRegistry handlerRegistry;
+    private final SSLContext sslContext;
 
-    public Http1TestServer(final IOReactorConfig ioReactorConfig) throws IOException {
+    public Http1TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
 
             private final Logger log = LogManager.getLogger(Http1TestServer.class);
@@ -75,10 +78,11 @@ public class Http1TestServer extends AsyncServer {
 
         });
         this.handlerRegistry = new AsyncServerExchangeHandlerRegistry("localhost");
+        this.sslContext = sslContext;
     }
 
     public Http1TestServer() throws IOException {
-        this(IOReactorConfig.DEFAULT);
+        this(IOReactorConfig.DEFAULT, null);
     }
 
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -112,7 +116,8 @@ public class Http1TestServer extends AsyncServer {
                 handlerRegistry,
                 h1Config,
                 ConnectionConfig.DEFAULT,
-                DefaultConnectionReuseStrategy.INSTANCE));
+                DefaultConnectionReuseStrategy.INSTANCE,
+                sslContext));
     }
 
     public InetSocketAddress start() throws Exception {

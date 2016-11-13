@@ -16,14 +16,20 @@
  limitations under the License.
 -->
 <Configuration status="WARN" name="XMLConfigTest">
-  <Appenders>
-    <Console name="STDOUT">
-      <PatternLayout pattern="%d %-5level [%t][%logger]%notEmpty{[%markerSimpleName]} %msg%n%xThrowable" />
-    </Console>
-  </Appenders>
-  <Loggers>
-    <Root level="fatal">
-      <AppenderRef ref="STDOUT" />
-    </Root>
-  </Loggers>
+    <Appenders>
+        <Console name="STDOUT">
+            <PatternLayout pattern="%d %-5level [%t][%logger]%notEmpty{[%markerSimpleName]} %msg%n%xThrowable"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="warn">
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+        <Logger name="org.apache.hc.core5.reactor" level="debug"/>
+        <Logger name="org.apache.hc.core5.http.headers" level="debug"/>
+        <Logger name="org.apache.hc.core5.http.wire" level="error"/>
+        <Logger name="org.apache.hc.core5.http2.frame" level="debug"/>
+        <Logger name="org.apache.hc.core5.http2.frame.payload" level="error"/>
+        <Logger name="org.apache.hc.core5.http2.flow" level="debug"/>
+    </Loggers>
 </Configuration>
