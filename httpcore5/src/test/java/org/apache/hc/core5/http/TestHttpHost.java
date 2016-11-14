@@ -205,11 +205,6 @@ public class TestHttpHost {
     @Test
     public void testCreateFromStringInvalid() throws Exception {
         try {
-            HttpHost.create(null);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
             HttpHost.create(" host ");
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException expected) {

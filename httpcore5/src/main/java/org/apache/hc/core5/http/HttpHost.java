@@ -34,6 +34,7 @@ import java.util.Locale;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.net.URIHost;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 
@@ -118,7 +119,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @since 4.4
      */
     public static HttpHost create(final String s) {
-        Args.containsNoBlanks(s, "HTTP Host");
+        if (s == null) {
+            return null;
+        }
         String text = s;
         String scheme = null;
         final int schemeIdx = text.indexOf("://");
@@ -217,18 +220,17 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     }
 
     /**
-     * Copy constructor for {@link HttpHost HttpHost}.
-     *
-     * @param httphost the HTTP host to copy details from
+     * @since 5.0
      */
-    public HttpHost (final HttpHost httphost) {
-        super();
-        Args.notNull(httphost, "HTTP host");
-        this.hostname   = httphost.hostname;
-        this.lcHostname = httphost.lcHostname;
-        this.schemeName = httphost.schemeName;
-        this.port = httphost.port;
-        this.address = httphost.address;
+    public HttpHost(final URIHost uriHost, final String scheme) {
+        this(Args.notNull(uriHost, "URI host").getHostName(), uriHost.getPort(), scheme);
+    }
+
+    /**
+     * @since 5.0
+     */
+    public HttpHost(final URIHost uriHost) {
+        this(uriHost, null);
     }
 
     /**
