@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
@@ -46,7 +47,6 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.nio.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.io.entity.ContentType;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
