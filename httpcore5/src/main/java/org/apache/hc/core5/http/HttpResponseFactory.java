@@ -37,7 +37,6 @@ public interface HttpResponseFactory<T extends HttpResponse> {
     /**
      * Creates response message with the given code and reason phrase.
      *
-     * @param transportVersion protocol version this message was transmitted with.
      * @param status    the status code
      * @param reasonPhrase the reason phrase
      *
@@ -45,7 +44,7 @@ public interface HttpResponseFactory<T extends HttpResponse> {
      *
      * @since 5.0
      */
-    T newHttpResponse(ProtocolVersion transportVersion, int status, String reasonPhrase);
+    T newHttpResponse(int status, String reasonPhrase);
 
     /**
      * Creates a new response with the given code.

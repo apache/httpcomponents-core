@@ -27,12 +27,12 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.net.URI;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
-import org.apache.hc.core5.http.MethodNotSupportedException;
-import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 
 /**
@@ -45,39 +45,13 @@ public class DefaultHttpRequestFactory implements HttpRequestFactory<HttpRequest
 
     public static final DefaultHttpRequestFactory INSTANCE = new DefaultHttpRequestFactory();
 
-    private static final String[] SUPPORTED_METHODS = {
-            "GET",
-            "POST",
-            "PUT",
-            "HEAD",
-            "OPTIONS",
-            "DELETE",
-            "TRACE",
-            "PATCH",
-            "CONNECT"
-    };
-
-    private static boolean isOneOf(final String[] methods, final String method) {
-        for (final String method2 : methods) {
-            if (method2.equalsIgnoreCase(method)) {
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public HttpRequest newHttpRequest(final String method, final URI uri) {
+        return new BasicHttpRequest(method, uri);
     }
 
     @Override
-    public HttpRequest newHttpRequest(final ProtocolVersion transportVersion, final String method, final String uri) throws MethodNotSupportedException {
-        if (isOneOf(SUPPORTED_METHODS, method)) {
-            final HttpRequest request = new BasicHttpRequest(method, uri);
-            request.setVersion(transportVersion);
-            return request;
-        }
-        throw new MethodNotSupportedException(method + " method not supported");
-    }
-
-    @Override
-    public HttpRequest newHttpRequest(final String method, final String uri) throws MethodNotSupportedException {
+    public HttpRequest newHttpRequest(final String method, final String uri) {
         return new BasicHttpRequest(method, uri);
     }
 

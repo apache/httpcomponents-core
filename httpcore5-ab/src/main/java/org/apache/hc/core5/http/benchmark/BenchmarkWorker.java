@@ -236,7 +236,7 @@ class BenchmarkWorker implements Runnable {
 
     private void verboseOutput(final ClassicHttpResponse response) {
         if (config.getVerbosity() >= 3) {
-            System.out.println(">> " + request.getMethod() + " " + request.getPath());
+            System.out.println(">> " + request.getMethod() + " " + request.getRequestUri());
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {
                 System.out.println(">> " + header.toString());

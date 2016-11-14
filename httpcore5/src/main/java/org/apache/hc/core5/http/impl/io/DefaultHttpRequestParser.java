@@ -33,9 +33,6 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequestFactory;
-import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.RequestLine;
@@ -93,11 +90,9 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
     @Override
     protected ClassicHttpRequest createMessage(final CharArrayBuffer buffer) throws IOException, HttpException {
         final RequestLine requestLine = getLineParser().parseRequestLine(buffer);
-        final ProtocolVersion transportVersion = requestLine.getProtocolVersion();
-        if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-            throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
-        }
-        return this.requestFactory.newHttpRequest(requestLine.getProtocolVersion(), requestLine.getMethod(), requestLine.getUri());
+        final ClassicHttpRequest request = this.requestFactory.newHttpRequest(requestLine.getMethod(), requestLine.getUri());
+        request.setVersion(requestLine.getProtocolVersion());
+        return request;
     }
 
 }

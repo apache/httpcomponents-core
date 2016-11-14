@@ -168,6 +168,11 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     @Override
+    public String getRequestUri() {
+        return getPath();
+    }
+
+    @Override
     public URI getUri() throws URISyntaxException {
         if (this.requestUri == null) {
             final StringBuilder buf = new StringBuilder();

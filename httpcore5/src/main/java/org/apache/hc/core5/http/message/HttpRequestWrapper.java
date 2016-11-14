@@ -80,6 +80,11 @@ public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRe
     }
 
     @Override
+    public String getRequestUri() {
+        return message.getRequestUri();
+    }
+
+    @Override
     public URI getUri() throws URISyntaxException {
         return message.getUri();
     }

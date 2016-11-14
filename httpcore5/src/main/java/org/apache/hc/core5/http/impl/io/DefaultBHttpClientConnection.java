@@ -39,7 +39,10 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.LengthRequiredException;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.HttpClientConnection;
@@ -185,7 +188,11 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public ClassicHttpResponse receiveResponseHeader() throws HttpException, IOException {
         final SocketHolder socketHolder = ensureOpen();
         final ClassicHttpResponse response = this.responseParser.parse(this.inbuffer, socketHolder.getInputStream());
-        this.version = response.getVersion();
+        final ProtocolVersion transportVersion = response.getVersion();
+        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+            throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
+        }
+        this.version = transportVersion;
         onResponseReceived(response);
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();

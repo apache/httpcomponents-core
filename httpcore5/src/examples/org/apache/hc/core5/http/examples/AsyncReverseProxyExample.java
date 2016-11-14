@@ -292,7 +292,7 @@ public class AsyncReverseProxyExample {
 
             synchronized (exchangeState) {
                 System.out.println("[client->proxy] " + exchangeState.id + " " +
-                        incomingRequest.getMethod() + " " + incomingRequest.getPath());
+                        incomingRequest.getMethod() + " " + incomingRequest.getRequestUri());
                 exchangeState.request = incomingRequest;
                 exchangeState.inputEnd = entityDetails == null;
                 exchangeState.responseMessageChannel = responseChannel;
@@ -496,7 +496,7 @@ public class AsyncReverseProxyExample {
                 }
 
                 System.out.println("[proxy->origin] " + exchangeState.id + " " +
-                        outgoingRequest.getMethod() + " " + outgoingRequest.getPath());
+                        outgoingRequest.getMethod() + " " + outgoingRequest.getRequestUri());
 
                 channel.sendRequest(
                         outgoingRequest,

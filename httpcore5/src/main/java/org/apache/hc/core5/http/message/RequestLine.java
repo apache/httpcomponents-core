@@ -54,7 +54,7 @@ public final class RequestLine implements Serializable {
         super();
         Args.notNull(request, "Request");
         this.method = request.getMethod();
-        this.uri = request.getPath();
+        this.uri = request.getRequestUri();
         this.protoversion = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
     }
 

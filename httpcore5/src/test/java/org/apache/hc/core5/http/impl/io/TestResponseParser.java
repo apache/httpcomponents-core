@@ -31,11 +31,10 @@ import java.io.ByteArrayInputStream;
 import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.NoHttpResponseException;
-import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -144,15 +143,6 @@ public class TestResponseParser {
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
         final Header[] headers = httpresponse.getAllHeaders();
         Assert.assertEquals(3, headers.length);
-    }
-
-    @Test(expected = UnsupportedHttpVersionException.class)
-    public void testParsingUnsupportedVersion() throws Exception {
-        final String s = "HTTP/2.0 200 OK\r\n\r\n";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
-        parser.parse(inbuffer, inputStream);
     }
 
 }

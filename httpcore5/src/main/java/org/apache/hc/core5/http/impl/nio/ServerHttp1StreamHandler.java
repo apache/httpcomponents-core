@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.NotImplementedException;
@@ -142,6 +143,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             final EntityDetails responseEntityDetails) throws HttpException, IOException {
         if (responseCommitted.compareAndSet(false, true)) {
 
+            final ProtocolVersion transportVersion = response.getVersion();
+            if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
+            }
+
             final int status = response.getCode();
             if (status < HttpStatus.SC_SUCCESS) {
                 throw new HttpException("Invalid response: " + status);
@@ -240,6 +246,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         exchangeHandler = handler;
 
         final ProtocolVersion transportVersion = request.getVersion();
+        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+            throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
+        }
         context.setProtocolVersion(transportVersion);
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);

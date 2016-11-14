@@ -41,8 +41,10 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -154,9 +156,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     private void commitRequest(final HttpRequest request, final EntityDetails entityDetails) throws IOException, HttpException {
         if (requestCommitted.compareAndSet(false, true)) {
             final ProtocolVersion transportVersion = request.getVersion();
-            if (transportVersion != null) {
-                context.setProtocolVersion(transportVersion);
+            if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
             }
+            context.setProtocolVersion(transportVersion);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
             httpProcessor.process(request, entityDetails, context);
@@ -208,6 +211,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     void consumeHeader(final HttpResponse response, final boolean endStream) throws HttpException, IOException {
         if (done.get() || responseState != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
+        }
+        final ProtocolVersion transportVersion = response.getVersion();
+        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+            throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
         }
 
         final int status = response.getCode();

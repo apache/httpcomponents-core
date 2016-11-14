@@ -93,6 +93,16 @@ public interface HttpRequest extends HttpMessage {
     void setAuthority(String authority);
 
     /**
+     * Returns request URI of this request message. It may be an absolute or relative URI.
+     * Applicable to HTTP/1.1 version or earlier.
+     *
+     * @return  the request URI.
+     *
+     * @since 5.0
+     */
+    String getRequestUri();
+
+    /**
      * Returns full request URI of this request message.
      *
      * @return  the request URI.

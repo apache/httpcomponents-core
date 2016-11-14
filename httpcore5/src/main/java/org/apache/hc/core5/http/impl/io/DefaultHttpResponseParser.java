@@ -32,10 +32,7 @@ import java.io.IOException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.NoHttpResponseException;
-import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.StatusLine;
@@ -93,11 +90,9 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttp
     @Override
     protected ClassicHttpResponse createMessage(final CharArrayBuffer buffer) throws IOException, HttpException {
         final StatusLine statusline = getLineParser().parseStatusLine(buffer);
-        final ProtocolVersion transportVersion = statusline.getProtocolVersion();
-        if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-            throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
-        }
-        return this.responseFactory.newHttpResponse(transportVersion, statusline.getStatusCode(), statusline.getReasonPhrase());
+        final ClassicHttpResponse response = this.responseFactory.newHttpResponse(statusline.getStatusCode(), statusline.getReasonPhrase());
+        response.setVersion(statusline.getProtocolVersion());
+        return response;
     }
 
 }

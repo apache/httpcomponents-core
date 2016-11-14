@@ -65,12 +65,11 @@ public class DefaultHttpResponseWriter<T extends HttpResponse> extends AbstractM
     @Override
     protected void writeHeadLine(final T message, final CharArrayBuffer lineBuf) throws IOException {
         lineBuf.clear();
-        ProtocolVersion transportVersion = message.getVersion();
-        if (transportVersion == null || transportVersion.greaterEquals(HttpVersion.HTTP_2_0)) {
-            transportVersion = HttpVersion.HTTP_1_1;
-        }
-        getLineFormatter().formatStatusLine(lineBuf,
-                new StatusLine(transportVersion, message.getCode(), message.getReasonPhrase()));
+        final ProtocolVersion transportVersion = message.getVersion();
+        getLineFormatter().formatStatusLine(lineBuf, new StatusLine(
+                transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1,
+                message.getCode(),
+                message.getReasonPhrase()));
     }
 
 }

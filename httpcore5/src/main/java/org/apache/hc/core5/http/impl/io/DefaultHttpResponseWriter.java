@@ -62,12 +62,11 @@ public class DefaultHttpResponseWriter extends AbstractMessageWriter<ClassicHttp
     @Override
     protected void writeHeadLine(
             final ClassicHttpResponse message, final CharArrayBuffer lineBuf) throws IOException {
-        ProtocolVersion transportVersion = message.getVersion();
-        if (transportVersion == null || transportVersion.greaterEquals(HttpVersion.HTTP_2_0)) {
-            transportVersion = HttpVersion.HTTP_1_1;
-        }
-        getLineFormatter().formatStatusLine(lineBuf,
-                new StatusLine(transportVersion, message.getCode(), message.getReasonPhrase()));
+        final ProtocolVersion transportVersion = message.getVersion();
+        getLineFormatter().formatStatusLine(lineBuf, new StatusLine(
+                transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1,
+                message.getCode(),
+                message.getReasonPhrase()));
     }
 
 }

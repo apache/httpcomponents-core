@@ -31,7 +31,6 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
 import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
@@ -67,13 +66,8 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory<HttpRespo
     }
 
     @Override
-    public HttpResponse newHttpResponse(final ProtocolVersion transportVersion, final int status, final String reasonPhrase) {
-        final HttpResponse response = new BasicHttpResponse(status, reasonPhrase);
-        response.setVersion(transportVersion);
-        if (reasonPhrase != null) {
-            response.setReasonPhrase(reasonPhrase);
-        }
-        return response;
+    public HttpResponse newHttpResponse(final int status, final String reasonPhrase) {
+        return new BasicHttpResponse(status, reasonPhrase);
     }
 
     @Override
