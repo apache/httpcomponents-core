@@ -37,7 +37,6 @@ import org.junit.Test;
 
 /**
  * Test cases for HTTP version class
- *
  */
 public class TestHttpVersion {
 
