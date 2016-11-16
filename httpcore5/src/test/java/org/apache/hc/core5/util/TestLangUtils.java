@@ -38,7 +38,7 @@ public class TestLangUtils {
 
     @Test
     public void testBasicHash() {
-        final Integer i = new Integer(1234);
+        final Integer i = Integer.valueOf(1234);
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, i.hashCode());
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
         Assert.assertTrue(h1 == h2);
@@ -76,13 +76,13 @@ public class TestLangUtils {
         Assert.assertFalse(LangUtils.equals(new Object[] {}, null));
         Assert.assertTrue(LangUtils.equals(new Object[] {}, new Object[] {}));
         Assert.assertFalse(LangUtils.equals(
-                new Object[] {new Integer(1), new Integer(2)},
-                new Object[] {new Integer(1)}));
+                new Object[] {Integer.valueOf(1), Integer.valueOf(2)},
+                new Object[] {Integer.valueOf(1)}));
         Assert.assertFalse(LangUtils.equals(
-                new Object[] {new Integer(1), new Integer(2)},
-                new Object[] {new Integer(1), new Integer(3)}));
+                new Object[] {Integer.valueOf(1), Integer.valueOf(2)},
+                new Object[] {Integer.valueOf(1), Integer.valueOf(3)}));
         Assert.assertTrue(LangUtils.equals(
-                new Object[] {new Integer(1), new Integer(2)},
-                new Object[] {new Integer(1), new Integer(2)}));
+                new Object[] {Integer.valueOf(1), Integer.valueOf(2)},
+                new Object[] {Integer.valueOf(1), Integer.valueOf(2)}));
     }
 }
