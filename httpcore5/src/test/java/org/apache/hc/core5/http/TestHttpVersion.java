@@ -68,7 +68,7 @@ public class TestHttpVersion {
         Assert.assertTrue(ver1.equals(ver1));
         Assert.assertTrue(ver1.equals(ver2));
 
-        Assert.assertFalse(ver1.equals(new Float(1.1)));
+        Assert.assertFalse(ver1.equals(Float.valueOf(1.1f)));
 
         Assert.assertTrue((new HttpVersion(0, 9)).equals(HttpVersion.HTTP_0_9));
         Assert.assertTrue((new HttpVersion(1, 0)).equals(HttpVersion.HTTP_1_0));
