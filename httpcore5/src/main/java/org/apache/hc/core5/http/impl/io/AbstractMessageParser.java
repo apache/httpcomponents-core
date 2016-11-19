@@ -244,7 +244,9 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 }
                 if (this.headLine.length() > 0) {
                     this.message = createMessage(this.headLine);
-                    break;
+                    if (this.message != null) {
+                        break;
+                    }
                 }
             }
             if (this.message == null) {
