@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -54,7 +55,6 @@ import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
 
@@ -107,12 +107,12 @@ class BHttpConnectionBase implements BHttpConnection {
      */
     protected void bind(final Socket socket) throws IOException {
         Args.notNull(socket, "Socket");
-        this.socketHolderRef.set(new SocketHolder(socket));
+        bind(new SocketHolder(socket));
     }
 
-    protected void bind(final Socket socket, final InputStream inputStream, final OutputStream outputStream) throws IOException {
-        Args.notNull(socket, "Socket");
-        this.socketHolderRef.set(new SocketHolder(socket, inputStream, outputStream));
+    protected void bind(final SocketHolder socketHolder) throws IOException {
+        Args.notNull(socketHolder, "Socket holder");
+        this.socketHolderRef.set(socketHolder);
     }
 
     @Override

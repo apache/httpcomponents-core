@@ -27,9 +27,6 @@
 
 package org.apache.hc.core5.testing.classic;
 
-import static java.lang.System.in;
-import static java.lang.System.out;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
@@ -42,12 +39,14 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.impl.io.SocketHolder;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
 
     private static final AtomicLong COUNT = new AtomicLong();
@@ -98,9 +97,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
 
     @Override
     public void bind(final Socket socket) throws IOException {
-        super.bind(socket,
-                wire.isEnabled() ? new LoggingInputStream(in, wire) : null,
-                this.wire.isEnabled() ? new LoggingOutputStream(out, wire) : null);
+        super.bind(this.wire.isEnabled() ? new LoggingSocketHolder(socket, wire) : new SocketHolder(socket));
     }
 
     @Override

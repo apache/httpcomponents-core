@@ -31,42 +31,66 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.util.Args;
 
 /**
- * Utility class that holds a {@link Socket} along with copies of its {@link InputStream} and {@link OutputStream}.
+ * Utility class that holds a {@link Socket} along with copies of its {@link InputStream}
+ * and {@link OutputStream}.
  *
  * @since 5.0
  */
-public final class SocketHolder {
+public class SocketHolder {
 
     private final Socket socket;
-    private final InputStream inputStream;
-    private final OutputStream outputStream;
+    private final AtomicReference<InputStream> inputStreamRef;
+    private final AtomicReference<OutputStream> outputStreamRef;
 
-    public SocketHolder(final Socket socket) throws IOException {
+    public SocketHolder(final Socket socket) {
         this.socket = Args.notNull(socket, "Socket");
-        this.inputStream = socket.getInputStream();
-        this.outputStream = socket.getOutputStream();
+        this.inputStreamRef = new AtomicReference<>(null);
+        this.outputStreamRef = new AtomicReference<>(null);
     }
 
-    public SocketHolder(final Socket socket, final InputStream inputStream, final OutputStream outputStream) throws IOException {
-        this.socket = Args.notNull(socket, "Socket");
-        this.inputStream = inputStream != null ? inputStream: socket.getInputStream();
-        this.outputStream = outputStream != null ? outputStream : socket.getOutputStream();
-    }
-
-    public Socket getSocket() {
+    public final Socket getSocket() {
         return socket;
     }
 
-    public InputStream getInputStream() {
-        return inputStream;
+    public final InputStream getInputStream() throws IOException {
+        InputStream local = inputStreamRef.get();
+        if (local != null) {
+            return local;
+        } else {
+            local = getInputStream(socket);
+            if (inputStreamRef.compareAndSet(null, local)) {
+                return local;
+            } else {
+                return inputStreamRef.get();
+            }
+        }
     }
 
-    public OutputStream getOutputStream() {
-        return outputStream;
+    protected InputStream getInputStream(final Socket socket) throws IOException {
+        return socket.getInputStream();
+    }
+
+    protected OutputStream getOutputStream(final Socket socket) throws IOException {
+        return socket.getOutputStream();
+    }
+
+    public final OutputStream getOutputStream() throws IOException {
+        OutputStream local = outputStreamRef.get();
+        if (local != null) {
+            return local;
+        } else {
+            local = getOutputStream(socket);
+            if (outputStreamRef.compareAndSet(null, local)) {
+                return local;
+            } else {
+                return outputStreamRef.get();
+            }
+        }
     }
 
     @Override
