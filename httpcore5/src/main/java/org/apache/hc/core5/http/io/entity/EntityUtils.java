@@ -27,9 +27,6 @@
 
 package org.apache.hc.core5.http.io.entity;
 
-import static org.apache.hc.core5.http.ContentType.DEFAULT_TEXT;
-import static org.apache.hc.core5.http.ContentType.parse;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,11 +35,15 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.net.URLEncodedUtils;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -129,7 +130,7 @@ public final class EntityUtils {
         }
         final String contentType = entity.getContentType();
         if (contentType != null) {
-            return parse(contentType);
+            return ContentType.parse(contentType);
         }
         return null;
     }
@@ -167,7 +168,7 @@ public final class EntityUtils {
      */
     public static ContentType getContentTypeOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
         final ContentType contentType = getContentType(entity);
-        return contentType != null ? contentType : DEFAULT_TEXT;
+        return contentType != null ? contentType : ContentType.DEFAULT_TEXT;
     }
 
     /**
@@ -181,7 +182,7 @@ public final class EntityUtils {
      */
     public static ContentType getContentTypeLenientOrDefault(final HttpEntity entity) throws UnsupportedCharsetException {
         final ContentType contentType = getContentType(entity);
-        return contentType != null ? contentType : DEFAULT_TEXT;
+        return contentType != null ? contentType : ContentType.DEFAULT_TEXT;
     }
 
     /**
@@ -288,7 +289,7 @@ public final class EntityUtils {
                 contentType = contentType.withCharset(defaultCharset);
             }
         } else {
-            contentType = DEFAULT_TEXT.withCharset(defaultCharset);
+            contentType = ContentType.DEFAULT_TEXT.withCharset(defaultCharset);
         }
         return toString(entity, contentType);
     }
@@ -329,6 +330,50 @@ public final class EntityUtils {
     public static String toString(final HttpEntity entity) throws IOException, ParseException {
         Args.notNull(entity, "Entity");
         return toString(entity, getContentType(entity));
+    }
+
+    /**
+     * Returns a list of {@link NameValuePair NameValuePairs} as parsed from an {@link HttpEntity}.
+     * The encoding is taken from the entity's Content-Encoding header.
+     * <p>
+     * This is typically used while parsing an HTTP POST.
+     *
+     * @param entity
+     *            The entity to parse
+     * @return a list of {@link NameValuePair} as built from the URI's query portion.
+     * @throws IOException
+     *             If there was an exception getting the entity's data.
+     */
+    public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
+        Args.notNull(entity, "HTTP entity");
+        final ContentType contentType = EntityUtils.getContentType(entity);
+        if (contentType == null || !contentType.getMimeType().equalsIgnoreCase(URLEncodedUtils.CONTENT_TYPE)) {
+            return Collections.emptyList();
+        }
+        final long len = entity.getContentLength();
+        Args.check(len <= Integer.MAX_VALUE, "HTTP entity is too large");
+        final Charset charset = contentType.getCharset() != null ? contentType.getCharset() : StandardCharsets.ISO_8859_1;
+        final InputStream instream = entity.getContent();
+        if (instream == null) {
+            return Collections.emptyList();
+        }
+        final CharArrayBuffer buf;
+        try {
+            buf = new CharArrayBuffer(len > 0 ? (int) len : 1024);
+            final Reader reader = new InputStreamReader(instream, charset);
+            final char[] tmp = new char[1024];
+            int l;
+            while((l = reader.read(tmp)) != -1) {
+                buf.append(tmp, 0, l);
+            }
+
+        } finally {
+            instream.close();
+        }
+        if (buf.length() == 0) {
+            return Collections.emptyList();
+        }
+        return URLEncodedUtils.parse(buf, charset, '&');
     }
 
 }

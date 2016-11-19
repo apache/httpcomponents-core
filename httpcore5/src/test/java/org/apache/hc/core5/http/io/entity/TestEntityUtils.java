@@ -32,8 +32,13 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URLEncodedUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -276,6 +281,48 @@ public class TestEntityUtils {
         Assert.assertEquals(null, contentType.getCharset());
     }
 
+    private static void assertNameValuePair (
+            final NameValuePair parameter,
+            final String expectedName,
+            final String expectedValue) {
+        Assert.assertEquals(parameter.getName(), expectedName);
+        Assert.assertEquals(parameter.getValue(), expectedValue);
+    }
+
+    @Test
+    public void testParseEntity() throws Exception {
+        final StringEntity entity = new StringEntity("Name1=Value1");
+
+        entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
+        final List<NameValuePair> result = EntityUtils.parse(entity);
+        Assert.assertEquals(1, result.size());
+        assertNameValuePair(result.get(0), "Name1", "Value1");
+
+        entity.setContentType("text/test");
+        Assert.assertTrue(EntityUtils.parse(entity).isEmpty());
+    }
+
+    @Test
+    public void testParseUTF8Entity() throws Exception {
+        final String ru_hello = constructString(RUSSIAN_HELLO);
+        final String ch_hello = constructString(SWISS_GERMAN_HELLO);
+        final List <NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("russian", ru_hello));
+        parameters.add(new BasicNameValuePair("swiss", ch_hello));
+
+        final String s = URLEncodedUtils.format(parameters, StandardCharsets.UTF_8);
+
+        Assert.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
+                "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);
+
+        final StringEntity entity = new StringEntity(s, ContentType.create(
+                URLEncodedUtils.CONTENT_TYPE, StandardCharsets.UTF_8));
+        final List <NameValuePair> result = EntityUtils.parse(entity);
+        Assert.assertEquals(2, result.size());
+        assertNameValuePair(result.get(0), "russian", ru_hello);
+        assertNameValuePair(result.get(1), "swiss", ch_hello);
+    }
+
     /**
      * Helper class that returns {@code null} as the content.
      */
@@ -292,6 +339,6 @@ public class TestEntityUtils {
         public InputStream getContent() {
             return null;
         }
-    } // class NullEntity
+    }
 
-} // class TestEntityUtils
+}
