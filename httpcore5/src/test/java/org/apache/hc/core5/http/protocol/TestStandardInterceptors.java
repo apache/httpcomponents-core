@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
@@ -46,6 +45,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -383,9 +383,8 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestTargetHostGenerated() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
-        request.setAuthority(host.toHostString());
+        request.setAuthority(new URIAuthority("somehost", 8080));
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -423,9 +422,8 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestTargetHostNotGenerated() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
-        request.setAuthority(host.toHostString());
+        request.setAuthority(new URIAuthority("somehost", 8080));
         request.addHeader(new BasicHeader(HttpHeaders.HOST, "whatever"));
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, request.getEntity(), context);
@@ -478,9 +476,8 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestTargetHostConnectHttp11() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
-        final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("CONNECT", "/");
-        request.setAuthority(host.toHostString());
+        request.setAuthority(new URIAuthority("somehost", 8080));
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -492,9 +489,8 @@ public class TestStandardInterceptors {
     public void testRequestTargetHostConnectHttp10() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
-        final HttpHost host = new HttpHost("somehost", 8080, "http");
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("CONNECT", "/");
-        request.setAuthority(host.toHostString());
+        request.setAuthority(new URIAuthority("somehost", 8080));
         final RequestTargetHost interceptor = new RequestTargetHost();
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
@@ -1059,7 +1055,7 @@ public class TestStandardInterceptors {
         request.setHeader(HttpHeaders.HOST, "host:8888");
         final RequestValidateHost interceptor = new RequestValidateHost();
         interceptor.process(request, request.getEntity(), context);
-        Assert.assertEquals("host:8888", request.getAuthority());
+        Assert.assertEquals(new URIAuthority("host", 8888), request.getAuthority());
     }
 
     @Test
@@ -1070,7 +1066,7 @@ public class TestStandardInterceptors {
         request.setHeader(HttpHeaders.HOST, "host");
         final RequestValidateHost interceptor = new RequestValidateHost();
         interceptor.process(request, request.getEntity(), context);
-        Assert.assertEquals("host", request.getAuthority());
+        Assert.assertEquals(new URIAuthority("host"), request.getAuthority());
     }
 
     @Test

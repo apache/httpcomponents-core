@@ -29,14 +29,16 @@ package org.apache.hc.core5.http;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.URISyntaxException;
 import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.net.URIHost;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Holds all of the variables needed to describe an HTTP connection to a host.
@@ -66,6 +68,15 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     private final String schemeName;
 
     private final InetAddress address;
+
+    private HttpHost(final String hostname, final int port, final String scheme, final boolean internal) {
+        super();
+        this.hostname = hostname;
+        this.lcHostname = hostname;
+        this.schemeName = scheme;
+        this.port = port;
+        this.address = null;
+    }
 
     /**
      * Creates {@code HttpHost} instance with the given scheme, hostname and port.
@@ -118,7 +129,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *
      * @since 4.4
      */
-    public static HttpHost create(final String s) {
+    public static HttpHost create(final String s) throws URISyntaxException {
         if (s == null) {
             return null;
         }
@@ -127,6 +138,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         final int schemeIdx = text.indexOf("://");
         if (schemeIdx > 0) {
             scheme = text.substring(0, schemeIdx);
+            if (TextUtils.containsBlanks(scheme)) {
+                throw new URISyntaxException(s, "scheme contains blanks");
+            }
             text = text.substring(schemeIdx + 3);
         }
         int port = -1;
@@ -135,11 +149,17 @@ public final class HttpHost implements NamedEndpoint, Serializable {
             try {
                 port = Integer.parseInt(text.substring(portIdx + 1));
             } catch (final NumberFormatException ex) {
-                throw new IllegalArgumentException("Invalid HTTP host: " + text);
+                throw new URISyntaxException(s, "invalid port");
             }
             text = text.substring(0, portIdx);
         }
-        return new HttpHost(text, port, scheme);
+        if (TextUtils.containsBlanks(text)) {
+            throw new URISyntaxException(s, "hostname contains blanks");
+        }
+        return new HttpHost(
+                text.toLowerCase(Locale.ROOT),
+                port,
+                scheme != null ? scheme.toLowerCase(Locale.ROOT) : DEFAULT_SCHEME_NAME, true);
     }
 
     /**
@@ -222,15 +242,15 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     /**
      * @since 5.0
      */
-    public HttpHost(final URIHost uriHost, final String scheme) {
-        this(Args.notNull(uriHost, "URI host").getHostName(), uriHost.getPort(), scheme);
+    public HttpHost(final NamedEndpoint namedEndpoint, final String scheme) {
+        this(namedEndpoint.getHostName(), namedEndpoint.getPort(), scheme);
     }
 
     /**
      * @since 5.0
      */
-    public HttpHost(final URIHost uriHost) {
-        this(uriHost, null);
+    public HttpHost(final URIAuthority authority) {
+        this(authority, null);
     }
 
     /**

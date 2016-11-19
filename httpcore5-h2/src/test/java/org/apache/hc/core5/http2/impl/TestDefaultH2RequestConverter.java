@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,7 +62,7 @@ public class TestDefaultH2RequestConverter {
         Assert.assertNotNull(request);
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertEquals("http", request.getScheme());
-        Assert.assertEquals("www.example.com", request.getAuthority());
+        Assert.assertEquals(new URIAuthority("www.example.com"), request.getAuthority());
         Assert.assertEquals("/", request.getPath());
         final Header[] allHeaders = request.getAllHeaders();
         Assert.assertEquals(1, allHeaders.length);
@@ -395,7 +396,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expectMessage("CONNECT request path must be null");
 
         final HttpRequest request = new BasicHttpRequest("CONNECT", "/");
-        request.setAuthority("host");
+        request.setAuthority(new URIAuthority("host"));
         request.addHeader("Custom123", "Value");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();

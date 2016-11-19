@@ -32,14 +32,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 
 public class AsyncServerExchangeHandlerRegistry implements HandlerFactory<AsyncServerExchangeHandler> {
@@ -68,12 +68,7 @@ public class AsyncServerExchangeHandlerRegistry implements HandlerFactory<AsyncS
 
     @Override
     public AsyncServerExchangeHandler create(final HttpRequest request) throws HttpException {
-        final HttpHost authority;
-        try {
-            authority = request.getAuthority() != null ? HttpHost.create(request.getAuthority()) : null;
-        } catch (IllegalArgumentException ex) {
-            return new ImmediateResponseExchangeHandler(HttpStatus.SC_BAD_REQUEST, "Invalid authority");
-        }
+        final URIAuthority authority = request.getAuthority();
         final String key = authority != null ? authority.getHostName().toLowerCase(Locale.ROOT) : null;
         final UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> patternMatcher = getPatternMatcher(key);
         if (patternMatcher == null) {

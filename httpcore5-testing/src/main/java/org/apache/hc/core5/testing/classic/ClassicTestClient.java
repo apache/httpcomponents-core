@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
 
@@ -100,9 +101,9 @@ public class ClassicTestClient {
             this.connection.setSocketTimeout(this.timeout);
         }
         if (request.getAuthority() == null) {
-            request.setAuthority(targetHost.toHostString());
-            request.setScheme(targetHost.getSchemeName());
+            request.setAuthority(new URIAuthority(targetHost));
         }
+        request.setScheme(targetHost.getSchemeName());
         return this.requester.execute(this.connection, request, context);
     }
 

@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.URISyntaxException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -206,13 +207,13 @@ public class TestHttpHost {
     public void testCreateFromStringInvalid() throws Exception {
         try {
             HttpHost.create(" host ");
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
         }
         try {
             HttpHost.create("host :8080");
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
         }
     }
 

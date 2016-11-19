@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -40,12 +41,12 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TextUtils;
 
 /**
  * RequestTargetHost is responsible for copying {@code Host} header value to
- * {@link HttpRequest#setAuthority(String)} of the incoming message.
+ * {@link HttpRequest#setAuthority(URIAuthority)} of the incoming message.
  * This interceptor is required for server side protocol processors.
  *
  * @since 5.0
@@ -64,12 +65,13 @@ public class RequestValidateHost implements HttpRequestInterceptor {
 
         final Header header = request.getSingleHeader(HttpHeaders.HOST);
         if (header != null) {
-            final String authority = header.getValue();
-            if (!TextUtils.isBlank(authority)) {
-                request.setAuthority(authority);
-            } else {
-                throw new ProtocolException("Host header is empty");
+            final URIAuthority authority;
+            try {
+                authority = URIAuthority.create(header.getValue());
+            } catch (URISyntaxException ex) {
+                throw new ProtocolException(ex.getMessage(), ex);
             }
+            request.setAuthority(authority);
         } else {
             final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
             if (version.greaterEquals(HttpVersion.HTTP_1_1)) {

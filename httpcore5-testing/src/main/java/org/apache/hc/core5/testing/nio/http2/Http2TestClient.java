@@ -42,13 +42,12 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.MisdirectedRequestException;
-import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -56,6 +55,7 @@ import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.bootstrap.Http2Processors;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -98,12 +98,7 @@ public class Http2TestClient extends AsyncRequester {
 
     private AsyncPushConsumer createHandler(final HttpRequest request) throws HttpException {
 
-        final HttpHost authority;
-        try {
-            authority = request.getAuthority() != null ? HttpHost.create(request.getAuthority()) : null;
-        } catch (IllegalArgumentException ex) {
-            throw new ProtocolException("Invalid authority");
-        }
+        final URIAuthority authority = request.getAuthority();
         if (authority != null && !"localhost".equalsIgnoreCase(authority.getHostName())) {
             throw new MisdirectedRequestException("Not authoritative");
         }

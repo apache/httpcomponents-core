@@ -30,6 +30,8 @@ package org.apache.hc.core5.http;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.hc.core5.net.URIAuthority;
+
 /**
  * A request message from a client to a server includes, within the
  * first line of that message, the method to be applied to the resource,
@@ -83,14 +85,14 @@ public interface HttpRequest extends HttpMessage {
      *
      * @since 5.0
      */
-    String getAuthority();
+    URIAuthority getAuthority();
 
     /**
      * Sets authority of this request message.
      *
      * @since 5.0
      */
-    void setAuthority(String authority);
+    void setAuthority(URIAuthority authority);
 
     /**
      * Returns request URI of this request message. It may be an absolute or relative URI.

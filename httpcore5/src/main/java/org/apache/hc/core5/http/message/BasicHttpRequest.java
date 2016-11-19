@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 
@@ -48,7 +49,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     private final String method;
     private String path;
     private String scheme;
-    private String authority;
+    private URIAuthority authority;
     private ProtocolVersion version;
     private URI requestUri;
 
@@ -75,7 +76,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         super();
         this.method = Args.notNull(method, "Method name");
         this.scheme = host != null ? host.getSchemeName() : null;
-        this.authority = host != null ? host.toHostString() : null;
+        this.authority = host != null ? new URIAuthority(host) : null;
         this.path = path;
     }
 
@@ -92,15 +93,18 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         this.method = Args.notNull(method, "Method name");
         Args.notNull(requestUri, "Request URI");
         this.scheme = requestUri.getScheme();
-        this.authority = requestUri.getAuthority();
+        this.authority = requestUri.getHost() != null ? new URIAuthority(
+                requestUri.getRawUserInfo(),
+                requestUri.getHost(),
+                requestUri.getPort()) : null;
         final StringBuilder buf = new StringBuilder();
-        final String path = requestUri.getPath();
+        final String path = requestUri.getRawPath();
         if (!TextUtils.isBlank(path)) {
             buf.append(path);
         } else {
             buf.append("/");
         }
-        final String query = requestUri.getQuery();
+        final String query = requestUri.getRawQuery();
         if (query != null) {
             buf.append('?').append(query);
         }
@@ -157,12 +161,12 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     @Override
-    public String getAuthority() {
+    public URIAuthority getAuthority() {
         return this.authority;
     }
 
     @Override
-    public void setAuthority(final String authority) {
+    public void setAuthority(final URIAuthority authority) {
         this.authority = authority;
         this.requestUri = null;
     }
@@ -177,7 +181,11 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         if (this.requestUri == null) {
             final StringBuilder buf = new StringBuilder();
             if (this.authority != null) {
-                buf.append(this.scheme != null ? this.scheme : "http").append("://").append(this.authority);
+                buf.append(this.scheme != null ? this.scheme : "http").append("://");
+                buf.append(this.authority.getHostName());
+                if (this.authority.getPort() >= 0) {
+                    buf.append(":").append(this.authority.getPort());
+                }
             }
             buf.append(this.path != null ? this.path : "/");
             this.requestUri = new URI(buf.toString());

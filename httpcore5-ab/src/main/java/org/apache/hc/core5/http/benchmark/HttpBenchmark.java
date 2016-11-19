@@ -53,6 +53,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.FileEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.TrustStrategy;
 
@@ -153,7 +154,7 @@ public class HttpBenchmark {
             request.addHeader(new DefaultHeader("SOAPAction", config.getSoapAction()));
         }
         request.setScheme(host.getSchemeName());
-        request.setAuthority(host.toHostString());
+        request.setAuthority(new URIAuthority(host));
         return request;
     }
 

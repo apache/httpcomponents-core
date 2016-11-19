@@ -29,14 +29,17 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
@@ -148,6 +151,22 @@ public class MessageSupport {
                 message.setHeader(MessageSupport.format(HttpHeaders.TRAILER, trailerNames));
             }
         }
+    }
+
+    public static Iterator<HeaderElement> iterate(final MessageHeaders headers, final String name) {
+        Args.notNull(headers, "Message headers");
+        Args.notBlank(name, "Header name");
+        return new BasicHeaderElementIterator(headers.headerIterator(name));
+    }
+
+    public static HeaderElement[] parse(final Header header) {
+        Args.notNull(header, "Headers");
+        final String value = header.getValue();
+        if (value == null) {
+            return new HeaderElement[] {};
+        }
+        final ParserCursor cursor = new ParserCursor(0, value.length());
+        return BasicHeaderValueParser.INSTANCE.parseElements(value, cursor);
     }
 
 }

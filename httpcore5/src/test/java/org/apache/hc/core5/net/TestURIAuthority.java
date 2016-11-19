@@ -31,72 +31,81 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.URISyntaxException;
 
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link URIHost}.
+ * Unit tests for {@link URIAuthority}.
  *
  */
-public class TestURIHost {
+public class TestURIAuthority {
 
     @Test
     public void testConstructor() {
-        final URIHost host1 = new URIHost("somehost");
+        final URIAuthority host1 = new URIAuthority("somehost");
         Assert.assertEquals("somehost", host1.getHostName());
         Assert.assertEquals(-1, host1.getPort());
-        final URIHost host2 = new URIHost("somehost", 8080);
+        final URIAuthority host2 = new URIAuthority("somehost", 8080);
         Assert.assertEquals("somehost", host2.getHostName());
         Assert.assertEquals(8080, host2.getPort());
-        final URIHost host3 = new URIHost("somehost", -1);
+        final URIAuthority host3 = new URIAuthority("somehost", -1);
         Assert.assertEquals("somehost", host3.getHostName());
         Assert.assertEquals(-1, host3.getPort());
     }
 
     @Test
     public void testHashCode() throws Exception {
-        final URIHost host1 = new URIHost("somehost", 8080);
-        final URIHost host2 = new URIHost("somehost", 80);
-        final URIHost host3 = new URIHost("someotherhost", 8080);
-        final URIHost host4 = new URIHost("somehost", 80);
-        final URIHost host5 = new URIHost("SomeHost", 80);
+        final URIAuthority host1 = new URIAuthority("somehost", 8080);
+        final URIAuthority host2 = new URIAuthority("somehost", 80);
+        final URIAuthority host3 = new URIAuthority("someotherhost", 8080);
+        final URIAuthority host4 = new URIAuthority("somehost", 80);
+        final URIAuthority host5 = new URIAuthority("SomeHost", 80);
+        final URIAuthority host6 = new URIAuthority("user", "SomeHost", 80);
+        final URIAuthority host7 = new URIAuthority("user", "somehost", 80);
 
         Assert.assertTrue(host1.hashCode() == host1.hashCode());
         Assert.assertTrue(host1.hashCode() != host2.hashCode());
         Assert.assertTrue(host1.hashCode() != host3.hashCode());
         Assert.assertTrue(host2.hashCode() == host4.hashCode());
         Assert.assertTrue(host2.hashCode() == host5.hashCode());
+        Assert.assertTrue(host5.hashCode() != host6.hashCode());
+        Assert.assertTrue(host6.hashCode() == host7.hashCode());
     }
 
     @Test
     public void testEquals() throws Exception {
-        final URIHost host1 = new URIHost("somehost", 8080);
-        final URIHost host2 = new URIHost("somehost", 80);
-        final URIHost host3 = new URIHost("someotherhost", 8080);
-        final URIHost host4 = new URIHost("somehost", 80);
-        final URIHost host5 = new URIHost("SomeHost", 80);
+        final URIAuthority host1 = new URIAuthority("somehost", 8080);
+        final URIAuthority host2 = new URIAuthority("somehost", 80);
+        final URIAuthority host3 = new URIAuthority("someotherhost", 8080);
+        final URIAuthority host4 = new URIAuthority("somehost", 80);
+        final URIAuthority host5 = new URIAuthority("SomeHost", 80);
+        final URIAuthority host6 = new URIAuthority("user", "SomeHost", 80);
+        final URIAuthority host7 = new URIAuthority("user", "somehost", 80);
 
         Assert.assertTrue(host1.equals(host1));
         Assert.assertFalse(host1.equals(host2));
         Assert.assertFalse(host1.equals(host3));
         Assert.assertTrue(host2.equals(host4));
         Assert.assertTrue(host2.equals(host5));
+        Assert.assertFalse(host5.equals(host6));
+        Assert.assertTrue(host6.equals(host7));
     }
 
     @Test
     public void testToString() throws Exception {
-        final URIHost host1 = new URIHost("somehost");
+        final URIAuthority host1 = new URIAuthority("somehost");
         Assert.assertEquals("somehost", host1.toString());
-        final URIHost host2 = new URIHost("somehost", -1);
+        final URIAuthority host2 = new URIAuthority("somehost", -1);
         Assert.assertEquals("somehost", host2.toString());
-        final URIHost host3 = new URIHost("somehost", 8888);
+        final URIAuthority host3 = new URIAuthority("somehost", 8888);
         Assert.assertEquals("somehost:8888", host3.toString());
     }
 
     @Test
     public void testSerialization() throws Exception {
-        final URIHost orig = new URIHost("somehost", 8080);
+        final URIAuthority orig = new URIAuthority("somehost", 8080);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
         outstream.writeObject(orig);
@@ -104,29 +113,35 @@ public class TestURIHost {
         final byte[] raw = outbuffer.toByteArray();
         final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        final URIHost clone = (URIHost) instream.readObject();
+        final URIAuthority clone = (URIAuthority) instream.readObject();
         Assert.assertEquals(orig, clone);
     }
 
     @Test
     public void testCreateFromString() throws Exception {
-        Assert.assertEquals(new URIHost("somehost", 8080), URIHost.create("somehost:8080"));
-        Assert.assertEquals(new URIHost("somehost", 8080), URIHost.create("SomeHost:8080"));
-        Assert.assertEquals(new URIHost("somehost", 1234), URIHost.create("somehost:1234"));
-        Assert.assertEquals(new URIHost("somehost", -1), URIHost.create("somehost"));
+        Assert.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("somehost:8080"));
+        Assert.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("SomeHost:8080"));
+        Assert.assertEquals(new URIAuthority("somehost", 1234), URIAuthority.create("somehost:1234"));
+        Assert.assertEquals(new URIAuthority("somehost", -1), URIAuthority.create("somehost"));
+        Assert.assertEquals(new URIAuthority("user", "somehost", -1), URIAuthority.create("user@somehost"));
     }
 
     @Test
     public void testCreateFromStringInvalid() throws Exception {
         try {
-            URIHost.create(" host ");
+            URIAuthority.create(" host ");
             Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+        } catch (final URISyntaxException expected) {
         }
         try {
-            URIHost.create("host :8080");
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            URIAuthority.create("host :8080");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+        try {
+            URIAuthority.create("user @ host:8080");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
         }
     }
 

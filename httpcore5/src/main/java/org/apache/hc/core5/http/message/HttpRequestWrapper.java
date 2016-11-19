@@ -31,6 +31,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.net.URIAuthority;
 
 /**
  * {@link HttpRequest} wrapper.
@@ -70,12 +71,12 @@ public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRe
     }
 
     @Override
-    public String getAuthority() {
+    public URIAuthority getAuthority() {
         return message.getAuthority();
     }
 
     @Override
-    public void setAuthority(final String authority) {
+    public void setAuthority(final URIAuthority authority) {
         message.setAuthority(authority);
     }
 

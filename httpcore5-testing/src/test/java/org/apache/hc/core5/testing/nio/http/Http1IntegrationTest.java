@@ -1255,7 +1255,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                         new BasicAsyncEntityProducer("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final HttpRequest request2 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/hello-2"));
-        request2.addHeader(HttpHeaders.HOST, "");
+        request2.addHeader(HttpHeaders.HOST, "blah:blah");
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2,
                         new BasicAsyncEntityProducer("Hi there")),

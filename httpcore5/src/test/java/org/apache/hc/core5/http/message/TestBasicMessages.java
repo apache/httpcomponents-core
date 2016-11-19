@@ -32,6 +32,7 @@ import java.net.URI;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -149,7 +150,7 @@ public class TestBasicMessages {
         final HttpRequest request = new BasicHttpRequest("GET", new URI("https://host:9443/stuff?param=value"));
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertEquals("/stuff?param=value", request.getPath());
-        Assert.assertEquals("host:9443", request.getAuthority());
+        Assert.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
         Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
     }
@@ -159,9 +160,19 @@ public class TestBasicMessages {
         final HttpRequest request = new BasicHttpRequest("GET", new URI("http://host"));
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertEquals("/", request.getPath());
-        Assert.assertEquals("host", request.getAuthority());
+        Assert.assertEquals(new URIAuthority("host"), request.getAuthority());
         Assert.assertEquals("http", request.getScheme());
         Assert.assertEquals(new URI("http://host/"), request.getUri());
+    }
+
+    @Test
+    public void testRequestWithUserInfo() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new URI("https://user:pwd@host:9443/stuff?param=value"));
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/stuff?param=value", request.getPath());
+        Assert.assertEquals(new URIAuthority("user:pwd", "host", 9443), request.getAuthority());
+        Assert.assertEquals("https", request.getScheme());
+        Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
     }
 
 }

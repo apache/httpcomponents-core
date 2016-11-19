@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -69,7 +70,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         }
 
         if (!request.containsHeader(HttpHeaders.HOST)) {
-            String authority = request.getAuthority();
+            URIAuthority authority = request.getAuthority();
             if (authority == null) {
                 // Populate the context with a default HTTP host based on the
                 // inet address of the target host
@@ -78,7 +79,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                 if (conn != null) {
                     final InetSocketAddress remoteAddress = (InetSocketAddress) conn.getRemoteAddress();
                     if (remoteAddress != null) {
-                        authority = remoteAddress.getHostName() + ":" +  remoteAddress.getPort();
+                        authority = new URIAuthority(remoteAddress.getHostName(), remoteAddress.getPort());
                     }
                 }
                 if (authority == null) {
@@ -86,6 +87,10 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                         return;
                     }
                     throw new ProtocolException("Target host is unknown");
+                }
+            } else {
+                if (authority.getUserInfo() != null) {
+                    authority = new URIAuthority(authority.getHostName(), authority.getPort());
                 }
             }
             request.addHeader(HttpHeaders.HOST, authority);

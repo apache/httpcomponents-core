@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http2.impl;
 
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +43,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http2.H2MessageConverter;
 import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -130,7 +132,11 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         final HttpRequest httpRequest = new BasicHttpRequest(method, path);
         httpRequest.setVersion(HttpVersion.HTTP_2);
         httpRequest.setScheme(scheme);
-        httpRequest.setAuthority(authority);
+        try {
+            httpRequest.setAuthority(URIAuthority.create(authority));
+        } catch (URISyntaxException ex) {
+            throw new ProtocolException(ex.getMessage(), ex);
+        }
         httpRequest.setPath(path);
         for (int i = 0; i < messageHeaders.size(); i++) {
             httpRequest.addHeader(messageHeaders.get(i));
@@ -145,7 +151,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         }
         final boolean optionMethod = "CONNECT".equalsIgnoreCase(message.getMethod());
         if (optionMethod) {
-            if (TextUtils.isBlank(message.getAuthority())) {
+            if (message.getAuthority() == null) {
                 throw new ProtocolException("CONNECT request authority is not set");
             }
             if (message.getPath() != null) {
