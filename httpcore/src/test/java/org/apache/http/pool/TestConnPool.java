@@ -806,7 +806,7 @@ public class TestConnPool {
         Mockito.when(connFactory.create(Mockito.eq("somehost"))).thenReturn(conn);
 
         final LocalConnPool pool = new LocalConnPool(connFactory, 2, 10);
-        pool.setValidateAfterInactivity(5);
+        pool.setValidateAfterInactivity(100);
 
         final Future<LocalPoolEntry> future1 = pool.lease("somehost", null);
         final LocalPoolEntry entry1 = future1.get(1, TimeUnit.SECONDS);
@@ -814,7 +814,7 @@ public class TestConnPool {
 
         pool.release(entry1, true);
 
-        Thread.sleep(10);
+        Thread.sleep(150);
 
         final Future<LocalPoolEntry> future2 = pool.lease("somehost", null);
         final LocalPoolEntry entry2 = future2.get(1, TimeUnit.SECONDS);

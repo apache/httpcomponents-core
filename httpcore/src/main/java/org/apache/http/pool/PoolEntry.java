@@ -28,8 +28,8 @@ package org.apache.http.pool;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.util.Args;
 
 /**
@@ -83,6 +83,7 @@ public abstract class PoolEntry<T, C> {
         this.route = route;
         this.conn = conn;
         this.created = System.currentTimeMillis();
+        this.updated = this.created;
         if (timeToLive > 0) {
             this.validityDeadline = this.created + tunit.toMillis(timeToLive);
         } else {

@@ -234,22 +234,30 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
             @Override
             public E get(final long timeout, final TimeUnit tunit) throws InterruptedException, ExecutionException, TimeoutException {
-                final E local = entry;
-                if (local != null) {
-                    return local;
+                if (entry != null) {
+                    return entry;
                 }
                 synchronized (this) {
                     try {
-                        if (entry != null) {
+                        for (;;) {
+                            final E leasedEntry = getPoolEntryBlocking(route, state, timeout, tunit, this);
+                            if (validateAfterInactivity > 0)  {
+                                if (leasedEntry.getUpdated() + validateAfterInactivity <= System.currentTimeMillis()) {
+                                    if (!validate(leasedEntry)) {
+                                        leasedEntry.close();
+                                        release(leasedEntry, false);
+                                        continue;
+                                    }
+                                }
+                            }
+                            entry = leasedEntry;
+                            done = true;
+                            onLease(entry);
+                            if (callback != null) {
+                                callback.completed(entry);
+                            }
                             return entry;
                         }
-                        entry = getPoolEntryBlocking(route, state, timeout, tunit, this);
-                        done = true;
-                        onLease(entry);
-                        if (callback != null) {
-                            callback.completed(entry);
-                        }
-                        return entry;
                     } catch (IOException ex) {
                         done = true;
                         if (callback != null) {
@@ -290,15 +298,13 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
         Date deadline = null;
         if (timeout > 0) {
-            deadline = new Date
-                (System.currentTimeMillis() + tunit.toMillis(timeout));
+            deadline = new Date (System.currentTimeMillis() + tunit.toMillis(timeout));
         }
-
         this.lock.lock();
         try {
             final RouteSpecificPool<T, C, E> pool = getPool(route);
-            E entry = null;
-            while (entry == null) {
+            E entry;
+            for (;;) {
                 Asserts.check(!this.isShutDown, "Connection pool shut down");
                 for (;;) {
                     entry = pool.getFree(state);
@@ -307,12 +313,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     }
                     if (entry.isExpired(System.currentTimeMillis())) {
                         entry.close();
-                    } else if (this.validateAfterInactivity > 0) {
-                        if (entry.getUpdated() + this.validateAfterInactivity <= System.currentTimeMillis()) {
-                            if (!validate(entry)) {
-                                entry.close();
-                            }
-                        }
                     }
                     if (entry.isClosed()) {
                         this.available.remove(entry);
@@ -389,8 +389,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     this.pending.remove(future);
                 }
                 // check for spurious wakeup vs. timeout
-                if (!success && (deadline != null) &&
-                    (deadline.getTime() <= System.currentTimeMillis())) {
+                if (!success && (deadline != null && deadline.getTime() <= System.currentTimeMillis())) {
                     break;
                 }
             }
