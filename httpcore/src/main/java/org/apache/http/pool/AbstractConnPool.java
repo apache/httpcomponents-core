@@ -34,14 +34,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -66,11 +68,12 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                                                implements ConnPool<T, E>, ConnPoolControl<T> {
 
     private final Lock lock;
+    private final Condition condition;
     private final ConnFactory<T, C> connFactory;
     private final Map<T, RouteSpecificPool<T, C, E>> routeToPool;
     private final Set<E> leased;
     private final LinkedList<E> available;
-    private final LinkedList<PoolEntryFuture<E>> pending;
+    private final LinkedList<Future<E>> pending;
     private final Map<T, Integer> maxPerRoute;
 
     private volatile boolean isShutDown;
@@ -87,10 +90,11 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         this.defaultMaxPerRoute = Args.positive(defaultMaxPerRoute, "Max per route value");
         this.maxTotal = Args.positive(maxTotal, "Max total value");
         this.lock = new ReentrantLock();
+        this.condition = this.lock.newCondition();
         this.routeToPool = new HashMap<T, RouteSpecificPool<T, C, E>>();
         this.leased = new HashSet<E>();
         this.available = new LinkedList<E>();
-        this.pending = new LinkedList<PoolEntryFuture<E>>();
+        this.pending = new LinkedList<Future<E>>();
         this.maxPerRoute = new HashMap<T, Integer>();
     }
 
@@ -183,16 +187,77 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     public Future<E> lease(final T route, final Object state, final FutureCallback<E> callback) {
         Args.notNull(route, "Route");
         Asserts.check(!this.isShutDown, "Connection pool shut down");
-        return new PoolEntryFuture<E>(this.lock, callback) {
+
+        return new Future<E>() {
+
+            private volatile boolean cancelled;
+            private volatile boolean done;
+            private volatile E entry;
 
             @Override
-            public E getPoolEntry(
-                    final long timeout,
-                    final TimeUnit tunit)
-                        throws InterruptedException, TimeoutException, IOException {
-                final E entry = getPoolEntryBlocking(route, state, timeout, tunit, this);
-                onLease(entry);
-                return entry;
+            public boolean cancel(final boolean mayInterruptIfRunning) {
+                cancelled = true;
+                lock.lock();
+                try {
+                    condition.signalAll();
+                } finally {
+                    lock.unlock();
+                }
+                synchronized (this) {
+                    final boolean result = !done;
+                    done = true;
+                    if (callback != null) {
+                        callback.cancelled();
+                    }
+                    return result;
+                }
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return cancelled;
+            }
+
+            @Override
+            public boolean isDone() {
+                return done;
+            }
+
+            @Override
+            public E get() throws InterruptedException, ExecutionException {
+                try {
+                    return get(0L, TimeUnit.MILLISECONDS);
+                } catch (TimeoutException ex) {
+                    throw new ExecutionException(ex);
+                }
+            }
+
+            @Override
+            public E get(final long timeout, final TimeUnit tunit) throws InterruptedException, ExecutionException, TimeoutException {
+                final E local = entry;
+                if (local != null) {
+                    return local;
+                }
+                synchronized (this) {
+                    try {
+                        if (entry != null) {
+                            return entry;
+                        }
+                        entry = getPoolEntryBlocking(route, state, timeout, tunit, this);
+                        done = true;
+                        onLease(entry);
+                        if (callback != null) {
+                            callback.completed(entry);
+                        }
+                        return entry;
+                    } catch (IOException ex) {
+                        done = true;
+                        if (callback != null) {
+                            callback.failed(ex);
+                        }
+                        throw new ExecutionException(ex);
+                    }
+                }
             }
 
         };
@@ -221,8 +286,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     private E getPoolEntryBlocking(
             final T route, final Object state,
             final long timeout, final TimeUnit tunit,
-            final PoolEntryFuture<E> future)
-                throws IOException, InterruptedException, TimeoutException {
+            final Future<E> future) throws IOException, InterruptedException, TimeoutException {
 
         Date deadline = null;
         if (timeout > 0) {
@@ -302,9 +366,20 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
                 boolean success = false;
                 try {
+                    if (future.isCancelled()) {
+                        throw new InterruptedException("Operation interrupted");
+                    }
                     pool.queue(future);
                     this.pending.add(future);
-                    success = future.await(deadline);
+                    if (deadline != null) {
+                        success = this.condition.awaitUntil(deadline);
+                    } else {
+                        this.condition.await();
+                        success = true;
+                    }
+                    if (future.isCancelled()) {
+                        throw new InterruptedException("Operation interrupted");
+                    }
                 } finally {
                     // In case of 'success', we were woken up by the
                     // connection pool and should now have a connection
@@ -338,14 +413,14 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     entry.close();
                 }
                 onRelease(entry);
-                PoolEntryFuture<E> future = pool.nextPending();
+                Future<E> future = pool.nextPending();
                 if (future != null) {
                     this.pending.remove(future);
                 } else {
                     future = this.pending.poll();
                 }
                 if (future != null) {
-                    future.wakeup();
+                    this.condition.signalAll();
                 }
             }
         } finally {

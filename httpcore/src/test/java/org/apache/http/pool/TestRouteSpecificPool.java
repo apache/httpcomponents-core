@@ -27,6 +27,7 @@
 package org.apache.http.pool;
 
 import java.io.IOException;
+import java.util.concurrent.Future;
 
 import org.apache.http.HttpConnection;
 import org.junit.Assert;
@@ -278,9 +279,9 @@ public class TestRouteSpecificPool {
     public void testWaitingThreadQueuing() throws Exception {
         final LocalRoutePool pool = new LocalRoutePool();
         @SuppressWarnings("unchecked")
-        final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
+        final Future<LocalPoolEntry> future1 = Mockito.mock(Future.class);
         @SuppressWarnings("unchecked")
-        final PoolEntryFuture<LocalPoolEntry> future2 = Mockito.mock(PoolEntryFuture.class);
+        final Future<LocalPoolEntry> future2 = Mockito.mock(Future.class);
 
         Assert.assertEquals(0, pool.getPendingCount());
         pool.queue(future1);
@@ -308,7 +309,7 @@ public class TestRouteSpecificPool {
         final LocalPoolEntry entry2 = pool.add(conn2);
 
         @SuppressWarnings("unchecked")
-        final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
+        final Future<LocalPoolEntry> future1 = Mockito.mock(Future.class);
         pool.queue(future1);
 
         Assert.assertNotNull(entry1);

@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -39,14 +40,14 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     private final T route;
     private final Set<E> leased;
     private final LinkedList<E> available;
-    private final LinkedList<PoolEntryFuture<E>> pending;
+    private final LinkedList<Future<E>> pending;
 
     RouteSpecificPool(final T route) {
         super();
         this.route = route;
         this.leased = new HashSet<E>();
         this.available = new LinkedList<E>();
-        this.pending = new LinkedList<PoolEntryFuture<E>>();
+        this.pending = new LinkedList<Future<E>>();
     }
 
     protected abstract E createEntry(C conn);
@@ -130,18 +131,18 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return entry;
     }
 
-    public void queue(final PoolEntryFuture<E> future) {
+    public void queue(final Future<E> future) {
         if (future == null) {
             return;
         }
         this.pending.add(future);
     }
 
-    public PoolEntryFuture<E> nextPending() {
+    public Future<E> nextPending() {
         return this.pending.poll();
     }
 
-    public void unqueue(final PoolEntryFuture<E> future) {
+    public void unqueue(final Future<E> future) {
         if (future == null) {
             return;
         }
@@ -150,7 +151,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     }
 
     public void shutdown() {
-        for (final PoolEntryFuture<E> future: this.pending) {
+        for (final Future<E> future: this.pending) {
             future.cancel(true);
         }
         this.pending.clear();
