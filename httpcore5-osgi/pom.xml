@@ -38,12 +38,6 @@
   </description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>bundle</packaging>
-  <properties>
-    <pax.url.version>2.0.0</pax.url.version>
-    <pax.exam.version>3.5.0</pax.exam.version>
-    <slf4j.version>1.5.4</slf4j.version>
-    <logback.version>1.0.1</logback.version>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents.core5</groupId>
@@ -52,94 +46,13 @@
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents.core5</groupId>
-      <artifactId>httpcore5-testing</artifactId>
+      <artifactId>httpcore5-h2</artifactId>
       <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-container-native</artifactId>
-      <version>${pax.exam.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.core</artifactId>
-        </exclusion>
-      </exclusions>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-junit4</artifactId>
-      <scope>test</scope>
-      <version>${pax.exam.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax.exam</groupId>
-      <artifactId>pax-exam-link-mvn</artifactId>
-      <scope>test</scope>
-      <version>${pax.exam.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-aether</artifactId>
-      <version>${pax.url.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-wrap</artifactId>
-      <version>${pax.url.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.6.4</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>${logback.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>${logback.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.felix</groupId>
-      <artifactId>org.apache.felix.framework</artifactId>
-      <version>4.2.0</version>
-      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
-      <plugin>
-         <groupId>org.apache.servicemix.tooling</groupId>
-         <artifactId>depends-maven-plugin</artifactId>
-         <version>1.2</version>
-         <executions>
-           <execution>
-              <id>generate-depends-file</id>
-              <phase>generate-resources</phase>
-              <goals>
-                <goal>generate-depends-file</goal>
-              </goals>
-           </execution>
-         </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
@@ -159,30 +72,6 @@
         <configuration>
           <skip>true</skip>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>${hc.surefire.version}</version>
-        <executions>
-          <execution>
-            <id>it</id>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-          </goals>
-          <configuration>
-              <includes>
-                  <include>**/*IT.class</include>
-              </includes>
-              <systemPropertyVariables>
-                  <project.build.directory>${project.build.directory}</project.build.directory>
-                  <project.version>${project.version}</project.version>
-                  <java.awt.headless>true</java.awt.headless>
-                  </systemPropertyVariables>
-          </configuration>
-        </execution>
-        </executions>
       </plugin>
     </plugins>
     <finalName>org.apache.httpcomponents.httpcore_${project.version}</finalName>
@@ -215,28 +104,5 @@
 
     </plugins>
   </reporting>
-
-  <profiles>
-    <profile>
-      <id>disableOSGiTests</id>
-      <activation>
-        <property>
-          <name>disableOSGiTests</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <configuration>
-              <skip>true</skip>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>
