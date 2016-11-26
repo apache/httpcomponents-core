@@ -68,4 +68,6 @@ public interface SessionRequestCallback {
      */
     void cancelled(SessionRequest request);
 
+    void initiated(SessionRequest sessionRequest);
+
 }

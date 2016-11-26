@@ -27,12 +27,12 @@
 package org.apache.http.nio.pool;
 
 import java.net.ConnectException;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.nio.reactor.SessionRequest;
@@ -44,15 +44,15 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     private final T route;
     private final Set<E> leased;
-    private final LinkedList<E> available;
-    private final Map<SessionRequest, BasicFuture<E>> pending;
+    private final Deque<E> available;
+    private final ConcurrentHashMap<SessionRequest, BasicFuture<E>> pending;
 
     RouteSpecificPool(final T route) {
         super();
         this.route = route;
-        this.leased = new HashSet<E>();
-        this.available = new LinkedList<E>();
-        this.pending = new HashMap<SessionRequest, BasicFuture<E>>();
+        this.leased = Collections.newSetFromMap(new ConcurrentHashMap<E,Boolean>()) ;
+        this.available = new ConcurrentLinkedDeque<E>();
+        this.pending = new ConcurrentHashMap<SessionRequest, BasicFuture<E>>();
     }
 
     public T getRoute() {
@@ -79,24 +79,35 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     public E getFree(final Object state) {
         if (!this.available.isEmpty()) {
+            E selectedEntry = null ;
             if (state != null) {
                 final Iterator<E> it = this.available.iterator();
                 while (it.hasNext()) {
                     final E entry = it.next();
                     if (state.equals(entry.getState())) {
-                        it.remove();
-                        this.leased.add(entry);
-                        return entry;
+                        selectedEntry = entry ;
+                        break ;
                     }
                 }
             }
-            final Iterator<E> it = this.available.iterator();
-            while (it.hasNext()) {
-                final E entry = it.next();
-                if (entry.getState() == null) {
-                    it.remove();
-                    this.leased.add(entry);
-                    return entry;
+            if (selectedEntry == null) {
+                final Iterator<E> it = this.available.iterator();
+                while (it.hasNext()) {
+                    final E entry = it.next();
+                    if (entry.getState() == null) {
+                        selectedEntry = entry ;
+                        break ;
+                    }
+                }
+            }
+
+            if (selectedEntry != null) {
+                if (available.remove(selectedEntry)) {
+                    this.leased.add(selectedEntry);
+                    return selectedEntry;
+                }
+                else {
+                    return getFree(state) ;
                 }
             }
         }
@@ -104,17 +115,13 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     }
 
     public E getLastUsed() {
-        if (!this.available.isEmpty()) {
-            return this.available.getLast();
-        } else {
-            return null;
-        }
+        return this.available.peekLast();
     }
 
     public boolean remove(final E entry) {
         Args.notNull(entry, "Pool entry");
-        if (!this.available.remove(entry)) {
-            if (!this.leased.remove(entry)) {
+        if (!this.leased.remove(entry)) {
+            if (!this.available.remove(entry)) {
                 return false;
             }
         }
@@ -126,14 +133,14 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         final boolean found = this.leased.remove(entry);
         Asserts.check(found, "Entry %s has not been leased from this pool", entry);
         if (reusable) {
-            this.available.addFirst(entry);
+            this.available.offerFirst(entry);
         }
     }
 
     public void addPending(
             final SessionRequest sessionRequest,
             final BasicFuture<E> future) {
-        this.pending.put(sessionRequest, future);
+        this.pending.putIfAbsent(sessionRequest, future);
     }
 
     private BasicFuture<E> removeRequest(final SessionRequest request) {

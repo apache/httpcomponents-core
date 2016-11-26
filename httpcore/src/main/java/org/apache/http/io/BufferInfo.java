@@ -34,6 +34,9 @@ package org.apache.http.io;
  */
 public interface BufferInfo {
 
+    final int DEFAULT_BUFFER_SIZE = 16;
+    final int MAX_RESUSABLE_SIZE = 128 * 1024;
+
     /**
      * Return length data stored in the buffer
      *
