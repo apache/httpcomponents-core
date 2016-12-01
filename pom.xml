@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>project</artifactId>
-    <version>7</version>
+    <version>8</version>
     <relativePath>../project/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
