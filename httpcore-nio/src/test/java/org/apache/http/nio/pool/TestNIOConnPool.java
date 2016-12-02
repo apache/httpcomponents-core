@@ -27,9 +27,9 @@
 package org.apache.http.nio.pool;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
@@ -1021,6 +1021,72 @@ public class TestNIOConnPool {
         pool.requestFailed(Mockito.mock(SessionRequest.class));
         pool.requestCancelled(Mockito.mock(SessionRequest.class));
         pool.requestTimeout(Mockito.mock(SessionRequest.class));
+    }
+
+    @Test
+    public void testLeaseRequestCanceled() throws Exception {
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
+        Mockito.when(iosession1.isClosed()).thenReturn(Boolean.TRUE);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
+        Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
+
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        Mockito.when(ioreactor.connect(
+                Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
+                Mockito.any(), Mockito.any(SessionRequestCallback.class))).
+                thenReturn(sessionRequest1);
+        Mockito.when(ioreactor.getStatus()).thenReturn(IOReactorStatus.ACTIVE);
+
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 1, 1);
+
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+        future1.cancel(true);
+
+        pool.requestCompleted(sessionRequest1);
+
+        Assert.assertTrue(future1.isDone());
+        final LocalPoolEntry entry1 = future1.get();
+        Assert.assertNull(entry1);
+
+        final PoolStats totals = pool.getTotalStats();
+        Assert.assertEquals(1, totals.getAvailable());
+        Assert.assertEquals(0, totals.getLeased());
+    }
+
+    @Test
+    public void testLeaseRequestCanceledWhileConnecting() throws Exception {
+        final IOSession iosession1 = Mockito.mock(IOSession.class);
+        Mockito.when(iosession1.isClosed()).thenReturn(Boolean.TRUE);
+        final SessionRequest sessionRequest1 = Mockito.mock(SessionRequest.class);
+        Mockito.when(sessionRequest1.getAttachment()).thenReturn("somehost");
+        Mockito.when(sessionRequest1.getSession()).thenReturn(iosession1);
+
+        final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
+        Mockito.when(ioreactor.connect(
+                Mockito.any(SocketAddress.class), Mockito.any(SocketAddress.class),
+                Mockito.any(), Mockito.any(SessionRequestCallback.class))).
+                thenReturn(sessionRequest1);
+        Mockito.when(ioreactor.getStatus()).thenReturn(IOReactorStatus.ACTIVE);
+
+        final LocalSessionPool pool = new LocalSessionPool(ioreactor, 1, 1);
+
+        final Future<LocalPoolEntry> future1 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+
+        pool.requestCompleted(sessionRequest1);
+
+        Assert.assertTrue(future1.isDone());
+        final LocalPoolEntry entry1 = future1.get();
+        Assert.assertNotNull(entry1);
+
+        final Future<LocalPoolEntry> future2 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+        future2.cancel(true);
+
+        pool.release(entry1, true);
+
+        final PoolStats totals = pool.getTotalStats();
+        Assert.assertEquals(1, totals.getAvailable());
+        Assert.assertEquals(0, totals.getLeased());
     }
 
 }

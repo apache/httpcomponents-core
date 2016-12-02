@@ -43,8 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.concurrent.BasicFuture;
 import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
@@ -327,6 +327,11 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             final LeaseRequest<T, C, E> request = it.next();
+            final BasicFuture<E> future = request.getFuture();
+            if (future.isCancelled()) {
+                it.remove();
+                continue;
+            }
             final boolean completed = processPendingRequest(request);
             if (request.isDone() || completed) {
                 it.remove();
@@ -341,6 +346,11 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
         while (it.hasNext()) {
             final LeaseRequest<T, C, E> request = it.next();
+            final BasicFuture<E> future = request.getFuture();
+            if (future.isCancelled()) {
+                it.remove();
+                continue;
+            }
             final boolean completed = processPendingRequest(request);
             if (request.isDone() || completed) {
                 it.remove();
@@ -450,12 +460,18 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             final BasicFuture<E> future = request.getFuture();
             final Exception ex = request.getException();
             final E result = request.getResult();
+            boolean successfullyCompleted = false;
             if (ex != null) {
                 future.failed(ex);
             } else if (result != null) {
-                future.completed(result);
+                if (future.completed(result)) {
+                    successfullyCompleted = true;
+                }
             } else {
                 future.cancel();
+            }
+            if (!successfullyCompleted) {
+                release(result, true);
             }
         }
     }
@@ -495,9 +511,15 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             try {
                 final C conn = this.connFactory.create(route, session);
                 final E entry = pool.createEntry(request, conn);
-                this.leased.add(entry);
-                pool.completed(request, entry);
-                onLease(entry);
+                if (pool.completed(request, entry)) {
+                    this.leased.add(entry);
+                    onLease(entry);
+                } else {
+                    this.available.add(entry);
+                    if (this.ioreactor.getStatus().compareTo(IOReactorStatus.ACTIVE) <= 0) {
+                        processNextPendingRequest();
+                    }
+                }
             } catch (final IOException ex) {
                 pool.failed(request, ex);
             }

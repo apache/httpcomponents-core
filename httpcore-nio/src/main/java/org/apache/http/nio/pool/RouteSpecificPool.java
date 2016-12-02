@@ -148,9 +148,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return entry;
     }
 
-    public void completed(final SessionRequest request, final E entry) {
+    public boolean completed(final SessionRequest request, final E entry) {
         final BasicFuture<E> future = removeRequest(request);
-        future.completed(entry);
+        return future.completed(entry);
     }
 
     public void cancelled(final SessionRequest request) {
