@@ -59,6 +59,7 @@ import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.LangUtils;
 
 /**
  * Abstract non-blocking connection pool.
@@ -614,9 +615,15 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         this.lock.lock();
         try {
             final RouteSpecificPool<T, C, E> pool = getPool(route);
+            int pendingCount = 0;
+            for (LeaseRequest<T, C, E> request: leasingRequests) {
+                if (LangUtils.equals(route, request.getRoute())) {
+                    pendingCount++;
+                }
+            }
             return new PoolStats(
                     pool.getLeasedCount(),
-                    pool.getPendingCount(),
+                    pendingCount + pool.getPendingCount(),
                     pool.getAvailableCount(),
                     getMax(route));
         } finally {
