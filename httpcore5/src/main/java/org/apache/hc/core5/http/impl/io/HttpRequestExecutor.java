@@ -33,6 +33,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
@@ -40,6 +41,8 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -65,19 +68,30 @@ public class HttpRequestExecutor {
     public static final int DEFAULT_WAIT_FOR_CONTINUE = 3000;
 
     private final int waitForContinue;
+    private final ConnectionReuseStrategy connReuseStrategy;
+    private final Http1StreamListener streamListener;
 
     /**
      * Creates new instance of HttpRequestExecutor.
      *
      * @since 4.3
      */
-    public HttpRequestExecutor(final int waitForContinue) {
+    public HttpRequestExecutor(
+            final int waitForContinue,
+            final ConnectionReuseStrategy connReuseStrategy,
+            final Http1StreamListener streamListener) {
         super();
         this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
+        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE;
+        this.streamListener = streamListener;
+    }
+
+    public HttpRequestExecutor(final ConnectionReuseStrategy connReuseStrategy) {
+        this(DEFAULT_WAIT_FOR_CONTINUE, connReuseStrategy, null);
     }
 
     public HttpRequestExecutor() {
-        this(DEFAULT_WAIT_FOR_CONTINUE);
+        this(DEFAULT_WAIT_FOR_CONTINUE, null, null);
     }
 
     /**
@@ -128,6 +142,9 @@ public class HttpRequestExecutor {
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
 
             conn.sendRequestHeader(request);
+            if (streamListener != null) {
+                streamListener.onRequestHead(conn, request);
+            }
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
                 final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
@@ -138,6 +155,9 @@ public class HttpRequestExecutor {
                     // Don't wait for a 100-continue response forever. On timeout, send the entity.
                     if (conn.isDataAvailable(this.waitForContinue)) {
                         response = conn.receiveResponseHeader();
+                        if (streamListener != null) {
+                            streamListener.onResponseHead(conn, response);
+                        }
                         final int status = response.getCode();
                         if (status < HttpStatus.SC_SUCCESS) {
                             if (status != HttpStatus.SC_CONTINUE) {
@@ -163,6 +183,9 @@ public class HttpRequestExecutor {
 
             while (response == null || response.getCode() < HttpStatus.SC_OK) {
                 response = conn.receiveResponseHeader();
+                if (streamListener != null) {
+                    streamListener.onResponseHead(conn, response);
+                }
                 if (canResponseHaveBody(request, response)) {
                     conn.receiveResponseEntity(response);
                 }
@@ -237,4 +260,30 @@ public class HttpRequestExecutor {
         processor.process(response, response.getEntity(), context);
     }
 
-} // class HttpRequestExecutor
+    /**
+     * Determines whether the connection can be kept alive and is safe to be re-used for subsequent message exchanges.
+     *
+     * @param request current request object.
+     * @param response  current response object.
+     * @param connection actual connection.
+     * @param context current context.
+     * @return {@code true} is the connection can be kept-alive and re-used.
+     * @throws IOException in case of an I/O error.
+     */
+    public boolean keepAlive(
+            final ClassicHttpRequest request,
+            final ClassicHttpResponse response,
+            final HttpClientConnection connection,
+            final HttpContext context) throws IOException {
+        Args.notNull(connection, "HTTP connection");
+        Args.notNull(request, "HTTP request");
+        Args.notNull(response, "HTTP response");
+        Args.notNull(context, "HTTP context");
+        final boolean keepAlive = connReuseStrategy.keepAlive(request, response, context);
+        if (streamListener != null) {
+            streamListener.onExchangeComplete(connection, keepAlive);
+        }
+        return keepAlive;
+    }
+
+}

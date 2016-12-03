@@ -24,12 +24,11 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.pool.io;
+package org.apache.hc.core5.pool;
 
-import java.io.IOException;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.pool.PoolEntry;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -38,74 +37,42 @@ public class TestRouteSpecificPool {
 
     private static final String ROUTE = "whatever";
 
-    static class LocalPoolEntry extends PoolEntry<String, Socket> {
-
-        public LocalPoolEntry(final String route, final Socket socket) {
-            super(null, route, socket);
-        }
-
-        @Override
-        public void close() {
-            try {
-                getConnection().close();
-            } catch (final IOException ignore) {
-            }
-        }
-
-        @Override
-        public boolean isClosed() {
-            return getConnection().isClosed();
-        }
-
-    }
-
-    static class LocalRoutePool extends RouteSpecificPool<String, Socket, LocalPoolEntry> {
-
-        public LocalRoutePool() {
-            super(ROUTE);
-        }
-
-        @Override
-        protected LocalPoolEntry createEntry(final Socket socket) {
-            return new LocalPoolEntry(getRoute(), socket);
-        }
-
-    }
-
     @Test
     public void testEmptyPool() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         Assert.assertEquals(ROUTE, pool.getRoute());
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
         Assert.assertNull(pool.getLastUsed());
-        Assert.assertEquals("[route: whatever][leased: 0][available: 0][pending: 0]", pool.toString());
+        Assert.assertEquals("[route: whatever][leased: 0][available: 0]", pool.toString());
     }
 
     @Test
     public void testAdd() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         final Socket conn = Mockito.mock(Socket.class);
-        final PoolEntry<String, Socket> entry = pool.add(conn);
+        final PoolEntry<String, Socket> entry = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry.assignConnection(conn);
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(1, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
         Assert.assertNotNull(entry);
         Assert.assertSame(conn, entry.getConnection());
     }
 
     @Test
     public void testLeaseRelease() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         final Socket conn1 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry1 = pool.add(conn1);
+        final PoolEntry<String, Socket> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry1.assignConnection(conn1);
         final Socket conn2 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry2 = pool.add(conn2);
+        final PoolEntry<String, Socket> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry2.assignConnection(conn2);
         final Socket conn3 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry3 = pool.add(conn3);
+        final PoolEntry<String, Socket> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -114,7 +81,6 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(3, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(3, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
         pool.free(entry1, true);
         pool.free(entry2, false);
@@ -123,7 +89,6 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(2, pool.getAllocatedCount());
         Assert.assertEquals(2, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
         Assert.assertSame(entry1, pool.getLastUsed());
 
@@ -134,18 +99,20 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(2, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(2, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
     }
 
     @Test
     public void testLeaseOrder() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         final Socket conn1 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry1 = pool.add(conn1);
+        final PoolEntry<String, Socket> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry1.assignConnection(conn1);
         final Socket conn2 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry2 = pool.add(conn2);
+        final PoolEntry<String, Socket> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry2.assignConnection(conn2);
         final Socket conn3 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry3 = pool.add(conn3);
+        final PoolEntry<String, Socket> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -154,7 +121,6 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(3, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(3, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
         pool.free(entry1, true);
         pool.free(entry2, true);
@@ -169,13 +135,16 @@ public class TestRouteSpecificPool {
 
     @Test
     public void testLeaseReleaseStateful() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         final Socket conn1 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry1 = pool.add(conn1);
+        final PoolEntry<String, Socket> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry1.assignConnection(conn1);
         final Socket conn2 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry2 = pool.add(conn2);
+        final PoolEntry<String, Socket> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry2.assignConnection(conn2);
         final Socket conn3 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry3 = pool.add(conn3);
+        final PoolEntry<String, Socket> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -184,9 +153,8 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(3, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(3, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
-        entry2.setState(Boolean.FALSE);
+        entry2.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.FALSE);
         pool.free(entry1, true);
         pool.free(entry2, true);
         pool.free(entry3, true);
@@ -196,9 +164,9 @@ public class TestRouteSpecificPool {
         Assert.assertSame(entry1, pool.getFree(null));
         Assert.assertSame(null, pool.getFree(null));
 
-        entry1.setState(Boolean.TRUE);
-        entry2.setState(Boolean.FALSE);
-        entry3.setState(Boolean.TRUE);
+        entry1.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.TRUE);
+        entry2.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.FALSE);
+        entry3.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.TRUE);
         pool.free(entry1, true);
         pool.free(entry2, true);
         pool.free(entry3, true);
@@ -213,21 +181,24 @@ public class TestRouteSpecificPool {
 
     @Test(expected=IllegalStateException.class)
     public void testReleaseInvalidEntry() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         final Socket conn = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry = new LocalPoolEntry(ROUTE, conn);
+        final PoolEntry<String, Socket> entry = new PoolEntry<>(ROUTE);
         pool.free(entry, true);
     }
 
     @Test
     public void testRemove() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         final Socket conn1 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry1 = pool.add(conn1);
+        final PoolEntry<String, Socket> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry1.assignConnection(conn1);
         final Socket conn2 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry2 = pool.add(conn2);
+        final PoolEntry<String, Socket> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry2.assignConnection(conn2);
         final Socket conn3 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry3 = pool.add(conn3);
+        final PoolEntry<String, Socket> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -236,7 +207,6 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(3, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(3, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
         Assert.assertTrue(pool.remove(entry2));
         Assert.assertFalse(pool.remove(entry2));
@@ -244,7 +214,6 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(2, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(2, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
         pool.free(entry1, true);
         pool.free(entry3, true);
@@ -252,7 +221,6 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(2, pool.getAllocatedCount());
         Assert.assertEquals(2, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
         Assert.assertTrue(pool.remove(entry1));
         Assert.assertTrue(pool.remove(entry3));
@@ -260,57 +228,29 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testReleaseInvalid() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         pool.free(null, true);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testRemoveInvalid() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         pool.remove(null);
     }
 
     @Test
-    public void testWaitingThreadQueuing() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
-        @SuppressWarnings("unchecked")
-        final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
-        @SuppressWarnings("unchecked")
-        final PoolEntryFuture<LocalPoolEntry> future2 = Mockito.mock(PoolEntryFuture.class);
-
-        Assert.assertEquals(0, pool.getPendingCount());
-        pool.queue(future1);
-        Assert.assertEquals(1, pool.getPendingCount());
-        pool.queue(null);
-        Assert.assertEquals(1, pool.getPendingCount());
-        pool.queue(future2);
-        Assert.assertEquals(2, pool.getPendingCount());
-        Assert.assertSame(future1, pool.nextPending());
-        pool.unqueue(future1);
-        Assert.assertEquals(1, pool.getPendingCount());
-        Assert.assertSame(future2, pool.nextPending());
-        pool.unqueue(null);
-        Assert.assertEquals(0, pool.getPendingCount());
-        pool.unqueue(future2);
-        Assert.assertNull(pool.nextPending());
-    }
-
-    @Test
     public void testShutdown() throws Exception {
-        final LocalRoutePool pool = new LocalRoutePool();
+        final RoutePool<String, Socket> pool = new RoutePool<>("whatever");
         final Socket conn1 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry1 = pool.add(conn1);
+        final PoolEntry<String, Socket> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry1.assignConnection(conn1);
         final Socket conn2 = Mockito.mock(Socket.class);
-        final LocalPoolEntry entry2 = pool.add(conn2);
-
-        @SuppressWarnings("unchecked")
-        final PoolEntryFuture<LocalPoolEntry> future1 = Mockito.mock(PoolEntryFuture.class);
-        pool.queue(future1);
+        final PoolEntry<String, Socket> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        entry2.assignConnection(conn2);
 
         Assert.assertNotNull(entry1);
         Assert.assertNotNull(entry2);
@@ -320,16 +260,13 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(2, pool.getAllocatedCount());
         Assert.assertEquals(1, pool.getAvailableCount());
         Assert.assertEquals(1, pool.getLeasedCount());
-        Assert.assertEquals(1, pool.getPendingCount());
 
         pool.shutdown();
 
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(0, pool.getLeasedCount());
-        Assert.assertEquals(0, pool.getPendingCount());
 
-        Mockito.verify(future1).cancel(true);
         Mockito.verify(conn2).close();
         Mockito.verify(conn1).close();
     }

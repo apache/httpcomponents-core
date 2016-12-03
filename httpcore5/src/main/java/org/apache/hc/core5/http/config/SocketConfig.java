@@ -41,6 +41,7 @@ public class SocketConfig {
 
     public static final SocketConfig DEFAULT = new Builder().build();
 
+    private final int connectTimeout;
     private final int soTimeout;
     private final boolean soReuseAddress;
     private final int soLinger;
@@ -51,6 +52,7 @@ public class SocketConfig {
     private final int backlogSize;
 
     SocketConfig(
+            final int connectTimeout,
             final int soTimeout,
             final boolean soReuseAddress,
             final int soLinger,
@@ -60,6 +62,7 @@ public class SocketConfig {
             final int rcvBufSize,
             final int backlogSize) {
         super();
+        this.connectTimeout = connectTimeout;
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
         this.soLinger = soLinger;
@@ -71,12 +74,26 @@ public class SocketConfig {
     }
 
     /**
-     * Determines the default socket timeout value for non-blocking I/O operations.
+     * Determines the default connect timeout value for blocking I/O operations.
      * <p>
      * Default: {@code 0} (no timeout)
      * </p>
      *
-     * @return the default socket timeout value for non-blocking I/O operations.
+     * @return the default connect timeout value for blocking I/O operations.
+     *
+     * @since 5.0
+     */
+    public int getConnectTimeout() {
+        return connectTimeout;
+    }
+
+    /**
+     * Determines the default socket timeout value for blocking I/O operations.
+     * <p>
+     * Default: {@code 0} (no timeout)
+     * </p>
+     *
+     * @return the default socket timeout value for blocking I/O operations.
      * @see java.net.SocketOptions#SO_TIMEOUT
      */
     public int getSoTimeout() {
@@ -185,7 +202,8 @@ public class SocketConfig {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[soTimeout=").append(this.soTimeout)
+        builder.append("[connectTimeout=").append(this.connectTimeout)
+                .append(", soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)
                 .append(", soLinger=").append(this.soLinger)
                 .append(", soKeepAlive=").append(this.soKeepAlive)
@@ -204,6 +222,7 @@ public class SocketConfig {
     public static SocketConfig.Builder copy(final SocketConfig config) {
         Args.notNull(config, "Socket config");
         return new Builder()
+            .setConnectTimeout(config.getConnectTimeout())
             .setSoTimeout(config.getSoTimeout())
             .setSoReuseAddress(config.isSoReuseAddress())
             .setSoLinger(config.getSoLinger())
@@ -216,6 +235,7 @@ public class SocketConfig {
 
     public static class Builder {
 
+        private int connectTimeout;
         private int soTimeout;
         private boolean soReuseAddress;
         private int soLinger;
@@ -228,6 +248,14 @@ public class SocketConfig {
         Builder() {
             this.soLinger = -1;
             this.tcpNoDelay = true;
+        }
+
+        /**
+         * @since 5.0
+         */
+        public Builder setConnectTimeout(final int connectTimeout) {
+            this.connectTimeout = connectTimeout;
+            return this;
         }
 
         public Builder setSoTimeout(final int soTimeout) {
@@ -280,8 +308,8 @@ public class SocketConfig {
         }
 
         public SocketConfig build() {
-            return new SocketConfig(soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
-                    sndBufSize, rcvBufSize, backlogSize);
+            return new SocketConfig(connectTimeout, soTimeout, soReuseAddress, soLinger,
+                    soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize);
         }
 
     }

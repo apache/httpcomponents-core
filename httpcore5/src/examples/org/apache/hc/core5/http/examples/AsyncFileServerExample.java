@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.impl.nio.ConnectionListener;
+import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;

@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.http.Supplier;
+import org.apache.hc.core5.function.Supplier;
 import org.junit.Assert;
 import org.junit.Test;
 

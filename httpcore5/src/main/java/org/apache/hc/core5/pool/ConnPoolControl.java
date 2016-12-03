@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Interface to control runtime properties of a {@link ConnPool} such as
  * maximum total number of connections or maximum connections per route
@@ -35,7 +37,7 @@ package org.apache.hc.core5.pool;
  *   connection.
  * @since 4.2
  */
-public interface ConnPoolControl<T> {
+public interface ConnPoolControl<T> extends ConnPoolStats<T> {
 
     void setMaxTotal(int max);
 
@@ -49,8 +51,8 @@ public interface ConnPoolControl<T> {
 
     int getMaxPerRoute(final T route);
 
-    PoolStats getTotalStats();
+    void closeIdle(long idletime, TimeUnit tunit);
 
-    PoolStats getStats(final T route);
+    void closeExpired();
 
 }

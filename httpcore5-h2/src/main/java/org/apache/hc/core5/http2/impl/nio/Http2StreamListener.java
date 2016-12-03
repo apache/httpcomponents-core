@@ -28,6 +28,8 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http2.frame.RawFrame;
 
@@ -36,6 +38,7 @@ import org.apache.hc.core5.http2.frame.RawFrame;
  *
  * @since 5.0
  */
+@Contract(threading = ThreadingBehavior.STATELESS)
 public interface Http2StreamListener {
 
     void onHeaderInput(List<? extends Header> headers);

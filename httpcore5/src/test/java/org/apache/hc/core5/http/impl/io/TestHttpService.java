@@ -40,15 +40,15 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.io.entity.InputStreamEntity;
+import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandlerMapper;
 import org.apache.hc.core5.http.io.HttpServerConnection;
+import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.junit.Assert;
 import org.junit.Before;
@@ -207,7 +207,8 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver,
-                expectationVerifier);
+                expectationVerifier,
+                null);
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
@@ -244,7 +245,8 @@ public class TestHttpService {
                 connReuseStrategy,
                 responseFactory,
                 handlerResolver,
-                expectationVerifier);
+                expectationVerifier,
+                null);
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, "100-continue");

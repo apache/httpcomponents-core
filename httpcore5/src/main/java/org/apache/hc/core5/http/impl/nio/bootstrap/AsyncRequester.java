@@ -32,13 +32,14 @@ import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSessionCallback;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
@@ -48,7 +49,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
     public AsyncRequester(
             final IOReactorConfig ioReactorConfig,
             final ExceptionListener exceptionListener,
-            final IOSessionCallback sessionShutdownCallback) {
+            final Callback<IOSession> sessionShutdownCallback) {
         super(ioReactorConfig,
                 exceptionListener,
                 new ThreadFactoryImpl("connector", true),
@@ -74,7 +75,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
             final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit,
-            final SessionRequestCallback callback) throws InterruptedException {
+            final SessionRequestCallback callback) {
         Args.notNull(remoteEndpoint, "Remote endpoint");
         Args.notNull(timeUnit, "Time unit");
         final SessionRequest  sessionRequest = reactor().connect(remoteEndpoint, null, null, callback);

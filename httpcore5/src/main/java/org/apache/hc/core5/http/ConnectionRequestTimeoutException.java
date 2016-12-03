@@ -25,8 +25,31 @@
  *
  */
 
+package org.apache.hc.core5.http;
+
+import java.io.InterruptedIOException;
+
 /**
- * Default implementations of client side connection pools
- * for synchronous, blocking communication.
+ * Signals timeout requesting connection.
+ *
+ * @since 5.0
  */
-package org.apache.hc.core5.http.impl.nio.pool;
+public class ConnectionRequestTimeoutException extends InterruptedIOException {
+
+    /**
+     * Creates a {@link ConnectionRequestTimeoutException} without details.
+     */
+    public ConnectionRequestTimeoutException() {
+        super();
+    }
+
+    /**
+     * Creates a {@link ConnectionRequestTimeoutException} with a detail message.
+     *
+     * @param message the exception detail message, or {@code null}
+     */
+    public ConnectionRequestTimeoutException(final String message) {
+        super(message);
+    }
+
+}

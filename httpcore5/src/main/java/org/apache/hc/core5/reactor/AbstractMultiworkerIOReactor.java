@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -396,7 +397,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *
      * @since 5.0
      */
-    public void enumSessions(final IOSessionCallback callback) throws IOException {
+    public void enumSessions(final Callback<IOSession> callback) {
         if (callback == null) {
             return;
         }

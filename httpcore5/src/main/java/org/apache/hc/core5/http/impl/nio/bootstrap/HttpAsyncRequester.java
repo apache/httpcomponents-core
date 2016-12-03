@@ -33,15 +33,20 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.FutureWrapper;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.impl.PoolEntryHolder;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
-import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.pool.ControlledConnPool;
+import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
@@ -52,65 +57,125 @@ import org.apache.hc.core5.util.Args;
 public class HttpAsyncRequester extends AsyncRequester {
 
     private final IOEventHandlerFactory handlerFactory;
+    private final ControlledConnPool<HttpHost, ClientEndpoint> connPool;
 
-    HttpAsyncRequester(
-            final IOEventHandlerFactory handlerFactory,
+    public HttpAsyncRequester(
             final IOReactorConfig ioReactorConfig,
-            final ExceptionListener exceptionListener) {
-        super(ioReactorConfig, exceptionListener, new IOSessionCallback() {
+            final ExceptionListener exceptionListener,
+            final IOEventHandlerFactory handlerFactory,
+            final ControlledConnPool<HttpHost, ClientEndpoint> connPool) {
+        super(ioReactorConfig, exceptionListener, new Callback<IOSession>() {
 
             @Override
-            public void execute(final IOSession session) throws IOException {
+            public void execute(final IOSession session) {
                 session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 
         });
         this.handlerFactory = Args.notNull(handlerFactory, "Handler factory");
+        this.connPool = Args.notNull(connPool, "Connection pool");
     }
 
     public void start() throws IOException {
         execute(handlerFactory);
     }
 
-    public Future<ClientEndpoint> connect(
-            final NamedEndpoint remoteEndpoint,
+    public Future<PooledClientEndpoint> connect(
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,
-            final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
-        Args.notNull(remoteEndpoint, "Remote endpoint");
+            final FutureCallback<PooledClientEndpoint> callback) {
+        Args.notNull(host, "Host");
         Args.notNull(timeUnit, "Time unit");
-        final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
-        requestSession(remoteEndpoint, timeout, timeUnit, new SessionRequestCallback() {
+        final BasicFuture<PooledClientEndpoint> resultFuture = new BasicFuture<>(callback);
+        final Future<PoolEntry<HttpHost, ClientEndpoint>> leaseFuture = connPool.lease(
+                host, null, new FutureCallback<PoolEntry<HttpHost, ClientEndpoint>>() {
 
             @Override
-            public void completed(final SessionRequest request) {
-                final IOSession session = request.getSession();
-                future.completed(new ClientEndpointImpl(session));
+            public void completed(final PoolEntry<HttpHost, ClientEndpoint> poolEntry) {
+                final PoolEntryHolder<HttpHost, ClientEndpoint> poolEntryHolder = new PoolEntryHolder<>(
+                        connPool,
+                        poolEntry,
+                        new Callback<ClientEndpoint>() {
+
+                            @Override
+                            public void execute(final ClientEndpoint clientEndpoint) {
+                                clientEndpoint.shutdown();
+                            }
+
+                        });
+                final ClientEndpoint clientEndpoint = poolEntry.getConnection();
+                if (clientEndpoint != null && !clientEndpoint.isOpen()) {
+                    poolEntry.discardConnection();
+                }
+                if (poolEntry.hasConnection()) {
+                    resultFuture.completed(new PooledClientEndpoint(poolEntryHolder));
+                } else {
+                    requestSession(host, timeout, timeUnit, new SessionRequestCallback() {
+
+                        @Override
+                        public void completed(final SessionRequest request) {
+                            poolEntry.assignConnection(new ClientEndpoint(request.getSession()));
+                            resultFuture.completed(new PooledClientEndpoint(poolEntryHolder));
+                        }
+
+                        @Override
+                        public void failed(final SessionRequest request) {
+                            try {
+                                resultFuture.failed(request.getException());
+                            } finally {
+                                poolEntryHolder.abortConnection();
+                            }
+                        }
+
+                        @Override
+                        public void timeout(final SessionRequest request) {
+                            try {
+                                resultFuture.failed(new SocketTimeoutException("Connect timeout"));
+                            } finally {
+                                poolEntryHolder.abortConnection();
+                            }
+                        }
+
+                        @Override
+                        public void cancelled(final SessionRequest request) {
+                            try {
+                                resultFuture.cancel();
+                            } finally {
+                                poolEntryHolder.abortConnection();
+                            }
+                        }
+
+                    });
+                }
             }
 
             @Override
-            public void failed(final SessionRequest request) {
-                future.failed(request.getException());
+            public void failed(final Exception ex) {
+                resultFuture.failed(ex);
             }
 
             @Override
-            public void timeout(final SessionRequest request) {
-                future.failed(new SocketTimeoutException("Connect timeout"));
+            public void cancelled() {
+                resultFuture.cancel();
             }
 
-            @Override
-            public void cancelled(final SessionRequest request) {
-                future.cancel();
-            }
         });
-        return future;
+        return new FutureWrapper<>(resultFuture, new Cancellable() {
+
+            @Override
+            public boolean cancel() {
+                return leaseFuture.cancel(true);
+            }
+
+        });
     }
 
-    public Future<ClientEndpoint> connect(
-            final NamedEndpoint remoteEndpoint,
+    public Future<PooledClientEndpoint> connect(
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(remoteEndpoint, timeout, timeUnit, null);
+        return connect(host, timeout, timeUnit, null);
     }
 
 }

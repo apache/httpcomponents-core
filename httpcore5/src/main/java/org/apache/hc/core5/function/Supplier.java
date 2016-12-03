@@ -25,8 +25,15 @@
  *
  */
 
+package org.apache.hc.core5.function;
+
 /**
- * Client side connection pools APIs for asynchronous, event driven
- * communication.
+ * Abstract object supplier.
+ *
+ * @since 5.0
  */
-package org.apache.hc.core5.pool.nio;
+public interface Supplier<T> {
+
+    T get();
+
+}

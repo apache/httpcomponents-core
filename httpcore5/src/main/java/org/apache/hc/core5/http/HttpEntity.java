@@ -33,6 +33,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.apache.hc.core5.function.Supplier;
+
 /**
  * An entity that can be sent or received with an HTTP message.
  * <p>

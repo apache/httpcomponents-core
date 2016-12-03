@@ -36,26 +36,26 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
+import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 public class Http1TestClient extends AsyncRequester {
 
     private final SSLContext sslContext;
@@ -70,9 +70,9 @@ public class Http1TestClient extends AsyncRequester {
                 log.error(ex.getMessage(), ex);
             }
 
-        }, new IOSessionCallback() {
+        }, new Callback<IOSession>() {
             @Override
-            public void execute(final IOSession session) throws IOException {
+            public void execute(final IOSession session) {
                 session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
         });
@@ -112,7 +112,7 @@ public class Http1TestClient extends AsyncRequester {
             final NamedEndpoint remoteEndpoint,
             final long timeout,
             final TimeUnit timeUnit,
-            final SessionRequestCallback callback) throws InterruptedException {
+            final SessionRequestCallback callback) {
         return super.requestSession(remoteEndpoint, timeout, timeUnit, callback);
     }
 
@@ -127,7 +127,7 @@ public class Http1TestClient extends AsyncRequester {
             @Override
             public void completed(final SessionRequest request) {
                 final IOSession session = request.getSession();
-                future.completed(new ClientEndpointImpl(session));
+                future.completed(new ClientEndpoint(session));
             }
 
             @Override

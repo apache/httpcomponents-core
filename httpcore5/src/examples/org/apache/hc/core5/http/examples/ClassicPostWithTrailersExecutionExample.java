@@ -27,18 +27,14 @@
 
 package org.apache.hc.core5.http.examples;
 
-import java.io.IOException;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.io.ResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWithTrailers;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -54,28 +50,24 @@ public class ClassicPostWithTrailersExecutionExample {
         HttpRequester httpRequester = RequesterBootstrap.bootstrap().create();
         HttpHost host = new HttpHost("localhost", 8080);
 
-        try (DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024)) {
+        HttpCoreContext coreContext = HttpCoreContext.create();
 
-            HttpCoreContext coreContext = HttpCoreContext.create();
+        ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host, "/");
+        HttpEntity requestBody = new HttpEntityWithTrailers(
+                new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
+                new BasicHeader("t1","Hello world"));
+        request.setEntity(requestBody);
 
-            ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host, "/");
-            HttpEntity requestBody = new HttpEntityWithTrailers(
-                    new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
-                    new BasicHeader("t1","Hello world"));
-            request.setEntity(requestBody);
+        SocketConfig socketConfig = SocketConfig.custom()
+                .setConnectTimeout(5000)
+                .setSoTimeout(5000)
+                .build();
 
-            System.out.println(">> Request URI: " + request.getUri());
-            httpRequester.execute(conn, request, coreContext, new ResponseHandler<Void>() {
-
-                @Override
-                public Void handleResponse(final ClassicHttpResponse response) throws HttpException, IOException {
-                    System.out.println("<< Response: " + response.getCode());
-                    System.out.println(EntityUtils.toString(response.getEntity()));
-                    System.out.println("==============");
-                    return null;
-                }
-
-            });
+        System.out.println(">> Request URI: " + request.getUri());
+        try (ClassicHttpResponse response = httpRequester.execute(host, request, socketConfig, coreContext)) {
+            System.out.println("<< Response: " + response.getCode());
+            System.out.println(EntityUtils.toString(response.getEntity()));
+            System.out.println("==============");
         }
     }
 

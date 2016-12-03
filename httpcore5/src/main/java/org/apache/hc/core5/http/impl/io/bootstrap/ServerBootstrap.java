@@ -37,10 +37,11 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
@@ -72,6 +73,7 @@ public class ServerBootstrap {
     private SSLServerSetupHandler sslSetupHandler;
     private HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private ExceptionListener exceptionListener;
+    private Http1StreamListener streamListener;
 
     private ServerBootstrap() {
     }
@@ -220,6 +222,14 @@ public class ServerBootstrap {
         return this;
     }
 
+    /**
+     * Assigns {@link ExceptionListener} instance.
+     */
+    public final ServerBootstrap setStreamListener(final Http1StreamListener streamListener) {
+        this.streamListener = streamListener;
+        return this;
+    }
+
     public HttpServer create() {
 
         HttpProcessor httpProcessorCopy = this.httpProcessor;
@@ -250,7 +260,7 @@ public class ServerBootstrap {
 
         final HttpService httpService = new HttpService(
                 httpProcessorCopy, connStrategyCopy, responseFactoryCopy, handlerMapperCopy,
-                this.expectationVerifier);
+                this.expectationVerifier, this.streamListener);
 
         ServerSocketFactory serverSocketFactoryCopy = this.serverSocketFactory;
         if (serverSocketFactoryCopy == null) {

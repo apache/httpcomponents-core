@@ -26,9 +26,13 @@
  */
 package org.apache.hc.core5.http;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+
 /**
  * @since 4.4
  */
+@Contract(threading = ThreadingBehavior.STATELESS)
 public interface ExceptionListener {
 
     ExceptionListener NO_OP = new ExceptionListener() {

@@ -32,11 +32,12 @@ import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSessionCallback;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 
 public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
@@ -44,7 +45,7 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
     public AsyncServer(
             final IOReactorConfig ioReactorConfig,
             final ExceptionListener exceptionListener,
-            final IOSessionCallback sessionShutdownCallback) {
+            final Callback<IOSession> sessionShutdownCallback) {
         super(ioReactorConfig,
                 exceptionListener,
                 new ThreadFactoryImpl("listener"),

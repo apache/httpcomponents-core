@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.io.Closeable;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 
@@ -46,7 +47,7 @@ import java.nio.channels.ByteChannel;
  *
  * @since 4.0
  */
-public interface IOSession {
+public interface IOSession extends Closeable {
 
     int ACTIVE       = 0;
     int CLOSING      = 1;

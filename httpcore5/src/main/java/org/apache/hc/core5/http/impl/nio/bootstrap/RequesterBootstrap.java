@@ -26,18 +26,23 @@
  */
 package org.apache.hc.core5.http.impl.nio.bootstrap;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandlerFactory;
-import org.apache.hc.core5.http.impl.nio.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestWriterFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseParserFactory;
-import org.apache.hc.core5.http.impl.nio.Http1StreamListener;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 
 /**
@@ -49,9 +54,14 @@ public class RequesterBootstrap {
     private ConnectionConfig connectionConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
+    private int defaultMaxPerRoute;
+    private int maxTotal;
+    private long timeToLive;
+    private TimeUnit timeUnit;
     private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
+    private ConnPoolListener<HttpHost> connPoolListener;
 
     private RequesterBootstrap() {
     }
@@ -92,6 +102,22 @@ public class RequesterBootstrap {
         return this;
     }
 
+    public final RequesterBootstrap setDefaultMaxPerRoute(final int defaultMaxPerRoute) {
+        this.defaultMaxPerRoute = defaultMaxPerRoute;
+        return this;
+    }
+
+    public final RequesterBootstrap setMaxTotal(final int maxTotal) {
+        this.maxTotal = maxTotal;
+        return this;
+    }
+
+    public final RequesterBootstrap setTimeToLive(final long timeToLive, final TimeUnit timeUnit) {
+        this.timeToLive = timeToLive;
+        this.timeUnit = timeUnit;
+        return this;
+    }
+
     /**
      * Assigns {@link ExceptionListener} instance.
      */
@@ -110,15 +136,23 @@ public class RequesterBootstrap {
 
     /**
      * Assigns {@link Http1StreamListener} instance.
-     *
-     * @since 5.0
      */
     public final RequesterBootstrap setStreamListener(final Http1StreamListener streamListener) {
         this.streamListener = streamListener;
         return this;
     }
 
+    public final RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
+        this.connPoolListener = connPoolListener;
+        return this;
+    }
+
     public HttpAsyncRequester create() {
+        final StrictConnPool<HttpHost, ClientEndpoint> connPool = new StrictConnPool<>(
+                defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
+                maxTotal > 0 ? maxTotal : 50,
+                timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
+                connPoolListener);
         final ClientHttp1IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 connectionConfig,
@@ -130,9 +164,10 @@ public class RequesterBootstrap {
                 connectionListener,
                 streamListener);
         return new HttpAsyncRequester(
-                ioEventHandlerFactory,
                 ioReactorConfig,
-                exceptionListener);
+                exceptionListener,
+                ioEventHandlerFactory,
+                connPool);
     }
 
 }

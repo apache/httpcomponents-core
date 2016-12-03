@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 /**
  * Example of asynchronous HTTP/1.1 request execution.
  */
-public class AsyncRequestExecutionExample {
+public class AsyncPipelinedRequestExecutionExample {
 
     public static void main(String[] args) throws Exception {
 
@@ -60,18 +60,17 @@ public class AsyncRequestExecutionExample {
         });
         requester.start();
 
-        // Execute HTTP GETs to the following hosts and
-        HttpHost[] targets = new HttpHost[] {
-                new HttpHost("www.apache.org", 80, "http"),
-                new HttpHost("hc.apache.org", 80, "http")
-        };
+        HttpHost target = new HttpHost("www.apache.org");
+        String[] requestUris = new String[] {"/", "/foundation",
+                "/foundation/how-it-works.html", "/foundation/getinvolved.html"};
 
-        final CountDownLatch latch = new CountDownLatch(targets.length);
-        for (final HttpHost target: targets) {
-            final Future<PooledClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
-            final PooledClientEndpoint clientEndpoint = future.get();
-            clientEndpoint.executeAndRelease(
-                    new BasicRequestProducer("GET", URI.create("/")),
+        Future<PooledClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+        PooledClientEndpoint clientEndpoint = future.get();
+
+        final CountDownLatch latch = new CountDownLatch(requestUris.length);
+        for (final String requestUri: requestUris) {
+            clientEndpoint.execute(
+                    new BasicRequestProducer("GET", URI.create(requestUri)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     new FutureCallback<Message<HttpResponse, String>>() {
 
@@ -79,25 +78,29 @@ public class AsyncRequestExecutionExample {
                         public void completed(final Message<HttpResponse, String> message) {
                             latch.countDown();
                             HttpResponse response = message.getHead();
-                            System.out.println(target + "->" + response.getCode());
+                            System.out.println(requestUri + "->" + response.getCode());
                         }
 
                         @Override
                         public void failed(final Exception ex) {
                             latch.countDown();
-                            System.out.println(target + "->" + ex);
+                            System.out.println(requestUri + "->" + ex);
                         }
 
                         @Override
                         public void cancelled() {
                             latch.countDown();
-                            System.out.println(target + " cancelled");
+                            System.out.println(requestUri + " cancelled");
                         }
 
                     });
         }
 
         latch.await();
+
+        // Manually release client endpoint when done !!!
+        clientEndpoint.releaseResources();
+
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();
     }

@@ -41,6 +41,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -321,7 +322,7 @@ class IOReactorImpl implements IOReactor {
         }
     }
 
-    void enumSessions(final IOSessionCallback callback) throws IOException {
+    void enumSessions(final Callback<IOSession> callback) {
         if (this.selector.isOpen()) {
             try {
                 final Set<SelectionKey> keys = this.selector.keys();

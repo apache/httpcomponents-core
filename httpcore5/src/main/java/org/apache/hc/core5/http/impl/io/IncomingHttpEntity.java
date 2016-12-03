@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl;
+package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,16 +34,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.impl.io.EmptyInputStream;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.io.entity.AbstractImmutableHttpEntity;
-import org.apache.hc.core5.http.Supplier;
 
-/**
- * Represents entity received from an open connection.
- *
- * @since 5.0
- */
-public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
+class IncomingHttpEntity extends AbstractImmutableHttpEntity {
 
     private final InputStream content;
     private final long len;
@@ -51,7 +45,7 @@ public class IncomingHttpEntity extends AbstractImmutableHttpEntity {
     private final Header contentType;
     private final Header contentEncoding;
 
-    public IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
+    IncomingHttpEntity(final InputStream content, final long len, final boolean chunked, final Header contentType, final Header contentEncoding) {
         this.content = content;
         this.len = len;
         this.chunked = chunked;

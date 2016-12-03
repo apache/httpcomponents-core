@@ -26,21 +26,21 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.util.concurrent.TimeUnit;
+import static java.lang.System.currentTimeMillis;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.util.Args;
 
 /**
  * Pool entry containing a pool connection object along with its route.
  * <p>
- * The connection contained by the pool entry may have an expiration time which
- * can be either set upon construction time or updated with
- * the {@link #updateExpiry(long, TimeUnit)}.
- * <p>
- * Pool entry may also have an object associated with it that represents
- * a connection state (usually a security principal or a unique token identifying
+ * The connection assigned to this pool entry may have an expiration time and also have an object
+ * representing a connection state (usually a security principal or a unique token identifying
  * the user whose credentials have been used while establishing the connection).
  *
  * @param <T> the route type that represents the opposite endpoint of a pooled
@@ -48,62 +48,35 @@ import org.apache.hc.core5.util.Args;
  * @param <C> the connection type.
  * @since 4.2
  */
-@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public abstract class PoolEntry<T, C> {
+public final class PoolEntry<T, C extends Closeable> {
 
-    private final String id;
     private final T route;
-    private final C conn;
-    private final long created;
-    private final long validityDeadline;
-
-    private long updated;
-
-    private long expiry;
+    private final long timeToLive;
+    private final AtomicReference<C> connRef;
 
     private volatile Object state;
+    private volatile long created;
+    private volatile long updated;
+    private volatile long expiry;
+    private volatile long validityDeadline;
 
     /**
      * Creates new {@code PoolEntry} instance.
      *
-     * @param id unique identifier of the pool entry. May be {@code null}.
      * @param route route to the opposite endpoint.
-     * @param conn the connection.
      * @param timeToLive maximum time to live. May be zero if the connection
      *   does not have an expiry deadline.
-     * @param tunit time unit.
+     * @param timeUnit time unit.
      */
-    public PoolEntry(final String id, final T route, final C conn,
-            final long timeToLive, final TimeUnit tunit) {
+    public PoolEntry(final T route, final long timeToLive, final TimeUnit timeUnit) {
         super();
-        Args.notNull(route, "Route");
-        Args.notNull(conn, "Connection");
-        Args.notNull(tunit, "Time unit");
-        this.id = id;
-        this.route = route;
-        this.conn = conn;
-        this.created = System.currentTimeMillis();
-        if (timeToLive > 0) {
-            this.validityDeadline = this.created + tunit.toMillis(timeToLive);
-        } else {
-            this.validityDeadline = Long.MAX_VALUE;
-        }
-        this.expiry = this.validityDeadline;
+        this.route = Args.notNull(route, "Route");
+        this.connRef = new AtomicReference<>(null);
+        this.timeToLive = timeToLive > 0 ? (timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS).toMillis(timeToLive) : 0;
     }
 
-    /**
-     * Creates new {@code PoolEntry} instance without an expiry deadline.
-     *
-     * @param id unique identifier of the pool entry. May be {@code null}.
-     * @param route route to the opposite endpoint.
-     * @param conn the connection.
-     */
-    public PoolEntry(final String id, final T route, final C conn) {
-        this(id, route, conn, 0, TimeUnit.MILLISECONDS);
-    }
-
-    public String getId() {
-        return this.id;
+    public PoolEntry(final T route) {
+        this(route, 0, TimeUnit.MILLISECONDS);
     }
 
     public T getRoute() {
@@ -111,11 +84,7 @@ public abstract class PoolEntry<T, C> {
     }
 
     public C getConnection() {
-        return this.conn;
-    }
-
-    public long getCreated() {
-        return this.created;
+        return this.connRef.get();
     }
 
     /**
@@ -129,51 +98,85 @@ public abstract class PoolEntry<T, C> {
         return this.state;
     }
 
-    public void setState(final Object state) {
-        this.state = state;
-    }
-
-    public synchronized long getUpdated() {
+    public long getUpdated() {
         return this.updated;
     }
 
-    public synchronized long getExpiry() {
+    public long getExpiry() {
         return this.expiry;
     }
 
-    public synchronized void updateExpiry(final long time, final TimeUnit tunit) {
-        Args.notNull(tunit, "Time unit");
-        this.updated = System.currentTimeMillis();
-        final long newExpiry;
-        if (time > 0) {
-            newExpiry = this.updated + tunit.toMillis(time);
+    /**
+     * @since 5.0
+     */
+    public boolean hasConnection() {
+        return this.connRef.get() != null;
+    }
+
+    /**
+     * @since 5.0
+     */
+    public void assignConnection(final C conn) {
+        Args.notNull(conn, "connection");
+        if (this.connRef.compareAndSet(null, conn)) {
+            this.created = currentTimeMillis();
+            this.updated = this.created;
+            this.validityDeadline = this.timeToLive > 0 ? System.currentTimeMillis() + this.timeToLive : Long.MAX_VALUE;
+            this.expiry = this.validityDeadline;
         } else {
-            newExpiry = Long.MAX_VALUE;
+            throw new IllegalStateException("Connection already assigned");
         }
-        this.expiry = Math.min(newExpiry, this.validityDeadline);
-    }
-
-    public synchronized boolean isExpired(final long now) {
-        return now >= this.expiry;
     }
 
     /**
-     * Invalidates the pool entry and closes the pooled connection associated
-     * with it.
+     * @since 5.0
      */
-    public abstract void close();
+    public void discardConnection(final Callback<C> shutdownCallback) {
+        final C connection = this.connRef.getAndSet(null);
+        if (connection != null) {
+            if (shutdownCallback != null) {
+                shutdownCallback.execute(connection);
+            } else {
+                try {
+                    connection.close();
+                } catch (IOException ignore) {
+                }
+            }
+            this.state = null;
+            this.created = 0;
+            this.updated = 0;
+            this.expiry = 0;
+            this.validityDeadline = 0;
+        }
+    }
 
     /**
-     * Returns {@code true} if the pool entry has been invalidated.
+     * @since 5.0
      */
-    public abstract boolean isClosed();
+    public void discardConnection() {
+        discardConnection(null);
+    }
+
+    /**
+     * @since 5.0
+     */
+    public void updateConnection(final long keepAlive, final TimeUnit timeUnit, final Object state) {
+        Args.notNull(timeUnit, "Time unit");
+        if (this.connRef.get() != null) {
+            this.state = state;
+            final long currentTime = System.currentTimeMillis();
+            final long newExpiry = keepAlive > 0 ? currentTime + timeUnit.toMillis(keepAlive) : Long.MAX_VALUE;
+            this.expiry = Math.min(newExpiry, getValidityDeadline());
+            this.updated = currentTime;
+        } else {
+            throw new IllegalStateException("Connection not assigned");
+        }
+    }
 
     @Override
     public String toString() {
         final StringBuilder buffer = new StringBuilder();
-        buffer.append("[id:");
-        buffer.append(this.id);
-        buffer.append("][route:");
+        buffer.append("[route:");
         buffer.append(this.route);
         buffer.append("][state:");
         buffer.append(this.state);

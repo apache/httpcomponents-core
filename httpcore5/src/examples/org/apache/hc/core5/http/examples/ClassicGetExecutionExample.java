@@ -27,19 +27,20 @@
 
 package org.apache.hc.core5.http.examples;
 
-import java.io.IOException;
-import java.net.Socket;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.io.ResponseHandler;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.RequestLine;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 
 /**
@@ -48,35 +49,49 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 public class ClassicGetExecutionExample {
 
     public static void main(String[] args) throws Exception {
-        HttpRequester httpRequester = RequesterBootstrap.bootstrap().create();
-        HttpHost host = new HttpHost("localhost", 8080);
-
-        try (DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(8 * 1024)) {
-
-            HttpCoreContext coreContext = HttpCoreContext.create();
-            String[] targets = {
-                    "/",
-                    "/examples/servlets/servlet/RequestInfoExample",
-                    "/somewhere%20in%20pampa"};
-
-            for (int i = 0; i < targets.length; i++) {
-                if (!conn.isOpen()) {
-                    Socket socket = new Socket(host.getHostName(), host.getPort());
-                    conn.bind(socket);
-                }
-                ClassicHttpRequest request = new BasicClassicHttpRequest("GET", host, targets[i]);
-                System.out.println(">> Request URI: " + request.getUri());
-                httpRequester.execute(conn, request, coreContext, new ResponseHandler<Void>() {
+        HttpRequester httpRequester = RequesterBootstrap.bootstrap()
+                .setStreamListener(new Http1StreamListener() {
 
                     @Override
-                    public Void handleResponse(final ClassicHttpResponse response) throws HttpException, IOException {
-                        System.out.println("<< Response: " + response.getCode());
-                        System.out.println(EntityUtils.toString(response.getEntity()));
-                        System.out.println("==============");
-                        return null;
+                    public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
+                        System.out.println(connection + " " + new RequestLine(request));
+
                     }
 
-                });
+                    @Override
+                    public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
+                        System.out.println(connection + " " + new StatusLine(response));
+                    }
+
+                    @Override
+                    public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
+                        if (keepAlive) {
+                            System.out.println(connection + " can be kept alive");
+                        } else {
+                            System.out.println(connection + " cannot be kept alive");
+                        }
+                    }
+
+                })
+                .create();
+        HttpHost host = new HttpHost("localhost", 8080);
+
+        HttpCoreContext coreContext = HttpCoreContext.create();
+        String[] targets = {
+                "/",
+                "/examples/servlets/servlet/RequestInfoExample",
+                "/somewhere%20in%20pampa"};
+
+        SocketConfig socketConfig = SocketConfig.custom()
+                .setConnectTimeout(5000)
+                .setSoTimeout(5000)
+                .build();
+
+        for (int i = 0; i < targets.length; i++) {
+            ClassicHttpRequest request = new BasicClassicHttpRequest("GET", host, targets[i]);
+            try (ClassicHttpResponse response = httpRequester.execute(host, request, socketConfig, coreContext)) {
+                System.out.println(EntityUtils.toString(response.getEntity()));
+                System.out.println("==============");
             }
         }
     }

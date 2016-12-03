@@ -26,16 +26,19 @@
  */
 package org.apache.hc.core5.pool;
 
-/**
- * Pool entry callabck.
- *
- * @param <T> the route type that represents the opposite endpoint of a pooled
- *   connection.
- * @param <C> the connection type.
- * @since 4.3
- */
-public interface PoolEntryCallback<T, C> {
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 
-    void process(PoolEntry<T, C> entry);
+/**
+ * Connection pool event listener.
+ *
+ * @since 5.0
+ */
+@Contract(threading = ThreadingBehavior.STATELESS)
+public interface ConnPoolListener<T> {
+
+    void onLease(T route, ConnPoolStats<T> connPoolStats);
+
+    void onRelease(T route, ConnPoolStats<T> connPoolStats);
 
 }

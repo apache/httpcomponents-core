@@ -25,8 +25,15 @@
  *
  */
 
+package org.apache.hc.core5.function;
+
 /**
- * Client side connection pools APIs for synchronous, blocking
- * communication.
+ * Abstract callback.
+ *
+ * @since 5.0
  */
-package org.apache.hc.core5.pool.io;
+public interface Callback<T> {
+
+    void execute(T object);
+
+}

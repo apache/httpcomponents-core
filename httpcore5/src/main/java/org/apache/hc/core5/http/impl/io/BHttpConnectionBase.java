@@ -47,11 +47,10 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.Supplier;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
-import org.apache.hc.core5.http.impl.IncomingHttpEntity;
 import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
@@ -128,7 +127,7 @@ class BHttpConnectionBase implements BHttpConnection {
         return this.version;
     }
 
-    SocketHolder getSocketHolder() {
+    protected SocketHolder getSocketHolder() {
         return this.socketHolderRef.get();
     }
 

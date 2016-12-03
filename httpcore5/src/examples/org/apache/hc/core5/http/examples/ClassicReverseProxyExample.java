@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.examples;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,8 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -45,21 +42,27 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.impl.io.pool.BasicConnPool;
-import org.apache.hc.core5.http.impl.io.pool.BasicPoolEntry;
-import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.RequestLine;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.ConnPoolStats;
+import org.apache.hc.core5.pool.PoolStats;
 
 /**
  * Example of embedded HTTP/1.1 reverse proxy using classic I/O.
@@ -80,14 +83,74 @@ public class ClassicReverseProxyExample {
         System.out.println("Reverse proxy to " + targetHost);
 
         final HttpRequester requester = RequesterBootstrap.bootstrap()
-                .create();
+                .setStreamListener(new Http1StreamListener() {
 
-        final BasicConnPool connPool = new BasicConnPool();
-        connPool.setDefaultMaxPerRoute(20);
-        connPool.setMaxTotal(100);
+                    @Override
+                    public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
+                        System.out.println(connection + " >> " + new RequestLine(request));
+
+                    }
+
+                    @Override
+                    public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
+                        System.out.println(connection + " << " + new StatusLine(response));
+                    }
+
+                    @Override
+                    public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
+                        if (keepAlive) {
+                            System.out.println(connection + " >> can be kept alive");
+                        } else {
+                            System.out.println(connection + " >> cannot be kept alive");
+                        }
+                    }
+
+                })
+                .setConnPoolListener(new ConnPoolListener<HttpHost>() {
+
+                    @Override
+                    public void onLease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
+                    }
+
+                    @Override
+                    public void onRelease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
+                        StringBuilder buf = new StringBuilder();
+                        buf.append(route).append(" ");
+                        PoolStats totals = connPoolStats.getTotalStats();
+                        buf.append(" total kept alive: ").append(totals.getAvailable()).append("; ");
+                        buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
+                        buf.append(" of ").append(totals.getMax());
+                        System.out.println(buf.toString());
+                    }
+
+                })
+                .create();
 
         final HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(port)
+                .setStreamListener(new Http1StreamListener() {
+
+                    @Override
+                    public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
+                        System.out.println(connection + " >> " + new RequestLine(request));
+
+                    }
+
+                    @Override
+                    public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
+                        System.out.println(connection + " << " + new StatusLine(response));
+                    }
+
+                    @Override
+                    public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
+                        if (keepAlive) {
+                            System.out.println(connection + " >> can be kept alive");
+                        } else {
+                            System.out.println(connection + " >> cannot be kept alive");
+                        }
+                    }
+
+                })
                 .setExceptionListener(new ExceptionListener() {
 
                     @Override
@@ -102,7 +165,7 @@ public class ClassicReverseProxyExample {
                     }
 
                 })
-                .registerHandler("*", new ProxyHandler(targetHost, connPool, requester))
+                .registerHandler("*", new ProxyHandler(targetHost, requester))
                 .create();
 
         server.start();
@@ -110,6 +173,7 @@ public class ClassicReverseProxyExample {
             @Override
             public void run() {
                 server.shutdown(5, TimeUnit.SECONDS);
+                requester.shutdown();
             }
         });
 
@@ -131,16 +195,13 @@ public class ClassicReverseProxyExample {
     static class ProxyHandler implements HttpRequestHandler  {
 
         private final HttpHost targetHost;
-        private final BasicConnPool connPool;
         private final HttpRequester requester;
 
         public ProxyHandler(
                 final HttpHost targetHost,
-                final BasicConnPool connPool,
                 final HttpRequester requester) {
             super();
             this.targetHost = targetHost;
-            this.connPool = connPool;
             this.requester = requester;
         }
 
@@ -150,22 +211,6 @@ public class ClassicReverseProxyExample {
                 final ClassicHttpResponse outgoingResponse,
                 final HttpContext serverContext) throws HttpException, IOException {
 
-            final Future<BasicPoolEntry> future = connPool.lease(targetHost, null);
-            final BasicPoolEntry poolEntry;
-            try {
-                poolEntry = future.get();
-            } catch (InterruptedException ex) {
-                throw new InterruptedIOException();
-            } catch (ExecutionException ex) {
-                Throwable cause = ex.getCause();
-                if (cause instanceof RuntimeException) {
-                    throw (RuntimeException) cause;
-                } else if (cause instanceof IOException) {
-                    throw (IOException) cause;
-                } else {
-                    throw new IOException("Failure obtaining connection to " + targetHost);
-                }
-            }
             final HttpCoreContext clientContext = HttpCoreContext.create();
             final ClassicHttpRequest outgoingRequest = new BasicClassicHttpRequest(incomingRequest.getMethod(), incomingRequest.getPath());
             for (Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
@@ -174,8 +219,8 @@ public class ClassicReverseProxyExample {
                     outgoingRequest.addHeader(header);
                 }
             }
-            final HttpClientConnection connection = poolEntry.getConnection();
-            final ClassicHttpResponse incomingResponse = requester.execute(connection, outgoingRequest, clientContext);
+            final ClassicHttpResponse incomingResponse = requester.execute(
+                    targetHost, outgoingRequest, SocketConfig.DEFAULT, clientContext);
             outgoingResponse.setCode(incomingResponse.getCode());
             for (Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
                 Header header = it.next();
@@ -183,20 +228,7 @@ public class ClassicReverseProxyExample {
                     outgoingResponse.addHeader(header);
                 }
             }
-            outgoingResponse.setEntity(new HttpEntityWrapper(incomingResponse.getEntity()) {
-
-                @Override
-                public void close() throws IOException {
-                    boolean keepAlive = false;
-                    try {
-                        super.close();
-                        keepAlive = requester.keepAlive(connection, outgoingRequest, incomingResponse, clientContext);
-                    } finally {
-                        connPool.release(poolEntry, keepAlive);
-                    }
-                }
-
-            });
+            outgoingResponse.setEntity(incomingResponse.getEntity());
         }
     }
 

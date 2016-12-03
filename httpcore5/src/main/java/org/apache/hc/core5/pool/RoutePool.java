@@ -24,33 +24,30 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.pool.io;
+package org.apache.hc.core5.pool;
 
+import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
-abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
+final class RoutePool<T, C extends Closeable> {
 
     private final T route;
-    private final Set<E> leased;
-    private final LinkedList<E> available;
-    private final LinkedList<PoolEntryFuture<E>> pending;
+    private final Set<PoolEntry<T, C>> leased;
+    private final LinkedList<PoolEntry<T, C>> available;
 
-    RouteSpecificPool(final T route) {
+    RoutePool(final T route) {
         super();
         this.route = route;
         this.leased = new HashSet<>();
         this.available = new LinkedList<>();
-        this.pending = new LinkedList<>();
     }
-
-    protected abstract E createEntry(C conn);
 
     public final T getRoute() {
         return route;
@@ -58,10 +55,6 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     public int getLeasedCount() {
         return this.leased.size();
-    }
-
-    public int getPendingCount() {
-        return this.pending.size();
     }
 
     public int getAvailableCount() {
@@ -72,12 +65,12 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return this.available.size() + this.leased.size();
     }
 
-    public E getFree(final Object state) {
+    public PoolEntry<T, C> getFree(final Object state) {
         if (!this.available.isEmpty()) {
             if (state != null) {
-                final Iterator<E> it = this.available.iterator();
+                final Iterator<PoolEntry<T, C>> it = this.available.iterator();
                 while (it.hasNext()) {
-                    final E entry = it.next();
+                    final PoolEntry<T, C> entry = it.next();
                     if (state.equals(entry.getState())) {
                         it.remove();
                         this.leased.add(entry);
@@ -85,9 +78,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
                     }
                 }
             }
-            final Iterator<E> it = this.available.iterator();
+            final Iterator<PoolEntry<T, C>> it = this.available.iterator();
             while (it.hasNext()) {
-                final E entry = it.next();
+                final PoolEntry<T, C> entry = it.next();
                 if (entry.getState() == null) {
                     it.remove();
                     this.leased.add(entry);
@@ -98,14 +91,14 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return null;
     }
 
-    public E getLastUsed() {
+    public PoolEntry<T, C> getLastUsed() {
         if (!this.available.isEmpty()) {
             return this.available.getLast();
         }
         return null;
     }
 
-    public boolean remove(final E entry) {
+    public boolean remove(final PoolEntry<T, C> entry) {
         Args.notNull(entry, "Pool entry");
         if (!this.available.remove(entry) && !this.leased.remove(entry)) {
             return false;
@@ -113,7 +106,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return true;
     }
 
-    public void free(final E entry, final boolean reusable) {
+    public void free(final PoolEntry<T, C> entry, final boolean reusable) {
         Args.notNull(entry, "Pool entry");
         final boolean found = this.leased.remove(entry);
         Asserts.check(found, "Entry %s has not been leased from this pool", entry);
@@ -122,42 +115,19 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         }
     }
 
-    public E add(final C conn) {
-        final E entry = createEntry(conn);
+    public PoolEntry<T, C> createEntry(final long timeToLive, final TimeUnit timeUnit) {
+        final PoolEntry<T, C> entry = new PoolEntry<>(this.route, timeToLive, timeUnit);
         this.leased.add(entry);
         return entry;
     }
 
-    public void queue(final PoolEntryFuture<E> future) {
-        if (future == null) {
-            return;
-        }
-        this.pending.add(future);
-    }
-
-    public PoolEntryFuture<E> nextPending() {
-        return this.pending.poll();
-    }
-
-    public void unqueue(final PoolEntryFuture<E> future) {
-        if (future == null) {
-            return;
-        }
-
-        this.pending.remove(future);
-    }
-
     public void shutdown() {
-        for (final PoolEntryFuture<E> future: this.pending) {
-            future.cancel(true);
-        }
-        this.pending.clear();
-        for (final E entry: this.available) {
-            entry.close();
+        for (final PoolEntry<T, C> entry: this.available) {
+            entry.discardConnection();
         }
         this.available.clear();
-        for (final E entry: this.leased) {
-            entry.close();
+        for (final PoolEntry<T, C> entry: this.leased) {
+            entry.discardConnection();
         }
         this.leased.clear();
     }
@@ -171,8 +141,6 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         buffer.append(this.leased.size());
         buffer.append("][available: ");
         buffer.append(this.available.size());
-        buffer.append("][pending: ");
-        buffer.append(this.pending.size());
         buffer.append("]");
         return buffer.toString();
     }

@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.apache.hc.core5.http.Supplier;
+import org.apache.hc.core5.function.Supplier;
 
 class BenchmarkConnection extends DefaultBHttpClientConnection {
 

@@ -24,18 +24,26 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http.impl;
 
-package org.apache.hc.core5.reactor;
-
-import java.io.IOException;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 
 /**
- * Callback for operations with {@link IOSession} instances managed by an I/O reactor..
+ * HTTP/1.1 stream event listener.
  *
  * @since 5.0
  */
-public interface IOSessionCallback {
+@Contract(threading = ThreadingBehavior.STATELESS)
+public interface Http1StreamListener {
 
-    void execute(IOSession session) throws IOException;
+    void onRequestHead(HttpConnection connection, HttpRequest request);
+
+    void onResponseHead(HttpConnection connection, HttpResponse response);
+
+    void onExchangeComplete(HttpConnection connection, boolean keepAlive);
 
 }

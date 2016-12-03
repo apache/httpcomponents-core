@@ -42,9 +42,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -56,20 +56,16 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
+import org.apache.hc.core5.http.impl.ConnectionListener;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
-import org.apache.hc.core5.http.impl.nio.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
-import org.apache.hc.core5.http.impl.nio.Http1StreamListener;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.nio.bootstrap.PooledClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.impl.nio.pool.BasicNIOConnPool;
-import org.apache.hc.core5.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -79,10 +75,10 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
-import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSession;
 
 /**
  * Example of asynchronous embedded  HTTP/1.1 reverse proxy with full content streaming.
@@ -127,6 +123,24 @@ public class AsyncReverseProxyExample {
                     }
 
                 })
+                .setConnPoolListener(new ConnPoolListener<HttpHost>() {
+
+                    @Override
+                    public void onLease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
+                    }
+
+                    @Override
+                    public void onRelease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
+                        StringBuilder buf = new StringBuilder();
+                        buf.append(route).append(" ");
+                        PoolStats totals = connPoolStats.getTotalStats();
+                        buf.append(" total kept alive: ").append(totals.getAvailable()).append("; ");
+                        buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
+                        buf.append(" of ").append(totals.getMax());
+                        System.out.println(buf.toString());
+                    }
+
+                })
                 .setStreamListener(new Http1StreamListener() {
 
                     @Override
@@ -144,11 +158,9 @@ public class AsyncReverseProxyExample {
                     }
 
                 })
+                .setMaxTotal(100)
+                .setDefaultMaxPerRoute(20)
                 .create();
-
-        final ProxyConnPool connPool = new ProxyConnPool(requester, 0);
-        connPool.setMaxTotal(100);
-        connPool.setDefaultMaxPerRoute(20);
 
         final HttpAsyncServer server = ServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
@@ -190,7 +202,7 @@ public class AsyncReverseProxyExample {
 
                     @Override
                     public AsyncServerExchangeHandler get() {
-                        return new IncomingExchangeHandler(targetHost, connPool);
+                        return new IncomingExchangeHandler(targetHost, requester);
                     }
 
                 })
@@ -266,17 +278,15 @@ public class AsyncReverseProxyExample {
     private static class IncomingExchangeHandler implements AsyncServerExchangeHandler {
 
         private final HttpHost targetHost;
-        private final ProxyConnPool connPool;
+        private final HttpAsyncRequester requester;
         private final AtomicBoolean consistent;
-        private final AtomicReference<BasicNIOPoolEntry> poolEntryRef;
         private final ProxyExchangeState exchangeState;
 
-        IncomingExchangeHandler(final HttpHost targetHost, final ProxyConnPool connPool) {
+        IncomingExchangeHandler(final HttpHost targetHost, final HttpAsyncRequester requester) {
             super();
             this.targetHost = targetHost;
-            this.connPool = connPool;
+            this.requester = requester;
             this.consistent = new AtomicBoolean(true);
-            this.poolEntryRef = new AtomicReference<>(null);
             this.exchangeState = new ProxyExchangeState();
         }
 
@@ -307,15 +317,12 @@ public class AsyncReverseProxyExample {
 
             System.out.println("[proxy->origin] " + exchangeState.id + " request connection to " + targetHost);
 
-            connPool.lease(targetHost, null, 10, TimeUnit.SECONDS, new FutureCallback<BasicNIOPoolEntry>() {
+            requester.connect(targetHost, 30, TimeUnit.SECONDS, new FutureCallback<PooledClientEndpoint>() {
 
                 @Override
-                public void completed(final BasicNIOPoolEntry poolEntry) {
-                    poolEntryRef.set(poolEntry);
-                    IOSession iosession = poolEntry.getConnection();
-                    System.out.println("[proxy->origin] " + exchangeState.id + " connection leased: " + iosession.getHandler());
-                    ClientEndpoint clientEndpoint = new ClientEndpointImpl(iosession);
-                    clientEndpoint.execute(new OutgoingExchangeHandler(exchangeState), null);
+                public void completed(final PooledClientEndpoint clientEndpoint) {
+                    System.out.println("[proxy->origin] " + exchangeState.id + " connection leased");
+                    clientEndpoint.execute(new OutgoingExchangeHandler(clientEndpoint, exchangeState), null);
                 }
 
                 @Override
@@ -450,11 +457,6 @@ public class AsyncReverseProxyExample {
 
         @Override
         public void releaseResources() {
-            BasicNIOPoolEntry poolEntry = poolEntryRef.getAndSet(null);
-            if (poolEntry != null) {
-                System.out.println("[proxy->origin] " + exchangeState.id + " releasing connection");
-                connPool.release(poolEntry, consistent.get());
-            }
             synchronized (exchangeState) {
                 exchangeState.responseMessageChannel = null;
                 exchangeState.responseDataChannel = null;
@@ -476,9 +478,11 @@ public class AsyncReverseProxyExample {
 
     private static class OutgoingExchangeHandler implements AsyncClientExchangeHandler {
 
+        private final PooledClientEndpoint clientEndpoint;
         private final ProxyExchangeState exchangeState;
 
-        OutgoingExchangeHandler(final ProxyExchangeState exchangeState) {
+        OutgoingExchangeHandler(final PooledClientEndpoint clientEndpoint, final ProxyExchangeState exchangeState) {
+            this.clientEndpoint = clientEndpoint;
             this.exchangeState = exchangeState;
         }
 
@@ -668,27 +672,7 @@ public class AsyncReverseProxyExample {
                 exchangeState.requestDataChannel = null;
                 exchangeState.responseCapacityChannel = null;
             }
-        }
-
-    }
-
-    private static class ProxyConnPool extends BasicNIOConnPool {
-
-        ProxyConnPool(
-                final ConnectionInitiator connectionInitiator,
-                final int connectTimeout) {
-            super(connectionInitiator, connectTimeout);
-        }
-
-        @Override
-        public void release(final BasicNIOPoolEntry entry, boolean reusable) {
-            super.release(entry, reusable);
-            StringBuilder buf = new StringBuilder();
-            PoolStats totals = getTotalStats();
-            buf.append("[total kept alive: ").append(totals.getAvailable()).append("; ");
-            buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
-            buf.append(" of ").append(totals.getMax()).append("]");
-            System.out.println("[proxy->origin] " + buf.toString());
+            clientEndpoint.releaseResources();
         }
 
     }

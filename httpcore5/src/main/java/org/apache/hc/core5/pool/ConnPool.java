@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.io.Closeable;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -36,10 +37,10 @@ import org.apache.hc.core5.concurrent.FutureCallback;
  *
  * @param <T> the route type that represents the opposite endpoint of a pooled
  *   connection.
- * @param <E> the type of the pool entry containing a pooled connection.
+ * @param <C> the type of pooled connections.
  * @since 4.2
  */
-public interface ConnPool<T, E> {
+public interface ConnPool<T, C extends Closeable> {
 
     /**
      * Attempts to lease a connection for the given route and with the given
@@ -54,7 +55,7 @@ public interface ConnPool<T, E> {
      *
      * @return future for a leased pool entry.
      */
-    Future<E> lease(final T route, final Object state, final FutureCallback<E> callback);
+    Future<PoolEntry<T, C>> lease(final T route, final Object state, final FutureCallback<PoolEntry<T, C>> callback);
 
     /**
      * Releases the pool entry back to the pool.
@@ -63,6 +64,6 @@ public interface ConnPool<T, E> {
      * @param reusable flag indicating whether or not the released connection
      *   is in a consistent state and is safe for further use.
      */
-    void release(E entry, boolean reusable);
+    void release(PoolEntry<T, C> entry, boolean reusable);
 
 }

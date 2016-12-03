@@ -24,47 +24,19 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio.pool;
-
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.pool.PoolEntry;
-import org.apache.hc.core5.reactor.IOSession;
+package org.apache.hc.core5.pool;
 
 /**
- * A basic {@link PoolEntry} implementation that represents an entry
- * in a pool of non-blocking {@link IOSession}s identified by
- * an {@link HttpHost} instance.
+ * Interface to obtain connection pool statistics.
  *
- * @see HttpHost
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
  * @since 4.2
  */
-@Contract(threading = ThreadingBehavior.SAFE)
-public class BasicNIOPoolEntry extends PoolEntry<HttpHost, IOSession> {
+public interface ConnPoolStats<T> {
 
-    private volatile int socketTimeout;
+    PoolStats getTotalStats();
 
-    public BasicNIOPoolEntry(final String id, final HttpHost route, final IOSession conn) {
-        super(id, route, conn);
-    }
-
-    @Override
-    public void close() {
-        getConnection().close();
-    }
-
-    @Override
-    public boolean isClosed() {
-        return getConnection().isClosed();
-    }
-
-    int getSocketTimeout() {
-        return socketTimeout;
-    }
-
-    void setSocketTimeout(final int socketTimeout) {
-        this.socketTimeout = socketTimeout;
-    }
+    PoolStats getStats(final T route);
 
 }

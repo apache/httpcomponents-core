@@ -32,6 +32,8 @@ import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -40,7 +42,6 @@ import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServer;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.Supplier;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
@@ -50,7 +51,6 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,10 +69,10 @@ public class Http1TestServer extends AsyncServer {
                 log.error(ex.getMessage(), ex);
             }
 
-        }, new IOSessionCallback() {
+        }, new Callback<IOSession>() {
 
             @Override
-            public void execute(final IOSession session) throws IOException {
+            public void execute(final IOSession session) {
                 session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 

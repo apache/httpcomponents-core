@@ -24,45 +24,42 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.pool.nio;
+package org.apache.hc.core5.pool;
 
+import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
-import org.apache.hc.core5.pool.PoolEntry;
 
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
+class LeaseRequest<T, C extends Closeable> {
 
     private final T route;
     private final Object state;
-    private final long connectTimeout;
     private final long deadline;
-    private final BasicFuture<E> future;
+    private final BasicFuture<PoolEntry<T, C>> future;
     private final AtomicBoolean completed;
-    private volatile E result;
+    private volatile PoolEntry<T, C> result;
     private volatile Exception ex;
 
     /**
-     * Contructor
+     * Constructor
+     *
      * @param route route
      * @param state state
-     * @param connectTimeout http connection timeout
      * @param leaseTimeout timeout to wait in a request queue until kicked off
      * @param future future callback
      */
     public LeaseRequest(
             final T route,
             final Object state,
-            final long connectTimeout,
             final long leaseTimeout,
-            final BasicFuture<E> future) {
+            final BasicFuture<PoolEntry<T, C>> future) {
         super();
         this.route = route;
         this.state = state;
-        this.connectTimeout = connectTimeout;
         this.deadline = leaseTimeout > 0 ? System.currentTimeMillis() + leaseTimeout :
                 Long.MAX_VALUE;
         this.future = future;
@@ -75,10 +72,6 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
     public Object getState() {
         return this.state;
-    }
-
-    public long getConnectTimeout() {
-        return this.connectTimeout;
     }
 
     public long getDeadline() {
@@ -95,17 +88,17 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
         }
     }
 
-    public void completed(final E result) {
+    public void completed(final PoolEntry<T, C> result) {
         if (this.completed.compareAndSet(false, true)) {
             this.result = result;
         }
     }
 
-    public BasicFuture<E> getFuture() {
+    public BasicFuture<PoolEntry<T, C>> getFuture() {
         return this.future;
     }
 
-    public E getResult() {
+    public PoolEntry<T, C> getResult() {
         return this.result;
     }
 

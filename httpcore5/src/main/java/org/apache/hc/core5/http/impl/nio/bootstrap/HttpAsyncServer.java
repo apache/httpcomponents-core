@@ -28,13 +28,13 @@ package org.apache.hc.core5.http.impl.nio.bootstrap;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -44,14 +44,14 @@ public class HttpAsyncServer extends AsyncServer {
 
     private final IOEventHandlerFactory handlerFactory;
 
-    HttpAsyncServer(
+    public HttpAsyncServer(
             final IOEventHandlerFactory handlerFactory,
             final IOReactorConfig ioReactorConfig,
             final ExceptionListener exceptionListener) {
-        super(ioReactorConfig, exceptionListener, new IOSessionCallback() {
+        super(ioReactorConfig, exceptionListener, new Callback<IOSession>() {
 
             @Override
-            public void execute(final IOSession session) throws IOException {
+            public void execute(final IOSession session) {
                 session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 

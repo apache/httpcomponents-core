@@ -24,23 +24,24 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http.impl;
 
-package org.apache.hc.core5.pool.nio;
-
-import java.io.IOException;
-
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpConnection;
 
 /**
- * Factory for poolable non-blocking connections.
+ * Connection event listener.
  *
- * @param <T> the route type that represents the opposite endpoint of a pooled
- *   connection.
- * @param <C> the connection type.
- * @since 4.2
+ * @since 5.0
  */
-public interface NIOConnFactory<T, C> {
+@Contract(threading = ThreadingBehavior.STATELESS)
+public interface ConnectionListener {
 
-    C create(T route, IOSession session) throws IOException;
+    void onConnect(HttpConnection connection);
+
+    void onError(HttpConnection connection, Exception ex);
+
+    void onDisconnect(HttpConnection connection);
 
 }

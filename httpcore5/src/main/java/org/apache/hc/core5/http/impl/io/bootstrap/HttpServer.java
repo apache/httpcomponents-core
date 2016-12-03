@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.io.HttpServerConnection;
 /**
  * @since 4.4
  */
-public class HttpServer {
+public class HttpServer implements AutoCloseable {
 
     enum Status { READY, ACTIVE, STOPPING }
 
@@ -173,6 +173,11 @@ public class HttpServer {
                 this.exceptionListener.onError(ex);
             }
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        shutdown(5, TimeUnit.SECONDS);
     }
 
 }

@@ -37,15 +37,15 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.MisdirectedRequestException;
-import org.apache.hc.core5.http.Supplier;
-import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpointImpl;
+import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
@@ -59,12 +59,12 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.IOSessionCallback;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 public class Http2TestClient extends AsyncRequester {
 
     private final SSLContext sslContext;
@@ -80,10 +80,10 @@ public class Http2TestClient extends AsyncRequester {
                 log.error(ex.getMessage(), ex);
             }
 
-        }, new IOSessionCallback() {
+        }, new Callback<IOSession>() {
 
             @Override
-            public void execute(final IOSession session) throws IOException {
+            public void execute(final IOSession session) {
                 session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 
@@ -160,7 +160,7 @@ public class Http2TestClient extends AsyncRequester {
             @Override
             public void completed(final SessionRequest request) {
                 final IOSession session = request.getSession();
-                future.completed(new ClientEndpointImpl(session));
+                future.completed(new ClientEndpoint(session));
             }
 
             @Override

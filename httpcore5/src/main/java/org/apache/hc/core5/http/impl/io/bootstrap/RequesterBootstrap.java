@@ -26,20 +26,38 @@
  */
 package org.apache.hc.core5.http.impl.io.bootstrap;
 
+import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLSocketFactory;
+
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
+import org.apache.hc.core5.http.io.HttpClientConnection;
+import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.StrictConnPool;
 
 /**
  * @since 5.0
  */
 public class RequesterBootstrap {
 
-    private HttpRequestExecutor requestExecutor;
     private HttpProcessor httpProcessor;
-    private ConnectionReuseStrategy connStrategy;
+    private ConnectionReuseStrategy connReuseStrategy;
+    private HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
+    private SSLSocketFactory sslSocketFactory;
+    private int defaultMaxPerRoute;
+    private int maxTotal;
+    private long timeToLive;
+    private TimeUnit timeUnit;
+    private Http1StreamListener streamListener;
+    private ConnPoolListener<HttpHost> connPoolListener;
 
     private RequesterBootstrap() {
     }
@@ -60,23 +78,62 @@ public class RequesterBootstrap {
      * Assigns {@link ConnectionReuseStrategy} instance.
      */
     public final RequesterBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
-        this.connStrategy = connStrategy;
+        this.connReuseStrategy = connStrategy;
         return this;
     }
 
-    /**
-     * Assigns {@link HttpRequestExecutor} instance.
-     */
-    public final RequesterBootstrap setHttpRequestExecutor(final HttpRequestExecutor requestExecutor) {
-        this.requestExecutor = requestExecutor;
+    public final RequesterBootstrap setConnectFactory(final HttpConnectionFactory<? extends HttpClientConnection> connectFactory) {
+        this.connectFactory = connectFactory;
+        return this;
+    }
+
+    public final RequesterBootstrap setSslSocketFactory(final SSLSocketFactory sslSocketFactory) {
+        this.sslSocketFactory = sslSocketFactory;
+        return this;
+    }
+
+    public final RequesterBootstrap setDefaultMaxPerRoute(final int defaultMaxPerRoute) {
+        this.defaultMaxPerRoute = defaultMaxPerRoute;
+        return this;
+    }
+
+    public final RequesterBootstrap setMaxTotal(final int maxTotal) {
+        this.maxTotal = maxTotal;
+        return this;
+    }
+
+    public final RequesterBootstrap setTimeToLive(final long timeToLive, final TimeUnit timeUnit) {
+        this.timeToLive = timeToLive;
+        this.timeUnit = timeUnit;
+        return this;
+    }
+
+    public final RequesterBootstrap setStreamListener(final Http1StreamListener streamListener) {
+        this.streamListener = streamListener;
+        return this;
+    }
+
+    public final RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
+        this.connPoolListener = connPoolListener;
         return this;
     }
 
     public HttpRequester create() {
+        final HttpRequestExecutor requestExecutor = new HttpRequestExecutor(
+                HttpRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE,
+                connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE,
+                streamListener);
+        final StrictConnPool<HttpHost, HttpClientConnection> connPool = new StrictConnPool<>(
+                defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
+                maxTotal > 0 ? maxTotal : 50,
+                timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
+                connPoolListener);
         return new HttpRequester(
-                requestExecutor != null ? requestExecutor : new HttpRequestExecutor(),
+                requestExecutor,
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE);
+                connPool,
+                connectFactory != null ? connectFactory : DefaultBHttpClientConnectionFactory.INSTANCE,
+                sslSocketFactory);
     }
 
 }

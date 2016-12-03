@@ -24,23 +24,20 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.pool;
 
-package org.apache.hc.core5.pool.nio;
-
-import java.io.IOException;
-import java.net.SocketAddress;
-
-import org.apache.hc.core5.net.NamedEndpoint;
+import java.io.Closeable;
 
 /**
- * Strategy that resolves an abstract connection route to a local or a remote {@link SocketAddress}.
+ * {@link ConnPool} that also implements {@link ConnPoolControl} and {@link AutoCloseable}.
  *
- * @since 4.3
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
+ * @param <C> the type of pooled connections.
+ * @since 4.2
  */
-public interface SocketAddressResolver<T> {
+public interface ControlledConnPool<T, C extends Closeable> extends ConnPool<T, C>, ConnPoolControl<T>, AutoCloseable {
 
-    NamedEndpoint resolveRemoteEndpoint(T route) throws IOException;
-
-    SocketAddress resolveLocalAddress(T route) throws IOException;
+    void shutdown();
 
 }

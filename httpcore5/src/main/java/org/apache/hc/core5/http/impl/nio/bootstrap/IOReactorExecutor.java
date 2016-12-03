@@ -35,23 +35,24 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.reactor.AbstractMultiworkerIOReactor;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.IOSessionCallback;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
-abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> {
+abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> implements AutoCloseable {
 
     enum Status { READY, RUNNING, TERMINATED }
 
     private final IOReactorConfig ioReactorConfig;
     private final ExceptionListener exceptionListener;
-    private final IOSessionCallback sessionShutdownCallback;
+    private final Callback<IOSession> sessionShutdownCallback;
     private final ExecutorService executorService;
     private final ThreadFactory workerThreadFactory;
     private final AtomicReference<T> ioReactorRef;
@@ -62,7 +63,7 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> {
             final ExceptionListener exceptionListener,
             final ThreadFactory threadFactory,
             final ThreadFactory workerThreadFactory,
-            final IOSessionCallback sessionShutdownCallback) {
+            final Callback<IOSession> sessionShutdownCallback) {
         super();
         this.ioReactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
         this.exceptionListener = exceptionListener;
@@ -135,10 +136,7 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> {
         if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
             ioReactor.initiateShutdown();
             if (sessionShutdownCallback != null) {
-                try {
-                    ioReactor.enumSessions(sessionShutdownCallback);
-                } catch (IOException ignore) {
-                }
+                ioReactor.enumSessions(sessionShutdownCallback);
             }
         }
     }
@@ -156,6 +154,11 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> {
             initiateShutdown(ioReactor);
             ioReactor.shutdown(graceTime, timeUnit);
         }
+    }
+
+    @Override
+    public void close() throws Exception {
+        shutdown(5, TimeUnit.SECONDS);
     }
 
 }
