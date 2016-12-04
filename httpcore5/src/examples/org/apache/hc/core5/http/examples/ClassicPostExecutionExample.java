@@ -82,9 +82,9 @@ public class ClassicPostExecutionExample {
 
                 })
                 .create();
-        HttpHost host = new HttpHost("localhost", 8080);
-
         HttpCoreContext coreContext = HttpCoreContext.create();
+        HttpHost target = new HttpHost("httpbin.org");
+
         HttpEntity[] requestBodies = {
                 new StringEntity(
                         "This is the first test request",
@@ -104,11 +104,12 @@ public class ClassicPostExecutionExample {
                 .setSoTimeout(5000)
                 .build();
 
+        String requestUri = "/post";
         for (int i = 0; i < requestBodies.length; i++) {
-            ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host,
-                    "/examples/servlets/servlet/RequestInfoExample");
+            ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target,requestUri);
             request.setEntity(requestBodies[i]);
-            try (ClassicHttpResponse response = httpRequester.execute(host, request, socketConfig, coreContext)) {
+            try (ClassicHttpResponse response = httpRequester.execute(target, request, socketConfig, coreContext)) {
+                System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
             }

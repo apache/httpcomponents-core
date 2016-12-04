@@ -31,6 +31,7 @@ import java.util.List;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http2.frame.RawFrame;
 
 /**
@@ -41,16 +42,16 @@ import org.apache.hc.core5.http2.frame.RawFrame;
 @Contract(threading = ThreadingBehavior.STATELESS)
 public interface Http2StreamListener {
 
-    void onHeaderInput(List<? extends Header> headers);
+    void onHeaderInput(HttpConnection connection, int streamId, List<? extends Header> headers);
 
-    void onHeaderOutput(List<? extends Header> headers);
+    void onHeaderOutput(HttpConnection connection, int streamId, List<? extends Header> headers);
 
-    void onFrameInput(RawFrame frame);
+    void onFrameInput(HttpConnection connection, int streamId, RawFrame frame);
 
-    void onFrameOutput(RawFrame frame);
+    void onFrameOutput(HttpConnection connection, int streamId, RawFrame frame);
 
-    void onInputFlowControl(int streamId, int delta, int actualSize);
+    void onInputFlowControl(HttpConnection connection, int streamId, int delta, int actualSize);
 
-    void onOutputFlowControl(int streamId, int delta, int actualSize);
+    void onOutputFlowControl(HttpConnection connection, int streamId, int delta, int actualSize);
 
 }

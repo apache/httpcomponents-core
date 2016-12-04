@@ -78,7 +78,7 @@ public class HttpRequester implements AutoCloseable {
     private final HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private final SSLSocketFactory sslSocketFactory;
 
-    HttpRequester(
+    public HttpRequester(
             final HttpRequestExecutor requestExecutor,
             final HttpProcessor httpProcessor,
             final ControlledConnPool<HttpHost, HttpClientConnection> connPool,

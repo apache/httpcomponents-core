@@ -26,67 +26,75 @@
  */
 package org.apache.hc.core5.http.examples;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.nio.bootstrap.PooledClientEndpoint;
-import org.apache.hc.core5.http.impl.nio.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.message.RequestLine;
-import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.frame.RawFrame;
+import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 
 /**
- * Example of asynchronous HTTP/1.1 request execution.
+ * Example of HTTP/2 concurrent request execution using multiple streams.
  */
-public class AsyncPipelinedRequestExecutionExample {
+public class Http2MultiStreamExecutionExample {
 
     public static void main(String[] args) throws Exception {
 
-        IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
-                .setConnectTimeout(5000)
-                .setSoTimeout(5000)
-                .build();
-
         // Create and start requester
-        final HttpAsyncRequester requester = RequesterBootstrap.bootstrap()
-                .setIOReactorConfig(ioReactorConfig)
-                .setStreamListener(new Http1StreamListener() {
+        H2Config h2Config = H2Config.custom()
+                .setPushEnabled(false)
+                .setMaxConcurrentStreams(100)
+                .build();
+        final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
+                .setH2Config(h2Config)
+                .setStreamListener(new Http2StreamListener() {
 
                     @Override
-                    public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
-                        System.out.println(connection + " " + new RequestLine(request));
-
-                    }
-
-                    @Override
-                    public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
-                        System.out.println(connection + " " + new StatusLine(response));
-                    }
-
-                    @Override
-                    public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
-                        if (keepAlive) {
-                            System.out.println(connection + " can be kept alive");
-                        } else {
-                            System.out.println(connection + " cannot be kept alive");
+                    public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
+                        for (int i = 0; i < headers.size(); i++) {
+                            System.out.println(connection + " (" + streamId + ") << " + headers.get(i));
                         }
+                    }
+
+                    @Override
+                    public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
+                        for (int i = 0; i < headers.size(); i++) {
+                            System.out.println(connection + " (" + streamId + ") >> " + headers.get(i));
+                        }
+                    }
+
+                    @Override
+                    public void onFrameInput(final HttpConnection connection, final int streamId, final RawFrame frame) {
+                    }
+
+                    @Override
+                    public void onFrameOutput(final HttpConnection connection, final int streamId, final RawFrame frame) {
+                    }
+
+                    @Override
+                    public void onInputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
+                    }
+
+                    @Override
+                    public void onOutputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
                     }
 
                 })
                 .create();
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -96,7 +104,7 @@ public class AsyncPipelinedRequestExecutionExample {
         });
         requester.start();
 
-        HttpHost target = new HttpHost("httpbin.org");
+        HttpHost target = new HttpHost("http2bin.org");
         String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
         Future<PooledClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);

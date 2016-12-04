@@ -68,7 +68,7 @@ public class HttpServer implements AutoCloseable {
     private volatile ServerSocket serverSocket;
     private volatile RequestListener requestListener;
 
-    HttpServer(
+    public HttpServer(
             final int port,
             final InetAddress ifAddress,
             final SocketConfig socketConfig,

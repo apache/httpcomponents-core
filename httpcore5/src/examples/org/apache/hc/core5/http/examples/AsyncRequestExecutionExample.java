@@ -26,21 +26,26 @@
  */
 package org.apache.hc.core5.http.examples;
 
-import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.nio.bootstrap.PooledClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.message.RequestLine;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 
 /**
  * Example of asynchronous HTTP/1.1 request execution.
@@ -49,8 +54,39 @@ public class AsyncRequestExecutionExample {
 
     public static void main(String[] args) throws Exception {
 
+        IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
+                .setConnectTimeout(5000)
+                .setSoTimeout(5000)
+                .build();
+
         // Create and start requester
-        final HttpAsyncRequester requester = RequesterBootstrap.bootstrap().create();
+        final HttpAsyncRequester requester = RequesterBootstrap.bootstrap()
+                .setIOReactorConfig(ioReactorConfig)
+                .setStreamListener(new Http1StreamListener() {
+
+                    @Override
+                    public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
+                        System.out.println(connection + " " + new RequestLine(request));
+
+                    }
+
+                    @Override
+                    public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
+                        System.out.println(connection + " " + new StatusLine(response));
+                    }
+
+                    @Override
+                    public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
+                        if (keepAlive) {
+                            System.out.println(connection + " can be kept alive");
+                        } else {
+                            System.out.println(connection + " cannot be kept alive");
+                        }
+                    }
+
+                })
+                .create();
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -60,18 +96,15 @@ public class AsyncRequestExecutionExample {
         });
         requester.start();
 
-        // Execute HTTP GETs to the following hosts and
-        HttpHost[] targets = new HttpHost[] {
-                new HttpHost("www.apache.org", 80, "http"),
-                new HttpHost("hc.apache.org", 80, "http")
-        };
+        HttpHost target = new HttpHost("httpbin.org");
+        String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
-        final CountDownLatch latch = new CountDownLatch(targets.length);
-        for (final HttpHost target: targets) {
+        final CountDownLatch latch = new CountDownLatch(requestUris.length);
+        for (final String requestUri: requestUris) {
             final Future<PooledClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
             final PooledClientEndpoint clientEndpoint = future.get();
             clientEndpoint.executeAndRelease(
-                    new BasicRequestProducer("GET", URI.create("/")),
+                    new BasicRequestProducer("GET", target, requestUri),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     new FutureCallback<Message<HttpResponse, String>>() {
 
@@ -79,19 +112,21 @@ public class AsyncRequestExecutionExample {
                         public void completed(final Message<HttpResponse, String> message) {
                             latch.countDown();
                             HttpResponse response = message.getHead();
-                            System.out.println(target + "->" + response.getCode());
+                            String body = message.getBody();
+                            System.out.println(requestUri + "->" + response.getCode());
+                            System.out.println(body);
                         }
 
                         @Override
                         public void failed(final Exception ex) {
                             latch.countDown();
-                            System.out.println(target + "->" + ex);
+                            System.out.println(requestUri + "->" + ex);
                         }
 
                         @Override
                         public void cancelled() {
                             latch.countDown();
-                            System.out.println(target + " cancelled");
+                            System.out.println(requestUri + " cancelled");
                         }
 
                     });

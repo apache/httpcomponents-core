@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 
@@ -41,6 +42,14 @@ public class BasicRequestProducer implements AsyncRequestProducer {
     public BasicRequestProducer(final HttpRequest request, final AsyncEntityProducer dataProducer) {
         this.request = request;
         this.dataProducer = dataProducer;
+    }
+
+    public BasicRequestProducer(final String method, final HttpHost host, final String path, final AsyncEntityProducer dataProducer) {
+        this(new BasicHttpRequest(method, host, path), dataProducer);
+    }
+
+    public BasicRequestProducer(final String method, final HttpHost host, final String path) {
+        this(method, host, path, null);
     }
 
     public BasicRequestProducer(final String method, final URI requestUri, final AsyncEntityProducer dataProducer) {

@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.bootstrap.Http2Processors;
+import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;

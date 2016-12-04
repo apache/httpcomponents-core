@@ -43,12 +43,11 @@ import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
@@ -109,20 +108,20 @@ public class Http1TestClient extends AsyncRequester {
 
     @Override
     public SessionRequest requestSession(
-            final NamedEndpoint remoteEndpoint,
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,
             final SessionRequestCallback callback) {
-        return super.requestSession(remoteEndpoint, timeout, timeUnit, callback);
+        return super.requestSession(host, timeout, timeUnit, callback);
     }
 
     public Future<ClientEndpoint> connect(
-            final NamedEndpoint remoteEndpoint,
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,
             final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
         final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
-        requestSession(remoteEndpoint, timeout, timeUnit, new SessionRequestCallback() {
+        requestSession(host, timeout, timeUnit, new SessionRequestCallback() {
 
             @Override
             public void completed(final SessionRequest request) {
@@ -149,10 +148,10 @@ public class Http1TestClient extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final NamedEndpoint remoteEndpoint,
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(remoteEndpoint, timeout, timeUnit, null);
+        return connect(host, timeout, timeUnit, null);
     }
 
     public Future<ClientEndpoint> connect(

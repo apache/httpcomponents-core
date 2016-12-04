@@ -178,7 +178,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             final int streamId, final AtomicInteger window, final int delta) throws ArithmeticException {
         final int newSize = updateWindow(window, delta);
         if (streamListener != null) {
-            streamListener.onInputFlowControl(streamId, delta, newSize);
+            streamListener.onInputFlowControl(this, streamId, delta, newSize);
         }
         return newSize;
     }
@@ -187,7 +187,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             final int streamId, final AtomicInteger window, final int delta) throws ArithmeticException {
         final int newSize = updateWindow(window, delta);
         if (streamListener != null) {
-            streamListener.onOutputFlowControl(streamId, delta, newSize);
+            streamListener.onOutputFlowControl(this, streamId, delta, newSize);
         }
         return newSize;
     }
@@ -195,7 +195,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private void commitFrameInternal(final RawFrame frame) throws IOException {
         if (outputBuffer.isEmpty() && outputQueue.isEmpty()) {
             if (streamListener != null) {
-                streamListener.onFrameOutput(frame);
+                streamListener.onFrameOutput(this, frame.getStreamId(), frame);
             }
             outputBuffer.write(frame, ioSession.channel());
         } else {
@@ -217,7 +217,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private void commitHeaders(
             final int streamId, final List<? extends Header> headers, final boolean endStream) throws IOException {
         if (streamListener != null) {
-            streamListener.onHeaderOutput(headers);
+            streamListener.onHeaderOutput(this, streamId, headers);
         }
         final ByteArrayBuffer buf = new ByteArrayBuffer(512);
         hPackEncoder.encodeHeaders(buf, headers);
@@ -251,7 +251,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
         }
         if (streamListener != null) {
-            streamListener.onHeaderOutput(headers);
+            streamListener.onHeaderOutput(this, streamId, headers);
         }
         final ByteArrayBuffer buf = new ByteArrayBuffer(512);
         buf.append((byte)(promisedStreamId >> 24));
@@ -298,7 +298,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 chunk = payload.remaining();
                 final RawFrame dataFrame = frameFactory.createData(streamId, payload, false);
                 if (streamListener != null) {
-                    streamListener.onFrameOutput(dataFrame);
+                    streamListener.onFrameOutput(this, streamId, dataFrame);
                 }
                 outputBuffer.write(dataFrame, ioSession.channel());
             } else {
@@ -308,7 +308,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     payload.limit(payload.position() + chunk);
                     final RawFrame dataFrame = frameFactory.createData(streamId, payload, false);
                     if (streamListener != null) {
-                        streamListener.onFrameOutput(dataFrame);
+                        streamListener.onFrameOutput(this, streamId, dataFrame);
                     }
                     outputBuffer.write(dataFrame, ioSession.channel());
                 } finally {
@@ -387,7 +387,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             RawFrame frame;
             while ((frame = inputBuffer.read(ioSession.channel())) != null) {
                 if (streamListener != null) {
-                    streamListener.onFrameInput(frame);
+                    streamListener.onFrameInput(this, frame.getStreamId(), frame);
                 }
                 consumeFrame(frame);
             }
@@ -404,7 +404,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 final RawFrame frame = outputQueue.poll();
                 if (frame != null) {
                     if (streamListener != null) {
-                        streamListener.onFrameOutput(frame);
+                        streamListener.onFrameOutput(this, frame.getStreamId(), frame);
                     }
                     outputBuffer.write(frame, ioSession.channel());
                 } else {
@@ -907,7 +907,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 processedRemoteStreamId = promisedStreamId;
             }
             if (streamListener != null) {
-                streamListener.onHeaderInput(headers);
+                streamListener.onHeaderInput(this, promisedStreamId, headers);
             }
             if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
                 throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
@@ -935,7 +935,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 processedRemoteStreamId = streamId;
             }
             if (streamListener != null) {
-                streamListener.onHeaderInput(headers);
+                streamListener.onHeaderInput(this, streamId, headers);
             }
             if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
                 throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Stream refused");
@@ -965,7 +965,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 processedRemoteStreamId = streamId;
             }
             if (streamListener != null) {
-                streamListener.onHeaderInput(headers);
+                streamListener.onHeaderInput(this, streamId, headers);
             }
             if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
                 throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Stream refused");

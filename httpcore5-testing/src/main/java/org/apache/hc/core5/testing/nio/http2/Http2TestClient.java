@@ -40,22 +40,16 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.MisdirectedRequestException;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.UriPatternMatcher;
-import org.apache.hc.core5.http2.bootstrap.Http2Processors;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.http2.impl.Http2Processors;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.AsyncPushConsumerRegistry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -68,7 +62,7 @@ import org.apache.logging.log4j.Logger;
 public class Http2TestClient extends AsyncRequester {
 
     private final SSLContext sslContext;
-    private final UriPatternMatcher<Supplier<AsyncPushConsumer>> pushHandlerMatcher;
+    private final AsyncPushConsumerRegistry pushConsumerRegistry;
 
     public Http2TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig, new ExceptionListener() {
@@ -89,36 +83,17 @@ public class Http2TestClient extends AsyncRequester {
 
         });
         this.sslContext = sslContext;
-        this.pushHandlerMatcher = new UriPatternMatcher<>();
+        this.pushConsumerRegistry = new AsyncPushConsumerRegistry();
     }
 
     public Http2TestClient() throws IOException {
         this(IOReactorConfig.DEFAULT, null);
     }
 
-    private AsyncPushConsumer createHandler(final HttpRequest request) throws HttpException {
-
-        final URIAuthority authority = request.getAuthority();
-        if (authority != null && !"localhost".equalsIgnoreCase(authority.getHostName())) {
-            throw new MisdirectedRequestException("Not authoritative");
-        }
-        String path = request.getPath();
-        final int i = path.indexOf("?");
-        if (i != -1) {
-            path = path.substring(0, i - 1);
-        }
-        final Supplier<AsyncPushConsumer> supplier = pushHandlerMatcher.lookup(path);
-        if (supplier != null) {
-            return supplier.get();
-        } else {
-            return null;
-        }
-    }
-
     public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
-        pushHandlerMatcher.register(uriPattern, supplier);
+        pushConsumerRegistry.register(null, uriPattern, supplier);
     }
 
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
@@ -128,14 +103,7 @@ public class Http2TestClient extends AsyncRequester {
     public void start(final HttpProcessor httpProcessor, final H2Config h2Config) throws IOException {
         start(new InternalClientHttp2EventHandlerFactory(
                 httpProcessor,
-                new HandlerFactory<AsyncPushConsumer>() {
-
-                    @Override
-                    public AsyncPushConsumer create(final HttpRequest request) throws HttpException {
-                        return createHandler(request);
-                    }
-
-                },
+                pushConsumerRegistry,
                 StandardCharsets.US_ASCII,
                 h2Config,
                 sslContext));
@@ -150,12 +118,12 @@ public class Http2TestClient extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final NamedEndpoint remoteEndpoint,
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,
             final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
         final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
-        requestSession(remoteEndpoint, timeout, timeUnit, new SessionRequestCallback() {
+        requestSession(host, timeout, timeUnit, new SessionRequestCallback() {
 
             @Override
             public void completed(final SessionRequest request) {
@@ -182,10 +150,10 @@ public class Http2TestClient extends AsyncRequester {
     }
 
     public Future<ClientEndpoint> connect(
-            final NamedEndpoint remoteEndpoint,
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
-        return connect(remoteEndpoint, timeout, timeUnit, null);
+        return connect(host, timeout, timeUnit, null);
     }
 
     public Future<ClientEndpoint> connect(

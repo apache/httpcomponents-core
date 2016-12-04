@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.bootstrap;
+package org.apache.hc.core5.http2.impl;
 
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.protocol.HttpProcessor;

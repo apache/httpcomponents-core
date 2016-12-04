@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http2.frame.FramePrinter;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
@@ -82,7 +83,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     }
 
     @Override
-    public void onHeaderInput(final List<? extends Header> headers) {
+    public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             for (int i = 0; i < headers.size(); i++) {
                 headerLog.debug(id + " << " + headers.get(i));
@@ -91,7 +92,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     }
 
     @Override
-    public void onHeaderOutput(final List<? extends Header> headers) {
+    public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             for (int i = 0; i < headers.size(); i++) {
                 headerLog.debug(id + " >> " + headers.get(i));
@@ -100,7 +101,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     }
 
     @Override
-    public void onFrameInput(final RawFrame frame) {
+    public void onFrameInput(final HttpConnection connection, final int streamId, final RawFrame frame) {
         if (frameLog.isDebugEnabled()) {
             logFrameInfo(id + " <<", frame);
         }
@@ -110,7 +111,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     }
 
     @Override
-    public void onFrameOutput(final RawFrame frame) {
+    public void onFrameOutput(final HttpConnection connection, final int streamId, final RawFrame frame) {
         if (frameLog.isDebugEnabled()) {
             logFrameInfo(id + " >>", frame);
         }
@@ -120,14 +121,14 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     }
 
     @Override
-    public void onInputFlowControl(final int streamId, final int delta, final int actualSize) {
+    public void onInputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
         if (flowCtrlLog.isDebugEnabled()) {
             logFlowControl(id + " <<", streamId, delta, actualSize);
         }
     }
 
     @Override
-    public void onOutputFlowControl(final int streamId, final int delta, final int actualSize) {
+    public void onOutputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
         if (flowCtrlLog.isDebugEnabled()) {
             logFlowControl(id + " >>", streamId, delta, actualSize);
         }

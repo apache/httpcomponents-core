@@ -74,22 +74,21 @@ public class ClassicGetExecutionExample {
 
                 })
                 .create();
-        HttpHost host = new HttpHost("localhost", 8080);
 
         HttpCoreContext coreContext = HttpCoreContext.create();
-        String[] targets = {
-                "/",
-                "/examples/servlets/servlet/RequestInfoExample",
-                "/somewhere%20in%20pampa"};
+        HttpHost target = new HttpHost("httpbin.org");
+        String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
         SocketConfig socketConfig = SocketConfig.custom()
                 .setConnectTimeout(5000)
                 .setSoTimeout(5000)
                 .build();
 
-        for (int i = 0; i < targets.length; i++) {
-            ClassicHttpRequest request = new BasicClassicHttpRequest("GET", host, targets[i]);
-            try (ClassicHttpResponse response = httpRequester.execute(host, request, socketConfig, coreContext)) {
+        for (int i = 0; i < requestUris.length; i++) {
+            String requestUri = requestUris[i];
+            ClassicHttpRequest request = new BasicClassicHttpRequest("GET", target, requestUri);
+            try (ClassicHttpResponse response = httpRequester.execute(target, request, socketConfig, coreContext)) {
+                System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
             }

@@ -196,7 +196,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(this.method).append(" ").append(this.scheme).append("://").append(this.authority).append("/").append(this.path);
+        sb.append(this.method).append(" ").append(this.scheme).append("://").append(this.authority).append(this.path);
         return sb.toString();
     }
 

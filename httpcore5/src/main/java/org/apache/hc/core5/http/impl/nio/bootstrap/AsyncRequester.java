@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
@@ -71,14 +72,30 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
         return new DefaultConnectingIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory);
     }
 
+    private NamedEndpoint toEndpoint(final HttpHost host) {
+        int port = host.getPort();
+        if (port < 0) {
+            final String hostName = host.getHostName();
+            final String scheme = host.getSchemeName();
+            if ("http".equalsIgnoreCase(scheme)) {
+                port = 80;
+            } else if ("https".equalsIgnoreCase(scheme)) {
+                port = 443;
+            }
+            return new HttpHost(hostName, port, scheme);
+        } else {
+            return host;
+        }
+    }
+
     protected SessionRequest requestSession(
-            final NamedEndpoint remoteEndpoint,
+            final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,
             final SessionRequestCallback callback) {
-        Args.notNull(remoteEndpoint, "Remote endpoint");
+        Args.notNull(host, "Host");
         Args.notNull(timeUnit, "Time unit");
-        final SessionRequest  sessionRequest = reactor().connect(remoteEndpoint, null, null, callback);
+        final SessionRequest  sessionRequest = reactor().connect(toEndpoint(host), null, null, callback);
         sessionRequest.setConnectTimeout((int) timeUnit.toMillis(timeout));
         return sessionRequest;
     }

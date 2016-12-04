@@ -48,11 +48,12 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 public class ClassicPostWithTrailersExecutionExample {
     public static void main(String[] args) throws Exception {
         HttpRequester httpRequester = RequesterBootstrap.bootstrap().create();
-        HttpHost host = new HttpHost("localhost", 8080);
 
         HttpCoreContext coreContext = HttpCoreContext.create();
+        HttpHost target = new HttpHost("httpbin.org");
 
-        ClassicHttpRequest request = new BasicClassicHttpRequest("POST", host, "/");
+        String requestUri = "/post";
+        ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target, requestUri);
         HttpEntity requestBody = new HttpEntityWithTrailers(
                 new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
                 new BasicHeader("t1","Hello world"));
@@ -64,8 +65,8 @@ public class ClassicPostWithTrailersExecutionExample {
                 .build();
 
         System.out.println(">> Request URI: " + request.getUri());
-        try (ClassicHttpResponse response = httpRequester.execute(host, request, socketConfig, coreContext)) {
-            System.out.println("<< Response: " + response.getCode());
+        try (ClassicHttpResponse response = httpRequester.execute(target, request, socketConfig, coreContext)) {
+            System.out.println(requestUri + "->" + response.getCode());
             System.out.println(EntityUtils.toString(response.getEntity()));
             System.out.println("==============");
         }
