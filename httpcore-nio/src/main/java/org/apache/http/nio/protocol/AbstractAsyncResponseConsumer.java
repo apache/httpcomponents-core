@@ -119,6 +119,13 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
     }
 
     /**
+     * @since 4.4
+     */
+    protected ContentType getContentType(final HttpEntity entity) {
+        return entity != null ? ContentType.getOrDefault(entity) : null;
+    }
+
+    /**
      * Use {@link #onResponseReceived(HttpResponse)} instead.
      */
     @Override
@@ -127,8 +134,7 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
         onResponseReceived(response);
         final HttpEntity entity = response.getEntity();
         if (entity != null) {
-            final ContentType contentType = ContentType.getOrDefault(entity);
-            onEntityEnclosed(entity, contentType);
+            onEntityEnclosed(entity, getContentType(entity));
         }
     }
 
