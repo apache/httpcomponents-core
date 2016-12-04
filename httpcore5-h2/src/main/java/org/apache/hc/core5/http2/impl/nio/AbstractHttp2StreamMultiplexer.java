@@ -543,11 +543,12 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                         executionCommand.getExchangeHandler(),
                         executionCommand.getContext());
                 final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
+                streamMap.put(streamId, stream);
+
                 if (stream.isOutputReady()) {
                     stream.produceOutput();
                 }
 
-                streamMap.put(streamId, stream);
                 if (!outputQueue.isEmpty()) {
                     return;
                 }
