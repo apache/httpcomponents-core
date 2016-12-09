@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.PoolEntryHolder;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -49,6 +50,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
+import org.apache.hc.core5.reactor.ssl.TlsCapable;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -58,12 +60,14 @@ public class HttpAsyncRequester extends AsyncRequester {
 
     private final IOEventHandlerFactory handlerFactory;
     private final ControlledConnPool<HttpHost, ClientEndpoint> connPool;
+    private final TlsStrategy tlsStrategy;
 
     public HttpAsyncRequester(
             final IOReactorConfig ioReactorConfig,
-            final ExceptionListener exceptionListener,
             final IOEventHandlerFactory handlerFactory,
-            final ControlledConnPool<HttpHost, ClientEndpoint> connPool) {
+            final ControlledConnPool<HttpHost, ClientEndpoint> connPool,
+            final TlsStrategy tlsStrategy,
+            final ExceptionListener exceptionListener) {
         super(ioReactorConfig, exceptionListener, new Callback<IOSession>() {
 
             @Override
@@ -74,6 +78,7 @@ public class HttpAsyncRequester extends AsyncRequester {
         });
         this.handlerFactory = Args.notNull(handlerFactory, "Handler factory");
         this.connPool = Args.notNull(connPool, "Connection pool");
+        this.tlsStrategy = tlsStrategy;
     }
 
     public void start() throws IOException {
@@ -115,7 +120,15 @@ public class HttpAsyncRequester extends AsyncRequester {
 
                         @Override
                         public void completed(final SessionRequest request) {
-                            poolEntry.assignConnection(new ClientEndpoint(request.getSession()));
+                            final IOSession session = request.getSession();
+                            if (tlsStrategy != null && session instanceof TlsCapable) {
+                                tlsStrategy.upgrade(
+                                        (TlsCapable) session,
+                                        host.getSchemeName(),
+                                        session.getLocalAddress(),
+                                        session.getRemoteAddress());
+                            }
+                            poolEntry.assignConnection(new ClientEndpoint(session));
                             resultFuture.completed(new PooledClientEndpoint(poolEntryHolder));
                         }
 

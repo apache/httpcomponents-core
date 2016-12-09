@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
@@ -60,6 +61,7 @@ public class H2ServerBootstrap {
     private HttpProcessor httpProcessor;
     private Charset charset;
     private H2Config h2Config;
+    private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http2StreamListener streamListener;
@@ -101,7 +103,7 @@ public class H2ServerBootstrap {
     /**
      * Sets HTTP/2 protocol parameters
      */
-    public final H2ServerBootstrap  setH2Config(final H2Config h2Config) {
+    public final H2ServerBootstrap setH2Config(final H2Config h2Config) {
         this.h2Config = h2Config;
         return this;
     }
@@ -109,8 +111,16 @@ public class H2ServerBootstrap {
     /**
      * Sets charset for HTTP/2 messages.
      */
-    public final H2ServerBootstrap  setCharset(final Charset charset) {
+    public final H2ServerBootstrap setCharset(final Charset charset) {
         this.charset = charset;
+        return this;
+    }
+
+    /**
+     * Assigns {@link TlsStrategy} instance.
+     */
+    public final H2ServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
+        this.tlsStrategy = tlsStrategy;
         return this;
     }
 
@@ -195,6 +205,7 @@ public class H2ServerBootstrap {
                 exchangeHandlerFactory,
                 charset != null ? charset : StandardCharsets.US_ASCII,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
+                tlsStrategy,
                 connectionListener,
                 streamListener);
         return new HttpAsyncServer(

@@ -39,6 +39,8 @@ import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
@@ -64,6 +66,7 @@ public class H2RequesterBootstrap {
     private int maxTotal;
     private long timeToLive;
     private TimeUnit timeUnit;
+    private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http2StreamListener streamListener;
@@ -126,6 +129,14 @@ public class H2RequesterBootstrap {
     }
 
     /**
+     * Assigns {@link TlsStrategy} instance.
+     */
+    public final H2RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
+        this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+    /**
      * Assigns {@link ExceptionListener} instance.
      */
     public final H2RequesterBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
@@ -149,6 +160,9 @@ public class H2RequesterBootstrap {
         return this;
     }
 
+    /**
+     * Assigns {@link ConnPoolListener} instance.
+     */
     public final H2RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
         this.connPoolListener = connPoolListener;
         return this;
@@ -188,9 +202,10 @@ public class H2RequesterBootstrap {
                 streamListener);
         return new HttpAsyncRequester(
                 ioReactorConfig,
-                exceptionListener,
                 ioEventHandlerFactory,
-                connPool);
+                connPool,
+                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
+                exceptionListener);
     }
 
     private static class PushConsumerEntry {

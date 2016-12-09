@@ -44,10 +44,12 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.TlsCapable;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -64,6 +66,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
+    private final TlsStrategy tlsStrategy;
     private final ConnectionListener connectionListener;
     private final Http1StreamListener streamListener;
 
@@ -76,7 +79,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final ExceptionListener errorListener,
+            final TlsStrategy tlsStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -92,6 +95,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
                 DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
+        this.tlsStrategy = tlsStrategy;
         this.connectionListener = connectionListener;
         this.streamListener = streamListener;
     }
@@ -103,31 +107,32 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
-            final ExceptionListener errorListener,
+            final TlsStrategy tlsStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         this(httpProcessor, exchangeHandlerFactory, connectionConfig,
                 connectionReuseStrategy, requestParserFactory, responseWriterFactory,
-                null, null, errorListener, connectionListener, streamListener);
+                null, null, tlsStrategy, connectionListener, streamListener);
     }
 
     public ServerHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final ConnectionConfig connectionConfig,
-            final ExceptionListener errorListener,
+            final TlsStrategy tlsStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         this(httpProcessor, exchangeHandlerFactory, connectionConfig, null, null ,null,
-                errorListener, connectionListener, streamListener);
+                tlsStrategy, connectionListener, streamListener);
     }
 
     public ServerHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final ConnectionConfig connectionConfig,
+            final TlsStrategy tlsStrategy,
             final ExceptionListener errorListener) {
-        this(httpProcessor, exchangeHandlerFactory, connectionConfig, errorListener, null, null);
+        this(httpProcessor, exchangeHandlerFactory, connectionConfig, tlsStrategy, null, null);
     }
 
     @Override
@@ -136,6 +141,13 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     }
 
     protected ServerHttp1StreamDuplexer createStreamDuplexer(final IOSession ioSession) {
+        if (tlsStrategy != null && ioSession instanceof TlsCapable) {
+            tlsStrategy.upgrade(
+                    (TlsCapable) ioSession,
+                    null,
+                    ioSession.getLocalAddress(),
+                    ioSession.getRemoteAddress());
+        }
         return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                 H1Config.DEFAULT,
                 connectionConfig,

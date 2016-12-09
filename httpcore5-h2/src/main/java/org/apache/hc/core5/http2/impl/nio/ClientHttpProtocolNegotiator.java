@@ -41,11 +41,14 @@ import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -130,11 +133,32 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         exception(session, new SocketTimeoutException());
     }
 
+    private void failPendingCommands(final Exception cause) {
+        for (;;) {
+            final Command command = ioSession.getCommand();
+            if (command != null) {
+                if (command instanceof ExecutionCommand) {
+                    final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                    final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+                    exchangeHandler.failed(cause);
+                } else {
+                    command.cancel();
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        session.close();
         if (connectionListener != null) {
             connectionListener.onError(this, new SocketTimeoutException());
+        }
+        try {
+            failPendingCommands(cause);
+        } finally {
+            session.shutdown();
         }
     }
 

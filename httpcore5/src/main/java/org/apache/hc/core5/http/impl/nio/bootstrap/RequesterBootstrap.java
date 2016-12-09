@@ -40,6 +40,8 @@ import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestWriterFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseParserFactory;
+import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.StrictConnPool;
@@ -58,6 +60,7 @@ public class RequesterBootstrap {
     private int maxTotal;
     private long timeToLive;
     private TimeUnit timeUnit;
+    private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
@@ -119,6 +122,14 @@ public class RequesterBootstrap {
     }
 
     /**
+     * Assigns {@link TlsStrategy} instance.
+     */
+    public final RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
+        this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+    /**
      * Assigns {@link ExceptionListener} instance.
      */
     public final RequesterBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
@@ -142,6 +153,9 @@ public class RequesterBootstrap {
         return this;
     }
 
+    /**
+     * Assigns {@link ConnPoolListener} instance.
+     */
     public final RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
         this.connPoolListener = connPoolListener;
         return this;
@@ -165,9 +179,10 @@ public class RequesterBootstrap {
                 streamListener);
         return new HttpAsyncRequester(
                 ioReactorConfig,
-                exceptionListener,
                 ioEventHandlerFactory,
-                connPool);
+                connPool,
+                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
+                exceptionListener);
     }
 
 }

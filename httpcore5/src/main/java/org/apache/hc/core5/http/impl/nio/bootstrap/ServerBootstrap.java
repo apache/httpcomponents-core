@@ -29,26 +29,28 @@ package org.apache.hc.core5.http.impl.nio.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.ConnectionListener;
+import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.net.InetAddressUtils;
 
 /**
  * @since 4.4
@@ -61,6 +63,7 @@ public class ServerBootstrap {
     private ConnectionConfig connectionConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
+    private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
@@ -112,6 +115,14 @@ public class ServerBootstrap {
      */
     public final ServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
+        return this;
+    }
+
+    /**
+     * Assigns {@link TlsStrategy} instance.
+     */
+    public final ServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
+        this.tlsStrategy = tlsStrategy;
         return this;
     }
 
@@ -202,7 +213,7 @@ public class ServerBootstrap {
                 DefaultHttpResponseWriterFactory.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                exceptionListener,
+                tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener,
                 streamListener);
         return new HttpAsyncServer(

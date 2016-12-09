@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.ConnectionListener;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
@@ -567,6 +568,23 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         }
     }
 
+    private void failPendingCommands(final Exception cause) {
+        for (;;) {
+            final Command command = ioSession.getCommand();
+            if (command != null) {
+                if (command instanceof ExecutionCommand) {
+                    final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                    final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+                    exchangeHandler.failed(cause);
+                } else {
+                    command.cancel();
+                }
+            } else {
+                break;
+            }
+        }
+    }
+
     public final void onException(final Exception cause) {
         if (connectionListener != null) {
             connectionListener.onError(this, cause);
@@ -590,6 +608,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 stream.reset(cause);
             }
             streamMap.clear();
+            failPendingCommands(cause);
             connState = ConnectionHandshake.SHUTDOWN;
         } catch (IOException ignore) {
         } finally {
