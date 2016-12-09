@@ -169,16 +169,23 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
         final ClientEndpoint streamEndpoint = connectFuture.get();
 
-        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
-        Assert.assertNotNull(result1);
-        final HttpResponse response1 = result1.getHead();
-        final String entity1 = result1.getBody();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
-        Assert.assertEquals("Hi there", entity1);
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < 10; i++) {
+            queue.add(streamEndpoint.execute(
+                    new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
+
+        }
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> result = future.get(TIMEOUT, TimeUnit.SECONDS);
+            Assert.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity = result.getBody();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(200, response.getCode());
+            Assert.assertEquals("Hi there", entity);
+        }
     }
 
     @Test
@@ -248,17 +255,24 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
         final ClientEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/hello"));
-        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new BasicAsyncEntityProducer("Hi there")),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT, TimeUnit.SECONDS);
-        Assert.assertNotNull(result1);
-        final HttpResponse response1 = result1.getHead();
-        final String entity1 = result1.getBody();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
-        Assert.assertEquals("Hi back", entity1);
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        for (int i = 0; i < 10; i++) {
+            final HttpRequest request = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/hello"));
+            queue.add(streamEndpoint.execute(
+                    new BasicRequestProducer(request, new StringAsyncEntityProducer("Hi there", ContentType.TEXT_PLAIN)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
+
+        }
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> future = queue.remove();
+            final Message<HttpResponse, String> result = future.get(TIMEOUT, TimeUnit.SECONDS);
+            Assert.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity1 = result.getBody();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(200, response.getCode());
+            Assert.assertEquals("Hi back", entity1);
+        }
     }
 
     @Test

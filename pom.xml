@@ -69,8 +69,8 @@
     <module>httpcore5</module>
     <module>httpcore5-h2</module>
     <module>httpcore5-ab</module>
-    <module>httpcore5-testing</module>
     <module>httpcore5-osgi</module>
+    <module>httpcore5-testing</module>
   </modules>
 
   <properties>
@@ -353,5 +353,17 @@
 
     </plugins>
   </reporting>
+
+  <profiles>
+    <profile>
+      <id>compat-tests</id>
+      <modules>
+        <module>httpcore5-testing-compat</module>
+      </modules>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+    </profile>
+  </profiles>
 
 </project>

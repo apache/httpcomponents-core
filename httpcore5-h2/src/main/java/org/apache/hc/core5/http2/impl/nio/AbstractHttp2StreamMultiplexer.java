@@ -753,16 +753,21 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 if (streamId == 0) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id: " + streamId);
                 }
-                final Http2Stream stream = getValidStream(streamId);
-                final ByteBuffer payload = frame.getPayload();
-                if (payload == null || payload.remaining() != 4) {
-                    throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid RST_STREAM frame payload");
+                final Http2Stream stream = streamMap.get(streamId);
+                if (stream == null) {
+                    if (streamId > lastStreamId.get()) {
+                        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected stream id: " + streamId);
+                    }
+                } else {
+                    final ByteBuffer payload = frame.getPayload();
+                    if (payload == null || payload.remaining() != 4) {
+                        throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid RST_STREAM frame payload");
+                    }
+                    final int errorCode = payload.getInt();
+                    stream.reset(new H2StreamResetException(errorCode, "Stream reset"));
+                    streamMap.remove(streamId);
+                    stream.releaseResources();
                 }
-
-                final int errorCode = payload.getInt();
-                stream.reset(new H2StreamResetException(errorCode, "Stream reset"));
-                streamMap.remove(streamId);
-                stream.releaseResources();
             }
             break;
             case PING: {

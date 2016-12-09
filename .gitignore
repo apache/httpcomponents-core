@@ -7,4 +7,4 @@ target
 maven-eclipse.xml
 .idea
 *.iml
-/httpcore5-testing/src/test/resources/log4j2-debug.xml
+**/log4j2-debug.xml
