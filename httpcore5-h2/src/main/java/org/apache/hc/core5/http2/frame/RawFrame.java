@@ -64,9 +64,9 @@ public final class RawFrame extends Frame<ByteBuffer> {
                     return null;
                 }
                 dup.limit(dup.limit() - padding);
-                return dup.asReadOnlyBuffer();
+                return dup;
             } else {
-                return payload.asReadOnlyBuffer();
+                return payload.duplicate();
             }
         } else {
             return null;
@@ -75,7 +75,7 @@ public final class RawFrame extends Frame<ByteBuffer> {
 
     @Override
     public ByteBuffer getPayload() {
-        return payload != null ? payload.asReadOnlyBuffer() : null;
+        return payload != null ? payload.duplicate() : null;
     }
 
 }
