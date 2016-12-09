@@ -120,7 +120,7 @@ public final class HPackDecoder {
             buffer.append(b, off, strLen);
             src.position(off + strLen);
         } else {
-            while (src.hasRemaining()) {
+            for (int i = 0; i < strLen; i++) {
                 buffer.append(src.get());
             }
         }

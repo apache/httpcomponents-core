@@ -134,6 +134,31 @@ public class TestHPackCoding {
         Assert.assertFalse("Decoding completed", src.hasRemaining());
     }
 
+    @Test
+    public void testPlainStringDecodingRemainingContent() throws Exception {
+
+        final ByteBuffer src = createByteBuffer(
+                0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79, 0x01, 0x01, 0x01, 0x01);
+
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
+        HPackDecoder.decodePlainString(buffer, src);
+        Assert.assertEquals("custom-key", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
+        Assert.assertEquals(4, src.remaining());
+    }
+
+    @Test
+    public void testPlainStringDecodingReadOnly() throws Exception {
+
+        final ByteBuffer src = createByteBuffer(
+                0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79, 0x50, 0x50, 0x50, 0x50);
+
+        final ByteBuffer srcRO = src.asReadOnlyBuffer();
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
+        HPackDecoder.decodePlainString(buffer, srcRO);
+        Assert.assertEquals("custom-key", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
+        Assert.assertEquals(4, srcRO.remaining());
+    }
+
     @Test(expected = HPackException.class)
     public void testPlainStringDecodingTruncated() throws Exception {
 
