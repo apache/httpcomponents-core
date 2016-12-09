@@ -39,13 +39,13 @@ import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
+import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -204,7 +204,7 @@ public class H2RequesterBootstrap {
                 ioReactorConfig,
                 ioEventHandlerFactory,
                 connPool,
-                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
+                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
                 exceptionListener);
     }
 

@@ -46,6 +46,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiatorFactory;
+import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Args;
@@ -205,7 +206,7 @@ public class H2ServerBootstrap {
                 exchangeHandlerFactory,
                 charset != null ? charset : StandardCharsets.US_ASCII,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
-                tlsStrategy,
+                tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener,
                 streamListener);
         return new HttpAsyncServer(
