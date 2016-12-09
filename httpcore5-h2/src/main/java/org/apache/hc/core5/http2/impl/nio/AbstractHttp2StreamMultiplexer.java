@@ -462,7 +462,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             }
         }
 
-        if (connState == ConnectionHandshake.ACTIVE) {
+        if (connState == ConnectionHandshake.ACTIVE && remoteSettingState == SettingsHandshake.ACKED) {
             processPendingCommands();
         } else if (connState == ConnectionHandshake.SHUTDOWN) {
             outputLock.lock();
@@ -1085,7 +1085,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
     @Override
     public void shutdown() throws IOException {
-        ioSession.addFirst(new ShutdownCommand(ShutdownType.IMMEDIATE));
+        ioSession.shutdown();
     }
 
     @Override
