@@ -51,12 +51,16 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -66,7 +70,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
@@ -97,6 +100,8 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.nio.command.PingCommand;
+import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.testing.nio.http.EchoHandler;
@@ -908,6 +913,48 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());
         Assert.assertEquals("MD5", map.get("digest-algo"));
         Assert.assertEquals(digest, map.get("digest"));
+    }
+
+    @Test
+    public void testConnectionPing() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final Future<ClientEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
+        final ClientEndpoint streamEndpoint = connectFuture.get();
+
+        final int n = 10;
+        final CountDownLatch latch = new CountDownLatch(n);
+        final AtomicInteger count = new AtomicInteger(0);
+        final Queue<Future<String>> queue = new LinkedList<>();
+        for (int i = 0; i < n; i++) {
+            streamEndpoint.execute(
+                    new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            streamEndpoint.execute(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {
+
+                @Override
+                public void execute(final Boolean result) {
+                    if (result) {
+                        count.incrementAndGet();
+                    }
+                    latch.countDown();
+                }
+
+            })));
+
+        }
+        Assert.assertTrue(latch.await(TIMEOUT, TimeUnit.SECONDS));
+        Assert.assertEquals(n, count.get());
     }
 
 }

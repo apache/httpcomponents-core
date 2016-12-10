@@ -36,8 +36,10 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -72,6 +74,8 @@ import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HPackDecoder;
 import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
+import org.apache.hc.core5.http2.nio.AsyncPingHandler;
+import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
@@ -101,6 +105,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private final HPackEncoder hPackEncoder;
     private final HPackDecoder hPackDecoder;
     private final Map<Integer, Http2Stream> streamMap;
+    private final Queue<AsyncPingHandler> pingHandlers;
     private final AtomicInteger connInputWindow;
     private final AtomicInteger connOutputWindow;
     private final Lock outputLock;
@@ -141,6 +146,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         this.inputBuffer = new FrameInputBuffer(this.inputMetrics, this.localConfig.getMaxFrameSize());
         this.outputBuffer = new FrameOutputBuffer(this.outputMetrics, this.localConfig.getMaxFrameSize());
         this.outputQueue = new ConcurrentLinkedDeque<>();
+        this.pingHandlers = new ConcurrentLinkedQueue<>();
         this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
         this.lastStreamId = new AtomicInteger(0);
@@ -469,7 +475,6 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             try {
                 if (outputBuffer.isEmpty() && outputQueue.isEmpty()) {
                     ioSession.close();
-                    cancelPendingCommands();
                 }
             } finally {
                 outputLock.unlock();
@@ -496,9 +501,29 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     public final void onDisconnect() {
-        cancelPendingCommands();
+        for (;;) {
+            final AsyncPingHandler pingHandler = pingHandlers.poll();
+            if (pingHandler != null) {
+                pingHandler.cancel();
+            } else {
+                break;
+            }
+        }
+        for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
+            final Map.Entry<Integer, Http2Stream> entry = it.next();
+            final Http2Stream stream = entry.getValue();
+            stream.cancel();
+        }
+        for (;;) {
+            final Command command = ioSession.getCommand();
+            if (command != null) {
+                command.cancel();
+            } else {
+                break;
+            }
+        }
         if (connectionListener != null) {
-            connectionListener.onConnect(this);
+            connectionListener.onDisconnect(this);
         }
     }
 
@@ -553,34 +578,12 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 if (!outputQueue.isEmpty()) {
                     return;
                 }
-            }
-        }
-    }
-
-    private void cancelPendingCommands() {
-        for (;;) {
-            final Command command = ioSession.getCommand();
-            if (command != null) {
-                command.cancel();
-            } else {
-                break;
-            }
-        }
-    }
-
-    private void failPendingCommands(final Exception cause) {
-        for (;;) {
-            final Command command = ioSession.getCommand();
-            if (command != null) {
-                if (command instanceof ExecutionCommand) {
-                    final ExecutionCommand executionCommand = (ExecutionCommand) command;
-                    final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(cause);
-                } else {
-                    command.cancel();
-                }
-            } else {
-                break;
+            } else if (command instanceof PingCommand) {
+                final PingCommand pingCommand = (PingCommand) command;
+                final AsyncPingHandler handler = pingCommand.getHandler();
+                pingHandlers.add(handler);
+                final RawFrame ping = frameFactory.createPing(handler.getData());
+                commitFrame(ping);
             }
         }
     }
@@ -590,6 +593,34 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             connectionListener.onError(this, cause);
         }
         try {
+            for (;;) {
+                final AsyncPingHandler pingHandler = pingHandlers.poll();
+                if (pingHandler != null) {
+                    pingHandler.failed(cause);
+                } else {
+                    break;
+                }
+            }
+            for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
+                final Map.Entry<Integer, Http2Stream> entry = it.next();
+                final Http2Stream stream = entry.getValue();
+                stream.reset(cause);
+            }
+            streamMap.clear();
+            for (;;) {
+                final Command command = ioSession.getCommand();
+                if (command != null) {
+                    if (command instanceof ExecutionCommand) {
+                        final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                        final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+                        exchangeHandler.failed(cause);
+                    } else {
+                        command.cancel();
+                    }
+                } else {
+                    break;
+                }
+            }
             if (!(cause instanceof ConnectionClosedException)) {
                 final H2Error errorCode;
                 if (cause instanceof H2ConnectionException) {
@@ -602,13 +633,6 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 final RawFrame goAway = frameFactory.createGoAway(processedRemoteStreamId, errorCode, cause.getMessage());
                 commitFrame(goAway);
             }
-            for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
-                final Map.Entry<Integer, Http2Stream> entry = it.next();
-                final Http2Stream stream = entry.getValue();
-                stream.reset(cause);
-            }
-            streamMap.clear();
-            failPendingCommands(cause);
             connState = ConnectionHandshake.SHUTDOWN;
         } catch (IOException ignore) {
         } finally {
@@ -774,9 +798,20 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 if (streamId != 0) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal stream id");
                 }
-                if (!frame.isFlagSet(FrameFlag.ACK)) {
-                    final ByteBuffer payload = frame.getPayload();
-                    final RawFrame response = frameFactory.createPingAck(payload);
+                final ByteBuffer ping = frame.getPayloadContent();
+                if (ping == null || ping.remaining() != 8) {
+                    throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid PING frame payload");
+                }
+                if (frame.isFlagSet(FrameFlag.ACK)) {
+                    final AsyncPingHandler pingHandler = pingHandlers.poll();
+                    if (pingHandler != null) {
+                        pingHandler.consumeResponse(ping);
+                    }
+                } else {
+                    final ByteBuffer pong = ByteBuffer.allocate(ping.remaining());
+                    pong.put(ping);
+                    pong.flip();
+                    final RawFrame response = frameFactory.createPingAck(pong);
                     commitFrame(response);
                 }
             }

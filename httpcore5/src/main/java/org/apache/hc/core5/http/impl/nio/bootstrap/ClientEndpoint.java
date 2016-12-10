@@ -66,6 +66,13 @@ public final class ClientEndpoint implements Closeable {
         this.closed = new AtomicBoolean(false);
     }
 
+    public void execute(final Command command) {
+        ioSession.addLast(command);
+        if (ioSession.isClosed()) {
+            command.cancel();
+        }
+    }
+
     public void execute(
             final AsyncClientExchangeHandler exchangeHandler,
             final HttpContext context) {
@@ -73,10 +80,7 @@ public final class ClientEndpoint implements Closeable {
         final Command executionCommand = new ExecutionCommand(
                 exchangeHandler,
                 context != null ? context : HttpCoreContext.create());
-        ioSession.addLast(executionCommand);
-        if (ioSession.isClosed()) {
-            executionCommand.cancel();
-        }
+        execute(executionCommand);
     }
 
     public <T> Future<T> execute(
