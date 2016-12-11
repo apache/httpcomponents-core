@@ -64,7 +64,8 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
 
     private final long timeToLive;
     private final TimeUnit timeUnit;
-    private ConnPoolListener<T> connPoolListener;
+    private final ConnPoolListener<T> connPoolListener;
+    private final ConnPoolPolicy policy;
     private final Map<T, RoutePool<T, C>> routeToPool;
     private final LinkedList<LeaseRequest<T, C>> leasingRequests;
     private final Set<PoolEntry<T, C>> leased;
@@ -85,6 +86,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
             final int maxTotal,
             final long timeToLive,
             final TimeUnit timeUnit,
+            final ConnPoolPolicy policy,
             final ConnPoolListener<T> connPoolListener) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
@@ -92,6 +94,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
         this.timeToLive = timeToLive;
         this.timeUnit = timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS;
         this.connPoolListener = connPoolListener;
+        this.policy = policy != null ? policy : ConnPoolPolicy.LIFO;
         this.routeToPool = new HashMap<>();
         this.leasingRequests = new LinkedList<>();
         this.leased = new HashSet<>();
@@ -105,7 +108,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
     }
 
     public StrictConnPool(final int defaultMaxPerRoute, final int maxTotal) {
-        this(defaultMaxPerRoute, maxTotal, 0, TimeUnit.MILLISECONDS, null);
+        this(defaultMaxPerRoute, maxTotal, 0, TimeUnit.MILLISECONDS, ConnPoolPolicy.LIFO, null);
     }
 
     public boolean isShutdown() {
@@ -197,7 +200,16 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
                 final boolean keepAlive = entry.hasConnection() && reusable;
                 pool.free(entry, keepAlive);
                 if (keepAlive) {
-                    this.available.addFirst(entry);
+                    switch (policy) {
+                        case LIFO:
+                            this.available.addFirst(entry);
+                            break;
+                        case FIFO:
+                            this.available.addLast(entry);
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected ConnPoolPolicy value: " + policy);
+                    }
                     if (this.connPoolListener != null) {
                         this.connPoolListener.onRelease(entry.getRoute(), this);
                     }

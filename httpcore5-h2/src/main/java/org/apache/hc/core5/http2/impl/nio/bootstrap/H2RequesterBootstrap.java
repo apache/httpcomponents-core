@@ -47,6 +47,7 @@ import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Args;
@@ -66,6 +67,7 @@ public class H2RequesterBootstrap {
     private int maxTotal;
     private long timeToLive;
     private TimeUnit timeUnit;
+    private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
@@ -129,6 +131,14 @@ public class H2RequesterBootstrap {
     }
 
     /**
+     * Assigns {@link ConnPoolPolicy} instance.
+     */
+    public final H2RequesterBootstrap setConnPoolPolicy(final ConnPoolPolicy connPoolPolicy) {
+        this.connPoolPolicy = connPoolPolicy;
+        return this;
+    }
+
+    /**
      * Assigns {@link TlsStrategy} instance.
      */
     public final H2RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
@@ -188,6 +198,7 @@ public class H2RequesterBootstrap {
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
+                connPoolPolicy,
                 connPoolListener);
         final AsyncPushConsumerRegistry pushConsumerRegistry = new AsyncPushConsumerRegistry();
         for (PushConsumerEntry entry: pushConsumerList) {

@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 
@@ -60,6 +61,7 @@ public class RequesterBootstrap {
     private int maxTotal;
     private long timeToLive;
     private TimeUnit timeUnit;
+    private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
@@ -122,6 +124,14 @@ public class RequesterBootstrap {
     }
 
     /**
+     * Assigns {@link ConnPoolPolicy} instance.
+     */
+    public final RequesterBootstrap setConnPoolPolicy(final ConnPoolPolicy connPoolPolicy) {
+        this.connPoolPolicy = connPoolPolicy;
+        return this;
+    }
+
+    /**
      * Assigns {@link TlsStrategy} instance.
      */
     public final RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
@@ -166,6 +176,7 @@ public class RequesterBootstrap {
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
+                connPoolPolicy,
                 connPoolListener);
         final ClientHttp1IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
