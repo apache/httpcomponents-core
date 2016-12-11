@@ -56,11 +56,7 @@ public class BasicPingHandler implements AsyncPingHandler {
     public void consumeResponse(final ByteBuffer feedback) throws HttpException, IOException {
         boolean result = true;
         for (int i = 0; i < PING_MESSAGE.length; i++) {
-            final byte b = feedback.get();
-            System.out.println("PING " + b);
-//            if (!feedback.hasRemaining() || PING_MESSAGE[i] != b) {
-            if (PING_MESSAGE[i] != b) {
-                System.out.println("MISMATCH");
+            if (!feedback.hasRemaining() || PING_MESSAGE[i] != feedback.get()) {
                 result = false;
                 break;
             }

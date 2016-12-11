@@ -935,7 +935,6 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final int n = 10;
         final CountDownLatch latch = new CountDownLatch(n);
         final AtomicInteger count = new AtomicInteger(0);
-        final Queue<Future<String>> queue = new LinkedList<>();
         for (int i = 0; i < n; i++) {
             streamEndpoint.execute(
                     new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
