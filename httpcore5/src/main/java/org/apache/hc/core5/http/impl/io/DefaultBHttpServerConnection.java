@@ -67,12 +67,11 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      * Creates new instance of DefaultBHttpServerConnection.
      *
      * @param buffersize buffer size. Must be a positive number.
-     * @param fragmentSizeHint fragment size hint.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param charencoder encoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
-     * @param constraints Message constraints. If {@code null}
+     * @param h1Config Message h1Config. If {@code null}
      *   {@link H1Config#DEFAULT} will be used.
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
@@ -85,17 +84,16 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      */
     public DefaultBHttpServerConnection(
             final int buffersize,
-            final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final H1Config constraints,
+            final H1Config h1Config,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
-        super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints);
+        super(buffersize, chardecoder, charencoder, h1Config);
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
-            DefaultHttpRequestParserFactory.INSTANCE).create(constraints);
+            DefaultHttpRequestParserFactory.INSTANCE).create(h1Config);
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
             DefaultHttpResponseWriterFactory.INSTANCE).create();
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
@@ -108,12 +106,12 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             final int buffersize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final H1Config constraints) {
-        this(buffersize, buffersize, chardecoder, charencoder, constraints, null, null, null, null);
+            final H1Config h1Config) {
+        this(buffersize, chardecoder, charencoder, h1Config, null, null, null, null);
     }
 
     public DefaultBHttpServerConnection(final int buffersize) {
-        this(buffersize, buffersize, null, null, null, null, null, null, null);
+        this(buffersize,null, null, null, null, null, null, null);
     }
 
     protected void onRequestReceived(final ClassicHttpRequest request) {

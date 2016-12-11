@@ -64,7 +64,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder implements Fi
      * @param buffer  session buffer.
      * @param metrics transport metrics.
      * @param contentLength content length.
-     * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
+     * @param chunkSizeHint fragment size hint defining an minimal size of a fragment
      *   that should be written out directly to the channel bypassing the session buffer.
      *   Value {@code 0} disables fragment buffering.
      */
@@ -73,11 +73,11 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder implements Fi
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics,
             final long contentLength,
-            final int fragementSizeHint) {
+            final int chunkSizeHint) {
         super(channel, buffer, metrics);
         Args.notNegative(contentLength, "Content length");
         this.contentLength = contentLength;
-        this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
+        this.fragHint = chunkSizeHint > 0 ? chunkSizeHint : 0;
         this.remaining = contentLength;
     }
 

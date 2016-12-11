@@ -37,7 +37,6 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -398,7 +397,7 @@ public class TestSessionInOutBuffers {
         final String s = "a very looooooooooooooooooooooooooooooooooooooooooong line\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         // no limit
-        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(5, H1Config.DEFAULT);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(5);
         final InputStream inputStream1 = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         inbuffer1.readLine(chbuffer, inputStream1);
@@ -406,9 +405,7 @@ public class TestSessionInOutBuffers {
         Assert.assertEquals(60, bytesRead);
 
         // 15 char limit
-        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(5, H1Config.custom()
-                .setMaxLineLength(15)
-                .build());
+        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(5, 15);
         final InputStream inputStream2 = new ByteArrayInputStream(tmp);
         try {
             chbuffer.clear();
@@ -423,7 +420,7 @@ public class TestSessionInOutBuffers {
         final String s = "just a line\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         // no limit
-        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(25, H1Config.DEFAULT);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(25);
         final InputStream inputStream1 = new ByteArrayInputStream(tmp);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         inbuffer1.readLine(chbuffer, inputStream1);
@@ -431,9 +428,7 @@ public class TestSessionInOutBuffers {
         Assert.assertEquals(13, bytesRead);
 
         // 10 char limit
-        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(25, H1Config.custom()
-                .setMaxLineLength(10)
-                .build());
+        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(25, 10);
         final InputStream inputStream2 = new ByteArrayInputStream(tmp);
         try {
             chbuffer.clear();

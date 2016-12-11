@@ -58,7 +58,7 @@ public class IdentityEncoder extends AbstractContentEncoder implements FileConte
      * @param channel underlying channel.
      * @param buffer  session buffer.
      * @param metrics transport metrics.
-     * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
+     * @param chunkSizeHint fragment size hint defining an minimal size of a fragment
      *   that should be written out directly to the channel bypassing the session buffer.
      *   Value {@code 0} disables fragment buffering.
      */
@@ -66,9 +66,9 @@ public class IdentityEncoder extends AbstractContentEncoder implements FileConte
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics,
-            final int fragementSizeHint) {
+            final int chunkSizeHint) {
         super(channel, buffer, metrics);
-        this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
+        this.fragHint = chunkSizeHint > 0 ? chunkSizeHint : 0;
     }
 
     public IdentityEncoder(

@@ -66,7 +66,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private long chunkSize;
     private long pos;
 
-    private final H1Config constraints;
+    private final H1Config h1Config;
     private final List<CharArrayBuffer> trailerBufs;
     private final List<Header> trailers;
 
@@ -76,7 +76,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     public ChunkDecoder(
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
-            final H1Config constraints,
+            final H1Config h1Config,
             final BasicHttpTransportMetrics metrics) {
         super(channel, buffer, metrics);
         this.state = READ_CONTENT;
@@ -84,7 +84,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.pos = 0L;
         this.endOfChunk = false;
         this.endOfStream = false;
-        this.constraints = constraints != null ? constraints : H1Config.DEFAULT;
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.trailerBufs = new ArrayList<>();
         this.trailers = new ArrayList<>();
     }
@@ -116,7 +116,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
             this.endOfChunk = false;
         }
         final boolean lineComplete = this.buffer.readLine(this.lineBuf, this.endOfStream);
-        final int maxLineLen = this.constraints.getMaxLineLength();
+        final int maxLineLen = this.h1Config.getMaxLineLength();
         if (maxLineLen > 0 &&
                 (this.lineBuf.length() > maxLineLen ||
                         (!lineComplete && this.buffer.length() > maxLineLen))) {
@@ -154,7 +154,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 }
                 i++;
             }
-            final int maxLineLen = this.constraints.getMaxLineLength();
+            final int maxLineLen = this.h1Config.getMaxLineLength();
             if (maxLineLen > 0 && previous.length() + 1 + current.length() - i > maxLineLen) {
                 throw new MessageConstraintException("Maximum line length limit exceeded");
             }
@@ -252,7 +252,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     return totalRead;
                 }
                 if (this.lineBuf.length() > 0) {
-                    final int maxHeaderCount = this.constraints.getMaxHeaderCount();
+                    final int maxHeaderCount = this.h1Config.getMaxHeaderCount();
                     if (maxHeaderCount > 0 && trailerBufs.size() >= maxHeaderCount) {
                         throw new MessageConstraintException("Maximum header count exceeded");
                     }

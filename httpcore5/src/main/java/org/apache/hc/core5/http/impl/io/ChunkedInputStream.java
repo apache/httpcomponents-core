@@ -70,7 +70,7 @@ public class ChunkedInputStream extends InputStream {
     private final SessionInputBuffer buffer;
     private final InputStream inputStream;
     private final CharArrayBuffer lineBuffer;
-    private final H1Config constraints;
+    private final H1Config h1Config;
 
     private int state;
 
@@ -93,17 +93,17 @@ public class ChunkedInputStream extends InputStream {
      *
      * @param buffer Session input buffer
      * @param inputStream Input stream
-     * @param constraints Message constraints. If {@code null} {@link H1Config#DEFAULT} will be used.
+     * @param h1Config Message h1Config. If {@code null} {@link H1Config#DEFAULT} will be used.
      *
      * @since 4.4
      */
-    public ChunkedInputStream(final SessionInputBuffer buffer, final InputStream inputStream, final H1Config constraints) {
+    public ChunkedInputStream(final SessionInputBuffer buffer, final InputStream inputStream, final H1Config h1Config) {
         super();
         this.buffer = Args.notNull(buffer, "Session input buffer");
         this.inputStream = Args.notNull(inputStream, "Input stream");
         this.pos = 0L;
         this.lineBuffer = new CharArrayBuffer(16);
-        this.constraints = constraints != null ? constraints : H1Config.DEFAULT;
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.state = CHUNK_LEN;
     }
 
@@ -286,8 +286,8 @@ public class ChunkedInputStream extends InputStream {
     private void parseTrailerHeaders() throws IOException {
         try {
             this.footers = AbstractMessageParser.parseHeaders(buffer, inputStream,
-                    constraints.getMaxHeaderCount(),
-                    constraints.getMaxLineLength(),
+                    h1Config.getMaxHeaderCount(),
+                    h1Config.getMaxLineLength(),
                     null);
         } catch (final HttpException ex) {
             final IOException ioe = new MalformedChunkCodingException("Invalid trailing header: "

@@ -51,7 +51,7 @@ public class DefaultHttpResponseParser<T extends HttpResponse> extends AbstractM
      * @param responseFactory the response factory.
      * @param parser the line parser. If {@code null}
      *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param constraints Message constraints. If {@code null}
+     * @param h1Config Message h1Config. If {@code null}
      *   {@link H1Config#DEFAULT} will be used.
      *
      * @since 4.3
@@ -59,16 +59,16 @@ public class DefaultHttpResponseParser<T extends HttpResponse> extends AbstractM
     public DefaultHttpResponseParser(
             final HttpResponseFactory<T> responseFactory,
             final LineParser parser,
-            final H1Config constraints) {
-        super(parser, constraints);
+            final H1Config h1Config) {
+        super(parser, h1Config);
         this.responseFactory = Args.notNull(responseFactory, "Response factory");
     }
 
     /**
      * @since 4.3
      */
-    public DefaultHttpResponseParser(final HttpResponseFactory<T> responseFactory, final H1Config constraints) {
-        this(responseFactory, null, constraints);
+    public DefaultHttpResponseParser(final HttpResponseFactory<T> responseFactory, final H1Config h1Config) {
+        this(responseFactory, null, h1Config);
     }
 
     /**

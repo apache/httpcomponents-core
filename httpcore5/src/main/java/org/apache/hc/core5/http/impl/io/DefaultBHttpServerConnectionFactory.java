@@ -53,6 +53,7 @@ public class DefaultBHttpServerConnectionFactory
 
     public static final DefaultBHttpServerConnectionFactory INSTANCE = new DefaultBHttpServerConnectionFactory();
 
+    private final H1Config h1Config;
     private final ConnectionConfig cconfig;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
@@ -60,12 +61,14 @@ public class DefaultBHttpServerConnectionFactory
     private final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory;
 
     public DefaultBHttpServerConnectionFactory(
+            final H1Config h1Config,
             final ConnectionConfig cconfig,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
         super();
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.cconfig = cconfig != null ? cconfig : ConnectionConfig.DEFAULT;
         this.incomingContentStrategy = incomingContentStrategy;
         this.outgoingContentStrategy = outgoingContentStrategy;
@@ -74,28 +77,28 @@ public class DefaultBHttpServerConnectionFactory
     }
 
     public DefaultBHttpServerConnectionFactory(
+            final H1Config h1Config,
             final ConnectionConfig cconfig,
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
-        this(cconfig, null, null, requestParserFactory, responseWriterFactory);
+        this(h1Config, cconfig, null, null, requestParserFactory, responseWriterFactory);
     }
 
     public DefaultBHttpServerConnectionFactory(final ConnectionConfig cconfig) {
-        this(cconfig, null, null, null, null);
+        this(null, cconfig, null, null, null, null);
     }
 
     public DefaultBHttpServerConnectionFactory() {
-        this(null, null, null, null, null);
+        this(null, null, null, null, null, null);
     }
 
     @Override
     public DefaultBHttpServerConnection createConnection(final Socket socket) throws IOException {
         final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(
                 this.cconfig.getBufferSize(),
-                this.cconfig.getFragmentSizeHint(),
                 ConnSupport.createDecoder(this.cconfig),
                 ConnSupport.createEncoder(this.cconfig),
-                H1Config.DEFAULT,
+                h1Config,
                 this.incomingContentStrategy,
                 this.outgoingContentStrategy,
                 this.requestParserFactory,

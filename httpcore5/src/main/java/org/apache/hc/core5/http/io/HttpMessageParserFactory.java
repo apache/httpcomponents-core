@@ -37,6 +37,6 @@ import org.apache.hc.core5.http.config.H1Config;
  */
 public interface HttpMessageParserFactory<T extends MessageHeaders> {
 
-    HttpMessageParser<T> create(H1Config constraints);
+    HttpMessageParser<T> create(H1Config h1Config);
 
 }

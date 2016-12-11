@@ -32,16 +32,16 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
+import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.junit.Assert;
 import org.junit.Before;
@@ -60,7 +60,7 @@ public class TestDefaultBHttpClientConnection {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        conn = new DefaultBHttpClientConnection(1024, 1024,
+        conn = new DefaultBHttpClientConnection(1024,
             null, null,
             H1Config.DEFAULT,
             DefaultContentLengthStrategy.INSTANCE,

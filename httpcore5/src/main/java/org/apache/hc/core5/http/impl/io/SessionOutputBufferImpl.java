@@ -84,7 +84,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         Args.notNull(metrics, "HTTP transport metrcis");
         this.metrics = metrics;
         this.buffer = new ByteArrayBuffer(buffersize);
-        this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : 0;
+        this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : buffersize;
         this.encoder = charencoder;
     }
 

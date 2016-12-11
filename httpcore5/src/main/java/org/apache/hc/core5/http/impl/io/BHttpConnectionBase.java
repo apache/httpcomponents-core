@@ -39,6 +39,7 @@ import java.nio.charset.CharsetEncoder;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
@@ -47,7 +48,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -61,7 +61,7 @@ class BHttpConnectionBase implements BHttpConnection {
 
     final SessionInputBufferImpl inbuffer;
     final SessionOutputBufferImpl outbuffer;
-    final H1Config messageConstraints;
+    final H1Config h1Config;
     final BasicHttpConnectionMetrics connMetrics;
     final AtomicReference<SocketHolder> socketHolderRef;
 
@@ -69,19 +69,17 @@ class BHttpConnectionBase implements BHttpConnection {
 
     BHttpConnectionBase(
             final int buffersize,
-            final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final H1Config messageConstraints) {
-        super();
+            final H1Config h1Config) {
         Args.positive(buffersize, "Buffer size");
         final BasicHttpTransportMetrics inTransportMetrics = new BasicHttpTransportMetrics();
         final BasicHttpTransportMetrics outTransportMetrics = new BasicHttpTransportMetrics();
         this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
-                messageConstraints != null ? messageConstraints : H1Config.DEFAULT, chardecoder);
-        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, fragmentSizeHint,
-                charencoder);
-        this.messageConstraints = messageConstraints;
+                (h1Config != null ? h1Config : H1Config.DEFAULT).getMaxLineLength(), chardecoder);
+        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize,
+                (h1Config != null ? h1Config : H1Config.DEFAULT).getChunkSizeHint(), charencoder);
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
         this.socketHolderRef = new AtomicReference<>();
     }
@@ -139,7 +137,8 @@ class BHttpConnectionBase implements BHttpConnection {
         if (len >= 0) {
             return new ContentLengthOutputStream(buffer, outputStream, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedOutputStream(2048, buffer, outputStream, trailers);
+            final int chunkSizeHint = h1Config.getChunkSizeHint() >= 0 ? h1Config.getChunkSizeHint() : 2048;
+            return new ChunkedOutputStream(buffer, outputStream, chunkSizeHint, trailers);
         } else {
             return new IdentityOutputStream(buffer, outputStream);
         }
@@ -154,7 +153,7 @@ class BHttpConnectionBase implements BHttpConnection {
         } else if (len == 0) {
             return EmptyInputStream.INSTANCE;
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedInputStream(buffer, inputStream, this.messageConstraints);
+            return new ChunkedInputStream(buffer, inputStream, this.h1Config);
         } else {
             return new IdentityInputStream(buffer, inputStream);
         }

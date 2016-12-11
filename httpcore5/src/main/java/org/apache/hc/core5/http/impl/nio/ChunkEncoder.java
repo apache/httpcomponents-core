@@ -47,16 +47,13 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public class ChunkEncoder extends AbstractContentEncoder {
 
-    private final int fragHint;
+    private final int chunkSizeHint;
     private final CharArrayBuffer lineBuffer;
 
     /**
      * @param channel underlying channel.
      * @param buffer  session buffer.
      * @param metrics transport metrics.
-     * @param fragementSizeHint fragment size hint defining an minimal size of a fragment
-     *   that should be written out directly to the channel bypassing the session buffer.
-     *   Value {@code 0} disables fragment buffering.
      *
      * @since 5.0
      */
@@ -64,9 +61,9 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics,
-            final int fragementSizeHint) {
+            final int chunkSizeHint) {
         super(channel, buffer, metrics);
-        this.fragHint = fragementSizeHint > 0 ? fragementSizeHint : 0;
+        this.chunkSizeHint = chunkSizeHint > 0 ? chunkSizeHint : 0;
         this.lineBuffer = new CharArrayBuffer(16);
     }
 
@@ -116,7 +113,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
                 this.buffer.writeLine(this.lineBuffer);
                 total += chunk;
             }
-            if (this.buffer.length() >= this.fragHint || src.hasRemaining()) {
+            if (this.buffer.length() >= this.chunkSizeHint || src.hasRemaining()) {
                 final int bytesWritten = flushToChannel();
                 if (bytesWritten == 0) {
                     break;

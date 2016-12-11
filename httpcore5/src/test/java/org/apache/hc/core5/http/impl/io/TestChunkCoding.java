@@ -35,17 +35,16 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TruncatedChunkException;
-import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.function.Supplier;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -302,14 +301,14 @@ public class TestChunkCoding {
     @Test
     public void testTooLongChunkHeader() throws IOException {
         final String s = "5; and some very looooong commend\r\n12345\r\n0\r\n";
-        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16, H1Config.DEFAULT);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in1 = new ChunkedInputStream(inbuffer1, inputStream1);
         final byte[] buffer = new byte[300];
         Assert.assertEquals(5, in1.read(buffer));
         in1.close();
 
-        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16, H1Config.custom().setMaxLineLength(10).build());
+        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16, 10);
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in2 = new ChunkedInputStream(inbuffer2, inputStream2);
         try {
@@ -328,7 +327,7 @@ public class TestChunkCoding {
     public void testChunkedOutputStreamClose() throws IOException {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(2048, outbuffer, outputStream);
+        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2048);
         out.close();
         out.close();
         try {
@@ -350,7 +349,7 @@ public class TestChunkCoding {
         final String input = "76126;27823abcd;:q38a-\nkjc\rk%1ad\tkh/asdui\r\njkh+?\\suweb";
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(2048, outbuffer, outputStream);
+        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2048);
         out.write(input.getBytes(StandardCharsets.ISO_8859_1));
         out.flush();
         out.close();
@@ -375,7 +374,7 @@ public class TestChunkCoding {
     public void testChunkedOutputStreamWithTrailers() throws IOException {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(2, outbuffer, outputStream, new Supplier<List<? extends Header>>() {
+        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2, new Supplier<List<? extends Header>>() {
             @Override
             public List<? extends Header> get() {
                 return Arrays.asList(
@@ -396,7 +395,7 @@ public class TestChunkCoding {
     public void testChunkedOutputStream() throws IOException {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(2, outbuffer, outputStream);
+        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2);
         out.write('1');
         out.write('2');
         out.write('3');
@@ -412,7 +411,7 @@ public class TestChunkCoding {
     public void testChunkedOutputStreamLargeChunk() throws IOException {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(2, outbuffer, outputStream);
+        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2);
         out.write(new byte[] {'1', '2', '3', '4'});
         out.finish();
         out.close();
@@ -425,7 +424,7 @@ public class TestChunkCoding {
     public void testChunkedOutputStreamSmallChunk() throws IOException {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(2, outbuffer, outputStream);
+        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2);
         out.write('1');
         out.finish();
         out.close();

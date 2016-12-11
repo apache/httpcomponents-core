@@ -31,12 +31,12 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -67,19 +67,22 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Default constructor.
      *
-     * @param minChunkSize The minimum chunk size (excluding last chunk)
      * @param buffer Session output buffer
      * @param outputStream Output stream
+     * @param chunkSizeHint minimal chunk size hint
      * @param trailerSupplier Trailer supplier. May be {@code null}
      *
      * @since 5.0
      */
-    public ChunkedOutputStream(final int minChunkSize, final SessionOutputBuffer buffer, final OutputStream outputStream,
-                               final Supplier<List<? extends Header>> trailerSupplier) {
+    public ChunkedOutputStream(
+            final SessionOutputBuffer buffer,
+            final OutputStream outputStream,
+            final int chunkSizeHint,
+            final Supplier<List<? extends Header>> trailerSupplier) {
         super();
         this.buffer = Args.notNull(buffer, "Session output buffer");
         this.outputStream = Args.notNull(outputStream, "Output stream");
-        this.cache = new byte[minChunkSize];
+        this.cache = new byte[chunkSizeHint > 0 ? chunkSizeHint : 2048];
         this.lineBuffer = new CharArrayBuffer(32);
         this.trailerSupplier = trailerSupplier;
     }
@@ -87,12 +90,12 @@ public class ChunkedOutputStream extends OutputStream {
     /**
      * Constructor with no trailers.
      *
-     * @param minChunkSize The minimum chunk size (excluding last chunk)
      * @param buffer Session output buffer
      * @param outputStream Output stream
+     * @param chunkSizeHint minimal chunk size hint
      */
-    public ChunkedOutputStream(final int minChunkSize, final SessionOutputBuffer buffer, final OutputStream outputStream) {
-        this(minChunkSize, buffer, outputStream, null);
+    public ChunkedOutputStream(final SessionOutputBuffer buffer, final OutputStream outputStream, final int chunkSizeHint) {
+        this(buffer, outputStream, chunkSizeHint, null);
     }
 
     /**

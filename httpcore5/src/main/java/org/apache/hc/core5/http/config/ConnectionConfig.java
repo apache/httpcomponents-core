@@ -46,20 +46,17 @@ public class ConnectionConfig {
     public static final ConnectionConfig DEFAULT = new Builder().build();
 
     private final int bufferSize;
-    private final int fragmentSizeHint;
     private final Charset charset;
     private final CodingErrorAction malformedInputAction;
     private final CodingErrorAction unmappableInputAction;
 
     ConnectionConfig(
             final int bufferSize,
-            final int fragmentSizeHint,
             final Charset charset,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction) {
         super();
         this.bufferSize = bufferSize;
-        this.fragmentSizeHint = fragmentSizeHint;
         this.charset = charset;
         this.malformedInputAction = malformedInputAction;
         this.unmappableInputAction = unmappableInputAction;
@@ -67,10 +64,6 @@ public class ConnectionConfig {
 
     public int getBufferSize() {
         return bufferSize;
-    }
-
-    public int getFragmentSizeHint() {
-        return fragmentSizeHint;
     }
 
     public Charset getCharset() {
@@ -89,7 +82,6 @@ public class ConnectionConfig {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append("[bufferSize=").append(this.bufferSize)
-                .append(", fragmentSizeHint=").append(this.fragmentSizeHint)
                 .append(", charset=").append(this.charset)
                 .append(", malformedInputAction=").append(this.malformedInputAction)
                 .append(", unmappableInputAction=").append(this.unmappableInputAction)
@@ -106,7 +98,6 @@ public class ConnectionConfig {
         return new Builder()
             .setBufferSize(config.getBufferSize())
             .setCharset(config.getCharset())
-            .setFragmentSizeHint(config.getFragmentSizeHint())
             .setMalformedInputAction(config.getMalformedInputAction())
             .setUnmappableInputAction(config.getUnmappableInputAction());
     }
@@ -160,10 +151,8 @@ public class ConnectionConfig {
                 cs = StandardCharsets.US_ASCII;
             }
             final int bufSize = this.bufferSize > 0 ? this.bufferSize : 8 * 1024;
-            final int fragmentHintSize  = this.fragmentSizeHint >= 0 ? this.fragmentSizeHint : bufSize;
             return new ConnectionConfig(
                     bufSize,
-                    fragmentHintSize,
                     cs,
                     malformedInputAction,
                     unmappableInputAction);

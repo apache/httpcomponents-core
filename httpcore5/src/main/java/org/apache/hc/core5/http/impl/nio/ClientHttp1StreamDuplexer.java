@@ -69,7 +69,6 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     private final HttpProcessor httpProcessor;
     private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final int fragmentSizeHint;
     private final H1Config h1Config;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
@@ -94,11 +93,8 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final ContentLengthStrategy outgoingContentStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        super(ioSession, connectionConfig, incomingMessageParser, outgoingMessageWriter, connectionListener);
+        super(ioSession, h1Config, connectionConfig, incomingMessageParser, outgoingMessageWriter, connectionListener);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        final int bufferSize = connectionConfig.getBufferSize();
-        final int fragmentSizeHint = connectionConfig.getFragmentSizeHint();
-        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : bufferSize;
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
@@ -107,7 +103,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
         this.streamListener = streamListener;
-        this.contentBuffer = ByteBuffer.allocate(connectionConfig.getBufferSize());
+        this.contentBuffer = ByteBuffer.allocate((connectionConfig != null ? connectionConfig : ConnectionConfig.DEFAULT).getBufferSize());
         this.pipeline = new ConcurrentLinkedQueue<>();
         this.outputChannel = new Http1StreamChannel<HttpRequest>() {
 
@@ -268,9 +264,10 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final BasicHttpTransportMetrics metrics) throws HttpException {
         final long len = outgoingContentStrategy.determineLength(request);
         if (len >= 0) {
-            return new LengthDelimitedEncoder(channel, buffer, metrics, len, fragmentSizeHint);
+            return new LengthDelimitedEncoder(channel, buffer, metrics, len, h1Config.getChunkSizeHint());
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkEncoder(channel, buffer, metrics, fragmentSizeHint);
+            final int chunkSizeHint = h1Config.getChunkSizeHint() >= 0 ? h1Config.getChunkSizeHint() : 2048;
+            return new ChunkEncoder(channel, buffer, metrics, chunkSizeHint);
         } else {
             throw new LengthRequiredException("Length required");
         }

@@ -65,8 +65,8 @@ public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactor
     }
 
     @Override
-    public NHttpMessageParser<HttpRequest> create(final H1Config constraints) {
-        return new DefaultHttpRequestParser<>(requestFactory, lineParser, constraints);
+    public NHttpMessageParser<HttpRequest> create(final H1Config h1Config) {
+        return new DefaultHttpRequestParser<>(requestFactory, lineParser, h1Config);
     }
 
 }

@@ -36,7 +36,6 @@ import java.nio.charset.CoderResult;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.HttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
@@ -61,7 +60,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     private final byte[] buffer;
     private final ByteArrayBuffer linebuffer;
     private final int minChunkLimit;
-    private final H1Config constraints;
+    private final int maxLineLen;
     private final CharsetDecoder decoder;
 
     private int bufferpos;
@@ -78,8 +77,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      *   The optimal value of this parameter can be platform specific and defines a trade-off
      *   between performance of memory copy operations and that of native method invocation.
      *   If negative default chunk limited will be used.
-     * @param constraints Message constraints. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     * @param maxLineLen maximum line length.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      */
@@ -87,7 +85,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
             final BasicHttpTransportMetrics metrics,
             final int buffersize,
             final int minChunkLimit,
-            final H1Config constraints,
+            final int maxLineLen,
             final CharsetDecoder chardecoder) {
         Args.notNull(metrics, "HTTP transport metrcis");
         Args.positive(buffersize, "Buffer size");
@@ -96,7 +94,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         this.bufferpos = 0;
         this.bufferlen = 0;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
-        this.constraints = constraints != null ? constraints : H1Config.DEFAULT;
+        this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
         this.linebuffer = new ByteArrayBuffer(buffersize);
         this.decoder = chardecoder;
     }
@@ -104,19 +102,19 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     public SessionInputBufferImpl(
             final BasicHttpTransportMetrics metrics,
             final int buffersize) {
-        this(metrics, buffersize, buffersize, null, null);
+        this(metrics, buffersize, buffersize, 0, null);
     }
 
-    public SessionInputBufferImpl(final int buffersize, final H1Config constraints) {
-        this(new BasicHttpTransportMetrics(), buffersize, buffersize, constraints, null);
+    public SessionInputBufferImpl(final int buffersize, final int maxLineLen) {
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, maxLineLen, null);
     }
 
     public SessionInputBufferImpl(final int buffersize, final CharsetDecoder decoder) {
-        this(new BasicHttpTransportMetrics(), buffersize, buffersize, null, decoder);
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, 0, decoder);
     }
 
     public SessionInputBufferImpl(final int buffersize) {
-        this(new BasicHttpTransportMetrics(), buffersize, buffersize, null, null);
+        this(new BasicHttpTransportMetrics(), buffersize, buffersize, 0, null);
     }
 
     @Override
@@ -240,7 +238,6 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     public int readLine(final CharArrayBuffer charbuffer, final InputStream inputStream) throws IOException {
         Args.notNull(charbuffer, "Char array buffer");
         Args.notNull(inputStream, "Input stream");
-        final int maxLineLen = this.constraints.getMaxLineLength();
         int noRead = 0;
         boolean retry = true;
         while (retry) {
@@ -253,10 +250,10 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
                 }
             }
 
-            if (maxLineLen > 0) {
+            if (this.maxLineLen > 0) {
                 final int currentLen = this.linebuffer.length()
                         + (pos > 0 ? pos : this.bufferlen) - this.bufferpos;
-                if (currentLen >= maxLineLen) {
+                if (currentLen >= this.maxLineLen) {
                     throw new MessageConstraintException("Maximum line length limit exceeded");
                 }
             }

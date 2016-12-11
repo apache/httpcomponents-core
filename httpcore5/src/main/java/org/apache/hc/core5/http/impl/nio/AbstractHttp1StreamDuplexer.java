@@ -101,17 +101,17 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     AbstractHttp1StreamDuplexer(
             final IOSession ioSession,
+            final H1Config h1Config,
             final ConnectionConfig connectionConfig,
             final NHttpMessageParser<IncomingMessage> incomingMessageParser,
             final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter,
             final ConnectionListener connectionListener) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         final int bufferSize = connectionConfig.getBufferSize();
-        this.inbuf = new SessionInputBufferImpl(bufferSize,
-                bufferSize < 512 ? bufferSize : 512, H1Config.DEFAULT,
+        this.inbuf = new SessionInputBufferImpl(bufferSize, bufferSize < 512 ? bufferSize : 512,
+                (h1Config != null ? h1Config : H1Config.DEFAULT).getMaxLineLength(),
                 ConnSupport.createDecoder(connectionConfig));
-        this.outbuf = new SessionOutputBufferImpl(bufferSize,
-                bufferSize < 512 ? bufferSize : 512,
+        this.outbuf = new SessionOutputBufferImpl(bufferSize, bufferSize < 512 ? bufferSize : 512,
                 ConnSupport.createEncoder(connectionConfig));
         this.inTransportMetrics = new BasicHttpTransportMetrics();
         this.outTransportMetrics = new BasicHttpTransportMetrics();

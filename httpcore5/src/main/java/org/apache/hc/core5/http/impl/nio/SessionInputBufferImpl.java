@@ -38,7 +38,6 @@ import java.nio.charset.CoderResult;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -52,8 +51,8 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
     private final CharsetDecoder chardecoder;
-    private final H1Config h1Config;
     private final int lineBuffersize;
+    private final int maxLineLen;
 
     private CharBuffer charbuffer;
 
@@ -65,19 +64,18 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      *   {@code chardecoder} is not {@code null}.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
-     * @param h1Config Message h1Config. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     * @param maxLineLen maximum line length.
      *
      * @since 4.4
      */
     public SessionInputBufferImpl(
             final int buffersize,
             final int lineBuffersize,
-            final H1Config h1Config,
+            final int maxLineLen,
             final CharsetDecoder chardecoder) {
         super(buffersize);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
         this.chardecoder = chardecoder;
     }
 
@@ -87,9 +85,9 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     public SessionInputBufferImpl(
             final int buffersize,
             final int lineBuffersize,
-            final H1Config h1Config,
+            final int maxLineLen,
             final Charset charset) {
-        this(buffersize, lineBuffersize, h1Config, charset != null ? charset.newDecoder() : null);
+        this(buffersize, lineBuffersize, maxLineLen, charset != null ? charset.newDecoder() : null);
     }
 
     /**
@@ -98,8 +96,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     public SessionInputBufferImpl(
             final int buffersize,
             final int lineBuffersize,
-            final H1Config h1Config) {
-        this(buffersize, lineBuffersize, h1Config, (CharsetDecoder) null);
+            final int maxLineLen) {
+        this(buffersize, lineBuffersize, maxLineLen, (CharsetDecoder) null);
     }
 
     /**
@@ -108,7 +106,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     public SessionInputBufferImpl(
             final int buffersize,
             final int lineBuffersize) {
-        this(buffersize, lineBuffersize, null, (CharsetDecoder) null);
+        this(buffersize, lineBuffersize, 0, (CharsetDecoder) null);
     }
 
     /**
@@ -206,10 +204,9 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             }
         }
 
-        final int maxLineLen = this.h1Config.getMaxLineLength();
-        if (maxLineLen > 0) {
+        if (this.maxLineLen > 0) {
             final int currentLen = (pos > 0 ? pos : buffer().limit()) - buffer().position();
-            if (currentLen >= maxLineLen) {
+            if (currentLen >= this.maxLineLen) {
                 throw new MessageConstraintException("Maximum line length limit exceeded");
             }
         }
