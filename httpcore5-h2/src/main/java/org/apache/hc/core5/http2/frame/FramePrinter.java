@@ -200,7 +200,11 @@ public final class FramePrinter {
                 for (int i = 0; i < chunk; i++) {
                     appendable.append(' ');
                     final int b = line[i] & 0xff;
-                    appendable.append(Integer.toHexString(b));
+                    final String s = Integer.toHexString(b);
+                    if (s.length() == 1) {
+                        appendable.append("0");
+                    }
+                    appendable.append(s);
                 }
                 appendable.append("\r\n");
             }
