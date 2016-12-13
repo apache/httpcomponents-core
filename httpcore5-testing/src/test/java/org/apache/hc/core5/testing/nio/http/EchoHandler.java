@@ -42,7 +42,6 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
-import org.apache.hc.core5.http.protocol.HttpContext;
 
 public class EchoHandler implements AsyncServerExchangeHandler {
 
@@ -62,10 +61,6 @@ public class EchoHandler implements AsyncServerExchangeHandler {
             buffer = ByteBuffer.allocate(oldBuffer.remaining() + (chunk > 2048 ? chunk : 2048));
             buffer.put(oldBuffer);
         }
-    }
-
-    @Override
-    public void setContext(final HttpContext context) {
     }
 
     @Override

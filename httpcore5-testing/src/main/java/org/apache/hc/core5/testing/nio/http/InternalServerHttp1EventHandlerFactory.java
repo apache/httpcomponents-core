@@ -61,7 +61,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.ssl.TlsCapable;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.testing.nio.LoggingIOEventHandler;
 import org.apache.hc.core5.testing.nio.LoggingIOSession;
 import org.apache.hc.core5.util.Args;
@@ -121,8 +121,8 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final IOSession ioSession) {
         final String id = "http1-incoming-" + COUNT.incrementAndGet();
-        if (sslContext != null && ioSession instanceof TlsCapable) {
-            ((TlsCapable) ioSession).startTls(sslContext, null ,null, null);
+        if (sslContext != null && ioSession instanceof TransportSecurityLayer) {
+            ((TransportSecurityLayer) ioSession).start(sslContext, null ,null, null);
         }
         final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
         final Logger wireLog = LogManager.getLogger("org.apache.hc.core5.http.wire");

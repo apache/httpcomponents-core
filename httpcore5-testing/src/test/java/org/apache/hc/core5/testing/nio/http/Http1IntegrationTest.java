@@ -58,6 +58,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ContentType;
@@ -73,7 +74,6 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -83,8 +83,8 @@ import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.impl.nio.AbstractContentEncoder;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
+import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -787,10 +787,6 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                             "All is well");
 
                     @Override
-                    public void setContext(final HttpContext context) {
-                    }
-
-                    @Override
                     public void handleRequest(
                             final HttpRequest request,
                             final EntityDetails entityDetails,
@@ -890,10 +886,6 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                 return new AsyncServerExchangeHandler() {
 
                     private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
-
-                    @Override
-                    public void setContext(final HttpContext context) {
-                    }
 
                     @Override
                     public void handleRequest(

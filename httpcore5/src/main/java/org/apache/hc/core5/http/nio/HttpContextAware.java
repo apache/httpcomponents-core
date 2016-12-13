@@ -24,25 +24,17 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http.nio;
 
-package org.apache.hc.core5.http.nio.ssl;
-
-import java.net.SocketAddress;
-
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
+ * {@link HttpContext} aware protocol handler.
  *
  * @since 5.0
  */
-public interface TlsStrategy {
+public interface HttpContextAware {
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            String scheme,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            String... parameters);
+    void setContext(HttpContext context);
 
 }

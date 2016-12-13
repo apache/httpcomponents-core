@@ -34,7 +34,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsCapable;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Args;
 
@@ -85,13 +85,13 @@ public class BasicClientTlsStrategy implements TlsStrategy {
 
     @Override
     public void upgrade(
-            final TlsCapable tlsCapable,
+            final TransportSecurityLayer tlsSession,
             final String scheme,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
             final String... parameters) {
         if ("https".equalsIgnoreCase(scheme)) {
-            tlsCapable.startTls(sslContext, sslBufferManagement, initializer, verifier);
+            tlsSession.start(sslContext, sslBufferManagement, initializer, verifier);
         }
     }
 

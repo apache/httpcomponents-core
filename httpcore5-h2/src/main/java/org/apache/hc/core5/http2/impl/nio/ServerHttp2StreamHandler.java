@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -197,7 +198,10 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
                 context.setProtocolVersion(HttpVersion.HTTP_2);
                 context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
                 context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
-                exchangeHandler.setContext(context);
+
+                if (exchangeHandler instanceof HttpContextAware) {
+                    ((HttpContextAware) exchangeHandler).setContext(context);
+                }
 
                 httpProcessor.process(request, requestEntityDetails, context);
                 connMetrics.incrementRequestCount();

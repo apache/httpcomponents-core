@@ -41,10 +41,10 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
@@ -69,15 +69,16 @@ import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsCapable;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
-        implements ResourceHolder, HttpConnection, TlsCapable {
+        implements ResourceHolder, UpgradeableHttpConnection {
 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
@@ -448,28 +449,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     @Override
-    public void startTls(
-            final SSLContext sslContext,
-            final SSLBufferManagement sslBufferManagement,
-            final SSLSessionInitializer initializer,
-            final SSLSessionVerifier verifier) throws UnsupportedOperationException {
-        if (ioSession instanceof TlsCapable) {
-            ((TlsCapable) ioSession).startTls(sslContext, sslBufferManagement, initializer, verifier);
-        } else {
-            throw new UnsupportedOperationException();
-        }
-    }
-
-    @Override
-    public boolean isTlsActive() {
-        if (ioSession instanceof TlsCapable) {
-            return ((TlsCapable) ioSession).isTlsActive();
-        } else {
-            return false;
-        }
-    }
-
-    @Override
     public void close() throws IOException {
         ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
     }
@@ -512,6 +491,33 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     @Override
     public SocketAddress getLocalAddress() {
         return ioSession.getLocalAddress();
+    }
+
+    @Override
+    public SSLSession getSSLSession() {
+        if (ioSession instanceof TransportSecurityLayer) {
+            return ((TransportSecurityLayer) ioSession).getSSLSession();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public void start(
+            final SSLContext sslContext,
+            final SSLBufferManagement sslBufferManagement,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) throws UnsupportedOperationException {
+        if (ioSession instanceof TransportSecurityLayer) {
+            ((TransportSecurityLayer) ioSession).start(sslContext, sslBufferManagement, initializer, verifier);
+        } else {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public void upgrade(final IOEventHandler eventHandler) {
+        ioSession.setHandler(eventHandler);
     }
 
     @Override

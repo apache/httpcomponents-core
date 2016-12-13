@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -44,14 +45,14 @@ import org.apache.hc.core5.reactor.ssl.SSLIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsCapable;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Asserts;
 
 /**
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-class ManagedIOSession implements IOSession, TlsCapable {
+class ManagedIOSession implements IOSession, TransportSecurityLayer {
 
     private final NamedEndpoint namedEndpoint;
     private final IOSession ioSession;
@@ -195,7 +196,7 @@ class ManagedIOSession implements IOSession, TlsCapable {
     }
 
     @Override
-    public void startTls(
+    public void start(
             final SSLContext sslContext,
             final SSLBufferManagement sslBufferManagement,
             final SSLSessionInitializer initializer,
@@ -213,8 +214,9 @@ class ManagedIOSession implements IOSession, TlsCapable {
     }
 
     @Override
-    public boolean isTlsActive() {
-        return tlsSessionRef.get() != null;
+    public SSLSession getSSLSession() {
+        final SSLIOSession sslIoSession = tlsSessionRef.get();
+        return sslIoSession != null ? sslIoSession.getSSLSession() : null;
     }
 
     public void close() {

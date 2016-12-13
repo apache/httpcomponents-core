@@ -780,10 +780,6 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                     private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
 
                     @Override
-                    public void setContext(final HttpContext context) {
-                    }
-
-                    @Override
                     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
                         capacityChannel.update(Integer.MAX_VALUE);
                     }

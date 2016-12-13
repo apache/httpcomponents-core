@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.impl.nio.entity.SharedInputBuffer;
 import org.apache.hc.core5.http.impl.nio.entity.SharedOutputBuffer;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.message.HttpResponseWrapper;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -62,7 +63,7 @@ import org.apache.hc.core5.util.Asserts;
 /**
  * @since 5.0
  */
-public abstract class AbstractClassicServerExchangeHandler implements AsyncServerExchangeHandler {
+public abstract class AbstractClassicServerExchangeHandler implements HttpContextAware, AsyncServerExchangeHandler {
 
     private enum State { IDLE, ACTIVE, COMPLETED }
 

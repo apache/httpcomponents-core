@@ -25,24 +25,19 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.http.impl.nio;
 
-import java.net.SocketAddress;
-
+import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
+ * HTTP connection capable of upgrading its transport security and protocol.
  *
  * @since 5.0
  */
-public interface TlsStrategy {
+public interface UpgradeableHttpConnection extends HttpConnection, TransportSecurityLayer {
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            String scheme,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            String... parameters);
+    void upgrade(IOEventHandler eventHandler);
 
 }

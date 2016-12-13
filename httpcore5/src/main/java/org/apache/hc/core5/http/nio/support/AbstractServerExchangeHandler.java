@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
@@ -53,7 +54,7 @@ import org.apache.hc.core5.util.Asserts;
 /**
  * @since 5.0
  */
-public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExchangeHandler {
+public abstract class AbstractServerExchangeHandler<T> implements HttpContextAware, AsyncServerExchangeHandler {
 
     private final AtomicReference<AsyncRequestConsumer<T>> requestConsumerRef;
     private final AtomicReference<AsyncResponseProducer> responseProducerRef;

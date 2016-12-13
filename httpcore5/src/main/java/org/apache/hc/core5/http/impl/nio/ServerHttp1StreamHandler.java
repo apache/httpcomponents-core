@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -253,7 +254,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
 
-        exchangeHandler.setContext(context);
+        if (exchangeHandler instanceof HttpContextAware) {
+            ((HttpContextAware) exchangeHandler).setContext(context);
+        }
 
         final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
         try {
@@ -261,7 +264,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         } catch (HttpException ex) {
             final AsyncResponseProducer responseProducer = handleException(ex);
             exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
-            exchangeHandler.setContext(context);
         }
 
         exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {

@@ -48,6 +48,7 @@ import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
@@ -162,6 +163,11 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             context.setProtocolVersion(transportVersion);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
+
+            if (exchangeHandler instanceof HttpContextAware) {
+                ((HttpContextAware) exchangeHandler).setContext(context);
+            }
+
             httpProcessor.process(request, entityDetails, context);
 
             final boolean endStream = entityDetails == null;

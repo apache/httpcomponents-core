@@ -50,7 +50,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
-import org.apache.hc.core5.reactor.ssl.TlsCapable;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -121,9 +121,9 @@ public class HttpAsyncRequester extends AsyncRequester {
                         @Override
                         public void completed(final SessionRequest request) {
                             final IOSession session = request.getSession();
-                            if (tlsStrategy != null && session instanceof TlsCapable) {
+                            if (tlsStrategy != null && session instanceof TransportSecurityLayer) {
                                 tlsStrategy.upgrade(
-                                        (TlsCapable) session,
+                                        (TransportSecurityLayer) session,
                                         host.getSchemeName(),
                                         session.getLocalAddress(),
                                         session.getRemoteAddress());

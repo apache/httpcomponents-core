@@ -31,7 +31,6 @@ import java.io.IOException;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract asynchronous server side message exchange handler that acts as a request consumer
@@ -40,8 +39,6 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  * @since 5.0
  */
 public interface AsyncServerExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
-
-    void setContext(HttpContext context);
 
     void handleRequest(
             HttpRequest request,

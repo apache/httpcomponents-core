@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsCapable;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Args;
 
@@ -92,7 +92,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
 
     @Override
     public void upgrade(
-            final TlsCapable tlsCapable,
+            final TransportSecurityLayer tlsSession,
             final String scheme,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
@@ -100,7 +100,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         final int port = ((InetSocketAddress) localAddress).getPort();
         for (int securePort: securePorts) {
             if (port == securePort) {
-                tlsCapable.startTls(sslContext, sslBufferManagement,
+                tlsSession.start(sslContext, sslBufferManagement,
                         H2TlsSupport.decorateInitializer(initializer), verifier);
                 break;
             }
