@@ -88,6 +88,18 @@ public class TestStandardInterceptors {
     }
 
     @Test
+    public void testRequestConnControlUpgrade() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
+        request.addHeader(HttpHeaders.UPGRADE, "HTTP/2");
+        final RequestConnControl interceptor = new RequestConnControl();
+        interceptor.process(request, request.getEntity(), context);
+        final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
+        Assert.assertNotNull(header);
+        Assert.assertEquals("upgrade", header.getValue());
+    }
+
+    @Test
     public void testRequestConnControlInvalidInput() throws Exception {
         final RequestConnControl interceptor = new RequestConnControl();
         try {
@@ -656,7 +668,7 @@ public class TestStandardInterceptors {
         interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
-        Assert.assertEquals("close", header.getValue());
+        Assert.assertEquals("keep-alive", header.getValue());
     }
 
     @Test
@@ -702,6 +714,36 @@ public class TestStandardInterceptors {
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("close", header.getValue());
+    }
+
+    @Test
+    public void testResponseConnControlClientRequestMixUp() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
+        request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "blah, keep-alive, close"));
+        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+
+        final ResponseConnControl interceptor = new ResponseConnControl();
+
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
+        interceptor.process(response, response.getEntity(), context);
+        final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
+        Assert.assertNotNull(header);
+        Assert.assertEquals("close", header.getValue());
+    }
+
+    @Test
+    public void testResponseConnControlUpgrade() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+
+        final ResponseConnControl interceptor = new ResponseConnControl();
+
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
+        response.addHeader(HttpHeaders.UPGRADE, "HTTP/2");
+        interceptor.process(response, response.getEntity(), context);
+        final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
+        Assert.assertNotNull(header);
+        Assert.assertEquals("upgrade", header.getValue());
     }
 
     @Test

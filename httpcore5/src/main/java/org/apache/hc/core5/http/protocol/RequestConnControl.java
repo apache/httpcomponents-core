@@ -67,7 +67,11 @@ public class RequestConnControl implements HttpRequestInterceptor {
         if (!request.containsHeader(HttpHeaders.CONNECTION)) {
             // Default policy is to keep connection alive
             // whenever possible
-            request.addHeader(HttpHeaders.CONNECTION, HeaderElements.KEEP_ALIVE);
+            if (request.containsHeader(HttpHeaders.UPGRADE)) {
+                request.addHeader(HttpHeaders.CONNECTION, HeaderElements.UPGRADE);
+            } else {
+                request.addHeader(HttpHeaders.CONNECTION, HeaderElements.KEEP_ALIVE);
+            }
         }
     }
 

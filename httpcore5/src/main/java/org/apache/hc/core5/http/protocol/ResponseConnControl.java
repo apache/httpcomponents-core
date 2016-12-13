@@ -28,11 +28,12 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.util.Iterator;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -42,6 +43,7 @@ import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -86,13 +88,29 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             } else {
                 final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
                 final HttpRequest request = coreContext.getRequest();
-                // Drop connection if requested by the client or request was <= 1.0
+                boolean closeRequested = false;
+                boolean keepAliveRequested = false;
                 if (request != null) {
-                    final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
-                    if (header != null) {
-                        response.setHeader(HttpHeaders.CONNECTION, header.getValue());
-                    } else if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                        response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                    final Iterator<HeaderElement> it = MessageSupport.iterate(request, HttpHeaders.CONNECTION);
+                    while (it.hasNext()) {
+                        final HeaderElement he = it.next();
+                        if (he.getName().equalsIgnoreCase(HeaderElements.CLOSE)) {
+                            closeRequested = true;
+                            break;
+                        } else if (he.getName().equalsIgnoreCase(HeaderElements.KEEP_ALIVE)) {
+                            keepAliveRequested = true;
+                        }
+                    }
+                }
+                if (closeRequested) {
+                    response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                } else {
+                    if (response.containsHeader(HttpHeaders.UPGRADE)) {
+                        response.addHeader(HttpHeaders.CONNECTION, HeaderElements.UPGRADE);
+                    } else {
+                        if (keepAliveRequested || ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                            response.addHeader(HttpHeaders.CONNECTION, HeaderElements.KEEP_ALIVE);
+                        }
                     }
                 }
             }

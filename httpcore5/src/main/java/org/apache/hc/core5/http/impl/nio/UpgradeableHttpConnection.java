@@ -32,7 +32,11 @@ import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
- * HTTP connection capable of upgrading its transport security and protocol.
+ * Represents an HTTP/1.1 connection capable of upgrading its transport security
+ * and communication protocol.
+ *
+ * @see TransportSecurityLayer
+ * @see IOEventHandler
  *
  * @since 5.0
  */
