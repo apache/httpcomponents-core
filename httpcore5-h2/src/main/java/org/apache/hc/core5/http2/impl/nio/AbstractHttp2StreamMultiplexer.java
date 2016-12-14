@@ -171,7 +171,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
         for (;;) {
             final int current = window.get();
-            final long newValue = current + delta;
+            final long newValue = (long) current + delta;
             if (Math.abs(newValue) > Integer.MAX_VALUE) {
                 throw new ArithmeticException("Update causes flow control window to exceed " + Integer.MAX_VALUE);
             }
@@ -1061,13 +1061,21 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                         hPackDecoder.setMaxTableSize(value);
                         break;
                     case MAX_CONCURRENT_STREAMS:
-                        configBuilder.setMaxConcurrentStreams(value);
+                        try {
+                            configBuilder.setMaxConcurrentStreams(value);
+                        } catch (IllegalArgumentException ex) {
+                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                        }
                         break;
                     case ENABLE_PUSH:
                         configBuilder.setPushEnabled(value == 1);
                         break;
                     case INITIAL_WINDOW_SIZE:
-                        configBuilder.setInitialWindowSize(value);
+                        try {
+                            configBuilder.setInitialWindowSize(value);
+                        } catch (IllegalArgumentException ex) {
+                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                        }
                         final int delta = value - remoteConfig.getInitialWindowSize();
                         if (delta != 0) {
                             updateOutputWindow(0, connOutputWindow, delta);
@@ -1085,10 +1093,18 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                         }
                         break;
                     case MAX_FRAME_SIZE:
-                        configBuilder.setMaxFrameSize(value);
+                        try {
+                            configBuilder.setMaxFrameSize(value);
+                        } catch (IllegalArgumentException ex) {
+                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                        }
                         break;
                     case MAX_HEADER_LIST_SIZE:
-                        configBuilder.setMaxHeaderListSize(value);
+                        try {
+                            configBuilder.setMaxHeaderListSize(value);
+                        } catch (IllegalArgumentException ex) {
+                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                        }
                         break;
                 }
             }

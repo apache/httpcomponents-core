@@ -148,12 +148,13 @@ public class H2Config {
         }
 
         public Builder setInitialWindowSize(final int initialWindowSize) {
+            Args.positive(initialWindowSize, "Initial window size");
             this.initialWindowSize = initialWindowSize;
             return this;
         }
 
         public Builder setMaxFrameSize(final int maxFrameSize) {
-            Args.check(maxFrameSize >= FrameConsts.MIN_FRAME_SIZE && maxFrameSize < FrameConsts.MAX_FRAME_SIZE, "Invalid max frame size");
+            Args.check(maxFrameSize >= FrameConsts.MIN_FRAME_SIZE && maxFrameSize <= FrameConsts.MAX_FRAME_SIZE, "Invalid max frame size");
             this.maxFrameSize = maxFrameSize;
             return this;
         }
