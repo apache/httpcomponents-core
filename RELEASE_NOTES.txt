@@ -2,18 +2,46 @@ Release 5.0-ALPHA2
 -------------------
 
 This is a major release that renders HttpCore API incompatible with the stable 4.x branch
-and upgrades HTTP/1.1 protocol conformance to the requirements and recommendations of the latest
-protocol specification. This release lays the foundation for transition to HTTP/2 as the primary
-transport protocol in the future releases.
+and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
+of the latest protocol specification.
 
 Notable changes and features included in the 5.0 series are:
 
-* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol 
+* Partial support for HTTP/2 protocol and partial conformance to requirements and
+  recommendations of the latest HTTP/2 protocol specification (RFC 7540, RFC 7541)
+
+  Supported features:
+
+    ** HPACK header compression
+    ** stream multiplexing (client and server)
+    ** flow control
+    ** response push (client and server)
+    ** message trailers
+    ** expect-continue handshake
+    ** connection validation (ping)
+    ** TLS 1.2 features
+
+   Unsupported features:
+
+    ** application-layer protocol negotiation (ALPN)
+    ** padding of outgoing frames
+    ** stream priority
+    ** plain connection HTTP/1.1 upgrade
+    ** CONNECT method
+    ** TLS renegotiation and compression cannot be disabled with Java 1.7 JSSE APIs
+
+* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol
   specification (RFC 7230, RFC 7231)
 
-* Blocking I/O and NIO HTTP transport implementation has been folded into one module
+* New asynchronous HTTP transport APIs consistent for both HTTP/1.1 and HTTP/2 transport.
 
-* Package name space changed to 'org.apache.hc.core5' 
+* Improved HTTP/1.1 and HTTP/2 requester and server implementations.
+
+* Redesigned connection pool implementation with reduced pool lock contention.
+
+* Support for HTTP/1.1 protocol switch / upgrade.
+
+* Package name space changed to 'org.apache.hc.core5'
 
 * Maven group id changed to 'org.apache.httpcomponents.core5' 
 
@@ -28,11 +56,46 @@ expected to change in the coming releases without providing a migration path.
 Changelog
 -------------------
 
+* HTTPCORE-424: added ConnPool policy parameter to control connection re-use policy.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-413: Minimal chunk side can now be specified as H1Config#chunkSizeHint.
+  The value is treated as a hint. Both classic and NIO attempt to apply it when sending / receiving
+  messages without providing a strict guarantee.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-429: NIO connection pool incorrectly reports the number of pending connections
+  per individual route.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-432: HTTP/2 support.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * HTTPCORE-418: Add a HttpHost constructor for hostname and scheme.
   Based on contribution by Joshua Hendrickson <joshua dot hendrickson at live dot com>
   
 * HTTPCORE-436: Port tests from Apache Commons Logging to Apache Log4j 2.
   Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-434: Corrected handling of HEAD responses without payload headers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-427: SSL i/o sessions to use a finite timeout for SSL shutdown handshake when closing.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-422: HttpAsyncResponseConsumer#onEntityEnclosed is triggered for HEAD responses.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-420: Blocking HttpServer does not close out persistent connection when shut down.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-417: SSLIOSession#writePlain incorrectly handles closed channel condition leading
+  to an infinite loop.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-416: DefaultConnectingIOReactor to treat failure to open a channel for a new outgoing
+  connection as a recoverable request failure.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
 Release 5.0-ALPHA1
