@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.nio.support;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
@@ -49,15 +48,16 @@ import org.apache.hc.core5.util.Args;
 public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
 
     private final AsyncResponseConsumer<Message<HttpResponse, T>> responseConsumer;
-    private final AtomicReference<Exception> exception;
 
     public BasicAsyncPushHandler(final AsyncResponseConsumer<Message<HttpResponse, T>> responseConsumer) {
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
-        this.exception = new AtomicReference<>(null);
     }
 
     protected void handleResponse(
             final HttpRequest promise, final Message<HttpResponse, T> responseMessage) throws IOException, HttpException {
+    }
+
+    protected void handleError(final HttpRequest promise, final Exception cause) {
     }
 
     @Override
@@ -77,8 +77,8 @@ public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
             }
 
             @Override
-            public void failed(final Exception ex) {
-                exception.compareAndSet(null, ex);
+            public void failed(final Exception cause) {
+                handleError(promise, cause);
                 releaseResources();
             }
 
@@ -107,7 +107,7 @@ public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
 
     @Override
     public final void failed(final Exception cause) {
-        exception.compareAndSet(null, cause);
+        responseConsumer.failed(cause);
         releaseResources();
     }
 
