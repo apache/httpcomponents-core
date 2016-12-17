@@ -1,0 +1,23 @@
+Building Docker containers for compatibility tests
+========================================================
+
+Remark: Docker containers have been developed and tested with Docker version 1.12.4, build 1564f02
+on Debian Linux 8.6
+
+Remark: omit sudo command if executing as root
+
+---
+cd docker/apache-httpd
+sudo docker build -t hc-tests-httpd .
+sudo docker run --name my-hc-tests-httpd -p 0.0.0.0:8080:8080 -d hc-tests-httpd:latest
+
+cd docker/nginx
+sudo docker build -t hc-tests-nginx .
+sudo docker run --name my-hc-tests-nginx -p 0.0.0.0:8081:8081 -d hc-tests-nginx:latest
+---
+
+Execute
+
+---
+Http2CompatibilityTest http://localhost:8080 APACHE-HTTPD
+Http2CompatibilityTest http://localhost:8081 NGINX
