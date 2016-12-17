@@ -35,8 +35,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 /**
  * Extension of {@link org.apache.hc.core5.http.message.BasicLineParser} that defers parsing of
  * header values. Header value is parsed only if accessed with
- * {@link org.apache.hc.core5.http.Header#getValue()} or {@link org.apache.hc.core5.http.Header#getElements()}
- * methods.
+ * {@link org.apache.hc.core5.http.Header#getValue()}.
  * <p>
  * This parser unlike {@link BasicLineParser} and {@link LazyLineParser}
  * will not reject headers containing whitespaces between the header field

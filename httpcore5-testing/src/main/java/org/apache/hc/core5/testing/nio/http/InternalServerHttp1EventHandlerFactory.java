@@ -68,11 +68,10 @@ import org.apache.hc.core5.util.Args;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@Contract(threading = ThreadingBehavior.IMMUTABLE)
-
 /**
  * @since 5.0
  */
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
 
     private static final AtomicLong COUNT = new AtomicLong();

@@ -106,9 +106,6 @@ import java.util.Map; public class ClientTestingAdapter {
 
     /**
      * See the documentation for the same method in {@link ClientPOJOAdapter}.
-     *
-     * @param request
-     * @return
      */
     public boolean isRequestSupported(final Map<String, Object> request) {
         return (adapter == null) ? true : adapter.checkRequestSupport(request) == null;
@@ -116,9 +113,6 @@ import java.util.Map; public class ClientTestingAdapter {
 
     /**
      * See the documentation for the same method in {@link ClientPOJOAdapter}.
-     *
-     * @param request
-     * @return
      */
     public Map<String, Object> modifyRequest(final Map<String, Object> request) {
        return (adapter == null) ? request : adapter.modifyRequest(request);
