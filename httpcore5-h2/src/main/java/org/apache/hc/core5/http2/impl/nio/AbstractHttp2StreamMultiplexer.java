@@ -476,7 +476,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             }
         }
 
-        if (connState == ConnectionHandshake.ACTIVE && remoteSettingState == SettingsHandshake.ACKED) {
+        if (connState == ConnectionHandshake.ACTIVE
+                && (remoteSettingState == SettingsHandshake.ACKED || !localConfig.isSettingAckNeeded())) {
             processPendingCommands();
         } else if (connState == ConnectionHandshake.SHUTDOWN) {
             outputLock.lock();
