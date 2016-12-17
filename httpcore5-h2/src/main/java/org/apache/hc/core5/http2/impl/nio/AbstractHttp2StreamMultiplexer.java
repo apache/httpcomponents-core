@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Deque;
@@ -1373,16 +1374,20 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             remoteEndStream = true;
         }
 
-        void localReset() throws IOException {
+        void localReset(final int code) throws IOException {
             deadline = System.currentTimeMillis() + LINGER_TIME;
             outputLock.lock();
             try {
                 close();
-                final RawFrame resetStream = frameFactory.createResetStream(id, H2Error.REFUSED_STREAM);
+                final RawFrame resetStream = frameFactory.createResetStream(id, code);
                 commitFrameInternal(resetStream);
             } finally {
                 outputLock.unlock();
             }
+        }
+
+        void localReset(final H2Error error) throws IOException {
+            localReset(error!= null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
         }
 
         long getDeadline() {
@@ -1452,15 +1457,29 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         }
 
         void consumePromise(final List<Header> headers) throws HttpException, IOException {
-            handler.consumePromise(headers);
+            try {
+                handler.consumePromise(headers);
+            } catch (ProtocolException ex) {
+                localReset(ex, H2Error.PROTOCOL_ERROR);
+            }
         }
 
         void consumeHeader(final List<Header> headers) throws HttpException, IOException {
-            handler.consumeHeader(headers, channel.isRemoteClosed());
+            try {
+                handler.consumeHeader(headers, channel.isRemoteClosed());
+            } catch (ProtocolException ex) {
+                localReset(ex, H2Error.PROTOCOL_ERROR);
+            }
         }
 
         void consumeData(final ByteBuffer src) throws HttpException, IOException {
-            handler.consumeData(src, channel.isRemoteClosed());
+            try {
+                handler.consumeData(src, channel.isRemoteClosed());
+            } catch (CharacterCodingException ex) {
+                localReset(ex, H2Error.INTERNAL_ERROR);
+            } catch (ProtocolException ex) {
+                localReset(ex, H2Error.PROTOCOL_ERROR);
+            }
         }
 
         boolean isOutputReady() {
@@ -1468,7 +1487,11 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         }
 
         void produceOutput() throws HttpException, IOException {
-            handler.produceOutput();
+            try {
+                handler.produceOutput();
+            } catch (ProtocolException ex) {
+                localReset(ex, H2Error.PROTOCOL_ERROR);
+            }
         }
 
         void produceInputCapacityUpdate() throws IOException {
@@ -1480,10 +1503,18 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             handler.failed(cause);
         }
 
-        void localReset(final Exception cause) throws IOException {
+        void localReset(final Exception cause, final int code) throws IOException {
             resetLocally = true;
-            channel.localReset();
+            channel.localReset(code);
             handler.failed(cause);
+        }
+
+        void localReset(final Exception cause, final H2Error error) throws IOException {
+            localReset(cause, error != null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
+        }
+
+        void localReset(final H2StreamResetException ex) throws IOException {
+            localReset(ex, ex.getCode());
         }
 
         public boolean isResetLocally() {
