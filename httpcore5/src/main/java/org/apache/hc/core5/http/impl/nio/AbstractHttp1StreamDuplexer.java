@@ -203,7 +203,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     public final void onInput() throws HttpException, IOException {
-        do {
+        while (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
+            int totalBytesRead = 0;
+            int messagesReceived = 0;
             if (incomingMessage == null) {
 
                 if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inputIdle()) {
@@ -215,10 +217,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 do {
                     bytesRead = inbuf.fill(ioSession.channel());
                     if (bytesRead > 0) {
+                        totalBytesRead += bytesRead;
                         inTransportMetrics.incrementBytesTransferred(bytesRead);
                     }
                     final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, bytesRead == -1);
                     if (messageHead != null) {
+                        messagesReceived++;
                         incomingMessageParser.reset();
 
                         this.version = messageHead.getVersion();
@@ -249,16 +253,19 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (incomingMessage != null) {
                 final ContentDecoder contentDecoder = incomingMessage.getBody();
                 final int bytesRead = consumeData(contentDecoder);
+                if (bytesRead > 0) {
+                    totalBytesRead += bytesRead;
+                }
                 if (contentDecoder.isCompleted()) {
                     incomingMessage = null;
                     inputEnd();
                     ioSession.setEvent(SelectionKey.OP_READ);
                 }
-                if (bytesRead == 0) {
-                    break;
-                }
             }
-        } while (connState.compareTo(ConnectionState.SHUTDOWN) < 0 && inbuf.hasData());
+            if (totalBytesRead == 0 && messagesReceived == 0) {
+                break;
+            }
+        }
     }
 
     public final void onOutput() throws IOException, HttpException {
