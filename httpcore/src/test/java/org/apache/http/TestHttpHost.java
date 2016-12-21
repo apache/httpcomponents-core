@@ -86,8 +86,14 @@ public class TestHttpHost {
         final HttpHost host5 = new HttpHost("SomeHost", 80, "http");
         final HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
         final HttpHost host7 = new HttpHost(
-                InetAddress.getByAddress(new byte[] {127,0,0,1}), 80, "http");
+                InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80, "http");
         final HttpHost host8 = new HttpHost("127.0.0.1", 80, "http");
+        final HttpHost host9 = new HttpHost(
+                        InetAddress.getByAddress("somehost",new byte[] {127,0,0,1}), 80, "http");
+        final HttpHost host10 = new HttpHost(
+                        InetAddress.getByAddress(new byte[] {127,0,0,1}), "somehost", 80, "http");
+        final HttpHost host11 = new HttpHost(
+                        InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80, "http");
 
         Assert.assertTrue(host1.hashCode() == host1.hashCode());
         Assert.assertTrue(host1.hashCode() != host2.hashCode());
@@ -95,7 +101,11 @@ public class TestHttpHost {
         Assert.assertTrue(host2.hashCode() == host4.hashCode());
         Assert.assertTrue(host2.hashCode() == host5.hashCode());
         Assert.assertTrue(host5.hashCode() != host6.hashCode());
-        Assert.assertTrue(host7.hashCode() == host8.hashCode());
+        Assert.assertTrue(host7.hashCode() != host8.hashCode());
+        Assert.assertTrue(host8.hashCode() != host9.hashCode());
+        Assert.assertTrue(host9.hashCode() == host10.hashCode());
+        Assert.assertTrue(host10.hashCode() != host11.hashCode());
+        Assert.assertTrue(host9.hashCode() != host11.hashCode());
     }
 
     @Test
@@ -107,8 +117,14 @@ public class TestHttpHost {
         final HttpHost host5 = new HttpHost("SomeHost", 80, "http");
         final HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
         final HttpHost host7 = new HttpHost(
-                InetAddress.getByAddress(new byte[] {127,0,0,1}), 80, "http");
+                InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80, "http");
         final HttpHost host8 = new HttpHost("127.0.0.1", 80, "http");
+        final HttpHost host9 = new HttpHost(
+                        InetAddress.getByAddress("somehost", new byte[] {127,0,0,1}), 80, "http");
+        final HttpHost host10 = new HttpHost(
+                        InetAddress.getByAddress(new byte[] {127,0,0,1}), "somehost", 80, "http");
+        final HttpHost host11 = new HttpHost(
+                        InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80, "http");
 
         Assert.assertTrue(host1.equals(host1));
         Assert.assertFalse(host1.equals(host2));
@@ -116,9 +132,14 @@ public class TestHttpHost {
         Assert.assertTrue(host2.equals(host4));
         Assert.assertTrue(host2.equals(host5));
         Assert.assertFalse(host5.equals(host6));
-        Assert.assertTrue(host7.equals(host8));
+        Assert.assertFalse(host7.equals(host8));
+        Assert.assertTrue(!host7.equals(host9));
         Assert.assertFalse(host1.equals(null));
         Assert.assertFalse(host1.equals("http://somehost"));
+        Assert.assertFalse(host9.equals("http://somehost"));
+        Assert.assertFalse(host8.equals(host9));
+        Assert.assertTrue(host9.equals(host10));
+        Assert.assertFalse(host9.equals(host11));
     }
 
     @Test
@@ -136,8 +157,11 @@ public class TestHttpHost {
         final HttpHost host6 = new HttpHost("somehost", 80, "myhttp");
         Assert.assertEquals("myhttp://somehost:80", host6.toString());
         final HttpHost host7 = new HttpHost(
-                InetAddress.getByAddress(new byte[] {127,0,0,1}), 80, "http");
+                InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80, "http");
         Assert.assertEquals("http://127.0.0.1:80", host7.toString());
+        final HttpHost host9 = new HttpHost(
+                        InetAddress.getByAddress("somehost", new byte[] {127,0,0,1}), 80, "http");
+        Assert.assertEquals("http://somehost:80", host9.toString());
     }
 
     @Test
