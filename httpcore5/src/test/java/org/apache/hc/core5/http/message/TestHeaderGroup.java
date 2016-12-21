@@ -72,6 +72,17 @@ public class TestHeaderGroup {
     }
 
     @Test
+    public void testAddRemoveHeaderWithDifferentButEqualHeaders() {
+        final HeaderGroup headergroup = new HeaderGroup();
+        final Header header = new BasicHeader("name", "value");
+        final Header header2 = new BasicHeader("name", "value");
+        headergroup.addHeader(header);
+        Assert.assertEquals(1, headergroup.getAllHeaders().length);
+        headergroup.removeHeader(header2);
+        Assert.assertEquals(0, headergroup.getAllHeaders().length);
+    }
+
+    @Test
     public void testUpdateHeader() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header1 = new BasicHeader("name1", "value1");
