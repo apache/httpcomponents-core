@@ -90,7 +90,7 @@ public class TestDefaultListeningIOReactor {
                     }
                 };
             }
-        }, reactorConfig);
+        }, reactorConfig, null);
     }
 
     @After

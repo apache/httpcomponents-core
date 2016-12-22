@@ -441,7 +441,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             }
         }
 
-        if (connState != ConnectionHandshake.SHUTDOWN && remoteSettingState == SettingsHandshake.ACKED) {
+        if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0 && remoteSettingState == SettingsHandshake.ACKED) {
 
             if (connOutputWindow.get() > 0) {
                 produceOutput();
@@ -477,10 +477,24 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             }
         }
 
-        if (connState == ConnectionHandshake.ACTIVE
+        if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0
                 && (remoteSettingState == SettingsHandshake.ACKED || !localConfig.isSettingAckNeeded())) {
             processPendingCommands();
-        } else if (connState == ConnectionHandshake.SHUTDOWN) {
+        }
+        if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) == 0) {
+            for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
+                final Map.Entry<Integer, Http2Stream> entry = it.next();
+                final Http2Stream stream = entry.getValue();
+                if (stream.isLocalClosed() && stream.isRemoteClosed()) {
+                    stream.releaseResources();
+                    it.remove();
+                }
+            }
+            if (streamMap.isEmpty()) {
+                connState = ConnectionHandshake.SHUTDOWN;
+            }
+        }
+        if (connState.compareTo(ConnectionHandshake.SHUTDOWN) >= 0) {
             outputLock.lock();
             try {
                 if (outputBuffer.isEmpty() && outputQueue.isEmpty()) {
@@ -1138,10 +1152,6 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 break;
             }
         }
-
-        if (streamMap.isEmpty() && connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
-            connState = ConnectionHandshake.SHUTDOWN;
-        }
     }
 
     @Override
@@ -1361,6 +1371,10 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             remoteEndStream = true;
         }
 
+        void setLocalEndStream() {
+            localEndStream = true;
+        }
+
         boolean isLocalClosed() {
             return localEndStream;
         }
@@ -1459,6 +1473,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         void consumePromise(final List<Header> headers) throws HttpException, IOException {
             try {
                 handler.consumePromise(headers);
+                channel.setLocalEndStream();
             } catch (ProtocolException ex) {
                 localReset(ex, H2Error.PROTOCOL_ERROR);
             }

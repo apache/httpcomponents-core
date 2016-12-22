@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -74,8 +75,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     public DefaultListeningIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
-            final ThreadFactory threadFactory) throws IOReactorException {
-        super(eventHandlerFactory, config, threadFactory);
+            final ThreadFactory threadFactory,
+            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
+        super(eventHandlerFactory, config, threadFactory, sessionShutdownCallback);
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.endpoints = Collections.synchronizedSet(new HashSet<ListenerEndpointImpl>());
         this.pausedEndpoints = new HashSet<>();
@@ -93,8 +95,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
      */
     public DefaultListeningIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig config) throws IOReactorException {
-        this(eventHandlerFactory, config, null);
+            final IOReactorConfig config,
+            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
+        this(eventHandlerFactory, config, null, sessionShutdownCallback);
     }
 
     /**

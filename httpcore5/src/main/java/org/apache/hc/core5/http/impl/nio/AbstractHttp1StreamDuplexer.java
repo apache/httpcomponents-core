@@ -280,7 +280,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         } finally {
             outputLock.unlock();
         }
-        if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) < 0) {
+        if (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
             if (isOutputReady()) {
                 produceOutput();
             } else {

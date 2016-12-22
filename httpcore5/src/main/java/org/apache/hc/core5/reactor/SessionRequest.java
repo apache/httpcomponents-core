@@ -30,6 +30,7 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.net.NamedEndpoint;
 
 /**
@@ -41,7 +42,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
  *
  * @since 4.0
  */
-public interface SessionRequest {
+public interface SessionRequest extends Cancellable {
 
     /**
      * Returns remote endpoint.
@@ -121,12 +122,5 @@ public interface SessionRequest {
      * @return connect timeout value in milliseconds.
      */
     int getConnectTimeout();
-
-    /**
-     * Cancels the request. Invocation of this method will set the status of
-     * the request to completed and will unblock threads blocked in
-     * the {{@link #waitFor()}} method.
-     */
-    void cancel();
 
 }
