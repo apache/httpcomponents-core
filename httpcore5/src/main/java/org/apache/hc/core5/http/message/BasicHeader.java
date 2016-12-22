@@ -28,12 +28,14 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.LangUtils;
 
 /**
  * Immutable {@link Header}.
@@ -102,56 +104,21 @@ public class BasicHeader implements Header, Serializable {
 
     @Override
     public boolean equals(final Object obj) {
-        // Helpful:  http://stackoverflow.com/questions/8180430/how-to-override-equals-method-in-java
-
-        if (obj == null) {
-            return false;
+        if (this == obj) {
+            return true;
         }
-        if (!BasicHeader.class.isAssignableFrom(obj.getClass())) {
-            return false;
+        if (obj instanceof BasicHeader) {
+            final BasicHeader that = (BasicHeader) obj;
+            return this.name.equalsIgnoreCase(that.name) && LangUtils.equals(this.value, that.value);
         }
-        final BasicHeader other = (BasicHeader) obj;
-        /*
-         * If one is sensitive, do a sensitive comparison.
-         */
-        final boolean sensitive = this.sensitive || other.sensitive;
-
-        // name cannot be null
-        final String checkedName = sensitive ? this.name : this.name.toLowerCase();
-        final String checkedOtherName = sensitive ? other.name : other.name.toLowerCase();
-        final String checkedValue = sensitive ?
-                                        this.value :
-                                        (this.value == null) ? this.value : this.value.toLowerCase();
-        final String checkedOtherValue = sensitive ?
-                                             other.value :
-                                             (other.value == null) ? other.value : other.value.toLowerCase();
-
-        // name cannot be null
-        if (!checkedName.equals(checkedOtherName)) {
-            return false;
-        }
-        if ((checkedValue == null) ? (checkedOtherValue != null) : !checkedValue.equals(checkedOtherValue)) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
     @Override
     public int hashCode() {
-        // Helpful:  http://stackoverflow.com/questions/8180430/how-to-override-equals-method-in-java
-
-        int hash = 13; // random prime number
-
-        /*
-         * Note that since equals returns true for headers with names (or values) that are different
-         * but the same with a case insensitive comparison, we have to remove the case before
-         * getting the hashcode of the name (or value).  This way the hashcode will be the
-         * same even for headers that are equal but with a case-sensitive different name (or value).
-         */
-
-        // name cannot be null
-        hash = 19 /* another random prime number */ * hash + name.toLowerCase().hashCode();
-        hash = 19 * hash + (value != null ? value.toLowerCase().hashCode() : 0);
+        int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, this.name.toLowerCase(Locale.ROOT));
+        hash = LangUtils.hashCode(hash, this.value);
         return hash;
     }
 }
