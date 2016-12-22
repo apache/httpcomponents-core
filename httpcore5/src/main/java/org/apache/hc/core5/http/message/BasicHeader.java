@@ -28,12 +28,14 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.LangUtils;
 
 /**
  * Immutable {@link Header}.
@@ -100,4 +102,23 @@ public class BasicHeader implements Header, Serializable {
         return buf.toString();
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof BasicHeader) {
+            final BasicHeader that = (BasicHeader) obj;
+            return this.name.equalsIgnoreCase(that.name) && LangUtils.equals(this.value, that.value);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, this.name.toLowerCase(Locale.ROOT));
+        hash = LangUtils.hashCode(hash, this.value);
+        return hash;
+    }
 }
