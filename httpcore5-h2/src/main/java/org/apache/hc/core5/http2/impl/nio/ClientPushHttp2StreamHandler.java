@@ -122,7 +122,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
             httpProcessor.process(request, null, context);
             connMetrics.incrementRequestCount();
-
+            this.requestState = MessageState.COMPLETE;
         } else {
             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected promise");
         }
