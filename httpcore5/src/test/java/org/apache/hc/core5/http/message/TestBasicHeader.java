@@ -62,7 +62,7 @@ public class TestBasicHeader {
 
         Assert.assertEquals(header3, header4);
         Assert.assertEquals(header3.hashCode(), header4.hashCode());
-}
+    }
 
     @Test
     public void testValueEquals() throws Exception {
@@ -71,13 +71,7 @@ public class TestBasicHeader {
 
         Assert.assertEquals(header, header2);
         Assert.assertEquals(header.hashCode(), header2.hashCode());
-
-        final Header header3 = new BasicHeader("name", "VALUE");
-        final Header header4 = new BasicHeader("name", "value");
-
-        Assert.assertNotEquals(header3, header4);
-        Assert.assertNotEquals(header3.hashCode(), header4.hashCode());
-}
+    }
 
     @Test
     public void testNameNotEqual() throws Exception {
@@ -94,18 +88,16 @@ public class TestBasicHeader {
 
         Assert.assertNotEquals(header, header2);
 
-        // one sensitive header causes a sensitive comparison
         final Header header3 = new BasicHeader("name", "value");
         final Header header4 = new BasicHeader("name", "VALUE");
 
         Assert.assertNotEquals(header3, header4);
 
-        // Now, make the other header sensitive.
         final Header header5 = new BasicHeader("name", "VALUE");
         final Header header6 = new BasicHeader("name", "value");
 
         Assert.assertNotEquals(header5, header6);
-}
+    }
 
     @Test
     public void testNullValuesEquals() throws Exception {
@@ -114,18 +106,6 @@ public class TestBasicHeader {
 
         Assert.assertEquals(header, header2);
         Assert.assertEquals(header.hashCode(), header2.hashCode());
-
-        final Header header3 = new BasicHeader("name", null);
-        final Header header4 = new BasicHeader("name", null);
-
-        Assert.assertEquals(header3, header4);
-        Assert.assertEquals(header3.hashCode(), header4.hashCode());
-
-        final Header header5 = new BasicHeader("name", null);
-        final Header header6 = new BasicHeader("name", null);
-
-        Assert.assertEquals(header5, header6);
-        Assert.assertEquals(header5.hashCode(), header6.hashCode());
     }
 
     @Test
@@ -147,24 +127,14 @@ public class TestBasicHeader {
     @Test
     public void testEquals() throws Exception {
         final Header header = new BasicHeader("name", "value");
-        final Header header2 = new BasicHeader("name", "VALUE");
+        final Header header2 = new BasicHeader("name", "value");
 
         Assert.assertEquals(header, header);
         Assert.assertEquals(header.hashCode(), header.hashCode());
         Assert.assertEquals(header2, header2);
         Assert.assertEquals(header2.hashCode(), header2.hashCode());
-        Assert.assertNotEquals(header, header2);
-        Assert.assertNotEquals(header.hashCode(), header2.hashCode());
-
-        final Header header3 = new BasicHeader("name", "value");
-        final Header header4 = new BasicHeader("name", "value");
-
-        Assert.assertEquals(header3, header3);
-        Assert.assertEquals(header3.hashCode(), header3.hashCode());
-        Assert.assertEquals(header4, header4);
-        Assert.assertEquals(header4.hashCode(), header4.hashCode());
-        Assert.assertEquals(header3, header4);
-        Assert.assertEquals(header3.hashCode(), header4.hashCode());
+        Assert.assertEquals(header, header2);
+        Assert.assertEquals(header.hashCode(), header2.hashCode());
     }
 
     @Test
@@ -183,6 +153,15 @@ public class TestBasicHeader {
         final Header header6 = new BasicHeader("name", null);
 
         Assert.assertNotEquals(header5.hashCode(), header6.hashCode());
-}
+    }
 
+    @Test
+    public void testSensitive() throws Exception {
+    	// sensitivity has no affect on equality.
+        final Header header = new BasicHeader("name", "value", true);
+        final Header header2 = new BasicHeader("name", "value", false);
+
+        Assert.assertEquals(header, header2);
+        Assert.assertEquals(header.hashCode(), header2.hashCode());
+    }
 }
