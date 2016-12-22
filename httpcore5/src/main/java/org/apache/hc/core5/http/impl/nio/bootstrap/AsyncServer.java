@@ -53,16 +53,14 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
                 sessionShutdownCallback);
     }
 
-    public AsyncServer(final IOReactorConfig ioReactorConfig, final ExceptionListener exceptionListener) {
-        this(ioReactorConfig, exceptionListener, null);
-    }
-
     @Override
     DefaultListeningIOReactor createIOReactor(
             final IOEventHandlerFactory ioEventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
-            final ThreadFactory threadFactory) throws IOException {
-        return new DefaultListeningIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory);
+            final ThreadFactory threadFactory,
+            final Callback<IOSession> sessionShutdownCallback) throws IOException {
+        return new DefaultListeningIOReactor(
+                ioEventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
     }
 
     public ListenerEndpoint listen(final InetSocketAddress address) {

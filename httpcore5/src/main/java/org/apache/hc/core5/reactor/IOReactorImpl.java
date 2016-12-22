@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.channels.CancelledKeyException;
@@ -39,8 +40,10 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.util.Args;
 
@@ -57,19 +60,24 @@ class IOReactorImpl implements IOReactor {
     private final Queue<ManagedIOSession> closedSessions;
     private final Queue<PendingSession> pendingSessions;
     private final AtomicReference<IOReactorStatus> status;
+    private final AtomicBoolean shutdownInitiated;
     private final Object shutdownMutex;
     private final IOReactorExceptionHandler exceptionHandler;
+    private final Callback<IOSession> sessionShutdownCallback;
 
     private volatile long lastTimeoutCheck;
 
     IOReactorImpl(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
-            final IOReactorExceptionHandler exceptionHandler) {
+            final IOReactorExceptionHandler exceptionHandler,
+            final Callback<IOSession> sessionShutdownCallback) {
         super();
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.exceptionHandler = exceptionHandler;
+        this.sessionShutdownCallback = sessionShutdownCallback;
+        this.shutdownInitiated = new AtomicBoolean(false);
         this.closedSessions = new ConcurrentLinkedQueue<>();
         this.pendingSessions = new ConcurrentLinkedQueue<>();
         try {
@@ -84,6 +92,21 @@ class IOReactorImpl implements IOReactor {
     @Override
     public IOReactorStatus getStatus() {
         return this.status.get();
+    }
+
+    private void closeQuietly(final Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (final IOException ignore) {
+            }
+        }
+    }
+
+    private void cancelQuietly(final Cancellable cancellable) {
+        if (cancellable != null) {
+            cancellable.cancel();
+        }
     }
 
     void enqueuePendingSession(final SocketChannel socketChannel, final SessionRequestImpl sessionRequest) {
@@ -130,6 +153,9 @@ class IOReactorImpl implements IOReactor {
                 }
 
                 if (this.status.get().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
+                    if (this.shutdownInitiated.compareAndSet(false, true)) {
+                        initiateSessionShutdown();
+                    }
                     closePendingSessions();
                 }
                 if (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) == 0) {
@@ -141,8 +167,7 @@ class IOReactorImpl implements IOReactor {
                     processEvents(this.selector.selectedKeys());
                 }
 
-                // Validate active channels
-                validate(this.selector.keys());
+                validateActiveChannels();
 
                 // Process closed sessions
                 processClosedSessions();
@@ -153,7 +178,11 @@ class IOReactorImpl implements IOReactor {
                 }
 
                 // Exit select loop if graceful shutdown has been completed
-                if (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) > 0 && this.selector.keys().isEmpty()) {
+                if (this.status.get().compareTo(IOReactorStatus.SHUTTING_DOWN) == 0
+                        && this.selector.keys().isEmpty()) {
+                    this.status.set(IOReactorStatus.SHUT_DOWN);
+                }
+                if (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) == 0) {
                     break;
                 }
             }
@@ -173,14 +202,24 @@ class IOReactorImpl implements IOReactor {
         }
     }
 
-    private void validate(final Set<SelectionKey> keys) {
+    private void initiateSessionShutdown() {
+        if (this.sessionShutdownCallback != null) {
+            final Set<SelectionKey> keys = this.selector.keys();
+            for (final SelectionKey key : keys) {
+                final ManagedIOSession session = (ManagedIOSession) key.attachment();
+                if (session != null) {
+                    this.sessionShutdownCallback.execute(session);
+                }
+            }
+        }
+    }
+
+    private void validateActiveChannels() {
         final long currentTime = System.currentTimeMillis();
         if( (currentTime - this.lastTimeoutCheck) >= this.reactorConfig.getSelectInterval()) {
             this.lastTimeoutCheck = currentTime;
-            if (keys != null) {
-                for (final SelectionKey key : keys) {
-                    timeoutCheck(key, currentTime);
-                }
+            for (final SelectionKey key : this.selector.keys()) {
+                timeoutCheck(key, currentTime);
             }
         }
     }
@@ -294,51 +333,24 @@ class IOReactorImpl implements IOReactor {
     }
 
     private void closePendingSessions() {
-        PendingSession pendingSession;
-        while ((pendingSession = this.pendingSessions.poll()) != null) {
-            final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;
-            if (sessionRequest != null) {
-                sessionRequest.cancel();
-            }
-            final SocketChannel channel = pendingSession.socketChannel;
-            try {
-                channel.close();
-            } catch (final IOException ignore) {
+        for (;;) {
+            final PendingSession pendingSession = this.pendingSessions.poll();
+            if (pendingSession == null) {
+                break;
+            } else {
+                cancelQuietly(pendingSession.sessionRequest);
+                closeQuietly(pendingSession.socketChannel);
             }
         }
     }
 
     private void closeActiveChannels() {
-        try {
-            final Set<SelectionKey> keys = this.selector.keys();
-            for (final SelectionKey key : keys) {
-                final ManagedIOSession session = (ManagedIOSession) key.attachment();
-                if (session != null) {
-                    session.close();
-                }
-            }
-            this.selector.close();
-        } catch (final IOException ignore) {
+        final Set<SelectionKey> keys = this.selector.keys();
+        for (final SelectionKey key : keys) {
+            final ManagedIOSession session = (ManagedIOSession) key.attachment();
+            closeQuietly(session);
         }
-    }
-
-    void enumSessions(final Callback<IOSession> callback) {
-        if (this.selector.isOpen()) {
-            try {
-                final Set<SelectionKey> keys = this.selector.keys();
-                for (final SelectionKey key : keys) {
-                    final ManagedIOSession session = (ManagedIOSession) key.attachment();
-                    if (session != null) {
-                        try {
-                            callback.execute(session);
-                        } catch (CancelledKeyException ex) {
-                            session.close();
-                        }
-                    }
-                }
-            } catch (ClosedSelectorException ignore) {
-            }
-        }
+        closeQuietly(this.selector);
     }
 
     @Override
@@ -360,7 +372,7 @@ class IOReactorImpl implements IOReactor {
 
     @Override
     public void initiateShutdown() {
-        if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUT_DOWN)) {
+        if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
             selector.wakeup();
         }
     }

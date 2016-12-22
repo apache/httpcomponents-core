@@ -68,8 +68,10 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
     DefaultConnectingIOReactor createIOReactor(
             final IOEventHandlerFactory ioEventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
-            final ThreadFactory threadFactory) throws IOException {
-        return new DefaultConnectingIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory);
+            final ThreadFactory threadFactory,
+            final Callback<IOSession> sessionShutdownCallback) throws IOException {
+        return new DefaultConnectingIOReactor(
+                ioEventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
     }
 
     private NamedEndpoint toEndpoint(final HttpHost host) {

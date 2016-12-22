@@ -52,9 +52,9 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
 
     private final IOReactorConfig ioReactorConfig;
     private final ExceptionListener exceptionListener;
-    private final Callback<IOSession> sessionShutdownCallback;
     private final ExecutorService executorService;
     private final ThreadFactory workerThreadFactory;
+    private final Callback<IOSession> sessionShutdownCallback;
     private final AtomicReference<T> ioReactorRef;
     private final AtomicReference<Status> status;
 
@@ -67,9 +67,9 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
         super();
         this.ioReactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
         this.exceptionListener = exceptionListener;
-        this.sessionShutdownCallback = sessionShutdownCallback;
         this.executorService = Executors.newSingleThreadExecutor(threadFactory);
         this.workerThreadFactory = workerThreadFactory;
+        this.sessionShutdownCallback = sessionShutdownCallback;
         this.ioReactorRef = new AtomicReference<>(null);
         this.status = new AtomicReference<>(Status.READY);
     }
@@ -77,14 +77,16 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
     abstract T createIOReactor(
             IOEventHandlerFactory ioEventHandlerFactory,
             IOReactorConfig ioReactorConfig,
-            ThreadFactory threadFactory) throws IOException;
+            ThreadFactory threadFactory,
+            Callback<IOSession> sessionShutdownCallback) throws IOException;
 
     protected void execute(final IOEventHandlerFactory ioEventHandlerFactory) throws IOException {
         Args.notNull(ioEventHandlerFactory, "Handler factory");
         if (ioReactorRef.compareAndSet(null, createIOReactor(
                 ioEventHandlerFactory,
                 ioReactorConfig,
-                workerThreadFactory != null ? workerThreadFactory : new ThreadFactoryImpl("i/o dispatch")))) {
+                workerThreadFactory != null ? workerThreadFactory : new ThreadFactoryImpl("i/o dispatch"),
+                sessionShutdownCallback))) {
             if (status.compareAndSet(Status.READY, Status.RUNNING)) {
                 executorService.execute(new Runnable() {
 
@@ -135,9 +137,6 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
     private void initiateShutdown(final T ioReactor) {
         if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
             ioReactor.initiateShutdown();
-            if (sessionShutdownCallback != null) {
-                ioReactor.enumSessions(sessionShutdownCallback);
-            }
         }
     }
 

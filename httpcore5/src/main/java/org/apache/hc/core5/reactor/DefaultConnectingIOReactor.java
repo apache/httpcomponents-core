@@ -40,6 +40,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Asserts;
 
@@ -58,41 +59,22 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     private final long selectInterval;
     private long lastTimeoutCheck;
 
-    /**
-     * Creates an instance of DefaultConnectingIOReactor with the given configuration.
-     *
-     * @param eventHandlerFactory the factory to create I/O event handlers.
-     * @param reactorConfig I/O reactor configuration.
-     * @param threadFactory the factory to create threads.
-     *   Can be {@code null}.
-     * @throws IOReactorException in case if a non-recoverable I/O error.
-     *
-     * @since 5.0
-     */
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
-            final ThreadFactory threadFactory) throws IOReactorException {
-        super(eventHandlerFactory, reactorConfig, threadFactory);
+            final ThreadFactory threadFactory,
+            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
+        super(eventHandlerFactory, reactorConfig, threadFactory, sessionShutdownCallback);
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.selectInterval = this.reactorConfig.getSelectInterval();
         this.lastTimeoutCheck = System.currentTimeMillis();
     }
 
-    /**
-     * Creates an instance of DefaultConnectingIOReactor with the given configuration.
-     *
-     * @param eventHandlerFactory the factory to create I/O event handlers.
-     * @param config I/O reactor configuration.
-     *   Can be {@code null}.
-     * @throws IOReactorException in case if a non-recoverable I/O error.
-     *
-     * @since 5.0
-     */
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig config) throws IOReactorException {
-        this(eventHandlerFactory, config, null);
+            final IOReactorConfig config,
+            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
+        this(eventHandlerFactory, config, null, sessionShutdownCallback);
     }
 
     /**

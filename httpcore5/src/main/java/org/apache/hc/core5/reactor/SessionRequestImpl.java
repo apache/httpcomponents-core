@@ -207,9 +207,9 @@ public class SessionRequestImpl implements SessionRequest {
     }
 
     @Override
-    public void cancel() {
+    public boolean cancel() {
         if (this.completed) {
-            return;
+            return false;
         }
         this.completed = true;
         final SelectionKey key = this.key;
@@ -228,6 +228,7 @@ public class SessionRequestImpl implements SessionRequest {
             }
             notifyAll();
         }
+        return true;
     }
 
 }

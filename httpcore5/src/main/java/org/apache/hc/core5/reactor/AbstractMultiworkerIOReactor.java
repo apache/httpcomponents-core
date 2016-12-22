@@ -95,6 +95,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     private final int workerCount;
     private final IOEventHandlerFactory eventHandlerFactory;
     private final ThreadFactory threadFactory;
+    private final Callback<IOSession> sessionShutdownCallback;
     private final IOReactorImpl[] dispatchers;
     private final Worker[] workers;
     private final Thread[] threads;
@@ -121,7 +122,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     public AbstractMultiworkerIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
-            final ThreadFactory threadFactory) throws IOReactorException {
+            final ThreadFactory threadFactory,
+            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
         super();
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.reactorConfig = reactorConfig != null ? reactorConfig : IOReactorConfig.DEFAULT;
@@ -130,11 +132,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         } catch (final IOException ex) {
             throw new IOReactorException("Failure opening selector", ex);
         }
-        if (threadFactory != null) {
-            this.threadFactory = threadFactory;
-        } else {
-            this.threadFactory = new DefaultThreadFactory();
-        }
+        this.threadFactory = threadFactory != null ? threadFactory : new DefaultThreadFactory();
+        this.sessionShutdownCallback = sessionShutdownCallback;
         this.auditLog = new ArrayList<>();
         this.workerCount = this.reactorConfig.getIoThreadCount();
         this.dispatchers = new IOReactorImpl[workerCount];
@@ -144,16 +143,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this.shutdownMutex = new Object();
     }
 
-    /**
-     * Creates an instance of AbstractMultiworkerIOReactor with default configuration.
-     *
-     * @throws IOReactorException in case if a non-recoverable I/O error.
-     *
-     * @since 4.2
-     */
     public AbstractMultiworkerIOReactor(
-            final IOEventHandlerFactory eventHandlerFactory) throws IOReactorException {
-        this(eventHandlerFactory, null, null);
+            final IOEventHandlerFactory eventHandlerFactory,
+            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
+        this(eventHandlerFactory, null, null, sessionShutdownCallback);
     }
 
     @Override
@@ -258,7 +251,11 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         try {
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
-                final IOReactorImpl dispatcher = new IOReactorImpl(this.eventHandlerFactory, this.reactorConfig, this.exceptionHandler);
+                final IOReactorImpl dispatcher = new IOReactorImpl(
+                        this.eventHandlerFactory,
+                        this.reactorConfig,
+                        this.exceptionHandler,
+                        this.sessionShutdownCallback);
                 this.dispatchers[i] = dispatcher;
             }
             for (int i = 0; i < this.workerCount; i++) {
@@ -389,22 +386,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         final int linger = this.reactorConfig.getSoLinger();
         if (linger >= 0) {
             socket.setSoLinger(true, linger);
-        }
-    }
-
-    /**
-     * Enumerates all active sessions
-     *
-     * @since 5.0
-     */
-    public void enumSessions(final Callback<IOSession> callback) {
-        if (callback == null) {
-            return;
-        }
-        for (IOReactorImpl dispatcher: dispatchers) {
-            if (dispatcher != null) {
-                dispatcher.enumSessions(callback);
-            }
         }
     }
 
