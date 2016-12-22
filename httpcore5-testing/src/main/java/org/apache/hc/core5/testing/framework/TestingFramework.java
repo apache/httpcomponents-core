@@ -52,7 +52,9 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpServer;
-import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap; public class TestingFramework {
+import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap;
+
+public class TestingFramework {
     /**
      * Use the ALL_METHODS list to conveniently cycle through all HTTP methods.
      */

@@ -109,7 +109,7 @@ public abstract class ClientPOJOAdapter {
      * a particular request, a non-null reason should be returned.  Otherwise, if
      * the request is supported, return null.</p>
      *
-     * <p>If this method is overridden, then the start method should probably call
+     * <p>If this method is overridden, then the execute method should probably call
      * assertRequestSupported() at the beginning.</p>
      *
      * @param request the request as specified above.
@@ -123,7 +123,7 @@ public abstract class ClientPOJOAdapter {
     /**
      * <p>Assert that the request is supported</p>
      *
-     * <p>Usually called by the start method.  Throws an exception if the request
+     * <p>Usually called by the execute method.  Throws an exception if the request
      * is not supported.</p>
      *
      * @param request the request as specified above.
@@ -144,7 +144,7 @@ public abstract class ClientPOJOAdapter {
      * special request handler of the in-process HttpServer which will later check
      * an actual HTTP request against what is expected.</p>
      *
-     * <p>In a production context, this is called by the start method (if at all).</p>
+     * <p>In a production context, this is called by the execute method (if at all).</p>
      *
      * @param request the request as specified above.
      * @return the same request or a modification of it.
