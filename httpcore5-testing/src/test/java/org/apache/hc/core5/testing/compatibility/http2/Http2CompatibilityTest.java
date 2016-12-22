@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.compatibility.http2;
+package org.apache.hc.core5.testing.compatibility.http2;
 
 import java.io.IOException;
 import java.util.HashMap;
