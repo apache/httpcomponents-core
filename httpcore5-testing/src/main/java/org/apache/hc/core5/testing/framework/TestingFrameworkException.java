@@ -27,6 +27,15 @@
 
 package org.apache.hc.core5.testing.framework;
 
+/**
+ * <p>Signals a problem or an assertion failure while using the {@link TestingFramework}.</p>
+ *
+ * <p>Optionally, an adapter and a test can be added to the exception.  If this is done,
+ * the adapter name and the test information is appended to the exception message to help
+ * determine what test is having a problem.</p>
+ *
+ * @since 5.0
+ */
 public class TestingFrameworkException extends Exception {
     public static final String NO_HTTP_CLIENT = "none";
 

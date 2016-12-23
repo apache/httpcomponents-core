@@ -45,6 +45,11 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
 
+/**
+ * Implementation of {@link ClientPOJOAdapter} for ClassicTestClient.
+ *
+ * @since 5.0
+ */
 public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
     /**

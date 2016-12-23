@@ -54,6 +54,47 @@ import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap;
 
+/**
+ * <p>This testing framework starts an in-process {@link HttpServer} which will use an
+ * {@link TestingFrameworkRequestHandler} to check HTTP requests that are sent
+ * to it.  Before the request is sent, the handler is told what request to expect.
+ * If the received request does not match the request expectations, an exception
+ * is thrown.</p>
+ *
+ * <p>The handler is also told what response to return.  This testing framework will
+ * then check the response it receives with what it desired.  If they do not
+ * match, an exception is thrown.</p>
+ *
+ * <p>This has been designed to work with any HTTP client.  So, for instance, Groovy's
+ * HttpBuilder or RESTClient which uses Apache HttpClient can also be tested with this
+ * testing framework.  A different {@link ClientTestingAdapter} is used with
+ * different HTTP clients.  If testing Apache HttpClient5, the {@link ClassicTestClientTestingAdapter}
+ * is used.  Since use of this testing framework with other projects is desired,
+ * the testframework package has been placed outside the test directory.  Care has
+ * been taken to make sure no testing dependency such as JUnit or EasyMock is used
+ * in the framework.</p>
+ *
+ * <p>The {@link ClassicTestClientTestingAdapter} that is used is either passed into the
+ * constructor or set with setAdapter().</p>
+ *
+ * <p>By default, this framework will go through a series of tests that will exercise
+ * all HTTP methods.  If the default tests are not desired, then the deleteTests()
+ * method can be called.  Then, custom tests can be added with the addTest() methods.
+ * Of course additional tests can be added with the addTest() method without first
+ * calling deleteTests().  In that case, the default tests and the additional tests
+ * will all run.</p>
+ *
+ * <p>Since this framework has been designed to be used with any HTTP client, the test
+ * is specified with POJO's such as Map, List, and primitives.  The test is a Map with
+ * two keys - request and response.  See {@link ClientPOJOAdapter} for details
+ * on the format of the request and response.</p>
+ *
+ * <p>Once any additional tests have been added, the runTests() method is called to
+ * actually do the testing.</p>
+ *
+ * @since 5.0
+ *
+ */
 public class TestingFramework {
     /**
      * Use the ALL_METHODS list to conveniently cycle through all HTTP methods.
