@@ -64,6 +64,7 @@ public interface ConnectionInitiator {
      * timeout.
      *
      * @param remoteEndpoint name of the remote host.
+     * @param remoteAddress remote socket address.
      * @param localAddress local socket address. Can be {@code null},
      *    in which can the default local address and a random port will be used.
      * @param attachment the attachment object. Can be {@code null}.
@@ -72,6 +73,7 @@ public interface ConnectionInitiator {
      */
     SessionRequest connect(
             NamedEndpoint remoteEndpoint,
+            SocketAddress remoteAddress,
             SocketAddress localAddress,
             Object attachment,
             SessionRequestCallback callback);

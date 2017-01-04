@@ -42,6 +42,7 @@ import java.util.concurrent.ThreadFactory;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -181,14 +182,19 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
     @Override
     public SessionRequest connect(
             final NamedEndpoint remoteEndpoint,
+            final SocketAddress remoteAddress,
             final SocketAddress localAddress,
             final Object attachment,
             final SessionRequestCallback callback) {
+        Args.notNull(remoteEndpoint, "Remote endpoint");
         final IOReactorStatus status = getStatus();
         Asserts.check(status == IOReactorStatus.INACTIVE || status == IOReactorStatus.ACTIVE, "I/O reactor has been shut down");
-        final InetSocketAddress remoteAddress = new InetSocketAddress(remoteEndpoint.getHostName(), remoteEndpoint.getPort());
         final SessionRequestImpl sessionRequest = new SessionRequestImpl(
-                remoteEndpoint, remoteAddress, localAddress, attachment, callback);
+                remoteEndpoint,
+                remoteAddress != null ? remoteAddress : new InetSocketAddress(remoteEndpoint.getHostName(), remoteEndpoint.getPort()),
+                localAddress,
+                attachment,
+                callback);
         sessionRequest.setConnectTimeout(this.reactorConfig.getConnectTimeout());
 
         this.requestQueue.add(sessionRequest);

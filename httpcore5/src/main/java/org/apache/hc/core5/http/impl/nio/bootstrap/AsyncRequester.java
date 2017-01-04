@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.nio.bootstrap;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -74,20 +75,18 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
                 ioEventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
     }
 
-    private NamedEndpoint toEndpoint(final HttpHost host) {
+    private InetSocketAddress toSocketAddress(final HttpHost host) {
         int port = host.getPort();
         if (port < 0) {
-            final String hostName = host.getHostName();
             final String scheme = host.getSchemeName();
             if ("http".equalsIgnoreCase(scheme)) {
                 port = 80;
             } else if ("https".equalsIgnoreCase(scheme)) {
                 port = 443;
             }
-            return new HttpHost(hostName, port, scheme);
-        } else {
-            return host;
         }
+        final String hostName = host.getHostName();
+        return new InetSocketAddress(hostName, port);
     }
 
     protected SessionRequest requestSession(
@@ -97,7 +96,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
             final SessionRequestCallback callback) {
         Args.notNull(host, "Host");
         Args.notNull(timeUnit, "Time unit");
-        final SessionRequest  sessionRequest = reactor().connect(toEndpoint(host), null, null, callback);
+        final SessionRequest  sessionRequest = reactor().connect(host, toSocketAddress(host), null, null, callback);
         sessionRequest.setConnectTimeout((int) timeUnit.toMillis(timeout));
         return sessionRequest;
     }
@@ -105,10 +104,11 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
     @Override
     public SessionRequest connect(
             final NamedEndpoint remoteEndpoint,
+            final SocketAddress remoteAddress,
             final SocketAddress localAddress,
             final Object attachment,
             final SessionRequestCallback callback) {
-        return reactor().connect(remoteEndpoint, localAddress, attachment, callback);
+        return reactor().connect(remoteEndpoint, remoteAddress, localAddress, attachment, callback);
     }
 
 }
