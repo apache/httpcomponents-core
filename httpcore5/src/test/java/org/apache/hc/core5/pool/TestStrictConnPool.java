@@ -316,9 +316,9 @@ public class TestStrictConnPool {
         Assert.assertEquals(2, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
 
-        entry1.updateConnection(0, TimeUnit.MILLISECONDS, "some-stuff");
+        entry1.updateState("some-stuff");
         pool.release(entry1, true);
-        entry2.updateConnection(0, TimeUnit.MILLISECONDS, "some-stuff");
+        entry2.updateState("some-stuff");
         pool.release(entry2, true);
 
         final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", "some-stuff");
@@ -366,7 +366,7 @@ public class TestStrictConnPool {
         Assert.assertNotNull(entry1);
         entry1.assignConnection(conn1);
 
-        entry1.updateConnection(1, TimeUnit.MILLISECONDS, null);
+        entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
         pool.release(entry1, true);
 
         Thread.sleep(200L);
@@ -405,12 +405,12 @@ public class TestStrictConnPool {
         Assert.assertNotNull(entry2);
         entry2.assignConnection(conn2);
 
-        entry1.updateConnection(1, TimeUnit.MILLISECONDS, null);
+        entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
         pool.release(entry1, true);
 
         Thread.sleep(200);
 
-        entry2.updateConnection(1000, TimeUnit.SECONDS, null);
+        entry2.updateExpiry(1000, TimeUnit.SECONDS);
         pool.release(entry2, true);
 
         pool.closeExpired();
@@ -447,12 +447,12 @@ public class TestStrictConnPool {
         Assert.assertNotNull(entry2);
         entry2.assignConnection(conn2);
 
-        entry1.updateConnection(0, TimeUnit.MILLISECONDS, null);
+        entry1.updateState(null);
         pool.release(entry1, true);
 
         Thread.sleep(200L);
 
-        entry2.updateConnection(0, TimeUnit.MILLISECONDS, null);
+        entry2.updateState(null);
         pool.release(entry2, true);
 
         pool.closeIdle(50, TimeUnit.MILLISECONDS);

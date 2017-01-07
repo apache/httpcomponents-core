@@ -73,17 +73,17 @@ public class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>("route1", 0L, TimeUnit.MILLISECONDS);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
-        entry1.updateConnection(50L, TimeUnit.MILLISECONDS, null);
+        entry1.updateExpiry(50L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiry());
-        entry1.updateConnection(0L, TimeUnit.MILLISECONDS, null);
+        entry1.updateExpiry(0L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
 
         final PoolEntry<String, HttpConnection> entry2 = new PoolEntry<>("route1", 100L, TimeUnit.MILLISECONDS);
         entry2.assignConnection(Mockito.mock(HttpConnection.class));
         Assert.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiry());
-        entry2.updateConnection(150L, TimeUnit.MILLISECONDS, null);
+        entry2.updateExpiry(150L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiry());
-        entry2.updateConnection(50L, TimeUnit.MILLISECONDS, null);
+        entry2.updateExpiry(50L, TimeUnit.MILLISECONDS);
         Assert.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiry());
     }
 

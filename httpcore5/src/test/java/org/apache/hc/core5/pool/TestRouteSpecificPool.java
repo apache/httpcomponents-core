@@ -154,7 +154,7 @@ public class TestRouteSpecificPool {
         Assert.assertEquals(0, pool.getAvailableCount());
         Assert.assertEquals(3, pool.getLeasedCount());
 
-        entry2.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.FALSE);
+        entry2.updateState(Boolean.FALSE);
         pool.free(entry1, true);
         pool.free(entry2, true);
         pool.free(entry3, true);
@@ -164,9 +164,9 @@ public class TestRouteSpecificPool {
         Assert.assertSame(entry1, pool.getFree(null));
         Assert.assertSame(null, pool.getFree(null));
 
-        entry1.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.TRUE);
-        entry2.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.FALSE);
-        entry3.updateConnection(0, TimeUnit.MILLISECONDS, Boolean.TRUE);
+        entry1.updateState(Boolean.TRUE);
+        entry2.updateState(Boolean.FALSE);
+        entry3.updateState(Boolean.TRUE);
         pool.free(entry1, true);
         pool.free(entry2, true);
         pool.free(entry3, true);

@@ -123,6 +123,7 @@ public final class PoolEntry<T, C extends Closeable> {
             this.updated = this.created;
             this.validityDeadline = this.timeToLive > 0 ? System.currentTimeMillis() + this.timeToLive : Long.MAX_VALUE;
             this.expiry = this.validityDeadline;
+            this.state = null;
         } else {
             throw new IllegalStateException("Connection already assigned");
         }
@@ -160,17 +161,20 @@ public final class PoolEntry<T, C extends Closeable> {
     /**
      * @since 5.0
      */
-    public void updateConnection(final long keepAlive, final TimeUnit timeUnit, final Object state) {
+    public void updateExpiry(final long keepAlive, final TimeUnit timeUnit) {
         Args.notNull(timeUnit, "Time unit");
-        if (this.connRef.get() != null) {
-            this.state = state;
-            final long currentTime = System.currentTimeMillis();
-            final long newExpiry = keepAlive > 0 ? currentTime + timeUnit.toMillis(keepAlive) : Long.MAX_VALUE;
-            this.expiry = Math.min(newExpiry, getValidityDeadline());
-            this.updated = currentTime;
-        } else {
-            throw new IllegalStateException("Connection not assigned");
-        }
+        final long currentTime = System.currentTimeMillis();
+        final long newExpiry = keepAlive > 0 ? currentTime + timeUnit.toMillis(keepAlive) : Long.MAX_VALUE;
+        this.expiry = Math.min(newExpiry, getValidityDeadline());
+        this.updated = currentTime;
+    }
+
+    /**
+     * @since 5.0
+     */
+    public void updateState(final Object state) {
+        this.state = state;
+        this.updated = System.currentTimeMillis();
     }
 
     @Override
