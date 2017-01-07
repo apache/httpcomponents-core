@@ -148,8 +148,8 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         super(scheme);
     }
 
-    private static final long TIMEOUT = 5;
-    private static final long LONG_TIMEOUT = 25;
+    private static final long TIMEOUT = 30;
+    private static final long LONG_TIMEOUT = 60;
 
     private Http1TestClient client;
 
