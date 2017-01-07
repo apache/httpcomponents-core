@@ -44,7 +44,6 @@ import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Asserts;
@@ -77,9 +76,7 @@ public final class ClientEndpoint implements Closeable {
             final AsyncClientExchangeHandler exchangeHandler,
             final HttpContext context) {
         Asserts.check(!closed.get(), "Connection is already closed");
-        final Command executionCommand = new ExecutionCommand(
-                exchangeHandler,
-                context != null ? context : HttpCoreContext.create());
+        final Command executionCommand = new ExecutionCommand(exchangeHandler, context);
         execute(executionCommand);
     }
 
@@ -109,7 +106,7 @@ public final class ClientEndpoint implements Closeable {
                     }
 
                 }),
-                context != null ? context : HttpCoreContext.create());
+                context);
         return future;
     }
 

@@ -139,7 +139,7 @@ public class HttpRequestExecutor {
         try {
             ClassicHttpResponse response = null;
 
-            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
+            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
 
             conn.sendRequestHeader(request);
             if (streamListener != null) {

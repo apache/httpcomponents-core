@@ -35,7 +35,6 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -48,18 +47,16 @@ import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResourceHolder;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 
 class ClientHttp1StreamHandler implements ResourceHolder {
 
-    private final HttpConnection connection;
     private final Http1StreamChannel<HttpRequest> outputChannel;
     private final DataStreamChannel internalDataChannel;
     private final HttpProcessor httpProcessor;
@@ -78,15 +75,13 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     private volatile MessageState responseState;
 
     ClientHttp1StreamHandler(
-            final HttpConnection connection,
             final Http1StreamChannel<HttpRequest> outputChannel,
             final HttpProcessor httpProcessor,
             final H1Config h1Config,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final AsyncClientExchangeHandler exchangeHandler,
-            final HttpContext context,
+            final HttpCoreContext context,
             final ByteBuffer inputBuffer) {
-        this.connection = connection;
         this.outputChannel = outputChannel;
         this.internalDataChannel = new DataStreamChannel() {
 
@@ -117,7 +112,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         this.h1Config = h1Config;
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandler = exchangeHandler;
-        this.context = context != null ? HttpCoreContext.adapt(context) : HttpCoreContext.create();
+        this.context = context;
         this.inputBuffer = inputBuffer;
         this.requestCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
@@ -162,7 +157,6 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             }
             context.setProtocolVersion(transportVersion);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
 
             if (exchangeHandler instanceof HttpContextAware) {
                 ((HttpContextAware) exchangeHandler).setContext(context);
@@ -180,8 +174,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 final boolean expectContinue = h != null && "100-continue".equalsIgnoreCase(h.getValue());
                 if (expectContinue) {
                     requestState = MessageState.ACK;
-                    timeout = connection.getSocketTimeout();
-                    connection.setSocketTimeout(h1Config.getWaitForContinueTimeout());
+                    timeout = outputChannel.getSocketTimeout();
+                    outputChannel.setSocketTimeout(h1Config.getWaitForContinueTimeout());
                 } else {
                     requestState = MessageState.BODY;
                     exchangeHandler.produce(internalDataChannel);
@@ -232,7 +226,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
         if (requestState == MessageState.ACK) {
             if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
-                connection.setSocketTimeout(timeout);
+                outputChannel.setSocketTimeout(timeout);
                 requestState = MessageState.BODY;
                 if (status < HttpStatus.SC_CLIENT_ERROR) {
                     exchangeHandler.produce(internalDataChannel);
@@ -296,7 +290,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     boolean handleTimeout() {
         if (requestState == MessageState.ACK) {
             requestState = MessageState.BODY;
-            connection.setSocketTimeout(timeout);
+            outputChannel.setSocketTimeout(timeout);
             outputChannel.requestOutput();
             return true;
         } else {

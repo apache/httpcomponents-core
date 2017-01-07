@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
@@ -60,6 +61,7 @@ import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -143,6 +145,16 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
+            public int getSocketTimeout() {
+                return getSessionTimeout();
+            }
+
+            @Override
+            public void setSocketTimeout(final int timeout) {
+                setSessionTimeout(timeout);
+            }
+
+            @Override
             public int write(final ByteBuffer src) throws IOException {
                 return streamOutput(src);
             }
@@ -169,6 +181,8 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             @Override
             public void activate() throws HttpException, IOException {
             }
+
+
 
         };
     }
@@ -295,14 +309,16 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     @Override
     void execute(final ExecutionCommand executionCommand) throws HttpException, IOException {
+        final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+        final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
+        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
         final ClientHttp1StreamHandler handler = new ClientHttp1StreamHandler(
-                this,
                 outputChannel,
                 httpProcessor,
                 h1Config,
                 connectionReuseStrategy,
-                executionCommand.getExchangeHandler(),
-                executionCommand.getContext(),
+                exchangeHandler,
+                context,
                 contentBuffer);
         if (handler.isOutputReady()) {
             handler.produceOutput();

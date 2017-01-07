@@ -60,6 +60,7 @@ import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -143,6 +144,16 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             @Override
             public void suspendOutput() {
                 suspendSessionOutput();
+            }
+
+            @Override
+            public int getSocketTimeout() {
+                return getSessionTimeout();
+            }
+
+            @Override
+            public void setSocketTimeout(final int timeout) {
+                setSessionTimeout(timeout);
             }
 
             @Override
@@ -276,20 +287,24 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             streamListener.onRequestHead(this, request);
         }
         final ServerHttp1StreamHandler streamHandler;
+        final HttpCoreContext context = HttpCoreContext.create();
+        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
         if (outgoing == null) {
-            streamHandler = new ServerHttp1StreamHandler(this,
+            streamHandler = new ServerHttp1StreamHandler(
                     outputChannel,
                     httpProcessor,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
+                    context,
                     contentBuffer);
             outgoing = streamHandler;
         } else {
-            streamHandler = new ServerHttp1StreamHandler(this,
+            streamHandler = new ServerHttp1StreamHandler(
                     new DelayedOutputChannel(outputChannel),
                     httpProcessor,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
+                    context,
                     contentBuffer);
             pipeline.add(streamHandler);
         }
@@ -414,6 +429,16 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         @Override
         public void requestOutput() {
             channel.requestOutput();
+        }
+
+        @Override
+        public int getSocketTimeout() {
+            return channel.getSocketTimeout();
+        }
+
+        @Override
+        public void setSocketTimeout(final int timeout) {
+            channel.setSocketTimeout(timeout);
         }
 
         @Override

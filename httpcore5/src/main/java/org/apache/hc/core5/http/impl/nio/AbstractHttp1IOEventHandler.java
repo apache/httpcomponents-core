@@ -30,7 +30,7 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.apache.hc.core5.http.HttpConnectionMetrics;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -110,8 +110,8 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public HttpConnectionMetrics getMetrics() {
-        return streamDuplexer.getMetrics();
+    public EndpointDetails getEndpointDetails() {
+        return streamDuplexer.getEndpointDetails();
     }
 
     @Override

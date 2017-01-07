@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
@@ -79,7 +80,9 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics) throws IOException {
-        return new ServerHttp2StreamHandler(this, channel, httpProcessor, connMetrics, exchangeHandlerFactory);
+        final HttpCoreContext context = HttpCoreContext.create();
+        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        return new ServerHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory, context);
     }
 
 }

@@ -29,11 +29,11 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -135,7 +135,6 @@ public class TestHttpRequestExecutor {
         executor.postProcess(response, httprocessor, context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
     }
@@ -167,7 +166,6 @@ public class TestHttpRequestExecutor {
         executor.postProcess(response, httprocessor, context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
     }

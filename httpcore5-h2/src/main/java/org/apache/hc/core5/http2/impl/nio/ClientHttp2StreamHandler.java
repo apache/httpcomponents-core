@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -45,10 +44,9 @@ import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -58,7 +56,6 @@ import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
 
 class ClientHttp2StreamHandler implements Http2StreamHandler {
 
-    private final HttpConnection connection;
     private final Http2StreamChannel outputChannel;
     private final DataStreamChannel dataChannel;
     private final HttpProcessor httpProcessor;
@@ -72,13 +69,11 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     private volatile MessageState responseState;
 
     ClientHttp2StreamHandler(
-            final HttpConnection connection,
             final Http2StreamChannel outputChannel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
             final AsyncClientExchangeHandler exchangeHandler,
-            final HttpContext context) {
-        this.connection = connection;
+            final HttpCoreContext context) {
         this.outputChannel = outputChannel;
         this.dataChannel = new DataStreamChannel() {
 
@@ -108,7 +103,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
         this.exchangeHandler = exchangeHandler;
-        this.context = context != null ? HttpCoreContext.adapt(context) : HttpCoreContext.create();
+        this.context = context;
         this.requestCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
@@ -131,7 +126,6 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
         if (requestCommitted.compareAndSet(false, true)) {
             context.setProtocolVersion(HttpVersion.HTTP_2);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
 
             if (exchangeHandler instanceof HttpContextAware) {
                 ((HttpContextAware) exchangeHandler).setContext(context);

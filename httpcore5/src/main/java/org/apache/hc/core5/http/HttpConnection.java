@@ -39,11 +39,9 @@ import java.net.SocketAddress;
 public interface HttpConnection extends Closeable {
 
     /**
-     * Returns a collection of connection metrics.
-     *
-     * @return HttpConnectionMetrics
+     * Returns connection endpoint details.
      */
-    HttpConnectionMetrics getMetrics();
+    EndpointDetails getEndpointDetails();
 
     /**
      * Closes this connection gracefully.

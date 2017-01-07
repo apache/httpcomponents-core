@@ -37,7 +37,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpConnectionMetrics;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
@@ -167,7 +167,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public HttpConnectionMetrics getMetrics() {
+    public EndpointDetails getEndpointDetails() {
         return null;
     }
 

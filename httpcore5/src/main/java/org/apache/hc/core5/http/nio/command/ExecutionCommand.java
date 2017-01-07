@@ -44,7 +44,7 @@ public final class ExecutionCommand implements Command {
 
     public ExecutionCommand(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
         this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
-        this.context = Args.notNull(context, "Context");
+        this.context = context;
     }
 
     public HttpContext getContext() {

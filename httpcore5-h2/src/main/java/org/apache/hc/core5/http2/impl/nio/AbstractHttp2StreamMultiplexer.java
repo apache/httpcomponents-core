@@ -46,13 +46,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -60,6 +61,7 @@ import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
@@ -585,13 +587,15 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                         streamId,
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
+                final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+                final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
+                context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
                 final Http2StreamHandler streamHandler = new ClientHttp2StreamHandler(
-                        this,
                         channel,
                         httpProcessor,
                         connMetrics,
-                        executionCommand.getExchangeHandler(),
-                        executionCommand.getContext());
+                        exchangeHandler,
+                        context);
                 final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
                 streamMap.put(streamId, stream);
 
@@ -1175,8 +1179,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     @Override
-    public HttpConnectionMetrics getMetrics() {
-        return connMetrics;
+    public EndpointDetails getEndpointDetails() {
+        return new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
     }
 
     @Override
@@ -1296,8 +1300,10 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     promisedStreamId,
                     localConfig.getInitialWindowSize(),
                     remoteConfig.getInitialWindowSize());
+            final HttpCoreContext context = HttpCoreContext.create();
+            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
             final Http2StreamHandler streamHandler = new ServerPushHttp2StreamHandler(
-                    AbstractHttp2StreamMultiplexer.this, channel, httpProcessor, connMetrics, pushProducer);
+                    channel, httpProcessor, connMetrics, pushProducer, context);
             final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
             streamMap.put(promisedStreamId, stream);
 

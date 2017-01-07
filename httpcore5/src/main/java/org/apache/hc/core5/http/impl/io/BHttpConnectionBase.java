@@ -42,13 +42,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.BHttpConnection;
@@ -311,8 +312,8 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public HttpConnectionMetrics getMetrics() {
-        return this.connMetrics;
+    public EndpointDetails getEndpointDetails() {
+        return new BasicEndpointDetails(getRemoteAddress(), getLocalAddress(), this.connMetrics);
     }
 
     @Override

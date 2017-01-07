@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
@@ -211,9 +212,9 @@ public class Http2FileServerExample {
                                 contentType = ContentType.DEFAULT_BINARY;
                             }
 
-                            final HttpConnection connection = (HttpConnection) context.getAttribute(HttpCoreContext.HTTP_CONNECTION);
-
-                            System.out.println(connection + " serving file " + file.getPath());
+                            HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                            EndpointDetails endpoint = coreContext.getEndpointDetails();
+                            System.out.println(endpoint + ": serving file " + file.getPath());
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_OK, new FileEntityProducer(file, contentType)));
                         }

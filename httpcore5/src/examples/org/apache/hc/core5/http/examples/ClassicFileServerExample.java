@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
@@ -177,11 +177,11 @@ public class ClassicFileServerExample {
 
             } else {
                 HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                HttpConnection conn = coreContext.getConnection(HttpConnection.class);
+                EndpointDetails endpoint = coreContext.getEndpointDetails();
                 response.setCode(HttpStatus.SC_OK);
                 FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);
-                System.out.println(conn + ": serving file " + file.getPath());
+                System.out.println(endpoint + ": serving file " + file.getPath());
             }
         }
 

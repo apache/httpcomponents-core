@@ -44,14 +44,15 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnectionMetrics;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.ConnectionConfig;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.ConnSupport;
@@ -399,6 +400,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.setEvent(SelectionKey.OP_WRITE);
     }
 
+    int getSessionTimeout() {
+        return ioSession.getSocketTimeout();
+    }
+
+    void setSessionTimeout(final int timeout) {
+        ioSession.setSocketTimeout(timeout);
+    }
+
     void suspendSessionOutput() {
         ioSession.clearEvent(SelectionKey.OP_WRITE);
     }
@@ -476,8 +485,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     @Override
-    public HttpConnectionMetrics getMetrics() {
-        return connMetrics;
+    public EndpointDetails getEndpointDetails() {
+        return new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
     }
 
     @Override

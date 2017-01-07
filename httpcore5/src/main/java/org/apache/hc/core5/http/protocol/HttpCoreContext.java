@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -42,10 +42,10 @@ import org.apache.hc.core5.util.Args;
 public class HttpCoreContext implements HttpContext {
 
     /**
-     * Attribute name of a {@link org.apache.hc.core5.http.HttpConnection} object that
-     * represents the actual HTTP connection.
+     * Attribute name of a {@link EndpointDetails} object that
+     * represents the actual connection endpoint details.
      */
-    public static final String HTTP_CONNECTION  = HttpContext.RESERVED_PREFIX + "connection";
+    public static final String CONNECTION_ENDPOINT  = HttpContext.RESERVED_PREFIX + "connection-endpoint";
 
     /**
      * Attribute name of a {@link HttpRequest} object that
@@ -60,11 +60,13 @@ public class HttpCoreContext implements HttpContext {
     public static final String HTTP_RESPONSE    = HttpContext.RESERVED_PREFIX + "response";
 
     public static HttpCoreContext create() {
-        return new HttpCoreContext(new BasicHttpContext());
+        return new HttpCoreContext();
     }
 
     public static HttpCoreContext adapt(final HttpContext context) {
-        Args.notNull(context, "HTTP context");
+        if (context == null) {
+            return new HttpCoreContext();
+        }
         if (context instanceof HttpCoreContext) {
             return (HttpCoreContext) context;
         }
@@ -123,12 +125,11 @@ public class HttpCoreContext implements HttpContext {
         return clazz.cast(obj);
     }
 
-    public <T extends HttpConnection> T getConnection(final Class<T> clazz) {
-        return getAttribute(HTTP_CONNECTION, clazz);
-    }
-
-    public HttpConnection getConnection() {
-        return getAttribute(HTTP_CONNECTION, HttpConnection.class);
+    /**
+     * @since 5.0
+     */
+    public EndpointDetails getEndpointDetails() {
+        return getAttribute(CONNECTION_ENDPOINT, EndpointDetails.class);
     }
 
     public HttpRequest getRequest() {

@@ -33,7 +33,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -56,7 +55,6 @@ import org.apache.hc.core5.util.Asserts;
 
 class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
-    private final HttpConnection connection;
     private final Http2StreamChannel internalOutputChannel;
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
@@ -70,17 +68,16 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
     private volatile MessageState responseState;
 
     ClientPushHttp2StreamHandler(
-            final HttpConnection connection,
             final Http2StreamChannel outputChannel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
-            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) {
-        this.connection = connection;
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final HttpCoreContext context) {
         this.internalOutputChannel = outputChannel;
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
         this.pushHandlerFactory = pushHandlerFactory;
-        this.context = HttpCoreContext.create();
+        this.context = context;
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
@@ -114,7 +111,6 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
             context.setProtocolVersion(HttpVersion.HTTP_2);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-            context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
 
             if (exchangeHandler instanceof HttpContextAware) {
                 ((HttpContextAware) exchangeHandler).setContext(context);

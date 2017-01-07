@@ -110,7 +110,6 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
@@ -139,7 +138,6 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
@@ -173,7 +171,6 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
@@ -223,7 +220,6 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
@@ -264,7 +260,6 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
@@ -295,7 +290,6 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(error, context.getResponse());
 
@@ -326,7 +320,6 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(error, context.getResponse());
 
@@ -357,7 +350,6 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(error, context.getResponse());
 
@@ -385,7 +377,6 @@ public class TestHttpService {
 
         Assert.assertEquals(HttpStatus.SC_OK, response.getCode());
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
         Assert.assertSame(response, context.getResponse());
 
@@ -410,7 +401,6 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
 
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
@@ -435,7 +425,6 @@ public class TestHttpService {
 
         httpservice.handleRequest(conn, context);
 
-        Assert.assertSame(conn, context.getConnection());
         Assert.assertSame(request, context.getRequest());
 
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);

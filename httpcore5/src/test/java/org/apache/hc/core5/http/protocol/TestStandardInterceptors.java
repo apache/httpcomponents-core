@@ -27,14 +27,11 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
@@ -48,7 +45,6 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class TestStandardInterceptors {
 
@@ -402,33 +398,6 @@ public class TestStandardInterceptors {
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
         Assert.assertEquals("somehost:8080", header.getValue());
-    }
-
-    @Test
-    public void testRequestTargetHostFallback() throws Exception {
-        final HttpContext context = new BasicHttpContext(null);
-        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
-        final InetAddress address = Mockito.mock(InetAddress.class);
-        Mockito.when(address.getHostName()).thenReturn("somehost");
-        final HttpConnection conn = Mockito.mock(HttpConnection.class);
-        Mockito.when(conn.getRemoteAddress()).thenReturn(new InetSocketAddress(address, 1234));
-        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
-        final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, request.getEntity(), context);
-        final Header header = request.getFirstHeader(HttpHeaders.HOST);
-        Assert.assertNotNull(header);
-        Assert.assertEquals("somehost:1234", header.getValue());
-    }
-
-    @Test(expected=ProtocolException.class)
-    public void testRequestTargetHostFallbackFailure() throws Exception {
-        final HttpContext context = new BasicHttpContext(null);
-        final BasicClassicHttpRequest request = new BasicClassicHttpRequest("GET", "/");
-        final HttpConnection conn = Mockito.mock(HttpConnection.class);
-        Mockito.when(conn.getRemoteAddress()).thenReturn(null);
-        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
-        final RequestTargetHost interceptor = new RequestTargetHost();
-        interceptor.process(request, request.getEntity(), context);
     }
 
     @Test

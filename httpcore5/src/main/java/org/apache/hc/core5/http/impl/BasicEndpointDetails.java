@@ -24,33 +24,49 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio;
 
-import java.io.IOException;
+package org.apache.hc.core5.http.impl;
 
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.http.nio.ContentEncoder;
+import java.net.SocketAddress;
 
-interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder, CapacityChannel {
+import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.HttpConnectionMetrics;
 
-    void activate() throws HttpException, IOException;
+/**
+ * Basic HTTP connection endpoint details.
+ *
+ * @since 5.0
+ */
+public class BasicEndpointDetails extends EndpointDetails {
 
-    void submit(OutgoingMessage messageHead, boolean endStream) throws HttpException, IOException;
+    private final HttpConnectionMetrics metrics;
 
-    void suspendInput();
+    public BasicEndpointDetails(
+            final SocketAddress remoteAddress,
+            final SocketAddress localAddress,
+            final HttpConnectionMetrics metrics) {
+        super(remoteAddress, localAddress);
+        this.metrics = metrics;
+    }
 
-    void requestInput();
+    @Override
+    public long getRequestCount() {
+        return metrics != null ? metrics.getRequestCount() : 0;
+    }
 
-    void requestOutput();
+    @Override
+    public long getResponseCount() {
+        return metrics != null ? metrics.getResponseCount() : 0;
+    }
 
-    void suspendOutput();
+    @Override
+    public long getSentBytesCount() {
+        return metrics != null ? metrics.getSentBytesCount() : 0;
+    }
 
-    void abortOutput() throws IOException;
-
-    int getSocketTimeout();
-
-    void setSocketTimeout(int timeout);
+    @Override
+    public long getReceivedBytesCount() {
+        return metrics != null ? metrics.getReceivedBytesCount() : 0;
+    }
 
 }

@@ -30,7 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 
-import org.apache.hc.core5.http.HttpConnectionMetrics;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
@@ -97,8 +97,8 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public HttpConnectionMetrics getMetrics() {
-        return handler.getMetrics();
+    public EndpointDetails getEndpointDetails() {
+        return handler.getEndpointDetails();
     }
 
     @Override

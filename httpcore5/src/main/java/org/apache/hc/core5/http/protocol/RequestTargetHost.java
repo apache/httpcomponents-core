@@ -28,12 +28,10 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -72,22 +70,10 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         if (!request.containsHeader(HttpHeaders.HOST)) {
             URIAuthority authority = request.getAuthority();
             if (authority == null) {
-                // Populate the context with a default HTTP host based on the
-                // inet address of the target host
-                final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                final HttpConnection conn = coreContext.getConnection();
-                if (conn != null) {
-                    final InetSocketAddress remoteAddress = (InetSocketAddress) conn.getRemoteAddress();
-                    if (remoteAddress != null) {
-                        authority = new URIAuthority(remoteAddress.getHostName(), remoteAddress.getPort());
-                    }
+                if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                    return;
                 }
-                if (authority == null) {
-                    if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
-                        return;
-                    }
-                    throw new ProtocolException("Target host is unknown");
-                }
+                throw new ProtocolException("Target host is unknown");
             } else {
                 if (authority.getUserInfo() != null) {
                     authority = new URIAuthority(authority.getHostName(), authority.getPort());

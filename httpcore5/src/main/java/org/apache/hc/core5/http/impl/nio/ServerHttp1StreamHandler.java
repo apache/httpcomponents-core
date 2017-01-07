@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -47,7 +46,6 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -55,6 +53,7 @@ import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
@@ -64,7 +63,6 @@ import org.apache.hc.core5.util.Asserts;
 
 class ServerHttp1StreamHandler implements ResourceHolder {
 
-    private final HttpConnection connection;
     private final Http1StreamChannel<HttpResponse> outputChannel;
     private final DataStreamChannel internalDataChannel;
     private final HttpProcessor httpProcessor;
@@ -82,13 +80,12 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     private volatile MessageState responseState;
 
     ServerHttp1StreamHandler(
-            final HttpConnection connection,
             final Http1StreamChannel<HttpResponse> outputChannel,
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
+            final HttpCoreContext context,
             final ByteBuffer inputBuffer) {
-        this.connection = connection;
         this.outputChannel = outputChannel;
         this.internalDataChannel = new DataStreamChannel() {
 
@@ -118,7 +115,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         this.httpProcessor = httpProcessor;
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
-        this.context = HttpCoreContext.create();
+        this.context = context;
         this.inputBuffer = inputBuffer;
         this.responseCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
@@ -252,7 +249,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
         context.setProtocolVersion(transportVersion);
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-        context.setAttribute(HttpCoreContext.HTTP_CONNECTION, connection);
 
         if (exchangeHandler instanceof HttpContextAware) {
             ((HttpContextAware) exchangeHandler).setContext(context);

@@ -178,7 +178,7 @@ public class HttpService {
                 if (transportVersion != null) {
                     context.setProtocolVersion(transportVersion);
                 }
-                context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
+                context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
                 context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
                 this.processor.process(request, request.getEntity(), context);
 
