@@ -1,3 +1,41 @@
+Release 4.4.6
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.5.
+
+Changelog
+-------------------
+
+* [HTTPCORE-429] NIO connection pool incorrectly reports the number of pending connections
+  per individual route.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-433] moved expensive connection validation code outside the pool lock.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-435] ConnectionConfig#copy() does not copy every field.
+  Contributed by Clement Pellerin <clement_pellerin at ibi.com>
+
+* [HTTPCORE-434] Handling of HEAD responses without payload headers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-431] correct character encoding default for application/json.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-428] SSLIOSession#close to handle CancelledKeyException.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-427] SSL i/o sessions to use a finite timeout for SSL shutdown handshake when closing.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-422] HttpAsyncResponseConsumer#onEntityEnclosed is triggered for HEAD responses.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* [HTTPCORE-423] Fixed MIME type validation in ContentType#create(String) method.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 4.4.5
 -------------------
 
