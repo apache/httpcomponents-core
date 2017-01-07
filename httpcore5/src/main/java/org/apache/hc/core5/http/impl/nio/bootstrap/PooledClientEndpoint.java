@@ -37,19 +37,19 @@ import org.apache.hc.core5.http.impl.PoolEntryHolder;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
-import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Asserts;
 
 /**
  * Client endpoint leased from a pool of connections.
  * <p>
- * Once the endpoint is no longer needed it MUST be released with {@link #releaseResources()}.
+ * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
+ * or {@link #releaseAndDiscard()}.
  *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public final class PooledClientEndpoint implements ResourceHolder {
+public final class PooledClientEndpoint {
 
     private final PoolEntryHolder<HttpHost, ClientEndpoint> poolEntryHolder;
 
@@ -67,7 +67,8 @@ public final class PooledClientEndpoint implements ResourceHolder {
     /**
      * Initiates a message exchange using the given handler.
      * <p>
-     * Once the endpoint is no longer needed it MUST be released with {@link #releaseResources()}.
+     * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
+     * or {@link #releaseAndDiscard()}.
      */
     public void execute(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
         getClientEndpoint().execute(exchangeHandler, context);
@@ -76,7 +77,8 @@ public final class PooledClientEndpoint implements ResourceHolder {
     /**
      * Initiates message exchange using the given request producer and response consumer.
      * <p>
-     * Once the endpoint is no longer needed it MUST be released with {@link #releaseResources()}.
+     * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
+     * or {@link #releaseAndDiscard()}.
      */
     public <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
@@ -89,7 +91,8 @@ public final class PooledClientEndpoint implements ResourceHolder {
     /**
      * Initiates a message exchange using the given request producer and response consumer.
      * <p>
-     * Once the endpoint is no longer needed it MUST be released with {@link #releaseResources()}.
+     * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
+     * or {@link #releaseAndDiscard()}.
      */
     public <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
@@ -100,7 +103,7 @@ public final class PooledClientEndpoint implements ResourceHolder {
 
     /**
      * Initiates a message exchange using the given request producer and response consumer and
-     * automatically invokes {@link #releaseResources()} upon its completion.
+     * automatically invokes {@link #releaseAndReuse()} upon its successful completion.
      */
     public <T> Future<T> executeAndRelease(
             final AsyncRequestProducer requestProducer,
@@ -116,7 +119,7 @@ public final class PooledClientEndpoint implements ResourceHolder {
                         callback.completed(result);
                     }
                 } finally {
-                    releaseResources();
+                    releaseAndReuse();
                 }
             }
 
@@ -127,7 +130,7 @@ public final class PooledClientEndpoint implements ResourceHolder {
                         callback.failed(ex);
                     }
                 } finally {
-                    releaseResources();
+                    releaseAndDiscard();
                 }
             }
 
@@ -138,7 +141,7 @@ public final class PooledClientEndpoint implements ResourceHolder {
                         callback.cancelled();
                     }
                 } finally {
-                    releaseResources();
+                    releaseAndDiscard();
                 }
             }
 
@@ -147,7 +150,7 @@ public final class PooledClientEndpoint implements ResourceHolder {
 
     /**
      * Initiates a message exchange using the given request producer and response consumer and
-     * automatically invokes {@link #releaseResources()} upon its completion.
+     * automatically invokes {@link #releaseAndReuse()} upon its successful completion.
      */
     public <T> Future<T> executeAndRelease(
             final AsyncRequestProducer requestProducer,
@@ -157,10 +160,9 @@ public final class PooledClientEndpoint implements ResourceHolder {
     }
 
     /**
-     * Releases the underlying connection back to the connection pool.
+     * Releases the underlying connection back to the connection pool as re-usable.
      */
-    @Override
-    public void releaseResources() {
+    public void releaseAndReuse() {
         poolEntryHolder.markReusable();
         poolEntryHolder.releaseConnection();
     }
@@ -168,7 +170,7 @@ public final class PooledClientEndpoint implements ResourceHolder {
     /**
      * Shuts down the underlying connection and removes it from the connection pool.
      */
-    public void shutdown() {
+    public void releaseAndDiscard() {
         poolEntryHolder.abortConnection();
     }
 

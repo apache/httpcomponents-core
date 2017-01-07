@@ -136,7 +136,7 @@ public class AsyncPipelinedRequestExecutionExample {
         latch.await();
 
         // Manually release client endpoint when done !!!
-        clientEndpoint.releaseResources();
+        clientEndpoint.releaseAndDiscard();
 
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();

@@ -667,7 +667,7 @@ public class AsyncReverseProxyExample {
                 exchangeState.requestDataChannel = null;
                 exchangeState.responseCapacityChannel = null;
             }
-            clientEndpoint.releaseResources();
+            clientEndpoint.releaseAndReuse();
         }
 
     }
