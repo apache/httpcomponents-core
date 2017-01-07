@@ -32,10 +32,8 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.concurrent.BasicFuture;
-import org.apache.hc.core5.concurrent.Cancellable;
+import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.concurrent.FutureWrapper;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
@@ -92,7 +90,7 @@ public class HttpAsyncRequester extends AsyncRequester {
             final FutureCallback<PooledClientEndpoint> callback) {
         Args.notNull(host, "Host");
         Args.notNull(timeUnit, "Time unit");
-        final BasicFuture<PooledClientEndpoint> resultFuture = new BasicFuture<>(callback);
+        final ComplexFuture<PooledClientEndpoint> resultFuture = new ComplexFuture<>(callback);
         final Future<PoolEntry<HttpHost, ClientEndpoint>> leaseFuture = connPool.lease(
                 host, null, new FutureCallback<PoolEntry<HttpHost, ClientEndpoint>>() {
 
@@ -116,7 +114,9 @@ public class HttpAsyncRequester extends AsyncRequester {
                 if (poolEntry.hasConnection()) {
                     resultFuture.completed(new PooledClientEndpoint(poolEntryHolder));
                 } else {
-                    requestSession(host, timeout, timeUnit, new SessionRequestCallback() {
+                    final SessionRequest sessionRequest = requestSession(
+                            host, timeout, timeUnit,
+                            new SessionRequestCallback() {
 
                         @Override
                         public void completed(final SessionRequest request) {
@@ -160,6 +160,7 @@ public class HttpAsyncRequester extends AsyncRequester {
                         }
 
                     });
+                    resultFuture.setDependency(sessionRequest);
                 }
             }
 
@@ -174,14 +175,8 @@ public class HttpAsyncRequester extends AsyncRequester {
             }
 
         });
-        return new FutureWrapper<>(resultFuture, new Cancellable() {
-
-            @Override
-            public boolean cancel() {
-                return leaseFuture.cancel(true);
-            }
-
-        });
+        resultFuture.setDependency(leaseFuture);
+        return resultFuture;
     }
 
     public Future<PooledClientEndpoint> connect(

@@ -26,66 +26,61 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.util.Args;
 
 /**
- * Future wrapper that can cancel an external operation by calling
- * {@link Cancellable#cancel()} if cancelled itself.
+ * Future whose result depends on another {@link Cancellable} processes or
+ * {@link Future}. Dependent process will get cancelled if the future
+ * itself is cancelled.
  *
  * @param <T> the future result type of an asynchronous operation.
  * @since 5.0
  */
-public final class FutureWrapper<T> implements Future<T> {
+public final class ComplexFuture<T> extends BasicFuture<T> {
 
-    private final Future<T> future;
-    private final Cancellable cancellable;
+    private final AtomicReference<Cancellable> dependencyRef;
 
-    public FutureWrapper(final Future<T> future, final Cancellable cancellable) {
-        super();
-        this.future = Args.notNull(future, "Future");
-        this.cancellable = cancellable;
+    public ComplexFuture(final FutureCallback<T> callback) {
+        super(callback);
+        this.dependencyRef = new AtomicReference<>(null);
+    }
+
+    public void setDependency(final Cancellable dependency) {
+        Args.notNull(dependency, "dependency");
+        if (isDone()) {
+            dependency.cancel();
+        } else {
+            dependencyRef.set(dependency);
+        }
+    }
+
+    public void setDependency(final Future<?> dependency) {
+        Args.notNull(dependency, "dependency");
+        setDependency(new Cancellable() {
+
+            @Override
+            public boolean cancel() {
+                return dependency.cancel(true);
+            }
+
+        });
+    }
+
+    public void clearDependency() {
+        dependencyRef.set(null);
     }
 
     @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
-        boolean cancelled;
-        try {
-            if (cancellable != null) {
-                cancellable.cancel();
-            }
-        } finally {
-            cancelled = future.cancel(mayInterruptIfRunning);
+        final boolean cancelled = super.cancel(mayInterruptIfRunning);
+        final Cancellable dependency = dependencyRef.getAndSet(null);
+        if (dependency != null) {
+            dependency.cancel();
         }
         return cancelled;
-    }
-    @Override
-    public boolean isCancelled() {
-        return future.isCancelled();
-    }
-
-    @Override
-    public boolean isDone() {
-        return future.isDone();
-    }
-
-    @Override
-    public T get() throws InterruptedException, ExecutionException {
-        return future.get();
-    }
-
-    @Override
-    public T get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-        return future.get(timeout, unit);
-    }
-
-    @Override
-    public String toString() {
-        return future.toString();
     }
 
 }
