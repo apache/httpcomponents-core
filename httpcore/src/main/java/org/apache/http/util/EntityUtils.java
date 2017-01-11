@@ -50,6 +50,8 @@ import org.apache.http.protocol.HTTP;
  */
 public final class EntityUtils {
 
+    private static final int DEFAULT_BUFFER_SIZE = 4096;
+
     private EntityUtils() {
     }
 
@@ -126,12 +128,12 @@ public final class EntityUtils {
         try {
             Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
                     "HTTP entity too large to be buffered in memory");
-            int i = (int)entity.getContentLength();
-            if (i < 0) {
-                i = 4096;
+            int capacity = (int)entity.getContentLength();
+            if (capacity < 0) {
+                capacity = DEFAULT_BUFFER_SIZE;
             }
-            final ByteArrayBuffer buffer = new ByteArrayBuffer(i);
-            final byte[] tmp = new byte[4096];
+            final ByteArrayBuffer buffer = new ByteArrayBuffer(capacity);
+            final byte[] tmp = new byte[DEFAULT_BUFFER_SIZE];
             int l;
             while((l = instream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
@@ -203,9 +205,9 @@ public final class EntityUtils {
         try {
             Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
                     "HTTP entity too large to be buffered in memory");
-            int i = (int)entity.getContentLength();
-            if (i < 0) {
-                i = 4096;
+            int capacity = (int)entity.getContentLength();
+            if (capacity < 0) {
+                capacity = DEFAULT_BUFFER_SIZE;
             }
             Charset charset = null;
             if (contentType != null) {
@@ -219,7 +221,7 @@ public final class EntityUtils {
                 charset = HTTP.DEF_CONTENT_CHARSET;
             }
             final Reader reader = new InputStreamReader(instream, charset);
-            final CharArrayBuffer buffer = new CharArrayBuffer(i);
+            final CharArrayBuffer buffer = new CharArrayBuffer(capacity);
             final char[] tmp = new char[1024];
             int l;
             while((l = reader.read(tmp)) != -1) {
