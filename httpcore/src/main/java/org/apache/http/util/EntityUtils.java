@@ -50,6 +50,8 @@ import org.apache.http.protocol.HTTP;
  */
 public final class EntityUtils {
 
+    private static final int DEFAULT_BUFFER_SIZE = 4096;
+
     private EntityUtils() {
     }
 
@@ -128,10 +130,10 @@ public final class EntityUtils {
                     "HTTP entity too large to be buffered in memory");
             int i = (int)entity.getContentLength();
             if (i < 0) {
-                i = 4096;
+                i = DEFAULT_BUFFER_SIZE;
             }
             final ByteArrayBuffer buffer = new ByteArrayBuffer(i);
-            final byte[] tmp = new byte[4096];
+            final byte[] tmp = new byte[DEFAULT_BUFFER_SIZE];
             int l;
             while((l = instream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
@@ -205,7 +207,7 @@ public final class EntityUtils {
                     "HTTP entity too large to be buffered in memory");
             int i = (int)entity.getContentLength();
             if (i < 0) {
-                i = 4096;
+                i = DEFAULT_BUFFER_SIZE;
             }
             Charset charset = null;
             if (contentType != null) {
