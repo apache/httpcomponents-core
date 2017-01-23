@@ -447,17 +447,18 @@ public class SSLIOSession implements IOSession {
 
             try {
                 if (!inEncryptedBuf.hasRemaining() && result.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
-                    throw new SSLException("Input buffer is full");
+                    throw new SSLException("Unable to complete SSL handshake");
                 }
-                if (result.getStatus() == Status.OK) {
+                final Status status = result.getStatus();
+                if (status == Status.OK) {
                     decrypted = true;
                 } else {
+                    if (status == Status.BUFFER_UNDERFLOW && this.endOfStream) {
+                        throw new SSLException("Unable to decrypt incoming data due to unexpected end of stream");
+                    }
                     break;
                 }
                 if (result.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING) {
-                    break;
-                }
-                if (this.endOfStream) {
                     break;
                 }
             } finally {
