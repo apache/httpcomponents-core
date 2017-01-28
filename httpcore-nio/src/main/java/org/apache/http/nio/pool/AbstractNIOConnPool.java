@@ -484,11 +484,18 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             final ListIterator<LeaseRequest<T, C, E>> it = this.leasingRequests.listIterator();
             while (it.hasNext()) {
                 final LeaseRequest<T, C, E> request = it.next();
-                final long deadline = request.getDeadline();
-                if (now > deadline) {
+                final BasicFuture<E> future = request.getFuture();
+                if (future.isCancelled() && !request.isDone()) {
                     it.remove();
-                    request.failed(new TimeoutException());
-                    this.completedRequests.add(request);
+                } else {
+                    final long deadline = request.getDeadline();
+                    if (now > deadline) {
+                        request.failed(new TimeoutException());
+                    }
+                    if (request.isDone()) {
+                        it.remove();
+                        this.completedRequests.add(request);
+                    }
                 }
             }
         } finally {
