@@ -26,13 +26,16 @@
  */
 package org.apache.http.pool;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.http.HttpConnection;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestPoolEntry {
 
@@ -67,10 +70,10 @@ public class TestPoolEntry {
     public void testBasics() throws Exception {
         final MockPoolEntry entry1 = new MockPoolEntry("route1", 10L, TimeUnit.MILLISECONDS);
         final long now = System.currentTimeMillis();
-        Assert.assertEquals("route1", entry1.getRoute());
-        Assert.assertTrue(now >= entry1.getCreated());
-        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
-        Assert.assertEquals(entry1.getCreated() + 10L, entry1.getValidityDeadline());
+        assertEquals("route1", entry1.getRoute());
+        assertTrue(now >= entry1.getCreated());
+        assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
+        assertEquals(entry1.getCreated() + 10L, entry1.getValidityDeadline());
     }
 
     @Test
@@ -95,31 +98,37 @@ public class TestPoolEntry {
     @Test
     public void testValidInfinitely() throws Exception {
         final MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(Long.MAX_VALUE, entry1.getValidityDeadline());
-        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
+        assertEquals(Long.MAX_VALUE, entry1.getValidityDeadline());
+        assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
     }
 
     @Test
     public void testExpiry() throws Exception {
         final MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
+        assertEquals(Long.MAX_VALUE, entry1.getExpiry());
         entry1.updateExpiry(50L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiry());
+        assertEquals(entry1.getUpdated() + 50L, entry1.getExpiry());
         entry1.updateExpiry(0L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
+        assertEquals(Long.MAX_VALUE, entry1.getExpiry());
 
         final MockPoolEntry entry2 = new MockPoolEntry("route1", 100L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(entry2.getCreated() + 100L, entry2.getExpiry());
+        assertEquals(entry2.getCreated() + 100L, entry2.getExpiry());
         entry2.updateExpiry(150L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(entry2.getCreated() + 100L, entry2.getExpiry());
+        assertEquals(entry2.getCreated() + 100L, entry2.getExpiry());
         entry2.updateExpiry(50L, TimeUnit.MILLISECONDS);
-        Assert.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiry());
+        assertEquals(entry2.getUpdated() + 50L, entry2.getExpiry());
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testInvalidExpiry() throws Exception {
         final MockPoolEntry entry1 = new MockPoolEntry("route1", 0L, TimeUnit.MILLISECONDS);
         entry1.updateExpiry(50L, null);
+    }
+
+    @Test
+    public void testExpiryDoesNotOverflow() {
+        final MockPoolEntry entry = new MockPoolEntry("route1", Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        assertEquals(entry.getValidityDeadline(), Long.MAX_VALUE);
     }
 
 }
