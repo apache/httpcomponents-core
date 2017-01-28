@@ -122,4 +122,10 @@ public class TestPoolEntry {
         entry1.updateExpiry(50L, null);
     }
 
+    @Test
+    public void testExpiryDoesNotOverflow() {
+        final MockPoolEntry entry = new MockPoolEntry("route1", Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        Assert.assertEquals(entry.getValidityDeadline(), Long.MAX_VALUE);
+    }
+
 }
