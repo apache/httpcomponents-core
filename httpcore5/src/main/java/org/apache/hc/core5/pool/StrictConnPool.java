@@ -372,11 +372,18 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
             final ListIterator<LeaseRequest<T, C>> it = this.leasingRequests.listIterator();
             while (it.hasNext()) {
                 final LeaseRequest<T, C> request = it.next();
-                final long deadline = request.getDeadline();
-                if (now > deadline) {
+                final BasicFuture<PoolEntry<T, C>> future = request.getFuture();
+                if (future.isCancelled() && !request.isDone()) {
                     it.remove();
-                    request.failed(new TimeoutException());
-                    this.completedRequests.add(request);
+                } else {
+                    final long deadline = request.getDeadline();
+                    if (now > deadline) {
+                        request.failed(new TimeoutException());
+                    }
+                    if (request.isDone()) {
+                        it.remove();
+                        this.completedRequests.add(request);
+                    }
                 }
             }
         } finally {
