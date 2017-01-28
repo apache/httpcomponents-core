@@ -87,4 +87,17 @@ public class TestPoolEntry {
         Assert.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiry());
     }
 
+    @Test(expected=IllegalArgumentException.class)
+    public void testInvalidExpiry() throws Exception {
+        final PoolEntry<String, HttpConnection> entry = new PoolEntry<>("route1", 0L, TimeUnit.MILLISECONDS);
+        entry.updateExpiry(50L, null);
+    }
+
+    @Test
+    public void testExpiryDoesNotOverflow() {
+        final PoolEntry<String, HttpConnection> entry = new PoolEntry<>("route1", Long.MAX_VALUE, TimeUnit.MILLISECONDS);
+        entry.assignConnection(Mockito.mock(HttpConnection.class));
+        Assert.assertEquals(Long.MAX_VALUE, entry.getValidityDeadline());
+    }
+
 }

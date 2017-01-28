@@ -121,7 +121,13 @@ public final class PoolEntry<T, C extends Closeable> {
         if (this.connRef.compareAndSet(null, conn)) {
             this.created = currentTimeMillis();
             this.updated = this.created;
-            this.validityDeadline = this.timeToLive > 0 ? System.currentTimeMillis() + this.timeToLive : Long.MAX_VALUE;
+            if (this.timeToLive > 0) {
+                final long deadline = System.currentTimeMillis() + this.timeToLive;
+                // If the above overflows then default to Long.MAX_VALUE
+                this.validityDeadline = deadline > 0 ? deadline : Long.MAX_VALUE;
+            } else {
+                this.validityDeadline = Long.MAX_VALUE;
+            }
             this.expiry = this.validityDeadline;
             this.state = null;
         } else {
