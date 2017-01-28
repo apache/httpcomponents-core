@@ -26,11 +26,11 @@
  */
 package org.apache.http.pool;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.http.annotation.Contract;
 import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.util.Args;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Pool entry containing a pool connection object along with its route.
@@ -85,7 +85,9 @@ public abstract class PoolEntry<T, C> {
         this.created = System.currentTimeMillis();
         this.updated = this.created;
         if (timeToLive > 0) {
-            this.validityDeadline = this.created + tunit.toMillis(timeToLive);
+            final long deadline = this.created + tunit.toMillis(timeToLive);
+            // If the above overflows then default to Long.MAX_VALUE
+            this.validityDeadline = deadline > 0 ? deadline : Long.MAX_VALUE;
         } else {
             this.validityDeadline = Long.MAX_VALUE;
         }
