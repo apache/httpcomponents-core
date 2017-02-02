@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
@@ -87,10 +88,11 @@ public class H2ClientTlsStrategy implements TlsStrategy {
     @Override
     public void upgrade(
             final TransportSecurityLayer tlsSession,
-            final String scheme,
+            final HttpHost host,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
             final String... parameters) {
+        final String scheme = host != null ? host.getSchemeName() : null;
         if ("https".equalsIgnoreCase(scheme)) {
             tlsSession.start(sslContext, sslBufferManagement,
                     H2TlsSupport.decorateInitializer(initializer), verifier);

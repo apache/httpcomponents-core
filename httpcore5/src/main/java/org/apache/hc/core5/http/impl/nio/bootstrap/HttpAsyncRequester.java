@@ -124,7 +124,7 @@ public class HttpAsyncRequester extends AsyncRequester {
                             if (tlsStrategy != null && session instanceof TransportSecurityLayer) {
                                 tlsStrategy.upgrade(
                                         (TransportSecurityLayer) session,
-                                        host.getSchemeName(),
+                                        host,
                                         session.getLocalAddress(),
                                         session.getRemoteAddress());
                             }

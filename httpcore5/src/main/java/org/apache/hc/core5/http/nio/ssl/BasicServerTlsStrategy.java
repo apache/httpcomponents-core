@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
@@ -92,7 +93,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
     @Override
     public void upgrade(
             final TransportSecurityLayer tlsSession,
-            final String scheme,
+            final HttpHost host,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
             final String... parameters) {

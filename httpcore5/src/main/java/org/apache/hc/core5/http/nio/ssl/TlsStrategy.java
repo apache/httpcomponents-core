@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.ssl;
 
 import java.net.SocketAddress;
 
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
@@ -40,7 +41,7 @@ public interface TlsStrategy {
 
     void upgrade(
             TransportSecurityLayer tlsSession,
-            String scheme,
+            HttpHost host,
             SocketAddress localAddress,
             SocketAddress remoteAddress,
             String... parameters);
