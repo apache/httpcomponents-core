@@ -27,13 +27,13 @@
 
 package org.apache.hc.core5.testing.nio.http2;
 
-import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -57,19 +57,19 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory;
-    private final Charset charset;
+    private final CharCodingConfig charCodingConfig;
     private final H2Config h2Config;
     private final SSLContext sslContext;
 
     InternalClientHttp2EventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final SSLContext sslContext) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = exchangeHandlerFactory;
-        this.charset = charset;
+        this.charCodingConfig = charCodingConfig;
         this.h2Config = h2Config;
         this.sslContext = sslContext;
     }
@@ -82,7 +82,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
         }
         final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
         return new LoggingIOEventHandler(new ClientHttpProtocolNegotiator(
-                ioSession, httpProcessor, exchangeHandlerFactory, charset, h2Config,
+                ioSession, httpProcessor, exchangeHandlerFactory, charCodingConfig, h2Config,
                 new ConnectionListener() {
 
                     @Override

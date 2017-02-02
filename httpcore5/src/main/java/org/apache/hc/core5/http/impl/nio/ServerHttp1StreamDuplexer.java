@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -88,7 +88,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final H1Config h1Config,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParser<HttpRequest> incomingMessageParser,
             final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
@@ -96,7 +96,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final ContentLengthStrategy outgoingContentStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        super(ioSession, h1Config, connectionConfig, incomingMessageParser, outgoingMessageWriter, connectionListener);
+        super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, connectionListener);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
@@ -107,7 +107,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
         this.streamListener = streamListener;
-        this.contentBuffer = ByteBuffer.allocate(connectionConfig.getBufferSize());
+        this.contentBuffer = ByteBuffer.allocate(this.h1Config.getBufferSize());
         this.pipeline = new ConcurrentLinkedQueue<>();
         this.outputChannel = new Http1StreamChannel<HttpResponse>() {
 

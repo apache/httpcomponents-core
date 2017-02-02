@@ -24,6 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.hc.core5.http.impl;
 
 import java.nio.charset.Charset;
@@ -31,20 +32,14 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 
-/**
- * Connection support methods.
- *
- * @since 4.3
- */
-public final class ConnSupport {
+public final class CharCodingSupport {
 
-    private ConnSupport() {
-        // Do not allow utility class to be instantiated.
+    private CharCodingSupport() {
     }
 
-    public static CharsetDecoder createDecoder(final ConnectionConfig cconfig) {
+    public static CharsetDecoder createDecoder(final CharCodingConfig cconfig) {
         if (cconfig == null) {
             return null;
         }
@@ -59,7 +54,7 @@ public final class ConnSupport {
         return null;
     }
 
-    public static CharsetEncoder createEncoder(final ConnectionConfig cconfig) {
+    public static CharsetEncoder createEncoder(final CharCodingConfig cconfig) {
         if (cconfig == null) {
             return null;
         }
@@ -68,8 +63,8 @@ public final class ConnSupport {
             final CodingErrorAction malformed = cconfig.getMalformedInputAction();
             final CodingErrorAction unmappable = cconfig.getUnmappableInputAction();
             return charset.newEncoder()
-                .onMalformedInput(malformed != null ? malformed : CodingErrorAction.REPORT)
-                .onUnmappableCharacter(unmappable != null ? unmappable: CodingErrorAction.REPORT);
+                    .onMalformedInput(malformed != null ? malformed : CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(unmappable != null ? unmappable: CodingErrorAction.REPORT);
         }
         return null;
     }

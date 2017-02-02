@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.nio;
 
 import org.apache.hc.core5.http.MessageHeaders;
-import org.apache.hc.core5.http.config.H1Config;
 
 /**
  * Factory for {@link NHttpMessageParser} instances.
@@ -37,6 +36,6 @@ import org.apache.hc.core5.http.config.H1Config;
  */
 public interface NHttpMessageParserFactory<T extends MessageHeaders> {
 
-    NHttpMessageParser<T> create(H1Config h1Config);
+    NHttpMessageParser<T> create();
 
 }

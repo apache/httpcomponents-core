@@ -60,27 +60,27 @@ import org.apache.hc.core5.util.Args;
 
 class BHttpConnectionBase implements BHttpConnection {
 
+    final H1Config h1Config;
     final SessionInputBufferImpl inbuffer;
     final SessionOutputBufferImpl outbuffer;
-    final H1Config h1Config;
     final BasicHttpConnectionMetrics connMetrics;
     final AtomicReference<SocketHolder> socketHolderRef;
 
     volatile ProtocolVersion version;
 
     BHttpConnectionBase(
-            final int buffersize,
+            final H1Config h1Config,
             final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
-            final H1Config h1Config) {
-        Args.positive(buffersize, "Buffer size");
+            final CharsetEncoder charencoder) {
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         final BasicHttpTransportMetrics inTransportMetrics = new BasicHttpTransportMetrics();
         final BasicHttpTransportMetrics outTransportMetrics = new BasicHttpTransportMetrics();
-        this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
-                (h1Config != null ? h1Config : H1Config.DEFAULT).getMaxLineLength(), chardecoder);
-        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize,
-                (h1Config != null ? h1Config : H1Config.DEFAULT).getChunkSizeHint(), charencoder);
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.inbuffer = new SessionInputBufferImpl(inTransportMetrics,
+                this.h1Config.getBufferSize(), -1,
+                this.h1Config.getMaxLineLength(), chardecoder);
+        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics,
+                this.h1Config.getBufferSize(),
+                this.h1Config.getChunkSizeHint(), charencoder);
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
         this.socketHolderRef = new AtomicReference<>();
     }

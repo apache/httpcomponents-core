@@ -57,7 +57,7 @@ public class TestBHttpConnectionBase {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        conn = new BHttpConnectionBase(1024,null, null, H1Config.DEFAULT);
+        conn = new BHttpConnectionBase(H1Config.DEFAULT, null, null);
     }
 
     @Test

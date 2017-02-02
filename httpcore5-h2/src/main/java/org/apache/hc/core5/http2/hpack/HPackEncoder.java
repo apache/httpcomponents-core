@@ -49,15 +49,22 @@ public final class HPackEncoder {
     private ByteBuffer tmpBuf;
     private int maxTableSize;
 
-    HPackEncoder(final OutboundDynamicTable dynamicTable, final Charset charset) {
-        Args.notNull(charset, "Charset");
+    HPackEncoder(final OutboundDynamicTable dynamicTable, final CharsetEncoder charsetEncoder) {
         this.dynamicTable = dynamicTable != null ? dynamicTable : new OutboundDynamicTable();
         this.huffmanBuf = new ByteArrayBuffer(128);
-        this.charsetEncoder = charset.equals(StandardCharsets.US_ASCII) || charset.equals(StandardCharsets.ISO_8859_1) ? null : charset.newEncoder();
+        this.charsetEncoder = charsetEncoder;
+    }
+
+    HPackEncoder(final OutboundDynamicTable dynamicTable, final Charset charset) {
+        this(dynamicTable, charset != null && !StandardCharsets.US_ASCII.equals(charset) ? charset.newEncoder() : null);
     }
 
     public HPackEncoder(final Charset charset) {
         this(new OutboundDynamicTable(), charset);
+    }
+
+    public HPackEncoder(final CharsetEncoder charsetEncoder) {
+        this(new OutboundDynamicTable(), charsetEncoder);
     }
 
     static void encodeInt(final ByteArrayBuffer dst, final int n, final int i, final int mask) {

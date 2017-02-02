@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -61,7 +61,7 @@ public class ServerBootstrap {
     private int listenerPort;
     private InetAddress localAddress;
     private SocketConfig socketConfig;
-    private ConnectionConfig connectionConfig;
+    private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private HttpResponseFactory<ClassicHttpResponse> responseFactory;
@@ -112,8 +112,8 @@ public class ServerBootstrap {
      * Please note this value can be overridden by the {@link #setConnectionFactory(
      *HttpConnectionFactory)} method.
      */
-    public final ServerBootstrap setConnectionConfig(final ConnectionConfig connectionConfig) {
-        this.connectionConfig = connectionConfig;
+    public final ServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
+        this.charCodingConfig = charCodingConfig;
         return this;
     }
 
@@ -273,8 +273,8 @@ public class ServerBootstrap {
 
         HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactoryCopy = this.connectionFactory;
         if (connectionFactoryCopy == null) {
-            if (this.connectionConfig != null) {
-                connectionFactoryCopy = new DefaultBHttpServerConnectionFactory(this.connectionConfig);
+            if (this.charCodingConfig != null) {
+                connectionFactoryCopy = new DefaultBHttpServerConnectionFactory(this.charCodingConfig);
             } else {
                 connectionFactoryCopy = DefaultBHttpServerConnectionFactory.INSTANCE;
             }

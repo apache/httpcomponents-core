@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -61,7 +61,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final ConnectionConfig connectionConfig;
+    private final CharCodingConfig charCodingConfig;
     private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
     private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
     private final ContentLengthStrategy incomingContentStrategy;
@@ -73,7 +73,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     public ServerHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
@@ -84,7 +84,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
             final Http1StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
-        this.connectionConfig = connectionConfig != null ? connectionConfig : ConnectionConfig.DEFAULT;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.requestParserFactory = requestParserFactory != null ? requestParserFactory :
@@ -103,14 +103,14 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     public ServerHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
             final TlsStrategy tlsStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, connectionConfig,
+        this(httpProcessor, exchangeHandlerFactory, charCodingConfig,
                 connectionReuseStrategy, requestParserFactory, responseWriterFactory,
                 null, null, tlsStrategy, connectionListener, streamListener);
     }
@@ -118,21 +118,21 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     public ServerHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final TlsStrategy tlsStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, connectionConfig, null, null ,null,
+        this(httpProcessor, exchangeHandlerFactory, charCodingConfig, null, null ,null,
                 tlsStrategy, connectionListener, streamListener);
     }
 
     public ServerHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final TlsStrategy tlsStrategy,
             final ExceptionListener errorListener) {
-        this(httpProcessor, exchangeHandlerFactory, connectionConfig, tlsStrategy, null, null);
+        this(httpProcessor, exchangeHandlerFactory, charCodingConfig, tlsStrategy, null, null);
     }
 
     @Override
@@ -150,9 +150,9 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
         }
         return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                 H1Config.DEFAULT,
-                connectionConfig,
+                charCodingConfig,
                 connectionReuseStrategy,
-                requestParserFactory.create(H1Config.DEFAULT),
+                requestParserFactory.create(),
                 responseWriterFactory.create(),
                 incomingContentStrategy,
                 outgoingContentStrategy,

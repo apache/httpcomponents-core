@@ -26,8 +26,6 @@
  */
 package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
@@ -61,7 +60,7 @@ public class H2RequesterBootstrap {
 
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
-    private Charset charset;
+    private CharCodingConfig charCodingConfig;
     private H2Config h2Config;
     private int defaultMaxPerRoute;
     private int maxTotal;
@@ -107,10 +106,10 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Sets charset for HTTP/2 messages.
+     * Sets char coding for HTTP/2 messages.
      */
-    public final H2RequesterBootstrap setCharset(final Charset charset) {
-        this.charset = charset;
+    public final H2RequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
+        this.charCodingConfig = charCodingConfig;
         return this;
     }
 
@@ -207,7 +206,7 @@ public class H2RequesterBootstrap {
         final ClientHttpProtocolNegotiatorFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 pushConsumerRegistry,
-                charset != null ? charset : StandardCharsets.US_ASCII,
+                charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 connectionListener,
                 streamListener);

@@ -31,8 +31,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -53,8 +51,10 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
@@ -133,7 +133,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             final FrameFactory frameFactory,
             final StreamIdGenerator idGenerator,
             final HttpProcessor httpProcessor,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
@@ -153,8 +153,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
         this.lastStreamId = new AtomicInteger(0);
-        this.hPackEncoder = new HPackEncoder(charset != null ? charset : StandardCharsets.US_ASCII);
-        this.hPackDecoder = new HPackDecoder(charset != null ? charset : StandardCharsets.US_ASCII);
+        this.hPackEncoder = new HPackEncoder(CharCodingSupport.createEncoder(charCodingConfig));
+        this.hPackDecoder = new HPackDecoder(CharCodingSupport.createDecoder(charCodingConfig));
         this.streamMap = new ConcurrentHashMap<>();
         this.connInputWindow = new AtomicInteger(localConfig.getInitialWindowSize());
         this.connOutputWindow = new AtomicInteger(H2Config.DEFAULT.getInitialWindowSize());

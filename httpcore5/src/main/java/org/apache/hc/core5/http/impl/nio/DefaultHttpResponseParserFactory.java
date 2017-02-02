@@ -47,17 +47,22 @@ public class DefaultHttpResponseParserFactory implements NHttpMessageParserFacto
 
     public static final DefaultHttpResponseParserFactory INSTANCE = new DefaultHttpResponseParserFactory();
 
+    private final H1Config h1Config;
     private final HttpResponseFactory<HttpResponse> responseFactory;
     private final LineParser lineParser;
 
-    public DefaultHttpResponseParserFactory(final HttpResponseFactory<HttpResponse> responseFactory, final LineParser lineParser) {
+    public DefaultHttpResponseParserFactory(
+            final H1Config h1Config,
+            final HttpResponseFactory<HttpResponse> responseFactory,
+            final LineParser lineParser) {
         super();
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.responseFactory = responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE;
         this.lineParser = lineParser != null ? lineParser : LazyLaxLineParser.INSTANCE;
     }
 
-    public DefaultHttpResponseParserFactory(final HttpResponseFactory<HttpResponse> responseFactory) {
-        this(responseFactory, null);
+    public DefaultHttpResponseParserFactory(final H1Config h1Config) {
+        this(h1Config, null, null);
     }
 
     public DefaultHttpResponseParserFactory() {
@@ -65,8 +70,8 @@ public class DefaultHttpResponseParserFactory implements NHttpMessageParserFacto
     }
 
     @Override
-    public NHttpMessageParser<HttpResponse> create(final H1Config h1Config) {
-        return new DefaultHttpResponseParser<>(this.responseFactory, this.lineParser, h1Config);
+    public NHttpMessageParser<HttpResponse> create() {
+        return new DefaultHttpResponseParser<>(responseFactory, lineParser, h1Config);
     }
 
 }

@@ -35,7 +35,7 @@ import java.net.Socket;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponseInterceptor;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
@@ -65,12 +65,10 @@ public class HttpServer {
     public HttpServer() throws IOException {
         super();
         this.httpproc = new DefaultHttpProcessor(
-                new HttpResponseInterceptor[] {
-                        new ResponseDate(),
-                        new ResponseServer("TEST-SERVER/1.1"),
-                        new ResponseContent(),
-                        new ResponseConnControl()
-                });
+                new ResponseDate(),
+                new ResponseServer("TEST-SERVER/1.1"),
+                new ResponseContent(),
+                new ResponseConnControl());
         this.reqistry = new UriHttpRequestHandlerMapper();
         this.serversocket = new ServerSocket(0);
     }
@@ -83,7 +81,7 @@ public class HttpServer {
 
     private HttpServerConnection acceptConnection() throws IOException {
         final Socket socket = this.serversocket.accept();
-        final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(8 * 1024);
+        final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(H1Config.DEFAULT);
         conn.bind(socket);
         return conn;
     }

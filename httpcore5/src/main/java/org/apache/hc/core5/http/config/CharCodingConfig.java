@@ -41,29 +41,22 @@ import org.apache.hc.core5.util.Args;
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class ConnectionConfig {
+public class CharCodingConfig {
 
-    public static final ConnectionConfig DEFAULT = new Builder().build();
+    public static final CharCodingConfig DEFAULT = new Builder().build();
 
-    private final int bufferSize;
     private final Charset charset;
     private final CodingErrorAction malformedInputAction;
     private final CodingErrorAction unmappableInputAction;
 
-    ConnectionConfig(
-            final int bufferSize,
+    CharCodingConfig(
             final Charset charset,
             final CodingErrorAction malformedInputAction,
             final CodingErrorAction unmappableInputAction) {
         super();
-        this.bufferSize = bufferSize;
         this.charset = charset;
         this.malformedInputAction = malformedInputAction;
         this.unmappableInputAction = unmappableInputAction;
-    }
-
-    public int getBufferSize() {
-        return bufferSize;
     }
 
     public Charset getCharset() {
@@ -81,22 +74,20 @@ public class ConnectionConfig {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[bufferSize=").append(this.bufferSize)
-                .append(", charset=").append(this.charset)
+        builder.append("[charset=").append(this.charset)
                 .append(", malformedInputAction=").append(this.malformedInputAction)
                 .append(", unmappableInputAction=").append(this.unmappableInputAction)
                 .append("]");
         return builder.toString();
     }
 
-    public static ConnectionConfig.Builder custom() {
+    public static CharCodingConfig.Builder custom() {
         return new Builder();
     }
 
-    public static ConnectionConfig.Builder copy(final ConnectionConfig config) {
-        Args.notNull(config, "Connection config");
+    public static CharCodingConfig.Builder copy(final CharCodingConfig config) {
+        Args.notNull(config, "Config");
         return new Builder()
-            .setBufferSize(config.getBufferSize())
             .setCharset(config.getCharset())
             .setMalformedInputAction(config.getMalformedInputAction())
             .setUnmappableInputAction(config.getUnmappableInputAction());
@@ -104,24 +95,11 @@ public class ConnectionConfig {
 
     public static class Builder {
 
-        private int bufferSize;
-        private int fragmentSizeHint;
         private Charset charset;
         private CodingErrorAction malformedInputAction;
         private CodingErrorAction unmappableInputAction;
 
         Builder() {
-            this.fragmentSizeHint = -1;
-        }
-
-        public Builder setBufferSize(final int bufferSize) {
-            this.bufferSize = bufferSize;
-            return this;
-        }
-
-        public Builder setFragmentSizeHint(final int fragmentSizeHint) {
-            this.fragmentSizeHint = fragmentSizeHint;
-            return this;
         }
 
         public Builder setCharset(final Charset charset) {
@@ -145,17 +123,12 @@ public class ConnectionConfig {
             return this;
         }
 
-        public ConnectionConfig build() {
-            Charset cs = charset;
-            if (cs == null && (malformedInputAction != null || unmappableInputAction != null)) {
-                cs = StandardCharsets.US_ASCII;
+        public CharCodingConfig build() {
+            Charset charsetCopy = charset;
+            if (charsetCopy == null && (malformedInputAction != null || unmappableInputAction != null)) {
+                charsetCopy = StandardCharsets.US_ASCII;
             }
-            final int bufSize = this.bufferSize > 0 ? this.bufferSize : 8 * 1024;
-            return new ConnectionConfig(
-                    bufSize,
-                    cs,
-                    malformedInputAction,
-                    unmappableInputAction);
+            return new CharCodingConfig(charsetCopy, malformedInputAction, unmappableInputAction);
         }
 
     }

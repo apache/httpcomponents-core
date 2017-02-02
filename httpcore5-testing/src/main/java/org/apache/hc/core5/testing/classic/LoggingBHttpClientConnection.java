@@ -57,16 +57,15 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
     private final Wire wire;
 
     public LoggingBHttpClientConnection(
-            final int buffersize,
+            final H1Config h1Config,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
-            final H1Config h1Config,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
-        super(buffersize, chardecoder, charencoder,
-                h1Config, incomingContentStrategy, outgoingContentStrategy,
+        super(h1Config, chardecoder, charencoder,
+                incomingContentStrategy, outgoingContentStrategy,
                 requestWriterFactory, responseParserFactory);
         this.id = "http-outgoing-" + COUNT.incrementAndGet();
         this.log = LogManager.getLogger(getClass());
@@ -74,8 +73,8 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
         this.wire = new Wire(LogManager.getLogger("org.apache.http.wire"), this.id);
     }
 
-    public LoggingBHttpClientConnection(final int buffersize) {
-        this(buffersize, null, null, null, null, null, null, null);
+    public LoggingBHttpClientConnection(final H1Config h1Config) {
+        this(h1Config, null, null, null, null, null, null);
     }
 
     @Override

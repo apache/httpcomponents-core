@@ -26,13 +26,12 @@
  */
 package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
@@ -60,7 +59,7 @@ public class H2ServerBootstrap {
     private String canonicalHostName;
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
-    private Charset charset;
+    private CharCodingConfig charCodingConfig;
     private H2Config h2Config;
     private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
@@ -110,10 +109,10 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Sets charset for HTTP/2 messages.
+     * Sets char coding for HTTP/2 messages.
      */
-    public final H2ServerBootstrap setCharset(final Charset charset) {
-        this.charset = charset;
+    public final H2ServerBootstrap setCharset(final CharCodingConfig charCodingConfig) {
+        this.charCodingConfig = charCodingConfig;
         return this;
     }
 
@@ -204,7 +203,7 @@ public class H2ServerBootstrap {
         final ServerHttpProtocolNegotiatorFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiatorFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.server(),
                 exchangeHandlerFactory,
-                charset != null ? charset : StandardCharsets.US_ASCII,
+                charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener,

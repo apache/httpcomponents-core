@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
@@ -54,7 +54,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 public class RequesterBootstrap {
 
     private IOReactorConfig ioReactorConfig;
-    private ConnectionConfig connectionConfig;
+    private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private int defaultMaxPerRoute;
@@ -86,8 +86,8 @@ public class RequesterBootstrap {
     /**
      * Sets connection configuration.
      */
-    public final RequesterBootstrap setConnectionConfig(final ConnectionConfig connectionConfig) {
-        this.connectionConfig = connectionConfig;
+    public final RequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
+        this.charCodingConfig = charCodingConfig;
         return this;
     }
 
@@ -180,7 +180,7 @@ public class RequesterBootstrap {
                 connPoolListener);
         final ClientHttp1IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                connectionConfig,
+                charCodingConfig,
                 connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
                 DefaultHttpResponseParserFactory.INSTANCE,
                 DefaultHttpRequestWriterFactory.INSTANCE,

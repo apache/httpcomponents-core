@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap;
@@ -124,7 +125,7 @@ public class ClassicTestServer {
 
         @Override
         public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
-            final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(8 * 1024);
+            final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(H1Config.DEFAULT);
             conn.bind(socket);
             return conn;
         }

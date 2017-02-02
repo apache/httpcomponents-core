@@ -43,20 +43,26 @@ public class H1Config {
 
     public static final H1Config DEFAULT = new Builder().build();
 
+    private final int bufferSize;
     private final int chunkSizeHint;
     private final int waitForContinueTimeout;
     private final int maxLineLength;
     private final int maxHeaderCount;
     private final int maxEmptyLineCount;
 
-    H1Config(final int chunkSizeHint, final int waitForContinueTimeout, final int maxLineLength,
-             final int maxHeaderCount, final int maxEmptyLineCount) {
+    H1Config(final int bufferSize, final int chunkSizeHint, final int waitForContinueTimeout,
+             final int maxLineLength, final int maxHeaderCount, final int maxEmptyLineCount) {
         super();
+        this.bufferSize = bufferSize;
         this.chunkSizeHint = chunkSizeHint;
         this.waitForContinueTimeout = waitForContinueTimeout;
         this.maxLineLength = maxLineLength;
         this.maxHeaderCount = maxHeaderCount;
         this.maxEmptyLineCount = maxEmptyLineCount;
+    }
+
+    public int getBufferSize() {
+        return bufferSize;
     }
 
     public int getChunkSizeHint() {
@@ -75,9 +81,6 @@ public class H1Config {
         return maxHeaderCount;
     }
 
-    /**
-     * @since 5.0
-     */
     public int getMaxEmptyLineCount() {
         return this.maxEmptyLineCount;
     }
@@ -85,7 +88,8 @@ public class H1Config {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[chunkSizeHint=").append(chunkSizeHint)
+        builder.append("[bufferSize=").append(bufferSize)
+                .append(", chunkSizeHint=").append(chunkSizeHint)
                 .append(", waitForContinueTimeout=").append(waitForContinueTimeout)
                 .append(", maxLineLength=").append(maxLineLength)
                 .append(", maxHeaderCount=").append(maxHeaderCount)
@@ -99,8 +103,9 @@ public class H1Config {
     }
 
     public static H1Config.Builder copy(final H1Config config) {
-        Args.notNull(config, "Message constraints");
+        Args.notNull(config, "Config");
         return new Builder()
+                .setBufferSize(config.getBufferSize())
                 .setChunkSizeHint(config.getChunkSizeHint())
                 .setWaitForContinueTimeout(config.getWaitForContinueTimeout())
                 .setMaxHeaderCount(config.getMaxHeaderCount())
@@ -110,6 +115,7 @@ public class H1Config {
 
     public static class Builder {
 
+        private int bufferSize;
         private int chunkSizeHint;
         private int waitForContinueTimeout;
         private int maxLineLength;
@@ -117,11 +123,17 @@ public class H1Config {
         private int maxEmptyLineCount;
 
         Builder() {
+            this.bufferSize = -1;
             this.chunkSizeHint = -1;
             this.waitForContinueTimeout = 3000;
             this.maxLineLength = -1;
             this.maxHeaderCount = -1;
             this.maxEmptyLineCount = 10;
+        }
+
+        public Builder setBufferSize(final int bufferSize) {
+            this.bufferSize = bufferSize;
+            return this;
         }
 
         public Builder setChunkSizeHint(final int chunkSizeHint) {
@@ -150,7 +162,7 @@ public class H1Config {
         }
 
         public H1Config build() {
-            return new H1Config(chunkSizeHint, waitForContinueTimeout, maxLineLength, maxHeaderCount, maxEmptyLineCount);
+            return new H1Config(bufferSize > 0 ? bufferSize : 8192, chunkSizeHint, waitForContinueTimeout, maxLineLength, maxHeaderCount, maxEmptyLineCount);
         }
 
     }

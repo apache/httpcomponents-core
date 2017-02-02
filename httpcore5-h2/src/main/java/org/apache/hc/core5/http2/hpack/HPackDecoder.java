@@ -53,15 +53,22 @@ public final class HPackDecoder {
     private CharBuffer tmpBuf;
     private int maxTableSize;
 
-    HPackDecoder(final InboundDynamicTable dynamicTable, final Charset charset) {
-        Args.notNull(charset, "Charset");
+    HPackDecoder(final InboundDynamicTable dynamicTable, final CharsetDecoder charsetDecoder) {
         this.dynamicTable = dynamicTable != null ? dynamicTable : new InboundDynamicTable();
         this.contentBuf = new ByteArrayBuffer(256);
-        this.charsetDecoder = charset.equals(StandardCharsets.US_ASCII) || charset.equals(StandardCharsets.ISO_8859_1) ? null : charset.newDecoder();
+        this.charsetDecoder = charsetDecoder;
+    }
+
+    HPackDecoder(final InboundDynamicTable dynamicTable, final Charset charset) {
+        this(dynamicTable, charset != null && !StandardCharsets.US_ASCII.equals(charset) ? charset.newDecoder() : null);
     }
 
     public HPackDecoder(final Charset charset) {
         this(new InboundDynamicTable(), charset);
+    }
+
+    public HPackDecoder(final CharsetDecoder charsetDecoder) {
+        this(new InboundDynamicTable(), charsetDecoder);
     }
 
     static int readByte(final ByteBuffer src) throws HPackException {

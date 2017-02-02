@@ -27,11 +27,9 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -49,7 +47,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
 
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
-    private final Charset charset;
+    private final CharCodingConfig charCodingConfig;
     private final H2Config h2Config;
     private final ConnectionListener connectionListener;
     private final Http2StreamListener streamListener;
@@ -57,13 +55,13 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     public ClientHttpProtocolNegotiatorFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
-        this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.connectionListener = connectionListener;
         this.streamListener = streamListener;
@@ -87,7 +85,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     @Override
     public ClientHttpProtocolNegotiator createHandler(final IOSession ioSession) {
         return new ClientHttpProtocolNegotiator(ioSession, httpProcessor, pushHandlerFactory,
-                charset, h2Config, connectionListener, streamListener);
+                charCodingConfig, h2Config, connectionListener, streamListener);
     }
 
 }

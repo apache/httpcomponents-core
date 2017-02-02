@@ -60,9 +60,8 @@ public class TestDefaultBHttpClientConnection {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        conn = new DefaultBHttpClientConnection(1024,
+        conn = new DefaultBHttpClientConnection(H1Config.DEFAULT,
             null, null,
-            H1Config.DEFAULT,
             DefaultContentLengthStrategy.INSTANCE,
             DefaultContentLengthStrategy.INSTANCE,
             DefaultHttpRequestWriterFactory.INSTANCE,

@@ -74,7 +74,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.ConnectionListener;
@@ -972,7 +972,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H1Config.DEFAULT, ConnectionConfig.custom().setBufferSize(256).build());
+        client.start(H1Config.custom().setBufferSize(256).build());
 
         final Future<ClientEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
@@ -1138,7 +1138,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H1Config.DEFAULT, ConnectionConfig.custom().setBufferSize(256).build());
+        client.start(H1Config.custom().setBufferSize(256).build());
 
         final Future<ClientEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
@@ -1350,7 +1350,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
 
                 },
                 H1Config.DEFAULT,
-                ConnectionConfig.DEFAULT,
+                CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 scheme == ProtocolScheme.HTTPS ? createServerSSLContext() : null) {
 
@@ -1360,7 +1360,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
                     final HttpProcessor httpProcessor,
                     final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
                     final H1Config h1Config,
-                    final ConnectionConfig connectionConfig,
+                    final CharCodingConfig connectionConfig,
                     final ConnectionReuseStrategy connectionReuseStrategy,
                     final NHttpMessageParser<HttpRequest> incomingMessageParser,
                     final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
@@ -1520,8 +1520,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()),
-                H1Config.DEFAULT, ConnectionConfig.DEFAULT);
+        client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()), H1Config.DEFAULT);
 
         final Future<ClientEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);

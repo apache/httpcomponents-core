@@ -27,8 +27,8 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -55,11 +55,11 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final FrameFactory frameFactory,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
-        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charset,
+        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig,
                 h2Config, connectionListener, streamListener);
         this.pushHandlerFactory = pushHandlerFactory;
     }
@@ -68,18 +68,18 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final IOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, charset,
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, charCodingConfig,
                 h2Config, null, null);
     }
 
     public ClientHttp2StreamMultiplexer(
             final IOSession ioSession,
             final HttpProcessor httpProcessor,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config) {
-        this(ioSession, httpProcessor, null, charset, h2Config);
+        this(ioSession, httpProcessor, null, charCodingConfig, h2Config);
     }
 
     @Override

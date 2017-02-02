@@ -47,17 +47,22 @@ public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactor
 
     public static final DefaultHttpRequestParserFactory INSTANCE = new DefaultHttpRequestParserFactory();
 
+    private final H1Config h1Config;
     private final LineParser lineParser;
     private final HttpRequestFactory<HttpRequest> requestFactory;
 
-    public DefaultHttpRequestParserFactory(final HttpRequestFactory<HttpRequest> requestFactory, final LineParser lineParser) {
+    public DefaultHttpRequestParserFactory(
+            final H1Config h1Config,
+            final HttpRequestFactory<HttpRequest> requestFactory,
+            final LineParser lineParser) {
         super();
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.requestFactory = requestFactory != null ? requestFactory : DefaultHttpRequestFactory.INSTANCE;
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
     }
 
-    public DefaultHttpRequestParserFactory(final HttpRequestFactory<HttpRequest> requestFactory) {
-        this(requestFactory, null);
+    public DefaultHttpRequestParserFactory(final H1Config h1Config) {
+        this(h1Config, null, null);
     }
 
     public DefaultHttpRequestParserFactory() {
@@ -65,7 +70,7 @@ public class DefaultHttpRequestParserFactory implements NHttpMessageParserFactor
     }
 
     @Override
-    public NHttpMessageParser<HttpRequest> create(final H1Config h1Config) {
+    public NHttpMessageParser<HttpRequest> create() {
         return new DefaultHttpRequestParser<>(requestFactory, lineParser, h1Config);
     }
 

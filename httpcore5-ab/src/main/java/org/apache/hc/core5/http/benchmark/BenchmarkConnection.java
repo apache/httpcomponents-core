@@ -30,18 +30,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.apache.hc.core5.function.Supplier;
 
 class BenchmarkConnection extends DefaultBHttpClientConnection {
 
     private final Stats stats;
 
-    BenchmarkConnection(final int bufsize, final Stats stats) {
-        super(bufsize);
+    BenchmarkConnection(final H1Config h1Config, final Stats stats) {
+        super(h1Config);
         this.stats = stats;
     }
 

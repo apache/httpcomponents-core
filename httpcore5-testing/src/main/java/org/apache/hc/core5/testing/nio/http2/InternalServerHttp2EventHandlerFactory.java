@@ -27,13 +27,13 @@
 
 package org.apache.hc.core5.testing.nio.http2;
 
-import java.nio.charset.Charset;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -57,19 +57,19 @@ class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
-    private final Charset charset;
+    private final CharCodingConfig charCodingConfig;
     private final H2Config h2Config;
     private final SSLContext sslContext;
 
     public InternalServerHttp2EventHandlerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final SSLContext sslContext) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
-        this.charset = charset;
+        this.charCodingConfig = charCodingConfig;
         this.h2Config = h2Config;
         this.sslContext = sslContext;
     }
@@ -82,7 +82,7 @@ class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
         }
         final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
         return new LoggingIOEventHandler(new ServerHttpProtocolNegotiator(
-                ioSession, httpProcessor, exchangeHandlerFactory, charset, h2Config,
+                ioSession, httpProcessor, exchangeHandlerFactory, charCodingConfig, h2Config,
                 new ConnectionListener() {
 
                     @Override

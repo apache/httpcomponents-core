@@ -29,7 +29,6 @@ package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +40,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -104,7 +104,7 @@ public class Http2TestClient extends AsyncRequester {
         start(new InternalClientHttp2EventHandlerFactory(
                 httpProcessor,
                 pushConsumerRegistry,
-                StandardCharsets.US_ASCII,
+                CharCodingConfig.DEFAULT,
                 h2Config,
                 sslContext));
     }

@@ -32,7 +32,7 @@ import java.util.List;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
@@ -60,7 +60,7 @@ public class ServerBootstrap {
     private final List<HandlerEntry> handlerList;
     private String canonicalHostName;
     private IOReactorConfig ioReactorConfig;
-    private ConnectionConfig connectionConfig;
+    private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private TlsStrategy tlsStrategy;
@@ -97,8 +97,8 @@ public class ServerBootstrap {
     /**
      * Sets connection configuration.
      */
-    public final ServerBootstrap setConnectionConfig(final ConnectionConfig connectionConfig) {
-        this.connectionConfig = connectionConfig;
+    public final ServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
+        this.charCodingConfig = charCodingConfig;
         return this;
     }
 
@@ -207,7 +207,7 @@ public class ServerBootstrap {
         final ServerHttp1IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 exchangeHandlerFactory,
-                connectionConfig,
+                charCodingConfig,
                 connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
                 DefaultHttpRequestParserFactory.INSTANCE,
                 DefaultHttpResponseWriterFactory.INSTANCE,

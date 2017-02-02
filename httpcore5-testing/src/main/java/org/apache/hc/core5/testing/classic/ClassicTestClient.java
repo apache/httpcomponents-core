@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.io.bootstrap.RequesterBootstrap;
@@ -55,7 +56,7 @@ public class ClassicTestClient {
 
     public ClassicTestClient() {
         super();
-        this.connection = new DefaultBHttpClientConnection(8192);
+        this.connection = new DefaultBHttpClientConnection(H1Config.DEFAULT);
     }
 
     public void setHttpProcessor(final HttpProcessor httpProcessor) {

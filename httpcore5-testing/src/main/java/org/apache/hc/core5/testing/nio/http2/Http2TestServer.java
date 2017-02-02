@@ -29,13 +29,13 @@ package org.apache.hc.core5.testing.nio.http2;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServer;
 import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -45,8 +45,8 @@ import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -114,7 +114,7 @@ public class Http2TestServer extends AsyncServer {
         start(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor,
                 handlerRegistry,
-                StandardCharsets.US_ASCII,
+                CharCodingConfig.DEFAULT,
                 h2Config,
                 sslContext));
         final ListenerEndpoint listener = listen(new InetSocketAddress(0));

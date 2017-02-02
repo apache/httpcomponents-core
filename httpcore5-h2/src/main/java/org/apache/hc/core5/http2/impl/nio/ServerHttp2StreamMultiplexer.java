@@ -27,8 +27,8 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -56,11 +56,11 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final FrameFactory frameFactory,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
-        super(Mode.SERVER, ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charset,
+        super(Mode.SERVER, ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charCodingConfig,
                 h2Config, connectionListener, streamListener);
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
     }
@@ -69,9 +69,9 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final IOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charset,
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charCodingConfig,
                 h2Config, null, null);
     }
 

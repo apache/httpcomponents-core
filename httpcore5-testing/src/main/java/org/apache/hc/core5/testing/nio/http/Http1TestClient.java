@@ -39,7 +39,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -84,22 +84,17 @@ public class Http1TestClient extends AsyncRequester {
 
     public void start(
             final HttpProcessor httpProcessor,
-            final H1Config h1Config,
-            final ConnectionConfig connectionConfig) throws IOException {
+            final H1Config h1Config) throws IOException {
         execute(new InternalClientHttp1EventHandlerFactory(
                 httpProcessor,
                 h1Config,
-                connectionConfig,
+                CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 sslContext));
     }
 
-    public void start(final H1Config h1Config, final ConnectionConfig connectionConfig) throws IOException {
-        start(HttpProcessors.client(), h1Config, connectionConfig);
-    }
-
     public void start(final H1Config h1Config) throws IOException {
-        start(h1Config, ConnectionConfig.DEFAULT);
+        start(HttpProcessors.client(), h1Config);
     }
 
     public void start() throws IOException {

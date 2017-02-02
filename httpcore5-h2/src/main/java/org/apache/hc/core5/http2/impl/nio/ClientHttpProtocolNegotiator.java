@@ -32,13 +32,12 @@ import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -67,7 +66,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     private final IOSession ioSession;
     private final HttpProcessor httpProcessor;
-    private final Charset charset;
+    private final CharCodingConfig charCodingConfig;
     private final H2Config h2Config;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final ConnectionListener connectionListener;
@@ -78,14 +77,14 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             final IOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final Charset charset,
+            final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
-        this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.streamListener = streamListener;
         this.connectionListener = connectionListener;
@@ -94,7 +93,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
         return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
-                pushHandlerFactory, charset, h2Config, connectionListener, streamListener);
+                pushHandlerFactory, charCodingConfig, h2Config, connectionListener, streamListener);
     }
 
     @Override

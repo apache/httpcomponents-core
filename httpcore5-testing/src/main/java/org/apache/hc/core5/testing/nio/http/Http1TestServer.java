@@ -35,7 +35,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -115,7 +115,7 @@ public class Http1TestServer extends AsyncServer {
                 httpProcessor,
                 handlerRegistry,
                 h1Config,
-                ConnectionConfig.DEFAULT,
+                CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 sslContext));
     }

@@ -33,7 +33,7 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.ConnectionConfig;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -54,7 +54,7 @@ import org.apache.hc.core5.util.Args;
 public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final HttpProcessor httpProcessor;
-    private final ConnectionConfig connectionConfig;
+    private final CharCodingConfig charCodingConfig;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
     private final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
@@ -65,7 +65,7 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     public ClientHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
@@ -74,7 +74,7 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.connectionConfig = connectionConfig !=  null ? connectionConfig : ConnectionConfig.DEFAULT;
+        this.charCodingConfig = charCodingConfig !=  null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.responseParserFactory = responseParserFactory != null ? responseParserFactory :
@@ -91,28 +91,28 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     public ClientHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        this(httpProcessor, connectionConfig, connectionReuseStrategy,
+        this(httpProcessor, charCodingConfig, connectionReuseStrategy,
                 responseParserFactory, requestWriterFactory, null ,null, connectionListener, streamListener);
     }
 
     public ClientHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
-            final ConnectionConfig connectionConfig,
+            final CharCodingConfig charCodingConfig,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        this(httpProcessor, connectionConfig, null, null, null, connectionListener, streamListener);
+        this(httpProcessor, charCodingConfig, null, null, null, connectionListener, streamListener);
     }
 
     public ClientHttp1IOEventHandlerFactory(
             final HttpProcessor httpProcessor,
-            final ConnectionConfig connectionConfig) {
-        this(httpProcessor, connectionConfig, null, null);
+            final CharCodingConfig charCodingConfig) {
+        this(httpProcessor, charCodingConfig, null, null);
     }
 
     @Override
@@ -125,9 +125,9 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
                 ioSession,
                 httpProcessor,
                 H1Config.DEFAULT,
-                connectionConfig,
+                charCodingConfig,
                 connectionReuseStrategy,
-                responseParserFactory.create(H1Config.DEFAULT),
+                responseParserFactory.create(),
                 requestWriterFactory.create(),
                 incomingContentStrategy,
                 outgoingContentStrategy,

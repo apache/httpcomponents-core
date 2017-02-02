@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -107,7 +108,7 @@ class BenchmarkWorker implements Runnable {
     public void run() {
         ClassicHttpResponse response = null;
         final HttpVersion version = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
-        final BenchmarkConnection conn = new BenchmarkConnection(8 * 1024, stats);
+        final BenchmarkConnection conn = new BenchmarkConnection(H1Config.DEFAULT, stats);
 
         final String scheme = this.host.getSchemeName();
         final String hostname = this.host.getHostName();
