@@ -82,7 +82,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     @Override
-    public ServerHttpProtocolNegotiator createHandler(final IOSession ioSession) {
+    public ServerHttpProtocolNegotiator createHandler(final IOSession ioSession, final Object attachment) {
         if (tlsStrategy != null && ioSession instanceof TransportSecurityLayer) {
             tlsStrategy.upgrade(
                     (TransportSecurityLayer) ioSession,

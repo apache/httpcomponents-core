@@ -75,7 +75,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final IOSession ioSession) {
+    public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
         final String id = "http2-outgoing-" + COUNT.incrementAndGet();
         if (sslContext != null && ioSession instanceof TransportSecurityLayer) {
             ((TransportSecurityLayer) ioSession).start(sslContext, null ,null, null);

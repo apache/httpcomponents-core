@@ -136,7 +136,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final IOSession ioSession) {
+    public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
         return new ServerHttp1IOEventHandler(createStreamDuplexer(ioSession));
     }
 

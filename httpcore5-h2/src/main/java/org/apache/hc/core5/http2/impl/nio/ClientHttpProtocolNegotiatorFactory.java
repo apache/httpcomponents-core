@@ -83,7 +83,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     @Override
-    public ClientHttpProtocolNegotiator createHandler(final IOSession ioSession) {
+    public ClientHttpProtocolNegotiator createHandler(final IOSession ioSession, final Object attachment) {
         return new ClientHttpProtocolNegotiator(ioSession, httpProcessor, pushHandlerFactory,
                 charCodingConfig, h2Config, connectionListener, streamListener);
     }

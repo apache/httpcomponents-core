@@ -124,7 +124,7 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final IOSession ioSession) {
+    public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
         final String id = "http1-incoming-" + COUNT.incrementAndGet();
         if (sslContext != null && ioSession instanceof TransportSecurityLayer) {
             ((TransportSecurityLayer) ioSession).start(sslContext, null ,null, null);

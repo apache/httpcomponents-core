@@ -269,7 +269,8 @@ class IOReactorImpl implements IOReactor {
                         sessionRequest != null ?  sessionRequest.getRemoteEndpoint() : null,
                         new IOSessionImpl(key, socketChannel),
                         closedSessions);
-                session.setHandler(this.eventHandlerFactory.createHandler(session));
+                session.setHandler(this.eventHandlerFactory.createHandler(session,
+                        sessionRequest != null ? sessionRequest.getAttachment() : null));
                 session.setSocketTimeout(this.reactorConfig.getSoTimeout());
                 key.attach(session);
             } catch (final ClosedChannelException ex) {

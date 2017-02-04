@@ -62,7 +62,7 @@ public class TestDefaultListeningIOReactor {
         this.ioreactor = new DefaultListeningIOReactor(new IOEventHandlerFactory() {
 
             @Override
-            public IOEventHandler createHandler(final IOSession ioSession) {
+            public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
                 return new IOEventHandler() {
 
                     @Override

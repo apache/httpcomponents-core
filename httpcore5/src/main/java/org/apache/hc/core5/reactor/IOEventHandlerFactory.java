@@ -34,6 +34,6 @@ package org.apache.hc.core5.reactor;
  */
 public interface IOEventHandlerFactory {
 
-    IOEventHandler createHandler(IOSession ioSession);
+    IOEventHandler createHandler(IOSession ioSession, Object attachment);
 
 }
