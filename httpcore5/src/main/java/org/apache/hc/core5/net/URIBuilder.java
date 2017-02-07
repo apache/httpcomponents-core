@@ -26,6 +26,9 @@
  */
 package org.apache.hc.core5.net;
 
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -33,9 +36,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
 
 /**
  * Builder for {@link URI} instances.
@@ -473,8 +473,8 @@ public class URIBuilder {
 
     private static String normalizePath(final String path) {
         String s = path;
-        if (s == null) {
-            return "/";
+        if (s == null || "".equals(s)) {
+            return "";
         }
         int n = 0;
         for (; n < s.length(); n++) {
