@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +55,7 @@ import org.apache.hc.core5.util.Args;
 /**
  * @since 4.4
  */
-public class ServerBootstrap {
+public class AsyncServerBootstrap {
 
     private final List<HandlerEntry> handlerList;
     private String canonicalHostName;
@@ -68,12 +68,12 @@ public class ServerBootstrap {
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
 
-    private ServerBootstrap() {
+    private AsyncServerBootstrap() {
         this.handlerList = new ArrayList<>();
     }
 
-    public static ServerBootstrap bootstrap() {
-        return new ServerBootstrap();
+    public static AsyncServerBootstrap bootstrap() {
+        return new AsyncServerBootstrap();
     }
 
     /**
@@ -81,7 +81,7 @@ public class ServerBootstrap {
      *
      * @since 5.0
      */
-    public final ServerBootstrap setCanonicalHostName(final String canonicalHostName) {
+    public final AsyncServerBootstrap setCanonicalHostName(final String canonicalHostName) {
         this.canonicalHostName = canonicalHostName;
         return this;
     }
@@ -89,7 +89,7 @@ public class ServerBootstrap {
     /**
      * Sets I/O reactor configuration.
      */
-    public final ServerBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
+    public final AsyncServerBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
         return this;
     }
@@ -97,7 +97,7 @@ public class ServerBootstrap {
     /**
      * Sets connection configuration.
      */
-    public final ServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
+    public final AsyncServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
         return this;
     }
@@ -105,7 +105,7 @@ public class ServerBootstrap {
     /**
      * Assigns {@link org.apache.hc.core5.http.protocol.HttpProcessor} instance.
      */
-    public final ServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
+    public final AsyncServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
         return this;
     }
@@ -113,7 +113,7 @@ public class ServerBootstrap {
     /**
      * Assigns {@link org.apache.hc.core5.http.ConnectionReuseStrategy} instance.
      */
-    public final ServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
+    public final AsyncServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
         return this;
     }
@@ -121,7 +121,7 @@ public class ServerBootstrap {
     /**
      * Assigns {@link TlsStrategy} instance.
      */
-    public final ServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
+    public final AsyncServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
         return this;
     }
@@ -129,7 +129,7 @@ public class ServerBootstrap {
     /**
      * Assigns {@link ExceptionListener} instance.
      */
-    public final ServerBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
+    public final AsyncServerBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
         this.exceptionListener = exceptionListener;
         return this;
     }
@@ -137,7 +137,7 @@ public class ServerBootstrap {
     /**
      * Assigns {@link ConnectionListener} instance.
      */
-    public final ServerBootstrap setConnectionListener(final ConnectionListener connectionListener) {
+    public final AsyncServerBootstrap setConnectionListener(final ConnectionListener connectionListener) {
         this.connectionListener = connectionListener;
         return this;
     }
@@ -147,19 +147,19 @@ public class ServerBootstrap {
      *
      * @since 5.0
      */
-    public final ServerBootstrap setStreamListener(final Http1StreamListener streamListener) {
+    public final AsyncServerBootstrap setStreamListener(final Http1StreamListener streamListener) {
         this.streamListener = streamListener;
         return this;
     }
 
-    public final ServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
+    public final AsyncServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
         handlerList.add(new HandlerEntry(null, uriPattern, supplier));
         return this;
     }
 
-    public final ServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
+    public final AsyncServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
@@ -167,7 +167,7 @@ public class ServerBootstrap {
         return this;
     }
 
-    public final <T> ServerBootstrap register(
+    public final <T> AsyncServerBootstrap register(
             final String uriPattern,
             final RequestConsumerSupplier<T> consumerSupplier,
             final ResponseHandler<T> responseHandler) {
@@ -182,7 +182,7 @@ public class ServerBootstrap {
         return this;
     }
 
-    public final <T> ServerBootstrap registerVirtual(
+    public final <T> AsyncServerBootstrap registerVirtual(
             final String hostname,
             final String uriPattern,
             final RequestConsumerSupplier<T> consumerSupplier,

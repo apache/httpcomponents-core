@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -54,12 +54,12 @@ import org.apache.hc.core5.util.Asserts;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public final class ClientEndpoint implements Closeable {
+public final class ClientSessionEndpoint implements Closeable {
 
     private final IOSession ioSession;
     private final AtomicBoolean closed;
 
-    public ClientEndpoint(final IOSession ioSession) {
+    public ClientSessionEndpoint(final IOSession ioSession) {
         super();
         this.ioSession = ioSession;
         this.closed = new AtomicBoolean(false);

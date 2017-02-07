@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.util.concurrent.Future;
 
@@ -33,7 +33,6 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.impl.PoolEntryHolder;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
@@ -51,15 +50,15 @@ import org.apache.hc.core5.util.Asserts;
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public final class PooledClientEndpoint {
 
-    private final PoolEntryHolder<HttpHost, ClientEndpoint> poolEntryHolder;
+    private final PoolEntryHolder<HttpHost, ClientSessionEndpoint> poolEntryHolder;
 
-    PooledClientEndpoint(final PoolEntryHolder<HttpHost, ClientEndpoint> poolEntryHolder) {
+    PooledClientEndpoint(final PoolEntryHolder<HttpHost, ClientSessionEndpoint> poolEntryHolder) {
         super();
         this.poolEntryHolder = poolEntryHolder;
     }
 
-    private ClientEndpoint getClientEndpoint() {
-        final ClientEndpoint endpoint = poolEntryHolder.getConnection();
+    private ClientSessionEndpoint getClientEndpoint() {
+        final ClientSessionEndpoint endpoint = poolEntryHolder.getConnection();
         Asserts.check(endpoint != null, "Client endpoint already released");
         return endpoint;
     }
@@ -176,7 +175,7 @@ public final class PooledClientEndpoint {
 
     @Override
     public String toString() {
-        final ClientEndpoint endpoint = poolEntryHolder.getConnection();
+        final ClientSessionEndpoint endpoint = poolEntryHolder.getConnection();
         return endpoint != null ? endpoint.toString() : "released";
     }
 

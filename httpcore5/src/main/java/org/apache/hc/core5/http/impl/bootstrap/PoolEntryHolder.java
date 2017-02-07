@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,7 +37,7 @@ import org.apache.hc.core5.pool.PoolEntry;
 /**
  * @since 5.0
  */
-public final class PoolEntryHolder<T, C extends Closeable> {
+final class PoolEntryHolder<T, C extends Closeable> {
 
     private final ConnPool<T, C> connPool;
     private final Callback<C> shutdownCallback;

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;

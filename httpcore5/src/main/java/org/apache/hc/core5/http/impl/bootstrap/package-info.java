@@ -26,6 +26,6 @@
  */
 
 /**
- * Embedded non-blocking server and server bootstrap.
+ * HTTP requester and server bootstrap.
  */
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;

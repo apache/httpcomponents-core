@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
+import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
@@ -116,8 +116,8 @@ public class Http2CompatibilityTest {
     private final static String[] REQUEST_URIS = new String[] {"/", "/news.html", "/status.html"};
 
     void execute() throws Exception {
-        final Future<ClientEndpoint> connectFuture = client.connect(target, 5, TimeUnit.SECONDS);
-        final ClientEndpoint clientEndpoint = connectFuture.get(5, TimeUnit.SECONDS);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, 5, TimeUnit.SECONDS);
+        final ClientSessionEndpoint clientEndpoint = connectFuture.get(5, TimeUnit.SECONDS);
 
         final BlockingDeque<RequestResult> resultQueue = new LinkedBlockingDeque<>();
 

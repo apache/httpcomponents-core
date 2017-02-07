@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.io.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.net.InetAddress;
 import java.util.HashMap;

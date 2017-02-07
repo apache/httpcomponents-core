@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -48,7 +48,7 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
             final Callback<IOSession> sessionShutdownCallback) {
         super(ioReactorConfig,
                 exceptionListener,
-                new ThreadFactoryImpl("listener"),
+                new ThreadFactoryImpl("listener", true),
                 new ThreadFactoryImpl("server-dispatch", true),
                 sessionShutdownCallback);
     }

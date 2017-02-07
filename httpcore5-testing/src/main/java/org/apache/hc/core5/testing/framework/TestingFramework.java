@@ -51,8 +51,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.SocketConfig;
-import org.apache.hc.core5.http.impl.io.bootstrap.HttpServer;
-import org.apache.hc.core5.http.impl.io.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
+import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 
 public class TestingFramework {
     /**

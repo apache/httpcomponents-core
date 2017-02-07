@@ -60,12 +60,12 @@ import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
+import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.bootstrap.PooledClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
-import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.nio.bootstrap.PooledClientEndpoint;
-import org.apache.hc.core5.http.impl.nio.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -103,7 +103,7 @@ public class AsyncReverseProxyExample {
             .setConnectTimeout(3000)
             .build();
 
-        final HttpAsyncRequester requester = RequesterBootstrap.bootstrap()
+        final HttpAsyncRequester requester = AsyncRequesterBootstrap.bootstrap()
                 .setIOReactorConfig(config)
                 .setConnectionListener(new ConnectionListener() {
 
@@ -161,7 +161,7 @@ public class AsyncReverseProxyExample {
                 .setDefaultMaxPerRoute(20)
                 .create();
 
-        final HttpAsyncServer server = ServerBootstrap.bootstrap()
+        final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
                 .setConnectionListener(new ConnectionListener() {
 

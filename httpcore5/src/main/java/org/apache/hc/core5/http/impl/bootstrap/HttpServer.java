@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.io.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -93,7 +93,7 @@ public class HttpServer implements AutoCloseable {
         this.workerExecutorService = new WorkerPoolExecutor(
                 0, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
-                new ThreadFactoryImpl("HTTP-worker", this.workerThreads));
+                new ThreadFactoryImpl("HTTP-worker", this.workerThreads, false));
         this.status = new AtomicReference<>(Status.READY);
     }
 

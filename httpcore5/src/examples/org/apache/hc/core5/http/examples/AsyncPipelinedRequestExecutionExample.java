@@ -37,9 +37,9 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.impl.nio.bootstrap.PooledClientEndpoint;
-import org.apache.hc.core5.http.impl.nio.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http.impl.bootstrap.PooledClientEndpoint;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
@@ -60,7 +60,7 @@ public class AsyncPipelinedRequestExecutionExample {
                 .build();
 
         // Create and start requester
-        final HttpAsyncRequester requester = RequesterBootstrap.bootstrap()
+        final HttpAsyncRequester requester = AsyncRequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
                 .setStreamListener(new Http1StreamListener() {
 

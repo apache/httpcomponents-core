@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.util.concurrent.TimeUnit;
 
@@ -51,7 +51,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 /**
  * @since 5.0
  */
-public class RequesterBootstrap {
+public class AsyncRequesterBootstrap {
 
     private IOReactorConfig ioReactorConfig;
     private CharCodingConfig charCodingConfig;
@@ -68,17 +68,17 @@ public class RequesterBootstrap {
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
 
-    private RequesterBootstrap() {
+    private AsyncRequesterBootstrap() {
     }
 
-    public static RequesterBootstrap bootstrap() {
-        return new RequesterBootstrap();
+    public static AsyncRequesterBootstrap bootstrap() {
+        return new AsyncRequesterBootstrap();
     }
 
     /**
      * Sets I/O reactor configuration.
      */
-    public final RequesterBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
+    public final AsyncRequesterBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
         return this;
     }
@@ -86,7 +86,7 @@ public class RequesterBootstrap {
     /**
      * Sets connection configuration.
      */
-    public final RequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
+    public final AsyncRequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
         return this;
     }
@@ -94,7 +94,7 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link HttpProcessor} instance.
      */
-    public final RequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
+    public final AsyncRequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
         return this;
     }
@@ -102,22 +102,22 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link ConnectionReuseStrategy} instance.
      */
-    public final RequesterBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
+    public final AsyncRequesterBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
         return this;
     }
 
-    public final RequesterBootstrap setDefaultMaxPerRoute(final int defaultMaxPerRoute) {
+    public final AsyncRequesterBootstrap setDefaultMaxPerRoute(final int defaultMaxPerRoute) {
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         return this;
     }
 
-    public final RequesterBootstrap setMaxTotal(final int maxTotal) {
+    public final AsyncRequesterBootstrap setMaxTotal(final int maxTotal) {
         this.maxTotal = maxTotal;
         return this;
     }
 
-    public final RequesterBootstrap setTimeToLive(final long timeToLive, final TimeUnit timeUnit) {
+    public final AsyncRequesterBootstrap setTimeToLive(final long timeToLive, final TimeUnit timeUnit) {
         this.timeToLive = timeToLive;
         this.timeUnit = timeUnit;
         return this;
@@ -126,7 +126,7 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link ConnPoolPolicy} instance.
      */
-    public final RequesterBootstrap setConnPoolPolicy(final ConnPoolPolicy connPoolPolicy) {
+    public final AsyncRequesterBootstrap setConnPoolPolicy(final ConnPoolPolicy connPoolPolicy) {
         this.connPoolPolicy = connPoolPolicy;
         return this;
     }
@@ -134,7 +134,7 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link TlsStrategy} instance.
      */
-    public final RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
+    public final AsyncRequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
         return this;
     }
@@ -142,7 +142,7 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link ExceptionListener} instance.
      */
-    public final RequesterBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
+    public final AsyncRequesterBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
         this.exceptionListener = exceptionListener;
         return this;
     }
@@ -150,7 +150,7 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link ConnectionListener} instance.
      */
-    public final RequesterBootstrap setConnectionListener(final ConnectionListener connectionListener) {
+    public final AsyncRequesterBootstrap setConnectionListener(final ConnectionListener connectionListener) {
         this.connectionListener = connectionListener;
         return this;
     }
@@ -158,7 +158,7 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link Http1StreamListener} instance.
      */
-    public final RequesterBootstrap setStreamListener(final Http1StreamListener streamListener) {
+    public final AsyncRequesterBootstrap setStreamListener(final Http1StreamListener streamListener) {
         this.streamListener = streamListener;
         return this;
     }
@@ -166,13 +166,13 @@ public class RequesterBootstrap {
     /**
      * Assigns {@link ConnPoolListener} instance.
      */
-    public final RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
+    public final AsyncRequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
         this.connPoolListener = connPoolListener;
         return this;
     }
 
     public HttpAsyncRequester create() {
-        final StrictConnPool<HttpHost, ClientEndpoint> connPool = new StrictConnPool<>(
+        final StrictConnPool<HttpHost, ClientSessionEndpoint> connPool = new StrictConnPool<>(
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,

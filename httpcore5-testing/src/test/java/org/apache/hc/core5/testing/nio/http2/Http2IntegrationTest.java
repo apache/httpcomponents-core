@@ -70,8 +70,8 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
 import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -171,9 +171,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 10; i++) {
@@ -207,9 +207,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/"), null),
@@ -257,9 +257,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 10; i++) {
@@ -294,9 +294,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("POST", createRequestURI(serverEndpoint, "/echo"),
@@ -328,9 +328,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start(H2Config.custom().setInitialWindowSize(16).build());
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/"), null),
@@ -387,9 +387,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
@@ -495,9 +495,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                 .setInitialWindowSize(512)
                 .build());
 
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/hello"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
@@ -568,9 +568,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
         });
 
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
@@ -644,9 +644,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
         client.start(H2Config.custom().setPushEnabled(true).build());
 
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
@@ -683,9 +683,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom().setMaxConcurrentStreams(20).build());
 
         client.start(H2Config.custom().setMaxConcurrentStreams(20).build());
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Queue<Future<Message<HttpResponse, Void>>> queue = new LinkedList<>();
         for (int i = 0; i < 2000; i++) {
@@ -742,9 +742,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         request1.addHeader("password", "secret");
@@ -836,9 +836,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
@@ -884,9 +884,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
         client.start();
 
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final HttpRequest request1 = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/hello"));
         final DigestingEntityConsumer<String> entityConsumer = new DigestingEntityConsumer<>("MD5", new StringAsyncEntityConsumer());
@@ -925,9 +925,9 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final Future<ClientEndpoint> connectFuture = client.connect(
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT, TimeUnit.SECONDS);
-        final ClientEndpoint streamEndpoint = connectFuture.get();
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final int n = 10;
         final CountDownLatch latch = new CountDownLatch(n);

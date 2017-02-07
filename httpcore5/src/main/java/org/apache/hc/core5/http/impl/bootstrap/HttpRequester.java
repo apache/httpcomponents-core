@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.io.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,7 +50,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.SocketConfig;
-import org.apache.hc.core5.http.impl.PoolEntryHolder;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.EofSensorInputStream;

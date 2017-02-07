@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -37,7 +37,6 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.impl.PoolEntryHolder;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
@@ -57,13 +56,13 @@ import org.apache.hc.core5.util.Args;
 public class HttpAsyncRequester extends AsyncRequester {
 
     private final IOEventHandlerFactory handlerFactory;
-    private final ControlledConnPool<HttpHost, ClientEndpoint> connPool;
+    private final ControlledConnPool<HttpHost, ClientSessionEndpoint> connPool;
     private final TlsStrategy tlsStrategy;
 
     public HttpAsyncRequester(
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory handlerFactory,
-            final ControlledConnPool<HttpHost, ClientEndpoint> connPool,
+            final ControlledConnPool<HttpHost, ClientSessionEndpoint> connPool,
             final TlsStrategy tlsStrategy,
             final ExceptionListener exceptionListener) {
         super(ioReactorConfig, exceptionListener, new Callback<IOSession>() {
@@ -91,23 +90,23 @@ public class HttpAsyncRequester extends AsyncRequester {
         Args.notNull(host, "Host");
         Args.notNull(timeUnit, "Time unit");
         final ComplexFuture<PooledClientEndpoint> resultFuture = new ComplexFuture<>(callback);
-        final Future<PoolEntry<HttpHost, ClientEndpoint>> leaseFuture = connPool.lease(
-                host, null, new FutureCallback<PoolEntry<HttpHost, ClientEndpoint>>() {
+        final Future<PoolEntry<HttpHost, ClientSessionEndpoint>> leaseFuture = connPool.lease(
+                host, null, new FutureCallback<PoolEntry<HttpHost, ClientSessionEndpoint>>() {
 
             @Override
-            public void completed(final PoolEntry<HttpHost, ClientEndpoint> poolEntry) {
-                final PoolEntryHolder<HttpHost, ClientEndpoint> poolEntryHolder = new PoolEntryHolder<>(
+            public void completed(final PoolEntry<HttpHost, ClientSessionEndpoint> poolEntry) {
+                final PoolEntryHolder<HttpHost, ClientSessionEndpoint> poolEntryHolder = new PoolEntryHolder<>(
                         connPool,
                         poolEntry,
-                        new Callback<ClientEndpoint>() {
+                        new Callback<ClientSessionEndpoint>() {
 
                             @Override
-                            public void execute(final ClientEndpoint clientEndpoint) {
+                            public void execute(final ClientSessionEndpoint clientEndpoint) {
                                 clientEndpoint.shutdown();
                             }
 
                         });
-                final ClientEndpoint clientEndpoint = poolEntry.getConnection();
+                final ClientSessionEndpoint clientEndpoint = poolEntry.getConnection();
                 if (clientEndpoint != null && !clientEndpoint.isOpen()) {
                     poolEntry.discardConnection();
                 }
@@ -128,7 +127,7 @@ public class HttpAsyncRequester extends AsyncRequester {
                                         session.getLocalAddress(),
                                         session.getRemoteAddress());
                             }
-                            poolEntry.assignConnection(new ClientEndpoint(session));
+                            poolEntry.assignConnection(new ClientSessionEndpoint(session));
                             resultFuture.completed(new PooledClientEndpoint(poolEntryHolder));
                         }
 

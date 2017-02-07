@@ -41,8 +41,8 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.nio.bootstrap.AsyncRequester;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ClientEndpoint;
+import org.apache.hc.core5.http.impl.bootstrap.AsyncRequester;
+import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
@@ -117,18 +117,18 @@ public class Http2TestClient extends AsyncRequester {
         start(H2Config.DEFAULT);
     }
 
-    public Future<ClientEndpoint> connect(
+    public Future<ClientSessionEndpoint> connect(
             final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,
-            final FutureCallback<ClientEndpoint> callback) throws InterruptedException {
-        final BasicFuture<ClientEndpoint> future = new BasicFuture<>(callback);
+            final FutureCallback<ClientSessionEndpoint> callback) throws InterruptedException {
+        final BasicFuture<ClientSessionEndpoint> future = new BasicFuture<>(callback);
         requestSession(host, timeout, timeUnit, new SessionRequestCallback() {
 
             @Override
             public void completed(final SessionRequest request) {
                 final IOSession session = request.getSession();
-                future.completed(new ClientEndpoint(session));
+                future.completed(new ClientSessionEndpoint(session));
             }
 
             @Override
@@ -149,14 +149,14 @@ public class Http2TestClient extends AsyncRequester {
         return future;
     }
 
-    public Future<ClientEndpoint> connect(
+    public Future<ClientSessionEndpoint> connect(
             final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
         return connect(host, timeout, timeUnit, null);
     }
 
-    public Future<ClientEndpoint> connect(
+    public Future<ClientSessionEndpoint> connect(
             final String hostname,
             final int port,
             final long timeout,

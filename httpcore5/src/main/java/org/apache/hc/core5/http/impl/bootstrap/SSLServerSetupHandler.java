@@ -24,33 +24,22 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.io.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLServerSocket;
 
 /**
+ * Server SSL setup handler. Custom implementations of this interface can be used to
+ * configure various SSL protocol aspects such as supported protocol versions, cypher suites,
+ * and mandatory / optional client authentication.
+ *
+ * @see javax.net.ssl.SSLServerSocket
+ * @see javax.net.ssl.SSLSession
  * @since 4.4
  */
-class ThreadFactoryImpl implements ThreadFactory {
+public interface SSLServerSetupHandler {
 
-    private final String namePrefix;
-    private final ThreadGroup group;
-    private final AtomicLong count;
-
-    ThreadFactoryImpl(final String namePrefix, final ThreadGroup group) {
-        this.namePrefix = namePrefix;
-        this.group = group;
-        this.count = new AtomicLong();
-    }
-
-    ThreadFactoryImpl(final String namePrefix) {
-        this(namePrefix, null);
-    }
-
-    @Override
-    public Thread newThread(final Runnable target) {
-        return new Thread(this.group, target, this.namePrefix + "-"  + this.count.incrementAndGet());
-    }
+    void initialize(SSLServerSocket socket) throws SSLException;
 
 }

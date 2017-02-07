@@ -24,41 +24,51 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio.bootstrap;
+package org.apache.hc.core5.http.impl.bootstrap;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @since 4.4
  */
-class ThreadFactoryImpl implements ThreadFactory {
+class WorkerPoolExecutor extends ThreadPoolExecutor {
 
-    private final String namePrefix;
-    private final ThreadGroup group;
-    private final AtomicLong count;
-    private final boolean daemon;
+    private final Map<Worker, Boolean> workerSet;
 
-    ThreadFactoryImpl(final String namePrefix, final ThreadGroup group, final boolean daemon) {
-        this.namePrefix = namePrefix;
-        this.group = group;
-        this.count = new AtomicLong();
-        this.daemon = daemon;
-    }
-
-    ThreadFactoryImpl(final String namePrefix) {
-        this(namePrefix, null, false);
-    }
-
-    ThreadFactoryImpl(final String namePrefix, final boolean daemon) {
-        this(namePrefix, null, daemon);
+    public WorkerPoolExecutor(
+            final int corePoolSize,
+            final int maximumPoolSize,
+            final long keepAliveTime,
+            final TimeUnit unit,
+            final BlockingQueue<Runnable> workQueue,
+            final ThreadFactory threadFactory) {
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
+        this.workerSet = new ConcurrentHashMap<>();
     }
 
     @Override
-    public Thread newThread(final Runnable target) {
-        final Thread thread = new Thread(this.group, target, this.namePrefix + "-"  + this.count.incrementAndGet());
-        thread.setDaemon(this.daemon);
-        return thread;
+    protected void beforeExecute(final Thread t, final Runnable r) {
+        if (r instanceof Worker) {
+            this.workerSet.put((Worker) r, Boolean.TRUE);
+        }
+    }
+
+    @Override
+    protected void afterExecute(final Runnable r, final Throwable t) {
+        if (r instanceof Worker) {
+            this.workerSet.remove(r);
+        }
+    }
+
+    public Set<Worker> getWorkers() {
+        return new HashSet<>(this.workerSet.keySet());
     }
 
 }

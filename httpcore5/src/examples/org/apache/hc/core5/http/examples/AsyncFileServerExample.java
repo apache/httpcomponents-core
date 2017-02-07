@@ -46,8 +46,8 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.hc.core5.http.impl.nio.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.nio.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
@@ -83,7 +83,7 @@ public class AsyncFileServerExample {
                 .setTcpNoDelay(true)
                 .build();
 
-        final HttpAsyncServer server = ServerBootstrap.bootstrap()
+        final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
                 .setExceptionListener(new ExceptionListener() {
 
