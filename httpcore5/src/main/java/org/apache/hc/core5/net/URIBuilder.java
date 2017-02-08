@@ -36,6 +36,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Builder for {@link URI} instances.
@@ -473,8 +474,8 @@ public class URIBuilder {
 
     private static String normalizePath(final String path) {
         String s = path;
-        if (s == null) {
-            return "/";
+        if (TextUtils.isBlank(s)) {
+            return "";
         }
         int n = 0;
         for (; n < s.length(); n++) {
