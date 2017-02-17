@@ -77,7 +77,7 @@ public class AsyncServerExchangeHandlerRegistry implements HandlerFactory<AsyncS
         String path = request.getPath();
         final int i = path.indexOf("?");
         if (i != -1) {
-            path = path.substring(0, i - 1);
+            path = path.substring(0, i);
         }
         final Supplier<AsyncServerExchangeHandler> supplier = patternMatcher.lookup(path);
         if (supplier != null) {
