@@ -38,6 +38,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -190,37 +192,37 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
         return new Future<E>() {
 
-            private volatile boolean cancelled;
-            private volatile boolean done;
-            private volatile E entry;
+            private final AtomicBoolean cancelled = new AtomicBoolean(false);
+            private final AtomicBoolean done = new AtomicBoolean(false);
+            private final AtomicReference<E> entryRef = new AtomicReference<E>(null);
 
             @Override
             public boolean cancel(final boolean mayInterruptIfRunning) {
-                cancelled = true;
-                lock.lock();
-                try {
-                    condition.signalAll();
-                } finally {
-                    lock.unlock();
-                }
-                synchronized (this) {
-                    final boolean result = !done;
-                    done = true;
+                if (cancelled.compareAndSet(false, true)) {
+                    done.set(true);
+                    lock.lock();
+                    try {
+                        condition.signalAll();
+                    } finally {
+                        lock.unlock();
+                    }
                     if (callback != null) {
                         callback.cancelled();
                     }
-                    return result;
+                    return true;
+                } else {
+                    return false;
                 }
             }
 
             @Override
             public boolean isCancelled() {
-                return cancelled;
+                return cancelled.get();
             }
 
             @Override
             public boolean isDone() {
-                return done;
+                return done.get();
             }
 
             @Override
@@ -234,6 +236,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
             @Override
             public E get(final long timeout, final TimeUnit tunit) throws InterruptedException, ExecutionException, TimeoutException {
+                final E entry = entryRef.get();
                 if (entry != null) {
                     return entry;
                 }
@@ -250,16 +253,16 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                                     }
                                 }
                             }
-                            entry = leasedEntry;
-                            done = true;
-                            onLease(entry);
+                            entryRef.set(leasedEntry);
+                            done.set(true);
+                            onLease(leasedEntry);
                             if (callback != null) {
-                                callback.completed(entry);
+                                callback.completed(leasedEntry);
                             }
-                            return entry;
+                            return leasedEntry;
                         }
                     } catch (IOException ex) {
-                        done = true;
+                        done.set(true);
                         if (callback != null) {
                             callback.failed(ex);
                         }
