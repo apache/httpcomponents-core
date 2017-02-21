@@ -116,7 +116,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         this.inputBuffer = inputBuffer;
         this.requestCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
-        this.requestState = MessageState.HEADERS;
+        this.requestState = MessageState.IDLE;
         this.responseState = MessageState.HEADERS;
     }
 
@@ -139,7 +139,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
 
     boolean isOutputReady() {
         switch (requestState) {
-            case HEADERS:
+            case IDLE:
             case ACK:
                 return true;
             case BODY:
@@ -188,7 +188,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
 
     void produceOutput() throws HttpException, IOException {
         switch (requestState) {
-            case HEADERS:
+            case IDLE:
+                requestState = MessageState.HEADERS;
                 exchangeHandler.produceRequest(new RequestChannel() {
 
                     @Override
