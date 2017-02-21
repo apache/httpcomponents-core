@@ -51,11 +51,11 @@ import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
+import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -244,7 +244,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 } while (bytesRead > 0);
 
                 if (bytesRead == -1 && !inbuf.hasData()) {
-                    if (incomingMessage == null && outgoingMessage == null) {
+                    if (outputIdle() && inputIdle()) {
                         requestShutdown(ShutdownType.IMMEDIATE);
                     } else {
                         doTerminate(new ConnectionClosedException("Connection closed by peer"));
