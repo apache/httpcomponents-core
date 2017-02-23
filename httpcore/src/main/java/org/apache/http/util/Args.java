@@ -80,6 +80,9 @@ public class Args {
         if (argument == null) {
             throw new IllegalArgumentException(name + " may not be null");
         }
+        if (argument.length() == 0) {
+            throw new IllegalArgumentException(name + " may not be empty");
+        }
         if (TextUtils.containsBlanks(argument)) {
             throw new IllegalArgumentException(name + " may not contain blanks");
         }
