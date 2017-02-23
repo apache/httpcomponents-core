@@ -222,6 +222,11 @@ public class TestHttpHost {
             Assert.fail("IllegalArgumentException expected");
         } catch (final IllegalArgumentException expected) {
         }
+        try {
+            HttpHost.create("");
+            Assert.fail("IllegalArgumentException expected");
+        } catch (final IllegalArgumentException expected) {
+        }
     }
 
 }
