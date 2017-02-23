@@ -215,6 +215,11 @@ public class TestHttpHost {
             Assert.fail("URISyntaxException expected");
         } catch (final URISyntaxException expected) {
         }
+        try {
+            HttpHost.create("");
+            Assert.fail("IllegalArgumentException expected");
+        } catch (final IllegalArgumentException expected) {
+        }
     }
 
 }

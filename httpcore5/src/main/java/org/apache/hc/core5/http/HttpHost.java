@@ -130,9 +130,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @since 4.4
      */
     public static HttpHost create(final String s) throws URISyntaxException {
-        if (s == null) {
-            return null;
-        }
+        Args.notEmpty(s, "HTTP Host");
         String text = s;
         String scheme = null;
         final int schemeIdx = text.indexOf("://");
