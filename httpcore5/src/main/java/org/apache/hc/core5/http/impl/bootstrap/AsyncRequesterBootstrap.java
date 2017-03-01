@@ -47,6 +47,7 @@ import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 
 /**
@@ -189,12 +190,16 @@ public class AsyncRequesterBootstrap {
                 DefaultContentLengthStrategy.INSTANCE,
                 connectionListener,
                 streamListener);
-        return new HttpAsyncRequester(
-                ioReactorConfig,
-                ioEventHandlerFactory,
-                connPool,
-                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
-                exceptionListener);
+        try {
+            return new HttpAsyncRequester(
+                    ioReactorConfig,
+                    ioEventHandlerFactory,
+                    connPool,
+                    tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
+                    exceptionListener);
+        } catch (IOReactorException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
 }

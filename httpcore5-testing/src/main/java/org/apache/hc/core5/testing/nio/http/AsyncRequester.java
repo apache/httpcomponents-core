@@ -25,21 +25,21 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.testing.nio.http;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
@@ -47,15 +47,20 @@ import org.apache.hc.core5.util.Args;
 
 public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor> implements ConnectionInitiator {
 
-    public AsyncRequester(
-            final IOEventHandlerFactory eventHandlerFactory,
+    public AsyncRequester(final IOReactorConfig ioReactorConfig) {
+        super(ioReactorConfig,
+                new ThreadFactoryImpl("connector", true),
+                new ThreadFactoryImpl("requester-dispatch", true));
+    }
+
+    @Override
+    DefaultConnectingIOReactor createIOReactor(
+            final IOEventHandlerFactory ioEventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
-            final ExceptionListener exceptionListener,
-            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
-        super(new DefaultConnectingIOReactor(
-                        eventHandlerFactory, ioReactorConfig, new ThreadFactoryImpl("requester-dispatch", true), sessionShutdownCallback),
-                exceptionListener,
-                new ThreadFactoryImpl("connector", true));
+            final ThreadFactory threadFactory,
+            final Callback<IOSession> sessionShutdownCallback) throws IOException {
+        return new DefaultConnectingIOReactor(
+                ioEventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
     }
 
     private InetSocketAddress toSocketAddress(final HttpHost host) {
@@ -72,7 +77,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
         return new InetSocketAddress(hostName, port);
     }
 
-    protected SessionRequest requestSession(
+    public SessionRequest requestSession(
             final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,

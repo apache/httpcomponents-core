@@ -36,44 +36,23 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncRequester;
-import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-public class Http1TestClient extends AsyncRequester {
+public class Http1TestClient extends AsyncRequester  {
 
     private final SSLContext sslContext;
 
     public Http1TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
-        super(ioReactorConfig, new ExceptionListener() {
-
-            private final Logger log = LogManager.getLogger(Http1TestClient.class);
-
-            @Override
-            public void onError(final Exception ex) {
-                log.error(ex.getMessage(), ex);
-            }
-
-        }, new Callback<IOSession>() {
-            @Override
-            public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-            }
-        });
+        super(ioReactorConfig);
         this.sslContext = sslContext;
     }
 
@@ -98,15 +77,6 @@ public class Http1TestClient extends AsyncRequester {
 
     public void start() throws IOException {
         start(H1Config.DEFAULT);
-    }
-
-    @Override
-    public SessionRequest requestSession(
-            final HttpHost host,
-            final long timeout,
-            final TimeUnit timeUnit,
-            final SessionRequestCallback callback) {
-        return super.requestSession(host, timeout, timeUnit, callback);
     }
 
     public Future<ClientSessionEndpoint> connect(

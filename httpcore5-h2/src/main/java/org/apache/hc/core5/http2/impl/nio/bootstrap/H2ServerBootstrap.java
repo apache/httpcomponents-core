@@ -48,6 +48,7 @@ import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -208,10 +209,14 @@ public class H2ServerBootstrap {
                 tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener,
                 streamListener);
-        return new HttpAsyncServer(
-                ioEventHandlerFactory,
-                ioReactorConfig,
-                exceptionListener);
+        try {
+            return new HttpAsyncServer(
+                    ioEventHandlerFactory,
+                    ioReactorConfig,
+                    exceptionListener);
+        } catch (IOReactorException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     private static class HandlerEntry {

@@ -48,6 +48,7 @@ import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -210,12 +211,16 @@ public class H2RequesterBootstrap {
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 connectionListener,
                 streamListener);
-        return new HttpAsyncRequester(
-                ioReactorConfig,
-                ioEventHandlerFactory,
-                connPool,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
-                exceptionListener);
+        try {
+            return new HttpAsyncRequester(
+                    ioReactorConfig,
+                    ioEventHandlerFactory,
+                    connPool,
+                    tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
+                    exceptionListener);
+        } catch (IOReactorException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     private static class PushConsumerEntry {

@@ -32,15 +32,10 @@ import java.net.InetSocketAddress;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
@@ -49,33 +44,16 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.hc.core5.testing.nio.http.AsyncServer;
+
 public class Http2TestServer extends AsyncServer {
 
     private final SSLContext sslContext;
     private final AsyncServerExchangeHandlerRegistry handlerRegistry;
 
     public Http2TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
-        super(ioReactorConfig, new ExceptionListener() {
-
-            private final Logger log = LogManager.getLogger(Http2TestServer.class);
-
-            @Override
-            public void onError(final Exception ex) {
-                log.error(ex.getMessage(), ex);
-            }
-
-        }, new Callback<IOSession>() {
-
-            @Override
-            public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-            }
-
-        });
+        super(ioReactorConfig);
         this.sslContext = sslContext;
         this.handlerRegistry = new AsyncServerExchangeHandlerRegistry("localhost");
     }

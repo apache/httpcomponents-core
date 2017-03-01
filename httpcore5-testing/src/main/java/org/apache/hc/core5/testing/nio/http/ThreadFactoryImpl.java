@@ -24,40 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.testing.nio.http;
 
-import java.io.IOException;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
-import org.apache.hc.core5.reactor.IOSession;
+class ThreadFactoryImpl implements ThreadFactory {
 
-/**
- * @since 5.0
- */
-public class HttpAsyncServer extends AsyncServer {
+    private final String namePrefix;
+    private final ThreadGroup group;
+    private final AtomicLong count;
+    private final boolean daemon;
 
-    public HttpAsyncServer(
-            final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig ioReactorConfig,
-            final ExceptionListener exceptionListener) throws IOReactorException {
-        super(eventHandlerFactory, ioReactorConfig, exceptionListener, new Callback<IOSession>() {
-
-            @Override
-            public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-            }
-
-        });
+    ThreadFactoryImpl(final String namePrefix, final ThreadGroup group, final boolean daemon) {
+        this.namePrefix = namePrefix;
+        this.group = group;
+        this.daemon = daemon;
+        this.count = new AtomicLong();
     }
 
-    public void start() throws IOException {
-        execute();
+    ThreadFactoryImpl(final String namePrefix, final boolean daemon) {
+        this(namePrefix, null, daemon);
+    }
+
+    ThreadFactoryImpl(final String namePrefix) {
+        this(namePrefix, null, false);
+    }
+
+    @Override
+    public Thread newThread(final Runnable target) {
+        final Thread thread = new Thread(this.group, target, this.namePrefix + "-"  + this.count.incrementAndGet());
+        thread.setDaemon(daemon);
+        return thread;
     }
 
 }

@@ -50,6 +50,7 @@ import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -216,10 +217,14 @@ public class AsyncServerBootstrap {
                 tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener,
                 streamListener);
-        return new HttpAsyncServer(
-                ioEventHandlerFactory,
-                ioReactorConfig,
-                exceptionListener);
+        try {
+            return new HttpAsyncServer(
+                    ioEventHandlerFactory,
+                    ioReactorConfig,
+                    exceptionListener);
+        } catch (IOReactorException ex) {
+            throw new IllegalStateException(ex);
+        }
     }
 
     private static class HandlerEntry {
