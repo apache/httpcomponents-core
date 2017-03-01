@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.testing.nio.http;
 
 import java.io.Closeable;
 import java.io.IOException;

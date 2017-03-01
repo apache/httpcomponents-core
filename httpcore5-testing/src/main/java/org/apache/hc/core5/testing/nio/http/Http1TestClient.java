@@ -44,7 +44,6 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequester;
-import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpProcessor;

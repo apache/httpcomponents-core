@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
+import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;

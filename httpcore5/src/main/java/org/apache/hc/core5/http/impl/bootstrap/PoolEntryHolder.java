@@ -63,6 +63,10 @@ final class PoolEntryHolder<T, C extends Closeable> {
         reusable.set(true);
     }
 
+    public void markNonReusable() {
+        reusable.set(false);
+    }
+
     public void releaseConnection() {
         final PoolEntry<T, C> poolEntry = poolEntryRef.getAndSet(null);
         if (poolEntry != null) {

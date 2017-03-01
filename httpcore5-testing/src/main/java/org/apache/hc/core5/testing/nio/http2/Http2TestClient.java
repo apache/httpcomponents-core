@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequester;
-import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
+import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;

@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.impl.bootstrap.PooledClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -107,8 +107,8 @@ public class Http2MultiStreamExecutionExample {
         HttpHost target = new HttpHost("http2bin.org");
         String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
-        Future<PooledClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
-        PooledClientEndpoint clientEndpoint = future.get();
+        Future<AsyncClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+        AsyncClientEndpoint clientEndpoint = future.get();
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {

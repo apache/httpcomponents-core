@@ -37,9 +37,12 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -56,13 +59,13 @@ import org.apache.hc.core5.util.Args;
 public class HttpAsyncRequester extends AsyncRequester {
 
     private final IOEventHandlerFactory handlerFactory;
-    private final ControlledConnPool<HttpHost, ClientSessionEndpoint> connPool;
+    private final ControlledConnPool<HttpHost, IOSession> connPool;
     private final TlsStrategy tlsStrategy;
 
     public HttpAsyncRequester(
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory handlerFactory,
-            final ControlledConnPool<HttpHost, ClientSessionEndpoint> connPool,
+            final ControlledConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy,
             final ExceptionListener exceptionListener) {
         super(ioReactorConfig, exceptionListener, new Callback<IOSession>() {
@@ -82,36 +85,36 @@ public class HttpAsyncRequester extends AsyncRequester {
         execute(handlerFactory);
     }
 
-    public Future<PooledClientEndpoint> connect(
+    public Future<AsyncClientEndpoint> connect(
             final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit,
-            final FutureCallback<PooledClientEndpoint> callback) {
+            final FutureCallback<AsyncClientEndpoint> callback) {
         Args.notNull(host, "Host");
         Args.notNull(timeUnit, "Time unit");
-        final ComplexFuture<PooledClientEndpoint> resultFuture = new ComplexFuture<>(callback);
-        final Future<PoolEntry<HttpHost, ClientSessionEndpoint>> leaseFuture = connPool.lease(
-                host, null, new FutureCallback<PoolEntry<HttpHost, ClientSessionEndpoint>>() {
+        final ComplexFuture<AsyncClientEndpoint> resultFuture = new ComplexFuture<>(callback);
+        final Future<PoolEntry<HttpHost, IOSession>> leaseFuture = connPool.lease(
+                host, null, new FutureCallback<PoolEntry<HttpHost, IOSession>>() {
 
             @Override
-            public void completed(final PoolEntry<HttpHost, ClientSessionEndpoint> poolEntry) {
-                final PoolEntryHolder<HttpHost, ClientSessionEndpoint> poolEntryHolder = new PoolEntryHolder<>(
+            public void completed(final PoolEntry<HttpHost, IOSession> poolEntry) {
+                final PoolEntryHolder<HttpHost, IOSession> poolEntryHolder = new PoolEntryHolder<>(
                         connPool,
                         poolEntry,
-                        new Callback<ClientSessionEndpoint>() {
+                        new Callback<IOSession>() {
 
                             @Override
-                            public void execute(final ClientSessionEndpoint clientEndpoint) {
+                            public void execute(final IOSession clientEndpoint) {
                                 clientEndpoint.shutdown();
                             }
 
                         });
-                final ClientSessionEndpoint clientEndpoint = poolEntry.getConnection();
-                if (clientEndpoint != null && !clientEndpoint.isOpen()) {
+                final IOSession ioSession = poolEntry.getConnection();
+                if (ioSession != null && ioSession.isClosed()) {
                     poolEntry.discardConnection();
                 }
                 if (poolEntry.hasConnection()) {
-                    resultFuture.completed(new PooledClientEndpoint(poolEntryHolder));
+                    resultFuture.completed(new InternalAsyncClientEndpoint(poolEntryHolder));
                 } else {
                     final SessionRequest sessionRequest = requestSession(
                             host, timeout, timeUnit,
@@ -127,8 +130,8 @@ public class HttpAsyncRequester extends AsyncRequester {
                                         session.getLocalAddress(),
                                         session.getRemoteAddress());
                             }
-                            poolEntry.assignConnection(new ClientSessionEndpoint(session));
-                            resultFuture.completed(new PooledClientEndpoint(poolEntryHolder));
+                            poolEntry.assignConnection(session);
+                            resultFuture.completed(new InternalAsyncClientEndpoint(poolEntryHolder));
                         }
 
                         @Override
@@ -178,11 +181,36 @@ public class HttpAsyncRequester extends AsyncRequester {
         return resultFuture;
     }
 
-    public Future<PooledClientEndpoint> connect(
+    public Future<AsyncClientEndpoint> connect(
             final HttpHost host,
             final long timeout,
             final TimeUnit timeUnit) throws InterruptedException {
         return connect(host, timeout, timeUnit, null);
+    }
+
+    private static class InternalAsyncClientEndpoint extends AsyncClientEndpoint {
+
+        final PoolEntryHolder<HttpHost, IOSession> poolEntryHolder;
+
+        InternalAsyncClientEndpoint(final PoolEntryHolder<HttpHost, IOSession> poolEntryHolder) {
+            this.poolEntryHolder = poolEntryHolder;
+        }
+
+        @Override
+        public void execute(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
+
+        }
+
+        @Override
+        public void releaseAndReuse() {
+            poolEntryHolder.releaseConnection();
+        }
+
+        @Override
+        public void releaseAndDiscard() {
+            poolEntryHolder.abortConnection();
+        }
+
     }
 
 }

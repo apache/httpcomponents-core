@@ -47,6 +47,7 @@ import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
 
 /**
  * @since 5.0
@@ -172,7 +173,7 @@ public class AsyncRequesterBootstrap {
     }
 
     public HttpAsyncRequester create() {
-        final StrictConnPool<HttpHost, ClientSessionEndpoint> connPool = new StrictConnPool<>(
+        final StrictConnPool<HttpHost, IOSession> connPool = new StrictConnPool<>(
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,

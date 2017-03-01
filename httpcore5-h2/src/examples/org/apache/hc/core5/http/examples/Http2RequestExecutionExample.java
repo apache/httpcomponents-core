@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.impl.bootstrap.PooledClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -109,8 +109,8 @@ public class Http2RequestExecutionExample {
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
-            final Future<PooledClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
-            final PooledClientEndpoint clientEndpoint = future.get();
+            final Future<AsyncClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+            final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.executeAndRelease(
                     new BasicRequestProducer("GET", target, requestUri),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),

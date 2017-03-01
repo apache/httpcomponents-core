@@ -64,10 +64,10 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.bootstrap.PooledClientEndpoint;
 import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
@@ -312,10 +312,10 @@ public class AsyncReverseProxyExample {
 
             System.out.println("[proxy->origin] " + exchangeState.id + " request connection to " + targetHost);
 
-            requester.connect(targetHost, 30, TimeUnit.SECONDS, new FutureCallback<PooledClientEndpoint>() {
+            requester.connect(targetHost, 30, TimeUnit.SECONDS, new FutureCallback<AsyncClientEndpoint>() {
 
                 @Override
-                public void completed(final PooledClientEndpoint clientEndpoint) {
+                public void completed(final AsyncClientEndpoint clientEndpoint) {
                     System.out.println("[proxy->origin] " + exchangeState.id + " connection leased");
                     clientEndpoint.execute(new OutgoingExchangeHandler(clientEndpoint, exchangeState), null);
                 }
@@ -473,10 +473,10 @@ public class AsyncReverseProxyExample {
 
     private static class OutgoingExchangeHandler implements AsyncClientExchangeHandler {
 
-        private final PooledClientEndpoint clientEndpoint;
+        private final AsyncClientEndpoint clientEndpoint;
         private final ProxyExchangeState exchangeState;
 
-        OutgoingExchangeHandler(final PooledClientEndpoint clientEndpoint, final ProxyExchangeState exchangeState) {
+        OutgoingExchangeHandler(final AsyncClientEndpoint clientEndpoint, final ProxyExchangeState exchangeState) {
             this.clientEndpoint = clientEndpoint;
             this.exchangeState = exchangeState;
         }

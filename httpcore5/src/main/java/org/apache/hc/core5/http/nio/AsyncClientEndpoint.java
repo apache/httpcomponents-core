@@ -25,43 +25,28 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.http.nio;
 
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.AsyncRequestProducer;
-import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 
 /**
- * Client endpoint leased from a pool of connections.
+ * Client endpoint leased from a connection manager.
  * <p>
  * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
  * or {@link #releaseAndDiscard()}.
  *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public final class PooledClientEndpoint {
-
-    private final PoolEntryHolder<HttpHost, ClientSessionEndpoint> poolEntryHolder;
-
-    PooledClientEndpoint(final PoolEntryHolder<HttpHost, ClientSessionEndpoint> poolEntryHolder) {
-        super();
-        this.poolEntryHolder = poolEntryHolder;
-    }
-
-    private ClientSessionEndpoint getClientEndpoint() {
-        final ClientSessionEndpoint endpoint = poolEntryHolder.getConnection();
-        Asserts.check(endpoint != null, "Client endpoint already released");
-        return endpoint;
-    }
+@Contract(threading = ThreadingBehavior.SAFE)
+public abstract class AsyncClientEndpoint {
 
     /**
      * Initiates a message exchange using the given handler.
@@ -69,9 +54,17 @@ public final class PooledClientEndpoint {
      * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
      * or {@link #releaseAndDiscard()}.
      */
-    public void execute(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
-        getClientEndpoint().execute(exchangeHandler, context);
-    }
+    public abstract void execute(AsyncClientExchangeHandler exchangeHandler, HttpContext context);
+
+    /**
+     * Releases the underlying connection back to the connection pool as re-usable.
+     */
+    public abstract void releaseAndReuse();
+
+    /**
+     * Shuts down the underlying connection and removes it from the connection pool.
+     */
+    public abstract void releaseAndDiscard();
 
     /**
      * Initiates message exchange using the given request producer and response consumer.
@@ -79,12 +72,33 @@ public final class PooledClientEndpoint {
      * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
      * or {@link #releaseAndDiscard()}.
      */
-    public <T> Future<T> execute(
+    public final <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        return getClientEndpoint().execute(requestProducer, responseConsumer, context, callback);
+        final BasicFuture<T> future = new BasicFuture<>(callback);
+        execute(new BasicClientExchangeHandler<>(requestProducer, responseConsumer,
+                        new FutureCallback<T>() {
+
+                            @Override
+                            public void completed(final T result) {
+                                future.completed(result);
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                future.failed(ex);
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                future.cancel();
+                            }
+
+                        }),
+                context != null ? context : HttpCoreContext.create());
+        return future;
     }
 
     /**
@@ -93,7 +107,7 @@ public final class PooledClientEndpoint {
      * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
      * or {@link #releaseAndDiscard()}.
      */
-    public <T> Future<T> execute(
+    public final <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final FutureCallback<T> callback) {
@@ -104,12 +118,12 @@ public final class PooledClientEndpoint {
      * Initiates a message exchange using the given request producer and response consumer and
      * automatically invokes {@link #releaseAndReuse()} upon its successful completion.
      */
-    public <T> Future<T> executeAndRelease(
+    public final <T> Future<T> executeAndRelease(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        return getClientEndpoint().execute(requestProducer, responseConsumer, context, new FutureCallback<T>() {
+        return execute(requestProducer, responseConsumer, context, new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {
@@ -151,32 +165,11 @@ public final class PooledClientEndpoint {
      * Initiates a message exchange using the given request producer and response consumer and
      * automatically invokes {@link #releaseAndReuse()} upon its successful completion.
      */
-    public <T> Future<T> executeAndRelease(
+    public final <T> Future<T> executeAndRelease(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final FutureCallback<T> callback) {
         return executeAndRelease(requestProducer, responseConsumer, null, callback);
-    }
-
-    /**
-     * Releases the underlying connection back to the connection pool as re-usable.
-     */
-    public void releaseAndReuse() {
-        poolEntryHolder.markReusable();
-        poolEntryHolder.releaseConnection();
-    }
-
-    /**
-     * Shuts down the underlying connection and removes it from the connection pool.
-     */
-    public void releaseAndDiscard() {
-        poolEntryHolder.abortConnection();
-    }
-
-    @Override
-    public String toString() {
-        final ClientSessionEndpoint endpoint = poolEntryHolder.getConnection();
-        return endpoint != null ? endpoint.toString() : "released";
     }
 
 }

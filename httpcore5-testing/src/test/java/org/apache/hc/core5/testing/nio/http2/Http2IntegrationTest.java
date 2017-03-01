@@ -70,7 +70,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
+import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
 import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;

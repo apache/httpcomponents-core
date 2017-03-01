@@ -39,9 +39,9 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.impl.bootstrap.PooledClientEndpoint;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -99,8 +99,8 @@ public class AsyncPipelinedRequestExecutionExample {
         HttpHost target = new HttpHost("httpbin.org");
         String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
-        Future<PooledClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
-        PooledClientEndpoint clientEndpoint = future.get();
+        Future<AsyncClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+        AsyncClientEndpoint clientEndpoint = future.get();
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {

@@ -81,7 +81,6 @@ import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
 import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.impl.nio.AbstractContentEncoder;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;

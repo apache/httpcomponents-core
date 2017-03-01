@@ -35,7 +35,6 @@ import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.hc.core5.http.impl.bootstrap.ClientSessionEndpoint;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
@@ -49,6 +48,7 @@ import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -193,7 +193,7 @@ public class H2RequesterBootstrap {
     }
 
     public HttpAsyncRequester create() {
-        final StrictConnPool<HttpHost, ClientSessionEndpoint> connPool = new StrictConnPool<>(
+        final StrictConnPool<HttpHost, IOSession> connPool = new StrictConnPool<>(
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
