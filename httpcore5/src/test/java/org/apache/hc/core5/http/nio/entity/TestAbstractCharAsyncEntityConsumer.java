@@ -33,11 +33,10 @@ import java.nio.CharBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,24 +54,24 @@ public class TestAbstractCharAsyncEntityConsumer {
         }
 
         @Override
-        protected void dataStart(
+        protected void start(
                 final ContentType contentType,
                 final FutureCallback<String> resultCallback) throws HttpException, IOException {
             this.resultCallback = resultCallback;
         }
 
         @Override
-        public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-            capacityChannel.update(Integer.MAX_VALUE);
+        protected int capacity() {
+            return Integer.MAX_VALUE;
         }
 
         @Override
-        protected void consumeData(final CharBuffer src) throws IOException {
+        protected void data(final CharBuffer src, final boolean endOfStream) throws IOException {
             buffer.append(src);
         }
 
         @Override
-        protected void dataEnd() throws IOException {
+        protected void completed() throws IOException {
             content = buffer.toString();
             if (resultCallback != null) {
                 resultCallback.completed(content);

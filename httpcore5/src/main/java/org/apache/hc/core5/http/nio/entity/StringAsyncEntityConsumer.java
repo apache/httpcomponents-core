@@ -31,9 +31,8 @@ import java.nio.CharBuffer;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -57,18 +56,18 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
     }
 
     @Override
-    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-        capacityChannel.update(capacityIncrement);
-    }
-
-    @Override
-    protected void dataStart(
+    protected final void start(
             final ContentType contentType, final FutureCallback<String> resultCallback) throws HttpException, IOException {
         this.resultCallback = resultCallback;
     }
 
     @Override
-    protected void consumeData(final CharBuffer src) {
+    protected int capacity() {
+        return capacityIncrement;
+    }
+
+    @Override
+    protected final void data(final CharBuffer src, final boolean endOfStream) {
         Args.notNull(src, "CharBuffer");
         final int chunk = src.remaining();
         content.ensureCapacity(chunk);
@@ -77,14 +76,14 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
     }
 
     @Override
-    protected void dataEnd() throws IOException {
+    protected void completed() throws IOException {
         if (resultCallback != null) {
             resultCallback.completed(content.toString());
         }
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public final void failed(final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
             if (resultCallback != null) {
                 resultCallback.failed(cause);

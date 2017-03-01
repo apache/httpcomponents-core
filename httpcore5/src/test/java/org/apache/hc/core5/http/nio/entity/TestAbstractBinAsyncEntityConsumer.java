@@ -32,10 +32,10 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -76,19 +76,24 @@ public class TestAbstractBinAsyncEntityConsumer {
         }
 
         @Override
-        protected void dataStart(
+        protected void start(
                 final ContentType contentType,
                 final FutureCallback<byte[]> resultCallback) throws HttpException, IOException {
             this.resultCallback = resultCallback;
         }
 
         @Override
-        protected void consumeData(final ByteBuffer src) throws IOException {
+        protected int capacity() {
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
+        protected void data(final ByteBuffer src, final boolean endOfStream) throws IOException {
             buffer.write(src);
         }
 
         @Override
-        protected void dataEnd() throws IOException {
+        protected void completed() throws IOException {
             content = buffer.toByteArray();
             if (resultCallback != null) {
                 resultCallback.completed(content);

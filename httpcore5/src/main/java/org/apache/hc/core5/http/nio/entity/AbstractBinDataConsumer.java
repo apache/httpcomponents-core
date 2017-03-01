@@ -27,34 +27,39 @@
 package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.UnsupportedCharsetException;
+import java.nio.ByteBuffer;
+import java.util.List;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
-import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.http.nio.AsyncDataConsumer;
+import org.apache.hc.core5.http.nio.CapacityChannel;
 
-public abstract class AbstractBinAsyncEntityConsumer<T> extends AbstractBinDataConsumer implements AsyncEntityConsumer<T> {
+public abstract class AbstractBinDataConsumer implements AsyncDataConsumer {
 
-    protected abstract void start(ContentType contentType, FutureCallback<T> resultCallback) throws HttpException, IOException;
+    private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
+
+    protected abstract int capacity();
+
+    protected abstract void data(ByteBuffer data, boolean endOfStream) throws IOException;
+
+    protected abstract void completed() throws IOException;
 
     @Override
-    public final void streamStart(
-            final EntityDetails entityDetails,
-            final FutureCallback<T> resultCallback) throws IOException, HttpException {
-        Args.notNull(resultCallback, "Result callback");
-        try {
-            final ContentType contentType = entityDetails != null ? ContentType.parse(entityDetails.getContentType()) : null;
-            start(contentType, resultCallback);
-            if (entityDetails == null) {
-                completed();
-            }
-        } catch (UnsupportedCharsetException ex) {
-            throw new UnsupportedEncodingException(ex.getMessage());
-        }
+    public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+        capacityChannel.update(capacity());
+    }
+
+    @Override
+    public final int consume(final ByteBuffer src) throws IOException {
+        data(src, false);
+        return capacity();
+    }
+
+    @Override
+    public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+        data(EMPTY, true);
+        completed();
     }
 
 }

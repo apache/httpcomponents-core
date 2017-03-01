@@ -28,39 +28,23 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.CharsetDecoder;
-import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
-import java.util.List;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
  */
-public abstract class AbstractCharAsyncEntityConsumer<T> implements AsyncEntityConsumer<T> {
+public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDataConsumer implements AsyncEntityConsumer<T> {
 
-    private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
-
-    private volatile ContentType contentType;
-    private volatile CharsetDecoder charsetDecoder;
-    private volatile CharBuffer charbuf;
-
-    protected abstract void dataStart(ContentType contentType, FutureCallback<T> resultCallback) throws HttpException, IOException;
-
-    protected abstract void consumeData(CharBuffer src) throws IOException;
-
-    protected abstract void dataEnd() throws IOException;
+    protected abstract void start(ContentType contentType, FutureCallback<T> resultCallback) throws HttpException, IOException;
 
     @Override
     public final void streamStart(
@@ -68,60 +52,19 @@ public abstract class AbstractCharAsyncEntityConsumer<T> implements AsyncEntityC
             final FutureCallback<T> resultCallback) throws IOException, HttpException {
         Args.notNull(resultCallback, "Result callback");
         try {
-            this.contentType = entityDetails != null ? ContentType.parse(entityDetails.getContentType()) : null;
-            dataStart(this.contentType, resultCallback);
-        } catch (UnsupportedCharsetException ex) {
-            throw new UnsupportedEncodingException(ex.getMessage());
-        }
-    }
-
-    private void checkResult(final CoderResult result) throws IOException {
-        if (result.isError()) {
-            result.throwException();
-        }
-    }
-
-    private void doDecode() throws IOException {
-        charbuf.flip();
-        final int chunk = charbuf.remaining();
-        if (chunk > 0) {
-            consumeData(charbuf);
-        }
-        charbuf.clear();
-    }
-
-    @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        Args.notNull(src, "ByteBuffer");
-        if (charsetDecoder == null) {
+            final ContentType contentType = entityDetails != null ? ContentType.parse(entityDetails.getContentType()) : null;
             Charset charset = contentType != null ? contentType.getCharset() : null;
             if (charset == null) {
                 charset = StandardCharsets.US_ASCII;
             }
-            charsetDecoder = charset.newDecoder();
-        }
-        if (charbuf == null) {
-            charbuf = CharBuffer.allocate(2048);
-        }
-        while (src.hasRemaining()) {
-            checkResult(charsetDecoder.decode(src, charbuf, false));
-            doDecode();
-        }
-        return Integer.MAX_VALUE;
-    }
-
-    @Override
-    public final void streamEnd(final List<? extends Header> trailers) throws IOException {
-        if (charsetDecoder != null) {
-            if (charbuf == null) {
-                charbuf = CharBuffer.allocate(512);
+            setCharset(charset);
+            start(contentType, resultCallback);
+            if (entityDetails == null) {
+                completed();
             }
-            checkResult(charsetDecoder.decode(EMPTY, charbuf, true));
-            doDecode();
-            checkResult(charsetDecoder.flush(charbuf));
-            doDecode();
+        } catch (UnsupportedCharsetException ex) {
+            throw new UnsupportedEncodingException(ex.getMessage());
         }
-        dataEnd();
     }
 
 }
