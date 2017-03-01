@@ -31,6 +31,8 @@ import java.io.Closeable;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 
+import org.apache.hc.core5.util.Identifiable;
+
 /**
  * IOSession interface represents a sequence of logically related data exchanges
  * between two end points.
@@ -47,7 +49,7 @@ import java.nio.channels.ByteChannel;
  *
  * @since 4.0
  */
-public interface IOSession extends Closeable {
+public interface IOSession extends Closeable, Identifiable {
 
     int ACTIVE       = 0;
     int CLOSING      = 1;

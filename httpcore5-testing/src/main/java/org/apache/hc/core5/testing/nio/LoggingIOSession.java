@@ -49,21 +49,24 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
 
     private final Logger log;
     private final Wire wirelog;
-    private final String id;
     private final IOSession session;
     private final ByteChannel channel;
 
-    public LoggingIOSession(final IOSession session, final String id, final Logger log, final Logger wirelog) {
+    public LoggingIOSession(final IOSession session, final Logger log, final Logger wirelog) {
         super();
         this.session = session;
-        this.id = id;
         this.log = log;
-        this.wirelog = wirelog != null ? new Wire(wirelog, this.id) : null;
+        this.wirelog = wirelog != null ? new Wire(wirelog, session.getId()) : null;
         this.channel = wirelog != null ? new LoggingByteChannel() : session.channel();
     }
 
-    public LoggingIOSession(final IOSession session, final String id, final Logger log) {
-        this(session, id, log, null);
+    public LoggingIOSession(final IOSession session, final Logger log) {
+        this(session, log, null);
+    }
+
+    @Override
+    public String getId() {
+        return session.getId();
     }
 
     @Override
@@ -124,7 +127,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
     public void setEventMask(final int ops) {
         this.session.setEventMask(ops);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Event mask set " + formatOps(ops));
+            this.log.debug(this.session + " Event mask set " + formatOps(ops));
         }
     }
 
@@ -132,7 +135,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
     public void setEvent(final int op) {
         this.session.setEvent(op);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Event set " + formatOps(op));
+            this.log.debug(this.session + " Event set " + formatOps(op));
         }
     }
 
@@ -140,14 +143,14 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
     public void clearEvent(final int op) {
         this.session.clearEvent(op);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Event cleared " + formatOps(op));
+            this.log.debug(this.session + " Event cleared " + formatOps(op));
         }
     }
 
     @Override
     public void close() {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Close");
+            this.log.debug(this.session + " Close");
         }
         this.session.close();
     }
@@ -165,7 +168,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
     @Override
     public void shutdown() {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Shutdown");
+            this.log.debug(this.session + " Shutdown");
         }
         this.session.shutdown();
     }
@@ -178,7 +181,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
     @Override
     public void setSocketTimeout(final int timeout) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + " " + this.session + ": Set timeout " + timeout);
+            this.log.debug(this.session + " Set timeout " + timeout);
         }
         this.session.setSocketTimeout(timeout);
     }
@@ -217,7 +220,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
 
     @Override
     public String toString() {
-        return this.id + " " + this.session.toString();
+        return this.session.toString();
     }
 
     class LoggingByteChannel implements ByteChannel {
@@ -226,7 +229,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
         public int read(final ByteBuffer dst) throws IOException {
             final int bytesRead = session.channel().read(dst);
             if (log.isDebugEnabled()) {
-                log.debug(id + " " + session + ": " + bytesRead + " bytes read");
+                log.debug(session + " " + bytesRead + " bytes read");
             }
             if (bytesRead > 0 && wirelog.isEnabled()) {
                 final ByteBuffer b = dst.duplicate();
@@ -242,7 +245,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
         public int write(final ByteBuffer src) throws IOException {
             final int byteWritten = session.channel().write(src);
             if (log.isDebugEnabled()) {
-                log.debug(id + " " + session + ": " + byteWritten + " bytes written");
+                log.debug(session + " " + byteWritten + " bytes written");
             }
             if (byteWritten > 0 && wirelog.isEnabled()) {
                 final ByteBuffer b = src.duplicate();
@@ -257,7 +260,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
         @Override
         public void close() throws IOException {
             if (log.isDebugEnabled()) {
-                log.debug(id + " " + session + ": Channel close");
+                log.debug(session + " Channel close");
             }
             session.channel().close();
         }

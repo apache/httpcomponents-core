@@ -28,7 +28,6 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
@@ -36,6 +35,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -49,8 +49,11 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE)
 class IOSessionImpl implements IOSession {
 
+    private final static AtomicLong COUNT = new AtomicLong(0);
+
     private final SelectionKey key;
     private final SocketChannel channel;
+    private final String id;
     private final AtomicInteger status;
     private final AtomicInteger eventMask;
     private final Deque<Command> commandQueue;
@@ -73,7 +76,13 @@ class IOSessionImpl implements IOSession {
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.socketTimeout = 0;
         this.eventMask = new AtomicInteger(key.interestOps());
+        this.id = "i/o-" + Long.toHexString(COUNT.incrementAndGet());
         this.status = new AtomicInteger(ACTIVE);
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override
@@ -227,29 +236,10 @@ class IOSessionImpl implements IOSession {
         }
     }
 
-    private static void formatAddress(final StringBuilder buffer, final SocketAddress socketAddress) {
-        if (socketAddress instanceof InetSocketAddress) {
-            final InetSocketAddress addr = (InetSocketAddress) socketAddress;
-            buffer.append(addr.getAddress() != null ? addr.getAddress().getHostAddress() :
-                addr.getAddress())
-            .append(':')
-            .append(addr.getPort());
-        } else {
-            buffer.append(socketAddress);
-        }
-    }
-
     @Override
     public String toString() {
         final StringBuilder buffer = new StringBuilder();
-        final SocketAddress remoteAddress = getRemoteAddress();
-        final SocketAddress localAddress = getLocalAddress();
-        if (remoteAddress != null && localAddress != null) {
-            formatAddress(buffer, localAddress);
-            buffer.append("<->");
-            formatAddress(buffer, remoteAddress);
-        }
-        buffer.append("[");
+        buffer.append(id).append("[");
         switch (this.status.get()) {
         case ACTIVE:
             buffer.append("ACTIVE");

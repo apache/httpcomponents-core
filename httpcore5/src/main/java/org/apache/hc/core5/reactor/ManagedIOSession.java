@@ -74,6 +74,11 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
         updateAccessTime();
     }
 
+    @Override
+    public String getId() {
+        return ioSession.getId();
+    }
+
     void updateAccessTime() {
         this.lastAccessTime = System.currentTimeMillis();
     }

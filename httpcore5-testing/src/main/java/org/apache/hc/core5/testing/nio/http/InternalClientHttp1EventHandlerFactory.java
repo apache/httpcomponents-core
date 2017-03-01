@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio.http;
 
 import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLContext;
 
@@ -74,8 +73,6 @@ import org.apache.logging.log4j.Logger;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
 
-    private static final AtomicLong COUNT = new AtomicLong();
-
     private final HttpProcessor httpProcessor;
     private final H1Config h1Config;
     private final CharCodingConfig charCodingConfig;
@@ -120,7 +117,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
-        final String id = "http1-outgoing-" + COUNT.incrementAndGet();
+        final String id = ioSession.getId();
         if (sslContext != null && ioSession instanceof TransportSecurityLayer) {
             ((TransportSecurityLayer) ioSession).start(sslContext, null ,null, null);
         }
@@ -128,7 +125,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
         final Logger wireLog = LogManager.getLogger("org.apache.hc.core5.http.wire");
         final Logger headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
         final ClientHttp1StreamDuplexer streamDuplexer = createClientHttp1StreamDuplexer(
-                new LoggingIOSession(ioSession, id, sessionLog, wireLog),
+                new LoggingIOSession(ioSession, sessionLog, wireLog),
                 httpProcessor,
                 h1Config,
                 charCodingConfig,
@@ -142,14 +139,14 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
                     @Override
                     public void onConnect(final HttpConnection connection) {
                         if (sessionLog.isDebugEnabled()) {
-                            sessionLog.debug(id + ": "  + connection + " connected");
+                            sessionLog.debug(id + " "  + connection + " connected");
                         }
                     }
 
                     @Override
                     public void onDisconnect(final HttpConnection connection) {
                         if (sessionLog.isDebugEnabled()) {
-                            sessionLog.debug(id + ": "  + connection + " disconnected");
+                            sessionLog.debug(id + " "  + connection + " disconnected");
                         }
                     }
 
@@ -158,7 +155,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
                         if (ex instanceof ConnectionClosedException) {
                             return;
                         }
-                        sessionLog.error(id + ": "  + ex.getMessage(), ex);
+                        sessionLog.error(id + " "  + ex.getMessage(), ex);
                     }
 
                 },

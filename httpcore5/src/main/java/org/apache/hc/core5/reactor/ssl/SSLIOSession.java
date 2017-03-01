@@ -175,6 +175,11 @@ public class SSLIOSession implements IOSession {
         };
     }
 
+    @Override
+    public String getId() {
+        return session.getId();
+    }
+
     /**
      * Returns {@code true} is the session has been fully initialized,
      * {@code false} otherwise.

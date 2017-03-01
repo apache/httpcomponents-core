@@ -44,10 +44,11 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
+import org.apache.hc.core5.util.Identifiable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
+public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection implements Identifiable {
 
     private static final AtomicLong COUNT = new AtomicLong();
 
@@ -75,6 +76,11 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
 
     public LoggingBHttpClientConnection(final H1Config h1Config) {
         this(h1Config, null, null, null, null, null, null);
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override

@@ -54,7 +54,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void connected(final IOSession session) {
         if (log.isDebugEnabled()) {
-            log.debug(id + " " + session + " connected");
+            log.debug(session + " connected");
         }
         handler.connected(session);
     }
@@ -62,7 +62,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void inputReady(final IOSession session) {
         if (log.isDebugEnabled()) {
-            log.debug(id + " " + session + " input ready");
+            log.debug(session + " input ready");
         }
         handler.inputReady(session);
     }
@@ -70,7 +70,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void outputReady(final IOSession session) {
         if (log.isDebugEnabled()) {
-            log.debug(id + " " + session + " output ready");
+            log.debug(session + " output ready");
         }
         handler.outputReady(session);
     }
@@ -78,7 +78,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void timeout(final IOSession session) {
         if (log.isDebugEnabled()) {
-            log.debug(id + " " + session + " timeout");
+            log.debug(session + " timeout");
         }
         handler.timeout(session);
     }
@@ -91,7 +91,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void disconnected(final IOSession session) {
         if (log.isDebugEnabled()) {
-            log.debug(id + " " + session + " disconnected");
+            log.debug(session + " disconnected");
         }
         handler.disconnected(session);
     }

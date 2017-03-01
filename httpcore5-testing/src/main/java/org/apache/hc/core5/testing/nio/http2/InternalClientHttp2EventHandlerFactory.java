@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.testing.nio.http2;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -53,8 +51,6 @@ import org.apache.logging.log4j.Logger;
 
 class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
-    private static final AtomicLong COUNT = new AtomicLong();
-
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory;
     private final CharCodingConfig charCodingConfig;
@@ -76,7 +72,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
-        final String id = "http2-outgoing-" + COUNT.incrementAndGet();
+        final String id = ioSession.getId();
         if (sslContext != null && ioSession instanceof TransportSecurityLayer) {
             ((TransportSecurityLayer) ioSession).start(sslContext, null ,null, null);
         }
@@ -88,14 +84,14 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
                     @Override
                     public void onConnect(final HttpConnection connection) {
                         if (sessionLog.isDebugEnabled()) {
-                            sessionLog.debug(id + ": "  + connection + " connected");
+                            sessionLog.debug(id + " "  + connection + " connected");
                         }
                     }
 
                     @Override
                     public void onDisconnect(final HttpConnection connection) {
                         if (sessionLog.isDebugEnabled()) {
-                            sessionLog.debug(id + ": "  + connection + " disconnected");
+                            sessionLog.debug(id + " "  + connection + " disconnected");
                         }
                     }
 
@@ -104,14 +100,14 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
                         if (ex instanceof ConnectionClosedException) {
                             return;
                         }
-                        sessionLog.error(id + ": "  + ex.getMessage(), ex);
+                        sessionLog.error(id + " "  + ex.getMessage(), ex);
                     }
 
                 }, new InternalHttp2StreamListener(id)) {
 
             @Override
             protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
-                return super.createStreamMultiplexer(new LoggingIOSession(ioSession, id, sessionLog));
+                return super.createStreamMultiplexer(new LoggingIOSession(ioSession, sessionLog));
             }
         }, id, sessionLog);
 
