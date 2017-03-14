@@ -48,6 +48,7 @@ public class Config {
     private File payloadFile = null;
     private String payloadText = null;
     private String soapAction = null;
+    private int timeLimit = -1;
 
     private boolean disableSSLVerification = true;
     private String trustStorePath = null;
@@ -246,6 +247,14 @@ public class Config {
 
     public void setIdentityStorePassword(final String identityStorePassword) {
         this.identityStorePassword = identityStorePassword;
+    }
+
+    public void setTimeLimit(final int timeLimit) {
+        this.timeLimit = timeLimit;
+    }
+
+    public int getTimeLimit() {
+        return timeLimit;
     }
 
     public Config copy() {

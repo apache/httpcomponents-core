@@ -91,6 +91,10 @@ public class CommandLineUtils {
         topt.setRequired(false);
         topt.setArgName("socket-Timeout");
 
+        final Option tlopt = new Option("l", true, "Time limit for the test to run (default is infinity)");
+        tlopt.setRequired(false);
+        tlopt.setArgName("time-limit");
+
         final Option Hopt = new Option("H", true, "Add arbitrary header line, " +
             "eg. 'Accept-Encoding: gzip' inserted after all normal " +
             "header lines. (repeatable as -H \"h1: v1\",\"h2: v2\" etc)");
@@ -123,6 +127,7 @@ public class CommandLineUtils {
         options.addOption(hopt);
         options.addOption(topt);
         options.addOption(oopt);
+        options.addOption(tlopt);
         return options;
     }
 
@@ -185,6 +190,15 @@ public class CommandLineUtils {
                 config.setSocketTimeout(Integer.parseInt(t));
             } catch (final NumberFormatException ex) {
                 printError("Invalid socket timeout: " + t);
+            }
+        }
+
+        if (cmd.hasOption('l')) {
+            final String l = cmd.getOptionValue('l');
+            try {
+                config.setTimeLimit(Integer.parseInt(l));
+            } catch (final NumberFormatException ex) {
+                printError("Invalid time limit: " + l);
             }
         }
 
