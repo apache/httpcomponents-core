@@ -76,6 +76,7 @@ class BenchmarkWorker implements Runnable {
     private final ClassicHttpRequest request;
     private final Config config;
     private final SocketFactory socketFactory;
+    private boolean shutdownSignal;
     private final Stats stats = new Stats();
 
     public BenchmarkWorker(
@@ -102,6 +103,7 @@ class BenchmarkWorker implements Runnable {
 
         this.connstrategy = DefaultConnectionReuseStrategy.INSTANCE;
         this.socketFactory = socketFactory;
+        this.shutdownSignal = false;
     }
 
     @Override
@@ -215,6 +217,9 @@ class BenchmarkWorker implements Runnable {
                 }
             }
 
+            if (shutdownSignal) {
+                break;
+            }
         }
         stats.finish();
 
@@ -268,5 +273,9 @@ class BenchmarkWorker implements Runnable {
 
     public Stats getStats() {
         return stats;
+    }
+
+    public synchronized void setShutdownSignal() {
+        this.shutdownSignal = true;
     }
 }

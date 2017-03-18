@@ -26,18 +26,6 @@
  */
 package org.apache.hc.core5.http.benchmark;
 
-import java.io.File;
-import java.net.URL;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.net.SocketFactory;
-import javax.net.ssl.SSLContext;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
@@ -56,6 +44,17 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.TrustStrategy;
+
+import java.io.File;
+import java.net.URL;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import javax.net.SocketFactory;
+import javax.net.ssl.SSLContext;
 
 /**
  * Main program of the HTTP benchmark.
@@ -167,8 +166,8 @@ public class HttpBenchmark {
     public Results doExecute() throws Exception {
 
         final URL url = config.getUrl();
+        final long endTime = System.currentTimeMillis() + config.getTimeLimit()*1000;
         final HttpHost host = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
-
         final ThreadPoolExecutor workerPool = new ThreadPoolExecutor(
                 config.getThreads(), config.getThreads(), 5, TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>(),
@@ -226,6 +225,11 @@ public class HttpBenchmark {
             try {
                 Thread.sleep(1000);
             } catch (final InterruptedException ignore) {
+            }
+            if (config.getTimeLimit() != -1 && System.currentTimeMillis() > endTime) {
+                for (int i = 0; i < workers.length; i++) {
+                    workers[i].setShutdownSignal();
+                }
             }
         }
 
