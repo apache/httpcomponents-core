@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.ByteArrayInputStream;
 
 import org.apache.hc.core5.http.StreamClosedException;
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -85,10 +86,22 @@ public class TestIdentityInputStream {
     public void testAvailable() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, 1024, null);
         final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
         in.read();
         Assert.assertEquals(2, in.available());
+        in.close();
+    }
+
+    @Test
+    public void testAvailableInStream() throws Exception {
+        final byte[] input = new byte[] {'a', 'b', 'c', 'd', 'e', 'f'};
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, 1024, null);
+        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
+        final byte[] tmp = new byte[3];
+        Assert.assertEquals(3, in.read(tmp));
+        Assert.assertEquals(3, in.available());
         in.close();
     }
 

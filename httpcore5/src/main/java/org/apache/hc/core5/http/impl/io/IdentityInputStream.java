@@ -67,7 +67,11 @@ public class IdentityInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        return this.buffer.length();
+        if (this.closed) {
+            return 0;
+        }
+        final int n = this.buffer.length();
+        return n > 0 ? n : this.inputStream.available();
     }
 
     @Override
