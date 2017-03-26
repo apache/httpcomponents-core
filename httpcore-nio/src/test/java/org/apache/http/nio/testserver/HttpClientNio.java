@@ -179,7 +179,7 @@ public class HttpClientNio {
                 new ArrayList<HttpAsyncRequestProducer>(requests.size());
         final List<HttpAsyncResponseConsumer<HttpResponse>> responseConsumers =
                 new ArrayList<HttpAsyncResponseConsumer<HttpResponse>>(requests.size());
-        for (HttpRequest request: requests) {
+        for (final HttpRequest request: requests) {
             requestProducers.add(new BasicAsyncRequestProducer(target, request));
             responseConsumers.add(new BasicAsyncResponseConsumer());
         }

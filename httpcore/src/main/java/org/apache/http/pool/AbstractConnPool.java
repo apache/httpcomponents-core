@@ -229,7 +229,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             public E get() throws InterruptedException, ExecutionException {
                 try {
                     return get(0L, TimeUnit.MILLISECONDS);
-                } catch (TimeoutException ex) {
+                } catch (final TimeoutException ex) {
                     throw new ExecutionException(ex);
                 }
             }
@@ -261,7 +261,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                             }
                             return leasedEntry;
                         }
-                    } catch (IOException ex) {
+                    } catch (final IOException ex) {
                         done.set(true);
                         if (callback != null) {
                             callback.failed(ex);

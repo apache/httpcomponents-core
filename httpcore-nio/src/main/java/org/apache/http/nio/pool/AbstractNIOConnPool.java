@@ -691,7 +691,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         try {
             final RouteSpecificPool<T, C, E> pool = getPool(route);
             int pendingCount = 0;
-            for (LeaseRequest<T, C, E> request: leasingRequests) {
+            for (final LeaseRequest<T, C, E> request: leasingRequests) {
                 if (LangUtils.equals(route, request.getRoute())) {
                     pendingCount++;
                 }

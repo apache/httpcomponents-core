@@ -637,7 +637,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.sslEngine.closeOutbound();
         try {
             updateEventMask();
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             shutdown();
         }
     }
