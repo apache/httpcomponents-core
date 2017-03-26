@@ -147,6 +147,7 @@ public interface IOSession extends Closeable, Identifiable {
      * This method ensures that session termination handshake, such as the one
      * used by the SSL/TLS protocol, is correctly carried out.
      */
+    @Override
     void close();
 
     /**

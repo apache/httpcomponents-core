@@ -224,6 +224,7 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
         return sslIoSession != null ? sslIoSession.getSSLSession() : null;
     }
 
+    @Override
     public void close() {
         if (closed.compareAndSet(false, true)) {
             try {
@@ -260,6 +261,7 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
         return ioSession.getHandler();
     }
 
+    @Override
     public void setHandler(final IOEventHandler eventHandler) {
         ioSession.setHandler(eventHandler);
     }

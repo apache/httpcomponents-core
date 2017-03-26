@@ -256,6 +256,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *
      * @return the host name (IP or DNS name)
      */
+    @Override
     public String getHostName() {
         return this.hostname;
     }
@@ -265,6 +266,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *
      * @return the host port, or {@code -1} if not set
      */
+    @Override
     public int getPort() {
         return this.port;
     }
