@@ -144,10 +144,12 @@ public class SocketHttpServerConnection extends
         return this.socket;
     }
 
+    @Override
     public boolean isOpen() {
         return this.open;
     }
 
+    @Override
     public InetAddress getLocalAddress() {
         if (this.socket != null) {
             return this.socket.getLocalAddress();
@@ -156,6 +158,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     public int getLocalPort() {
         if (this.socket != null) {
             return this.socket.getLocalPort();
@@ -164,6 +167,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     public InetAddress getRemoteAddress() {
         if (this.socket != null) {
             return this.socket.getInetAddress();
@@ -172,6 +176,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     public int getRemotePort() {
         if (this.socket != null) {
             return this.socket.getPort();
@@ -180,6 +185,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     public void setSocketTimeout(final int timeout) {
         assertOpen();
         if (this.socket != null) {
@@ -193,6 +199,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     public int getSocketTimeout() {
         if (this.socket != null) {
             try {
@@ -205,6 +212,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     public void shutdown() throws IOException {
         this.open = false;
         final Socket tmpsocket = this.socket;
@@ -213,6 +221,7 @@ public class SocketHttpServerConnection extends
         }
     }
 
+    @Override
     public void close() throws IOException {
         if (!this.open) {
             return;

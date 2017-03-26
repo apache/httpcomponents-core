@@ -236,6 +236,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
                 outbuffer.getMetrics());
     }
 
+    @Override
     public HttpRequest receiveRequestHeader()
             throws HttpException, IOException {
         assertOpen();
@@ -244,6 +245,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         return request;
     }
 
+    @Override
     public void receiveRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -256,11 +258,13 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         this.outbuffer.flush();
     }
 
+    @Override
     public void flush() throws IOException {
         assertOpen();
         doFlush();
     }
 
+    @Override
     public void sendResponseHeader(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
@@ -271,6 +275,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         }
     }
 
+    @Override
     public void sendResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         if (response.getEntity() == null) {
@@ -286,6 +291,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         return this.eofSensor != null && this.eofSensor.isEof();
     }
 
+    @Override
     public boolean isStale() {
         if (!isOpen()) {
             return true;
@@ -301,6 +307,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
         }
     }
 
+    @Override
     public HttpConnectionMetrics getMetrics() {
         return this.metrics;
     }

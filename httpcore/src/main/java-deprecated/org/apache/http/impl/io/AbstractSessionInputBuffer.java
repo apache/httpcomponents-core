@@ -124,6 +124,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     /**
      * @since 4.1
      */
+    @Override
     public int capacity() {
         return this.buffer.length;
     }
@@ -131,6 +132,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     /**
      * @since 4.1
      */
+    @Override
     public int length() {
         return this.bufferlen - this.bufferpos;
     }
@@ -138,6 +140,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
     /**
      * @since 4.1
      */
+    @Override
     public int available() {
         return capacity() - length();
     }
@@ -169,6 +172,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         return this.bufferpos < this.bufferlen;
     }
 
+    @Override
     public int read() throws IOException {
         int noRead;
         while (!hasBufferedData()) {
@@ -180,6 +184,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         return this.buffer[this.bufferpos++] & 0xff;
     }
 
+    @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return 0;
@@ -213,6 +218,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         }
     }
 
+    @Override
     public int read(final byte[] b) throws IOException {
         if (b == null) {
             return 0;
@@ -244,6 +250,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
      * @return     one line of characters
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public int readLine(final CharArrayBuffer charbuffer) throws IOException {
         Args.notNull(charbuffer, "Char array buffer");
         int noRead = 0;
@@ -382,6 +389,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         return len;
     }
 
+    @Override
     public String readLine() throws IOException {
         final CharArrayBuffer charbuffer = new CharArrayBuffer(64);
         final int l = readLine(charbuffer);
@@ -392,6 +400,7 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         }
     }
 
+    @Override
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }

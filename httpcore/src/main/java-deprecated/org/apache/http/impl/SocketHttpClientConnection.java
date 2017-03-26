@@ -151,6 +151,7 @@ public class SocketHttpClientConnection
         this.open = true;
     }
 
+    @Override
     public boolean isOpen() {
         return this.open;
     }
@@ -159,6 +160,7 @@ public class SocketHttpClientConnection
         return this.socket;
     }
 
+    @Override
     public InetAddress getLocalAddress() {
         if (this.socket != null) {
             return this.socket.getLocalAddress();
@@ -167,6 +169,7 @@ public class SocketHttpClientConnection
         }
     }
 
+    @Override
     public int getLocalPort() {
         if (this.socket != null) {
             return this.socket.getLocalPort();
@@ -175,6 +178,7 @@ public class SocketHttpClientConnection
         }
     }
 
+    @Override
     public InetAddress getRemoteAddress() {
         if (this.socket != null) {
             return this.socket.getInetAddress();
@@ -183,6 +187,7 @@ public class SocketHttpClientConnection
         }
     }
 
+    @Override
     public int getRemotePort() {
         if (this.socket != null) {
             return this.socket.getPort();
@@ -191,6 +196,7 @@ public class SocketHttpClientConnection
         }
     }
 
+    @Override
     public void setSocketTimeout(final int timeout) {
         assertOpen();
         if (this.socket != null) {
@@ -204,6 +210,7 @@ public class SocketHttpClientConnection
         }
     }
 
+    @Override
     public int getSocketTimeout() {
         if (this.socket != null) {
             try {
@@ -216,6 +223,7 @@ public class SocketHttpClientConnection
         }
     }
 
+    @Override
     public void shutdown() throws IOException {
         this.open = false;
         final Socket tmpsocket = this.socket;
@@ -224,6 +232,7 @@ public class SocketHttpClientConnection
         }
     }
 
+    @Override
     public void close() throws IOException {
         if (!this.open) {
             return;

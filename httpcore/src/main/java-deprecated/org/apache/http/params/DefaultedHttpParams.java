@@ -64,6 +64,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
     /**
      * Creates a copy of the local collection with the same default
      */
+    @Override
     public HttpParams copy() {
         final HttpParams clone = this.local.copy();
         return new DefaultedHttpParams(clone, this.defaults);
@@ -74,6 +75,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * parameter is not set locally, delegates its resolution to the default
      * collection.
      */
+    @Override
     public Object getParameter(final String name) {
         Object obj = this.local.getParameter(name);
         if (obj == null && this.defaults != null) {
@@ -86,6 +88,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * Attempts to remove the parameter from the local collection. This method
      * <i>does not</i> modify the default collection.
      */
+    @Override
     public boolean removeParameter(final String name) {
         return this.local.removeParameter(name);
     }
@@ -94,6 +97,7 @@ public final class DefaultedHttpParams extends AbstractHttpParams {
      * Sets the parameter in the local collection. This method <i>does not</i>
      * modify the default collection.
      */
+    @Override
     public HttpParams setParameter(final String name, final Object value) {
         return this.local.setParameter(name, value);
     }

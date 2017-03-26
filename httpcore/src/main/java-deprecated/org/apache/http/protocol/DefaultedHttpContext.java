@@ -51,6 +51,7 @@ public final class DefaultedHttpContext implements HttpContext {
         this.defaults = defaults;
     }
 
+    @Override
     public Object getAttribute(final String id) {
         final Object obj = this.local.getAttribute(id);
         if (obj == null) {
@@ -60,10 +61,12 @@ public final class DefaultedHttpContext implements HttpContext {
         }
     }
 
+    @Override
     public Object removeAttribute(final String id) {
         return this.local.removeAttribute(id);
     }
 
+    @Override
     public void setAttribute(final String id, final Object obj) {
         this.local.setAttribute(id, obj);
     }

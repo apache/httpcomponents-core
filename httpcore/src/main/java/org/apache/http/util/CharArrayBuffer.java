@@ -257,6 +257,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      * @throws     IndexOutOfBoundsException  if {@code index} is
      *             negative or greater than or equal to {@link #length()}.
      */
+    @Override
     public char charAt(final int i) {
         return this.buffer[i];
     }
@@ -286,6 +287,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      *
      * @return  the length of the buffer
      */
+    @Override
     public int length() {
         return this.len;
     }
