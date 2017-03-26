@@ -110,7 +110,7 @@ public final class ContentType implements Serializable {
             TEXT_PLAIN,
             TEXT_XML };
         final HashMap<String, ContentType> map = new HashMap<String, ContentType>();
-        for (ContentType contentType: contentTypes) {
+        for (final ContentType contentType: contentTypes) {
             map.put(contentType.getMimeType(), contentType);
         }
         CONTENT_TYPE_MAP = Collections.unmodifiableMap(map);
