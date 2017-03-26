@@ -71,7 +71,7 @@ public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
             public void completed(final Message<HttpResponse, T> result) {
                 try {
                     handleResponse(promise, result);
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     failed(ex);
                 }
             }

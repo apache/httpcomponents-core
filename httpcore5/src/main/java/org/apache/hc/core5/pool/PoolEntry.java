@@ -146,7 +146,7 @@ public final class PoolEntry<T, C extends Closeable> {
             } else {
                 try {
                     connection.close();
-                } catch (IOException ignore) {
+                } catch (final IOException ignore) {
                 }
             }
             this.state = null;

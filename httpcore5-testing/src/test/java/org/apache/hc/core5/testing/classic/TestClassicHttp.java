@@ -91,7 +91,7 @@ public class TestClassicHttp {
                 try {
                     server.shutdown(3, TimeUnit.SECONDS);
                     server = null;
-                } catch (Exception ignore) {
+                } catch (final Exception ignore) {
                 }
             }
         }
@@ -115,7 +115,7 @@ public class TestClassicHttp {
                 try {
                     client.shutdown();
                     client = null;
-                } catch (Exception ignore) {
+                } catch (final Exception ignore) {
                 }
             }
         }

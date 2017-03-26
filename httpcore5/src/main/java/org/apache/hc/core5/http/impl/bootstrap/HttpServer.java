@@ -165,11 +165,11 @@ public class HttpServer implements AutoCloseable {
             }
         }
         final Set<Worker> workers = this.workerExecutorService.getWorkers();
-        for (Worker worker: workers) {
+        for (final Worker worker: workers) {
             final HttpServerConnection conn = worker.getConnection();
             try {
                 conn.shutdown();
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 this.exceptionListener.onError(ex);
             }
         }

@@ -275,7 +275,7 @@ public final class HPackDecoder {
                 }
             }
             return null;
-        } catch (CharacterCodingException ex) {
+        } catch (final CharacterCodingException ex) {
             throw new HPackException(ex.getMessage(), ex);
         }
     }

@@ -198,7 +198,7 @@ public class H2ServerBootstrap {
     public HttpAsyncServer create() {
         final AsyncServerExchangeHandlerRegistry exchangeHandlerFactory = new AsyncServerExchangeHandlerRegistry(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName());
-        for (HandlerEntry entry: handlerList) {
+        for (final HandlerEntry entry: handlerList) {
             exchangeHandlerFactory.register(entry.hostname, entry.uriPattern, entry.supplier);
         }
         final ServerHttpProtocolNegotiatorFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiatorFactory(
@@ -214,7 +214,7 @@ public class H2ServerBootstrap {
                     ioEventHandlerFactory,
                     ioReactorConfig,
                     exceptionListener);
-        } catch (IOReactorException ex) {
+        } catch (final IOReactorException ex) {
             throw new IllegalStateException(ex);
         }
     }

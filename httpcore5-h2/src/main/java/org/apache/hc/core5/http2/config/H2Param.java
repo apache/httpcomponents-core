@@ -47,7 +47,7 @@ public enum H2Param {
 
     private static final H2Param[] LOOKUP_TABLE = new H2Param[6];
     static {
-        for (H2Param param: H2Param.values()) {
+        for (final H2Param param: H2Param.values()) {
             LOOKUP_TABLE[param.code - 1] = param;
         }
     }

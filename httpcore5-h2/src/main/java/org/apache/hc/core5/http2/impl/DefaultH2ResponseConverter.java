@@ -96,7 +96,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
         final int statusCode;
         try {
             statusCode = Integer.parseInt(statusText);
-        } catch (NumberFormatException ex) {
+        } catch (final NumberFormatException ex) {
             throw new ProtocolException("Invalid response status: " + statusText);
         }
         final HttpResponse response = new BasicHttpResponse(statusCode, null);

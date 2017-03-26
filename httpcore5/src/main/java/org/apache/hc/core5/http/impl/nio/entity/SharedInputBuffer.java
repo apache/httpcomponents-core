@@ -85,7 +85,7 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
             while (buffer().position() == 0 && !endStream && !aborted) {
                 try {
                     condition.await();
-                } catch (InterruptedException ex) {
+                } catch (final InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     throw new InterruptedIOException(ex.getMessage());
                 }

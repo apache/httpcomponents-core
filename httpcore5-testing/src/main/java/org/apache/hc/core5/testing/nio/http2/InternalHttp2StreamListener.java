@@ -61,7 +61,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
             final LogAppendable logAppendable = new LogAppendable(frameLog, prefix);
             framePrinter.printFrameInfo(frame, logAppendable);
             logAppendable.flush();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 
@@ -70,7 +70,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
             final LogAppendable logAppendable = new LogAppendable(framePayloadLog, prefix);
             framePrinter.printPayload(frame, logAppendable);
             logAppendable.flush();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 

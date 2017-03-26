@@ -82,7 +82,7 @@ public class ClassicTestClient {
     public void shutdown() {
         try {
             this.connection.close();
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         }
     }
 

@@ -115,14 +115,14 @@ public class FrameworkTest {
                 final List<NameValuePair> params = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
                 @SuppressWarnings("unchecked")
                 final Map<String, Object> queryMap = (Map<String, Object>) request.get(QUERY);
-                for (NameValuePair param : params) {
+                for (final NameValuePair param : params) {
                     queryMap.put(param.getName(), param.getValue());
                 }
                 if (! params.isEmpty()) {
                     request.put(PATH, uri.getPath());
                 }
             }
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             throw new TestingFrameworkException(e);
         }
     }

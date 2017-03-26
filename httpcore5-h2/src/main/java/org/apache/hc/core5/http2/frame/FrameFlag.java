@@ -46,7 +46,7 @@ public enum FrameFlag {
 
     public static int of(final FrameFlag... flags) {
         int value = 0;
-        for (FrameFlag flag: flags) {
+        for (final FrameFlag flag: flags) {
             value |= flag.value;
         }
         return value;

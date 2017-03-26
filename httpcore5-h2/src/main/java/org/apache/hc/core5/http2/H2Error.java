@@ -144,7 +144,7 @@ public enum H2Error {
     private static final ConcurrentMap<Integer, H2Error> MAP_BY_CODE;
     static {
         MAP_BY_CODE = new ConcurrentHashMap<>();
-        for (H2Error error: values()) {
+        for (final H2Error error: values()) {
             MAP_BY_CODE.putIfAbsent(error.code, error);
         }
     }

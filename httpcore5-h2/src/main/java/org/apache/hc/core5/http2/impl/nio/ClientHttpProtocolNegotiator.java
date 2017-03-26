@@ -111,7 +111,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             try {
                 final ByteChannel channel = ioSession.channel();
                 channel.write(preface);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 ioSession.shutdown();
                 if (connectionListener != null) {
                     connectionListener.onError(this, ex);

@@ -629,7 +629,7 @@ public class SSLIOSession implements IOSession {
         }
         try {
             updateEventMask();
-        } catch (CancelledKeyException ex) {
+        } catch (final CancelledKeyException ex) {
             shutdown();
         }
     }

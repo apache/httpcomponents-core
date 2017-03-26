@@ -141,14 +141,14 @@ public abstract class AbstractServerExchangeHandler<T> implements HttpContextAwa
             public void completed(final T result) {
                 try {
                     handle(result, responseTrigger, context);
-                } catch (HttpException ex) {
+                } catch (final HttpException ex) {
                     try {
                         responseTrigger.submitResponse(
                                 new BasicResponseProducer(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage()));
                     } catch (HttpException | IOException ex2) {
                         failed(ex2);
                     }
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     failed(ex);
                 }
             }

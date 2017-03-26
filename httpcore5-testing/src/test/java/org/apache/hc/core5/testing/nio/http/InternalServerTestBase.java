@@ -68,7 +68,7 @@ public abstract class InternalServerTestBase {
                 try {
                     server.shutdown(3, TimeUnit.SECONDS);
                     server = null;
-                } catch (Exception ignore) {
+                } catch (final Exception ignore) {
                 }
             }
         }

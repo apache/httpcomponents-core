@@ -232,9 +232,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         AsyncServerExchangeHandler handler;
         try {
             handler = exchangeHandlerFactory.create(request);
-        } catch (MisdirectedRequestException ex) {
+        } catch (final MisdirectedRequestException ex) {
             handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, ex.getMessage());
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
         }
         if (handler == null) {
@@ -257,7 +257,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
         try {
             httpProcessor.process(request, requestEntityDetails, context);
-        } catch (HttpException ex) {
+        } catch (final HttpException ex) {
             final AsyncResponseProducer responseProducer = handleException(ex);
             exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
         }

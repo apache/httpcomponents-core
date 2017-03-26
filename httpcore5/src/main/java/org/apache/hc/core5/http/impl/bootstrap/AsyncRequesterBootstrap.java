@@ -197,7 +197,7 @@ public class AsyncRequesterBootstrap {
                     connPool,
                     tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
                     exceptionListener);
-        } catch (IOReactorException ex) {
+        } catch (final IOReactorException ex) {
             throw new IllegalStateException(ex);
         }
     }

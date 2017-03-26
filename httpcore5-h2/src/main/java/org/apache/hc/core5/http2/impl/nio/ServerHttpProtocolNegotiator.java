@@ -111,7 +111,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 streamMultiplexer.onInput();
                 session.setHandler(new ServerHttp2IOEventHandler(streamMultiplexer));
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             session.close();
             if (connectionListener != null) {
                 connectionListener.onError(this, ex);

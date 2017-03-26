@@ -62,7 +62,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
             if (entityDetails == null) {
                 completed();
             }
-        } catch (UnsupportedCharsetException ex) {
+        } catch (final UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());
         }
     }

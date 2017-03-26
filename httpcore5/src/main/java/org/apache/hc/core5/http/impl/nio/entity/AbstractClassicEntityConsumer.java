@@ -78,7 +78,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
         final ContentType contentType;
         try {
             contentType = ContentType.parse(entityDetails.getContentType());
-        } catch (UnsupportedCharsetException ex) {
+        } catch (final UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());
         }
         if (state.compareAndSet(State.IDLE, State.ACTIVE)) {
@@ -90,7 +90,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
                         final T result = consumeData(contentType, new ContentInputStream(buffer));
                         resultRef.set(result);
                         resultCallback.completed(result);
-                    } catch (Exception ex) {
+                    } catch (final Exception ex) {
                         buffer.abort();
                         resultCallback.failed(ex);
                     } finally {

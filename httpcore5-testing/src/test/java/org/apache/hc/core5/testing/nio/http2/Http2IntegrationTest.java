@@ -153,7 +153,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
     private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
         try {
             return new URI("http", null, "localhost", serverEndpoint.getPort(), path, null, null);
-        } catch (URISyntaxException e) {
+        } catch (final URISyntaxException e) {
             throw new IllegalStateException();
         }
     }
@@ -352,7 +352,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                                 buffer.append(charset.decode(ByteBuffer.wrap(tmp, 0, l)));
                                 Thread.sleep(500);
                             }
-                        } catch (InterruptedException ex) {
+                        } catch (final InterruptedException ex) {
                             Thread.currentThread().interrupt();
                             throw new InterruptedIOException(ex.getMessage());
                         }
@@ -409,7 +409,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                                 }
                                 writer.write("0123456789abcdef\r\n");
                             }
-                        } catch (InterruptedException ex) {
+                        } catch (final InterruptedException ex) {
                             Thread.currentThread().interrupt();
                             throw new InterruptedIOException(ex.getMessage());
                         }
@@ -479,7 +479,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                                     }
                                 }
                                 writer.flush();
-                            } catch (InterruptedException ex) {
+                            } catch (final InterruptedException ex) {
                                 Thread.currentThread().interrupt();
                                 throw new InterruptedIOException(ex.getMessage());
                             }
@@ -557,7 +557,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
                             final Message<HttpResponse, String> responseMessage) throws IOException, HttpException {
                         try {
                             pushMessageQueue.put(responseMessage);
-                        } catch (InterruptedException ex) {
+                        } catch (final InterruptedException ex) {
                             Thread.currentThread().interrupt();
                             throw new InterruptedIOException(ex.getMessage());
                         }
@@ -904,7 +904,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
         Assert.assertNotNull(trailers);
         Assert.assertEquals(2, trailers.size());
         final Map<String, String> map = new HashMap<>();
-        for (Header header: trailers) {
+        for (final Header header: trailers) {
             map.put(header.getName().toLowerCase(Locale.ROOT), header.getValue());
         }
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());

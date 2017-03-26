@@ -103,19 +103,19 @@ public class TestHPackCoding {
         final ByteBuffer src2 = createByteBuffer(0x7f, 0x80, 0xff, 0xff, 0xff, 0x08);
         try {
             HPackDecoder.decodeInt(src2, 7);
-        } catch (HPackException expected) {
+        } catch (final HPackException expected) {
         }
         final ByteBuffer src3 = createByteBuffer(0x7f, 0x80, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01);
         try {
             HPackDecoder.decodeInt(src3, 7);
-        } catch (HPackException expected) {
+        } catch (final HPackException expected) {
         }
     }
 
     private static ByteBuffer createByteBuffer(final int... bytes) {
 
         final ByteBuffer buffer = ByteBuffer.allocate(bytes.length);
-        for (int b : bytes) {
+        for (final int b : bytes) {
             buffer.put((byte) b);
         }
         buffer.flip();
@@ -239,7 +239,7 @@ public class TestHPackCoding {
     @Test
     public void testComplexStringCoding1() throws Exception {
 
-        for (Charset charset : new Charset[]{StandardCharsets.ISO_8859_1, StandardCharsets.UTF_8, StandardCharsets.UTF_16}) {
+        for (final Charset charset : new Charset[]{StandardCharsets.ISO_8859_1, StandardCharsets.UTF_8, StandardCharsets.UTF_16}) {
 
             final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
             final StringBuilder strBuf = new StringBuilder();
@@ -251,7 +251,7 @@ public class TestHPackCoding {
 
                 final String hello = constructHelloString(SWISS_GERMAN_HELLO, 1 + 10 * n);
 
-                for (boolean b : new boolean[]{false, true}) {
+                for (final boolean b : new boolean[]{false, true}) {
 
                     buffer.clear();
                     encoder.encodeString(buffer, hello, b);
@@ -267,7 +267,7 @@ public class TestHPackCoding {
     @Test
     public void testComplexStringCoding2() throws Exception {
 
-        for (Charset charset : new Charset[]{Charset.forName("KOI8-R"), StandardCharsets.UTF_8, StandardCharsets.UTF_16}) {
+        for (final Charset charset : new Charset[]{Charset.forName("KOI8-R"), StandardCharsets.UTF_8, StandardCharsets.UTF_16}) {
 
             final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
             final StringBuilder strBuf = new StringBuilder();
@@ -279,7 +279,7 @@ public class TestHPackCoding {
 
                 final String hello = constructHelloString(RUSSIAN_HELLO, 1 + 10 * n);
 
-                for (boolean b : new boolean[]{false, true}) {
+                for (final boolean b : new boolean[]{false, true}) {
 
                     buffer.clear();
                     strBuf.setLength(0);

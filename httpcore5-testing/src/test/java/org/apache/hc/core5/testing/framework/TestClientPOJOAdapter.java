@@ -75,7 +75,7 @@ public class TestClientPOJOAdapter {
         try {
             adapter.assertRequestSupported(null);
             Assert.fail("A Exception should have been thrown");
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // expected
         }
     }

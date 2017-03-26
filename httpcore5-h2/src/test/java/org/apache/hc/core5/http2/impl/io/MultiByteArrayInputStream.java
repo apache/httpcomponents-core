@@ -41,7 +41,7 @@ class MultiByteArrayInputStream extends InputStream {
     public MultiByteArrayInputStream(final byte[]... bufs) {
         super();
         this.bufs = new ArrayDeque<>();
-        for (byte[] buf: bufs) {
+        for (final byte[] buf: bufs) {
             if (buf.length > 0) {
                 this.bufs.add(buf);
             }

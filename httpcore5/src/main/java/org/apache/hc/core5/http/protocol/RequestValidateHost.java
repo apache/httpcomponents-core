@@ -68,7 +68,7 @@ public class RequestValidateHost implements HttpRequestInterceptor {
             final URIAuthority authority;
             try {
                 authority = URIAuthority.create(header.getValue());
-            } catch (URISyntaxException ex) {
+            } catch (final URISyntaxException ex) {
                 throw new ProtocolException(ex.getMessage(), ex);
             }
             request.setAuthority(authority);

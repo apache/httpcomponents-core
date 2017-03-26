@@ -110,7 +110,7 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
                     public void run() {
                         try {
                             ioReactorRef.get().execute();
-                        } catch (Exception ex) {
+                        } catch (final Exception ex) {
                             if (exceptionListener != null) {
                                 exceptionListener.onError(ex);
                             }

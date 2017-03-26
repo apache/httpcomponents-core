@@ -136,7 +136,7 @@ public class FileEntityProducer implements AsyncEntityProducer {
         if (accessFile != null) {
             try {
                 accessFile.close();
-            } catch (IOException ignore) {
+            } catch (final IOException ignore) {
             }
             accessFile = null;
         }

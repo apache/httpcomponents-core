@@ -155,7 +155,7 @@ public class InetAddressUtils {
         try {
             final InetAddress localHost = InetAddress.getLocalHost();
             return localHost.getCanonicalHostName();
-        } catch (UnknownHostException ex) {
+        } catch (final UnknownHostException ex) {
             return "localhost";
         }
     }

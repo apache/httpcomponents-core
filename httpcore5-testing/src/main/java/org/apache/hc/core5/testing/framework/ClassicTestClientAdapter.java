@@ -84,7 +84,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             final StringBuilder newQuery = new StringBuilder(existingQuery == null ? "" : existingQuery);
 
             // append each parm to the query
-            for (Entry<String, String> parm : queryMap.entrySet()) {
+            for (final Entry<String, String> parm : queryMap.entrySet()) {
                 newQuery.append("&" + parm.getKey() + "=" + parm.getValue());
             }
             // create a uri with the new query.
@@ -110,7 +110,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
         @SuppressWarnings("unchecked")
         final Map<String, String> headersMap = (Map<String, String>) request.get(HEADERS);
         if (headersMap != null) {
-            for (Entry<String, String> header : headersMap.entrySet()) {
+            for (final Entry<String, String> header : headersMap.entrySet()) {
                 httpRequest.addHeader(header.getKey(), header.getValue());
             }
         }
@@ -150,7 +150,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
         // convert the headers to a Map
         final Map<String, Object> headerMap = new HashMap<String, Object>();
-        for (Header header : response.getAllHeaders()) {
+        for (final Header header : response.getAllHeaders()) {
             headerMap.put(header.getName(), header.getValue());
         }
         ret.put(HEADERS, headerMap);

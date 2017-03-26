@@ -486,7 +486,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
         try {
             final RoutePool<T, C> pool = getPool(route);
             int pendingCount = 0;
-            for (LeaseRequest<T, C> request: leasingRequests) {
+            for (final LeaseRequest<T, C> request: leasingRequests) {
                 if (LangUtils.equals(route, request.getRoute())) {
                     pendingCount++;
                 }

@@ -99,9 +99,9 @@ public class ClientTestingAdapter {
             }
 
             return response;
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             throw e;
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             throw new TestingFrameworkException(ex);
         }
     }

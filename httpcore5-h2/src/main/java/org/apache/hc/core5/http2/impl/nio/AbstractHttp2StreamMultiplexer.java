@@ -662,7 +662,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 commitFrame(goAway);
             }
             connState = ConnectionHandshake.SHUTDOWN;
-        } catch (IOException ignore) {
+        } catch (final IOException ignore) {
         } finally {
             ioSession.shutdown();
         }
@@ -700,7 +700,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 final Http2Stream stream = getValidStream(streamId);
                 try {
                     consumeDataFrame(frame, stream);
-                } catch (H2StreamResetException ex) {
+                } catch (final H2StreamResetException ex) {
                     stream.localReset(ex);
                 }
 
@@ -741,7 +741,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     if (stream.isOutputReady()) {
                         stream.produceOutput();
                     }
-                } catch (H2StreamResetException ex) {
+                } catch (final H2StreamResetException ex) {
                     stream.localReset(ex);
                 }
 
@@ -763,7 +763,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 try {
 
                     consumeContinuationFrame(frame, stream);
-                } catch (H2StreamResetException ex) {
+                } catch (final H2StreamResetException ex) {
                     stream.localReset(ex);
                 }
 
@@ -785,7 +785,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 if (streamId == 0) {
                     try {
                         updateOutputWindow(0, connOutputWindow, delta);
-                    } catch (ArithmeticException ex) {
+                    } catch (final ArithmeticException ex) {
                         throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
                     }
                 } else {
@@ -793,7 +793,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     if (stream != null) {
                         try {
                             updateOutputWindow(streamId, stream.getOutputWindow(), delta);
-                        } catch (ArithmeticException ex) {
+                        } catch (final ArithmeticException ex) {
                             throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
                         }
                     }
@@ -911,7 +911,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
                 try {
                     consumePushPromiseFrame(frame, payload, promisedStream);
-                } catch (H2StreamResetException ex) {
+                } catch (final H2StreamResetException ex) {
                     promisedStream.localReset(ex);
                 }
             }
@@ -1091,7 +1091,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     case MAX_CONCURRENT_STREAMS:
                         try {
                             configBuilder.setMaxConcurrentStreams(value);
-                        } catch (IllegalArgumentException ex) {
+                        } catch (final IllegalArgumentException ex) {
                             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                         }
                         break;
@@ -1101,7 +1101,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     case INITIAL_WINDOW_SIZE:
                         try {
                             configBuilder.setInitialWindowSize(value);
-                        } catch (IllegalArgumentException ex) {
+                        } catch (final IllegalArgumentException ex) {
                             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                         }
                         final int delta = value - remoteConfig.getInitialWindowSize();
@@ -1113,7 +1113,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                                     final Http2Stream stream = entry.getValue();
                                     try {
                                         updateOutputWindow(stream.getId(), stream.getOutputWindow(), delta);
-                                    } catch (ArithmeticException ex) {
+                                    } catch (final ArithmeticException ex) {
                                         throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
                                     }
                                 }
@@ -1123,14 +1123,14 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     case MAX_FRAME_SIZE:
                         try {
                             configBuilder.setMaxFrameSize(value);
-                        } catch (IllegalArgumentException ex) {
+                        } catch (final IllegalArgumentException ex) {
                             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                         }
                         break;
                     case MAX_HEADER_LIST_SIZE:
                         try {
                             configBuilder.setMaxHeaderListSize(value);
-                        } catch (IllegalArgumentException ex) {
+                        } catch (final IllegalArgumentException ex) {
                             throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                         }
                         break;
@@ -1480,7 +1480,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             try {
                 handler.consumePromise(headers);
                 channel.setLocalEndStream();
-            } catch (ProtocolException ex) {
+            } catch (final ProtocolException ex) {
                 localReset(ex, H2Error.PROTOCOL_ERROR);
             }
         }
@@ -1488,7 +1488,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         void consumeHeader(final List<Header> headers) throws HttpException, IOException {
             try {
                 handler.consumeHeader(headers, channel.isRemoteClosed());
-            } catch (ProtocolException ex) {
+            } catch (final ProtocolException ex) {
                 localReset(ex, H2Error.PROTOCOL_ERROR);
             }
         }
@@ -1496,9 +1496,9 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         void consumeData(final ByteBuffer src) throws HttpException, IOException {
             try {
                 handler.consumeData(src, channel.isRemoteClosed());
-            } catch (CharacterCodingException ex) {
+            } catch (final CharacterCodingException ex) {
                 localReset(ex, H2Error.INTERNAL_ERROR);
-            } catch (ProtocolException ex) {
+            } catch (final ProtocolException ex) {
                 localReset(ex, H2Error.PROTOCOL_ERROR);
             }
         }
@@ -1510,7 +1510,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         void produceOutput() throws HttpException, IOException {
             try {
                 handler.produceOutput();
-            } catch (ProtocolException ex) {
+            } catch (final ProtocolException ex) {
                 localReset(ex, H2Error.PROTOCOL_ERROR);
             }
         }

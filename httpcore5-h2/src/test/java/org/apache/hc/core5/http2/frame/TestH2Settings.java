@@ -35,7 +35,7 @@ public class TestH2Settings {
 
     @Test
     public void testH2ParamBasics() throws Exception {
-        for (H2Param param: H2Param.values()) {
+        for (final H2Param param: H2Param.values()) {
             Assert.assertEquals(param, H2Param.valueOf(param.getCode()));
             Assert.assertEquals(param.name(), H2Param.toString(param.getCode()));
         }

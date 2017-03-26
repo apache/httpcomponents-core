@@ -47,7 +47,7 @@ public class TestMessageSupport {
             return null;
         }
         final Set<String> set = new LinkedHashSet<>();
-        for (String token: tokens) {
+        for (final String token: tokens) {
             set.add(token);
         }
         return set;

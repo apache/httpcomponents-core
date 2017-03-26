@@ -179,11 +179,11 @@ public class HttpRequester implements AutoCloseable {
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
         try {
             poolEntry = leaseFuture.get(socketConfig.getConnectTimeout(), TimeUnit.MILLISECONDS);
-        } catch (InterruptedException ex) {
+        } catch (final InterruptedException ex) {
             throw new InterruptedIOException(ex.getMessage());
-        } catch (ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             throw new HttpException("Unexpected failure leasing connection", ex);
-        } catch (TimeoutException ex) {
+        } catch (final TimeoutException ex) {
             throw new ConnectionRequestTimeoutException("Connection request timeout");
         }
         final PoolEntryHolder<HttpHost, HttpClientConnection> connectionHolder = new PoolEntryHolder<>(
@@ -195,7 +195,7 @@ public class HttpRequester implements AutoCloseable {
                     public void execute(final HttpClientConnection conn) {
                         try {
                             conn.shutdown();
-                        } catch (IOException ignore) {
+                        } catch (final IOException ignore) {
                         }
                     }
                 });

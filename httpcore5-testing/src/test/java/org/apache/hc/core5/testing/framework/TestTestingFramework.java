@@ -67,7 +67,7 @@ public class TestTestingFramework {
         try {
             map.remove(aKey);
             Assert.fail("UnsupportedOperationException should have been thrown.");
-        } catch (UnsupportedOperationException e) {
+        } catch (final UnsupportedOperationException e) {
             // expected
         }
     }
@@ -91,7 +91,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -104,7 +104,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -118,7 +118,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -173,7 +173,7 @@ public class TestTestingFramework {
     public void addTest() throws Exception {
         final TestingFrameworkRequestHandler mockRequestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
 
-        ClientTestingAdapter adapter = new ClientTestingAdapter() {
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
                                    final String defaultURI,
@@ -236,7 +236,7 @@ public class TestTestingFramework {
 
     @Test
     public void statusCheck() throws Exception {
-        ClientTestingAdapter adapter = new ClientTestingAdapter() {
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
                                    final String defaultURI,
@@ -260,7 +260,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -324,7 +324,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -360,7 +360,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -423,7 +423,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -464,7 +464,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -472,7 +472,7 @@ public class TestTestingFramework {
     private Object deepcopy(final Object obj) {
         try {
             return TestingFramework.deepcopy(obj);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             Assert.fail("deepcopy failed: " + e.getMessage());
             return null;
         }
@@ -506,7 +506,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
 
             // make sure the HTTP Client name is in the message.
@@ -598,7 +598,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -628,7 +628,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -658,7 +658,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -688,7 +688,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -717,7 +717,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -746,7 +746,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -775,7 +775,7 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
@@ -808,14 +808,14 @@ public class TestTestingFramework {
         try {
             framework.runTests();
             Assert.fail("HttpServerTestingFrameworkException should have been thrown");
-        } catch (TestingFrameworkException e) {
+        } catch (final TestingFrameworkException e) {
             // expected
         }
     }
 
     @Test
     public void changeResponseStatus() throws Exception {
-        ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
+        final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
                     final String defaultURI,
@@ -933,7 +933,7 @@ public class TestTestingFramework {
     @Test
     public void adapterDoesNotSupport() throws Exception {
 
-        ClientTestingAdapter adapter = new ClientTestingAdapter() {
+        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
                                    final String defaultURI,
@@ -981,7 +981,7 @@ public class TestTestingFramework {
 
         framework.runTests();
 
-        for (String method : TestingFramework.ALL_METHODS) {
+        for (final String method : TestingFramework.ALL_METHODS) {
             Assert.assertTrue("Method not in default tests.  method=" + method, calledMethodSet.contains(method));
         }
     }
@@ -1059,7 +1059,7 @@ public class TestTestingFramework {
         response.put(CONTENT_TYPE, "text/html; charset=us-ascii");
         response.put(BODY, "<HTML>42</HTML>");
 
-        for (String method : TestingFramework.ALL_METHODS) {
+        for (final String method : TestingFramework.ALL_METHODS) {
             request.put(METHOD, method);
 
             framework.addTest(test);
@@ -1119,7 +1119,7 @@ public class TestTestingFramework {
         response.put(CONTENT_TYPE, null);
         response.put(BODY, null);
 
-        for (String method : TestingFramework.ALL_METHODS) {
+        for (final String method : TestingFramework.ALL_METHODS) {
             request.put(METHOD, method);
 
             framework.addTest(test);
@@ -1129,7 +1129,7 @@ public class TestTestingFramework {
 
     @Test
     public void parameterInPath() throws Exception {
-        ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
+        final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,
                     final TestingFrameworkRequestHandler requestHandler,

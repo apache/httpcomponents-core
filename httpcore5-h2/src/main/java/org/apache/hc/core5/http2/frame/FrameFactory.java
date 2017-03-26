@@ -38,7 +38,7 @@ public abstract class FrameFactory {
 
     public RawFrame createSettings(final H2Setting... settings) {
         final ByteBuffer payload = ByteBuffer.allocate(settings.length * 12);
-        for (H2Setting setting: settings) {
+        for (final H2Setting setting: settings) {
             payload.putShort((short) setting.getCode());
             payload.putInt(setting.getValue());
         }

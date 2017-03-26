@@ -51,7 +51,7 @@ public enum FrameType {
 
     private static final FrameType[] LOOKUP_TABLE = new FrameType[10];
     static {
-        for (FrameType frameType: FrameType.values()) {
+        for (final FrameType frameType: FrameType.values()) {
             LOOKUP_TABLE[frameType.value] = frameType;
         }
     }

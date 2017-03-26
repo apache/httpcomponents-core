@@ -223,7 +223,7 @@ public class TestSharedOutputBuffer {
         Assert.assertEquals(Boolean.TRUE, task2.get(5, TimeUnit.SECONDS));
         try {
             task1.get(5, TimeUnit.SECONDS);
-        } catch (ExecutionException ex) {
+        } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof InterruptedIOException);
         }
     }

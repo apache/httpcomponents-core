@@ -76,7 +76,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
                     try {
                         produceData(contentType, new ContentOutputStream(buffer));
                         buffer.writeCompleted();
-                    } catch (Exception ex) {
+                    } catch (final Exception ex) {
                         buffer.abort();
                     } finally {
                         state.set(State.COMPLETED);

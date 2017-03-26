@@ -58,7 +58,7 @@ public class DigestingEntityProducer implements AsyncEntityProducer {
         this.wrapped = Args.notNull(wrapped, "Entity consumer");
         try {
             this.digester = MessageDigest.getInstance(algo);
-        } catch (NoSuchAlgorithmException ex) {
+        } catch (final NoSuchAlgorithmException ex) {
             throw new IllegalArgumentException("Unsupported digest algorithm: " + algo);
         }
     }

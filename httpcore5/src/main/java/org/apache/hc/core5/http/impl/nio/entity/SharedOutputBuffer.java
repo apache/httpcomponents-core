@@ -154,7 +154,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
         while (buffer().hasRemaining() || !hasCapacity) {
             try {
                 condition.await();
-            } catch (InterruptedException ex) {
+            } catch (final InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 throw new InterruptedIOException(ex.getMessage());
             }

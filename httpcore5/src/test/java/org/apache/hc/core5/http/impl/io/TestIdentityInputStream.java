@@ -73,12 +73,12 @@ public class TestIdentityInputStream {
         try {
             in.read(tmp, 0, tmp.length);
             Assert.fail("StreamClosedException expected");
-        } catch (StreamClosedException expected) {
+        } catch (final StreamClosedException expected) {
         }
         try {
             in.read();
             Assert.fail("StreamClosedException expected");
-        } catch (StreamClosedException expected) {
+        } catch (final StreamClosedException expected) {
         }
     }
 

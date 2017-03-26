@@ -52,7 +52,7 @@ public abstract class AbstractBinAsyncEntityConsumer<T> extends AbstractBinDataC
             if (entityDetails == null) {
                 completed();
             }
-        } catch (UnsupportedCharsetException ex) {
+        } catch (final UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());
         }
     }

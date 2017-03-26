@@ -331,7 +331,7 @@ final class H2TlsSupport {
             return null;
         }
         List<String> enabledProtocols = null;
-        for (String protocol: protocols) {
+        for (final String protocol: protocols) {
             if (!protocol.startsWith("SSL") && !BLACKLISED_PROTOCOLS.contains(protocol)) {
                 if (enabledProtocols == null) {
                     enabledProtocols = new ArrayList<>();
@@ -347,7 +347,7 @@ final class H2TlsSupport {
             return null;
         }
         List<String> enabledCiphers = null;
-        for (String cipher: ciphers) {
+        for (final String cipher: ciphers) {
             if (!BLACKLISED_CIPHERS.contains(cipher)) {
                 if (enabledCiphers == null) {
                     enabledCiphers = new ArrayList<>();

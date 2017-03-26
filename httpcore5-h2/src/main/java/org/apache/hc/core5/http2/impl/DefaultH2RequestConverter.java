@@ -134,7 +134,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         httpRequest.setScheme(scheme);
         try {
             httpRequest.setAuthority(URIAuthority.create(authority));
-        } catch (URISyntaxException ex) {
+        } catch (final URISyntaxException ex) {
             throw new ProtocolException(ex.getMessage(), ex);
         }
         httpRequest.setPath(path);

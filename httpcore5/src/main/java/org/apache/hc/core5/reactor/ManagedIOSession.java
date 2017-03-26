@@ -112,13 +112,13 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                         tlsSession.initialize();
                     }
                     handler.connected(this);
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     handler.exception(tlsSession, ex);
                 }
             } else {
                 handler.connected(this);
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             shutdown();
             throw ex;
         }
@@ -146,7 +146,7 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
             } else {
                 handler.inputReady(this);
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             shutdown();
             throw ex;
         }
@@ -172,7 +172,7 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
             } else {
                 handler.outputReady(this);
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             shutdown();
             throw ex;
         }
@@ -189,7 +189,7 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                     tlsSession.shutdown();
                 }
             }
-        } catch (RuntimeException ex) {
+        } catch (final RuntimeException ex) {
             shutdown();
             throw ex;
         }

@@ -201,7 +201,7 @@ public abstract class AbstractClassicServerExchangeHandler implements HttpContex
 
                         });
                     }
-                } catch (HttpException ex) {
+                } catch (final HttpException ex) {
                     throw new IOException(ex.getMessage(), ex);
                 }
             }
@@ -243,7 +243,7 @@ public abstract class AbstractClassicServerExchangeHandler implements HttpContex
                             inputStream.close();
                         }
                         outputStream.close();
-                    } catch (Exception ex) {
+                    } catch (final Exception ex) {
                         exception.compareAndSet(null, ex);
                         if (inputBuffer != null) {
                             inputBuffer.abort();

@@ -201,7 +201,7 @@ public class H2RequesterBootstrap {
                 connPoolPolicy,
                 connPoolListener);
         final AsyncPushConsumerRegistry pushConsumerRegistry = new AsyncPushConsumerRegistry();
-        for (PushConsumerEntry entry: pushConsumerList) {
+        for (final PushConsumerEntry entry: pushConsumerList) {
             pushConsumerRegistry.register(entry.hostname, entry.uriPattern, entry.supplier);
         }
         final ClientHttpProtocolNegotiatorFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
@@ -218,7 +218,7 @@ public class H2RequesterBootstrap {
                     connPool,
                     tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
                     exceptionListener);
-        } catch (IOReactorException ex) {
+        } catch (final IOReactorException ex) {
             throw new IllegalStateException(ex);
         }
     }

@@ -467,7 +467,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         try {
             awaitShutdown(graceTime, timeUnit);
             forceShutdown();
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }

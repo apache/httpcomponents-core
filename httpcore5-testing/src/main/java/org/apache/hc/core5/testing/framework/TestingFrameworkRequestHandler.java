@@ -139,10 +139,10 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
                 final URI uri = request.getUri();
                 final List<NameValuePair> actualParams = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
                 final Map<String, String> actualParamsMap = new HashMap<String, String>();
-                for (NameValuePair actualParam : actualParams) {
+                for (final NameValuePair actualParam : actualParams) {
                     actualParamsMap.put(actualParam.getName(), actualParam.getValue());
                 }
-                for (Map.Entry<String, String> expectedParam : expectedQuery.entrySet()) {
+                for (final Map.Entry<String, String> expectedParam : expectedQuery.entrySet()) {
                     final String key = expectedParam.getKey();
                     if (! actualParamsMap.containsKey(key)) {
                         throw new TestingFrameworkException("Expected parameter not found: " + key);
@@ -164,10 +164,10 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             if (expectedHeaders != null) {
                 final Map<String, String> actualHeadersMap = new HashMap<String, String>();
                 final Header[] actualHeaders = request.getAllHeaders();
-                for (Header header : actualHeaders) {
+                for (final Header header : actualHeaders) {
                     actualHeadersMap.put(header.getName(), header.getValue());
                 }
-                for (Entry<String, String> expectedHeader : expectedHeaders.entrySet()) {
+                for (final Entry<String, String> expectedHeader : expectedHeaders.entrySet()) {
                     final String key = expectedHeader.getKey();
                     if (! actualHeadersMap.containsKey(key)) {
                         throw new TestingFrameworkException("Expected header not found: " + key);
@@ -238,12 +238,12 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             @SuppressWarnings("unchecked")
             final Map<String, String> desiredHeaders = (Map<String, String>) desiredResponse.get(HEADERS);
             if (desiredHeaders != null) {
-                for (Entry<String, String> entry : desiredHeaders.entrySet()) {
+                for (final Entry<String, String> entry : desiredHeaders.entrySet()) {
                     response.setHeader(entry.getKey(), entry.getValue());
                 }
             }
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             /*
              * Save the throwable to be later retrieved by a call to assertNothingThrown().
              */

@@ -152,9 +152,9 @@ public class TestingFramework {
         /*
          * By default, a set of tests that will exercise each HTTP method are pre-loaded.
          */
-        for (String method : ALL_METHODS) {
+        for (final String method : ALL_METHODS) {
             final List<Integer> statusList = Arrays.asList(200, 201);
-            for (Integer status : statusList) {
+            for (final Integer status : statusList) {
                 final Map<String, Object> request = new HashMap<String, Object>();
                 request.put(METHOD, method);
 
@@ -195,10 +195,10 @@ public class TestingFramework {
         startServer();
 
         try {
-            for (FrameworkTest test : tests) {
+            for (final FrameworkTest test : tests) {
                 try {
                     callAdapter(test);
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     processThrowable(t, test);
                 }
             }
@@ -235,7 +235,7 @@ public class TestingFramework {
         server = serverBootstrap.create();
         try {
             server.start();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new TestingFrameworkException(e);
         }
 
@@ -370,7 +370,7 @@ public class TestingFramework {
         if (expectedHeaders == null) {
             return;
         }
-        for (Map.Entry<String, String> expectedHeader : ((Map<String, String>) expectedHeaders).entrySet()) {
+        for (final Map.Entry<String, String> expectedHeader : ((Map<String, String>) expectedHeaders).entrySet()) {
             final String expectedHeaderName = expectedHeader.getKey();
             if (! actualHeaders.containsKey(expectedHeaderName)) {
                 throw new TestingFrameworkException("Expected header not found: name=" + expectedHeaderName);
