@@ -133,6 +133,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     /**
      * @since 4.1
      */
+    @Override
     public int capacity() {
         return this.buffer.capacity();
     }
@@ -140,6 +141,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     /**
      * @since 4.1
      */
+    @Override
     public int length() {
         return this.buffer.length();
     }
@@ -147,6 +149,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     /**
      * @since 4.1
      */
+    @Override
     public int available() {
         return capacity() - length();
     }
@@ -160,11 +163,13 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         }
     }
 
+    @Override
     public void flush() throws IOException {
         flushBuffer();
         this.outstream.flush();
     }
 
+    @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
         if (b == null) {
             return;
@@ -190,6 +195,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         }
     }
 
+    @Override
     public void write(final byte[] b) throws IOException {
         if (b == null) {
             return;
@@ -197,6 +203,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         write(b, 0, b.length);
     }
 
+    @Override
     public void write(final int b) throws IOException {
         if (this.buffer.isFull()) {
             flushBuffer();
@@ -213,6 +220,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
      * @param      s   the line.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void writeLine(final String s) throws IOException {
         if (s == null) {
             return;
@@ -239,6 +247,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
      * @param      charbuffer the buffer containing chars of the line.
      * @exception  IOException  if an I/O error occurs.
      */
+    @Override
     public void writeLine(final CharArrayBuffer charbuffer) throws IOException {
         if (charbuffer == null) {
             return;
@@ -298,6 +307,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
         this.bbuf.compact();
     }
 
+    @Override
     public HttpTransportMetrics getMetrics() {
         return this.metrics;
     }

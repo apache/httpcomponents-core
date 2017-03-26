@@ -84,6 +84,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
         return i;
     }
 
+    @Override
     public boolean isDataAvailable(final int timeout) throws IOException {
         boolean result = hasBufferedData();
         if (!result) {
@@ -99,6 +100,7 @@ public class SocketInputBuffer extends AbstractSessionInputBuffer implements Eof
         return result;
     }
 
+    @Override
     public boolean isEof() {
         return this.eof;
     }

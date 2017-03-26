@@ -236,6 +236,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
                 outbuffer.getMetrics());
     }
 
+    @Override
     public boolean isResponseAvailable(final int timeout) throws IOException {
         assertOpen();
         try {
@@ -245,6 +246,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         }
     }
 
+    @Override
     public void sendRequestHeader(final HttpRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -253,6 +255,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         this.metrics.incrementRequestCount();
     }
 
+    @Override
     public void sendRequestEntity(final HttpEntityEnclosingRequest request)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
@@ -270,11 +273,13 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         this.outbuffer.flush();
     }
 
+    @Override
     public void flush() throws IOException {
         assertOpen();
         doFlush();
     }
 
+    @Override
     public HttpResponse receiveResponseHeader()
             throws HttpException, IOException {
         assertOpen();
@@ -285,6 +290,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         return response;
     }
 
+    @Override
     public void receiveResponseEntity(final HttpResponse response)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
@@ -297,6 +303,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         return this.eofSensor != null && this.eofSensor.isEof();
     }
 
+    @Override
     public boolean isStale() {
         if (!isOpen()) {
             return true;
@@ -314,6 +321,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
         }
     }
 
+    @Override
     public HttpConnectionMetrics getMetrics() {
         return this.metrics;
     }

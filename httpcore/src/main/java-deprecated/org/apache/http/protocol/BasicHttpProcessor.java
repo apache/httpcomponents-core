@@ -57,6 +57,7 @@ public final class BasicHttpProcessor implements
     protected final List<HttpRequestInterceptor> requestInterceptors = new ArrayList<HttpRequestInterceptor>();
     protected final List<HttpResponseInterceptor> responseInterceptors = new ArrayList<HttpResponseInterceptor>();
 
+    @Override
     public void addRequestInterceptor(final HttpRequestInterceptor itcp) {
         if (itcp == null) {
             return;
@@ -64,6 +65,7 @@ public final class BasicHttpProcessor implements
         this.requestInterceptors.add(itcp);
     }
 
+    @Override
     public void addRequestInterceptor(
             final HttpRequestInterceptor itcp, final int index) {
         if (itcp == null) {
@@ -72,6 +74,7 @@ public final class BasicHttpProcessor implements
         this.requestInterceptors.add(index, itcp);
     }
 
+    @Override
     public void addResponseInterceptor(
             final HttpResponseInterceptor itcp, final int index) {
         if (itcp == null) {
@@ -80,6 +83,7 @@ public final class BasicHttpProcessor implements
         this.responseInterceptors.add(index, itcp);
     }
 
+    @Override
     public void removeRequestInterceptorByClass(final Class<? extends HttpRequestInterceptor> clazz) {
         for (final Iterator<HttpRequestInterceptor> it = this.requestInterceptors.iterator();
              it.hasNext(); ) {
@@ -90,6 +94,7 @@ public final class BasicHttpProcessor implements
         }
     }
 
+    @Override
     public void removeResponseInterceptorByClass(final Class<? extends HttpResponseInterceptor> clazz) {
         for (final Iterator<HttpResponseInterceptor> it = this.responseInterceptors.iterator();
              it.hasNext(); ) {
@@ -108,10 +113,12 @@ public final class BasicHttpProcessor implements
         addRequestInterceptor(interceptor, index);
     }
 
+    @Override
     public int getRequestInterceptorCount() {
         return this.requestInterceptors.size();
     }
 
+    @Override
     public HttpRequestInterceptor getRequestInterceptor(final int index) {
         if ((index < 0) || (index >= this.requestInterceptors.size())) {
             return null;
@@ -119,10 +126,12 @@ public final class BasicHttpProcessor implements
         return this.requestInterceptors.get(index);
     }
 
+    @Override
     public void clearRequestInterceptors() {
         this.requestInterceptors.clear();
     }
 
+    @Override
     public void addResponseInterceptor(final HttpResponseInterceptor itcp) {
         if (itcp == null) {
             return;
@@ -138,10 +147,12 @@ public final class BasicHttpProcessor implements
         addResponseInterceptor(interceptor, index);
     }
 
+    @Override
     public int getResponseInterceptorCount() {
         return this.responseInterceptors.size();
     }
 
+    @Override
     public HttpResponseInterceptor getResponseInterceptor(final int index) {
         if ((index < 0) || (index >= this.responseInterceptors.size())) {
             return null;
@@ -149,6 +160,7 @@ public final class BasicHttpProcessor implements
         return this.responseInterceptors.get(index);
     }
 
+    @Override
     public void clearResponseInterceptors() {
         this.responseInterceptors.clear();
     }
@@ -170,6 +182,7 @@ public final class BasicHttpProcessor implements
      * @param list      the list of request and response interceptors
      *                  from which to initialize
      */
+    @Override
     public void setInterceptors(final List<?> list) {
         Args.notNull(list, "Inteceptor list");
         this.requestInterceptors.clear();
@@ -192,6 +205,7 @@ public final class BasicHttpProcessor implements
         clearResponseInterceptors();
     }
 
+    @Override
     public void process(
             final HttpRequest request,
             final HttpContext context)
@@ -201,6 +215,7 @@ public final class BasicHttpProcessor implements
         }
     }
 
+    @Override
     public void process(
             final HttpResponse response,
             final HttpContext context)

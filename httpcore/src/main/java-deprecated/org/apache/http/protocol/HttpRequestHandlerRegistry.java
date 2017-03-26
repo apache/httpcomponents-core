@@ -101,6 +101,7 @@ public class HttpRequestHandlerRegistry implements HttpRequestHandlerResolver {
         return matcher.getObjects();
     }
 
+    @Override
     public HttpRequestHandler lookup(final String requestURI) {
         return matcher.lookup(requestURI);
     }
