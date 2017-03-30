@@ -35,7 +35,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
-import java.security.*;
+import java.security.KeyStore;
+import java.security.NoSuchProviderException;
+import java.security.Principal;
+import java.security.Security;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -621,7 +625,7 @@ public class TestSSLContextBuilder {
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
-        SSLContext sslContext=SSLContextBuilder.create()
+        final SSLContext sslContext=SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .buildWithProvider(Security.getProvider("SunJSSE"));
 
@@ -633,7 +637,7 @@ public class TestSSLContextBuilder {
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
-        SSLContext sslContext=SSLContextBuilder.create()
+        final SSLContext sslContext=SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .buildWithProvider("SunJSSE");
         Assert.assertTrue(sslContext.getProvider().getName().equals("SunJSSE"));
@@ -644,7 +648,7 @@ public class TestSSLContextBuilder {
         final URL resource1 = getClass().getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
-        SSLContext sslContext=SSLContextBuilder.create()
+        final SSLContext sslContext=SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .buildWithProvider("missing provider");
         Assert.fail();
