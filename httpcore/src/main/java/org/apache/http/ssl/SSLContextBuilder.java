@@ -37,8 +37,10 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
@@ -268,6 +270,20 @@ public class SSLContextBuilder {
     public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException {
         final SSLContext sslcontext = SSLContext.getInstance(
                 this.protocol != null ? this.protocol : TLS);
+        initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
+        return sslcontext;
+    }
+
+    public SSLContext buildWithProvider(final Provider provider) throws NoSuchAlgorithmException, KeyManagementException {
+        final SSLContext sslcontext = SSLContext.getInstance(
+                this.protocol != null ? this.protocol : TLS,provider);
+        initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
+        return sslcontext;
+    }
+
+    public SSLContext buildWithProvider(final String provider) throws NoSuchProviderException, NoSuchAlgorithmException, KeyManagementException {
+        final SSLContext sslcontext = SSLContext.getInstance(
+                this.protocol != null ? this.protocol : TLS,provider);
         initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
         return sslcontext;
     }
