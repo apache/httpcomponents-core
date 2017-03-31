@@ -215,13 +215,10 @@ class BHttpConnectionBase implements BHttpConnection {
     public void shutdown() throws IOException {
         final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
         if (socketHolder != null) {
-            final Socket socket = socketHolder.getSocket();
             // force abortive close (RST)
-            try {
+            try (final Socket socket = socketHolder.getSocket()) {
                 socket.setSoLinger(true, 0);
             } catch (final IOException ex) {
-            } finally {
-                socket.close();
             }
         }
     }
@@ -230,8 +227,7 @@ class BHttpConnectionBase implements BHttpConnection {
     public void close() throws IOException {
         final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
         if (socketHolder != null) {
-            final Socket socket = socketHolder.getSocket();
-            try {
+            try (final Socket socket = socketHolder.getSocket()) {
                 this.inbuffer.clear();
                 this.outbuffer.flush(socketHolder.getOutputStream());
                 try {
@@ -246,8 +242,6 @@ class BHttpConnectionBase implements BHttpConnection {
                 } catch (final UnsupportedOperationException ignore) {
                     // if one isn't supported, the other one isn't either
                 }
-            } finally {
-                socket.close();
             }
         }
     }

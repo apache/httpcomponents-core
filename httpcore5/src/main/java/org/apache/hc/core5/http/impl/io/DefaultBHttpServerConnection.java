@@ -172,8 +172,8 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
-        entity.writeTo(outstream);
-        outstream.close();
+        try (final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+            entity.writeTo(outstream);
+        }
     }
 }

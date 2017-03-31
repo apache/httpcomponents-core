@@ -148,9 +148,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException("Length required");
         }
-        final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
-        entity.writeTo(outstream);
-        outstream.close();
+        try (final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+            entity.writeTo(outstream);
+        }
     }
 
     @Override
@@ -171,9 +171,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
             outstream.close();
         } else if (len >= 0 && len <= 1024) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), null);
-            entity.writeTo(outstream);
-            outstream.close();
+            try (final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), null)) {
+                entity.writeTo(outstream);
+            }
         } else {
             this.consistent = false;
         }

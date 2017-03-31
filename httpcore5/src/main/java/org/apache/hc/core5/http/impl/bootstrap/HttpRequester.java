@@ -123,8 +123,7 @@ public class HttpRequester implements AutoCloseable {
             final ClassicHttpRequest request,
             final HttpContext context,
             final ResponseHandler<T> responseHandler) throws HttpException, IOException {
-        final ClassicHttpResponse response = execute(connection, request, context);
-        try {
+        try (final ClassicHttpResponse response = execute(connection, request, context)) {
             final T result = responseHandler.handleResponse(response);
             EntityUtils.consume(response.getEntity());
             final boolean keepAlive = requestExecutor.keepAlive(request, response, connection, context);
@@ -135,8 +134,6 @@ public class HttpRequester implements AutoCloseable {
         } catch (HttpException | IOException | RuntimeException ex) {
             connection.shutdown();
             throw ex;
-        } finally {
-            response.close();
         }
     }
 
@@ -300,13 +297,10 @@ public class HttpRequester implements AutoCloseable {
             final SocketConfig socketConfig,
             final HttpContext context,
             final ResponseHandler<T> responseHandler) throws HttpException, IOException {
-        final ClassicHttpResponse response = execute(targetHost, request, socketConfig, context);
-        try {
+        try (final ClassicHttpResponse response = execute(targetHost, request, socketConfig, context)) {
             final T result = responseHandler.handleResponse(response);
             EntityUtils.consume(response.getEntity());
             return result;
-        } finally {
-            response.close();
         }
     }
 
