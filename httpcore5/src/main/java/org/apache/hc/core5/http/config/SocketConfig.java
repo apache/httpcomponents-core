@@ -249,7 +249,7 @@ public class SocketConfig {
         private int backlogSize;
 
         Builder() {
-            this.soLinger = new TimeValue(-1, TimeUnit.SECONDS);
+            this.soLinger = TimeValue.NEG_ONE_SECONDS;
             this.tcpNoDelay = true;
         }
 

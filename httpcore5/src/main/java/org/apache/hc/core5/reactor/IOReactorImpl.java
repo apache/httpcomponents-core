@@ -271,7 +271,7 @@ class IOReactorImpl implements IOReactor {
                         closedSessions);
                 session.setHandler(this.eventHandlerFactory.createHandler(session,
                         sessionRequest != null ? sessionRequest.getAttachment() : null));
-                session.setSocketTimeout(this.reactorConfig.getSoTimeout());
+                session.setSocketTimeout(this.reactorConfig.getSoTimeout().toMillisIntBound());
                 key.attach(session);
             } catch (final ClosedChannelException ex) {
                 final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;

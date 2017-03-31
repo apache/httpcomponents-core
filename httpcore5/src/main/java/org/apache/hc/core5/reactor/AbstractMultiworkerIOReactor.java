@@ -374,8 +374,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     protected void prepareSocket(final Socket socket) throws IOException {
         socket.setTcpNoDelay(this.reactorConfig.isTcpNoDelay());
         socket.setKeepAlive(this.reactorConfig.isSoKeepalive());
-        if (this.reactorConfig.getSoTimeout() > 0) {
-            socket.setSoTimeout(this.reactorConfig.getSoTimeout());
+        final int millis = this.reactorConfig.getSoTimeout().toMillisIntBound();
+        if (millis > 0) {
+            socket.setSoTimeout(millis);
         }
         if (this.reactorConfig.getSndBufSize() > 0) {
             socket.setSendBufferSize(this.reactorConfig.getSndBufSize());
@@ -383,7 +384,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         if (this.reactorConfig.getRcvBufSize() > 0) {
             socket.setReceiveBufferSize(this.reactorConfig.getRcvBufSize());
         }
-        final int linger = this.reactorConfig.getSoLinger();
+        final int linger = this.reactorConfig.getSoLinger().toSecondsIntBound();
         if (linger >= 0) {
             socket.setSoLinger(true, linger);
         }

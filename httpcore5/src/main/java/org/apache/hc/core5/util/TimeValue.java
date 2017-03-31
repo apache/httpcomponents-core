@@ -29,12 +29,19 @@ package org.apache.hc.core5.util;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+
 /**
  * Wraps a time (long) and TimeUnit.
  *
  * @since 5.0
  */
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class TimeValue {
+
+    public static final TimeValue ZERO_MILLIS = new TimeValue(0, TimeUnit.MILLISECONDS);
+    public static final TimeValue NEG_ONE_SECONDS = new TimeValue(-1, TimeUnit.SECONDS);
 
     public static int asBoundInt(final long value) {
         if (value > Integer.MAX_VALUE) {

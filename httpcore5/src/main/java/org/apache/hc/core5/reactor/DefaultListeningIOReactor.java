@@ -215,8 +215,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             try {
                 final ServerSocket socket = serverChannel.socket();
                 socket.setReuseAddress(this.reactorConfig.isSoReuseAddress());
-                if (this.reactorConfig.getSoTimeout() > 0) {
-                    socket.setSoTimeout(this.reactorConfig.getSoTimeout());
+                final int millis = this.reactorConfig.getSoTimeout().toMillisIntBound();
+                if (millis > 0) {
+                    socket.setSoTimeout(millis);
                 }
                 if (this.reactorConfig.getRcvBufSize() > 0) {
                     socket.setReceiveBufferSize(this.reactorConfig.getRcvBufSize());

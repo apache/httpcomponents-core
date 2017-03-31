@@ -27,9 +27,12 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * I/O reactor configuration parameters.
@@ -45,12 +48,12 @@ public final class IOReactorConfig {
 
     private final long selectInterval;
     private final int ioThreadCount;
-    private final int soTimeout;
+    private final TimeValue  soTimeout;
     private final boolean soReuseAddress;
-    private final int soLinger;
+    private final TimeValue soLinger;
     private final boolean soKeepAlive;
     private final boolean tcpNoDelay;
-    private final int connectTimeout;
+    private final TimeValue connectTimeout;
     private final int sndBufSize;
     private final int rcvBufSize;
     private final int backlogSize;
@@ -58,12 +61,12 @@ public final class IOReactorConfig {
     IOReactorConfig(
             final long selectInterval,
             final int ioThreadCount,
-            final int soTimeout,
+            final TimeValue soTimeout,
             final boolean soReuseAddress,
-            final int soLinger,
+            final TimeValue soLinger,
             final boolean soKeepAlive,
             final boolean tcpNoDelay,
-            final int connectTimeout,
+            final TimeValue connectTimeout,
             final int sndBufSize,
             final int rcvBufSize,
             final int backlogSize) {
@@ -107,7 +110,7 @@ public final class IOReactorConfig {
      *
      * @see java.net.SocketOptions#SO_TIMEOUT
      */
-    public int getSoTimeout() {
+    public TimeValue getSoTimeout() {
         return soTimeout;
     }
 
@@ -131,7 +134,7 @@ public final class IOReactorConfig {
      *
      * @see java.net.SocketOptions#SO_LINGER
      */
-    public int getSoLinger() {
+    public TimeValue getSoLinger() {
         return soLinger;
     }
 
@@ -164,7 +167,7 @@ public final class IOReactorConfig {
      * <p>
      * Default: {@code 0} (no timeout)
      */
-    public int getConnectTimeout() {
+    public TimeValue getConnectTimeout() {
         return connectTimeout;
     }
 
@@ -227,12 +230,12 @@ public final class IOReactorConfig {
 
         private long selectInterval;
         private int ioThreadCount;
-        private int soTimeout;
+        private TimeValue  soTimeout;
         private boolean soReuseAddress;
-        private int soLinger;
+        private TimeValue soLinger;
         private boolean soKeepAlive;
         private boolean tcpNoDelay;
-        private int connectTimeout;
+        private TimeValue connectTimeout;
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
@@ -240,12 +243,12 @@ public final class IOReactorConfig {
         Builder() {
             this.selectInterval = 1000;
             this.ioThreadCount = AVAIL_PROCS;
-            this.soTimeout = 0;
+            this.soTimeout = TimeValue.ZERO_MILLIS;
             this.soReuseAddress = false;
-            this.soLinger = -1;
+            this.soLinger = TimeValue.NEG_ONE_SECONDS;
             this.soKeepAlive = false;
             this.tcpNoDelay = true;
-            this.connectTimeout = 0;
+            this.connectTimeout = TimeValue.ZERO_MILLIS;
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
@@ -261,7 +264,12 @@ public final class IOReactorConfig {
             return this;
         }
 
-        public Builder setSoTimeout(final int soTimeout) {
+        public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
+            this.soTimeout = new TimeValue(soTimeout, timeUnit);;
+            return this;
+        }
+
+        public Builder setSoTimeout(final TimeValue soTimeout) {
             this.soTimeout = soTimeout;
             return this;
         }
@@ -271,7 +279,12 @@ public final class IOReactorConfig {
             return this;
         }
 
-        public Builder setSoLinger(final int soLinger) {
+        public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
+            this.soLinger = new TimeValue(soLinger, timeUnit);;
+            return this;
+        }
+
+        public Builder setSoLinger(final TimeValue soLinger) {
             this.soLinger = soLinger;
             return this;
         }
@@ -286,7 +299,12 @@ public final class IOReactorConfig {
             return this;
         }
 
-        public Builder setConnectTimeout(final int connectTimeout) {
+        public Builder setConnectTimeout(final int connectTimeout, final TimeUnit timeUnit) {
+            this.connectTimeout = new TimeValue(connectTimeout, timeUnit);
+            return this;
+        }
+
+        public Builder setConnectTimeout(final TimeValue connectTimeout) {
             this.connectTimeout = connectTimeout;
             return this;
         }
