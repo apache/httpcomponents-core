@@ -225,7 +225,7 @@ public class TestingFramework {
          * with the requestHandler.
          */
         final SocketConfig socketConfig = SocketConfig.custom()
-                                          .setSoTimeout(15000)
+                                          .setSoTimeout(15000, TimeUnit.MILLISECONDS)
                                           .build();
 
         final ServerBootstrap serverBootstrap = ServerBootstrap.bootstrap()

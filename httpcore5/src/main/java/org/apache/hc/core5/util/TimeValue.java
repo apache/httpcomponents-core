@@ -36,6 +36,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class TimeValue {
 
+    public static int asBoundInt(final long value) {
+        if (value > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        } else if (value < Integer.MIN_VALUE) {
+            return Integer.MIN_VALUE;
+        }
+        return (int) value;
+    }
+
     private final long duration;
 
     private final TimeUnit timeUnit;

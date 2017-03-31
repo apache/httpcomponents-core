@@ -27,9 +27,12 @@
 
 package org.apache.hc.core5.http.config;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Socket configuration.
@@ -41,10 +44,10 @@ public class SocketConfig {
 
     public static final SocketConfig DEFAULT = new Builder().build();
 
-    private final int connectTimeout;
-    private final int soTimeout;
+    private final TimeValue connectTimeout;
+    private final TimeValue soTimeout;
     private final boolean soReuseAddress;
-    private final int soLinger;
+    private final TimeValue soLinger;
     private final boolean soKeepAlive;
     private final boolean tcpNoDelay;
     private final int sndBufSize;
@@ -52,10 +55,10 @@ public class SocketConfig {
     private final int backlogSize;
 
     SocketConfig(
-            final int connectTimeout,
-            final int soTimeout,
+            final TimeValue connectTimeout,
+            final TimeValue soTimeout,
             final boolean soReuseAddress,
-            final int soLinger,
+            final TimeValue soLinger,
             final boolean soKeepAlive,
             final boolean tcpNoDelay,
             final int sndBufSize,
@@ -83,7 +86,7 @@ public class SocketConfig {
      *
      * @since 5.0
      */
-    public int getConnectTimeout() {
+    public TimeValue getConnectTimeout() {
         return connectTimeout;
     }
 
@@ -96,7 +99,7 @@ public class SocketConfig {
      * @return the default socket timeout value for blocking I/O operations.
      * @see java.net.SocketOptions#SO_TIMEOUT
      */
-    public int getSoTimeout() {
+    public TimeValue getSoTimeout() {
         return soTimeout;
     }
 
@@ -124,7 +127,7 @@ public class SocketConfig {
      * @return the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter.
      * @see java.net.SocketOptions#SO_LINGER
      */
-    public int getSoLinger() {
+    public TimeValue getSoLinger() {
         return soLinger;
     }
 
@@ -235,10 +238,10 @@ public class SocketConfig {
 
     public static class Builder {
 
-        private int connectTimeout;
-        private int soTimeout;
+        private TimeValue connectTimeout;
+        private TimeValue soTimeout;
         private boolean soReuseAddress;
-        private int soLinger;
+        private TimeValue soLinger;
         private boolean soKeepAlive;
         private boolean tcpNoDelay;
         private int sndBufSize;
@@ -246,19 +249,32 @@ public class SocketConfig {
         private int backlogSize;
 
         Builder() {
-            this.soLinger = -1;
+            this.soLinger = new TimeValue(-1, TimeUnit.SECONDS);
             this.tcpNoDelay = true;
         }
 
         /**
          * @since 5.0
          */
-        public Builder setConnectTimeout(final int connectTimeout) {
+        public Builder setConnectTimeout(final TimeValue connectTimeout) {
             this.connectTimeout = connectTimeout;
             return this;
         }
 
-        public Builder setSoTimeout(final int soTimeout) {
+        /**
+         * @since 5.0
+         */
+        public Builder setConnectTimeout(final int connectTimeout, final TimeUnit timeUnit) {
+            this.connectTimeout = new TimeValue(connectTimeout, timeUnit);
+            return this;
+        }
+
+        public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
+            this.soTimeout = new TimeValue(soTimeout, timeUnit);
+            return this;
+        }
+
+        public Builder setSoTimeout(final TimeValue soTimeout) {
             this.soTimeout = soTimeout;
             return this;
         }
@@ -268,7 +284,12 @@ public class SocketConfig {
             return this;
         }
 
-        public Builder setSoLinger(final int soLinger) {
+        public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
+            this.soLinger = new TimeValue(soLinger, timeUnit);
+            return this;
+        }
+
+        public Builder setSoLinger(final TimeValue soLinger) {
             this.soLinger = soLinger;
             return this;
         }

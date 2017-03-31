@@ -99,7 +99,7 @@ public class ClassicTestServer {
         Asserts.check(this.server == null, "Server already running");
         this.server = ServerBootstrap.bootstrap()
                 .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(this.timeout)
+                        .setSoTimeout(this.timeout, TimeUnit.MILLISECONDS)
                         .build())
                 .setConnectionFactory(new LoggingConnFactory())
                 .setExceptionListener(new SimpleExceptionListener())
