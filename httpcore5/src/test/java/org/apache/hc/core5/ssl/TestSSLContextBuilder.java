@@ -209,12 +209,9 @@ public class TestSSLContextBuilder {
             }
         });
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
-        } finally {
-            clientSocket.close();
         }
     }
 
@@ -266,15 +263,12 @@ public class TestSSLContextBuilder {
         });
 
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             final InputStream inputStream = clientSocket.getInputStream();
             Assert.assertEquals('H', inputStream.read());
             Assert.assertEquals('i', inputStream.read());
             Assert.assertEquals(-1, inputStream.read());
-        } finally {
-            clientSocket.close();
         }
 
         final Boolean result = future.get(5, TimeUnit.SECONDS);
@@ -341,16 +335,13 @@ public class TestSSLContextBuilder {
         });
 
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
             final InputStream inputStream = clientSocket.getInputStream();
             Assert.assertEquals('H', inputStream.read());
             Assert.assertEquals('i', inputStream.read());
             Assert.assertEquals(-1, inputStream.read());
-        } finally {
-            clientSocket.close();
         }
 
         final Principal clientPrincipal = future.get(5, TimeUnit.SECONDS);
@@ -393,12 +384,9 @@ public class TestSSLContextBuilder {
         });
 
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
-        } finally {
-            clientSocket.close();
         }
     }
 
@@ -440,16 +428,13 @@ public class TestSSLContextBuilder {
             }
         });
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
             final InputStream inputStream = clientSocket.getInputStream();
             Assert.assertEquals('H', inputStream.read());
             Assert.assertEquals('i', inputStream.read());
             Assert.assertEquals(-1, inputStream.read());
-        } finally {
-            clientSocket.close();
         }
 
         final Principal clientPrincipal = future.get(5, TimeUnit.SECONDS);
@@ -506,16 +491,13 @@ public class TestSSLContextBuilder {
             }
         });
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
             final InputStream inputStream = clientSocket.getInputStream();
             Assert.assertEquals('H', inputStream.read());
             Assert.assertEquals('i', inputStream.read());
             Assert.assertEquals(-1, inputStream.read());
-        } finally {
-            clientSocket.close();
         }
 
         final Principal clientPrincipal = future.get(5, TimeUnit.SECONDS);
@@ -563,15 +545,12 @@ public class TestSSLContextBuilder {
         });
 
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             final Set<String> supportedClientProtocols = new LinkedHashSet<>(Arrays.asList(clientSocket.getSupportedProtocols()));
             Assert.assertTrue(supportedClientProtocols.contains("SSLv3"));
             clientSocket.setEnabledProtocols(new String[] {"SSLv3"} );
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
-        } finally {
-            clientSocket.close();
         }
     }
 
@@ -621,16 +600,13 @@ public class TestSSLContextBuilder {
         });
 
         final int localPort = serverSocket.getLocalPort();
-        final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             final Set<String> supportedClientProtocols = new LinkedHashSet<>(
                     Arrays.asList(clientSocket.getSupportedProtocols()));
             Assert.assertTrue(supportedClientProtocols.contains("TLSv1"));
             clientSocket.setEnabledProtocols(new String[] { "TLSv1" });
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             clientSocket.startHandshake();
-        } finally {
-            clientSocket.close();
         }
     }
 
