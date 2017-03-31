@@ -36,7 +36,6 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.security.KeyStore;
-import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
@@ -649,31 +648,6 @@ public class TestSSLContextBuilder {
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
         Assert.assertTrue(sslContext.getProvider().getName().equals("SunJSSE"));
-    }
-
-    @Test
-    public void testBuildWithProviderName() throws Exception {
-        final URL resource1 = getClass().getResource("/test-server.keystore");
-        final String storePassword = "nopassword";
-        final String keyPassword = "nopassword";
-        final SSLContext sslContext=SSLContextBuilder.create()
-                .useProvider("SunJSSE")
-                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
-                .build();
-        Assert.assertTrue(sslContext.getProvider().getName().equals("SunJSSE"));
-    }
-
-    @Test
-    public void testBuildWithProviderStringNoSuchProviderException() throws Exception {
-        thrown.expect(NoSuchProviderException.class);
-        final URL resource1 = getClass().getResource("/test-server.keystore");
-        final String storePassword = "nopassword";
-        final String keyPassword = "nopassword";
-        final SSLContext sslContext=SSLContextBuilder.create()
-                .useProvider("missing provider")
-                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
-                .build();
-        Assert.fail();
     }
 
 }
