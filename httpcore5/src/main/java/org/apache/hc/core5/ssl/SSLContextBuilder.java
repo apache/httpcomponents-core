@@ -37,8 +37,10 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
@@ -81,6 +83,8 @@ public class SSLContextBuilder {
     private final Set<KeyManager> keymanagers;
     private final Set<TrustManager> trustmanagers;
     private SecureRandom secureRandom;
+    private Provider provider;
+    private String providerName;
 
     public static SSLContextBuilder create() {
         return new SSLContextBuilder();
@@ -94,6 +98,14 @@ public class SSLContextBuilder {
 
     public SSLContextBuilder useProtocol(final String protocol) {
         this.protocol = protocol;
+        return this;
+    }
+    public SSLContextBuilder useProvider(final Provider provider) {
+        this.provider = provider;
+        return this;
+    }
+    public SSLContextBuilder useProvider(final String providerName) {
+        this.providerName = providerName;
         return this;
     }
 
@@ -266,7 +278,20 @@ public class SSLContextBuilder {
                 secureRandom);
     }
 
-    public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException {
+    public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException, NoSuchProviderException {
+
+        if (this.provider!=null){
+            final SSLContext sslcontext = SSLContext.getInstance(
+                    this.protocol != null ? this.protocol : TLS,this.provider);
+            initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
+            return sslcontext;
+        }
+        if (this.providerName!=null){
+            final SSLContext sslcontext = SSLContext.getInstance(
+                    this.protocol != null ? this.protocol : TLS,this.providerName);
+            initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
+            return sslcontext;
+        }
         final SSLContext sslcontext = SSLContext.getInstance(
                 this.protocol != null ? this.protocol : TLS);
         initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
