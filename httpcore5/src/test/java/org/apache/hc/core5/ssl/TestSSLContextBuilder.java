@@ -163,15 +163,12 @@ public class TestSSLContextBuilder {
         });
 
         final int localPort = serverSocket.getLocalPort();
-        final Socket clientSocket = clientSslContext.getSocketFactory().createSocket();
-        try {
+        try (final Socket clientSocket = clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), 5000);
             final InputStream inputStream = clientSocket.getInputStream();
             Assert.assertEquals('H', inputStream.read());
             Assert.assertEquals('i', inputStream.read());
             Assert.assertEquals(-1, inputStream.read());
-        } finally {
-            clientSocket.close();
         }
 
         final Boolean result = future.get(5, TimeUnit.SECONDS);
