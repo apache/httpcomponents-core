@@ -1,3 +1,17 @@
+Release 5.0-ALPHA3
+-------------------
+
+This is a major release that renders HttpCore API incompatible with the stable 4.x branch
+and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
+of the latest protocol specification.
+
+Changelog
+-------------------
+
+* HTTPCORE-450: Add a Provider parameter in SSLContextBuilder.
+  Contributed by lujianbo <387852424 at qq dot com>, Gary Gregory <ggregory at apache.org>
+
+
 Release 5.0-ALPHA2
 -------------------
 
