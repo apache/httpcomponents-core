@@ -11,6 +11,8 @@ Changelog
 * HTTPCORE-450: Add a Provider parameter in SSLContextBuilder.
   Contributed by lujianbo <387852424 at qq dot com>, Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-451: Add a TimeValue class to wrap a long and a TimeUnit.
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-ALPHA2
 -------------------
