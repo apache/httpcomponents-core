@@ -98,6 +98,7 @@ public class SSLContextBuilder {
         this.protocol = protocol;
         return this;
     }
+
     public SSLContextBuilder useProvider(final Provider provider) {
         this.provider = provider;
         return this;
