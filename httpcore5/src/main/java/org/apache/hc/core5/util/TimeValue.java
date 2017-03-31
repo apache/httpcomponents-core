@@ -95,6 +95,10 @@ public class TimeValue {
         return timeUnit.toMillis(duration);
     }
 
+    public int toMillisIntBound() {
+        return asBoundInt(toMillis());
+    }
+
     public long toMinutes() {
         return timeUnit.toMinutes(duration);
     }
@@ -105,6 +109,10 @@ public class TimeValue {
 
     public long toSeconds() {
         return timeUnit.toSeconds(duration);
+    }
+
+    public int toSecondsIntBound() {
+        return asBoundInt(toSeconds());
     }
 
     @Override

@@ -37,7 +37,6 @@ import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
-import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 4.4
@@ -73,7 +72,7 @@ class RequestListener implements Runnable {
         try {
             while (!isTerminated() && !Thread.interrupted()) {
                 final Socket socket = this.serversocket.accept();
-                socket.setSoTimeout(TimeValue.asBoundInt(this.socketConfig.getSoTimeout().toMillis()));
+                socket.setSoTimeout(this.socketConfig.getSoTimeout().toMillisIntBound());
                 socket.setKeepAlive(this.socketConfig.isSoKeepAlive());
                 socket.setTcpNoDelay(this.socketConfig.isTcpNoDelay());
                 if (this.socketConfig.getRcvBufSize() > 0) {
@@ -83,7 +82,7 @@ class RequestListener implements Runnable {
                     socket.setSendBufferSize(this.socketConfig.getSndBufSize());
                 }
                 if (this.socketConfig.getSoLinger().toSeconds() >= 0) {
-                    socket.setSoLinger(true, TimeValue.asBoundInt(this.socketConfig.getSoLinger().toSeconds()));
+                    socket.setSoLinger(true, this.socketConfig.getSoLinger().toSecondsIntBound());
                 }
                 final HttpServerConnection conn = this.connectionFactory.createConnection(socket);
                 final Worker worker = new Worker(this.httpService, conn, this.exceptionListener);

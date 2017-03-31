@@ -65,7 +65,6 @@ import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 5.0
@@ -203,7 +202,7 @@ public class HttpRequester implements AutoCloseable {
                 final Socket socket = createSocket(targetHost);
                 connection = connectFactory.createConnection(socket);
                 poolEntry.assignConnection(connection);
-                socket.connect(toEndpoint(targetHost), TimeValue.asBoundInt(socketConfig.getConnectTimeout().toMillis()));
+                socket.connect(toEndpoint(targetHost), socketConfig.getConnectTimeout().toMillisIntBound());
             }
             final ClassicHttpResponse response = execute(connection, request, context);
             final HttpEntity entity = response.getEntity();
