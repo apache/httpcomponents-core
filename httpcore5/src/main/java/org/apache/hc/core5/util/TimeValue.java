@@ -52,7 +52,7 @@ public class TimeValue {
     public TimeValue(final long duration, final TimeUnit timeUnit) {
         super();
         this.duration = duration;
-        this.timeUnit = timeUnit;
+        this.timeUnit = Args.notNull(timeUnit, "timeUnit");
     }
 
     public long convert(final TimeUnit sourceUnit) {
