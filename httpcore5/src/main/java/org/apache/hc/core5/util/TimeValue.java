@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Wraps a time (long) and TimeUnit.
- * 
+ *
  * @since 5.0
  */
 public class TimeValue {
@@ -40,13 +40,13 @@ public class TimeValue {
 
     private final TimeUnit timeUnit;
 
-    public TimeValue(long duration, TimeUnit timeUnit) {
+    public TimeValue(final long duration, final TimeUnit timeUnit) {
         super();
         this.duration = duration;
         this.timeUnit = timeUnit;
     }
 
-    public long convert(TimeUnit sourceUnit) {
+    public long convert(final TimeUnit sourceUnit) {
         return timeUnit.convert(duration, sourceUnit);
     }
 
@@ -62,11 +62,11 @@ public class TimeValue {
         timeUnit.sleep(duration);
     }
 
-    public void timedJoin(Thread thread) throws InterruptedException {
+    public void timedJoin(final Thread thread) throws InterruptedException {
         timeUnit.timedJoin(thread, duration);
     }
 
-    public void timedWait(Object obj) throws InterruptedException {
+    public void timedWait(final Object obj) throws InterruptedException {
         timeUnit.timedWait(obj, duration);
     }
 
