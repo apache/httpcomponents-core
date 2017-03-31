@@ -295,9 +295,9 @@ public class TestByteArrayBuffer {
         orig.append(2);
         orig.append(3);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
-        outstream.writeObject(orig);
-        outstream.close();
+        try (final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer)) {
+            outstream.writeObject(orig);
+        }
         final byte[] raw = outbuffer.toByteArray();
         final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream instream = new ObjectInputStream(inbuffer);
