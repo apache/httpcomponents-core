@@ -382,9 +382,9 @@ public class TestCharArrayBuffer {
         orig.append('b');
         orig.append('c');
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
-        outstream.writeObject(orig);
-        outstream.close();
+        try (final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer)) {
+            outstream.writeObject(orig);
+        }
         final byte[] raw = outbuffer.toByteArray();
         final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream instream = new ObjectInputStream(inbuffer);
