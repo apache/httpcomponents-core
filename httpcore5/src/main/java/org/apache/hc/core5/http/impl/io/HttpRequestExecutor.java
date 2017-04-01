@@ -279,7 +279,7 @@ public class HttpRequestExecutor {
         Args.notNull(request, "HTTP request");
         Args.notNull(response, "HTTP response");
         Args.notNull(context, "HTTP context");
-        final boolean keepAlive = connReuseStrategy.keepAlive(request, response, context);
+        final boolean keepAlive = connection.isConsistent() && connReuseStrategy.keepAlive(request, response, context);
         if (streamListener != null) {
             streamListener.onExchangeComplete(connection, keepAlive);
         }
