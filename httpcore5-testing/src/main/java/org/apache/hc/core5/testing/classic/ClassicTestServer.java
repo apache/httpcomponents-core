@@ -31,7 +31,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
@@ -43,88 +45,89 @@ import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
+import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.util.Asserts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 public class ClassicTestServer {
 
-    private final UriHttpRequestHandlerMapper reqistry;
-    private volatile HttpExpectationVerifier expectationVerifier;
-    private volatile int timeout;
+    private final SSLContext sslContext;
+    private final SocketConfig socketConfig;
+    private final UriHttpRequestHandlerMapper registry;
 
-    private volatile HttpServer server;
+    private final AtomicReference<HttpServer> serverRef;
 
-    public ClassicTestServer() throws IOException {
+    public ClassicTestServer(final SSLContext sslContext, final SocketConfig socketConfig) {
         super();
-        this.reqistry = new UriHttpRequestHandlerMapper();
+        this.sslContext = sslContext;
+        this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
+        this.registry = new UriHttpRequestHandlerMapper();
+        this.serverRef = new AtomicReference<>(null);
     }
 
-    public int getTimeout() {
-        return this.timeout;
+    public ClassicTestServer(final SocketConfig socketConfig) {
+        this(null, socketConfig);
     }
 
-    public void setTimeout(final int timeout) {
-        this.timeout = timeout;
+    public ClassicTestServer() {
+        this(null, null);
     }
 
     public void registerHandler(
             final String pattern,
             final HttpRequestHandler handler) {
-        this.reqistry.register(pattern, handler);
-    }
-
-    public void setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
-        this.expectationVerifier = expectationVerifier;
+        this.registry.register(pattern, handler);
     }
 
     public int getPort() {
-        final HttpServer local = this.server;
-        if (local != null) {
-            return this.server.getLocalPort();
+        final HttpServer server = this.serverRef.get();
+        if (server != null) {
+            return server.getLocalPort();
         } else {
             throw new IllegalStateException("Server not running");
         }
     }
 
     public InetAddress getInetAddress() {
-        final HttpServer local = this.server;
-        if (local != null) {
-            return local.getInetAddress();
+        final HttpServer server = this.serverRef.get();
+        if (server != null) {
+            return server.getInetAddress();
         } else {
             throw new IllegalStateException("Server not running");
         }
     }
 
-    public void start() throws IOException {
-        Asserts.check(this.server == null, "Server already running");
-        this.server = ServerBootstrap.bootstrap()
-                .setSocketConfig(SocketConfig.custom()
-                        .setSoTimeout(this.timeout, TimeUnit.MILLISECONDS)
-                        .build())
-                .setConnectionFactory(new LoggingConnFactory())
-                .setExceptionListener(new SimpleExceptionListener())
-                .setExpectationVerifier(this.expectationVerifier)
-                .setHandlerMapper(this.reqistry)
-                .create();
-        this.server.start();
-    }
-
-    public void shutdown() {
-        shutdown(5, TimeUnit.SECONDS);
-    }
-
-    public void shutdown(final long gracePeriod, final TimeUnit timeUnit) {
-        final HttpServer local = this.server;
-        this.server = null;
-        if (local != null) {
-            local.initiateShutdown();
-            try {
-                local.awaitTermination(gracePeriod, timeUnit);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
+    public void start(final HttpProcessor httpProcessor, final HttpExpectationVerifier expectationVerifier) throws IOException {
+        if (serverRef.get() == null) {
+            final HttpServer server = ServerBootstrap.bootstrap()
+                    .setSocketConfig(socketConfig)
+                    .setSslContext(sslContext)
+                    .setHttpProcessor(httpProcessor)
+                    .setExpectationVerifier(expectationVerifier)
+                    .setHandlerMapper(this.registry)
+                    .setConnectionFactory(new LoggingConnFactory())
+                    .setExceptionListener(new SimpleExceptionListener())
+                    .create();
+            if (serverRef.compareAndSet(null, server)) {
+                server.start();
             }
-            local.shutdown(ShutdownType.IMMEDIATE);
+        } else {
+            throw new IllegalStateException("Server already running");
+        }
+    }
+
+    public void start(final HttpExpectationVerifier expectationVerifier) throws IOException {
+        start(null, expectationVerifier);
+    }
+
+    public void start() throws IOException {
+        start(null, null);
+    }
+
+    public void shutdown(final ShutdownType shutdownType) {
+        final HttpServer server = serverRef.getAndSet(null);
+        if (server != null) {
+            server.shutdown(shutdownType);
         }
     }
 

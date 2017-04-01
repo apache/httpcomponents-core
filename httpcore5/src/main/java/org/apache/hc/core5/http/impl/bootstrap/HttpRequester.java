@@ -36,7 +36,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLSocketFactory;
@@ -66,6 +65,7 @@ import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 5.0
@@ -175,8 +175,9 @@ public class HttpRequester implements GracefullyCloseable {
         Args.notNull(context, "HTTP context");
         final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
+        final TimeValue connectTimeout = socketConfig != null ? socketConfig.getConnectTimeout() : TimeValue.ZERO_MILLIS;
         try {
-            poolEntry = leaseFuture.get(socketConfig.getConnectTimeout().toMillis(), TimeUnit.MILLISECONDS);
+            poolEntry = leaseFuture.get(connectTimeout.getDuration(), connectTimeout.getTimeUnit());
         } catch (final InterruptedException ex) {
             throw new InterruptedIOException(ex.getMessage());
         } catch (final ExecutionException ex) {
@@ -191,7 +192,7 @@ public class HttpRequester implements GracefullyCloseable {
                 final Socket socket = createSocket(targetHost);
                 connection = connectFactory.createConnection(socket);
                 poolEntry.assignConnection(connection);
-                socket.connect(toEndpoint(targetHost), socketConfig.getConnectTimeout().toMillisIntBound());
+                socket.connect(toEndpoint(targetHost), connectTimeout.toMillisIntBound());
             }
             final ClassicHttpResponse response = execute(connection, request, context);
             final HttpEntity entity = response.getEntity();

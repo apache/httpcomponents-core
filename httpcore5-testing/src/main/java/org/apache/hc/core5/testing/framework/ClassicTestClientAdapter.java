@@ -31,14 +31,16 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -66,7 +68,17 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             throw new HttpException("Request method should be set.");
         }
 
-        final ClassicTestClient client = new ClassicTestClient();
+        final SocketConfig socketConfig;
+        if (request.containsKey(TIMEOUT)) {
+            final long timeout = (long) request.get(TIMEOUT);
+            socketConfig = SocketConfig.custom()
+                    .setConnectTimeout((int) timeout, TimeUnit.MILLISECONDS)
+                    .setSoTimeout((int) timeout, TimeUnit.MILLISECONDS)
+                    .build();
+        } else {
+            socketConfig = null;
+        }
+        final ClassicTestClient client = new ClassicTestClient(socketConfig);
 
         // Append the path to the defaultURI.
         String tempDefaultURI = defaultURI;
@@ -125,39 +137,32 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             httpRequest.setEntity(entity);
         }
 
-        // timeout
-        if (request.containsKey(TIMEOUT)) {
-            final long timeout = (long) request.get(TIMEOUT);
-            client.setTimeout((int) timeout);
-        }
-        client.start();
+        client.start(null);
 
         // Now start the request.
         final HttpHost host = new HttpHost(uri.getHost(), uri.getPort());
         final HttpCoreContext context = HttpCoreContext.create();
-        final ClassicHttpResponse response = client.execute(host, httpRequest, context);
+        try (final ClassicHttpResponse response = client.execute(host, httpRequest, context)) {
+            // Prepare the response.  It will contain status, body, headers, and contentType.
+            final HttpEntity entity = response.getEntity();
+            final String body = entity == null ? null : EntityUtils.toString(entity);
+            final String contentType = entity == null ? null : entity.getContentType();
 
-        // Prepare the response.  It will contain status, body, headers, and contentType.
-        final HttpEntity entity = response.getEntity();
-        final String body = entity == null ? null : EntityUtils.toString(entity);
-        final String contentType = entity == null ? null : entity.getContentType();
+            // prepare the returned information
+            final Map<String, Object> ret = new HashMap<String, Object>();
+            ret.put(STATUS, response.getCode());
 
-        client.keepAlive(httpRequest, response, context);
+            // convert the headers to a Map
+            final Map<String, Object> headerMap = new HashMap<String, Object>();
+            for (final Header header : response.getAllHeaders()) {
+                headerMap.put(header.getName(), header.getValue());
+            }
+            ret.put(HEADERS, headerMap);
+            ret.put(BODY, body);
+            ret.put(CONTENT_TYPE, contentType);
 
-        // prepare the returned information
-        final Map<String, Object> ret = new HashMap<String, Object>();
-        ret.put(STATUS, response.getCode());
-
-        // convert the headers to a Map
-        final Map<String, Object> headerMap = new HashMap<String, Object>();
-        for (final Header header : response.getAllHeaders()) {
-            headerMap.put(header.getName(), header.getValue());
+            return ret ;
         }
-        ret.put(HEADERS, headerMap);
-        ret.put(BODY, body);
-        ret.put(CONTENT_TYPE, contentType);
-
-        return ret ;
     }
 
     /**

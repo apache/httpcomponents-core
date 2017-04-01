@@ -44,10 +44,12 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.testing.classic.ClassicTestServer;
 import org.junit.After;
 import org.junit.Assert;
@@ -63,14 +65,15 @@ public class TestClassicTestClientTestingAdapter {
 
    @Before
     public void initServer() throws Exception {
-        this.server = new ClassicTestServer();
-        this.server.setTimeout(5000);
+       this.server = new ClassicTestServer(SocketConfig.custom()
+               .setConnectTimeout(5, TimeUnit.SECONDS)
+               .setSoTimeout(5, TimeUnit.SECONDS).build());
     }
 
     @After
     public void shutDownServer() throws Exception {
         if (this.server != null) {
-            this.server.shutdown(0, TimeUnit.SECONDS);
+            this.server.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 
@@ -86,7 +89,7 @@ public class TestClassicTestClientTestingAdapter {
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
+        } catch (TestingFrameworkException e) {
             // expected
         }
     }
@@ -103,7 +106,7 @@ public class TestClassicTestClientTestingAdapter {
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
+        } catch (TestingFrameworkException e) {
             // expected
         }
     }
@@ -120,7 +123,7 @@ public class TestClassicTestClientTestingAdapter {
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
+        } catch (TestingFrameworkException e) {
             // expected
         }
     }
@@ -137,7 +140,7 @@ public class TestClassicTestClientTestingAdapter {
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
+        } catch (TestingFrameworkException e) {
             // expected
         }
     }
@@ -154,7 +157,7 @@ public class TestClassicTestClientTestingAdapter {
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
+        } catch (TestingFrameworkException e) {
             // expected
         }
     }
@@ -174,7 +177,7 @@ public class TestClassicTestClientTestingAdapter {
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
+        } catch (TestingFrameworkException e) {
             // expected
         }
     }
@@ -195,7 +198,7 @@ public class TestClassicTestClientTestingAdapter {
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
             Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
+        } catch (TestingFrameworkException e) {
             // expected
         }
     }
@@ -274,7 +277,7 @@ public class TestClassicTestClientTestingAdapter {
                     throws HttpException, IOException {
                 try {
                     Assert.assertEquals("method not expected", "junk", request.getMethod());
-                } catch (final Throwable t) {
+                } catch (Throwable t) {
                     thrown = t;
                 }
             }
@@ -289,7 +292,7 @@ public class TestClassicTestClientTestingAdapter {
         final Map<String, Object> request = new HashMap<String, Object>();
         request.put(PATH, CUSTOM_PATH);
 
-        for (final String method : TestingFramework.ALL_METHODS) {
+        for (String method : TestingFramework.ALL_METHODS) {
             request.put(METHOD, method);
 
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);

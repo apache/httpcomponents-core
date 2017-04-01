@@ -28,63 +28,68 @@
 package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.URIAuthority;
-import org.apache.hc.core5.util.Asserts;
-import org.apache.hc.core5.util.LangUtils;
 
 public class ClassicTestClient {
 
-    private final DefaultBHttpClientConnection connection;
-    private volatile HttpProcessor httpProcessor;
-    private volatile int timeout;
-    private volatile HttpHost host;
+    private final SSLContext sslContext;
+    private final SocketConfig socketConfig;
 
-    private volatile HttpRequester requester;
+    private final AtomicReference<HttpRequester> requesterRef;
+
+    public ClassicTestClient(final SSLContext sslContext, final SocketConfig socketConfig) {
+        super();
+        this.sslContext = sslContext;
+        this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
+        this.requesterRef = new AtomicReference<>(null);
+    }
+
+    public ClassicTestClient(final SocketConfig socketConfig) {
+        this(null, socketConfig);
+    }
 
     public ClassicTestClient() {
-        super();
-        this.connection = new LoggingBHttpClientConnection(H1Config.DEFAULT);
-    }
-
-    public void setHttpProcessor(final HttpProcessor httpProcessor) {
-        this.httpProcessor = httpProcessor;
-    }
-
-    public int getTimeout() {
-        return this.timeout;
-    }
-
-    public void setTimeout(final int timeout) {
-        this.timeout = timeout;
+        this(null, null);
     }
 
     public void start() {
-        Asserts.check(this.requester == null, "Client already running");
-        this.requester = RequesterBootstrap.bootstrap()
-                .setHttpProcessor(httpProcessor)
-                .setConnectFactory(new LoggingConnFactory())
-                .create();
-
+        start(null);
     }
 
-    public void shutdown() {
-        try {
-            this.connection.close();
-        } catch (final IOException ignore) {
+    public void start(final HttpProcessor httpProcessor) {
+        if (requesterRef.get() == null) {
+            final HttpRequester requester = RequesterBootstrap.bootstrap()
+                    .setSslSocketFactory(sslContext != null ? sslContext.getSocketFactory() : null)
+                    .setHttpProcessor(httpProcessor)
+                    .setConnectFactory(new LoggingConnFactory())
+                    .create();
+            requesterRef.compareAndSet(null, requester);
+        } else {
+            throw new IllegalStateException("Requester has already been started");
+        }
+    }
+
+    public void shutdown(final ShutdownType shutdownType) {
+        final HttpRequester requester = requesterRef.getAndSet(null);
+        if (requester != null) {
+            requester.shutdown(shutdownType);
         }
     }
 
@@ -92,29 +97,15 @@ public class ClassicTestClient {
             final HttpHost targetHost,
             final ClassicHttpRequest request,
             final HttpContext context) throws HttpException, IOException {
-        Asserts.check(this.requester != null, "Client not running");
-        if (LangUtils.equals(this.host, targetHost)) {
-            this.connection.close();
-        }
-        this.host = targetHost;
-        if (!this.connection.isOpen()) {
-            final Socket socket = new Socket();
-            socket.connect(new InetSocketAddress(this.host.getHostName(), this.host.getPort()), this.timeout);
-            this.connection.bind(socket);
-            this.connection.setSocketTimeout(this.timeout);
+        final HttpRequester requester = this.requesterRef.get();
+        if (requester == null) {
+            throw new IllegalStateException("Requester has not been started");
         }
         if (request.getAuthority() == null) {
             request.setAuthority(new URIAuthority(targetHost));
         }
         request.setScheme(targetHost.getSchemeName());
-        return this.requester.execute(this.connection, request, context);
-    }
-
-    public boolean keepAlive(
-            final ClassicHttpRequest request,
-            final ClassicHttpResponse response,
-            final HttpContext context) throws IOException {
-        return this.requester.keepAlive(this.connection, request, response, context);
+        return requester.execute(targetHost, request, socketConfig, context);
     }
 
     class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpClientConnection> {
