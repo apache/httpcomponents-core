@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -249,9 +250,9 @@ class IOReactorImpl implements IOReactor {
                 session.onOutputReady();
             }
         } catch (final CancelledKeyException ex) {
-            session.shutdown();
+            session.shutdown(ShutdownType.GRACEFUL);
         } catch (final RuntimeException ex) {
-            session.shutdown();
+            session.shutdown(ShutdownType.IMMEDIATE);
             handleRuntimeException(ex);
         }
     }
@@ -293,7 +294,7 @@ class IOReactorImpl implements IOReactor {
                     handleRuntimeException(ex);
                 }
             } catch (final CancelledKeyException ex) {
-                session.shutdown();
+                session.shutdown(ShutdownType.GRACEFUL);
             }
         }
     }
@@ -325,9 +326,9 @@ class IOReactorImpl implements IOReactor {
                     }
                 }
             } catch (final CancelledKeyException ex) {
-                session.shutdown();
+                session.shutdown(ShutdownType.GRACEFUL);
             } catch (final RuntimeException ex) {
-                session.shutdown();
+                session.shutdown(ShutdownType.IMMEDIATE);
                 handleRuntimeException(ex);
             }
         }
@@ -384,14 +385,21 @@ class IOReactorImpl implements IOReactor {
     }
 
     @Override
-    public void shutdown(final long graceTime, final TimeUnit timeUnit) {
+    public void shutdown(final ShutdownType shutdownType) {
         initiateShutdown();
         try {
-            awaitShutdown(graceTime, timeUnit);
+            if (shutdownType == ShutdownType.GRACEFUL) {
+                awaitShutdown(2, TimeUnit.SECONDS);
+            }
             forceShutdown();
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    @Override
+    public void close() {
+        shutdown(ShutdownType.GRACEFUL);
     }
 
     private static class PendingSession {

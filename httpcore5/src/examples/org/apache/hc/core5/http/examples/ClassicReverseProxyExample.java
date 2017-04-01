@@ -60,6 +60,7 @@ import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
@@ -172,8 +173,8 @@ public class ClassicReverseProxyExample {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                server.shutdown(5, TimeUnit.SECONDS);
-                requester.shutdown();
+                server.shutdown(ShutdownType.GRACEFUL);
+                requester.shutdown(ShutdownType.GRACEFUL);
             }
         });
 

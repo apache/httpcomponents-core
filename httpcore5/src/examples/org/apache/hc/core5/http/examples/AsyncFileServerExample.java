@@ -58,6 +58,7 @@ import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 
@@ -190,7 +191,7 @@ public class AsyncFileServerExample {
             @Override
             public void run() {
                 System.out.println("HTTP server shutting down");
-                server.shutdown(5, TimeUnit.SECONDS);
+                server.shutdown(ShutdownType.GRACEFUL);
             }
         });
 

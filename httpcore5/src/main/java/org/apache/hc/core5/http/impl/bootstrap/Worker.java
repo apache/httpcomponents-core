@@ -26,13 +26,12 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
-import java.io.IOException;
-
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.io.ShutdownType;
 
 /**
  * @since 4.4
@@ -70,11 +69,7 @@ class Worker implements Runnable {
         } catch (final Exception ex) {
             this.exceptionListener.onError(ex);
         } finally {
-            try {
-                this.conn.shutdown();
-            } catch (final IOException ex) {
-                this.exceptionListener.onError(ex);
-            }
+            this.conn.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 

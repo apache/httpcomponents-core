@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -95,8 +96,8 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void shutdown() throws IOException {
-        streamDuplexer.shutdown();
+    public void shutdown(final ShutdownType shutdownType) {
+        streamDuplexer.shutdown(shutdownType);
     }
 
     @Override

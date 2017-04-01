@@ -46,6 +46,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -443,7 +444,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
-    void forceShutdown() {
+    private void forceShutdown() {
         this.status.set(IOReactorStatus.SHUT_DOWN);
         this.selector.wakeup();
         for (int i = 0; i < this.dispatchers.length; i++) {
@@ -459,22 +460,24 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
 
     @Override
-    public void shutdown(final long graceTime, final TimeUnit timeUnit) {
-        Args.notNull(timeUnit, "Time unit");
+    public void shutdown(final ShutdownType shutdownType) {
         if (this.status.get() == IOReactorStatus.INACTIVE) {
             return;
         }
         initiateShutdown();
         try {
-            awaitShutdown(graceTime, timeUnit);
+            if (shutdownType == ShutdownType.GRACEFUL) {
+                awaitShutdown(2, TimeUnit.SECONDS);
+            }
             forceShutdown();
         } catch (final InterruptedException e) {
             Thread.currentThread().interrupt();
         }
     }
 
-    public void shutdown() {
-        shutdown(2, TimeUnit.SECONDS);
+    @Override
+    public void close() {
+        shutdown(ShutdownType.GRACEFUL);
     }
 
     static void closeChannel(final Channel channel) {

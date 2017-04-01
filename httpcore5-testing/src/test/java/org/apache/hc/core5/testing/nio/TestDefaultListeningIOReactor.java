@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -96,7 +97,7 @@ public class TestDefaultListeningIOReactor {
     @After
     public void cleanup() throws Exception {
         if (this.ioreactor != null) {
-            this.ioreactor.shutdown();
+            this.ioreactor.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 
@@ -142,7 +143,7 @@ public class TestDefaultListeningIOReactor {
 
         Assert.assertEquals(port, ((InetSocketAddress) endpoint.getAddress()).getPort());
 
-        ioreactor.shutdown();
+        ioreactor.shutdown(ShutdownType.GRACEFUL);
         t.join(1000);
 
         Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
@@ -184,7 +185,7 @@ public class TestDefaultListeningIOReactor {
         Assert.assertNotNull(endpoints);
         Assert.assertEquals(0, endpoints.size());
 
-        ioreactor.shutdown();
+        ioreactor.shutdown(ShutdownType.GRACEFUL);
         t.join(1000);
 
         Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
@@ -232,7 +233,7 @@ public class TestDefaultListeningIOReactor {
 
         Assert.assertEquals(IOReactorStatus.ACTIVE, ioreactor.getStatus());
 
-        ioreactor.shutdown(1, TimeUnit.SECONDS);
+        ioreactor.shutdown(ShutdownType.GRACEFUL);
         t.join(1000);
 
         Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());

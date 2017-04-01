@@ -27,10 +27,10 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.Closeable;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 
+import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.util.Identifiable;
 
 /**
@@ -49,7 +49,7 @@ import org.apache.hc.core5.util.Identifiable;
  *
  * @since 4.0
  */
-public interface IOSession extends Closeable, Identifiable {
+public interface IOSession extends GracefullyCloseable, Identifiable {
 
     int ACTIVE       = 0;
     int CLOSING      = 1;
@@ -149,11 +149,6 @@ public interface IOSession extends Closeable, Identifiable {
      */
     @Override
     void close();
-
-    /**
-     * Terminates the session by shutting down the underlying I/O channel.
-     */
-    void shutdown();
 
     /**
      * Returns status of the session:

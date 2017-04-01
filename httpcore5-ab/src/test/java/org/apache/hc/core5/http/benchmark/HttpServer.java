@@ -51,6 +51,7 @@ import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Asserts;
 
 public class HttpServer {
@@ -162,15 +163,14 @@ public class HttpServer {
                 while (!Thread.interrupted() && this.conn.isOpen()) {
                     this.httpservice.handleRequest(this.conn, context);
                 }
+                this.conn.shutdown(ShutdownType.GRACEFUL);
             } catch (final ConnectionClosedException ex) {
             } catch (final IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
             } catch (final HttpException ex) {
                 System.err.println("Unrecoverable HTTP protocol violation: " + ex.getMessage());
             } finally {
-                try {
-                    this.conn.shutdown();
-                } catch (final IOException ignore) {}
+                this.conn.shutdown(ShutdownType.IMMEDIATE);
             }
         }
 

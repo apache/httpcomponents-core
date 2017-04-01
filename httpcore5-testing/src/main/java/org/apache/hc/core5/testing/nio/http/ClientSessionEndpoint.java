@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.nio.http;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,9 +40,10 @@ import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Asserts;
@@ -54,7 +54,7 @@ import org.apache.hc.core5.util.Asserts;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public final class ClientSessionEndpoint implements Closeable {
+public final class ClientSessionEndpoint implements GracefullyCloseable {
 
     private final IOSession ioSession;
     private final AtomicBoolean closed;
@@ -121,9 +121,14 @@ public final class ClientSessionEndpoint implements Closeable {
         return !closed.get() && !ioSession.isClosed();
     }
 
-    public void shutdown() {
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
         if (closed.compareAndSet(false, true)) {
-            ioSession.shutdown();
+            if (shutdownType == ShutdownType.GRACEFUL) {
+                ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+            } else {
+                ioSession.shutdown(shutdownType);
+            }
         }
     }
 

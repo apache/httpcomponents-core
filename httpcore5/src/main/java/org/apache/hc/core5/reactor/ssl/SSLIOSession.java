@@ -45,6 +45,7 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
@@ -630,12 +631,12 @@ public class SSLIOSession implements IOSession {
         try {
             updateEventMask();
         } catch (final CancelledKeyException ex) {
-            shutdown();
+            shutdown(ShutdownType.GRACEFUL);
         }
     }
 
     @Override
-    public synchronized void shutdown() {
+    public synchronized void shutdown(final ShutdownType shutdownType) {
         if (this.status == CLOSED) {
             return;
         }
@@ -645,7 +646,7 @@ public class SSLIOSession implements IOSession {
         this.outPlain.release();
 
         this.status = CLOSED;
-        this.session.shutdown();
+        this.session.shutdown(shutdownType);
     }
 
     @Override

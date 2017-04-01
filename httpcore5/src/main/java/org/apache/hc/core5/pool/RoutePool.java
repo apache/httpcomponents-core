@@ -26,17 +26,18 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.io.Closeable;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
-final class RoutePool<T, C extends Closeable> {
+final class RoutePool<T, C extends GracefullyCloseable> {
 
     private final T route;
     private final Set<PoolEntry<T, C>> leased;
@@ -121,13 +122,13 @@ final class RoutePool<T, C extends Closeable> {
         return entry;
     }
 
-    public void shutdown() {
+    public void shutdown(final ShutdownType shutdownType) {
         for (final PoolEntry<T, C> entry: this.available) {
-            entry.discardConnection();
+            entry.discardConnection(shutdownType);
         }
         this.available.clear();
         for (final PoolEntry<T, C> entry: this.leased) {
-            entry.discardConnection();
+            entry.discardConnection(shutdownType);
         }
         this.leased.clear();
     }

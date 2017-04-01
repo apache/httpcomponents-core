@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Identifiable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -91,11 +92,11 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
     }
 
     @Override
-    public void shutdown() throws IOException {
+    public void shutdown(final ShutdownType shutdownType) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + ": Shutdown connection");
         }
-        super.shutdown();
+        super.shutdown(shutdownType);
     }
 
     @Override

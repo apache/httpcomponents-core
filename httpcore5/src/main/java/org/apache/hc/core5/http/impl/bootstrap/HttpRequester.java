@@ -41,7 +41,6 @@ import java.util.concurrent.TimeoutException;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -61,6 +60,8 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
@@ -69,7 +70,7 @@ import org.apache.hc.core5.util.Args;
 /**
  * @since 5.0
  */
-public class HttpRequester implements AutoCloseable {
+public class HttpRequester implements GracefullyCloseable {
 
     private final HttpRequestExecutor requestExecutor;
     private final HttpProcessor httpProcessor;
@@ -132,7 +133,7 @@ public class HttpRequester implements AutoCloseable {
             }
             return result;
         } catch (HttpException | IOException | RuntimeException ex) {
-            connection.shutdown();
+            connection.shutdown(ShutdownType.IMMEDIATE);
             throw ex;
         }
     }
@@ -183,19 +184,7 @@ public class HttpRequester implements AutoCloseable {
         } catch (final TimeoutException ex) {
             throw new ConnectionRequestTimeoutException("Connection request timeout");
         }
-        final PoolEntryHolder<HttpHost, HttpClientConnection> connectionHolder = new PoolEntryHolder<>(
-                connPool,
-                poolEntry,
-                new Callback<HttpClientConnection>() {
-
-                    @Override
-                    public void execute(final HttpClientConnection conn) {
-                        try {
-                            conn.shutdown();
-                        } catch (final IOException ignore) {
-                        }
-                    }
-                });
+        final PoolEntryHolder<HttpHost, HttpClientConnection> connectionHolder = new PoolEntryHolder<>(connPool, poolEntry);
         try {
             HttpClientConnection connection = poolEntry.getConnection();
             if (connection == null) {
@@ -308,12 +297,13 @@ public class HttpRequester implements AutoCloseable {
         return connPool;
     }
 
-    public void shutdown() {
-        connPool.shutdown();
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
+        connPool.shutdown(shutdownType);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         connPool.close();
     }
 

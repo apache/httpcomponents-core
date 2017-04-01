@@ -66,7 +66,7 @@ import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
@@ -128,7 +128,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.connState = ConnectionState.READY;
     }
 
-    void doTerminate(final Exception exception) {
+    void doTerminate(final Exception exception) throws IOException {
         connState = ConnectionState.SHUTDOWN;
         try {
             terminate(exception);
@@ -332,9 +332,15 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     public final void onException(final Exception ex) {
-        doTerminate(ex);
         if (connectionListener != null) {
             connectionListener.onError(this, ex);
+        }
+        try {
+            doTerminate(ex);
+        } catch (IOException ex2) {
+            if (connectionListener != null) {
+                connectionListener.onError(this, ex2);
+            }
         }
     }
 
@@ -472,8 +478,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     @Override
-    public void shutdown() throws IOException {
-        ioSession.addFirst(new ShutdownCommand(ShutdownType.IMMEDIATE));
+    public void shutdown(final ShutdownType shutdownType) {
+        ioSession.addFirst(new ShutdownCommand(shutdownType));
     }
 
     @Override

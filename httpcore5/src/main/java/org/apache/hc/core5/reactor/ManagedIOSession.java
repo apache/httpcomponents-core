@@ -39,6 +39,7 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLIOSession;
@@ -119,7 +120,7 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                 handler.connected(this);
             }
         } catch (final RuntimeException ex) {
-            shutdown();
+            shutdown(ShutdownType.IMMEDIATE);
             throw ex;
         }
     }
@@ -141,13 +142,13 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                     tlsSession.inboundTransport();
                 } catch (final IOException ex) {
                     handler.exception(tlsSession, ex);
-                    tlsSession.shutdown();
+                    tlsSession.shutdown(ShutdownType.IMMEDIATE);
                 }
             } else {
                 handler.inputReady(this);
             }
         } catch (final RuntimeException ex) {
-            shutdown();
+            shutdown(ShutdownType.IMMEDIATE);
             throw ex;
         }
     }
@@ -167,13 +168,13 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                     tlsSession.outboundTransport();
                 } catch (final IOException ex) {
                     handler.exception(tlsSession, ex);
-                    tlsSession.shutdown();
+                    tlsSession.shutdown(ShutdownType.IMMEDIATE);
                 }
             } else {
                 handler.outputReady(this);
             }
         } catch (final RuntimeException ex) {
-            shutdown();
+            shutdown(ShutdownType.IMMEDIATE);
             throw ex;
         }
     }
@@ -186,11 +187,11 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
             if (tlsSession != null) {
                 if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
                     // The session failed to terminate cleanly
-                    tlsSession.shutdown();
+                    tlsSession.shutdown(ShutdownType.IMMEDIATE);
                 }
             }
         } catch (final RuntimeException ex) {
-            shutdown();
+            shutdown(ShutdownType.IMMEDIATE);
             throw ex;
         }
     }
@@ -236,10 +237,10 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown(final ShutdownType shutdownType) {
         if (closed.compareAndSet(false, true)) {
             try {
-                getSessionImpl().shutdown();
+                getSessionImpl().shutdown(shutdownType);
             } finally {
                 closedSessions.add(this);
             }

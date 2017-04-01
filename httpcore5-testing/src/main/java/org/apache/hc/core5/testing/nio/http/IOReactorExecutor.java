@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.AbstractMultiworkerIOReactor;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -150,24 +150,27 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
         }
     }
 
-    private void initiateShutdown(final T ioReactor) {
-        if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
-            ioReactor.initiateShutdown();
-        }
-    }
-
     public void initiateShutdown() {
         final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
-            initiateShutdown(ioReactor);
+            if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
+                ioReactor.initiateShutdown();
+            }
         }
     }
 
     public void shutdown(final long graceTime, final TimeUnit timeUnit) {
         final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
-            initiateShutdown(ioReactor);
-            ioReactor.shutdown(graceTime, timeUnit);
+            if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
+                ioReactor.initiateShutdown();
+            }
+            try {
+                ioReactor.awaitShutdown(graceTime, timeUnit);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            ioReactor.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 

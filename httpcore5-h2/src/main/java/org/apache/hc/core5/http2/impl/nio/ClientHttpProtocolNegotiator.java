@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
@@ -112,7 +113,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 final ByteChannel channel = ioSession.channel();
                 channel.write(preface);
             } catch (final IOException ex) {
-                ioSession.shutdown();
+                ioSession.shutdown(ShutdownType.IMMEDIATE);
                 if (connectionListener != null) {
                     connectionListener.onError(this, ex);
                 }
@@ -157,7 +158,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         try {
             failPendingCommands(cause);
         } finally {
-            session.shutdown();
+            session.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 
@@ -206,8 +207,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void shutdown() throws IOException {
-        ioSession.shutdown();
+    public void shutdown(final ShutdownType shutdownType) {
+        ioSession.shutdown(shutdownType);
     }
 
 }

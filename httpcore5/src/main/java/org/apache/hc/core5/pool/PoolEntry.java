@@ -28,12 +28,11 @@ package org.apache.hc.core5.pool;
 
 import static java.lang.System.currentTimeMillis;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -48,7 +47,7 @@ import org.apache.hc.core5.util.Args;
  * @param <C> the connection type.
  * @since 4.2
  */
-public final class PoolEntry<T, C extends Closeable> {
+public final class PoolEntry<T, C extends GracefullyCloseable> {
 
     private final T route;
     private final long timeToLive;
@@ -138,30 +137,16 @@ public final class PoolEntry<T, C extends Closeable> {
     /**
      * @since 5.0
      */
-    public void discardConnection(final Callback<C> shutdownCallback) {
+    public void discardConnection(final ShutdownType shutdownType) {
         final C connection = this.connRef.getAndSet(null);
         if (connection != null) {
-            if (shutdownCallback != null) {
-                shutdownCallback.execute(connection);
-            } else {
-                try {
-                    connection.close();
-                } catch (final IOException ignore) {
-                }
-            }
             this.state = null;
             this.created = 0;
             this.updated = 0;
             this.expiry = 0;
             this.validityDeadline = 0;
+            connection.shutdown(shutdownType);
         }
-    }
-
-    /**
-     * @since 5.0
-     */
-    public void discardConnection() {
-        discardConnection(null);
     }
 
     /**

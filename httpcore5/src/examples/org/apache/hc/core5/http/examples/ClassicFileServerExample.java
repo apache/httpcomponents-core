@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.io.entity.FileEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.ssl.SSLContexts;
 
 /**
@@ -119,7 +120,7 @@ public class ClassicFileServerExample {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                server.shutdown(5, TimeUnit.SECONDS);
+                server.shutdown(ShutdownType.GRACEFUL);
             }
         });
         System.out.println("Listening on port " + port);

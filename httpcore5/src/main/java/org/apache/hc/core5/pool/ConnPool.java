@@ -26,10 +26,10 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.io.Closeable;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.io.GracefullyCloseable;
 
 /**
  * {@code ConnPool} represents a shared pool connections can be leased from
@@ -40,7 +40,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
  * @param <C> the type of pooled connections.
  * @since 4.2
  */
-public interface ConnPool<T, C extends Closeable> {
+public interface ConnPool<T, C extends GracefullyCloseable> {
 
     /**
      * Attempts to lease a connection for the given route and with the given

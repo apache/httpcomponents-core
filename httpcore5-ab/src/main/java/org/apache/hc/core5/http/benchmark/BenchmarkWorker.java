@@ -58,6 +58,7 @@ import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.io.ShutdownType;
 
 /**
  * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
@@ -161,7 +162,7 @@ class BenchmarkWorker implements Runnable {
                     if (config.getVerbosity() >= 2) {
                         System.err.println("Failed HTTP request : " + e.getMessage());
                     }
-                    conn.shutdown();
+                    conn.shutdown(ShutdownType.IMMEDIATE);
                     continue;
                 }
 

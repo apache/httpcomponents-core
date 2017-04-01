@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -215,7 +216,7 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown(final ShutdownType shutdownType) {
         // For this type of session, a close() does exactly
         // what we need and nothing more.
         close();

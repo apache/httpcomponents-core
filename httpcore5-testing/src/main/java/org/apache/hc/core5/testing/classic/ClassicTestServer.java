@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -117,7 +118,13 @@ public class ClassicTestServer {
         final HttpServer local = this.server;
         this.server = null;
         if (local != null) {
-            local.shutdown(gracePeriod, timeUnit);
+            local.initiateShutdown();
+            try {
+                local.awaitTermination(gracePeriod, timeUnit);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            local.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 

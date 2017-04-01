@@ -60,7 +60,6 @@ import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -79,6 +78,7 @@ import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
@@ -664,7 +664,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             connState = ConnectionHandshake.SHUTDOWN;
         } catch (final IOException ignore) {
         } finally {
-            ioSession.shutdown();
+            ioSession.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 
@@ -1164,8 +1164,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     @Override
-    public void shutdown() throws IOException {
-        ioSession.shutdown();
+    public void shutdown(final ShutdownType shutdownType) {
+        ioSession.shutdown(shutdownType);
     }
 
     @Override

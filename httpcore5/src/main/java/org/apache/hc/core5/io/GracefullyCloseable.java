@@ -25,15 +25,22 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.command;
+package org.apache.hc.core5.io;
+
+import java.io.Closeable;
 
 /**
- * Shutdown type.
+ * Process or endpoint that can be gracefully closed.
  *
  * @since 5.0
  */
-public enum ShutdownType {
+public interface GracefullyCloseable extends Closeable {
 
-    IMMEDIATE, GRACEFUL
+    /**
+     * Closes this endpoint and releases any system resources associated
+     * with it. If the endpoint is already closed then invoking this
+     * method has no effect.
+     */
+    void shutdown(ShutdownType shutdownType);
 
 }

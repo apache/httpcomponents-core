@@ -27,16 +27,17 @@
 
 package org.apache.hc.core5.http;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketAddress;
+
+import org.apache.hc.core5.io.GracefullyCloseable;
 
 /**
  * A generic HTTP connection, useful on client and server side.
  *
  * @since 4.0
  */
-public interface HttpConnection extends Closeable {
+public interface HttpConnection extends GracefullyCloseable {
 
     /**
      * Returns connection endpoint details.
@@ -74,15 +75,6 @@ public interface HttpConnection extends Closeable {
      * timeout is undefined.
      */
     int getSocketTimeout();
-
-    /**
-     * Force-closes this connection.
-     * This is the only method of a connection which may be called
-     * from a different thread to terminate the connection.
-     * This method will not attempt to flush the transmitter's
-     * internal buffer prior to closing the underlying socket.
-     */
-    void shutdown() throws IOException;
 
     /**
      * Returns protocol version used by this connection or {@code null} if unknown.

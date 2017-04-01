@@ -33,6 +33,7 @@ import java.net.SocketAddress;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.logging.log4j.Logger;
 public class LoggingIOEventHandler implements HttpConnectionEventHandler {
@@ -143,11 +144,11 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void shutdown() throws IOException {
+    public void shutdown(final ShutdownType shutdownType) {
         if (log.isDebugEnabled()) {
             log.debug(id + " shutdown");
         }
-        handler.shutdown();
+        handler.shutdown(shutdownType);
     }
 
 }

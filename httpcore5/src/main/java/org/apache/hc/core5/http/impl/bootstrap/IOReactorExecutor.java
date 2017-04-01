@@ -35,11 +35,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.AbstractMultiworkerIOReactor;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 
-abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> implements AutoCloseable {
+abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> implements GracefullyCloseable {
 
     enum Status { READY, RUNNING, TERMINATED }
 
@@ -97,14 +99,14 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
         ioReactor.initiateShutdown();
     }
 
-    public void shutdown(final long graceTime, final TimeUnit timeUnit) {
-        ioReactor.initiateShutdown();
-        ioReactor.shutdown(graceTime, timeUnit);
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
+        ioReactor.shutdown(shutdownType);
     }
 
     @Override
-    public void close() throws Exception {
-        shutdown(5, TimeUnit.SECONDS);
+    public void close() {
+        shutdown(ShutdownType.GRACEFUL);
     }
 
 }

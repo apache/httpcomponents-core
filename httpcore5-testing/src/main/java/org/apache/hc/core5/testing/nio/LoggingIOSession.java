@@ -36,6 +36,7 @@ import java.nio.channels.SelectionKey;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
@@ -166,11 +167,11 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown(final ShutdownType shutdownType) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.session + " Shutdown");
         }
-        this.session.shutdown();
+        this.session.shutdown(shutdownType);
     }
 
     @Override

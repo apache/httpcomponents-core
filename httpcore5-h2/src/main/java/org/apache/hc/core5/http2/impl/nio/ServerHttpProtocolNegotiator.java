@@ -46,6 +46,7 @@ import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -181,8 +182,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void shutdown() throws IOException {
-        ioSession.shutdown();
+    public void shutdown(final ShutdownType shutdownType) {
+        ioSession.shutdown(shutdownType);
     }
 
 }

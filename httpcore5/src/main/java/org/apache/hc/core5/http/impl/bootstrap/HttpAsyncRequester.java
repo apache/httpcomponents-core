@@ -40,9 +40,9 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.command.ShutdownType;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -97,20 +97,10 @@ public class HttpAsyncRequester extends AsyncRequester {
 
             @Override
             public void completed(final PoolEntry<HttpHost, IOSession> poolEntry) {
-                final PoolEntryHolder<HttpHost, IOSession> poolEntryHolder = new PoolEntryHolder<>(
-                        connPool,
-                        poolEntry,
-                        new Callback<IOSession>() {
-
-                            @Override
-                            public void execute(final IOSession clientEndpoint) {
-                                clientEndpoint.shutdown();
-                            }
-
-                        });
+                final PoolEntryHolder<HttpHost, IOSession> poolEntryHolder = new PoolEntryHolder<>(connPool, poolEntry);
                 final IOSession ioSession = poolEntry.getConnection();
                 if (ioSession != null && ioSession.isClosed()) {
-                    poolEntry.discardConnection();
+                    poolEntry.discardConnection(ShutdownType.IMMEDIATE);
                 }
                 if (poolEntry.hasConnection()) {
                     resultFuture.completed(new InternalAsyncClientEndpoint(poolEntryHolder));

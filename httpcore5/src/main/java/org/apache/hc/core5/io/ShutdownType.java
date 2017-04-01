@@ -25,39 +25,15 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.command;
-
-import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.reactor.Command;
+package org.apache.hc.core5.io;
 
 /**
- * Shutdown command.
+ * Shutdown type.
  *
  * @since 5.0
  */
-public final class ShutdownCommand implements Command {
+public enum ShutdownType {
 
-    public static final ShutdownCommand GRACEFUL = new ShutdownCommand(ShutdownType.GRACEFUL);
-    public static final ShutdownCommand IMMEDIATE = new ShutdownCommand(ShutdownType.IMMEDIATE);
-
-    private final ShutdownType type;
-
-    public ShutdownCommand(final ShutdownType type) {
-        this.type = type;
-    }
-
-    public ShutdownType getType() {
-        return type;
-    }
-
-    @Override
-    public boolean cancel() {
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "Shutdown: " + type;
-    }
+    IMMEDIATE, GRACEFUL
 
 }

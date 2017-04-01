@@ -44,11 +44,13 @@ import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 
 /**
  * @since 4.4
  */
-public class HttpServer implements AutoCloseable {
+public class HttpServer implements GracefullyCloseable {
 
     enum Status { READY, ACTIVE, STOPPING }
 
@@ -137,7 +139,7 @@ public class HttpServer implements AutoCloseable {
 
     public void stop() {
         if (this.status.compareAndSet(Status.ACTIVE, Status.STOPPING)) {
-            this.listenerExecutorService.shutdown();
+            this.listenerExecutorService.shutdownNow();
             this.workerExecutorService.shutdown();
             final RequestListener local = this.requestListener;
             if (local != null) {
@@ -151,15 +153,20 @@ public class HttpServer implements AutoCloseable {
         }
     }
 
+    public void initiateShutdown() {
+        stop();
+    }
+
     public void awaitTermination(final long timeout, final TimeUnit timeUnit) throws InterruptedException {
         this.workerExecutorService.awaitTermination(timeout, timeUnit);
     }
 
-    public void shutdown(final long gracePeriod, final TimeUnit timeUnit) {
-        stop();
-        if (gracePeriod > 0) {
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
+        initiateShutdown();
+        if (shutdownType == ShutdownType.GRACEFUL) {
             try {
-                awaitTermination(gracePeriod, timeUnit);
+                awaitTermination(2, TimeUnit.SECONDS);
             } catch (final InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
@@ -167,17 +174,13 @@ public class HttpServer implements AutoCloseable {
         final Set<Worker> workers = this.workerExecutorService.getWorkers();
         for (final Worker worker: workers) {
             final HttpServerConnection conn = worker.getConnection();
-            try {
-                conn.shutdown();
-            } catch (final IOException ex) {
-                this.exceptionListener.onError(ex);
-            }
+            conn.shutdown(ShutdownType.GRACEFUL);
         }
     }
 
     @Override
-    public void close() throws Exception {
-        shutdown(5, TimeUnit.SECONDS);
+    public void close() {
+        shutdown(ShutdownType.GRACEFUL);
     }
 
 }

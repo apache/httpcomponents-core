@@ -26,7 +26,6 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.io.Closeable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,6 +46,8 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
@@ -60,7 +61,7 @@ import org.apache.hc.core5.util.LangUtils;
  * @since 4.2
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public class StrictConnPool<T, C extends Closeable> implements ControlledConnPool<T, C> {
+public class StrictConnPool<T, C extends GracefullyCloseable> implements ControlledConnPool<T, C> {
 
     private final long timeToLive;
     private final TimeUnit timeUnit;
@@ -116,13 +117,13 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
     }
 
     @Override
-    public void shutdown() {
+    public void shutdown(final ShutdownType shutdownType) {
         if (this.isShutDown.compareAndSet(false, true)) {
             fireCallbacks();
             this.lock.lock();
             try {
                 for (final RoutePool<T, C> pool: this.routeToPool.values()) {
-                    pool.shutdown();
+                    pool.shutdown(shutdownType);
                 }
                 this.routeToPool.clear();
                 this.leased.clear();
@@ -135,8 +136,8 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
     }
 
     @Override
-    public void close() throws Exception {
-        shutdown();
+    public void close() {
+        shutdown(ShutdownType.GRACEFUL);
     }
 
     private RoutePool<T, C> getPool(final T route) {
@@ -191,7 +192,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
             return;
         }
         if (!reusable) {
-            entry.discardConnection();
+            entry.discardConnection(ShutdownType.GRACEFUL);
         }
         this.lock.lock();
         try {
@@ -214,7 +215,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
                         this.connPoolListener.onRelease(entry.getRoute(), this);
                     }
                 } else {
-                    entry.discardConnection();
+                    entry.discardConnection(ShutdownType.GRACEFUL);
                 }
                 processNextPendingRequest();
             }
@@ -284,7 +285,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
                 break;
             }
             if (entry.getExpiry() < System.currentTimeMillis()) {
-                entry.discardConnection();
+                entry.discardConnection(ShutdownType.GRACEFUL);
                 this.available.remove(entry);
                 pool.free(entry, false);
             } else {
@@ -311,7 +312,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
                 if (lastUsed == null) {
                     break;
                 }
-                lastUsed.discardConnection();
+                lastUsed.discardConnection(ShutdownType.GRACEFUL);
                 this.available.remove(lastUsed);
                 pool.remove(lastUsed);
             }
@@ -326,7 +327,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
             if (totalAvailable > freeCapacity - 1) {
                 if (!this.available.isEmpty()) {
                     final PoolEntry<T, C> lastUsed = this.available.removeLast();
-                    lastUsed.discardConnection();
+                    lastUsed.discardConnection(ShutdownType.GRACEFUL);
                     final RoutePool<T, C> otherpool = getPool(lastUsed.getRoute());
                     otherpool.remove(lastUsed);
                 }
@@ -583,7 +584,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
             @Override
             public void execute(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
-                    entry.discardConnection();
+                    entry.discardConnection(ShutdownType.GRACEFUL);
                 }
             }
 
@@ -598,7 +599,7 @@ public class StrictConnPool<T, C extends Closeable> implements ControlledConnPoo
             @Override
             public void execute(final PoolEntry<T, C> entry) {
                 if (entry.getExpiry() < now) {
-                    entry.discardConnection();
+                    entry.discardConnection(ShutdownType.GRACEFUL);
                 }
             }
 

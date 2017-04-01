@@ -46,6 +46,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
+import org.apache.hc.core5.io.ShutdownType;
 
 /**
  * Example of HTTP/2 concurrent request execution using multiple streams.
@@ -99,7 +100,7 @@ public class Http2MultiStreamExecutionExample {
             @Override
             public void run() {
                 System.out.println("HTTP requester shutting down");
-                requester.shutdown(3, TimeUnit.SECONDS);
+                requester.shutdown(ShutdownType.GRACEFUL);
             }
         });
         requester.start();

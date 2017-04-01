@@ -33,6 +33,7 @@ import java.net.SocketAddress;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -96,8 +97,8 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void shutdown() throws IOException {
-        streamMultiplexer.shutdown();
+    public void shutdown(final ShutdownType shutdownType) {
+        streamMultiplexer.shutdown(shutdownType);
     }
 
     @Override

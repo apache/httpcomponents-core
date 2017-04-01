@@ -29,6 +29,7 @@ package org.apache.hc.core5.pool;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.io.ShutdownType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -50,7 +51,7 @@ public class TestPoolEntry {
         Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
         Assert.assertEquals(entry1.getUpdated() + 10L, entry1.getValidityDeadline());
 
-        entry1.discardConnection();
+        entry1.discardConnection(ShutdownType.IMMEDIATE);
         Assert.assertEquals(0, entry1.getUpdated());
         Assert.assertEquals(0, entry1.getExpiry());
     }

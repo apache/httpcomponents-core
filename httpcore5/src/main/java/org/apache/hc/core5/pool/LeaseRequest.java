@@ -26,15 +26,15 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.io.GracefullyCloseable;
 
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-class LeaseRequest<T, C extends Closeable> {
+class LeaseRequest<T, C extends GracefullyCloseable> {
 
     private final T route;
     private final Object state;

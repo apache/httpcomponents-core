@@ -30,6 +30,8 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.io.GracefullyCloseable;
+
 /**
  * HttpCore NIO is based on the Reactor pattern as described by Doug Lea.
  * The purpose of I/O reactors is to react to I/O events and to dispatch event
@@ -47,7 +49,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 4.0
  */
-public interface IOReactor {
+public interface IOReactor extends GracefullyCloseable {
 
     /**
      * Returns the current status of the reactor.
@@ -63,19 +65,6 @@ public interface IOReactor {
      * @throws IOException in case of an I/O error.
      */
     void execute() throws IOException;
-
-    /**
-     * Initiates shutdown of the reactor and blocks approximately for the given
-     * period of time in milliseconds waiting for the reactor to terminate all
-     * active connections, to shut down itself and to release system resources
-     * it currently holds.
-     *
-     * @param graceTime grace time in units.
-     * @param timeUnit time unit
-     *
-     * @since 5.0
-     */
-    void shutdown(long graceTime, TimeUnit timeUnit);
 
     /**
      * Initiates shutdown of the reactor without blocking. The reactor is expected

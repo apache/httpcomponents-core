@@ -26,31 +26,28 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
-import java.io.Closeable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.pool.ConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 
 /**
  * @since 5.0
  */
-final class PoolEntryHolder<T, C extends Closeable> {
+final class PoolEntryHolder<T, C extends GracefullyCloseable> {
 
     private final ConnPool<T, C> connPool;
-    private final Callback<C> shutdownCallback;
     private final AtomicBoolean reusable;
     private final AtomicReference<PoolEntry<T, C>> poolEntryRef;
 
     public PoolEntryHolder(
             final ConnPool<T, C> connPool,
-            final PoolEntry<T, C> poolEntry,
-            final Callback<C> shutdownCallback) {
+            final PoolEntry<T, C> poolEntry) {
         this.connPool = connPool;
         this.poolEntryRef = new AtomicReference<>(poolEntry);
-        this.shutdownCallback = shutdownCallback;
         this.reusable = new AtomicBoolean(false);
     }
 
@@ -77,7 +74,7 @@ final class PoolEntryHolder<T, C extends Closeable> {
     public void abortConnection() {
         final PoolEntry<T, C> poolEntry = poolEntryRef.getAndSet(null);
         if (poolEntry != null) {
-            poolEntry.discardConnection(shutdownCallback);
+            poolEntry.discardConnection(ShutdownType.IMMEDIATE);
             connPool.release(poolEntry, false);
         }
     }

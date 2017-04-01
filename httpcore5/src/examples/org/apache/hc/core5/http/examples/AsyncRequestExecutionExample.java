@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 
 /**
@@ -91,7 +92,7 @@ public class AsyncRequestExecutionExample {
             @Override
             public void run() {
                 System.out.println("HTTP requester shutting down");
-                requester.shutdown(3, TimeUnit.SECONDS);
+                requester.shutdown(ShutdownType.GRACEFUL);
             }
         });
         requester.start();

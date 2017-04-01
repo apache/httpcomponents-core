@@ -26,7 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.io.Closeable;
+import org.apache.hc.core5.io.GracefullyCloseable;
 
 /**
  * {@link ConnPool} that also implements {@link ConnPoolControl} and {@link AutoCloseable}.
@@ -36,8 +36,6 @@ import java.io.Closeable;
  * @param <C> the type of pooled connections.
  * @since 4.2
  */
-public interface ControlledConnPool<T, C extends Closeable> extends ConnPool<T, C>, ConnPoolControl<T>, AutoCloseable {
-
-    void shutdown();
+public interface ControlledConnPool<T, C extends GracefullyCloseable> extends ConnPool<T, C>, ConnPoolControl<T>, GracefullyCloseable {
 
 }
