@@ -71,8 +71,8 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
                 requestWriterFactory, responseParserFactory);
         this.id = "http-outgoing-" + COUNT.incrementAndGet();
         this.log = LogManager.getLogger(getClass());
-        this.headerlog = LogManager.getLogger("org.apache.http.headers");
-        this.wire = new Wire(LogManager.getLogger("org.apache.http.wire"), this.id);
+        this.headerlog = LogManager.getLogger("org.apache.hc.core5.http.headers");
+        this.wire = new Wire(LogManager.getLogger("org.apache.hc.core5.http.wire"), this.id);
     }
 
     public LoggingBHttpClientConnection(final H1Config h1Config) {

@@ -36,9 +36,10 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
+import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.net.URIAuthority;
@@ -56,7 +57,7 @@ public class ClassicTestClient {
 
     public ClassicTestClient() {
         super();
-        this.connection = new DefaultBHttpClientConnection(H1Config.DEFAULT);
+        this.connection = new LoggingBHttpClientConnection(H1Config.DEFAULT);
     }
 
     public void setHttpProcessor(final HttpProcessor httpProcessor) {
@@ -75,6 +76,7 @@ public class ClassicTestClient {
         Asserts.check(this.requester == null, "Client already running");
         this.requester = RequesterBootstrap.bootstrap()
                 .setHttpProcessor(httpProcessor)
+                .setConnectFactory(new LoggingConnFactory())
                 .create();
 
     }
@@ -115,4 +117,13 @@ public class ClassicTestClient {
         return this.requester.keepAlive(this.connection, request, response, context);
     }
 
+    class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpClientConnection> {
+
+        @Override
+        public LoggingBHttpClientConnection createConnection(final Socket socket) throws IOException {
+            final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(H1Config.DEFAULT);
+            conn.bind(socket);
+            return conn;
+        }
+    }
 }

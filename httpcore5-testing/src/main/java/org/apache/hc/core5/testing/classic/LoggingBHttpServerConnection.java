@@ -70,8 +70,8 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
                 requestParserFactory, responseWriterFactory);
         this.id = "http-incoming-" + COUNT.incrementAndGet();
         this.log = LogManager.getLogger(getClass());
-        this.headerlog = LogManager.getLogger("org.apache.http.headers");
-        this.wire = new Wire(LogManager.getLogger("org.apache.http.wire"), this.id);
+        this.headerlog = LogManager.getLogger("org.apache.hc.core5.http.headers");
+        this.wire = new Wire(LogManager.getLogger("org.apache.hc.core5.http.wire"), this.id);
     }
 
     @Override
