@@ -326,8 +326,14 @@ public final class IOReactorConfig {
 
         public IOReactorConfig build() {
             return new IOReactorConfig(
-                    selectInterval, ioThreadCount, soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
-                    connectTimeout, sndBufSize, rcvBufSize, backlogSize);
+                    selectInterval, ioThreadCount,
+                    connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLIS,
+                    soReuseAddress,
+                    soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
+                    soKeepAlive,
+                    tcpNoDelay,
+                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLIS,
+                    sndBufSize, rcvBufSize, backlogSize);
         }
 
     }

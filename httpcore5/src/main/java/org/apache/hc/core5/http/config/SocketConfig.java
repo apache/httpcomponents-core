@@ -249,8 +249,15 @@ public class SocketConfig {
         private int backlogSize;
 
         Builder() {
+            this.connectTimeout = TimeValue.ZERO_MILLIS;
+            this.soTimeout = TimeValue.ZERO_MILLIS;
+            this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
+            this.soKeepAlive = false;
             this.tcpNoDelay = true;
+            this.sndBufSize = 0;
+            this.rcvBufSize = 0;
+            this.backlogSize = 0;
         }
 
         /**
@@ -329,7 +336,11 @@ public class SocketConfig {
         }
 
         public SocketConfig build() {
-            return new SocketConfig(connectTimeout, soTimeout, soReuseAddress, soLinger,
+            return new SocketConfig(
+                    connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLIS,
+                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLIS,
+                    soReuseAddress,
+                    soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
                     soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize);
         }
 
