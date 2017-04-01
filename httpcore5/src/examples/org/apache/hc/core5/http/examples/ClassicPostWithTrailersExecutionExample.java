@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.examples;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -60,8 +62,8 @@ public class ClassicPostWithTrailersExecutionExample {
         request.setEntity(requestBody);
 
         SocketConfig socketConfig = SocketConfig.custom()
-                .setConnectTimeout(5000)
-                .setSoTimeout(5000)
+                .setConnectTimeout(5, TimeUnit.SECONDS)
+                .setSoTimeout(5, TimeUnit.SECONDS)
                 .build();
 
         System.out.println(">> Request URI: " + request.getUri());

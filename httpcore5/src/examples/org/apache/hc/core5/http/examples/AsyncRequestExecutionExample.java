@@ -55,8 +55,8 @@ public class AsyncRequestExecutionExample {
     public static void main(String[] args) throws Exception {
 
         IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
-                .setConnectTimeout(5000)
-                .setSoTimeout(5000)
+                .setConnectTimeout(5, TimeUnit.SECONDS)
+                .setSoTimeout(5, TimeUnit.SECONDS)
                 .build();
 
         // Create and start requester

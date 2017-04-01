@@ -90,7 +90,7 @@ public class ClassicFileServerExample {
         }
 
         SocketConfig socketConfig = SocketConfig.custom()
-                .setSoTimeout(15000)
+                .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
 

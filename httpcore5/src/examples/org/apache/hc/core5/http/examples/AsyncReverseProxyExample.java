@@ -99,8 +99,8 @@ public class AsyncReverseProxyExample {
         System.out.println("Reverse proxy to " + targetHost);
 
         IOReactorConfig config = IOReactorConfig.custom()
-            .setSoTimeout(3000)
-            .setConnectTimeout(3000)
+            .setSoTimeout(3, TimeUnit.SECONDS)
+            .setConnectTimeout(3, TimeUnit.SECONDS)
             .build();
 
         final HttpAsyncRequester requester = AsyncRequesterBootstrap.bootstrap()

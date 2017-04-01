@@ -79,7 +79,7 @@ public class AsyncFileServerExample {
         }
 
         IOReactorConfig config = IOReactorConfig.custom()
-                .setSoTimeout(15000)
+                .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
 

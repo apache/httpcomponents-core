@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.examples;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -100,8 +101,8 @@ public class ClassicPostExecutionExample {
         };
 
         SocketConfig socketConfig = SocketConfig.custom()
-                .setConnectTimeout(5000)
-                .setSoTimeout(5000)
+                .setConnectTimeout(5, TimeUnit.SECONDS)
+                .setSoTimeout(5, TimeUnit.SECONDS)
                 .build();
 
         String requestUri = "/post";

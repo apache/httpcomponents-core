@@ -83,7 +83,7 @@ public class Http2FileServerExample {
         }
 
         IOReactorConfig config = IOReactorConfig.custom()
-                .setSoTimeout(15000)
+                .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
 
