@@ -37,6 +37,7 @@ import java.net.SocketException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.Principal;
+import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -616,6 +617,18 @@ public class TestSSLContextBuilder {
         } finally {
             clientSocket.close();
         }
+    }
+
+    @Test
+    public void testBuildWithProvider() throws Exception {
+        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final String storePassword = "nopassword";
+        final String keyPassword = "nopassword";
+        final SSLContext sslContext=SSLContextBuilder.create()
+                .setProvider(Security.getProvider("SunJSSE"))
+                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                .build();
+        Assert.assertTrue(sslContext.getProvider().getName().equals("SunJSSE"));
     }
 
 }
