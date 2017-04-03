@@ -30,7 +30,6 @@ package org.apache.hc.core5.testing.nio.http;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
@@ -46,6 +45,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
+import org.apache.hc.core5.util.TimeValue;
 
 public class Http1TestClient extends AsyncRequester  {
 
@@ -81,11 +81,10 @@ public class Http1TestClient extends AsyncRequester  {
 
     public Future<ClientSessionEndpoint> connect(
             final HttpHost host,
-            final long timeout,
-            final TimeUnit timeUnit,
+            final TimeValue timeout,
             final FutureCallback<ClientSessionEndpoint> callback) throws InterruptedException {
         final BasicFuture<ClientSessionEndpoint> future = new BasicFuture<>(callback);
-        requestSession(host, timeout, timeUnit, new SessionRequestCallback() {
+        requestSession(host, timeout, new SessionRequestCallback() {
 
             @Override
             public void completed(final SessionRequest request) {
@@ -111,19 +110,12 @@ public class Http1TestClient extends AsyncRequester  {
         return future;
     }
 
-    public Future<ClientSessionEndpoint> connect(
-            final HttpHost host,
-            final long timeout,
-            final TimeUnit timeUnit) throws InterruptedException {
-        return connect(host, timeout, timeUnit, null);
+    public Future<ClientSessionEndpoint> connect(final HttpHost host, final TimeValue timeout) throws InterruptedException {
+        return connect(host, timeout, null);
     }
 
-    public Future<ClientSessionEndpoint> connect(
-            final String hostname,
-            final int port,
-            final long timeout,
-            final TimeUnit timeUnit) throws InterruptedException {
-        return connect(new HttpHost(hostname, port), timeout, timeUnit);
+    public Future<ClientSessionEndpoint> connect(final String hostname, final int port, final TimeValue timeout) throws InterruptedException {
+        return connect(new HttpHost(hostname, port), timeout, null);
     }
 
 }

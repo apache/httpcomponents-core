@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.util.TimeValue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -107,12 +108,12 @@ public class TestStrictConnPool {
     public void testLeaseIllegal() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
         try {
-            pool.lease(null, null, 0, TimeUnit.MILLISECONDS, null);
+            pool.lease(null, null, TimeValue.ZERO_MILLIS, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
         try {
-            pool.lease("somehost", null, 0, null, null);
+            pool.lease("somehost", null, null, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
@@ -367,7 +368,7 @@ public class TestStrictConnPool {
         Assert.assertNotNull(entry1);
         entry1.assignConnection(conn1);
 
-        entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
+        entry1.updateExpiry(TimeValue.of(1, TimeUnit.MILLISECONDS));
         pool.release(entry1, true);
 
         Thread.sleep(200L);
@@ -406,12 +407,12 @@ public class TestStrictConnPool {
         Assert.assertNotNull(entry2);
         entry2.assignConnection(conn2);
 
-        entry1.updateExpiry(1, TimeUnit.MILLISECONDS);
+        entry1.updateExpiry(TimeValue.of(1, TimeUnit.MILLISECONDS));
         pool.release(entry1, true);
 
         Thread.sleep(200);
 
-        entry2.updateExpiry(1000, TimeUnit.SECONDS);
+        entry2.updateExpiry(TimeValue.of(1000, TimeUnit.SECONDS));
         pool.release(entry2, true);
 
         pool.closeExpired();
@@ -456,7 +457,7 @@ public class TestStrictConnPool {
         entry2.updateState(null);
         pool.release(entry2, true);
 
-        pool.closeIdle(50, TimeUnit.MILLISECONDS);
+        pool.closeIdle(TimeValue.of(50, TimeUnit.MILLISECONDS));
 
         Mockito.verify(conn1).shutdown(ShutdownType.GRACEFUL);
         Mockito.verify(conn2, Mockito.never()).shutdown(Mockito.<ShutdownType>any());
@@ -470,7 +471,7 @@ public class TestStrictConnPool {
         Assert.assertEquals(0, stats.getLeased());
         Assert.assertEquals(0, stats.getPending());
 
-        pool.closeIdle(-1, TimeUnit.MILLISECONDS);
+        pool.closeIdle(TimeValue.of(-1, TimeUnit.MILLISECONDS));
 
         Mockito.verify(conn2).shutdown(ShutdownType.GRACEFUL);
 
@@ -490,9 +491,9 @@ public class TestStrictConnPool {
 
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
 
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
-        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, 10, TimeUnit.MILLISECONDS, null);
+        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
+        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, TimeValue.of(10, TimeUnit.MILLISECONDS), null);
 
         Assert.assertTrue(future1.isDone());
         final PoolEntry<String, HttpConnection> entry1 = future1.get();
@@ -513,14 +514,14 @@ public class TestStrictConnPool {
     public void testLeaseRequestCanceled() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
 
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
 
         Assert.assertTrue(future1.isDone());
         final PoolEntry<String, HttpConnection> entry1 = future1.get();
         Assert.assertNotNull(entry1);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
 
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, 0, TimeUnit.MILLISECONDS, null);
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
         future2.cancel(true);
 
         pool.release(entry1, true);
@@ -533,7 +534,7 @@ public class TestStrictConnPool {
     @Test(expected=IllegalArgumentException.class)
     public void testCloseIdleInvalid() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
-        pool.closeIdle(50, null);
+        pool.closeIdle(null);
     }
 
     @Test(expected=IllegalArgumentException.class)

@@ -46,6 +46,8 @@ import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 4.4
@@ -157,8 +159,9 @@ public class HttpServer implements GracefullyCloseable {
         stop();
     }
 
-    public void awaitTermination(final long timeout, final TimeUnit timeUnit) throws InterruptedException {
-        this.workerExecutorService.awaitTermination(timeout, timeUnit);
+    public void awaitTermination(final TimeValue waitTime) throws InterruptedException {
+        Args.notNull(waitTime, "Wait time");
+        this.workerExecutorService.awaitTermination(waitTime.getDuration(), waitTime.getTimeUnit());
     }
 
     @Override
@@ -166,7 +169,7 @@ public class HttpServer implements GracefullyCloseable {
         initiateShutdown();
         if (shutdownType == ShutdownType.GRACEFUL) {
             try {
-                awaitTermination(2, TimeUnit.SECONDS);
+                awaitTermination(TimeValue.ofSeconds(5));
             } catch (final InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }

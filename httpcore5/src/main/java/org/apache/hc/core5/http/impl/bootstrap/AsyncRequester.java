@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
@@ -44,6 +43,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor> implements ConnectionInitiator {
 
@@ -74,13 +74,12 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
 
     protected SessionRequest requestSession(
             final HttpHost host,
-            final long timeout,
-            final TimeUnit timeUnit,
+            final TimeValue timeout,
             final SessionRequestCallback callback) {
         Args.notNull(host, "Host");
-        Args.notNull(timeUnit, "Time unit");
+        Args.notNull(timeout, "Timeout");
         final SessionRequest  sessionRequest = reactor().connect(host, toSocketAddress(host), null, null, callback);
-        sessionRequest.setConnectTimeout((int) timeUnit.toMillis(timeout));
+        sessionRequest.setConnectTimeout(timeout.toMillisIntBound());
         return sessionRequest;
     }
 

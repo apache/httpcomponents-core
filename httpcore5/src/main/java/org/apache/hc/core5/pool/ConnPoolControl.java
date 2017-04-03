@@ -26,7 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.util.concurrent.TimeUnit;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Interface to control runtime properties of a {@link ConnPool} such as
@@ -51,7 +51,7 @@ public interface ConnPoolControl<T> extends ConnPoolStats<T> {
 
     int getMaxPerRoute(final T route);
 
-    void closeIdle(long idletime, TimeUnit tunit);
+    void closeIdle(TimeValue idleTime);
 
     void closeExpired();
 

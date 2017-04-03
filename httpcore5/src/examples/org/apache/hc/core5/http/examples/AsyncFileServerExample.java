@@ -61,6 +61,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of asynchronous embedded HTTP/1.1 file server.
@@ -199,7 +200,7 @@ public class AsyncFileServerExample {
         ListenerEndpoint listenerEndpoint = server.listen(new InetSocketAddress(port));
         listenerEndpoint.waitFor();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
-        server.awaitShutdown(Long.MAX_VALUE, TimeUnit.DAYS);
+        server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
 }

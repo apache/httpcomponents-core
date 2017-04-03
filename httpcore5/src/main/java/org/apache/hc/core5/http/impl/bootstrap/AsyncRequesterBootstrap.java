@@ -26,8 +26,6 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
@@ -49,6 +47,7 @@ import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 5.0
@@ -61,8 +60,7 @@ public class AsyncRequesterBootstrap {
     private ConnectionReuseStrategy connStrategy;
     private int defaultMaxPerRoute;
     private int maxTotal;
-    private long timeToLive;
-    private TimeUnit timeUnit;
+    private TimeValue timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
@@ -119,9 +117,8 @@ public class AsyncRequesterBootstrap {
         return this;
     }
 
-    public final AsyncRequesterBootstrap setTimeToLive(final long timeToLive, final TimeUnit timeUnit) {
+    public final AsyncRequesterBootstrap setTimeToLive(final TimeValue timeToLive) {
         this.timeToLive = timeToLive;
-        this.timeUnit = timeUnit;
         return this;
     }
 
@@ -177,7 +174,7 @@ public class AsyncRequesterBootstrap {
         final StrictConnPool<HttpHost, IOSession> connPool = new StrictConnPool<>(
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
-                timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
+                timeToLive,
                 connPoolPolicy,
                 connPoolListener);
         final ClientHttp1IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(

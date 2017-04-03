@@ -26,10 +26,9 @@
  */
 package org.apache.hc.core5.pool;
 
-import java.util.concurrent.TimeUnit;
-
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.util.TimeValue;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -53,7 +52,7 @@ public class TestRouteSpecificPool {
     public void testAdd() throws Exception {
         final RoutePool<String, GracefullyCloseable> pool = new RoutePool<>("whatever");
         final GracefullyCloseable conn = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry.assignConnection(conn);
         Assert.assertEquals(1, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
@@ -66,13 +65,13 @@ public class TestRouteSpecificPool {
     public void testLeaseRelease() throws Exception {
         final RoutePool<String, GracefullyCloseable> pool = new RoutePool<>("whatever");
         final GracefullyCloseable conn1 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry1.assignConnection(conn1);
         final GracefullyCloseable conn2 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry2.assignConnection(conn2);
         final GracefullyCloseable conn3 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
@@ -106,13 +105,13 @@ public class TestRouteSpecificPool {
     public void testLeaseOrder() throws Exception {
         final RoutePool<String, GracefullyCloseable> pool = new RoutePool<>("whatever");
         final GracefullyCloseable conn1 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry1.assignConnection(conn1);
         final GracefullyCloseable conn2 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry2.assignConnection(conn2);
         final GracefullyCloseable conn3 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
@@ -138,13 +137,13 @@ public class TestRouteSpecificPool {
     public void testLeaseReleaseStateful() throws Exception {
         final RoutePool<String, GracefullyCloseable> pool = new RoutePool<>("whatever");
         final GracefullyCloseable conn1 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry1.assignConnection(conn1);
         final GracefullyCloseable conn2 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry2.assignConnection(conn2);
         final GracefullyCloseable conn3 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
@@ -192,13 +191,13 @@ public class TestRouteSpecificPool {
     public void testRemove() throws Exception {
         final RoutePool<String, GracefullyCloseable> pool = new RoutePool<>("whatever");
         final GracefullyCloseable conn1 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry1.assignConnection(conn1);
         final GracefullyCloseable conn2 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry2.assignConnection(conn2);
         final GracefullyCloseable conn3 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry3 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry3.assignConnection(conn3);
 
         Assert.assertNotNull(entry1);
@@ -247,10 +246,10 @@ public class TestRouteSpecificPool {
     public void testShutdown() throws Exception {
         final RoutePool<String, GracefullyCloseable> pool = new RoutePool<>("whatever");
         final GracefullyCloseable conn1 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry1 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry1.assignConnection(conn1);
         final GracefullyCloseable conn2 = Mockito.mock(GracefullyCloseable.class);
-        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(0, TimeUnit.MILLISECONDS);
+        final PoolEntry<String, GracefullyCloseable> entry2 = pool.createEntry(TimeValue.ZERO_MILLIS);
         entry2.assignConnection(conn2);
 
         Assert.assertNotNull(entry1);

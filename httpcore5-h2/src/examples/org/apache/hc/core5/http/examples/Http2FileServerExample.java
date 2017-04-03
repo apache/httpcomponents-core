@@ -65,6 +65,7 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of asynchronous embedded HTTP/2 file server.
@@ -236,7 +237,7 @@ public class Http2FileServerExample {
         ListenerEndpoint listenerEndpoint = server.listen(new InetSocketAddress(port));
         listenerEndpoint.waitFor();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
-        server.awaitShutdown(Long.MAX_VALUE, TimeUnit.DAYS);
+        server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
 }

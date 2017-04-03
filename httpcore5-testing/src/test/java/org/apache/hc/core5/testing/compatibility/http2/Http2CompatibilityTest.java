@@ -47,7 +47,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
@@ -57,7 +56,9 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.BasicAsyncPushHandler;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
 import org.apache.hc.core5.testing.nio.http2.Http2TestClient;
+import org.apache.hc.core5.util.TimeValue;
 
 public class Http2CompatibilityTest {
 
@@ -110,13 +111,13 @@ public class Http2CompatibilityTest {
     }
 
     void shutdown() throws Exception {
-        client.shutdown(5, TimeUnit.SECONDS);
+        client.shutdown(TimeValue.ofSeconds(5));
     }
 
     private final static String[] REQUEST_URIS = new String[] {"/", "/news.html", "/status.html"};
 
     void execute() throws Exception {
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, 5, TimeUnit.SECONDS);
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TimeValue.ofSeconds(5));
         final ClientSessionEndpoint clientEndpoint = connectFuture.get(5, TimeUnit.SECONDS);
 
         final BlockingDeque<RequestResult> resultQueue = new LinkedBlockingDeque<>();

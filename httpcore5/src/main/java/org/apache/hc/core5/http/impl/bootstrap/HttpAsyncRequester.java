@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -53,6 +52,7 @@ import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 5.0
@@ -86,11 +86,10 @@ public class HttpAsyncRequester extends AsyncRequester {
 
     public Future<AsyncClientEndpoint> connect(
             final HttpHost host,
-            final long timeout,
-            final TimeUnit timeUnit,
+            final TimeValue timeout,
             final FutureCallback<AsyncClientEndpoint> callback) {
         Args.notNull(host, "Host");
-        Args.notNull(timeUnit, "Time unit");
+        Args.notNull(timeout, "Timeout");
         final ComplexFuture<AsyncClientEndpoint> resultFuture = new ComplexFuture<>(callback);
         final Future<PoolEntry<HttpHost, IOSession>> leaseFuture = connPool.lease(
                 host, null, new FutureCallback<PoolEntry<HttpHost, IOSession>>() {
@@ -105,9 +104,7 @@ public class HttpAsyncRequester extends AsyncRequester {
                 if (poolEntry.hasConnection()) {
                     resultFuture.completed(new InternalAsyncClientEndpoint(poolEntryHolder));
                 } else {
-                    final SessionRequest sessionRequest = requestSession(
-                            host, timeout, timeUnit,
-                            new SessionRequestCallback() {
+                    final SessionRequest sessionRequest = requestSession(host, timeout, new SessionRequestCallback() {
 
                         @Override
                         public void completed(final SessionRequest request) {
@@ -170,11 +167,8 @@ public class HttpAsyncRequester extends AsyncRequester {
         return resultFuture;
     }
 
-    public Future<AsyncClientEndpoint> connect(
-            final HttpHost host,
-            final long timeout,
-            final TimeUnit timeUnit) throws InterruptedException {
-        return connect(host, timeout, timeUnit, null);
+    public Future<AsyncClientEndpoint> connect(final HttpHost host, final TimeValue timeout) throws InterruptedException {
+        return connect(host, timeout, null);
     }
 
     private static class InternalAsyncClientEndpoint extends AsyncClientEndpoint {

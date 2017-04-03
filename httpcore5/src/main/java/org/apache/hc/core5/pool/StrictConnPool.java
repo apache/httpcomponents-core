@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -51,6 +50,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Connection pool with strict max connection limit guarantees.
@@ -63,8 +63,7 @@ import org.apache.hc.core5.util.LangUtils;
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class StrictConnPool<T, C extends GracefullyCloseable> implements ControlledConnPool<T, C> {
 
-    private final long timeToLive;
-    private final TimeUnit timeUnit;
+    private final TimeValue timeToLive;
     private final ConnPoolListener<T> connPoolListener;
     private final ConnPoolPolicy policy;
     private final Map<T, RoutePool<T, C>> routeToPool;
@@ -85,15 +84,13 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
     public StrictConnPool(
             final int defaultMaxPerRoute,
             final int maxTotal,
-            final long timeToLive,
-            final TimeUnit timeUnit,
+            final TimeValue timeToLive,
             final ConnPoolPolicy policy,
             final ConnPoolListener<T> connPoolListener) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
         Args.positive(maxTotal, "Max total value");
-        this.timeToLive = timeToLive;
-        this.timeUnit = timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS;
+        this.timeToLive = timeToLive != null ? timeToLive : TimeValue.NEG_ONE_MILLIS;
         this.connPoolListener = connPoolListener;
         this.policy = policy != null ? policy : ConnPoolPolicy.LIFO;
         this.routeToPool = new HashMap<>();
@@ -109,7 +106,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
     }
 
     public StrictConnPool(final int defaultMaxPerRoute, final int maxTotal) {
-        this(defaultMaxPerRoute, maxTotal, 0, TimeUnit.MILLISECONDS, ConnPoolPolicy.LIFO, null);
+        this(defaultMaxPerRoute, maxTotal, TimeValue.NEG_ONE_MILLIS, ConnPoolPolicy.LIFO, null);
     }
 
     public boolean isShutdown() {
@@ -151,15 +148,15 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
 
     public Future<PoolEntry<T, C>> lease(
             final T route, final Object state,
-            final long leaseTimeout, final TimeUnit tunit,
+            final TimeValue requestTimeout,
             final FutureCallback<PoolEntry<T, C>> callback) {
         Args.notNull(route, "Route");
-        Args.notNull(tunit, "Time unit");
+        Args.notNull(requestTimeout, "Request timeout");
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
         final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
         this.lock.lock();
         try {
-            final LeaseRequest<T, C> request = new LeaseRequest<>(route, state, leaseTimeout, future);
+            final LeaseRequest<T, C> request = new LeaseRequest<>(route, state, requestTimeout, future);
             final boolean completed = processPendingRequest(request);
             if (!request.isDone() && !completed) {
                 this.leasingRequests.add(request);
@@ -176,11 +173,11 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
 
     @Override
     public Future<PoolEntry<T, C>> lease(final T route, final Object state, final FutureCallback<PoolEntry<T, C>> callback) {
-        return lease(route, state, -1, TimeUnit.MICROSECONDS, callback);
+        return lease(route, state, TimeValue.NEG_ONE_MILLIS, callback);
     }
 
     public Future<PoolEntry<T, C>> lease(final T route, final Object state) {
-        return lease(route, state, -1, TimeUnit.MICROSECONDS, null);
+        return lease(route, state, TimeValue.NEG_ONE_MILLIS, null);
     }
 
     @Override
@@ -333,7 +330,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
                 }
             }
 
-            entry = pool.createEntry(this.timeToLive, this.timeUnit);
+            entry = pool.createEntry(this.timeToLive);
             this.leased.add(entry);
             request.completed(entry);
             if (this.connPoolListener != null) {
@@ -572,13 +569,9 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
     }
 
     @Override
-    public void closeIdle(final long idletime, final TimeUnit tunit) {
-        Args.notNull(tunit, "Time unit");
-        long time = tunit.toMillis(idletime);
-        if (time < 0) {
-            time = 0;
-        }
-        final long deadline = System.currentTimeMillis() - time;
+    public void closeIdle(final TimeValue idleTime) {
+        Args.notNull(idleTime, "Idle time");
+        final long deadline = System.currentTimeMillis() - (idleTime.getDuration() > 0 ? idleTime.toMillis() : 0);
         enumAvailable(new Callback<PoolEntry<T, C>>() {
 
             @Override

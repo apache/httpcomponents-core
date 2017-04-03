@@ -40,6 +40,8 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class TimeValue {
 
+    public static final TimeValue MAX_VALUE = new TimeValue(Long.MAX_VALUE, TimeUnit.DAYS);
+    public static final TimeValue NEG_ONE_MILLIS = new TimeValue(-1, TimeUnit.MILLISECONDS);
     public static final TimeValue ZERO_MILLIS = new TimeValue(0, TimeUnit.MILLISECONDS);
     public static final TimeValue NEG_ONE_SECONDS = new TimeValue(-1, TimeUnit.SECONDS);
 
@@ -52,14 +54,39 @@ public class TimeValue {
         return (int) value;
     }
 
+    public static TimeValue of(final long duration, final TimeUnit timeUnit) {
+        Args.notNull(timeUnit, "timeUnit");
+        return new TimeValue(duration, timeUnit);
+    }
+
+    public static TimeValue ofDays(final long days) {
+        return new TimeValue(days, TimeUnit.DAYS);
+    }
+
+    public static TimeValue ofHours(final long hours) {
+        return new TimeValue(hours, TimeUnit.HOURS);
+    }
+
+    public static TimeValue ofMinutes(final long minutes) {
+        return new TimeValue(minutes, TimeUnit.MINUTES);
+    }
+
+    public static TimeValue ofSeconds(final long seconds) {
+        return new TimeValue(seconds, TimeUnit.SECONDS);
+    }
+
+    public static TimeValue ofMillis(final long millis) {
+        return new TimeValue(millis, TimeUnit.MILLISECONDS);
+    }
+
     private final long duration;
 
     private final TimeUnit timeUnit;
 
-    public TimeValue(final long duration, final TimeUnit timeUnit) {
+    TimeValue(final long duration, final TimeUnit timeUnit) {
         super();
         this.duration = duration;
-        this.timeUnit = Args.notNull(timeUnit, "timeUnit");
+        this.timeUnit = timeUnit;
     }
 
     public long convert(final TimeUnit sourceUnit) {

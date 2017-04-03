@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.examples;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.Header;
@@ -47,6 +46,7 @@ import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of HTTP/2 concurrent request execution using multiple streams.
@@ -108,7 +108,7 @@ public class Http2MultiStreamExecutionExample {
         HttpHost target = new HttpHost("http2bin.org");
         String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
-        Future<AsyncClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+        Future<AsyncClientEndpoint> future = requester.connect(target, TimeValue.ofSeconds(5));
         AsyncClientEndpoint clientEndpoint = future.get();
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);

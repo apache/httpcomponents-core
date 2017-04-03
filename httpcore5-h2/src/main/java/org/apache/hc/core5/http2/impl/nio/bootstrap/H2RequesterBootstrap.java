@@ -28,7 +28,6 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ExceptionListener;
@@ -51,6 +50,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 5.0
@@ -65,8 +65,7 @@ public class H2RequesterBootstrap {
     private H2Config h2Config;
     private int defaultMaxPerRoute;
     private int maxTotal;
-    private long timeToLive;
-    private TimeUnit timeUnit;
+    private TimeValue timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
     private ExceptionListener exceptionListener;
@@ -124,9 +123,8 @@ public class H2RequesterBootstrap {
         return this;
     }
 
-    public final H2RequesterBootstrap setTimeToLive(final long timeToLive, final TimeUnit timeUnit) {
+    public final H2RequesterBootstrap setTimeToLive(final TimeValue timeToLive) {
         this.timeToLive = timeToLive;
-        this.timeUnit = timeUnit;
         return this;
     }
 
@@ -197,7 +195,7 @@ public class H2RequesterBootstrap {
         final StrictConnPool<HttpHost, IOSession> connPool = new StrictConnPool<>(
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
-                timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
+                timeToLive,
                 connPoolPolicy,
                 connPoolListener);
         final AsyncPushConsumerRegistry pushConsumerRegistry = new AsyncPushConsumerRegistry();

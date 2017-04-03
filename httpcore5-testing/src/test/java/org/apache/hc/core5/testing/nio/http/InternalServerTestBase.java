@@ -28,13 +28,13 @@
 package org.apache.hc.core5.testing.nio.http;
 
 import java.net.URL;
-import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.testing.ProtocolScheme;
+import org.apache.hc.core5.util.TimeValue;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 
@@ -66,7 +66,7 @@ public abstract class InternalServerTestBase {
         protected void after() {
             if (server != null) {
                 try {
-                    server.shutdown(3, TimeUnit.SECONDS);
+                    server.shutdown(TimeValue.ofSeconds(5));
                     server = null;
                 } catch (final Exception ignore) {
                 }

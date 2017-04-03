@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of asynchronous HTTP/1.1 request execution.
@@ -102,7 +103,7 @@ public class AsyncRequestExecutionExample {
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
-            final Future<AsyncClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+            final Future<AsyncClientEndpoint> future = requester.connect(target, TimeValue.ofSeconds(5));
             final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.executeAndRelease(
                     new BasicRequestProducer("GET", target, requestUri),

@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Callback;
@@ -47,6 +46,7 @@ import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -143,10 +143,11 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
         return ioReactor.getAuditLog();
     }
 
-    public void awaitShutdown(final long deadline, final TimeUnit timeUnit) throws InterruptedException {
+    public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
+        Args.notNull(waitTime, "Wait time");
         final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
-            ioReactor.awaitShutdown(deadline, timeUnit);
+            ioReactor.awaitShutdown(waitTime);
         }
     }
 
@@ -159,14 +160,15 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
         }
     }
 
-    public void shutdown(final long graceTime, final TimeUnit timeUnit) {
+    public void shutdown(final TimeValue graceTime) {
+        Args.notNull(graceTime, "Grace time");
         final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
                 ioReactor.initiateShutdown();
             }
             try {
-                ioReactor.awaitShutdown(graceTime, timeUnit);
+                ioReactor.awaitShutdown(graceTime);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -176,7 +178,7 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
 
     @Override
     public void close() throws Exception {
-        shutdown(5, TimeUnit.SECONDS);
+        shutdown(TimeValue.ofSeconds(5));
     }
 
 }

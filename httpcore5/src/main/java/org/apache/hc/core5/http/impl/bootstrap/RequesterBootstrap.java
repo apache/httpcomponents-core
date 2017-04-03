@@ -26,8 +26,6 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
@@ -43,6 +41,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 5.0
@@ -55,8 +54,7 @@ public class RequesterBootstrap {
     private SSLSocketFactory sslSocketFactory;
     private int defaultMaxPerRoute;
     private int maxTotal;
-    private long timeToLive;
-    private TimeUnit timeUnit;
+    private TimeValue timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
@@ -104,9 +102,8 @@ public class RequesterBootstrap {
         return this;
     }
 
-    public final RequesterBootstrap setTimeToLive(final long timeToLive, final TimeUnit timeUnit) {
+    public final RequesterBootstrap setTimeToLive(final TimeValue timeToLive) {
         this.timeToLive = timeToLive;
-        this.timeUnit = timeUnit;
         return this;
     }
 
@@ -133,7 +130,7 @@ public class RequesterBootstrap {
         final StrictConnPool<HttpHost, HttpClientConnection> connPool = new StrictConnPool<>(
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
-                timeToLive, timeUnit != null ? timeUnit : TimeUnit.MILLISECONDS,
+                timeToLive,
                 connPoolPolicy,
                 connPoolListener);
         return new HttpRequester(

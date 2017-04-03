@@ -59,6 +59,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of embedded HTTP/1.1 file server using classic I/O.
@@ -125,7 +126,7 @@ public class ClassicFileServerExample {
         });
         System.out.println("Listening on port " + port);
 
-        server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+        server.awaitTermination(TimeValue.MAX_VALUE);
 
     }
 

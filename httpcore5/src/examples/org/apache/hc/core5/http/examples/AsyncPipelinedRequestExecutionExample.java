@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of asynchronous HTTP/1.1 request execution.
@@ -100,7 +101,7 @@ public class AsyncPipelinedRequestExecutionExample {
         HttpHost target = new HttpHost("httpbin.org");
         String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
-        Future<AsyncClientEndpoint> future = requester.connect(target, 5, TimeUnit.SECONDS);
+        Future<AsyncClientEndpoint> future = requester.connect(target, TimeValue.ofSeconds(5));
         AsyncClientEndpoint clientEndpoint = future.get();
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);

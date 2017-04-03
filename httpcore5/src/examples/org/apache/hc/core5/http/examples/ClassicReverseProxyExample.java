@@ -35,7 +35,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -64,6 +63,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of embedded HTTP/1.1 reverse proxy using classic I/O.
@@ -179,7 +179,7 @@ public class ClassicReverseProxyExample {
         });
 
         System.out.println("Listening on port " + port);
-        server.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
+        server.awaitTermination(TimeValue.MAX_VALUE);
     }
 
     private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(

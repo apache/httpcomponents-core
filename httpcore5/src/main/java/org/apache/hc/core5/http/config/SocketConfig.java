@@ -272,12 +272,12 @@ public class SocketConfig {
          * @since 5.0
          */
         public Builder setConnectTimeout(final int connectTimeout, final TimeUnit timeUnit) {
-            this.connectTimeout = new TimeValue(connectTimeout, timeUnit);
+            this.connectTimeout = TimeValue.of(connectTimeout, timeUnit);
             return this;
         }
 
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
-            this.soTimeout = new TimeValue(soTimeout, timeUnit);
+            this.soTimeout = TimeValue.of(soTimeout, timeUnit);
             return this;
         }
 
@@ -292,7 +292,7 @@ public class SocketConfig {
         }
 
         public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
-            this.soLinger = new TimeValue(soLinger, timeUnit);
+            this.soLinger = TimeValue.of(soLinger, timeUnit);
             return this;
         }
 

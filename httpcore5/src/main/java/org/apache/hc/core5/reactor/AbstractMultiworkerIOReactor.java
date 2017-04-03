@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Generic implementation of {@link IOReactor} that can run multiple
@@ -405,14 +406,13 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
     }
 
     @Override
-    public void awaitShutdown(final long timeout, final TimeUnit timeUnit) throws InterruptedException {
-        Args.notNull(timeUnit, "Time unit");
+    public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
+        Args.notNull(waitTime, "Wait time");
         if (this.status.get() == IOReactorStatus.INACTIVE) {
             return;
         }
-        final long timeoutMs = timeUnit.toMillis(timeout);
-        final long deadline = System.currentTimeMillis() + timeoutMs;
-        long remaining = timeoutMs;
+        final long deadline = System.currentTimeMillis() + waitTime.toMillis();
+        long remaining = waitTime.toMillis();
         synchronized (this.shutdownMutex) {
             while (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                 this.shutdownMutex.wait(remaining);
@@ -426,7 +426,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             final IOReactorImpl dispatcher = this.dispatchers[i];
             if (dispatcher != null) {
                 if (dispatcher.getStatus().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
-                    dispatcher.awaitShutdown(remaining, TimeUnit.MILLISECONDS);
+                    dispatcher.awaitShutdown(TimeValue.of(remaining, TimeUnit.MILLISECONDS));
                     remaining = deadline - System.currentTimeMillis();
                     if (remaining <= 0) {
                         return;
@@ -467,7 +467,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         initiateShutdown();
         try {
             if (shutdownType == ShutdownType.GRACEFUL) {
-                awaitShutdown(2, TimeUnit.SECONDS);
+                awaitShutdown(TimeValue.ofSeconds(5));
             }
             forceShutdown();
         } catch (final InterruptedException e) {

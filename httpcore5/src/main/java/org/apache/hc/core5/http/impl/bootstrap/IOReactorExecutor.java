@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ExceptionListener;
@@ -40,6 +39,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.AbstractMultiworkerIOReactor;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorStatus;
+import org.apache.hc.core5.util.TimeValue;
 
 abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> implements GracefullyCloseable {
 
@@ -91,8 +91,8 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
         return ioReactor.getAuditLog();
     }
 
-    public void awaitShutdown(final long deadline, final TimeUnit timeUnit) throws InterruptedException {
-        ioReactor.awaitShutdown(deadline, timeUnit);
+    public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
+        ioReactor.awaitShutdown(waitTime);
     }
 
     public void initiateShutdown() {

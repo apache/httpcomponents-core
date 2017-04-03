@@ -39,7 +39,6 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -47,6 +46,7 @@ import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * {@link IOReactor} implementation.
@@ -356,11 +356,10 @@ class IOReactorImpl implements IOReactor {
     }
 
     @Override
-    public void awaitShutdown(final long timeout, final TimeUnit timeUnit) throws InterruptedException {
-        Args.notNull(timeUnit, "Time unit");
-        final long timeoutMs = timeUnit.toMillis(timeout);
-        final long deadline = System.currentTimeMillis() + timeoutMs;
-        long remaining = timeoutMs;
+    public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
+        Args.notNull(waitTime, "Wait time");
+        final long deadline = System.currentTimeMillis() + waitTime.toMillis();
+        long remaining = waitTime.toMillis();
         synchronized (this.shutdownMutex) {
             while (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                 this.shutdownMutex.wait(remaining);
@@ -389,7 +388,7 @@ class IOReactorImpl implements IOReactor {
         initiateShutdown();
         try {
             if (shutdownType == ShutdownType.GRACEFUL) {
-                awaitShutdown(2, TimeUnit.SECONDS);
+                awaitShutdown(TimeValue.ofSeconds(5));
             }
             forceShutdown();
         } catch (final InterruptedException e) {

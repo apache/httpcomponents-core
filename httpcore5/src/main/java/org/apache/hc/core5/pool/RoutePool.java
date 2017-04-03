@@ -30,12 +30,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.TimeValue;
 
 final class RoutePool<T, C extends GracefullyCloseable> {
 
@@ -116,8 +116,8 @@ final class RoutePool<T, C extends GracefullyCloseable> {
         }
     }
 
-    public PoolEntry<T, C> createEntry(final long timeToLive, final TimeUnit timeUnit) {
-        final PoolEntry<T, C> entry = new PoolEntry<>(this.route, timeToLive, timeUnit);
+    public PoolEntry<T, C> createEntry(final TimeValue timeToLive) {
+        final PoolEntry<T, C> entry = new PoolEntry<>(this.route, timeToLive);
         this.leased.add(entry);
         return entry;
     }

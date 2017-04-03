@@ -28,9 +28,9 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * HttpCore NIO is based on the Reactor pattern as described by Doug Lea.
@@ -79,11 +79,10 @@ public interface IOReactor extends GracefullyCloseable {
      * Blocks for the given period of time in milliseconds awaiting
      * the completion of the reactor shutdown.
      *
-     * @param timeout wait timeout in units.
-     * @param timeUnit time unit
+     * @param waitTime wait time.
      *
      * @since 5.0
      */
-    void awaitShutdown(long timeout, TimeUnit timeUnit) throws InterruptedException;
+    void awaitShutdown(TimeValue waitTime) throws InterruptedException;
 
 }
