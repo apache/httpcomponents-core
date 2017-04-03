@@ -94,7 +94,7 @@ public class SSLContextBuilder {
         this.trustmanagers = new LinkedHashSet<>();
     }
 
-    public SSLContextBuilder useProtocol(final String protocol) {
+    public SSLContextBuilder setProtocol(final String protocol) {
         this.protocol = protocol;
         return this;
     }

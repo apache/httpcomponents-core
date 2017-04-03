@@ -94,7 +94,7 @@ public class TestSSLContextBuilder {
     @Test
     public void testBuildAllNull() throws Exception {
         final SSLContext sslContext = SSLContextBuilder.create()
-                .useProtocol(null)
+                .setProtocol(null)
                 .setSecureRandom(null)
                 .loadTrustMaterial((KeyStore) null, null)
                 .loadKeyMaterial((KeyStore) null, null, null)
