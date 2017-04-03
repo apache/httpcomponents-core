@@ -1,3 +1,15 @@
+Release 4.4.7
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.6.
+
+Changelog
+-------------------
+
+* HTTPCORE-450: Add a Provider parameter in SSLContextBuilder.
+  Contributed by lujianbo <387852424 at qq dot com>, Gary Gregory <ggregory at apache.org>
+
+
 Release 4.4.6
 -------------------
 
