@@ -45,6 +45,18 @@ public class TimeValue {
     public static final TimeValue ZERO_MILLIS = new TimeValue(0, TimeUnit.MILLISECONDS);
     public static final TimeValue NEG_ONE_SECONDS = new TimeValue(-1, TimeUnit.SECONDS);
 
+    /**
+     * Returns the given {@code long} value as an {@code int} where long values out of int range are returned as
+     * {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}.
+     * 
+     * <p>
+     * For example: {@code TimeValue.asBoundInt(Long.MAX_VALUE)} returns {@code Integer.MAX_VALUE}.
+     * </p>
+     * 
+     * @param value
+     *            a long value to convert
+     * @return an int value bound within {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}.
+     */
     public static int asBoundInt(final long value) {
         if (value > Integer.MAX_VALUE) {
             return Integer.MAX_VALUE;
