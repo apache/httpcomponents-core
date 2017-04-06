@@ -31,7 +31,11 @@ package org.apache.hc.core5.http;
  * Constants enumerating the HTTP status codes.
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1),
  * RFC2518 (WebDAV) and RFC7540 (HTTP/2) are listed.
- *
+ * 
+ * @see <a href="https://tools.ietf.org/html/rfc1945">RFC1945 (HTTP/1.0)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2616">RFC2616 (HTTP/1.1)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2518">RFC2518 (WebDAV)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7540">RFC7540 (HTTP/2)</a>
  * @since 4.0
  */
 public interface HttpStatus {
