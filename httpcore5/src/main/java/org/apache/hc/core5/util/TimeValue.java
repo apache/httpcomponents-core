@@ -48,11 +48,11 @@ public class TimeValue {
     /**
      * Returns the given {@code long} value as an {@code int} where long values out of int range are returned as
      * {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}.
-     * 
+     *
      * <p>
      * For example: {@code TimeValue.asBoundInt(Long.MAX_VALUE)} returns {@code Integer.MAX_VALUE}.
      * </p>
-     * 
+     *
      * @param value
      *            a long value to convert
      * @return an int value bound within {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}.
