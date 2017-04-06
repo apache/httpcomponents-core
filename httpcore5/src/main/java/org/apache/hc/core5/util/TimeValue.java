@@ -42,8 +42,8 @@ public class TimeValue {
 
     public static final TimeValue MAX_VALUE = new TimeValue(Long.MAX_VALUE, TimeUnit.DAYS);
     public static final TimeValue NEG_ONE_MILLIS = new TimeValue(-1, TimeUnit.MILLISECONDS);
-    public static final TimeValue ZERO_MILLIS = new TimeValue(0, TimeUnit.MILLISECONDS);
     public static final TimeValue NEG_ONE_SECONDS = new TimeValue(-1, TimeUnit.SECONDS);
+    public static final TimeValue ZERO_MILLIS = new TimeValue(0, TimeUnit.MILLISECONDS);
 
     /**
      * Returns the given {@code long} value as an {@code int} where long values out of int range are returned as
@@ -78,16 +78,16 @@ public class TimeValue {
         return new TimeValue(hours, TimeUnit.HOURS);
     }
 
+    public static TimeValue ofMillis(final long millis) {
+        return new TimeValue(millis, TimeUnit.MILLISECONDS);
+    }
+
     public static TimeValue ofMinutes(final long minutes) {
         return new TimeValue(minutes, TimeUnit.MINUTES);
     }
 
     public static TimeValue ofSeconds(final long seconds) {
         return new TimeValue(seconds, TimeUnit.SECONDS);
-    }
-
-    public static TimeValue ofMillis(final long millis) {
-        return new TimeValue(millis, TimeUnit.MILLISECONDS);
     }
 
     private final long duration;
