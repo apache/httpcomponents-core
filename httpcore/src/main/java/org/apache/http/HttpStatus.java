@@ -33,7 +33,9 @@ package org.apache.http;
  * RFC2518 (WebDAV) are listed.
  *
  * @see StatusLine
- *
+ * @see <a href="https://tools.ietf.org/html/rfc1945">RFC1945 (HTTP/1.0)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2616">RFC2616 (HTTP/1.1)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2518">RFC2518 (WebDAV)</a>
  * @since 4.0
  */
 public interface HttpStatus {
