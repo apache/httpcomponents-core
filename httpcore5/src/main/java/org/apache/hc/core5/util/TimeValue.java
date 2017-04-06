@@ -33,7 +33,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
- * Wraps a time (long) and TimeUnit.
+ * Represents a time value as a {@code long} time and {@link TimeUnit}.
  *
  * @since 5.0
  */
