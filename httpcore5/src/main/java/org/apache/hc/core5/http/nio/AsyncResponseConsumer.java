@@ -44,4 +44,6 @@ public interface AsyncResponseConsumer<T> extends AsyncDataConsumer {
 
     void failed(Exception cause);
 
+    T getResult();
+
 }

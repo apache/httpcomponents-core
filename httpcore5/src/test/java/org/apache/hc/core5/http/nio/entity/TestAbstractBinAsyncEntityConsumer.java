@@ -67,8 +67,6 @@ public class TestAbstractBinAsyncEntityConsumer {
     static private class ByteArrayAsyncEntityConsumer extends AbstractBinAsyncEntityConsumer<byte[]> {
 
         private final InternalBuffer buffer;
-        private volatile FutureCallback<byte[]> resultCallback;
-        private byte[] content;
 
         public ByteArrayAsyncEntityConsumer() {
             super();
@@ -76,10 +74,7 @@ public class TestAbstractBinAsyncEntityConsumer {
         }
 
         @Override
-        protected void start(
-                final ContentType contentType,
-                final FutureCallback<byte[]> resultCallback) throws HttpException, IOException {
-            this.resultCallback = resultCallback;
+        protected void streamStart(final ContentType contentType) throws HttpException, IOException {
         }
 
         @Override
@@ -93,20 +88,8 @@ public class TestAbstractBinAsyncEntityConsumer {
         }
 
         @Override
-        protected void completed() throws IOException {
-            content = buffer.toByteArray();
-            if (resultCallback != null) {
-                resultCallback.completed(content);
-            }
-        }
-
-        @Override
-        public void failed(final Exception cause) {
-        }
-
-        @Override
-        public byte[] getContent() {
-            return content;
+        protected byte[] generateContent() throws IOException {
+            return buffer.toByteArray();
         }
 
         @Override

@@ -70,7 +70,9 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
 
     @Override
     public void failed(final Exception cause) {
-        releaseResources();
+        if (resultCallback != null) {
+            resultCallback.failed(cause);
+        }
     }
 
     @Override

@@ -45,8 +45,10 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
 
     private final AsyncEntityConsumer<T> dataConsumer;
 
+    private volatile Message<HttpRequest, T> result;
+
     public BasicRequestConsumer(final AsyncEntityConsumer<T> dataConsumer) {
-        this.dataConsumer = dataConsumer;
+        this.dataConsumer = Args.notNull(dataConsumer, "Data consumer");
     }
 
     @Override
@@ -55,28 +57,41 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
             final EntityDetails entityDetails,
             final FutureCallback<Message<HttpRequest, T>> resultCallback) throws HttpException, IOException {
         Args.notNull(request, "Request");
-        Args.notNull(resultCallback, "Result callback");
         if (entityDetails != null) {
             dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {
 
                 @Override
-                public void completed(final T result) {
-                    resultCallback.completed(new Message<>(request, result));
+                public void completed(final T body) {
+                    result = new Message<>(request, body);
+                    if (resultCallback != null) {
+                        resultCallback.completed(result);
+                    }
+                    dataConsumer.releaseResources();
                 }
 
                 @Override
                 public void failed(final Exception ex) {
-                    resultCallback.failed(ex);
+                    if (resultCallback != null) {
+                        resultCallback.failed(ex);
+                    }
+                    dataConsumer.releaseResources();
                 }
 
                 @Override
                 public void cancelled() {
-                    resultCallback.cancelled();
+                    if (resultCallback != null) {
+                        resultCallback.cancelled();
+                    }
+                    dataConsumer.releaseResources();
                 }
 
             });
         } else {
-            resultCallback.completed(new Message<>(request, (T) null));
+            result = new Message<>(request, null);
+            if (resultCallback != null) {
+                resultCallback.completed(result);
+            }
+            dataConsumer.releaseResources();
         }
     }
 
@@ -98,6 +113,11 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     @Override
     public void failed(final Exception cause) {
         releaseResources();
+    }
+
+    @Override
+    public Message<HttpRequest, T> getResult() {
+        return result;
     }
 
     @Override

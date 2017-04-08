@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.BasicAsyncPushHandler;
+import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
@@ -127,7 +127,7 @@ public class Http2CompatibilityTest {
 
                 @Override
                 public AsyncPushConsumer get() {
-                    return new BasicAsyncPushHandler<Void>(new BasicResponseConsumer<>(new NoopEntityConsumer())) {
+                    return new AbstractAsyncPushHandler<Message<HttpResponse, Void>>(new BasicResponseConsumer<>(new NoopEntityConsumer())) {
 
                         @Override
                         protected void handleResponse(

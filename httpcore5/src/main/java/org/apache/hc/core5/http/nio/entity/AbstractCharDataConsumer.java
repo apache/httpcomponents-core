@@ -73,10 +73,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
 
     private void doDecode(final boolean endOfStream) throws IOException {
         charbuf.flip();
-        final int chunk = charbuf.remaining();
-        if (chunk > 0) {
-            data(charbuf, endOfStream);
-        }
+        data(charbuf, endOfStream);
         charbuf.clear();
     }
 

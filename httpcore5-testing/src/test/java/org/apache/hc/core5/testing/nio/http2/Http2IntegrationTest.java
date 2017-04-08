@@ -92,8 +92,8 @@ import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicAsyncPushHandler;
 import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.H2Error;
@@ -550,7 +550,7 @@ public class Http2IntegrationTest extends InternalServerTestBase {
 
             @Override
             public AsyncPushConsumer get() {
-                return new BasicAsyncPushHandler<String>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
+                return new AbstractAsyncPushHandler<Message<HttpResponse, String>>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
 
                     @Override
                     protected void handleResponse(

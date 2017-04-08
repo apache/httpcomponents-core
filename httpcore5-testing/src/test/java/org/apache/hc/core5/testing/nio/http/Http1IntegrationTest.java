@@ -1398,7 +1398,8 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final AsyncRequestProducer requestProducer = new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello"));
-        final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(new StringAsyncEntityConsumer());
+        final StringAsyncEntityConsumer entityConsumer = new StringAsyncEntityConsumer();
+        final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(entityConsumer);
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(requestProducer, responseConsumer, null);
         try {
             future1.get();
@@ -1406,7 +1407,7 @@ public class Http1IntegrationTest extends InternalServerTestBase {
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
             Assert.assertTrue(cause instanceof MalformedChunkCodingException);
-            Assert.assertEquals("garbage", responseConsumer.getResponseContent());
+            Assert.assertEquals("garbage", entityConsumer.generateContent());
         }
     }
 

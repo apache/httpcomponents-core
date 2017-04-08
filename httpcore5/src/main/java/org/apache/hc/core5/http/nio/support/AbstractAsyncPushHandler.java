@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
@@ -45,17 +44,16 @@ import org.apache.hc.core5.util.Args;
 /**
  * @since 5.0
  */
-public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
+public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
 
-    private final AsyncResponseConsumer<Message<HttpResponse, T>> responseConsumer;
+    private final AsyncResponseConsumer<T> responseConsumer;
 
-    public BasicAsyncPushHandler(final AsyncResponseConsumer<Message<HttpResponse, T>> responseConsumer) {
+    public AbstractAsyncPushHandler(final AsyncResponseConsumer<T> responseConsumer) {
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
     }
 
-    protected void handleResponse(
-            final HttpRequest promise, final Message<HttpResponse, T> responseMessage) throws IOException, HttpException {
-    }
+    protected abstract void handleResponse(
+            final HttpRequest promise, final T responseMessage) throws IOException, HttpException;
 
     protected void handleError(final HttpRequest promise, final Exception cause) {
     }
@@ -65,10 +63,10 @@ public class BasicAsyncPushHandler<T> implements AsyncPushConsumer {
             final HttpRequest promise,
             final HttpResponse response,
             final EntityDetails entityDetails) throws HttpException, IOException {
-        responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<Message<HttpResponse, T>>() {
+        responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<T>() {
 
             @Override
-            public void completed(final Message<HttpResponse, T> result) {
+            public void completed(final T result) {
                 try {
                     handleResponse(promise, result);
                 } catch (final Exception ex) {

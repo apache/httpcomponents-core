@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
@@ -45,11 +44,11 @@ import org.apache.hc.core5.util.Args;
 public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<HttpResponse, T>> {
 
     private final AsyncEntityConsumer<T> dataConsumer;
-    private final AtomicReference<Exception> exception;
+
+    private volatile Message<HttpResponse, T> result;
 
     public BasicResponseConsumer(final AsyncEntityConsumer<T> dataConsumer) {
         this.dataConsumer = Args.notNull(dataConsumer, "Consumer");
-        this.exception = new AtomicReference<>(null);
     }
 
     @Override
@@ -58,32 +57,41 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
             final EntityDetails entityDetails,
             final FutureCallback<Message<HttpResponse, T>> resultCallback) throws HttpException, IOException {
         Args.notNull(response, "Response");
-        Args.notNull(resultCallback, "Result callback");
 
         if (entityDetails != null) {
             dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {
 
                 @Override
-                public void completed(final T result) {
-                    resultCallback.completed(new Message<>(response, result));
+                public void completed(final T body) {
+                    result = new Message<>(response, body);
+                    if (resultCallback != null) {
+                        resultCallback.completed(result);
+                    }
+                    resultCallback.completed(result);
                 }
 
                 @Override
                 public void failed(final Exception ex) {
-                    resultCallback.failed(ex);
+                    if (resultCallback != null) {
+                        resultCallback.failed(ex);
+                    }
                 }
 
                 @Override
                 public void cancelled() {
-                    resultCallback.cancelled();
+                    if (resultCallback != null) {
+                        resultCallback.cancelled();
+                    }
                 }
 
             });
         } else {
-            resultCallback.completed(new Message<HttpResponse, T>(response, null));
+            result = new Message<>(response, null);
+            if (resultCallback != null) {
+                resultCallback.completed(result);
+            }
             dataConsumer.releaseResources();
         }
-
     }
 
     @Override
@@ -103,17 +111,12 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
 
     @Override
     public void failed(final Exception cause) {
-        if (exception.compareAndSet(null, cause)) {
-            dataConsumer.failed(cause);
-        }
+        releaseResources();
     }
 
-    public Exception getException() {
-        return exception.get();
-    }
-
-    public T getResponseContent() {
-        return dataConsumer.getContent();
+    @Override
+    public Message<HttpResponse, T> getResult() {
+        return result;
     }
 
     @Override

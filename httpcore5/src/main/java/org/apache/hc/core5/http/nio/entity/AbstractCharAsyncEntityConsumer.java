@@ -44,13 +44,19 @@ import org.apache.hc.core5.util.Args;
  */
 public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDataConsumer implements AsyncEntityConsumer<T> {
 
-    protected abstract void start(ContentType contentType, FutureCallback<T> resultCallback) throws HttpException, IOException;
+    private volatile FutureCallback<T> resultCallback;
+    private volatile T content;
+
+    protected abstract void streamStart(ContentType contentType) throws HttpException, IOException;
+
+    protected abstract T generateContent() throws IOException;
 
     @Override
     public final void streamStart(
             final EntityDetails entityDetails,
             final FutureCallback<T> resultCallback) throws IOException, HttpException {
         Args.notNull(resultCallback, "Result callback");
+        this.resultCallback = resultCallback;
         try {
             final ContentType contentType = entityDetails != null ? ContentType.parse(entityDetails.getContentType()) : null;
             Charset charset = contentType != null ? contentType.getCharset() : null;
@@ -58,13 +64,32 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
                 charset = StandardCharsets.US_ASCII;
             }
             setCharset(charset);
-            start(contentType, resultCallback);
-            if (entityDetails == null) {
-                completed();
-            }
+            streamStart(contentType);
         } catch (final UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());
         }
+    }
+
+    @Override
+    protected final void completed() throws IOException {
+        content = generateContent();
+        if (resultCallback != null) {
+            resultCallback.completed(content);
+        }
+        releaseResources();
+    }
+
+    @Override
+    public final void failed(final Exception cause) {
+        if (resultCallback != null) {
+            resultCallback.failed(cause);
+        }
+        releaseResources();
+    }
+
+    @Override
+    public final T getContent() {
+        return content;
     }
 
 }

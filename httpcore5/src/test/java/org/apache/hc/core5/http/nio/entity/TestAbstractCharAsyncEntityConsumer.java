@@ -45,8 +45,6 @@ public class TestAbstractCharAsyncEntityConsumer {
     static private class StringBuilderAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<String> {
 
         private final StringBuilder buffer;
-        private volatile FutureCallback<String> resultCallback;
-        private String content;
 
         public StringBuilderAsyncEntityConsumer() {
             super();
@@ -54,10 +52,7 @@ public class TestAbstractCharAsyncEntityConsumer {
         }
 
         @Override
-        protected void start(
-                final ContentType contentType,
-                final FutureCallback<String> resultCallback) throws HttpException, IOException {
-            this.resultCallback = resultCallback;
+        protected void streamStart(final ContentType contentType) throws HttpException, IOException {
         }
 
         @Override
@@ -71,24 +66,13 @@ public class TestAbstractCharAsyncEntityConsumer {
         }
 
         @Override
-        protected void completed() throws IOException {
-            content = buffer.toString();
-            if (resultCallback != null) {
-                resultCallback.completed(content);
-            }
-        }
-
-        @Override
-        public void failed(final Exception cause) {
-        }
-
-        @Override
-        public String getContent() {
-            return content;
+        protected String generateContent() throws IOException {
+            return buffer.toString();
         }
 
         @Override
         public void releaseResources() {
+            buffer.setLength(0);
         }
 
     };
