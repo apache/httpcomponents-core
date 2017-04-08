@@ -320,11 +320,12 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 exchangeHandler,
                 context,
                 contentBuffer);
+        pipeline.add(handler);
+        outgoing = handler;
+
         if (handler.isOutputReady()) {
             handler.produceOutput();
         }
-        pipeline.add(handler);
-        outgoing = handler;
     }
 
     @Override
