@@ -30,6 +30,7 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -50,6 +51,7 @@ public class RequesterBootstrap {
 
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connReuseStrategy;
+    private SocketConfig socketConfig;
     private HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private SSLSocketFactory sslSocketFactory;
     private int defaultMaxPerRoute;
@@ -79,6 +81,14 @@ public class RequesterBootstrap {
      */
     public final RequesterBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connReuseStrategy = connStrategy;
+        return this;
+    }
+
+    /**
+     * Sets socket configuration.
+     */
+    public final RequesterBootstrap setSocketConfig(final SocketConfig socketConfig) {
+        this.socketConfig = socketConfig;
         return this;
     }
 
@@ -137,6 +147,7 @@ public class RequesterBootstrap {
                 requestExecutor,
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 connPool,
+                socketConfig != null ? socketConfig : SocketConfig.DEFAULT,
                 connectFactory != null ? connectFactory : DefaultBHttpClientConnectionFactory.INSTANCE,
                 sslSocketFactory);
     }

@@ -30,10 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -48,6 +46,7 @@ import org.apache.hc.core5.http.ConnectionRequestTimeoutException;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.EofSensorInputStream;
@@ -75,6 +74,7 @@ public class HttpRequester implements GracefullyCloseable {
     private final HttpRequestExecutor requestExecutor;
     private final HttpProcessor httpProcessor;
     private final ControlledConnPool<HttpHost, HttpClientConnection> connPool;
+    private final SocketConfig socketConfig;
     private final HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private final SSLSocketFactory sslSocketFactory;
 
@@ -82,13 +82,15 @@ public class HttpRequester implements GracefullyCloseable {
             final HttpRequestExecutor requestExecutor,
             final HttpProcessor httpProcessor,
             final ControlledConnPool<HttpHost, HttpClientConnection> connPool,
+            final SocketConfig socketConfig,
             final HttpConnectionFactory<? extends HttpClientConnection> connectFactory,
             final SSLSocketFactory sslSocketFactory) {
         this.requestExecutor = Args.notNull(requestExecutor, "Request executor");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.connPool = Args.notNull(connPool, "Connection pool");
+        this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
         this.connectFactory = connectFactory != null ? connectFactory : DefaultBHttpClientConnectionFactory.INSTANCE;
-        this.sslSocketFactory = sslSocketFactory;
+        this.sslSocketFactory = sslSocketFactory != null ? sslSocketFactory : (SSLSocketFactory) SSLSocketFactory.getDefault();
     }
 
     public ClassicHttpResponse execute(
@@ -138,30 +140,44 @@ public class HttpRequester implements GracefullyCloseable {
         }
     }
 
-    private Socket createSocket(final HttpHost host) throws IOException {
-        final String scheme = host.getSchemeName();
-        if ("https".equalsIgnoreCase(scheme)) {
-            return (sslSocketFactory != null ? sslSocketFactory : SSLSocketFactory.getDefault()).createSocket();
-        } else {
-            return new Socket();
+    private Socket createSocket(final HttpHost targetHost) throws IOException {
+        final Socket sock = new Socket();
+        sock.setSoTimeout(socketConfig.getSoTimeout().toMillisIntBound());
+        sock.setReuseAddress(socketConfig.isSoReuseAddress());
+        sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
+        sock.setKeepAlive(socketConfig.isSoKeepAlive());
+        if (socketConfig.getRcvBufSize() > 0) {
+            sock.setReceiveBufferSize(socketConfig.getRcvBufSize());
         }
-    }
+        if (socketConfig.getSndBufSize() > 0) {
+            sock.setSendBufferSize(socketConfig.getSndBufSize());
+        }
+        final int linger = socketConfig.getSoLinger().toMillisIntBound();
+        if (linger >= 0) {
+            sock.setSoLinger(true, linger);
+        }
 
-    private SocketAddress toEndpoint(final HttpHost host) {
-        int port = host.getPort();
+        final String scheme = targetHost.getSchemeName();
+        int port = targetHost.getPort();
         if (port < 0) {
-            final String scheme = host.getSchemeName();
             if ("http".equalsIgnoreCase(scheme)) {
                 port = 80;
             } else if ("https".equalsIgnoreCase(scheme)) {
                 port = 443;
             }
         }
-        final InetAddress address = host.getAddress();
-        if (address != null) {
-            return new InetSocketAddress(address, port);
+        final InetSocketAddress targetAddress;
+        if (targetHost.getAddress() != null) {
+            targetAddress = new InetSocketAddress(targetHost.getAddress(), port);
         } else {
-            return new InetSocketAddress(host.getHostName(), port);
+            targetAddress = new InetSocketAddress(targetHost.getHostName(), port);
+        }
+        sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisIntBound());
+
+        if ("https".equalsIgnoreCase(scheme)) {
+            return sslSocketFactory.createSocket(sock, targetHost.getHostName(), port, true);
+        } else {
+            return sock;
         }
     }
 
@@ -172,7 +188,6 @@ public class HttpRequester implements GracefullyCloseable {
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(targetHost, "HTTP host");
         Args.notNull(request, "HTTP request");
-        Args.notNull(context, "HTTP context");
         final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
         final TimeValue timeout = connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLIS;
@@ -193,7 +208,6 @@ public class HttpRequester implements GracefullyCloseable {
                 final Socket socket = createSocket(targetHost);
                 connection = connectFactory.createConnection(socket);
                 poolEntry.assignConnection(connection);
-                socket.connect(toEndpoint(targetHost), timeout.toMillisIntBound());
             }
             final ClassicHttpResponse response = execute(connection, request, context);
             final HttpEntity entity = response.getEntity();

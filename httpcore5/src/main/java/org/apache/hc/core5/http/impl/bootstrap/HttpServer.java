@@ -41,6 +41,7 @@ import javax.net.ssl.SSLServerSocket;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
@@ -74,19 +75,19 @@ public class HttpServer implements GracefullyCloseable {
 
     public HttpServer(
             final int port,
+            final HttpService httpService,
             final InetAddress ifAddress,
             final SocketConfig socketConfig,
             final ServerSocketFactory serverSocketFactory,
-            final HttpService httpService,
             final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory,
             final SSLServerSetupHandler sslSetupHandler,
             final ExceptionListener exceptionListener) {
-        this.port = port;
+        this.port = Args.notNegative(port, "Port value is negative");
+        this.httpService = Args.notNull(httpService, "HTTP service");
         this.ifAddress = ifAddress;
-        this.socketConfig = socketConfig;
-        this.serverSocketFactory = serverSocketFactory;
-        this.httpService = httpService;
-        this.connectionFactory = connectionFactory;
+        this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
+        this.serverSocketFactory = serverSocketFactory != null ? serverSocketFactory : ServerSocketFactory.getDefault();
+        this.connectionFactory = connectionFactory != null ? connectionFactory : DefaultBHttpServerConnectionFactory.INSTANCE;
         this.sslSetupHandler = sslSetupHandler;
         this.exceptionListener = exceptionListener;
         this.listenerExecutorService = new ThreadPoolExecutor(

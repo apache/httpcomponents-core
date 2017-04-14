@@ -287,10 +287,10 @@ public class ServerBootstrap {
 
         return new HttpServer(
                 this.listenerPort > 0 ? this.listenerPort : 0,
+                httpService,
                 this.localAddress,
                 this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,
                 serverSocketFactoryCopy,
-                httpService,
                 connectionFactoryCopy,
                 this.sslSetupHandler,
                 exceptionListenerCopy);
