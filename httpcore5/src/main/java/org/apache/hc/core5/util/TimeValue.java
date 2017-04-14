@@ -161,6 +161,27 @@ public class TimeValue {
     }
 
     @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof TimeValue) {
+            final TimeValue that = (TimeValue) obj;
+            return this.duration == that.duration &&
+                    LangUtils.equals(this.timeUnit, that.timeUnit);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, duration);
+        hash = LangUtils.hashCode(hash, timeUnit);
+        return hash;
+    }
+
+    @Override
     public String toString() {
         return String.format("%,d %s", Long.valueOf(duration), timeUnit);
     }
