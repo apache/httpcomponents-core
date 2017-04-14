@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -181,7 +182,11 @@ public class HttpAsyncRequester extends AsyncRequester {
 
         @Override
         public void execute(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
-
+            final IOSession connection = poolEntryHolder.getConnection();
+            if (connection == null) {
+                throw new IllegalStateException("Endpoint has already been released");
+            }
+            connection.addLast(new ExecutionCommand(exchangeHandler, context));
         }
 
         @Override
