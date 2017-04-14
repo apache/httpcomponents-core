@@ -103,6 +103,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private volatile ConnectionState connState = ConnectionState.READY;
 
     private volatile ProtocolVersion version;
+    private volatile EndpointDetails endpointDetails;
 
     AbstractHttp1StreamDuplexer(
             final IOSession ioSession,
@@ -541,7 +542,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     @Override
     public EndpointDetails getEndpointDetails() {
-        return new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
+        if (endpointDetails == null) {
+            endpointDetails = new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
+        }
+        return endpointDetails;
     }
 
     @Override

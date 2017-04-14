@@ -68,6 +68,7 @@ class BHttpConnectionBase implements BHttpConnection {
     final AtomicReference<SocketHolder> socketHolderRef;
 
     volatile ProtocolVersion version;
+    volatile EndpointDetails endpointDetails;
 
     BHttpConnectionBase(
             final H1Config h1Config,
@@ -112,6 +113,7 @@ class BHttpConnectionBase implements BHttpConnection {
     protected void bind(final SocketHolder socketHolder) throws IOException {
         Args.notNull(socketHolder, "Socket holder");
         this.socketHolderRef.set(socketHolder);
+        this.endpointDetails = null;
     }
 
     @Override
@@ -316,7 +318,14 @@ class BHttpConnectionBase implements BHttpConnection {
 
     @Override
     public EndpointDetails getEndpointDetails() {
-        return new BasicEndpointDetails(getRemoteAddress(), getLocalAddress(), this.connMetrics);
+        if (endpointDetails == null) {
+            final SocketHolder socketHolder = this.socketHolderRef.get();
+            if (socketHolder != null) {
+                final Socket socket = socketHolder.getSocket();
+                endpointDetails = new BasicEndpointDetails(socket.getRemoteSocketAddress(), socket.getLocalSocketAddress(), this.connMetrics);
+            }
+        }
+        return endpointDetails;
     }
 
     @Override

@@ -126,6 +126,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     private Continuation continuation;
 
     private int processedRemoteStreamId;
+    private EndpointDetails endpointDetails;
 
     AbstractHttp2StreamMultiplexer(
             final Mode mode,
@@ -1180,7 +1181,10 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
     @Override
     public EndpointDetails getEndpointDetails() {
-        return new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
+        if (endpointDetails == null) {
+            endpointDetails = new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
+        }
+        return endpointDetails;
     }
 
     @Override
