@@ -195,7 +195,6 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 localAddress,
                 attachment,
                 callback);
-        sessionRequest.setConnectTimeout(this.reactorConfig.getConnectTimeout().toMillisIntBound());
 
         this.requestQueue.add(sessionRequest);
         this.selector.wakeup();

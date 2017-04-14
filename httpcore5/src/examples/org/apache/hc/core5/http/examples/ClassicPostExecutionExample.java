@@ -51,6 +51,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Example of POST requests execution using classic I/O.
@@ -101,7 +102,6 @@ public class ClassicPostExecutionExample {
         };
 
         SocketConfig socketConfig = SocketConfig.custom()
-                .setConnectTimeout(5, TimeUnit.SECONDS)
                 .setSoTimeout(5, TimeUnit.SECONDS)
                 .build();
 
@@ -109,7 +109,7 @@ public class ClassicPostExecutionExample {
         for (int i = 0; i < requestBodies.length; i++) {
             ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target,requestUri);
             request.setEntity(requestBodies[i]);
-            try (ClassicHttpResponse response = httpRequester.execute(target, request, socketConfig, coreContext)) {
+            try (ClassicHttpResponse response = httpRequester.execute(target, request, TimeValue.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");

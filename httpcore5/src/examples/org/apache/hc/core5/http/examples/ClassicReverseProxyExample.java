@@ -47,7 +47,6 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
@@ -221,7 +220,7 @@ public class ClassicReverseProxyExample {
                 }
             }
             final ClassicHttpResponse incomingResponse = requester.execute(
-                    targetHost, outgoingRequest, SocketConfig.DEFAULT, clientContext);
+                    targetHost, outgoingRequest, TimeValue.ofMinutes(1), clientContext);
             outgoingResponse.setCode(incomingResponse.getCode());
             for (Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
                 Header header = it.next();

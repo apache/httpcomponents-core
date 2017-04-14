@@ -53,7 +53,6 @@ public final class IOReactorConfig {
     private final TimeValue soLinger;
     private final boolean soKeepAlive;
     private final boolean tcpNoDelay;
-    private final TimeValue connectTimeout;
     private final int sndBufSize;
     private final int rcvBufSize;
     private final int backlogSize;
@@ -66,7 +65,6 @@ public final class IOReactorConfig {
             final TimeValue soLinger,
             final boolean soKeepAlive,
             final boolean tcpNoDelay,
-            final TimeValue connectTimeout,
             final int sndBufSize,
             final int rcvBufSize,
             final int backlogSize) {
@@ -78,7 +76,6 @@ public final class IOReactorConfig {
         this.soLinger = soLinger;
         this.soKeepAlive = soKeepAlive;
         this.tcpNoDelay = tcpNoDelay;
-        this.connectTimeout = connectTimeout;
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
@@ -163,15 +160,6 @@ public final class IOReactorConfig {
     }
 
     /**
-     * Determines the default connect timeout value for non-blocking connection requests.
-     * <p>
-     * Default: {@code 0} (no timeout)
-     */
-    public TimeValue getConnectTimeout() {
-        return connectTimeout;
-    }
-
-    /**
      * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
      * for newly created sockets.
      * <p>
@@ -220,7 +208,6 @@ public final class IOReactorConfig {
             .setSoLinger(config.getSoLinger())
             .setSoKeepAlive(config.isSoKeepalive())
             .setTcpNoDelay(config.isTcpNoDelay())
-            .setConnectTimeout(config.getConnectTimeout())
             .setSndBufSize(config.getSndBufSize())
             .setRcvBufSize(config.getRcvBufSize())
             .setBacklogSize(config.getBacklogSize());
@@ -235,7 +222,6 @@ public final class IOReactorConfig {
         private TimeValue soLinger;
         private boolean soKeepAlive;
         private boolean tcpNoDelay;
-        private TimeValue connectTimeout;
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
@@ -248,7 +234,6 @@ public final class IOReactorConfig {
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
             this.soKeepAlive = false;
             this.tcpNoDelay = true;
-            this.connectTimeout = TimeValue.ZERO_MILLIS;
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
@@ -299,16 +284,6 @@ public final class IOReactorConfig {
             return this;
         }
 
-        public Builder setConnectTimeout(final int connectTimeout, final TimeUnit timeUnit) {
-            this.connectTimeout = TimeValue.of(connectTimeout, timeUnit);
-            return this;
-        }
-
-        public Builder setConnectTimeout(final TimeValue connectTimeout) {
-            this.connectTimeout = connectTimeout;
-            return this;
-        }
-
         public Builder setSndBufSize(final int sndBufSize) {
             this.sndBufSize = sndBufSize;
             return this;
@@ -327,12 +302,11 @@ public final class IOReactorConfig {
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval, ioThreadCount,
-                    connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLIS,
+                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLIS,
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
                     soKeepAlive,
                     tcpNoDelay,
-                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLIS,
                     sndBufSize, rcvBufSize, backlogSize);
         }
 
@@ -348,7 +322,6 @@ public final class IOReactorConfig {
                 .append(", soLinger=").append(this.soLinger)
                 .append(", soKeepAlive=").append(this.soKeepAlive)
                 .append(", tcpNoDelay=").append(this.tcpNoDelay)
-                .append(", connectTimeout=").append(this.connectTimeout)
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
                 .append(", backlogSize=").append(this.backlogSize)

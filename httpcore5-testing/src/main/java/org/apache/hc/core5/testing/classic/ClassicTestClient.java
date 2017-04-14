@@ -105,7 +105,7 @@ public class ClassicTestClient {
             request.setAuthority(new URIAuthority(targetHost));
         }
         request.setScheme(targetHost.getSchemeName());
-        return requester.execute(targetHost, request, socketConfig, context);
+        return requester.execute(targetHost, request, socketConfig.getSoTimeout(), context);
     }
 
     class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpClientConnection> {

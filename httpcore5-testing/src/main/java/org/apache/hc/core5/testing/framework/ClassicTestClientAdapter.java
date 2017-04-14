@@ -31,7 +31,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -46,6 +45,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
+import org.apache.hc.core5.util.TimeValue;
 
 public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
@@ -68,17 +68,15 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             throw new HttpException("Request method should be set.");
         }
 
-        final SocketConfig socketConfig;
+        final TimeValue timeout;
         if (request.containsKey(TIMEOUT)) {
-            final long timeout = (long) request.get(TIMEOUT);
-            socketConfig = SocketConfig.custom()
-                    .setConnectTimeout((int) timeout, TimeUnit.MILLISECONDS)
-                    .setSoTimeout((int) timeout, TimeUnit.MILLISECONDS)
-                    .build();
+            timeout = TimeValue.ofMillis((long) request.get(TIMEOUT));
         } else {
-            socketConfig = null;
+            timeout = null;
         }
-        final ClassicTestClient client = new ClassicTestClient(socketConfig);
+        final ClassicTestClient client = new ClassicTestClient(SocketConfig.custom()
+                .setSoTimeout(timeout)
+                .build());
 
         // Append the path to the defaultURI.
         String tempDefaultURI = defaultURI;

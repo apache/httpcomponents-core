@@ -66,7 +66,6 @@ public class TestClassicTestClientTestingAdapter {
    @Before
     public void initServer() throws Exception {
        this.server = new ClassicTestServer(SocketConfig.custom()
-               .setConnectTimeout(5, TimeUnit.SECONDS)
                .setSoTimeout(5, TimeUnit.SECONDS).build());
     }
 

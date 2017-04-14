@@ -84,7 +84,6 @@ public class TestClassicHttp {
         @Override
         protected void before() throws Throwable {
             server = new ClassicTestServer(SocketConfig.custom()
-                    .setConnectTimeout(5, TimeUnit.SECONDS)
                     .setSoTimeout(5, TimeUnit.SECONDS).build());
         }
 
@@ -109,7 +108,6 @@ public class TestClassicHttp {
         @Override
         protected void before() throws Throwable {
             client = new ClassicTestClient(SocketConfig.custom()
-                    .setConnectTimeout(5, TimeUnit.SECONDS)
                     .setSoTimeout(5, TimeUnit.SECONDS).build());
         }
 

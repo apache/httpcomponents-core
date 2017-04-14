@@ -80,7 +80,6 @@ public class Http1ServerAndRequesterTest {
             server = AsyncServerBootstrap.bootstrap()
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
-                                    .setConnectTimeout(TIMEOUT)
                                     .setSoTimeout(TIMEOUT)
                                     .build())
                     .register("/no-keep-alive*", new Supplier<AsyncServerExchangeHandler>() {
@@ -155,7 +154,6 @@ public class Http1ServerAndRequesterTest {
         protected void before() throws Throwable {
             requester = AsyncRequesterBootstrap.bootstrap()
                     .setIOReactorConfig(IOReactorConfig.custom()
-                            .setConnectTimeout(TIMEOUT)
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .create();

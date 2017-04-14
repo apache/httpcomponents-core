@@ -44,7 +44,6 @@ public class SocketConfig {
 
     public static final SocketConfig DEFAULT = new Builder().build();
 
-    private final TimeValue connectTimeout;
     private final TimeValue soTimeout;
     private final boolean soReuseAddress;
     private final TimeValue soLinger;
@@ -55,7 +54,6 @@ public class SocketConfig {
     private final int backlogSize;
 
     SocketConfig(
-            final TimeValue connectTimeout,
             final TimeValue soTimeout,
             final boolean soReuseAddress,
             final TimeValue soLinger,
@@ -65,7 +63,6 @@ public class SocketConfig {
             final int rcvBufSize,
             final int backlogSize) {
         super();
-        this.connectTimeout = connectTimeout;
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
         this.soLinger = soLinger;
@@ -74,20 +71,6 @@ public class SocketConfig {
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
-    }
-
-    /**
-     * Determines the default connect timeout value for blocking I/O operations.
-     * <p>
-     * Default: {@code 0} (no timeout)
-     * </p>
-     *
-     * @return the default connect timeout value for blocking I/O operations.
-     *
-     * @since 5.0
-     */
-    public TimeValue getConnectTimeout() {
-        return connectTimeout;
     }
 
     /**
@@ -205,8 +188,7 @@ public class SocketConfig {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[connectTimeout=").append(this.connectTimeout)
-                .append(", soTimeout=").append(this.soTimeout)
+        builder.append("[soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)
                 .append(", soLinger=").append(this.soLinger)
                 .append(", soKeepAlive=").append(this.soKeepAlive)
@@ -225,7 +207,6 @@ public class SocketConfig {
     public static SocketConfig.Builder copy(final SocketConfig config) {
         Args.notNull(config, "Socket config");
         return new Builder()
-            .setConnectTimeout(config.getConnectTimeout())
             .setSoTimeout(config.getSoTimeout())
             .setSoReuseAddress(config.isSoReuseAddress())
             .setSoLinger(config.getSoLinger())
@@ -238,7 +219,6 @@ public class SocketConfig {
 
     public static class Builder {
 
-        private TimeValue connectTimeout;
         private TimeValue soTimeout;
         private boolean soReuseAddress;
         private TimeValue soLinger;
@@ -249,7 +229,6 @@ public class SocketConfig {
         private int backlogSize;
 
         Builder() {
-            this.connectTimeout = TimeValue.ZERO_MILLIS;
             this.soTimeout = TimeValue.ZERO_MILLIS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
@@ -258,22 +237,6 @@ public class SocketConfig {
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
-        }
-
-        /**
-         * @since 5.0
-         */
-        public Builder setConnectTimeout(final TimeValue connectTimeout) {
-            this.connectTimeout = connectTimeout;
-            return this;
-        }
-
-        /**
-         * @since 5.0
-         */
-        public Builder setConnectTimeout(final int connectTimeout, final TimeUnit timeUnit) {
-            this.connectTimeout = TimeValue.of(connectTimeout, timeUnit);
-            return this;
         }
 
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
@@ -337,7 +300,6 @@ public class SocketConfig {
 
         public SocketConfig build() {
             return new SocketConfig(
-                    connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLIS,
                     soTimeout != null ? soTimeout : TimeValue.ZERO_MILLIS,
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,

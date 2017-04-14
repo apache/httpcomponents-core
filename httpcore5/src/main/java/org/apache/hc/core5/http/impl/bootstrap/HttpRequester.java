@@ -48,7 +48,6 @@ import org.apache.hc.core5.http.ConnectionRequestTimeoutException;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.EofSensorInputStream;
@@ -169,16 +168,17 @@ public class HttpRequester implements GracefullyCloseable {
     public ClassicHttpResponse execute(
             final HttpHost targetHost,
             final ClassicHttpRequest request,
-            final SocketConfig socketConfig,
+            final TimeValue connectTimeout,
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(targetHost, "HTTP host");
         Args.notNull(request, "HTTP request");
         Args.notNull(context, "HTTP context");
         final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
-        final TimeValue connectTimeout = socketConfig != null ? socketConfig.getConnectTimeout() : TimeValue.ZERO_MILLIS;
+        final TimeValue timeout = connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLIS;
+
         try {
-            poolEntry = leaseFuture.get(connectTimeout.getDuration(), connectTimeout.getTimeUnit());
+            poolEntry = leaseFuture.get(timeout.getDuration(), timeout.getTimeUnit());
         } catch (final InterruptedException ex) {
             throw new InterruptedIOException(ex.getMessage());
         } catch (final ExecutionException ex) {
@@ -193,7 +193,7 @@ public class HttpRequester implements GracefullyCloseable {
                 final Socket socket = createSocket(targetHost);
                 connection = connectFactory.createConnection(socket);
                 poolEntry.assignConnection(connection);
-                socket.connect(toEndpoint(targetHost), connectTimeout.toMillisIntBound());
+                socket.connect(toEndpoint(targetHost), timeout.toMillisIntBound());
             }
             final ClassicHttpResponse response = execute(connection, request, context);
             final HttpEntity entity = response.getEntity();
@@ -282,10 +282,10 @@ public class HttpRequester implements GracefullyCloseable {
     public <T> T  execute(
             final HttpHost targetHost,
             final ClassicHttpRequest request,
-            final SocketConfig socketConfig,
+            final TimeValue connectTimeout,
             final HttpContext context,
             final ResponseHandler<T> responseHandler) throws HttpException, IOException {
-        try (final ClassicHttpResponse response = execute(targetHost, request, socketConfig, context)) {
+        try (final ClassicHttpResponse response = execute(targetHost, request, connectTimeout, context)) {
             final T result = responseHandler.handleResponse(response);
             EntityUtils.consume(response.getEntity());
             return result;
