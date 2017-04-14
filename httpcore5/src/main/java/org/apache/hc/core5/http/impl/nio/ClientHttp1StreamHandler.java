@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -47,7 +46,7 @@ import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.ContentDecoder;
+import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.RequestChannel;
@@ -64,13 +63,12 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final AsyncClientExchangeHandler exchangeHandler;
     private final HttpCoreContext context;
-    private final ByteBuffer inputBuffer;
     private final AtomicBoolean requestCommitted;
     private final AtomicBoolean done;
 
+    private volatile boolean keepAlive;
     private volatile int timeout;
     private volatile HttpRequest committedRequest;
-    private volatile HttpResponse receivedResponse;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
 
@@ -80,8 +78,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             final H1Config h1Config,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final AsyncClientExchangeHandler exchangeHandler,
-            final HttpCoreContext context,
-            final ByteBuffer inputBuffer) {
+            final HttpCoreContext context) {
         this.outputChannel = outputChannel;
         this.internalDataChannel = new DataStreamChannel() {
 
@@ -113,24 +110,19 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandler = exchangeHandler;
         this.context = context;
-        this.inputBuffer = inputBuffer;
         this.requestCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
+        this.keepAlive = true;
         this.requestState = MessageState.IDLE;
         this.responseState = MessageState.HEADERS;
     }
 
-    boolean isResponseCompleted() {
+    boolean isResponseFinal() {
         return responseState == MessageState.COMPLETE;
     }
 
     boolean isCompleted() {
         return requestState == MessageState.COMPLETE && responseState == MessageState.COMPLETE;
-    }
-
-    boolean keepAlive() {
-        return committedRequest != null && receivedResponse != null &&
-                connectionReuseStrategy.keepAlive(committedRequest, receivedResponse, context);
     }
 
     boolean isHeadRequest() {
@@ -224,6 +216,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
         if (status < HttpStatus.SC_SUCCESS) {
             exchangeHandler.consumeInformation(response);
+        } else {
+            if (!connectionReuseStrategy.keepAlive(committedRequest, response, context)) {
+                keepAlive = false;
+            }
         }
         if (requestState == MessageState.ACK) {
             if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
@@ -238,54 +234,49 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             return;
         }
         if (requestState == MessageState.BODY) {
-            boolean keepAlive = status < HttpStatus.SC_CLIENT_ERROR;
-            if (keepAlive) {
-                final Header h = response.getFirstHeader(HttpHeaders.CONNECTION);
-                if (h != null && HeaderElements.CLOSE.equalsIgnoreCase(h.getValue())) {
+            if (keepAlive && status >= HttpStatus.SC_CLIENT_ERROR) {
+                requestState = MessageState.COMPLETE;
+                if (!outputChannel.abortGracefully()) {
                     keepAlive = false;
                 }
-            }
-            if (!keepAlive) {
-                requestState = MessageState.COMPLETE;
-                outputChannel.abortOutput();
             }
         }
 
         final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(response);
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         httpProcessor.process(response, entityDetails, context);
-        receivedResponse = response;
 
         exchangeHandler.consumeResponse(response, entityDetails);
-        responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
+        if (endStream) {
+            if (!keepAlive) {
+                outputChannel.close();
+            }
+            responseState = MessageState.COMPLETE;
+        } else {
+            responseState = MessageState.BODY;
+        }
     }
 
-    int consumeData(final ContentDecoder contentDecoder) throws HttpException, IOException {
+    int consumeData(final ByteBuffer src) throws HttpException, IOException {
         if (done.get() || responseState != MessageState.BODY) {
             throw new ProtocolException("Unexpected message data");
         }
-        int total = 0;
-        int byteRead;
-        while ((byteRead = contentDecoder.read(inputBuffer)) > 0) {
-            total += byteRead;
-            inputBuffer.flip();
-            final int capacity = exchangeHandler.consume(inputBuffer);
-            inputBuffer.clear();
-            if (capacity <= 0) {
-                if (!contentDecoder.isCompleted()) {
-                    outputChannel.suspendInput();
-                    exchangeHandler.updateCapacity(outputChannel);
-                }
-                break;
-            }
+        return exchangeHandler.consume(src);
+    }
+
+    void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+        exchangeHandler.updateCapacity(capacityChannel);
+    }
+
+    void dataEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+        if (done.get() || responseState != MessageState.BODY) {
+            throw new ProtocolException("Unexpected message data");
         }
-        if (contentDecoder.isCompleted()) {
-            responseState = MessageState.COMPLETE;
-            exchangeHandler.streamEnd(contentDecoder.getTrailers());
-            return total > 0 ? total : -1;
-        } else {
-            return total;
+        if (!keepAlive) {
+            outputChannel.close();
         }
+        responseState = MessageState.COMPLETE;
+        exchangeHandler.streamEnd(trailers);
     }
 
     boolean handleTimeout() {

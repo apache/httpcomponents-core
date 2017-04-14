@@ -27,7 +27,6 @@
 package org.apache.hc.core5.http.examples;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -41,7 +40,6 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -103,32 +101,31 @@ public class AsyncRequestExecutionExample {
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
-            final Future<AsyncClientEndpoint> future = requester.connect(target, TimeValue.ofSeconds(5));
-            final AsyncClientEndpoint clientEndpoint = future.get();
-            clientEndpoint.executeAndRelease(
+            requester.execute(
                     new BasicRequestProducer("GET", target, requestUri),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                    TimeValue.ofSeconds(5),
                     new FutureCallback<Message<HttpResponse, String>>() {
 
                         @Override
                         public void completed(final Message<HttpResponse, String> message) {
-                            latch.countDown();
                             HttpResponse response = message.getHead();
                             String body = message.getBody();
                             System.out.println(requestUri + "->" + response.getCode());
                             System.out.println(body);
+                            latch.countDown();
                         }
 
                         @Override
                         public void failed(final Exception ex) {
-                            latch.countDown();
                             System.out.println(requestUri + "->" + ex);
+                            latch.countDown();
                         }
 
                         @Override
                         public void cancelled() {
-                            latch.countDown();
                             System.out.println(requestUri + " cancelled");
+                            latch.countDown();
                         }
 
                     });

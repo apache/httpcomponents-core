@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
-import org.apache.hc.core5.http.nio.ContentDecoder;
+import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.HttpContextAware;
@@ -69,13 +69,12 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final HttpCoreContext context;
-    private final ByteBuffer inputBuffer;
     private final AtomicBoolean responseCommitted;
     private final AtomicBoolean done;
 
+    private volatile boolean keepAlive;
     private volatile AsyncServerExchangeHandler exchangeHandler;
     private volatile HttpRequest receivedRequest;
-    private volatile HttpResponse committedResponse;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
 
@@ -84,8 +83,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final HttpCoreContext context,
-            final ByteBuffer inputBuffer) {
+            final HttpCoreContext context) {
         this.outputChannel = outputChannel;
         this.internalDataChannel = new DataStreamChannel() {
 
@@ -97,6 +95,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             @Override
             public void endStream(final List<? extends Header> trailers) throws IOException {
                 outputChannel.complete(trailers);
+                if (!keepAlive) {
+                    outputChannel.close();
+                }
                 responseState = MessageState.COMPLETE;
             }
 
@@ -116,9 +117,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.context = context;
-        this.inputBuffer = inputBuffer;
         this.responseCommitted = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
+        this.keepAlive = true;
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.IDLE;
     }
@@ -157,9 +158,16 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             httpProcessor.process(response, responseEntityDetails, context);
 
             final boolean endStream = responseEntityDetails == null || method.equalsIgnoreCase("HEAD");
+
+            if (!connectionReuseStrategy.keepAlive(receivedRequest, response, context)) {
+                keepAlive = false;
+            }
+
             outputChannel.submit(response, endStream);
-            committedResponse = response;
             if (endStream) {
+                if (!keepAlive) {
+                    outputChannel.close();
+                }
                 responseState = MessageState.COMPLETE;
             } else {
                 responseState = MessageState.BODY;
@@ -189,17 +197,12 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         outputChannel.activate();
     }
 
-    boolean isResponseCompleted() {
+    boolean isResponseFinal() {
         return responseState == MessageState.COMPLETE;
     }
 
     boolean isCompleted() {
         return requestState == MessageState.COMPLETE && responseState == MessageState.COMPLETE;
-    }
-
-    boolean keepAlive() {
-        return receivedRequest != null && committedResponse != null &&
-                connectionReuseStrategy.keepAlive(receivedRequest, committedResponse, context);
     }
 
     AsyncResponseProducer handleException(final Exception ex) {
@@ -303,35 +306,26 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
     }
 
-    int consumeData(final ContentDecoder contentDecoder) throws HttpException, IOException {
+    int consumeData(final ByteBuffer src) throws HttpException, IOException {
         if (done.get() || requestState != MessageState.BODY) {
             throw new ProtocolException("Unexpected message data");
         }
         if (responseState == MessageState.ACK) {
             outputChannel.requestOutput();
         }
-        int total = 0;
-        int byteRead;
-        while ((byteRead = contentDecoder.read(inputBuffer)) > 0) {
-            total += byteRead;
-            inputBuffer.flip();
-            final int capacity = exchangeHandler.consume(inputBuffer);
-            inputBuffer.clear();
-            if (capacity <= 0) {
-                if (!contentDecoder.isCompleted()) {
-                    outputChannel.suspendInput();
-                    exchangeHandler.updateCapacity(outputChannel);
-                }
-                break;
-            }
+        return exchangeHandler.consume(src);
+    }
+
+    void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+        exchangeHandler.updateCapacity(capacityChannel);
+    }
+
+    void dataEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+        if (done.get() || requestState != MessageState.BODY) {
+            throw new ProtocolException("Unexpected message data");
         }
-        if (contentDecoder.isCompleted()) {
-            requestState = MessageState.COMPLETE;
-            exchangeHandler.streamEnd(contentDecoder.getTrailers());
-            return total > 0 ? total : -1;
-        } else {
-            return total;
-        }
+        requestState = MessageState.COMPLETE;
+        exchangeHandler.streamEnd(trailers);
     }
 
     void failed(final Exception cause) {

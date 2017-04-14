@@ -30,24 +30,21 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 
-interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder, CapacityChannel {
+interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder {
+
+    void close();
 
     void activate() throws HttpException, IOException;
 
     void submit(OutgoingMessage messageHead, boolean endStream) throws HttpException, IOException;
 
-    void suspendInput();
-
-    void requestInput();
-
     void requestOutput();
 
     void suspendOutput();
 
-    void abortOutput() throws IOException;
+    boolean abortGracefully() throws IOException;
 
     int getSocketTimeout();
 

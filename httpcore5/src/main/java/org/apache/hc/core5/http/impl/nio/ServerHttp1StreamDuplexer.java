@@ -51,6 +51,7 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -59,9 +60,9 @@ import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
-import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
@@ -75,11 +76,9 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
     private final Http1StreamListener streamListener;
-    private final ByteBuffer contentBuffer;
     private final Queue<ServerHttp1StreamHandler> pipeline;
     private final Http1StreamChannel<HttpResponse> outputChannel;
 
-    private volatile boolean inconsistent;
     private volatile ServerHttp1StreamHandler outgoing;
     private volatile ServerHttp1StreamHandler incoming;
 
@@ -107,9 +106,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
         this.streamListener = streamListener;
-        this.contentBuffer = ByteBuffer.allocate(this.h1Config.getBufferSize());
         this.pipeline = new ConcurrentLinkedQueue<>();
         this.outputChannel = new Http1StreamChannel<HttpResponse>() {
+
+            @Override
+            public void close() {
+                shutdown(ShutdownType.IMMEDIATE);
+            }
 
             @Override
             public void submit(final HttpResponse response, final boolean endStream) throws HttpException, IOException {
@@ -117,23 +120,6 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     streamListener.onResponseHead(ServerHttp1StreamDuplexer.this, response);
                 }
                 commitMessageHead(response, endStream);
-            }
-
-            @Override
-            public void update(final int increment) throws IOException {
-                if (increment > 0) {
-                    requestSessionInput();
-                }
-            }
-
-            @Override
-            public void suspendInput() {
-                suspendSessionInput();
-            }
-
-            @Override
-            public void requestInput() {
-                requestSessionInput();
             }
 
             @Override
@@ -172,11 +158,9 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public void abortOutput() throws IOException {
+            public boolean abortGracefully() throws IOException {
                 final MessageDelineation messageDelineation = endOutputStream(null);
-                if (messageDelineation == MessageDelineation.MESSAGE_HEAD) {
-                    inconsistent = true;
-                }
+                return messageDelineation != MessageDelineation.MESSAGE_HEAD;
             }
 
             @Override
@@ -210,16 +194,46 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     void terminate(final Exception exception) {
         if (incoming != null) {
             incoming.failed(exception);
+            incoming.releaseResources();
             incoming = null;
         }
         if (outgoing != null) {
             outgoing.failed(exception);
+            outgoing.releaseResources();
             outgoing = null;
         }
         for (;;) {
             final ServerHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
                 handler.failed(exception);
+                handler.releaseResources();
+            } else {
+                break;
+            }
+        }
+    }
+
+    @Override
+    void disconnected() {
+        if (incoming != null) {
+            if (!incoming.isCompleted()) {
+                incoming.failed(new ConnectionClosedException("Connection closed"));
+            }
+            incoming.releaseResources();
+            incoming = null;
+        }
+        if (outgoing != null) {
+            if (!outgoing.isCompleted()) {
+                outgoing.failed(new ConnectionClosedException("Connection closed"));
+            }
+            outgoing.releaseResources();
+            outgoing = null;
+        }
+        for (;;) {
+            final ServerHttp1StreamHandler handler = pipeline.poll();
+            if (handler != null) {
+                handler.failed(new ConnectionClosedException("Connection closed"));
+                handler.releaseResources();
             } else {
                 break;
             }
@@ -295,8 +309,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     httpProcessor,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
-                    context,
-                    contentBuffer);
+                    context);
             outgoing = streamHandler;
         } else {
             streamHandler = new ServerHttp1StreamHandler(
@@ -304,8 +317,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     httpProcessor,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
-                    context,
-                    contentBuffer);
+                    context);
             pipeline.add(streamHandler);
         }
         streamHandler.consumeHeader(request, endStream);
@@ -313,9 +325,21 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    int consumeData(final ContentDecoder contentDecoder) throws HttpException, IOException {
+    int consumeData(final ByteBuffer src) throws HttpException, IOException {
         Asserts.notNull(incoming, "Request stream handler");
-        return incoming.consumeData(contentDecoder);
+        return incoming.consumeData(src);
+    }
+
+    @Override
+    void updateCapacity(final CapacityChannel capacityChannel) throws HttpException, IOException {
+        Asserts.notNull(incoming, "Request stream handler");
+        incoming.updateCapacity(capacityChannel);
+    }
+
+    @Override
+    void dataEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+        Asserts.notNull(incoming, "Request stream handler");
+        incoming.dataEnd(trailers);
     }
 
     @Override
@@ -346,24 +370,16 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     @Override
     void outputEnd() throws HttpException, IOException {
-        if (outgoing != null && outgoing.isResponseCompleted()) {
-            final boolean keepAlive = !inconsistent && outgoing.keepAlive();
+        if (outgoing != null && outgoing.isResponseFinal()) {
+            if (streamListener != null) {
+                streamListener.onExchangeComplete(this, isOpen());
+            }
             if (outgoing.isCompleted()) {
                 outgoing.releaseResources();
             }
             outgoing = null;
-            if (streamListener != null) {
-                streamListener.onExchangeComplete(this, keepAlive);
-            }
-            if (!keepAlive) {
-                if (incoming == null && pipeline.isEmpty()) {
-                    requestShutdown(ShutdownType.IMMEDIATE);
-                } else {
-                    doTerminate(new ConnectionClosedException("Connection cannot be kept alive"));
-                }
-            }
         }
-        if (outgoing == null) {
+        if (outgoing == null && isOpen()) {
             final ServerHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
                 outgoing = handler;
@@ -393,6 +409,11 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
 
         @Override
+        public void close() {
+            channel.close();
+        }
+
+        @Override
         public void submit(final HttpResponse response, final boolean endStream) throws HttpException, IOException {
             synchronized (this) {
                 if (direct) {
@@ -402,23 +423,6 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     completed = endStream;
                 }
             }
-        }
-
-        @Override
-        public void update(final int increment) throws IOException {
-            if (increment > 0) {
-                channel.requestInput();
-            }
-        }
-
-        @Override
-        public void suspendInput() {
-            channel.suspendInput();
-        }
-
-        @Override
-        public void requestInput() {
-            channel.requestInput();
         }
 
         @Override
@@ -464,12 +468,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
 
         @Override
-        public void abortOutput() throws IOException {
+        public boolean abortGracefully() throws IOException {
             synchronized (this) {
                 if (direct) {
-                    channel.abortOutput();
+                    return channel.abortGracefully();
                 } else {
                     completed = true;
+                    return true;
                 }
             }
         }

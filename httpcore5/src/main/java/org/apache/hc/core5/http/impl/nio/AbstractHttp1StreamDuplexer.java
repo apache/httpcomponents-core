@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.impl.ConnectionListener;
+import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
@@ -92,6 +93,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private final BasicHttpConnectionMetrics connMetrics;
     private final NHttpMessageParser<IncomingMessage> incomingMessageParser;
     private final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter;
+    private final ByteBuffer contentBuffer;
     private final ConnectionListener connectionListener;
     private final Lock outputLock;
     private final AtomicInteger outputRequests;
@@ -122,13 +124,24 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
         this.incomingMessageParser = incomingMessageParser;
         this.outgoingMessageWriter = outgoingMessageWriter;
+        this.contentBuffer = ByteBuffer.allocate(this.h1Config.getBufferSize());
         this.connectionListener = connectionListener;
         this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
         this.connState = ConnectionState.READY;
     }
 
-    void doTerminate(final Exception exception) throws IOException {
+    void shutdownSession(final ShutdownType shutdownType) {
+        if (shutdownType == ShutdownType.GRACEFUL) {
+            connState = ConnectionState.GRACEFUL_SHUTDOWN;
+            ioSession.addLast(new ShutdownCommand(ShutdownType.GRACEFUL));
+        } else {
+            connState = ConnectionState.SHUTDOWN;
+            ioSession.close();
+        }
+    }
+
+    void shutdownSession(final Exception exception) throws IOException {
         connState = ConnectionState.SHUTDOWN;
         try {
             terminate(exception);
@@ -136,6 +149,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             ioSession.close();
         }
     }
+
+    abstract void disconnected();
 
     abstract void terminate(final Exception exception);
 
@@ -157,7 +172,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             SessionOutputBuffer buffer,
             BasicHttpTransportMetrics metrics) throws HttpException;
 
-    abstract int consumeData(ContentDecoder contentDecoder) throws HttpException, IOException;
+    abstract int consumeData(ByteBuffer src) throws HttpException, IOException;
+
+    abstract void updateCapacity(CapacityChannel capacityChannel) throws HttpException, IOException;
+
+    abstract void dataEnd(List<? extends Header> trailers) throws HttpException, IOException;
 
     abstract boolean isOutputReady();
 
@@ -238,7 +257,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                             break;
                         } else {
                             inputEnd();
-                            ioSession.setEvent(SelectionKey.OP_READ);
+                            if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
+                                ioSession.setEvent(SelectionKey.OP_READ);
+                            } else {
+                                break;
+                            }
                         }
                     }
                 } while (bytesRead > 0);
@@ -247,7 +270,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     if (outputIdle() && inputIdle()) {
                         requestShutdown(ShutdownType.IMMEDIATE);
                     } else {
-                        doTerminate(new ConnectionClosedException("Connection closed by peer"));
+                        shutdownSession(new ConnectionClosedException("Connection closed by peer"));
                     }
                     return;
                 }
@@ -255,14 +278,37 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
             if (incomingMessage != null) {
                 final ContentDecoder contentDecoder = incomingMessage.getBody();
-                final int bytesRead = consumeData(contentDecoder);
-                if (bytesRead > 0) {
-                    totalBytesRead += bytesRead;
+
+                int bytesRead;
+                while ((bytesRead = contentDecoder.read(contentBuffer)) > 0) {
+                    if (bytesRead > 0) {
+                        totalBytesRead += bytesRead;
+                    }
+                    contentBuffer.flip();
+                    final int capacity = consumeData(contentBuffer);
+                    contentBuffer.clear();
+                    if (capacity <= 0) {
+                        if (!contentDecoder.isCompleted()) {
+                            ioSession.clearEvent(SelectionKey.OP_READ);
+                            updateCapacity(new CapacityChannel() {
+
+                                @Override
+                                public void update(final int increment) throws IOException {
+                                    if (increment > 0) {
+                                        requestSessionInput();
+                                    }
+                                }
+
+                            });
+                        }
+                        break;
+                    }
                 }
                 if (contentDecoder.isCompleted()) {
+                    dataEnd(contentDecoder.getTrailers());
                     incomingMessage = null;
-                    inputEnd();
                     ioSession.setEvent(SelectionKey.OP_READ);
+                    inputEnd();
                 }
             }
             if (totalBytesRead == 0 && messagesReceived == 0) {
@@ -327,7 +373,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     public final void onTimeout() throws IOException, HttpException {
         if (!handleTimeout()) {
-            doTerminate(new SocketTimeoutException());
+            shutdownSession(new SocketTimeoutException());
         }
     }
 
@@ -336,7 +382,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             connectionListener.onError(this, ex);
         }
         try {
-            doTerminate(ex);
+            shutdownSession(ex);
         } catch (IOException ex2) {
             if (connectionListener != null) {
                 connectionListener.onError(this, ex2);
@@ -346,6 +392,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     public final void onDisconnect() {
         cancelPendingCommands();
+        disconnected();
         releaseResources();
         if (connectionListener != null) {
             connectionListener.onDisconnect(this);

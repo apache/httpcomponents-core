@@ -112,30 +112,33 @@ public class Http2RequestExecutionExample {
         for (final String requestUri: requestUris) {
             final Future<AsyncClientEndpoint> future = requester.connect(target, TimeValue.ofSeconds(5));
             final AsyncClientEndpoint clientEndpoint = future.get();
-            clientEndpoint.executeAndRelease(
+            clientEndpoint.execute(
                     new BasicRequestProducer("GET", target, requestUri),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     new FutureCallback<Message<HttpResponse, String>>() {
 
                         @Override
                         public void completed(final Message<HttpResponse, String> message) {
-                            latch.countDown();
+                            clientEndpoint.releaseAndReuse();
                             HttpResponse response = message.getHead();
                             String body = message.getBody();
                             System.out.println(requestUri + "->" + response.getCode());
                             System.out.println(body);
+                            latch.countDown();
                         }
 
                         @Override
                         public void failed(final Exception ex) {
-                            latch.countDown();
+                            clientEndpoint.releaseAndDiscard();
                             System.out.println(requestUri + "->" + ex);
+                            latch.countDown();
                         }
 
                         @Override
                         public void cancelled() {
-                            latch.countDown();
+                            clientEndpoint.releaseAndDiscard();
                             System.out.println(requestUri + " cancelled");
+                            latch.countDown();
                         }
 
                     });

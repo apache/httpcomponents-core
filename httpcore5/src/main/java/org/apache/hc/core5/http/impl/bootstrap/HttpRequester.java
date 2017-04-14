@@ -37,6 +37,7 @@ import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -185,7 +186,7 @@ public class HttpRequester implements GracefullyCloseable {
         } catch (final TimeoutException ex) {
             throw new ConnectionRequestTimeoutException("Connection request timeout");
         }
-        final PoolEntryHolder<HttpHost, HttpClientConnection> connectionHolder = new PoolEntryHolder<>(connPool, poolEntry);
+        final PoolEntryHolder connectionHolder = new PoolEntryHolder(poolEntry);
         try {
             HttpClientConnection connection = poolEntry.getConnection();
             if (connection == null) {
@@ -200,11 +201,8 @@ public class HttpRequester implements GracefullyCloseable {
                 response.setEntity(new HttpEntityWrapper(entity) {
 
                     private void releaseConnection() throws IOException {
-                        if (connectionHolder.isReleased()) {
-                            return;
-                        }
                         try {
-                            final HttpClientConnection localConn = poolEntry.getConnection();
+                            final HttpClientConnection localConn = connectionHolder.getConnection();
                             if (localConn != null) {
                                 if (requestExecutor.keepAlive(request, response, localConn, context)) {
                                     if (super.isStreaming()) {
@@ -213,16 +211,16 @@ public class HttpRequester implements GracefullyCloseable {
                                             content.close();
                                         }
                                     }
-                                    connectionHolder.markReusable();
+                                    connectionHolder.releaseConnection();
                                 }
                             }
                         } finally {
-                            connectionHolder.releaseConnection();
+                            connectionHolder.discardConnection();
                         }
                     }
 
                     private void abortConnection() {
-                        connectionHolder.releaseConnection();
+                        connectionHolder.discardConnection();
                     }
 
                     @Override
@@ -276,7 +274,7 @@ public class HttpRequester implements GracefullyCloseable {
             }
             return response;
         } catch (HttpException | IOException | RuntimeException ex) {
-            connectionHolder.abortConnection();
+            connectionHolder.discardConnection();
             throw ex;
         }
     }
@@ -306,6 +304,37 @@ public class HttpRequester implements GracefullyCloseable {
     @Override
     public void close() throws IOException {
         connPool.close();
+    }
+
+    private class PoolEntryHolder {
+
+        private final AtomicReference<PoolEntry<HttpHost, HttpClientConnection>> poolEntryRef;
+
+        PoolEntryHolder(final PoolEntry<HttpHost, HttpClientConnection> poolEntry) {
+            this.poolEntryRef = new AtomicReference<>(poolEntry);
+        }
+
+        HttpClientConnection getConnection() {
+            final PoolEntry<HttpHost, HttpClientConnection> poolEntry = poolEntryRef.get();
+            return poolEntry != null ? poolEntry.getConnection() : null;
+        }
+
+        void releaseConnection() {
+            final PoolEntry<HttpHost, HttpClientConnection> poolEntry = poolEntryRef.getAndSet(null);
+            if (poolEntry != null) {
+                final HttpClientConnection connection = poolEntry.getConnection();
+                connPool.release(poolEntry, connection != null && connection.isOpen());
+            }
+        }
+
+        void discardConnection() {
+            final PoolEntry<HttpHost, HttpClientConnection> poolEntry = poolEntryRef.getAndSet(null);
+            if (poolEntry != null) {
+                poolEntry.discardConnection(ShutdownType.IMMEDIATE);
+                connPool.release(poolEntry, false);
+            }
+        }
+
     }
 
 }
