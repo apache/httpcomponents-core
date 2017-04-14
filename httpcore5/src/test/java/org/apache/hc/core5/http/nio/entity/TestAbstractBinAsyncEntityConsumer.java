@@ -35,42 +35,20 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
-import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
+import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestAbstractBinAsyncEntityConsumer {
 
-    private static class InternalBuffer extends ExpandableBuffer {
-
-        InternalBuffer(final int bufferSize) {
-            super(bufferSize);
-        }
-
-        void write(final ByteBuffer src) {
-            setInputMode();
-            final int requiredCapacity = buffer().position() + src.remaining();
-            ensureCapacity(requiredCapacity);
-            buffer().put(src);
-        }
-
-        byte[] toByteArray() {
-            setOutputMode();
-            final byte[] bytes = new byte[buffer().remaining()];
-            buffer().get(bytes);
-            return bytes;
-        }
-
-    }
-
     static private class ByteArrayAsyncEntityConsumer extends AbstractBinAsyncEntityConsumer<byte[]> {
 
-        private final InternalBuffer buffer;
+        private final ByteArrayBuffer buffer;
 
         public ByteArrayAsyncEntityConsumer() {
             super();
-            this.buffer = new InternalBuffer(1024);
+            this.buffer = new ByteArrayBuffer(1024);
         }
 
         @Override
@@ -84,7 +62,16 @@ public class TestAbstractBinAsyncEntityConsumer {
 
         @Override
         protected void data(final ByteBuffer src, final boolean endOfStream) throws IOException {
-            buffer.write(src);
+            if (src == null) {
+                return;
+            }
+            if (src.hasArray()) {
+                buffer.append(src.array(), src.arrayOffset() + src.position(), src.remaining());
+            } else {
+                while (src.hasRemaining()) {
+                    buffer.append(src.get());
+                }
+            }
         }
 
         @Override
