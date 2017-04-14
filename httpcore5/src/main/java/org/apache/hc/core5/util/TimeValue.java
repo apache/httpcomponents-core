@@ -90,6 +90,14 @@ public class TimeValue {
         return new TimeValue(seconds, TimeUnit.SECONDS);
     }
 
+    public static boolean isPositive(final TimeValue timeValue) {
+        return timeValue != null && timeValue.getDuration() > 0;
+    }
+
+    public static boolean isNonNegative(final TimeValue timeValue) {
+        return timeValue != null && timeValue.getDuration() >= 0;
+    }
+
     private final long duration;
 
     private final TimeUnit timeUnit;

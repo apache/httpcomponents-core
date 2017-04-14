@@ -532,12 +532,6 @@ public class TestStrictConnPool {
     }
 
     @Test(expected=IllegalArgumentException.class)
-    public void testCloseIdleInvalid() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
-        pool.closeIdle(null);
-    }
-
-    @Test(expected=IllegalArgumentException.class)
     public void testGetStatsInvalid() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
         pool.getStats(null);

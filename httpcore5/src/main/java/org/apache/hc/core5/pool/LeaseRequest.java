@@ -46,8 +46,8 @@ class LeaseRequest<T, C extends GracefullyCloseable> {
     private volatile Exception ex;
 
     static long calculateDeadline(final long currentTimeMillis, final TimeValue timeValue) {
-        final long time = timeValue.getDuration() > 0 ? currentTimeMillis + timeValue.toMillis() : Long.MAX_VALUE;
-        if (time < 0 && timeValue.getDuration() > 0) {
+        final long time = TimeValue.isPositive(timeValue) ? currentTimeMillis + timeValue.toMillis() : Long.MAX_VALUE;
+        if (time < 0 && TimeValue.isPositive(timeValue)) {
             return Long.MAX_VALUE;
         } else {
             return time;

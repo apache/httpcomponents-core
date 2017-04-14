@@ -570,8 +570,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
 
     @Override
     public void closeIdle(final TimeValue idleTime) {
-        Args.notNull(idleTime, "Idle time");
-        final long deadline = System.currentTimeMillis() - (idleTime.getDuration() > 0 ? idleTime.toMillis() : 0);
+        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMillis() : 0);
         enumAvailable(new Callback<PoolEntry<T, C>>() {
 
             @Override
