@@ -199,6 +199,36 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
     }
 
     @Test
+    public void testSimpleHead() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        for (int i = 0; i < 5; i++) {
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer("HEAD", createRequestURI(serverEndpoint, "/hello")),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertNotNull(result);
+            final HttpResponse response1 = result.getHead();
+            Assert.assertNotNull(response1);
+            Assert.assertEquals(200, response1.getCode());
+            Assert.assertNull(result.getBody());
+        }
+    }
+
+    @Test
     public void testLargeGet() throws Exception {
         server.register("/", new Supplier<AsyncServerExchangeHandler>() {
 

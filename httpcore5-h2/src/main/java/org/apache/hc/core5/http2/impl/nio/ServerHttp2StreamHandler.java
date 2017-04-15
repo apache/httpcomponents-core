@@ -69,6 +69,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
     private final AtomicBoolean done;
 
     private volatile AsyncServerExchangeHandler exchangeHandler;
+    private volatile HttpRequest receivedRequest;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
 
@@ -140,7 +141,10 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
             final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
 
-            outputChannel.submit(responseHeaders, responseEntityDetails == null);
+            Asserts.notNull(receivedRequest, "Received request");
+            final String method = receivedRequest.getMethod();
+            final boolean endStream = responseEntityDetails == null || method.equalsIgnoreCase("HEAD");
+            outputChannel.submit(responseHeaders, endStream);
             connMetrics.incrementResponseCount();
             if (responseEntityDetails == null) {
                 responseState = MessageState.COMPLETE;
@@ -201,6 +205,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
                 httpProcessor.process(request, requestEntityDetails, context);
                 connMetrics.incrementRequestCount();
+                receivedRequest = request;
 
                 exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
 
