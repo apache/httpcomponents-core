@@ -132,10 +132,10 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
             }
 
             httpProcessor.process(request, entityDetails, context);
-            connMetrics.incrementRequestCount();
 
             final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
             outputChannel.submit(headers, entityDetails == null);
+            connMetrics.incrementRequestCount();
 
             if (entityDetails == null) {
                 requestState = MessageState.COMPLETE;

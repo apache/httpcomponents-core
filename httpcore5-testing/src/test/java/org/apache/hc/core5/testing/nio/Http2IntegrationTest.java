@@ -52,6 +52,7 @@ import java.util.Queue;
 import java.util.StringTokenizer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -62,14 +63,19 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;
@@ -102,9 +108,12 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
+import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -946,6 +955,43 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
         }
         Assert.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Assert.assertEquals(n, count.get());
+    }
+
+    @Test
+    public void testRequestWithInvalidConnectionHeader() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+
+        final SessionRequest sessionRequest = client.requestSession(new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
+        sessionRequest.setConnectTimeout(TIMEOUT.toMillisIntBound());
+        sessionRequest.waitFor();
+        final IOSession session = sessionRequest.getSession();
+        final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(session);
+
+        final HttpRequest request = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/hello"));
+        request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer(request, null),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        try {
+            future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.fail("ExecutionException is expected");
+        } catch (final ExecutionException ex) {
+            Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
+        }
+
+        final HttpConnection eventHandler = (HttpConnection) session.getHandler();
+        final EndpointDetails endpointDetails = eventHandler.getEndpointDetails();
+        Assert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
     }
 
 }

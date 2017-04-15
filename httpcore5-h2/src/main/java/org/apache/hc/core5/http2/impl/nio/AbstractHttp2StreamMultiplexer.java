@@ -586,6 +586,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 final int streamId = generateStreamId();
                 final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
                         streamId,
+                        true,
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
@@ -725,6 +726,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
                     final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
                             streamId,
+                            false,
                             localConfig.getInitialWindowSize(),
                             remoteConfig.getInitialWindowSize());
                     final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
@@ -903,6 +905,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
                 final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
                         promisedStreamId,
+                        false,
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
@@ -1252,13 +1255,15 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         private final AtomicInteger inputWindow;
         private final AtomicInteger outputWindow;
 
+        private volatile boolean idle;
         private volatile boolean remoteEndStream;
         private volatile boolean localEndStream;
 
         private volatile long deadline;
 
-        Http2StreamChannelImpl(final int id, final int initialInputWindowSize, final int initialOutputWindowSize) {
+        Http2StreamChannelImpl(final int id, final boolean idle, final int initialInputWindowSize, final int initialOutputWindowSize) {
             this.id = id;
+            this.idle = idle;
             this.inputWindow = new AtomicInteger(initialInputWindowSize);
             this.outputWindow = new AtomicInteger(initialOutputWindowSize);
         }
@@ -1285,6 +1290,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                 if (localEndStream) {
                     return;
                 }
+                idle = false;
                 commitHeaders(id, headers, endStream);
                 if (endStream) {
                     localEndStream = true;
@@ -1302,6 +1308,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
             final int promisedStreamId = generateStreamId();
             final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
                     promisedStreamId,
+                    true,
                     localConfig.getInitialWindowSize(),
                     remoteConfig.getInitialWindowSize());
             final HttpCoreContext context = HttpCoreContext.create();
@@ -1318,6 +1325,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     return;
                 }
                 commitPushPromise(id, promisedStreamId, headers);
+                idle = false;
             } finally {
                 outputLock.unlock();
             }
@@ -1400,13 +1408,15 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
         void localReset(final int code) throws IOException {
             deadline = System.currentTimeMillis() + LINGER_TIME;
-            outputLock.lock();
-            try {
-                close();
-                final RawFrame resetStream = frameFactory.createResetStream(id, code);
-                commitFrameInternal(resetStream);
-            } finally {
-                outputLock.unlock();
+            close();
+            if (!idle) {
+                outputLock.lock();
+                try {
+                    final RawFrame resetStream = frameFactory.createResetStream(id, code);
+                    commitFrameInternal(resetStream);
+                } finally {
+                    outputLock.unlock();
+                }
             }
         }
 
