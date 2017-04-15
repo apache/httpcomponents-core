@@ -258,14 +258,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
 
         final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
-        try {
-            httpProcessor.process(request, requestEntityDetails, context);
-        } catch (final HttpException ex) {
-            final AsyncResponseProducer responseProducer = handleException(ex);
-            exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
-        }
-
-        exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
+        final ResponseChannel responseChannel = new ResponseChannel() {
 
             @Override
             public void sendInformation(final HttpResponse response) throws HttpException, IOException {
@@ -285,7 +278,19 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 commitPromise();
             }
 
-        });
+        };
+        try {
+            httpProcessor.process(request, requestEntityDetails, context);
+            exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel);
+        } catch (final HttpException ex) {
+            if (!responseCommitted.get()) {
+                final AsyncResponseProducer responseProducer = handleException(ex);
+                exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
+                exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel);
+            } else {
+                throw ex;
+            }
+        }
 
     }
 

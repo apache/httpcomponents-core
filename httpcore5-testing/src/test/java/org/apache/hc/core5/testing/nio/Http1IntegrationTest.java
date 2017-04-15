@@ -73,6 +73,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -1609,6 +1610,87 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());
         Assert.assertEquals("MD5", map.get("digest-algo"));
         Assert.assertEquals(digest, map.get("digest"));
+    }
+
+    @Test
+    public void testProtocolException() throws Exception {
+        server.register("/boom", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new AsyncServerExchangeHandler() {
+
+                    private final StringAsyncEntityProducer entityProducer = new StringAsyncEntityProducer("Everyting is OK");
+
+                    @Override
+                    public void releaseResources() {
+                        entityProducer.releaseResources();
+                    }
+
+                    @Override
+                    public void handleRequest(
+                            final HttpRequest request,
+                            final EntityDetails entityDetails,
+                            final ResponseChannel responseChannel) throws HttpException, IOException {
+                        final String requestUri = request.getRequestUri();
+                        if (requestUri.endsWith("boom")) {
+                            throw new ProtocolException("Boom!!!");
+                        } else {
+                            responseChannel.sendResponse(new BasicHttpResponse(200), entityProducer);
+                        }
+                    }
+
+                    @Override
+                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                        capacityChannel.update(Integer.MAX_VALUE);
+                    }
+
+                    @Override
+                    public int consume(final ByteBuffer src) throws IOException {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+
+                    }
+
+                    @Override
+                    public int available() {
+                        return entityProducer.available();
+                    }
+
+                    @Override
+                    public void produce(final DataStreamChannel channel) throws IOException {
+                        entityProducer.produce(channel);
+                    }
+
+                    @Override
+                    public void failed(final Exception cause) {
+                        releaseResources();
+                    }
+
+                };
+            }
+
+        });
+
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/boom")),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertNotNull(result);
+        final HttpResponse response1 = result.getHead();
+        final String entity1 = result.getBody();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response1.getCode());
+        Assert.assertEquals("Boom!!!", entity1);
     }
 
 }
