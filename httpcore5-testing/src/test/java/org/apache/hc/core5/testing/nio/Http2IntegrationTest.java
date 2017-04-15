@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.http2;
+package org.apache.hc.core5.testing.nio;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -103,12 +103,6 @@ import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.ProtocolScheme;
-import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
-import org.apache.hc.core5.testing.nio.http.EchoHandler;
-import org.apache.hc.core5.testing.nio.http.MessageExchangeHandler;
-import org.apache.hc.core5.testing.nio.http.MultiLineEntityProducer;
-import org.apache.hc.core5.testing.nio.http.MultiLineResponseHandler;
-import org.apache.hc.core5.testing.nio.http.SingleLineResponseHandler;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.After;
@@ -119,7 +113,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class Http2IntegrationTest extends InternalServerTestBase {
+public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.http2;
+package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -48,8 +48,6 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
-import org.apache.hc.core5.testing.nio.http.AsyncRequester;
-import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 

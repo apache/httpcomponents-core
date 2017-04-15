@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.http;
+package org.apache.hc.core5.testing.nio;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -133,7 +133,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class Http1IntegrationTest extends InternalServerTestBase {
+public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {

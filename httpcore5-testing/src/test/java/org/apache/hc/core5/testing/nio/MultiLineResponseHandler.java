@@ -24,18 +24,19 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.testing.nio.http;
+package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
@@ -43,9 +44,9 @@ import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
-public class SingleLineResponseHandler extends BasicServerExchangeHandler<Message<HttpRequest, String>> {
+public class MultiLineResponseHandler extends BasicServerExchangeHandler<Message<HttpRequest, String>> {
 
-    public SingleLineResponseHandler(final String message) {
+    public MultiLineResponseHandler(final String message, final int count) {
         super(new RequestConsumerSupplier<Message<HttpRequest, String>>() {
 
                   @Override
@@ -62,8 +63,10 @@ public class SingleLineResponseHandler extends BasicServerExchangeHandler<Messag
                           final Message<HttpRequest, String> requestMessage,
                           final ResponseTrigger responseTrigger,
                           final HttpContext context) throws HttpException, IOException {
+                      final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
                       responseTrigger.submitResponse(new BasicResponseProducer(
-                              HttpStatus.SC_OK, new BasicAsyncEntityProducer(message)));
+                              response,
+                              new MultiLineEntityProducer(message, count)));
                   }
               }
         );

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.http2;
+package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -34,36 +34,32 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.testing.nio.http.AsyncServer;
 
-public class Http2TestServer extends AsyncServer {
+public class Http1TestServer extends AsyncServer {
 
-    private final SSLContext sslContext;
     private final AsyncServerExchangeHandlerRegistry handlerRegistry;
+    private final SSLContext sslContext;
 
-    public Http2TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public Http1TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig);
-        this.sslContext = sslContext;
         this.handlerRegistry = new AsyncServerExchangeHandlerRegistry("localhost");
+        this.sslContext = sslContext;
     }
 
-    public Http2TestServer() throws IOException {
+    public Http1TestServer() throws IOException {
         this(IOReactorConfig.DEFAULT, null);
-    }
-
-    public InetSocketAddress start() throws Exception {
-        return start(H2Config.DEFAULT);
     }
 
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -84,24 +80,25 @@ public class Http2TestServer extends AsyncServer {
         });
     }
 
-    public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
+    public InetSocketAddress start(final IOEventHandlerFactory handlerFactory) throws Exception {
         execute(handlerFactory);
-    }
-
-    public InetSocketAddress start(final HttpProcessor httpProcessor, final H2Config h2Config) throws Exception {
-        start(new InternalServerHttp2EventHandlerFactory(
-                httpProcessor,
-                handlerRegistry,
-                CharCodingConfig.DEFAULT,
-                h2Config,
-                sslContext));
         final ListenerEndpoint listener = listen(new InetSocketAddress(0));
         listener.waitFor();
         return (InetSocketAddress) listener.getAddress();
     }
 
-    public InetSocketAddress start(final H2Config h2Config) throws Exception {
-        return start(Http2Processors.server(), h2Config);
+    public InetSocketAddress start(final HttpProcessor httpProcessor, final H1Config h1Config) throws Exception {
+        return start(new InternalServerHttp1EventHandlerFactory(
+                httpProcessor,
+                handlerRegistry,
+                h1Config,
+                CharCodingConfig.DEFAULT,
+                DefaultConnectionReuseStrategy.INSTANCE,
+                sslContext));
+    }
+
+    public InetSocketAddress start() throws Exception {
+        return start(HttpProcessors.server(), H1Config.DEFAULT);
     }
 
 }

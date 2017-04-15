@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.http2;
+package org.apache.hc.core5.testing.nio;
 
 import java.net.URL;
 
@@ -38,26 +38,27 @@ import org.apache.hc.core5.util.TimeValue;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 
-public abstract class InternalServerTestBase {
+public abstract class InternalHttp1ServerTestBase {
 
     protected final ProtocolScheme scheme;
 
-    public InternalServerTestBase(final ProtocolScheme scheme) {
+    public InternalHttp1ServerTestBase(final ProtocolScheme scheme) {
         this.scheme = scheme;
     }
 
-    public InternalServerTestBase() {
+    public InternalHttp1ServerTestBase() {
         this(ProtocolScheme.HTTP);
     }
 
-    protected Http2TestServer server;
+    protected Http1TestServer server;
 
     @Rule
     public ExternalResource serverResource = new ExternalResource() {
 
         @Override
         protected void before() throws Throwable {
-            server = new Http2TestServer(IOReactorConfig.DEFAULT,
+            server = new Http1TestServer(
+                    IOReactorConfig.DEFAULT,
                     scheme == ProtocolScheme.HTTPS ? createServerSSLContext() : null);
         }
 

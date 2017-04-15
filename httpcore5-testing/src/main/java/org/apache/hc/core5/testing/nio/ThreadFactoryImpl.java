@@ -24,38 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.testing.nio.http;
+package org.apache.hc.core5.testing.nio;
 
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
-import org.apache.hc.core5.http.nio.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
-import org.apache.hc.core5.http.protocol.HttpContext;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * @since 5.0
- */
-public abstract class MessageExchangeHandler<T> extends AbstractServerExchangeHandler<Message<HttpRequest, T>> {
+class ThreadFactoryImpl implements ThreadFactory {
 
-    private final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer;
+    private final String namePrefix;
+    private final ThreadGroup group;
+    private final AtomicLong count;
+    private final boolean daemon;
 
-    public MessageExchangeHandler(final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer) {
-        super();
-        this.requestConsumer = requestConsumer;
+    ThreadFactoryImpl(final String namePrefix, final ThreadGroup group, final boolean daemon) {
+        this.namePrefix = namePrefix;
+        this.group = group;
+        this.daemon = daemon;
+        this.count = new AtomicLong();
     }
 
-    public MessageExchangeHandler(final AsyncEntityConsumer<T> entityConsumer) {
-        this(new BasicRequestConsumer<>(entityConsumer));
+    ThreadFactoryImpl(final String namePrefix, final boolean daemon) {
+        this(namePrefix, null, daemon);
+    }
+
+    ThreadFactoryImpl(final String namePrefix) {
+        this(namePrefix, null, false);
     }
 
     @Override
-    protected AsyncRequestConsumer<Message<HttpRequest, T>> supplyConsumer(
-            final HttpRequest request,
-            final HttpContext context) throws HttpException {
-        return requestConsumer;
+    public Thread newThread(final Runnable target) {
+        final Thread thread = new Thread(this.group, target, this.namePrefix + "-"  + this.count.incrementAndGet());
+        thread.setDaemon(daemon);
+        return thread;
     }
 
 }

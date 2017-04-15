@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.http2;
+package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 

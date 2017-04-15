@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.http;
+package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -43,22 +43,24 @@ import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 
-public class Http1TestServer extends AsyncServer {
+public class Http2TestServer extends AsyncServer {
 
-    private final AsyncServerExchangeHandlerRegistry handlerRegistry;
     private final SSLContext sslContext;
+    private final AsyncServerExchangeHandlerRegistry handlerRegistry;
 
-    public Http1TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public Http2TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig);
-        this.handlerRegistry = new AsyncServerExchangeHandlerRegistry("localhost");
         this.sslContext = sslContext;
+        this.handlerRegistry = new AsyncServerExchangeHandlerRegistry("localhost");
     }
 
-    public Http1TestServer() throws IOException {
+    public Http2TestServer() throws IOException {
         this(IOReactorConfig.DEFAULT, null);
     }
 
@@ -80,25 +82,45 @@ public class Http1TestServer extends AsyncServer {
         });
     }
 
-    public InetSocketAddress start(final IOEventHandlerFactory handlerFactory) throws Exception {
+    public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
         execute(handlerFactory);
+    }
+
+    public InetSocketAddress start(final HttpProcessor httpProcessor, final H2Config h2Config) throws Exception {
+        start(new InternalServerHttp2EventHandlerFactory(
+                httpProcessor,
+                handlerRegistry,
+                CharCodingConfig.DEFAULT,
+                h2Config,
+                sslContext));
         final ListenerEndpoint listener = listen(new InetSocketAddress(0));
         listener.waitFor();
         return (InetSocketAddress) listener.getAddress();
     }
 
     public InetSocketAddress start(final HttpProcessor httpProcessor, final H1Config h1Config) throws Exception {
-        return start(new InternalServerHttp1EventHandlerFactory(
+        start(new InternalServerHttp1EventHandlerFactory(
                 httpProcessor,
                 handlerRegistry,
                 h1Config,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 sslContext));
+        final ListenerEndpoint listener = listen(new InetSocketAddress(0));
+        listener.waitFor();
+        return (InetSocketAddress) listener.getAddress();
+    }
+
+    public InetSocketAddress start(final H2Config h2Config) throws Exception {
+        return start(Http2Processors.server(), h2Config);
+    }
+
+    public InetSocketAddress start(final H1Config h1Config) throws Exception {
+        return start(HttpProcessors.server(), h1Config);
     }
 
     public InetSocketAddress start() throws Exception {
-        return start(HttpProcessors.server(), H1Config.DEFAULT);
+        return start(H2Config.DEFAULT);
     }
 
 }

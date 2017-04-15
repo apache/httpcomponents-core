@@ -56,8 +56,8 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.nio.http.ClientSessionEndpoint;
-import org.apache.hc.core5.testing.nio.http2.Http2TestClient;
+import org.apache.hc.core5.testing.nio.ClientSessionEndpoint;
+import org.apache.hc.core5.testing.nio.Http2TestClient;
 import org.apache.hc.core5.util.TimeValue;
 
 public class Http2CompatibilityTest {
