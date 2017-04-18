@@ -31,6 +31,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.LookupRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.util.Args;
 
@@ -54,9 +55,9 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE)
 public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
 
-    private final UriPatternMatcher<HttpRequestHandler> matcher;
+    private final LookupRegistry<HttpRequestHandler> matcher;
 
-    protected UriHttpRequestHandlerMapper(final UriPatternMatcher<HttpRequestHandler> matcher) {
+    protected UriHttpRequestHandlerMapper(final LookupRegistry<HttpRequestHandler> matcher) {
         super();
         this.matcher = Args.notNull(matcher, "Pattern matcher");
     }
