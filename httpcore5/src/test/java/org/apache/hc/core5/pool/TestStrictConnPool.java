@@ -108,7 +108,7 @@ public class TestStrictConnPool {
     public void testLeaseIllegal() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
         try {
-            pool.lease(null, null, TimeValue.ZERO_MILLIS, null);
+            pool.lease(null, null, TimeValue.ZERO_MILLISECONDS, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }

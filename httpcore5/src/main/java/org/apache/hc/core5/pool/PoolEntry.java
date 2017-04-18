@@ -69,7 +69,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
     public PoolEntry(final T route, final TimeValue timeToLive) {
         super();
         this.route = Args.notNull(route, "Route");
-        this.timeToLive = timeToLive != null ? timeToLive : TimeValue.NEG_ONE_MILLIS;
+        this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
         this.connRef = new AtomicReference<>(null);
     }
 

@@ -90,7 +90,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
         Args.positive(maxTotal, "Max total value");
-        this.timeToLive = timeToLive != null ? timeToLive : TimeValue.NEG_ONE_MILLIS;
+        this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
         this.connPoolListener = connPoolListener;
         this.policy = policy != null ? policy : ConnPoolPolicy.LIFO;
         this.routeToPool = new HashMap<>();
@@ -106,7 +106,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
     }
 
     public StrictConnPool(final int defaultMaxPerRoute, final int maxTotal) {
-        this(defaultMaxPerRoute, maxTotal, TimeValue.NEG_ONE_MILLIS, ConnPoolPolicy.LIFO, null);
+        this(defaultMaxPerRoute, maxTotal, TimeValue.NEG_ONE_MILLISECONDS, ConnPoolPolicy.LIFO, null);
     }
 
     public boolean isShutdown() {
@@ -173,11 +173,11 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
 
     @Override
     public Future<PoolEntry<T, C>> lease(final T route, final Object state, final FutureCallback<PoolEntry<T, C>> callback) {
-        return lease(route, state, TimeValue.NEG_ONE_MILLIS, callback);
+        return lease(route, state, TimeValue.NEG_ONE_MILLISECONDS, callback);
     }
 
     public Future<PoolEntry<T, C>> lease(final T route, final Object state) {
-        return lease(route, state, TimeValue.NEG_ONE_MILLIS, null);
+        return lease(route, state, TimeValue.NEG_ONE_MILLISECONDS, null);
     }
 
     @Override

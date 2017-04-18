@@ -229,7 +229,7 @@ public final class IOReactorConfig {
         Builder() {
             this.selectInterval = 1000;
             this.ioThreadCount = AVAIL_PROCS;
-            this.soTimeout = TimeValue.ZERO_MILLIS;
+            this.soTimeout = TimeValue.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
             this.soKeepAlive = false;
@@ -302,7 +302,7 @@ public final class IOReactorConfig {
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval, ioThreadCount,
-                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLIS,
+                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLISECONDS,
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
                     soKeepAlive,

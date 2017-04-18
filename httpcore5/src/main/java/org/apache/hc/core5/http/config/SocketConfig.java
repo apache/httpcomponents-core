@@ -229,7 +229,7 @@ public class SocketConfig {
         private int backlogSize;
 
         Builder() {
-            this.soTimeout = TimeValue.ZERO_MILLIS;
+            this.soTimeout = TimeValue.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
             this.soKeepAlive = false;
@@ -300,7 +300,7 @@ public class SocketConfig {
 
         public SocketConfig build() {
             return new SocketConfig(
-                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLIS,
+                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLISECONDS,
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
                     soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize);

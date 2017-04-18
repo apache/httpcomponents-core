@@ -190,7 +190,7 @@ public class HttpRequester implements GracefullyCloseable {
         Args.notNull(request, "HTTP request");
         final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
-        final TimeValue timeout = connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLIS;
+        final TimeValue timeout = connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLISECONDS;
 
         try {
             poolEntry = leaseFuture.get(timeout.getDuration(), timeout.getTimeUnit());

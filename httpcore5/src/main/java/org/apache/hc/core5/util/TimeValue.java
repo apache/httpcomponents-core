@@ -40,10 +40,10 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class TimeValue {
 
-    public static final TimeValue MAX_VALUE = new TimeValue(Long.MAX_VALUE, TimeUnit.DAYS);
-    public static final TimeValue NEG_ONE_MILLIS = new TimeValue(-1, TimeUnit.MILLISECONDS);
-    public static final TimeValue NEG_ONE_SECONDS = new TimeValue(-1, TimeUnit.SECONDS);
-    public static final TimeValue ZERO_MILLIS = new TimeValue(0, TimeUnit.MILLISECONDS);
+    private static final int UNDEFINED = -1;
+    public static final TimeValue NEG_ONE_MILLISECONDS = new TimeValue(UNDEFINED, TimeUnit.MILLISECONDS);
+    public static final TimeValue NEG_ONE_SECONDS = new TimeValue(UNDEFINED, TimeUnit.SECONDS);
+    public static final TimeValue ZERO_MILLISECONDS = new TimeValue(0, TimeUnit.MILLISECONDS);
 
     /**
      * Returns the given {@code long} value as an {@code int} where long values out of int range are returned as
@@ -64,6 +64,55 @@ public class TimeValue {
             return Integer.MIN_VALUE;
         }
         return (int) value;
+    }
+
+    /**
+     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns the given
+     * {@code defaultValue}.
+     *
+     * @param timeValue
+     *            may be {@code null}
+     * @param defaultValue
+     *            may be {@code null}
+     * @return {@code timeValue} or {@code defaultValue}
+     */
+    public static TimeValue defaultsTo(final TimeValue timeValue, final TimeValue defaultValue) {
+        return timeValue != null ? timeValue : defaultValue;
+    }
+
+    /**
+     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns {@link #ZERO_MILLISECONDS}.
+     *
+     * @param timeValue
+     *            may be {@code null}
+     * @return {@code timeValue} or {@link #ZERO_MILLISECONDS}
+     */
+    public static TimeValue defaultsToZeroMillis(final TimeValue timeValue) {
+        return defaultsTo(timeValue, ZERO_MILLISECONDS);
+    }
+
+    /**
+     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
+     * {@link #NEG_ONE_SECONDS}.
+     *
+     * @param timeValue
+     *            may be {@code null}
+     * @return {@code timeValue} or {@link #NEG_ONE_SECONDS}
+     */
+    public static TimeValue defaultsToNegativeOneMillisecond(final TimeValue timeValue) {
+        return defaultsTo(timeValue, NEG_ONE_MILLISECONDS);
+    }
+
+    /**
+     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
+     * {@link #NEG_ONE_SECONDS}.
+     *
+     * @param timeValue
+     *            may be {@code null}
+     * @return {@code timeValue} or {@link #NEG_ONE_SECONDS}
+     */
+    public static TimeValue defaultsToNegativeOneSecond(final TimeValue timeValue) {
+        return defaultsTo(timeValue, NEG_ONE_SECONDS);
     }
 
     public static TimeValue of(final long duration, final TimeUnit timeUnit) {

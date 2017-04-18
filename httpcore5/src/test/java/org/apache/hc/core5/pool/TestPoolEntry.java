@@ -64,7 +64,7 @@ public class TestPoolEntry {
 
     @Test
     public void testValidInfinitely() throws Exception {
-        final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>("route1", TimeValue.ZERO_MILLIS);
+        final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>("route1", TimeValue.ZERO_MILLISECONDS);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         Assert.assertEquals(Long.MAX_VALUE, entry1.getValidityDeadline());
         Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
@@ -72,12 +72,12 @@ public class TestPoolEntry {
 
     @Test
     public void testExpiry() throws Exception {
-        final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>("route1", TimeValue.ZERO_MILLIS);
+        final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>("route1", TimeValue.ZERO_MILLISECONDS);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
         entry1.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
         Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiry());
-        entry1.updateExpiry(TimeValue.ZERO_MILLIS);
+        entry1.updateExpiry(TimeValue.ZERO_MILLISECONDS);
         Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
 
         final PoolEntry<String, HttpConnection> entry2 = new PoolEntry<>("route1", TimeValue.of(100L, TimeUnit.MILLISECONDS));
