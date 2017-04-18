@@ -38,7 +38,7 @@ public class TestUriPatternMatcher {
         final Object h2 = new Object();
         final Object h3 = new Object();
 
-        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register("/h1", h1);
         matcher.register("/h2", h2);
         matcher.register("/h3", h3);
@@ -62,7 +62,7 @@ public class TestUriPatternMatcher {
 
     @Test(expected=IllegalArgumentException.class)
     public void testRegisterNull() throws Exception {
-        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register(null, null);
     }
 
@@ -73,7 +73,7 @@ public class TestUriPatternMatcher {
         final Object h3 = new Object();
         final Object def = new Object();
 
-        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register("*", def);
         matcher.register("/one/*", h1);
         matcher.register("/one/two/*", h2);
@@ -104,7 +104,7 @@ public class TestUriPatternMatcher {
         final Object h2 = new Object();
         final Object def = new Object();
 
-        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register("*", def);
         matcher.register("*.view", h1);
         matcher.register("*.form", h2);
@@ -129,7 +129,7 @@ public class TestUriPatternMatcher {
         final Object h1 = new Object();
         final Object h2 = new Object();
 
-        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register("/ma*", h1);
         matcher.register("*tch", h2);
 
@@ -140,13 +140,13 @@ public class TestUriPatternMatcher {
 
     @Test(expected=IllegalArgumentException.class)
     public void testRegisterInvalidInput() throws Exception {
-        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register(null, null);
     }
 
     @Test(expected=IllegalArgumentException.class)
     public void testLookupInvalidInput() throws Exception {
-        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.lookup(null);
     }
 
