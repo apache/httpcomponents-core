@@ -40,9 +40,9 @@ import org.apache.hc.core5.util.Args;
  * <br>
  * Patterns may have three formats:
  * <ul>
- *   <li>{@code *}</li>
- *   <li>{@code *&lt;uri&gt;}</li>
- *   <li>{@code &lt;uri&gt;*}</li>
+ * <li>{@code *}</li>
+ * <li>{@code *<uri>}</li>
+ * <li>{@code <uri>*}</li>
  * </ul>
  * <br>
  * This class can be used to map an instance of
