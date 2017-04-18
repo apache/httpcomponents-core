@@ -57,7 +57,7 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
 
     private final LookupRegistry<HttpRequestHandler> matcher;
 
-    protected UriHttpRequestHandlerMapper(final LookupRegistry<HttpRequestHandler> matcher) {
+    public UriHttpRequestHandlerMapper(final LookupRegistry<HttpRequestHandler> matcher) {
         super();
         this.matcher = Args.notNull(matcher, "Pattern matcher");
     }
