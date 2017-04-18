@@ -27,7 +27,7 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.net.InetAddress;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import javax.net.ServerSocketFactory;
@@ -164,7 +164,7 @@ public class ServerBootstrap {
             return this;
         }
         if (handlerMap == null) {
-            handlerMap = new HashMap<>();
+            handlerMap = new LinkedHashMap<>();
         }
         handlerMap.put(pattern, handler);
         return this;

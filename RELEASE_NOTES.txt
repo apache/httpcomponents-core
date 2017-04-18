@@ -13,6 +13,8 @@ Changelog
 
 * HTTPCORE-451: Add a TimeValue class to wrap a long and a TimeUnit.
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-453: ServerBootstrap should traverse handler map in insertion order.
 
 Release 5.0-ALPHA2
 -------------------
