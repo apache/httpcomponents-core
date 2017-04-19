@@ -44,9 +44,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.ContentType;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -129,7 +129,7 @@ public class TestTestingFramework {
         final ClientTestingAdapter adapter = Mockito.mock(ClientTestingAdapter.class);
 
         // Have isRequestSupported() return false so no test will run.
-        Mockito.when(adapter.isRequestSupported(Mockito.anyMap()))
+        Mockito.when(adapter.isRequestSupported(Mockito.<String, Object>anyMap()))
                      .thenReturn(false);
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
@@ -142,8 +142,8 @@ public class TestTestingFramework {
 
     @SuppressWarnings("unchecked")
     private void verifyCallMethodNeverCalled(final ClientTestingAdapter adapter) throws Exception {
-        Mockito.verify(adapter, Mockito.never()).execute(Mockito.anyString(), Mockito.anyMap(),
-                       Mockito.any(TestingFrameworkRequestHandler.class), Mockito.anyMap());
+        Mockito.verify(adapter, Mockito.never()).execute(Mockito.anyString(), Mockito.<String, Object>anyMap(),
+                       Mockito.any(TestingFrameworkRequestHandler.class), Mockito.<String, Object>anyMap());
     }
 
     private TestingFramework newFrameworkAndSetAdapter(final ClientTestingAdapter adapter)

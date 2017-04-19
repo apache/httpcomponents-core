@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 /**
@@ -128,7 +128,7 @@ public class TestChunkEncoder {
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
 
-        Mockito.verify(channel, Mockito.never()).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);

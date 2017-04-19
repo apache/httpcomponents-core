@@ -41,7 +41,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 /**
@@ -318,8 +318,8 @@ public class TestIdentityEncoder {
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 0);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
 
-        Mockito.verify(channel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.never()).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
         Assert.assertEquals(13, metrics.getBytesTransferred());
@@ -342,8 +342,8 @@ public class TestIdentityEncoder {
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 32);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
 
-        Mockito.verify(channel, Mockito.never()).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(1)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.never()).flush(channel);
 
         Assert.assertEquals(0, metrics.getBytesTransferred());
@@ -365,8 +365,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
         Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
-        Mockito.verify(channel, Mockito.never()).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.never()).flush(channel);
 
         Assert.assertEquals(0, metrics.getBytesTransferred());
@@ -389,8 +389,8 @@ public class TestIdentityEncoder {
         final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics, 2);
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
 
-        Mockito.verify(channel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.never()).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
         Assert.assertEquals(13, metrics.getBytesTransferred());
@@ -413,8 +413,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
         Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
-        Mockito.verify(channel, Mockito.times(5)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(5)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(3)).flush(channel);
 
         Assert.assertEquals(18, metrics.getBytesTransferred());
@@ -438,8 +438,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
         Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
-        Mockito.verify(channel, Mockito.times(4)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(4)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(2)).flush(channel);
 
         Assert.assertEquals(18, metrics.getBytesTransferred());
@@ -465,8 +465,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(2, encoder.write(CodecTestUtils.wrap("--")));
         Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
-        Mockito.verify(channel, Mockito.times(4)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(5)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(4)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(5)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(2)).flush(channel);
 
         Assert.assertEquals(21, metrics.getBytesTransferred());
@@ -487,8 +487,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
         Assert.assertEquals(6, encoder.write(CodecTestUtils.wrap("-stuff")));
 
-        Mockito.verify(channel, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(1)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
         Assert.assertEquals(8, metrics.getBytesTransferred());
@@ -510,8 +510,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("-much more stuff")));
 
-        Mockito.verify(channel, Mockito.times(2)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(1)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(1)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
         Assert.assertEquals(21, metrics.getBytesTransferred());
@@ -540,8 +540,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(0, encoder.write(CodecTestUtils.wrap("-")));
         Assert.assertEquals(0, encoder.write(CodecTestUtils.wrap("more stuff")));
 
-        Mockito.verify(channel, Mockito.times(5)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(6)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(5)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(6)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(4)).flush(channel);
 
         Assert.assertEquals(8, metrics.getBytesTransferred());
@@ -565,8 +565,8 @@ public class TestIdentityEncoder {
         Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
         Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("much more stuff")));
 
-        Mockito.verify(channel, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
-        Mockito.verify(outbuf, Mockito.times(3)).write(Matchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
         Assert.assertEquals(8, metrics.getBytesTransferred());
