@@ -40,7 +40,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class TimeValue {
 
-    private static final int UNDEFINED = -1;
+    static final int UNDEFINED = -1;
     public static final TimeValue NEG_ONE_MILLISECONDS = TimeValue.of(UNDEFINED, TimeUnit.MILLISECONDS);
     public static final TimeValue NEG_ONE_SECONDS = TimeValue.of(UNDEFINED, TimeUnit.SECONDS);
     public static final TimeValue ZERO_MILLISECONDS = TimeValue.of(0, TimeUnit.MILLISECONDS);
@@ -115,6 +115,15 @@ public class TimeValue {
         return defaultsTo(timeValue, NEG_ONE_SECONDS);
     }
 
+    /**
+     * Creates a TimeValue.
+     * 
+     * @param duration
+     *            the time duration in the given {@code timeUnit}.
+     * @param timeUnit
+     *            the time unit for the given durarion.
+     * @return a Timeout
+     */
     public static TimeValue of(final long duration, final TimeUnit timeUnit) {
         return new TimeValue(duration, timeUnit);
     }
@@ -233,7 +242,7 @@ public class TimeValue {
     @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, duration);
+        hash = LangUtils.hashCode(hash, Long.valueOf(duration));
         hash = LangUtils.hashCode(hash, timeUnit);
         return hash;
     }
