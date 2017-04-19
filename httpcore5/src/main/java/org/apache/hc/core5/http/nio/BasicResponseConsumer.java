@@ -67,7 +67,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
                     if (resultCallback != null) {
                         resultCallback.completed(result);
                     }
-                    resultCallback.completed(result);
+                    dataConsumer.releaseResources();
                 }
 
                 @Override
