@@ -30,7 +30,7 @@ package org.apache.hc.core5.reactor.ssl;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.net.NamedEndpoint;
 
 /**
  * Callback interface that can be used to customize various aspects of
@@ -47,10 +47,11 @@ public interface SSLSessionVerifier {
      * For instance this would be the right place to enforce SSL cipher
      * strength, validate certificate chain and do hostname checks.
      *
-     * @param iosession the underlying IOSession for the SSL connection.
+     * @param endpoint the endpoint name for a client side session or {@code null}
+     *                 for a server side session.
      * @param sslsession newly created SSL session.
      * @throws SSLException if case of SSL protocol error.
      */
-    void verify(IOSession iosession, SSLSession sslsession) throws SSLException;
+    void verify(NamedEndpoint endpoint, SSLSession sslsession) throws SSLException;
 
 }

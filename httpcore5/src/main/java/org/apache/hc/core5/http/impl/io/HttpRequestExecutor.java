@@ -139,6 +139,7 @@ public class HttpRequestExecutor {
         try {
             ClassicHttpResponse response = null;
 
+            context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
 
             conn.sendRequestHeader(request);

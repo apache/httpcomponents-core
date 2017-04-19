@@ -39,6 +39,7 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
@@ -46,31 +47,32 @@ import org.apache.hc.core5.reactor.ssl.SSLIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Asserts;
 
 /**
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-class ManagedIOSession implements IOSession, TransportSecurityLayer {
+class InternalIOSession implements TlsCapableIOSession {
 
     private final NamedEndpoint namedEndpoint;
     private final IOSession ioSession;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
-    private final Queue<ManagedIOSession> closedSessions;
+    private final Queue<InternalIOSession> closedSessions;
+    private final AtomicBoolean connected;
     private final AtomicBoolean closed;
 
     private volatile long lastAccessTime;
 
-    ManagedIOSession(
+    InternalIOSession(
             final NamedEndpoint namedEndpoint,
             final IOSession ioSession,
-            final Queue<ManagedIOSession> closedSessions) {
+            final Queue<InternalIOSession> closedSessions) {
         this.namedEndpoint = namedEndpoint;
         this.ioSession = ioSession;
         this.closedSessions = closedSessions;
         this.tlsSessionRef = new AtomicReference<>(null);
+        this.connected = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
         updateAccessTime();
     }
@@ -105,19 +107,21 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
 
     void onConnected() {
         try {
-            final IOEventHandler handler = getEventHandler();
             final SSLIOSession tlsSession = tlsSessionRef.get();
             if (tlsSession != null) {
                 try {
                     if (!tlsSession.isInitialized()) {
                         tlsSession.initialize();
                     }
-                    handler.connected(this);
                 } catch (final Exception ex) {
+                    final IOEventHandler handler = getEventHandler();
                     handler.exception(tlsSession, ex);
                 }
             } else {
-                handler.connected(this);
+                if (connected.compareAndSet(false, true)) {
+                    final IOEventHandler handler = getEventHandler();
+                    handler.connected(ioSession);
+                }
             }
         } catch (final RuntimeException ex) {
             shutdown(ShutdownType.IMMEDIATE);
@@ -127,7 +131,6 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
 
     void onInputReady() {
         try {
-            final IOEventHandler handler = getEventHandler();
             final SSLIOSession tlsSession = tlsSessionRef.get();
             if (tlsSession != null) {
                 try {
@@ -136,16 +139,19 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                     }
                     if (tlsSession.isAppInputReady()) {
                         do {
-                            handler.inputReady(this);
+                            final IOEventHandler handler = getEventHandler();
+                            handler.inputReady(tlsSession);
                         } while (tlsSession.hasInputDate());
                     }
                     tlsSession.inboundTransport();
                 } catch (final IOException ex) {
+                    final IOEventHandler handler = getEventHandler();
                     handler.exception(tlsSession, ex);
                     tlsSession.shutdown(ShutdownType.IMMEDIATE);
                 }
             } else {
-                handler.inputReady(this);
+                final IOEventHandler handler = getEventHandler();
+                handler.inputReady(ioSession);
             }
         } catch (final RuntimeException ex) {
             shutdown(ShutdownType.IMMEDIATE);
@@ -155,7 +161,6 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
 
     void onOutputReady() {
         try {
-            final IOEventHandler handler = getEventHandler();
             final SSLIOSession tlsSession = tlsSessionRef.get();
             if (tlsSession != null) {
                 try {
@@ -163,15 +168,18 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                         tlsSession.initialize();
                     }
                     if (tlsSession.isAppOutputReady()) {
-                        handler.outputReady(this);
+                        final IOEventHandler handler = getEventHandler();
+                        handler.outputReady(tlsSession);
                     }
                     tlsSession.outboundTransport();
                 } catch (final IOException ex) {
+                    final IOEventHandler handler = getEventHandler();
                     handler.exception(tlsSession, ex);
                     tlsSession.shutdown(ShutdownType.IMMEDIATE);
                 }
             } else {
-                handler.outputReady(this);
+                final IOEventHandler handler = getEventHandler();
+                handler.outputReady(ioSession);
             }
         } catch (final RuntimeException ex) {
             shutdown(ShutdownType.IMMEDIATE);
@@ -182,7 +190,7 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
     void onTimeout() {
         try {
             final IOEventHandler handler = getEventHandler();
-            handler.timeout(this);
+            handler.timeout(ioSession);
             final SSLIOSession tlsSession = tlsSessionRef.get();
             if (tlsSession != null) {
                 if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
@@ -198,11 +206,11 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
 
     void onDisconnected() {
         final IOEventHandler handler = getEventHandler();
-        handler.disconnected(this);
+        handler.disconnected(ioSession);
     }
 
     @Override
-    public void start(
+    public void startTls(
             final SSLContext sslContext,
             final SSLBufferManagement sslBufferManagement,
             final SSLSessionInitializer initializer,
@@ -214,7 +222,18 @@ class ManagedIOSession implements IOSession, TransportSecurityLayer {
                 sslContext,
                 sslBufferManagement,
                 initializer,
-                verifier))) {
+                verifier,
+                new Callback<SSLIOSession>() {
+
+                    @Override
+                    public void execute(final SSLIOSession sslSession) {
+                        if (connected.compareAndSet(false, true)) {
+                            final IOEventHandler handler = getEventHandler();
+                            handler.connected(sslSession);
+                        }
+                    }
+
+                }))) {
             throw new IllegalStateException("TLS already activated");
         }
     }

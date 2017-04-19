@@ -48,8 +48,7 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -136,14 +135,14 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
+    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
         return new ServerHttp1IOEventHandler(createStreamDuplexer(ioSession));
     }
 
-    protected ServerHttp1StreamDuplexer createStreamDuplexer(final IOSession ioSession) {
-        if (tlsStrategy != null && ioSession instanceof TransportSecurityLayer) {
+    protected ServerHttp1StreamDuplexer createStreamDuplexer(final TlsCapableIOSession ioSession) {
+        if (tlsStrategy != null) {
             tlsStrategy.upgrade(
-                    (TransportSecurityLayer) ioSession,
+                    ioSession,
                     null,
                     ioSession.getLocalAddress(),
                     ioSession.getRemoteAddress());

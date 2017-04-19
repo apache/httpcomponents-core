@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -83,7 +83,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     @Override
-    public ClientHttpProtocolNegotiator createHandler(final IOSession ioSession, final Object attachment) {
+    public ClientHttpProtocolNegotiator createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
         return new ClientHttpProtocolNegotiator(ioSession, httpProcessor, pushHandlerFactory,
                 charCodingConfig, h2Config, connectionListener, streamListener);
     }

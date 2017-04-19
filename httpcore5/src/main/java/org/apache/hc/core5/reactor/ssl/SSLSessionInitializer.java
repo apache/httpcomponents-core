@@ -27,8 +27,9 @@
 
 package org.apache.hc.core5.reactor.ssl;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
+
+import org.apache.hc.core5.net.NamedEndpoint;
 
 /**
  * Callback interface that can be used to customize various aspects of
@@ -40,12 +41,14 @@ public interface SSLSessionInitializer {
 
     /**
      * Triggered when the SSL connection is being initialized. Custom handlers
-     * can use this callback to customize properties of the {@link SSLEngine}
-     * used to establish the SSL session.
+     * can use this callback to customize properties of the {@link javax.net.ssl.SSLEngine}
+     * used to establish the SSL session by modifying the given
+     * {@link SSLParameters}.
      *
-     * @param sslengine the SSL engine.
-     * @throws SSLException if case of SSL protocol error.
+     * @param endpoint the endpoint name for a client side session or {@code null}
+     *                 for a server side session.
+     * @param sslParameters the actual SSL parameters.
      */
-    void initialize(SSLEngine sslengine) throws SSLException;
+    void initialize(NamedEndpoint endpoint, SSLParameters sslParameters);
 
 }

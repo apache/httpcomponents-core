@@ -30,6 +30,8 @@ package org.apache.hc.core5.http;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.io.GracefullyCloseable;
 
 /**
@@ -43,6 +45,11 @@ public interface HttpConnection extends GracefullyCloseable {
      * Returns connection endpoint details.
      */
     EndpointDetails getEndpointDetails();
+
+    /**
+     * Returns SSL session or {@code null} if TLS has not been activated.
+     */
+    SSLSession getSSLSession();
 
     /**
      * Closes this connection gracefully.

@@ -32,6 +32,8 @@ import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EndpointDetails;
@@ -48,6 +50,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -58,7 +61,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     final static byte[] PREFACE = ClientHttpProtocolNegotiator.PREFACE;
 
-    private final IOSession ioSession;
+    private final TlsCapableIOSession ioSession;
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final CharCodingConfig charCodingConfig;
@@ -68,7 +71,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final Http2StreamListener streamListener;
 
     public ServerHttpProtocolNegotiator(
-            final IOSession ioSession,
+            final TlsCapableIOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final CharCodingConfig charCodingConfig,
@@ -85,7 +88,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
         this.streamListener = streamListener;
     }
 
-    protected ServerHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
+    protected ServerHttp2StreamMultiplexer createStreamMultiplexer(final TlsCapableIOSession ioSession) {
         return new ServerHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
                 exchangeHandlerFactory, charCodingConfig, h2Config, connectionListener, streamListener);
     }
@@ -107,7 +110,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                         throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected HTTP/2 preface");
                     }
                 }
-                final ServerHttp2StreamMultiplexer streamMultiplexer = createStreamMultiplexer(session);
+                final ServerHttp2StreamMultiplexer streamMultiplexer = createStreamMultiplexer(ioSession);
                 streamMultiplexer.onConnect(bytebuf.hasRemaining() ? bytebuf : null);
                 streamMultiplexer.onInput();
                 session.setHandler(new ServerHttp2IOEventHandler(streamMultiplexer));
@@ -139,6 +142,11 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void disconnected(final IOSession session) {
+    }
+
+    @Override
+    public SSLSession getSSLSession() {
+        return ioSession.getSSLSession();
     }
 
     @Override

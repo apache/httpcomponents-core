@@ -43,6 +43,7 @@ import org.apache.hc.core5.reactor.IOReactorExceptionHandler;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -63,7 +64,7 @@ public class TestDefaultListeningIOReactor {
         this.ioreactor = new DefaultListeningIOReactor(new IOEventHandlerFactory() {
 
             @Override
-            public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
+            public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
                 return new IOEventHandler() {
 
                     @Override

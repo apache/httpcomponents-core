@@ -33,12 +33,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
 
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 
-final class H2TlsSupport {
+public final class H2TlsSupport {
 
     private final static String[] PROTOCOL_BLACKLIST = {
             "TLSv1",
@@ -362,11 +362,11 @@ final class H2TlsSupport {
         return new SSLSessionInitializer() {
 
             @Override
-            public void initialize(final SSLEngine sslengine) throws SSLException {
-                sslengine.setEnabledProtocols(H2TlsSupport.excludeBlacklistedProtocols(sslengine.getEnabledProtocols()));
-                sslengine.setEnabledCipherSuites(H2TlsSupport.excludeBlacklistedCiphers(sslengine.getEnabledCipherSuites()));
+            public void initialize(final NamedEndpoint endpoint, final SSLParameters sslParameters) {
+                sslParameters.setProtocols(H2TlsSupport.excludeBlacklistedProtocols(sslParameters.getProtocols()));
+                sslParameters.setCipherSuites(H2TlsSupport.excludeBlacklistedCiphers(sslParameters.getCipherSuites()));
                 if (initializer != null) {
-                    initializer.initialize(sslengine);
+                    initializer.initialize(endpoint, sslParameters);
                 }
             }
 

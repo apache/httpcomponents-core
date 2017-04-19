@@ -122,6 +122,7 @@ import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
@@ -1356,7 +1357,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
             @Override
             protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(
-                    final IOSession ioSession,
+                    final TlsCapableIOSession ioSession,
                     final HttpProcessor httpProcessor,
                     final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
                     final H1Config h1Config,

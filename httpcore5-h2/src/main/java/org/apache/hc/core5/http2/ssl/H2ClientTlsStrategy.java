@@ -94,7 +94,7 @@ public class H2ClientTlsStrategy implements TlsStrategy {
             final String... parameters) {
         final String scheme = host != null ? host.getSchemeName() : null;
         if ("https".equalsIgnoreCase(scheme)) {
-            tlsSession.start(sslContext, sslBufferManagement,
+            tlsSession.startTls(sslContext, sslBufferManagement,
                     H2TlsSupport.decorateInitializer(initializer), verifier);
         }
     }

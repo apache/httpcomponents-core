@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.protocol;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -46,6 +48,12 @@ public class HttpCoreContext implements HttpContext {
      * represents the actual connection endpoint details.
      */
     public static final String CONNECTION_ENDPOINT  = HttpContext.RESERVED_PREFIX + "connection-endpoint";
+
+    /**
+     * Attribute name of a {@link SSLSession} object that
+     * represents the actual connection endpoint details.
+     */
+    public static final String SSL_SESSION = HttpContext.RESERVED_PREFIX + "ssl-ession";
 
     /**
      * Attribute name of a {@link HttpRequest} object that
@@ -123,6 +131,13 @@ public class HttpCoreContext implements HttpContext {
             return null;
         }
         return clazz.cast(obj);
+    }
+
+    /**
+     * @since 5.0
+     */
+    public SSLSession getSSLSession() {
+        return getAttribute(SSL_SESSION, SSLSession.class);
     }
 
     /**

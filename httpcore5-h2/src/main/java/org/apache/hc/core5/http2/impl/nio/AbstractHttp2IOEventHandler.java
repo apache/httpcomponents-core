@@ -30,6 +30,8 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
@@ -109,6 +111,11 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void setSocketTimeout(final int timeout) {
         streamMultiplexer.setSocketTimeout(timeout);
+    }
+
+    @Override
+    public SSLSession getSSLSession() {
+        return streamMultiplexer.getSSLSession();
     }
 
     @Override

@@ -43,6 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
@@ -81,7 +83,7 @@ import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 
@@ -94,7 +96,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
 
     private final Mode mode;
-    private final IOSession ioSession;
+    private final TlsCapableIOSession ioSession;
     private final FrameFactory frameFactory;
     private final StreamIdGenerator idGenerator;
     private final HttpProcessor httpProcessor;
@@ -130,7 +132,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
     AbstractHttp2StreamMultiplexer(
             final Mode mode,
-            final IOSession ioSession,
+            final TlsCapableIOSession ioSession,
             final FrameFactory frameFactory,
             final StreamIdGenerator idGenerator,
             final HttpProcessor httpProcessor,
@@ -591,6 +593,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                         remoteConfig.getInitialWindowSize());
                 final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
                 final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
+                context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
                 context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
                 final Http2StreamHandler streamHandler = new ClientHttp2StreamHandler(
                         channel,
@@ -1183,6 +1186,11 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     }
 
     @Override
+    public SSLSession getSSLSession() {
+        return ioSession.getSSLSession();
+    }
+
+    @Override
     public EndpointDetails getEndpointDetails() {
         if (endpointDetails == null) {
             endpointDetails = new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
@@ -1312,6 +1320,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                     localConfig.getInitialWindowSize(),
                     remoteConfig.getInitialWindowSize());
             final HttpCoreContext context = HttpCoreContext.create();
+            context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
             final Http2StreamHandler streamHandler = new ServerPushHttp2StreamHandler(
                     channel, httpProcessor, connMetrics, pushProducer, context);

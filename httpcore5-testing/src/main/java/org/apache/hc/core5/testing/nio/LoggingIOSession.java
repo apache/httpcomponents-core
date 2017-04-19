@@ -39,21 +39,20 @@ import javax.net.ssl.SSLSession;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.testing.classic.Wire;
 import org.apache.logging.log4j.Logger;
-public class LoggingIOSession implements IOSession, TransportSecurityLayer {
+public class LoggingIOSession implements TlsCapableIOSession {
 
     private final Logger log;
     private final Wire wirelog;
-    private final IOSession session;
+    private final TlsCapableIOSession session;
     private final ByteChannel channel;
 
-    public LoggingIOSession(final IOSession session, final Logger log, final Logger wirelog) {
+    public LoggingIOSession(final TlsCapableIOSession session, final Logger log, final Logger wirelog) {
         super();
         this.session = session;
         this.log = log;
@@ -61,7 +60,7 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
         this.channel = wirelog != null ? new LoggingByteChannel() : session.channel();
     }
 
-    public LoggingIOSession(final IOSession session, final Logger log) {
+    public LoggingIOSession(final TlsCapableIOSession session, final Logger log) {
         this(session, log, null);
     }
 
@@ -198,25 +197,17 @@ public class LoggingIOSession implements IOSession, TransportSecurityLayer {
     }
 
     @Override
-    public void start(
+    public void startTls(
             final SSLContext sslContext,
             final SSLBufferManagement sslBufferManagement,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) throws UnsupportedOperationException {
-        if (session instanceof TransportSecurityLayer) {
-            ((TransportSecurityLayer) session).start(sslContext, sslBufferManagement, initializer, verifier);
-        } else {
-            throw new UnsupportedOperationException();
-        }
+        session.startTls(sslContext, sslBufferManagement, initializer, verifier);
     }
 
     @Override
     public SSLSession getSSLSession() {
-        if (session instanceof TransportSecurityLayer) {
-            return ((TransportSecurityLayer) session).getSSLSession();
-        } else {
-            return null;
-        }
+        return session.getSSLSession();
     }
 
     @Override

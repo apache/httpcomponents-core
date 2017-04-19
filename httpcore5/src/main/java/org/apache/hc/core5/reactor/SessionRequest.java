@@ -84,12 +84,12 @@ public interface SessionRequest extends Cancellable {
     boolean isCompleted();
 
     /**
-     * Returns {@link IOSession} instance created as a result of this request
+     * Returns {@link TlsCapableIOSession} instance created as a result of this request
      * or {@code null} if the request is still pending.
      *
      * @return I/O session or {@code null} if the request is still pending.
      */
-    IOSession getSession();
+    TlsCapableIOSession getSession();
 
     /**
      * Returns {@link IOException} instance if the request could not be

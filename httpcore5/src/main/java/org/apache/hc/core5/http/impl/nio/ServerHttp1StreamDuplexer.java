@@ -63,7 +63,7 @@ import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
@@ -83,7 +83,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     private volatile ServerHttp1StreamHandler incoming;
 
     public ServerHttp1StreamDuplexer(
-            final IOSession ioSession,
+            final TlsCapableIOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final H1Config h1Config,
@@ -302,6 +302,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
         final ServerHttp1StreamHandler streamHandler;
         final HttpCoreContext context = HttpCoreContext.create();
+        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
         if (outgoing == null) {
             streamHandler = new ServerHttp1StreamHandler(

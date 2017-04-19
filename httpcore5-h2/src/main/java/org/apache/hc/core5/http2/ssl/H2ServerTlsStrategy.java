@@ -101,7 +101,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         final int port = ((InetSocketAddress) localAddress).getPort();
         for (final int securePort: securePorts) {
             if (port == securePort) {
-                tlsSession.start(sslContext, sslBufferManagement,
+                tlsSession.startTls(sslContext, sslBufferManagement,
                         H2TlsSupport.decorateInitializer(initializer), verifier);
                 break;
             }

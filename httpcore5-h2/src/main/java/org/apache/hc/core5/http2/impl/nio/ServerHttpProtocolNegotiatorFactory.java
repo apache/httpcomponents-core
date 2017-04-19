@@ -37,8 +37,7 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -82,10 +81,10 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     @Override
-    public ServerHttpProtocolNegotiator createHandler(final IOSession ioSession, final Object attachment) {
-        if (tlsStrategy != null && ioSession instanceof TransportSecurityLayer) {
+    public ServerHttpProtocolNegotiator createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+        if (tlsStrategy != null) {
             tlsStrategy.upgrade(
-                    (TransportSecurityLayer) ioSession,
+                    ioSession,
                     null,
                     ioSession.getLocalAddress(),
                     ioSession.getRemoteAddress());

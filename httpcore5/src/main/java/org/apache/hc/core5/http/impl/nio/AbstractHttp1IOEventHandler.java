@@ -30,6 +30,8 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.io.ShutdownType;
@@ -108,6 +110,11 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void setSocketTimeout(final int timeout) {
         streamDuplexer.setSocketTimeout(timeout);
+    }
+
+    @Override
+    public SSLSession getSSLSession() {
+        return streamDuplexer.getSSLSession();
     }
 
     @Override

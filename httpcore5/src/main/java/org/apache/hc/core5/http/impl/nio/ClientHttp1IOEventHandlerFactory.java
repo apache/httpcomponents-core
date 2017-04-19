@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -116,11 +116,11 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
+    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
         return new ClientHttp1IOEventHandler(createStreamDuplexer(ioSession));
     }
 
-    protected ClientHttp1StreamDuplexer createStreamDuplexer(final IOSession ioSession) {
+    protected ClientHttp1StreamDuplexer createStreamDuplexer(final TlsCapableIOSession ioSession) {
         return new ClientHttp1StreamDuplexer(
                 ioSession,
                 httpProcessor,

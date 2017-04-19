@@ -33,6 +33,8 @@ import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EndpointDetails;
@@ -51,6 +53,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -65,7 +68,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             0x2f, 0x32, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x53, 0x4d,
             0x0d, 0x0a, 0x0d, 0x0a};
 
-    private final IOSession ioSession;
+    private final TlsCapableIOSession ioSession;
     private final HttpProcessor httpProcessor;
     private final CharCodingConfig charCodingConfig;
     private final H2Config h2Config;
@@ -75,7 +78,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final ByteBuffer preface;
 
     public ClientHttpProtocolNegotiator(
-            final IOSession ioSession,
+            final TlsCapableIOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final CharCodingConfig charCodingConfig,
@@ -92,7 +95,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         this.preface = ByteBuffer.wrap(PREFACE);
     }
 
-    protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
+    protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final TlsCapableIOSession ioSession) {
         return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
                 pushHandlerFactory, charCodingConfig, h2Config, connectionListener, streamListener);
     }
@@ -164,6 +167,11 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void disconnected(final IOSession session) {
+    }
+
+    @Override
+    public SSLSession getSSLSession() {
+        return ioSession.getSSLSession();
     }
 
     @Override

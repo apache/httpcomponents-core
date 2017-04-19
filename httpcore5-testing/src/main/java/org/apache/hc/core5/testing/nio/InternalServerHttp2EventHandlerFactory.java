@@ -41,8 +41,7 @@ import org.apache.hc.core5.http2.impl.nio.ServerHttp2StreamMultiplexer;
 import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiator;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,10 +68,10 @@ class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final IOSession ioSession, final Object attachment) {
+    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
         final String id = ioSession.getId();
-        if (sslContext != null && ioSession instanceof TransportSecurityLayer) {
-            ((TransportSecurityLayer) ioSession).start(sslContext, null ,null, null);
+        if (sslContext != null) {
+            ioSession.startTls(sslContext, null ,null, null);
         }
         final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
         return new LoggingIOEventHandler(new ServerHttpProtocolNegotiator(
@@ -104,7 +103,7 @@ class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {
                 }, new InternalHttp2StreamListener(id)) {
 
             @Override
-            protected ServerHttp2StreamMultiplexer createStreamMultiplexer(final IOSession ioSession) {
+            protected ServerHttp2StreamMultiplexer createStreamMultiplexer(final TlsCapableIOSession ioSession) {
                 return super.createStreamMultiplexer(new LoggingIOSession(ioSession, sessionLog));
             }
         }, id, sessionLog);

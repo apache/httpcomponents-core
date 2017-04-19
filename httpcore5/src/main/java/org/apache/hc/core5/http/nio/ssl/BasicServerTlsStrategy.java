@@ -100,7 +100,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
         final int port = ((InetSocketAddress) localAddress).getPort();
         for (final int securePort: securePorts) {
             if (port == securePort) {
-                tlsSession.start(sslContext, sslBufferManagement, initializer, verifier);
+                tlsSession.startTls(sslContext, sslBufferManagement, initializer, verifier);
                 break;
             }
         }

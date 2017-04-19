@@ -39,7 +39,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -52,7 +52,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
 
     public ServerHttp2StreamMultiplexer(
-            final IOSession ioSession,
+            final TlsCapableIOSession ioSession,
             final FrameFactory frameFactory,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
@@ -66,7 +66,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     }
 
     public ServerHttp2StreamMultiplexer(
-            final IOSession ioSession,
+            final TlsCapableIOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final CharCodingConfig charCodingConfig,
@@ -81,6 +81,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics) throws IOException {
         final HttpCoreContext context = HttpCoreContext.create();
+        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
         return new ServerHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory, context);
     }

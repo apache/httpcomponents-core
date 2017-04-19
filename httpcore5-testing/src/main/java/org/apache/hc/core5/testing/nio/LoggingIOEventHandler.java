@@ -30,6 +30,8 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
@@ -95,6 +97,11 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
             log.debug(session + " disconnected");
         }
         handler.disconnected(session);
+    }
+
+    @Override
+    public SSLSession getSSLSession() {
+        return handler.getSSLSession();
     }
 
     @Override

@@ -58,7 +58,7 @@ class IOReactorImpl implements IOReactor {
     private final IOReactorConfig reactorConfig;
     private final IOEventHandlerFactory eventHandlerFactory;
     private final Selector selector;
-    private final Queue<ManagedIOSession> closedSessions;
+    private final Queue<InternalIOSession> closedSessions;
     private final Queue<PendingSession> pendingSessions;
     private final AtomicReference<IOReactorStatus> status;
     private final AtomicBoolean shutdownInitiated;
@@ -207,7 +207,7 @@ class IOReactorImpl implements IOReactor {
         if (this.sessionShutdownCallback != null) {
             final Set<SelectionKey> keys = this.selector.keys();
             for (final SelectionKey key : keys) {
-                final ManagedIOSession session = (ManagedIOSession) key.attachment();
+                final InternalIOSession session = (InternalIOSession) key.attachment();
                 if (session != null) {
                     this.sessionShutdownCallback.execute(session);
                 }
@@ -239,7 +239,7 @@ class IOReactorImpl implements IOReactor {
     }
 
     private void processEvent(final SelectionKey key) {
-        final ManagedIOSession session = (ManagedIOSession) key.attachment();
+        final InternalIOSession session = (InternalIOSession) key.attachment();
         try {
             if (key.isReadable()) {
                 session.updateAccessTime();
@@ -260,13 +260,13 @@ class IOReactorImpl implements IOReactor {
     private void processPendingSessions() throws IOReactorException {
         PendingSession pendingSession;
         while ((pendingSession = this.pendingSessions.poll()) != null) {
-            final ManagedIOSession session;
+            final InternalIOSession session;
             try {
                 final SocketChannel socketChannel = pendingSession.socketChannel;
                 final SessionRequestImpl sessionRequest = pendingSession.sessionRequest;
                 socketChannel.configureBlocking(false);
                 final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_READ);
-                session = new ManagedIOSession(
+                session = new InternalIOSession(
                         sessionRequest != null ?  sessionRequest.getRemoteEndpoint() : null,
                         new IOSessionImpl(key, socketChannel),
                         closedSessions);
@@ -301,7 +301,7 @@ class IOReactorImpl implements IOReactor {
 
     private void processClosedSessions() {
         for (;;) {
-            final ManagedIOSession session = this.closedSessions.poll();
+            final InternalIOSession session = this.closedSessions.poll();
             if (session == null) {
                 break;
             }
@@ -316,7 +316,7 @@ class IOReactorImpl implements IOReactor {
     }
 
     private void timeoutCheck(final SelectionKey key, final long now) {
-        final ManagedIOSession session = (ManagedIOSession) key.attachment();
+        final InternalIOSession session = (InternalIOSession) key.attachment();
         if (session != null) {
             try {
                 final int timeout = session.getSocketTimeout();
@@ -349,7 +349,7 @@ class IOReactorImpl implements IOReactor {
     private void closeActiveChannels() {
         final Set<SelectionKey> keys = this.selector.keys();
         for (final SelectionKey key : keys) {
-            final ManagedIOSession session = (ManagedIOSession) key.attachment();
+            final InternalIOSession session = (InternalIOSession) key.attachment();
             closeQuietly(session);
         }
         closeQuietly(this.selector);

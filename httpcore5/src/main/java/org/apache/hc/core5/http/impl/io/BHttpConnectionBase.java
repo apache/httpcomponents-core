@@ -39,6 +39,9 @@ import java.nio.charset.CharsetEncoder;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -314,6 +317,17 @@ class BHttpConnectionBase implements BHttpConnection {
 
     protected void incrementResponseCount() {
         this.connMetrics.incrementResponseCount();
+    }
+
+    @Override
+    public SSLSession getSSLSession() {
+        final SocketHolder socketHolder = this.socketHolderRef.get();
+        if (socketHolder != null) {
+            final Socket socket = socketHolder.getSocket();
+            return socket instanceof SSLSocket ? ((SSLSocket) socket).getSession() : null;
+        } else {
+            return null;
+        }
     }
 
     @Override

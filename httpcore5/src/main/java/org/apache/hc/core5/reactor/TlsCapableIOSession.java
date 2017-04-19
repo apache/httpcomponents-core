@@ -25,24 +25,15 @@
  *
  */
 
-package org.apache.hc.core5.reactor.ssl;
+package org.apache.hc.core5.reactor;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
- * Represents a TLS capable session layer.
+ * TLS capable {@link IOSession}.
  *
  * @since 5.0
  */
-public interface TransportSecurityLayer {
-
-    void startTls(
-            SSLContext sslContext,
-            SSLBufferManagement sslBufferManagement,
-            SSLSessionInitializer initializer,
-            SSLSessionVerifier verifier) throws UnsupportedOperationException;
-
-    SSLSession getSSLSession();
+public interface TlsCapableIOSession extends IOSession, TransportSecurityLayer {
 
 }

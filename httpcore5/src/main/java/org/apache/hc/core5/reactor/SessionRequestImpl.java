@@ -55,7 +55,7 @@ public class SessionRequestImpl implements SessionRequest {
     private final SessionRequestCallback callback;
 
     private volatile int connectTimeout;
-    private volatile IOSession session = null;
+    private volatile TlsCapableIOSession session = null;
     private volatile IOException exception = null;
 
     public SessionRequestImpl(
@@ -115,7 +115,7 @@ public class SessionRequestImpl implements SessionRequest {
     }
 
     @Override
-    public IOSession getSession() {
+    public TlsCapableIOSession getSession() {
         synchronized (this) {
             return this.session;
         }
@@ -128,7 +128,7 @@ public class SessionRequestImpl implements SessionRequest {
         }
     }
 
-    public void completed(final IOSession session) {
+    public void completed(final TlsCapableIOSession session) {
         Args.notNull(session, "Session");
         if (this.completed) {
             return;
