@@ -647,6 +647,7 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
                         final ExecutionCommand executionCommand = (ExecutionCommand) command;
                         final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
                         exchangeHandler.failed(cause);
+                        exchangeHandler.releaseResources();
                     } else {
                         command.cancel();
                     }

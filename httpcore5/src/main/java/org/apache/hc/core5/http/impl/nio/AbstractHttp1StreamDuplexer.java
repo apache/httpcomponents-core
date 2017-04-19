@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.impl.ConnectionListener;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -366,14 +367,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
         if (connState.compareTo(ConnectionState.SHUTDOWN) >= 0) {
             ioSession.close();
-            cancelPendingCommands();
             releaseResources();
         }
     }
 
     public final void onTimeout() throws IOException, HttpException {
         if (!handleTimeout()) {
-            shutdownSession(new SocketTimeoutException());
+            onException(new SocketTimeoutException());
         }
     }
 
@@ -383,6 +383,20 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
         try {
             shutdownSession(ex);
+            for (;;) {
+                final Command command = ioSession.getCommand();
+                if (command != null) {
+                    if (command instanceof ExecutionCommand) {
+                        final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
+                        exchangeHandler.failed(ex);
+                        exchangeHandler.releaseResources();
+                    } else {
+                        command.cancel();
+                    }
+                } else {
+                    break;
+                }
+            }
         } catch (IOException ex2) {
             if (connectionListener != null) {
                 connectionListener.onError(this, ex2);
@@ -391,15 +405,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     public final void onDisconnect() {
-        cancelPendingCommands();
         disconnected();
-        releaseResources();
-        if (connectionListener != null) {
-            connectionListener.onDisconnect(this);
-        }
-    }
-
-    private void cancelPendingCommands() {
         for (;;) {
             final Command command = ioSession.getCommand();
             if (command != null) {
@@ -407,6 +413,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             } else {
                 break;
             }
+        }
+        releaseResources();
+        if (connectionListener != null) {
+            connectionListener.onDisconnect(this);
         }
     }
 
