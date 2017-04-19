@@ -73,7 +73,7 @@ public class TestTimeValue {
     }
 
     @Test
-    public void test1Negative1() {
+    public void testNegative1() {
         test(-1);
     }
 
