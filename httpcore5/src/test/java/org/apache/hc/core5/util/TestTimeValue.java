@@ -35,31 +35,31 @@ import org.junit.Test;
 public class TestTimeValue {
 
     private void checkToSeconds(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toSeconds(value), new TimeValue(value, timeUnit).toSeconds());
+        Assert.assertEquals(timeUnit.toSeconds(value), TimeValue.of(value, timeUnit).toSeconds());
     }
 
     private void checkToDays(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toDays(value), new TimeValue(value, timeUnit).toDays());
+        Assert.assertEquals(timeUnit.toDays(value), TimeValue.of(value, timeUnit).toDays());
     }
 
     private void checkToHours(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toHours(value), new TimeValue(value, timeUnit).toHours());
+        Assert.assertEquals(timeUnit.toHours(value), TimeValue.of(value, timeUnit).toHours());
     }
 
     private void checkToMinutes(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMinutes(value), new TimeValue(value, timeUnit).toMinutes());
+        Assert.assertEquals(timeUnit.toMinutes(value), TimeValue.of(value, timeUnit).toMinutes());
     }
 
     private void checkToMillis(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMillis(value), new TimeValue(value, timeUnit).toMillis());
+        Assert.assertEquals(timeUnit.toMillis(value), TimeValue.of(value, timeUnit).toMillis());
     }
 
     private void checkToMicros(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMicros(value), new TimeValue(value, timeUnit).toMicros());
+        Assert.assertEquals(timeUnit.toMicros(value), TimeValue.of(value, timeUnit).toMicros());
     }
 
     private void checkToNanos(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toNanos(value), new TimeValue(value, timeUnit).toNanos());
+        Assert.assertEquals(timeUnit.toNanos(value), TimeValue.of(value, timeUnit).toNanos());
     }
 
     @Test

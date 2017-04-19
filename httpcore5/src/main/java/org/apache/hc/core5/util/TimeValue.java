@@ -41,9 +41,9 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 public class TimeValue {
 
     private static final int UNDEFINED = -1;
-    public static final TimeValue NEG_ONE_MILLISECONDS = new TimeValue(UNDEFINED, TimeUnit.MILLISECONDS);
-    public static final TimeValue NEG_ONE_SECONDS = new TimeValue(UNDEFINED, TimeUnit.SECONDS);
-    public static final TimeValue ZERO_MILLISECONDS = new TimeValue(0, TimeUnit.MILLISECONDS);
+    public static final TimeValue NEG_ONE_MILLISECONDS = TimeValue.of(UNDEFINED, TimeUnit.MILLISECONDS);
+    public static final TimeValue NEG_ONE_SECONDS = TimeValue.of(UNDEFINED, TimeUnit.SECONDS);
+    public static final TimeValue ZERO_MILLISECONDS = TimeValue.of(0, TimeUnit.MILLISECONDS);
 
     /**
      * Returns the given {@code long} value as an {@code int} where long values out of int range are returned as
@@ -120,23 +120,23 @@ public class TimeValue {
     }
 
     public static TimeValue ofDays(final long days) {
-        return new TimeValue(days, TimeUnit.DAYS);
+        return of(days, TimeUnit.DAYS);
     }
 
     public static TimeValue ofHours(final long hours) {
-        return new TimeValue(hours, TimeUnit.HOURS);
+        return of(hours, TimeUnit.HOURS);
     }
 
     public static TimeValue ofMillis(final long millis) {
-        return new TimeValue(millis, TimeUnit.MILLISECONDS);
+        return of(millis, TimeUnit.MILLISECONDS);
     }
 
     public static TimeValue ofMinutes(final long minutes) {
-        return new TimeValue(minutes, TimeUnit.MINUTES);
+        return of(minutes, TimeUnit.MINUTES);
     }
 
     public static TimeValue ofSeconds(final long seconds) {
-        return new TimeValue(seconds, TimeUnit.SECONDS);
+        return of(seconds, TimeUnit.SECONDS);
     }
 
     public static boolean isPositive(final TimeValue timeValue) {
