@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http2.ssl;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -358,13 +359,52 @@ public final class H2TlsSupport {
         return enabledCiphers != null ? enabledCiphers.toArray(new String[enabledCiphers.size()]) : ciphers;
     }
 
-    public static SSLSessionInitializer decorateInitializer(final SSLSessionInitializer initializer) {
+    static void applyParameter(final SSLParameters sslParameters, final String name, final Class type, final Object value) {
+        try {
+            final Class<? extends SSLParameters> clazz = sslParameters.getClass();
+            final Method method = clazz.getMethod("set" + name, type);
+            method.invoke(sslParameters, value);
+        } catch (final Exception ignore) {
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    static <T> T getParameter(final SSLParameters sslParameters, final String name, final Class<T> resultType) {
+        try {
+            final Class<? extends SSLParameters> clazz = sslParameters.getClass();
+            final Method method = clazz.getMethod("get" + name);
+            return resultType.cast(method.invoke(sslParameters));
+        } catch (final Exception ignore) {
+            return null;
+        }
+    }
+
+    public static void setEnableRetransmissions(final SSLParameters sslParameters, final boolean value) {
+        applyParameter(sslParameters, "EnableRetransmissions", Boolean.TYPE, value);
+    }
+
+    public static void setApplicationProtocols(final SSLParameters sslParameters, final String[] values) {
+        applyParameter(sslParameters, "ApplicationProtocols", String[].class, values);
+    }
+
+    public static Boolean getEnableRetransmissions(final SSLParameters sslParameters) {
+        return getParameter(sslParameters, "EnableRetransmissions", Boolean.class);
+    }
+
+    public static String[] getApplicationProtocols(final SSLParameters sslParameters) {
+        return getParameter(sslParameters, "ApplicationProtocols", String[].class);
+    }
+
+    public static SSLSessionInitializer enforceRequirements(final SSLSessionInitializer initializer) {
         return new SSLSessionInitializer() {
 
             @Override
             public void initialize(final NamedEndpoint endpoint, final SSLParameters sslParameters) {
-                sslParameters.setProtocols(H2TlsSupport.excludeBlacklistedProtocols(sslParameters.getProtocols()));
-                sslParameters.setCipherSuites(H2TlsSupport.excludeBlacklistedCiphers(sslParameters.getCipherSuites()));
+                sslParameters.setProtocols(excludeBlacklistedProtocols(sslParameters.getProtocols()));
+                sslParameters.setCipherSuites(excludeBlacklistedCiphers(sslParameters.getCipherSuites()));
+                setEnableRetransmissions(sslParameters, false);
+                setApplicationProtocols(sslParameters, new String[] { "h2" });
+
                 if (initializer != null) {
                     initializer.initialize(endpoint, sslParameters);
                 }
