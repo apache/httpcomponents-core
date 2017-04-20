@@ -117,7 +117,7 @@ public class TimeValue {
 
     /**
      * Creates a TimeValue.
-     * 
+     *
      * @param duration
      *            the time duration in the given {@code timeUnit}.
      * @param timeUnit

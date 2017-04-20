@@ -57,7 +57,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Creates a Timeout.
-     * 
+     *
      * @param duration
      *            the time duration in the given {@code timeUnit}.
      * @param timeUnit
@@ -70,7 +70,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Creates a Timeout.
-     * 
+     *
      * @param days
      *            the duration in days and the given {@code timeUnit}.
      * @return a Timeout
@@ -81,7 +81,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Creates a Timeout.
-     * 
+     *
      * @param hours
      *            the duration in hours and the given {@code timeUnit}.
      * @return a Timeout
@@ -92,7 +92,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Creates a Timeout.
-     * 
+     *
      * @param milliseconds
      *            the duration in milliseconds and the given {@code timeUnit}.
      * @return a Timeout
@@ -103,7 +103,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Creates a Timeout.
-     * 
+     *
      * @param minutes
      *            the duration in minutes and the given {@code timeUnit}.
      * @return a Timeout
@@ -114,7 +114,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Creates a Timeout.
-     * 
+     *
      * @param seconds
      *            the duration in seconds and the given {@code timeUnit}.
      * @return a Timeout
@@ -136,7 +136,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Whether this timeout is disabled.
-     * 
+     *
      * @return Whether this timeout is disabled.
      */
     public boolean isDisabled() {
@@ -145,7 +145,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Whether this timeout is enabled.
-     * 
+     *
      * @return Whether this timeout is disabled.
      */
     public boolean isEnabled() {
@@ -154,7 +154,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Whether this timeout is undefined.
-     * 
+     *
      * @return Whether this timeout is undefined.
      */
     public boolean isUndefinedMilliseconds() {
@@ -163,7 +163,7 @@ public class Timeout extends TimeValue {
 
     /**
      * Whether this timeout is undefined.
-     * 
+     *
      * @return Whether this timeout is undefined.
      */
     public boolean isUndefinedSeconds() {
