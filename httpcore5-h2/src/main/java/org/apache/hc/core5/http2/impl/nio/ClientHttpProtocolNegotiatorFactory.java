@@ -29,12 +29,9 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.hc.core5.http.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
@@ -45,47 +42,30 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
 
-    private final HttpProcessor httpProcessor;
-    private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
-    private final CharCodingConfig charCodingConfig;
-    private final H2Config h2Config;
+    private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
+    private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final HttpVersionPolicy versionPolicy;
     private final ConnectionListener connectionListener;
-    private final Http2StreamListener streamListener;
 
     public ClientHttpProtocolNegotiatorFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final CharCodingConfig charCodingConfig,
-            final H2Config h2Config,
-            final ConnectionListener connectionListener,
-            final Http2StreamListener streamListener) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.pushHandlerFactory = pushHandlerFactory;
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
+            final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
+            final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final HttpVersionPolicy versionPolicy,
+            final ConnectionListener connectionListener) {
+        this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
+        this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
+        this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.connectionListener = connectionListener;
-        this.streamListener = streamListener;
-    }
-
-    public ClientHttpProtocolNegotiatorFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final ConnectionListener connectionListener,
-            final Http2StreamListener streamListener) {
-        this(httpProcessor, pushHandlerFactory, null, null, connectionListener, streamListener);
-    }
-
-    public ClientHttpProtocolNegotiatorFactory(
-            final HttpProcessor httpProcessor,
-            final ConnectionListener connectionListener,
-            final Http2StreamListener streamListener) {
-        this(httpProcessor, null, connectionListener, streamListener);
     }
 
     @Override
     public ClientHttpProtocolNegotiator createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-        return new ClientHttpProtocolNegotiator(ioSession, httpProcessor, pushHandlerFactory,
-                charCodingConfig, h2Config, connectionListener, streamListener);
+        return new ClientHttpProtocolNegotiator(
+                ioSession,
+                http1StreamHandlerFactory,
+                http2StreamHandlerFactory,
+                attachment instanceof HttpVersionPolicy ? (HttpVersionPolicy) attachment : versionPolicy,
+                connectionListener);
     }
 
 }

@@ -25,25 +25,39 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.reactor.ssl;
 
-import java.net.SocketAddress;
-
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import javax.net.ssl.SSLSession;
 
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
+ * Represents details of a fully established TLS session.
  *
  * @since 5.0
  */
-public interface TlsStrategy {
+public final class TlsDetails {
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
+    private final SSLSession sslSession;
+    private final String applicationProtocol;
+
+    public TlsDetails(final SSLSession sslSession, final String applicationProtocol) {
+        this.sslSession = sslSession;
+        this.applicationProtocol = applicationProtocol;
+    }
+
+    public SSLSession getSSLSession() {
+        return sslSession;
+    }
+
+    public String getApplicationProtocol() {
+        return applicationProtocol;
+    }
+
+    @Override
+    public String toString() {
+        return "TlsDetails{" +
+                "sslSession=" + sslSession +
+                ", applicationProtocol='" + applicationProtocol + '\'' +
+                '}';
+    }
 
 }

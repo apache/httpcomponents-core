@@ -69,7 +69,7 @@ import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -106,6 +106,15 @@ public class HttpAsyncRequester extends AsyncRequester {
     public Future<AsyncClientEndpoint> connect(
             final HttpHost host,
             final TimeValue timeout,
+            final Object attachment,
+            final FutureCallback<AsyncClientEndpoint> callback) {
+        return doConnect(host, timeout, attachment, callback);
+    }
+
+    protected Future<AsyncClientEndpoint> doConnect(
+            final HttpHost host,
+            final TimeValue timeout,
+            final Object attachment,
             final FutureCallback<AsyncClientEndpoint> callback) {
         Args.notNull(host, "Host");
         Args.notNull(timeout, "Timeout");
@@ -123,17 +132,18 @@ public class HttpAsyncRequester extends AsyncRequester {
                 if (poolEntry.hasConnection()) {
                     resultFuture.completed(endpoint);
                 } else {
-                    final SessionRequest sessionRequest = requestSession(host, timeout, new SessionRequestCallback() {
+                    final SessionRequest sessionRequest = requestSession(host, timeout, attachment, new SessionRequestCallback() {
 
                         @Override
                         public void completed(final SessionRequest request) {
-                            final IOSession session = request.getSession();
-                            if (tlsStrategy != null && session instanceof TransportSecurityLayer) {
+                            final TlsCapableIOSession session = request.getSession();
+                            if (tlsStrategy != null && "https".equalsIgnoreCase(host.getSchemeName())) {
                                 tlsStrategy.upgrade(
-                                        (TransportSecurityLayer) session,
+                                        session,
                                         host,
                                         session.getLocalAddress(),
-                                        session.getRemoteAddress());
+                                        session.getRemoteAddress(),
+                                        attachment);
                             }
                             session.setSocketTimeout(timeout.toMillisIntBound());
                             poolEntry.assignConnection(session);
@@ -188,7 +198,7 @@ public class HttpAsyncRequester extends AsyncRequester {
     }
 
     public Future<AsyncClientEndpoint> connect(final HttpHost host, final TimeValue timeout) throws InterruptedException {
-        return connect(host, timeout, null);
+        return connect(host, timeout, null, null);
     }
 
     public void execute(
@@ -211,7 +221,7 @@ public class HttpAsyncRequester extends AsyncRequester {
                         throw new ProtocolException("Request authority not specified");
                     }
                     final HttpHost target = new HttpHost(authority, scheme);
-                    connect(target, timeout, new FutureCallback<AsyncClientEndpoint>() {
+                    connect(target, timeout, null, new FutureCallback<AsyncClientEndpoint>() {
 
                         @Override
                         public void completed(final AsyncClientEndpoint endpoint) {
@@ -371,7 +381,7 @@ public class HttpAsyncRequester extends AsyncRequester {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
                 final IOSession ioSession = poolEntry.getConnection();
-                connPool.release(poolEntry, ioSession != null && !ioSession.isClosed());    ;
+                connPool.release(poolEntry, ioSession != null && !ioSession.isClosed());
             }
         }
 

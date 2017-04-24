@@ -25,9 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio;
-
-import javax.net.ssl.SSLContext;
+package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -41,91 +39,99 @@ import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
-import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestWriterFactory;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseParserFactory;
-import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
-import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
+public final class ClientHttp1StreamDuplexerFactory {
 
     private final HttpProcessor httpProcessor;
     private final H1Config h1Config;
     private final CharCodingConfig charCodingConfig;
     private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final SSLContext sslContext;
     private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
     private final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
+    private final ConnectionListener connectionListener;
+    private final Http1StreamListener streamListener;
 
-    InternalClientHttp1EventHandlerFactory(
+    public ClientHttp1StreamDuplexerFactory(
             final HttpProcessor httpProcessor,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
-            final SSLContext sslContext) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
-                DefaultConnectionReuseStrategy.INSTANCE;
-        this.sslContext = sslContext;
-        this.responseParserFactory = new DefaultHttpResponseParserFactory(this.h1Config);
-        this.requestWriterFactory = DefaultHttpRequestWriterFactory.INSTANCE;
-    }
-
-    protected ClientHttp1StreamDuplexer createClientHttp1StreamDuplexer(
-            final TlsCapableIOSession ioSession,
-            final HttpProcessor httpProcessor,
-            final H1Config h1Config,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy,
-            final NHttpMessageParser<HttpResponse> incomingMessageParser,
-            final NHttpMessageWriter<HttpRequest> outgoingMessageWriter,
+            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
+            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        return new ClientHttp1StreamDuplexer(ioSession, httpProcessor, h1Config, charCodingConfig,
-                connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter,
-                incomingContentStrategy, outgoingContentStrategy,
-                connectionListener, streamListener);
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.charCodingConfig = charCodingConfig !=  null ? charCodingConfig : CharCodingConfig.DEFAULT;
+        this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
+                DefaultConnectionReuseStrategy.INSTANCE;
+        this.responseParserFactory = responseParserFactory != null ? responseParserFactory :
+                new DefaultHttpResponseParserFactory(h1Config);
+        this.requestWriterFactory = requestWriterFactory != null ? requestWriterFactory :
+                DefaultHttpRequestWriterFactory.INSTANCE;
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+                DefaultContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+                DefaultContentLengthStrategy.INSTANCE;
+        this.connectionListener = connectionListener;
+        this.streamListener = streamListener;
     }
 
-    @Override
-    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-        final String id = ioSession.getId();
-        if (sslContext != null) {
-            ioSession.startTls(sslContext, null ,null, null);
-        }
-        final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
-        final Logger wireLog = LogManager.getLogger("org.apache.hc.core5.http.wire");
-        final ClientHttp1StreamDuplexer streamDuplexer = createClientHttp1StreamDuplexer(
-                new LoggingIOSession(ioSession, sessionLog, wireLog),
+    public ClientHttp1StreamDuplexerFactory(
+            final HttpProcessor httpProcessor,
+            final H1Config h1Config,
+            final CharCodingConfig charCodingConfig,
+            final ConnectionReuseStrategy connectionReuseStrategy,
+            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
+            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
+            final ConnectionListener connectionListener,
+            final Http1StreamListener streamListener) {
+        this(httpProcessor, h1Config, charCodingConfig, connectionReuseStrategy,
+                responseParserFactory, requestWriterFactory, null ,null, connectionListener, streamListener);
+    }
+
+    public ClientHttp1StreamDuplexerFactory(
+            final HttpProcessor httpProcessor,
+            final H1Config h1Config,
+            final CharCodingConfig charCodingConfig,
+            final ConnectionListener connectionListener,
+            final Http1StreamListener streamListener) {
+        this(httpProcessor, h1Config, charCodingConfig, null, null, null, connectionListener, streamListener);
+    }
+
+    public ClientHttp1StreamDuplexerFactory(
+            final HttpProcessor httpProcessor,
+            final H1Config h1Config,
+            final CharCodingConfig charCodingConfig) {
+        this(httpProcessor, h1Config, charCodingConfig, null, null);
+    }
+
+    public ClientHttp1StreamDuplexer create(final TlsCapableIOSession ioSession) {
+        return new ClientHttp1StreamDuplexer(
+                ioSession,
                 httpProcessor,
                 h1Config,
                 charCodingConfig,
                 connectionReuseStrategy,
                 responseParserFactory.create(),
                 requestWriterFactory.create(),
-                DefaultContentLengthStrategy.INSTANCE,
-                DefaultContentLengthStrategy.INSTANCE,
-                new InternalConnectionListener(id, sessionLog),
-                new InternalHttp1StreamListener(id, InternalHttp1StreamListener.Type.CLIENT, sessionLog));
-        return new LoggingIOEventHandler(new ClientHttp1IOEventHandler(streamDuplexer), id, sessionLog);
+                incomingContentStrategy,
+                outgoingContentStrategy,
+                connectionListener,
+                streamListener);
     }
 
 }

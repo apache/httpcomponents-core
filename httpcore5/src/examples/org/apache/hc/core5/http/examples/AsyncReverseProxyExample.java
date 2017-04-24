@@ -313,7 +313,7 @@ public class AsyncReverseProxyExample {
 
             System.out.println("[proxy->origin] " + exchangeState.id + " request connection to " + targetHost);
 
-            requester.connect(targetHost, TimeValue.ofSeconds(30), new FutureCallback<AsyncClientEndpoint>() {
+            requester.connect(targetHost, TimeValue.ofSeconds(30), null, new FutureCallback<AsyncClientEndpoint>() {
 
                 @Override
                 public void completed(final AsyncClientEndpoint clientEndpoint) {

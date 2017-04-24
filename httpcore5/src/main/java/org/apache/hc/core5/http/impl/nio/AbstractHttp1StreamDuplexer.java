@@ -77,6 +77,7 @@ import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
@@ -217,9 +218,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
-    public final void onConnect() throws HttpException, IOException {
+    public final void onConnect(final ByteBuffer prefeed) throws HttpException, IOException {
         if (connectionListener != null) {
             connectionListener.onConnect(this);
+        }
+        if (prefeed != null) {
+            inbuf.put(prefeed);
         }
         connState = ConnectionState.ACTIVE;
         processCommands();
@@ -579,7 +583,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     @Override
     public SSLSession getSSLSession() {
-        return ioSession.getSSLSession();
+        final TlsDetails tlsDetails = ioSession.getTlsDetails();
+        return tlsDetails != null ? tlsDetails.getSSLSession() : null;
+    }
+
+    @Override
+    public TlsDetails getTlsDetails() {
+        return ioSession.getTlsDetails();
     }
 
     @Override

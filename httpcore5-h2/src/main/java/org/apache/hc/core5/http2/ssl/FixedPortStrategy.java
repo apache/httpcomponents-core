@@ -25,25 +25,32 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.http2.ssl;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.util.Args;
 
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
- *
  * @since 5.0
  */
-public interface TlsStrategy {
+public final class FixedPortStrategy implements SecurePortStrategy {
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
+    private final int[] securePorts;
+
+    public FixedPortStrategy(final int[] securePorts) {
+        this.securePorts = Args.notNull(securePorts, "Secure ports");
+    }
+
+    public boolean isSecure(final SocketAddress localAddress) {
+        final int port = ((InetSocketAddress) localAddress).getPort();
+        for (final int securePort: securePorts) {
+            if (port == securePort) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

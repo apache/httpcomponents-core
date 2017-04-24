@@ -29,19 +29,6 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.ContentLengthStrategy;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
-import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
@@ -53,86 +40,15 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
-    private final HttpProcessor httpProcessor;
-    private final CharCodingConfig charCodingConfig;
-    private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
-    private final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
-    private final ContentLengthStrategy incomingContentStrategy;
-    private final ContentLengthStrategy outgoingContentStrategy;
-    private final ConnectionListener connectionListener;
-    private final Http1StreamListener streamListener;
+    private final ClientHttp1StreamDuplexerFactory streamDuplexerFactory;
 
-    public ClientHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy,
-            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
-            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
-            final ContentLengthStrategy incomingContentStrategy,
-            final ContentLengthStrategy outgoingContentStrategy,
-            final ConnectionListener connectionListener,
-            final Http1StreamListener streamListener) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.charCodingConfig = charCodingConfig !=  null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
-                DefaultConnectionReuseStrategy.INSTANCE;
-        this.responseParserFactory = responseParserFactory != null ? responseParserFactory :
-                DefaultHttpResponseParserFactory.INSTANCE;
-        this.requestWriterFactory = requestWriterFactory != null ? requestWriterFactory :
-                DefaultHttpRequestWriterFactory.INSTANCE;
-        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
-        this.connectionListener = connectionListener;
-        this.streamListener = streamListener;
-    }
-
-    public ClientHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy,
-            final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
-            final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
-            final ConnectionListener connectionListener,
-            final Http1StreamListener streamListener) {
-        this(httpProcessor, charCodingConfig, connectionReuseStrategy,
-                responseParserFactory, requestWriterFactory, null ,null, connectionListener, streamListener);
-    }
-
-    public ClientHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionListener connectionListener,
-            final Http1StreamListener streamListener) {
-        this(httpProcessor, charCodingConfig, null, null, null, connectionListener, streamListener);
-    }
-
-    public ClientHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final CharCodingConfig charCodingConfig) {
-        this(httpProcessor, charCodingConfig, null, null);
+    public ClientHttp1IOEventHandlerFactory(final ClientHttp1StreamDuplexerFactory streamDuplexerFactory) {
+        this.streamDuplexerFactory = Args.notNull(streamDuplexerFactory, "Stream duplexer factory");
     }
 
     @Override
     public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-        return new ClientHttp1IOEventHandler(createStreamDuplexer(ioSession));
-    }
-
-    protected ClientHttp1StreamDuplexer createStreamDuplexer(final TlsCapableIOSession ioSession) {
-        return new ClientHttp1StreamDuplexer(
-                ioSession,
-                httpProcessor,
-                H1Config.DEFAULT,
-                charCodingConfig,
-                connectionReuseStrategy,
-                responseParserFactory.create(),
-                requestWriterFactory.create(),
-                incomingContentStrategy,
-                outgoingContentStrategy,
-                connectionListener,
-                streamListener);
+        return new ClientHttp1IOEventHandler(streamDuplexerFactory.create(ioSession));
     }
 
 }

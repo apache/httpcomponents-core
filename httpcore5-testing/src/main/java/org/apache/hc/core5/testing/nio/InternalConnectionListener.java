@@ -25,25 +25,43 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.testing.nio;
 
-import java.net.SocketAddress;
+import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.impl.ConnectionListener;
+import org.apache.logging.log4j.Logger;
 
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+class InternalConnectionListener implements ConnectionListener {
 
-/**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
- *
- * @since 5.0
- */
-public interface TlsStrategy {
+    private final String id;
+    private final Logger log;
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
+    public InternalConnectionListener(final String id, final Logger log) {
+        this.log = log;
+        this.id = id;
+    }
+
+    @Override
+    public void onConnect(final HttpConnection connection) {
+        if (log.isDebugEnabled()) {
+            log.debug(id + " " + connection + " connected");
+        }
+    }
+
+    @Override
+    public void onDisconnect(final HttpConnection connection) {
+        if (log.isDebugEnabled()) {
+            log.debug(id + " " + connection + " disconnected");
+        }
+    }
+
+    @Override
+    public void onError(final HttpConnection connection, final Exception ex) {
+        if (ex instanceof ConnectionClosedException) {
+            return;
+        }
+        log.error(id + " " + ex.getMessage(), ex);
+    }
 
 }

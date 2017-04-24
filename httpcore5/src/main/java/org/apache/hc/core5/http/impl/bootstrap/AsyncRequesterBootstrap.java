@@ -30,20 +30,19 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandlerFactory;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestWriterFactory;
-import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseParserFactory;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
@@ -55,6 +54,7 @@ import org.apache.hc.core5.util.TimeValue;
 public class AsyncRequesterBootstrap {
 
     private IOReactorConfig ioReactorConfig;
+    private H1Config h1Config;
     private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
@@ -84,7 +84,15 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Sets connection configuration.
+     * Sets HTTP/1.1 protocol parameters
+     */
+    public final AsyncRequesterBootstrap setH1Config(final H1Config h1Config) {
+        this.h1Config = h1Config;
+        return this;
+    }
+
+    /**
+     * Sets message char coding.
      */
     public final AsyncRequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
@@ -177,16 +185,14 @@ public class AsyncRequesterBootstrap {
                 timeToLive,
                 connPoolPolicy,
                 connPoolListener);
-        final ClientHttp1IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
+        final ClientHttp1StreamDuplexerFactory streamDuplexerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                charCodingConfig,
-                connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
-                DefaultHttpResponseParserFactory.INSTANCE,
-                DefaultHttpRequestWriterFactory.INSTANCE,
-                DefaultContentLengthStrategy.INSTANCE,
-                DefaultContentLengthStrategy.INSTANCE,
+                h1Config != null ? h1Config : H1Config.DEFAULT,
+                charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connectionListener,
                 streamListener);
+        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
+                streamDuplexerFactory);
         try {
             return new HttpAsyncRequester(
                     ioReactorConfig,

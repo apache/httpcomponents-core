@@ -34,7 +34,6 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
@@ -43,6 +42,7 @@ import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.testing.classic.Wire;
 import org.apache.logging.log4j.Logger;
 public class LoggingIOSession implements TlsCapableIOSession {
@@ -197,17 +197,17 @@ public class LoggingIOSession implements TlsCapableIOSession {
     }
 
     @Override
+    public TlsDetails getTlsDetails() {
+        return session.getTlsDetails();
+    }
+
+    @Override
     public void startTls(
             final SSLContext sslContext,
             final SSLBufferManagement sslBufferManagement,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) throws UnsupportedOperationException {
         session.startTls(sslContext, sslBufferManagement, initializer, verifier);
-    }
-
-    @Override
-    public SSLSession getSSLSession() {
-        return session.getSSLSession();
     }
 
     @Override

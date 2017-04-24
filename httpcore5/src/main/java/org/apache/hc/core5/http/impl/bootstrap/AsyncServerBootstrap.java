@@ -33,6 +33,7 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
@@ -41,6 +42,7 @@ import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory;
+import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
@@ -49,6 +51,7 @@ import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
 import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.net.InetAddressUtils;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.util.Args;
@@ -61,6 +64,7 @@ public class AsyncServerBootstrap {
     private final List<HandlerEntry> handlerList;
     private String canonicalHostName;
     private IOReactorConfig ioReactorConfig;
+    private H1Config h1Config;
     private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
@@ -92,6 +96,14 @@ public class AsyncServerBootstrap {
      */
     public final AsyncServerBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
+        return this;
+    }
+
+    /**
+     * Sets HTTP/1.1 protocol parameters.
+     */
+    public final AsyncServerBootstrap setH1Config(final H1Config h1Config) {
+        this.h1Config = h1Config;
         return this;
     }
 
@@ -205,18 +217,21 @@ public class AsyncServerBootstrap {
         for (final HandlerEntry entry: handlerList) {
             exchangeHandlerFactory.register(entry.hostname, entry.uriPattern, entry.supplier);
         }
-        final ServerHttp1IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
+        final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 exchangeHandlerFactory,
-                charCodingConfig,
+                h1Config != null ? h1Config : H1Config.DEFAULT,
+                charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
                 DefaultHttpRequestParserFactory.INSTANCE,
                 DefaultHttpResponseWriterFactory.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener,
                 streamListener);
+        final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
+                streamHandlerFactory,
+                tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}));
         try {
             return new HttpAsyncServer(
                     ioEventHandlerFactory,

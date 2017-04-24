@@ -84,6 +84,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 
@@ -1188,7 +1189,8 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
 
     @Override
     public SSLSession getSSLSession() {
-        return ioSession.getSSLSession();
+        final TlsDetails tlsDetails = ioSession.getTlsDetails();
+        return tlsDetails != null ? tlsDetails.getSSLSession() : null;
     }
 
     @Override

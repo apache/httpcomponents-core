@@ -96,7 +96,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
             final HttpHost host,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
-            final String... parameters) {
+            final Object attachment) {
         final int port = ((InetSocketAddress) localAddress).getPort();
         for (final int securePort: securePorts) {
             if (port == securePort) {

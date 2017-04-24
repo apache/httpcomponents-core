@@ -49,7 +49,7 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void connected(final IOSession session) {
         try {
-            streamDuplexer.onConnect();
+            streamDuplexer.onConnect(null);
         } catch (final Exception ex) {
             streamDuplexer.onException(ex);
         }

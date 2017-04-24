@@ -72,13 +72,14 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
         return new InetSocketAddress(hostName, port);
     }
 
-    protected SessionRequest requestSession(
+    public SessionRequest requestSession(
             final HttpHost host,
             final TimeValue timeout,
+            final Object attachment,
             final SessionRequestCallback callback) {
         Args.notNull(host, "Host");
         Args.notNull(timeout, "Timeout");
-        final SessionRequest  sessionRequest = reactor().connect(host, toSocketAddress(host), null, null, callback);
+        final SessionRequest  sessionRequest = reactor().connect(host, toSocketAddress(host), null, attachment, callback);
         sessionRequest.setConnectTimeout(timeout.toMillisIntBound());
         return sessionRequest;
     }

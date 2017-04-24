@@ -28,7 +28,6 @@
 package org.apache.hc.core5.reactor.ssl;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 
 /**
  * Represents a TLS capable session layer.
@@ -43,6 +42,6 @@ public interface TransportSecurityLayer {
             SSLSessionInitializer initializer,
             SSLSessionVerifier verifier) throws UnsupportedOperationException;
 
-    SSLSession getSSLSession();
+    TlsDetails getTlsDetails();
 
 }

@@ -29,13 +29,10 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
@@ -46,38 +43,23 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
 
-    private final HttpProcessor httpProcessor;
-    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
-    private final CharCodingConfig charCodingConfig;
-    private final H2Config h2Config;
+    private final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory;
+    private final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory;
+    private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
     private final ConnectionListener connectionListener;
-    private final Http2StreamListener streamListener;
 
     public ServerHttpProtocolNegotiatorFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final CharCodingConfig charCodingConfig,
-            final H2Config h2Config,
+            final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory,
+            final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory,
+            final HttpVersionPolicy versionPolicy,
             final TlsStrategy tlsStrategy,
-            final ConnectionListener connectionListener,
-            final Http2StreamListener streamListener) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
+            final ConnectionListener connectionListener) {
+        this.http1StreamDuplexerFactory = Args.notNull(http1StreamDuplexerFactory, "HTTP/1.1 stream handler factory");
+        this.http2StreamMultiplexerFactory = Args.notNull(http2StreamMultiplexerFactory, "HTTP/2 stream handler factory");
+        this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.tlsStrategy = tlsStrategy;
         this.connectionListener = connectionListener;
-        this.streamListener = streamListener;
-    }
-
-    public ServerHttpProtocolNegotiatorFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final TlsStrategy tlsStrategy,
-            final ConnectionListener connectionListener,
-            final Http2StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, null, null, tlsStrategy, connectionListener, streamListener);
     }
 
     @Override
@@ -87,10 +69,14 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
                     ioSession,
                     null,
                     ioSession.getLocalAddress(),
-                    ioSession.getRemoteAddress());
+                    ioSession.getRemoteAddress(),
+                    attachment != null ? attachment : versionPolicy);
         }
-        return new ServerHttpProtocolNegotiator(ioSession, httpProcessor, exchangeHandlerFactory,
-                charCodingConfig, h2Config, connectionListener, streamListener);
+        return new ServerHttpProtocolNegotiator(ioSession,
+                http1StreamDuplexerFactory,
+                http2StreamMultiplexerFactory,
+                versionPolicy,
+                connectionListener);
     }
 
 }

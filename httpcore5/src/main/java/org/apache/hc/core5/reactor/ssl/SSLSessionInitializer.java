@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.reactor.ssl;
 
-import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLEngine;
 
 import org.apache.hc.core5.net.NamedEndpoint;
 
@@ -42,13 +42,12 @@ public interface SSLSessionInitializer {
     /**
      * Triggered when the SSL connection is being initialized. Custom handlers
      * can use this callback to customize properties of the {@link javax.net.ssl.SSLEngine}
-     * used to establish the SSL session by modifying the given
-     * {@link SSLParameters}.
+     * used to establish the SSL session.
      *
      * @param endpoint the endpoint name for a client side session or {@code null}
      *                 for a server side session.
-     * @param sslParameters the actual SSL parameters.
+     * @param sslEngine the SSL engine.
      */
-    void initialize(NamedEndpoint endpoint, SSLParameters sslParameters);
+    void initialize(NamedEndpoint endpoint, SSLEngine sslEngine);
 
 }

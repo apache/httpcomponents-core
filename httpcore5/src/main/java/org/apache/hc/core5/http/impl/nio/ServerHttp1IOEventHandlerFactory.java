@@ -29,23 +29,7 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.ContentLengthStrategy;
-import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
-import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
@@ -57,106 +41,27 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
-    private final HttpProcessor httpProcessor;
-    private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
-    private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final CharCodingConfig charCodingConfig;
-    private final NHttpMessageParserFactory<HttpRequest> requestParserFactory;
-    private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
-    private final ContentLengthStrategy incomingContentStrategy;
-    private final ContentLengthStrategy outgoingContentStrategy;
+    private final ServerHttp1StreamDuplexerFactory streamDuplexerFactory;
     private final TlsStrategy tlsStrategy;
-    private final ConnectionListener connectionListener;
-    private final Http1StreamListener streamListener;
 
     public ServerHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy,
-            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
-            final ContentLengthStrategy incomingContentStrategy,
-            final ContentLengthStrategy outgoingContentStrategy,
-            final TlsStrategy tlsStrategy,
-            final ConnectionListener connectionListener,
-            final Http1StreamListener streamListener) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
-                DefaultConnectionReuseStrategy.INSTANCE;
-        this.requestParserFactory = requestParserFactory != null ? requestParserFactory :
-                DefaultHttpRequestParserFactory.INSTANCE;
-        this.responseWriterFactory = responseWriterFactory != null ? responseWriterFactory :
-                DefaultHttpResponseWriterFactory.INSTANCE;
-        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
+            final ServerHttp1StreamDuplexerFactory streamDuplexerFactory,
+            final TlsStrategy tlsStrategy) {
+        this.streamDuplexerFactory = Args.notNull(streamDuplexerFactory, "Stream duplexer factory");
         this.tlsStrategy = tlsStrategy;
-        this.connectionListener = connectionListener;
-        this.streamListener = streamListener;
-    }
-
-    public ServerHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy,
-            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
-            final TlsStrategy tlsStrategy,
-            final ConnectionListener connectionListener,
-            final Http1StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, charCodingConfig,
-                connectionReuseStrategy, requestParserFactory, responseWriterFactory,
-                null, null, tlsStrategy, connectionListener, streamListener);
-    }
-
-    public ServerHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final CharCodingConfig charCodingConfig,
-            final TlsStrategy tlsStrategy,
-            final ConnectionListener connectionListener,
-            final Http1StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, charCodingConfig, null, null ,null,
-                tlsStrategy, connectionListener, streamListener);
-    }
-
-    public ServerHttp1IOEventHandlerFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final CharCodingConfig charCodingConfig,
-            final TlsStrategy tlsStrategy,
-            final ExceptionListener errorListener) {
-        this(httpProcessor, exchangeHandlerFactory, charCodingConfig, tlsStrategy, null, null);
     }
 
     @Override
     public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-        return new ServerHttp1IOEventHandler(createStreamDuplexer(ioSession));
-    }
-
-    protected ServerHttp1StreamDuplexer createStreamDuplexer(final TlsCapableIOSession ioSession) {
         if (tlsStrategy != null) {
             tlsStrategy.upgrade(
                     ioSession,
                     null,
                     ioSession.getLocalAddress(),
-                    ioSession.getRemoteAddress());
+                    ioSession.getRemoteAddress(),
+                    attachment);
         }
-        return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
-                H1Config.DEFAULT,
-                charCodingConfig,
-                connectionReuseStrategy,
-                requestParserFactory.create(),
-                responseWriterFactory.create(),
-                incomingContentStrategy,
-                outgoingContentStrategy,
-                connectionListener,
-                streamListener);
+        return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(ioSession));
     }
 
 }

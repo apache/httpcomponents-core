@@ -25,25 +25,30 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.ssl;
 
-import java.net.SocketAddress;
+import java.lang.reflect.Method;
 
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+public final class ReflectionSupport {
 
-/**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
- *
- * @since 5.0
- */
-public interface TlsStrategy {
+    public static void callSetter(final Object object, final String setterName, final Class type, final Object value) {
+        try {
+            final Class<?> clazz = object.getClass();
+            final Method method = clazz.getMethod("set" + setterName, type);
+            method.invoke(object, value);
+        } catch (final Exception ignore) {
+        }
+    }
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
+    @SuppressWarnings("unchecked")
+    public static <T> T callGetter(final Object object, final String getterName, final Class<T> resultType) {
+        try {
+            final Class<?> clazz = object.getClass();
+            final Method method = clazz.getMethod("get" + getterName);
+            return resultType.cast(method.invoke(object));
+        } catch (final Exception ignore) {
+            return null;
+        }
+    }
 
 }

@@ -25,25 +25,31 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.testing;
 
-import java.net.SocketAddress;
+import java.net.URL;
 
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import javax.net.ssl.SSLContext;
 
-/**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
- *
- * @since 5.0
- */
-public interface TlsStrategy {
+import org.apache.hc.core5.ssl.SSLContextBuilder;
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
+public final class SSLTestContexts {
+
+    public static SSLContext createServerSSLContext() throws Exception {
+        final URL keyStoreURL = SSLTestContexts.class.getResource("/test.keystore");
+        final String storePassword = "nopassword";
+        return SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                .build();
+    }
+
+    public static SSLContext createClientSSLContext() throws Exception {
+        final URL keyStoreURL = SSLTestContexts.class.getResource("/test.keystore");
+        final String storePassword = "nopassword";
+        return SSLContextBuilder.create()
+                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                .build();
+    }
 
 }

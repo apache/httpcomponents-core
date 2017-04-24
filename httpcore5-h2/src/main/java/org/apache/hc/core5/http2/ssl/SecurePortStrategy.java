@@ -25,25 +25,17 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.http2.ssl;
 
 import java.net.SocketAddress;
 
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
-
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
+ * Side-side strategy to determine if local endpoint should be secured with TLS.
  *
  * @since 5.0
  */
-public interface TlsStrategy {
+public interface SecurePortStrategy {
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
+    boolean isSecure(SocketAddress localAddress);
 
 }

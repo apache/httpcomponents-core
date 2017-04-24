@@ -24,74 +24,67 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.hc.core5.http2.impl.nio;
 
-import java.io.IOException;
-
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
-import org.apache.hc.core5.http2.frame.FrameFactory;
-import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.util.Args;
 
 /**
- * Client side HTTP/2 stream multiplexer.
- *
  * @since 5.0
  */
-public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer {
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
+public final class ClientHttp2StreamMultiplexerFactory {
 
+    private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
+    private final H2Config h2Config;
+    private final CharCodingConfig charCodingConfig;
+    private final ConnectionListener connectionListener;
+    private final Http2StreamListener streamListener;
 
-    public ClientHttp2StreamMultiplexer(
-            final TlsCapableIOSession ioSession,
-            final FrameFactory frameFactory,
+    public ClientHttp2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
-        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig,
-                h2Config, connectionListener, streamListener);
+        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
+        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
+        this.connectionListener = connectionListener;
+        this.streamListener = streamListener;
     }
 
-    public ClientHttp2StreamMultiplexer(
-            final TlsCapableIOSession ioSession,
+    public ClientHttp2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final H2Config h2Config,
-            final CharCodingConfig charCodingConfig) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory,
-                h2Config, charCodingConfig, null, null);
+            final ConnectionListener connectionListener,
+            final Http2StreamListener streamListener) {
+        this(httpProcessor, pushHandlerFactory, null, null, connectionListener, streamListener);
     }
 
-    public ClientHttp2StreamMultiplexer(
-            final TlsCapableIOSession ioSession,
+    public ClientHttp2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
-            final H2Config h2Config,
-            final CharCodingConfig charCodingConfig) {
-        this(ioSession, httpProcessor, null, h2Config, charCodingConfig);
+            final ConnectionListener connectionListener,
+            final Http2StreamListener streamListener) {
+        this(httpProcessor, null, connectionListener, streamListener);
     }
 
-    @Override
-    Http2StreamHandler createRemotelyInitiatedStream(
-            final Http2StreamChannel channel,
-            final HttpProcessor httpProcessor,
-            final BasicHttpConnectionMetrics connMetrics) throws IOException {
-        final HttpCoreContext context = HttpCoreContext.create();
-        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
-        return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics, pushHandlerFactory, context);
+    public ClientHttp2StreamMultiplexer create(final TlsCapableIOSession ioSession) {
+        return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
+                pushHandlerFactory, h2Config, charCodingConfig, connectionListener, streamListener);
     }
 
 }
-

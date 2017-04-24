@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http2.ssl;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import javax.net.ssl.SSLContext;
@@ -49,46 +48,46 @@ import org.apache.hc.core5.util.Args;
  */
 public class H2ServerTlsStrategy implements TlsStrategy {
 
-    private final int[] securePorts;
     private final SSLContext sslContext;
+    private final SecurePortStrategy securePortStrategy;
     private final SSLBufferManagement sslBufferManagement;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
     public H2ServerTlsStrategy(
-            final int[] securePorts,
             final SSLContext sslContext,
+            final SecurePortStrategy securePortStrategy,
             final SSLBufferManagement sslBufferManagement,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
-        this.securePorts = Args.notNull(securePorts, "Array of ports");
         this.sslContext = Args.notNull(sslContext, "SSL context");
+        this.securePortStrategy = securePortStrategy;
         this.sslBufferManagement = sslBufferManagement;
         this.initializer = initializer;
         this.verifier = verifier;
     }
 
     public H2ServerTlsStrategy(
-            final int[] securePorts,
             final SSLContext sslContext,
+            final SecurePortStrategy securePortStrategy,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
-        this(securePorts, sslContext, null, initializer, verifier);
+        this(sslContext, securePortStrategy, null, initializer, verifier);
     }
 
     public H2ServerTlsStrategy(
-            final int[] securePorts,
             final SSLContext sslContext,
+            final SecurePortStrategy securePortStrategy,
             final SSLSessionVerifier verifier) {
-        this(securePorts, sslContext, null, null, verifier);
+        this(sslContext, securePortStrategy, null, null, verifier);
     }
 
-    public H2ServerTlsStrategy(final int[] securePorts, final SSLContext sslContext) {
-        this(securePorts, sslContext, null, null, null);
+    public H2ServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
+        this(sslContext, securePortStrategy, null, null, null);
     }
 
     public H2ServerTlsStrategy(final int[] securePorts) {
-        this(securePorts, SSLContexts.createSystemDefault());
+        this(SSLContexts.createSystemDefault(), new FixedPortStrategy(securePorts));
     }
 
     @Override
@@ -97,15 +96,11 @@ public class H2ServerTlsStrategy implements TlsStrategy {
             final HttpHost host,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
-            final String... parameters) {
-        final int port = ((InetSocketAddress) localAddress).getPort();
-        for (final int securePort: securePorts) {
-            if (port == securePort) {
-                tlsSession.startTls(sslContext, sslBufferManagement,
-                        H2TlsSupport.enforceRequirements(initializer),
-                        verifier);
-                break;
-            }
+            final Object attachment) {
+        if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
+            tlsSession.startTls(sslContext, sslBufferManagement,
+                    H2TlsSupport.enforceRequirements(attachment, initializer),
+                    verifier);
         }
     }
 

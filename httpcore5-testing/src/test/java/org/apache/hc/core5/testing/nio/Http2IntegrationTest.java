@@ -111,6 +111,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.testing.ProtocolScheme;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.hamcrest.CoreMatchers;
@@ -144,7 +145,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
     @Before
     public void setup() throws Exception {
         client = new Http2TestClient(IOReactorConfig.DEFAULT,
-                scheme == ProtocolScheme.HTTPS ? createClientSSLContext() : null);
+                scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
     }
 
     @After

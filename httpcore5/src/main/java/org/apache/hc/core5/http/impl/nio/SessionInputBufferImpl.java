@@ -116,6 +116,14 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         this(buffersize, 256);
     }
 
+    public void put(final ByteBuffer src) {
+        if (src != null && src.hasRemaining()) {
+            setInputMode();
+            ensureCapacity(src.remaining());
+            buffer().put(src);
+        }
+    }
+
     @Override
     public int fill(final ReadableByteChannel channel) throws IOException {
         Args.notNull(channel, "Channel");

@@ -37,23 +37,24 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.ConnectionListener;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -69,65 +70,85 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             0x0d, 0x0a, 0x0d, 0x0a};
 
     private final TlsCapableIOSession ioSession;
-    private final HttpProcessor httpProcessor;
-    private final CharCodingConfig charCodingConfig;
-    private final H2Config h2Config;
-    private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
+    private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
+    private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final HttpVersionPolicy versionPolicy;
     private final ConnectionListener connectionListener;
-    private final Http2StreamListener streamListener;
-    private final ByteBuffer preface;
+
+    private volatile ByteBuffer preface;
 
     public ClientHttpProtocolNegotiator(
             final TlsCapableIOSession ioSession,
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final CharCodingConfig charCodingConfig,
-            final H2Config h2Config,
-            final ConnectionListener connectionListener,
-            final Http2StreamListener streamListener) {
+            final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
+            final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final HttpVersionPolicy versionPolicy,
+            final ConnectionListener connectionListener) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.pushHandlerFactory = pushHandlerFactory;
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
-        this.streamListener = streamListener;
+        this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
+        this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
+        this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.connectionListener = connectionListener;
-        this.preface = ByteBuffer.wrap(PREFACE);
-    }
-
-    protected ClientHttp2StreamMultiplexer createStreamMultiplexer(final TlsCapableIOSession ioSession) {
-        return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
-                pushHandlerFactory, charCodingConfig, h2Config, connectionListener, streamListener);
     }
 
     @Override
-    public void connected(final IOSession ioSession) {
-        outputReady(ioSession);
+    public void connected(final IOSession session) {
+        try {
+            switch (versionPolicy) {
+                case NEGOTIATE:
+                    final TlsDetails tlsDetails = ioSession.getTlsDetails();
+                    if (tlsDetails != null) {
+                        if (ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
+                            // Proceed with the H2 preface
+                            preface = ByteBuffer.wrap(PREFACE);
+                        }
+                    }
+                    break;
+                case FORCE_HTTP_2:
+                    preface = ByteBuffer.wrap(PREFACE);
+                    break;
+            }
+            if (preface == null) {
+                final ClientHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
+                session.setHandler(new ClientHttp1IOEventHandler(http1StreamHandler));
+                http1StreamHandler.onConnect(null);
+            } else {
+                writePreface(session);
+            }
+        } catch (final Exception ex) {
+            session.shutdown(ShutdownType.IMMEDIATE);
+            exception(session, ex);
+        }
+    }
+
+    private void writePreface(final IOSession session) throws IOException  {
+        if (preface.hasRemaining()) {
+            final ByteChannel channel = session.channel();
+            channel.write(preface);
+        }
+        if (!preface.hasRemaining()) {
+            final ClientHttp2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
+            final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
+            newHandler.connected(session);
+            session.setHandler(newHandler);
+        }
     }
 
     @Override
     public void inputReady(final IOSession session) {
+        outputReady(session);
     }
 
     @Override
     public void outputReady(final IOSession session) {
-        if (preface.hasRemaining()) {
-            try {
-                final ByteChannel channel = ioSession.channel();
-                channel.write(preface);
-            } catch (final IOException ex) {
-                ioSession.shutdown(ShutdownType.IMMEDIATE);
-                if (connectionListener != null) {
-                    connectionListener.onError(this, ex);
-                }
-                return;
+        try {
+            if (preface != null) {
+                writePreface(session);
+            } else {
+                session.shutdown(ShutdownType.IMMEDIATE);
             }
-        }
-        if (!preface.hasRemaining()) {
-            final ClientHttp2StreamMultiplexer streamMultiplexer = createStreamMultiplexer(ioSession);
-            final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
-            newHandler.connected(ioSession);
-            ioSession.setHandler(newHandler);
+        } catch (final IOException ex) {
+            session.shutdown(ShutdownType.IMMEDIATE);
+            exception(session, ex);
         }
     }
 
@@ -136,14 +157,45 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         exception(session, new SocketTimeoutException());
     }
 
-    private void failPendingCommands(final Exception cause) {
+    @Override
+    public void exception(final IOSession session, final Exception cause) {
+        if (connectionListener != null) {
+            connectionListener.onError(this, new SocketTimeoutException());
+        }
+        try {
+            for (;;) {
+                final Command command = ioSession.getCommand();
+                if (command != null) {
+                    if (command instanceof ExecutionCommand) {
+                        final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                        final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+                        exchangeHandler.failed(cause);
+                        exchangeHandler.releaseResources();
+                    } else {
+                        command.cancel();
+                    }
+                } else {
+                    break;
+                }
+            }
+        } finally {
+            session.shutdown(ShutdownType.IMMEDIATE);
+        }
+    }
+
+    @Override
+    public void disconnected(final IOSession session) {
+        if (connectionListener != null) {
+            connectionListener.onDisconnect(this);
+        }
         for (;;) {
             final Command command = ioSession.getCommand();
             if (command != null) {
                 if (command instanceof ExecutionCommand) {
                     final ExecutionCommand executionCommand = (ExecutionCommand) command;
                     final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(cause);
+                    exchangeHandler.failed(new ConnectionClosedException("Connection closed"));
+                    exchangeHandler.releaseResources();
                 } else {
                     command.cancel();
                 }
@@ -154,24 +206,9 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void exception(final IOSession session, final Exception cause) {
-        if (connectionListener != null) {
-            connectionListener.onError(this, new SocketTimeoutException());
-        }
-        try {
-            failPendingCommands(cause);
-        } finally {
-            session.shutdown(ShutdownType.IMMEDIATE);
-        }
-    }
-
-    @Override
-    public void disconnected(final IOSession session) {
-    }
-
-    @Override
     public SSLSession getSSLSession() {
-        return ioSession.getSSLSession();
+        final TlsDetails tlsDetails = ioSession.getTlsDetails();
+        return tlsDetails != null ? tlsDetails.getSSLSession() : null;
     }
 
     @Override

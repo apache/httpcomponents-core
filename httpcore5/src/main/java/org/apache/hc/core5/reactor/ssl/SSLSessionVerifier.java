@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.reactor.ssl;
 
+import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.net.NamedEndpoint;
 
@@ -43,15 +43,15 @@ public interface SSLSessionVerifier {
     /**
      * Triggered when the SSL connection has been established and initial SSL
      * handshake has been successfully completed. Custom handlers can use
-     * this callback to verify properties of the {@link SSLSession}.
+     * this callback to verify properties of the {@link SSLEngine}.
      * For instance this would be the right place to enforce SSL cipher
      * strength, validate certificate chain and do hostname checks.
      *
      * @param endpoint the endpoint name for a client side session or {@code null}
      *                 for a server side session.
-     * @param sslsession newly created SSL session.
+     * @param sslEngine SSL engine.
      * @throws SSLException if case of SSL protocol error.
      */
-    void verify(NamedEndpoint endpoint, SSLSession sslsession) throws SSLException;
+    TlsDetails verify(NamedEndpoint endpoint, SSLEngine sslEngine) throws SSLException;
 
 }

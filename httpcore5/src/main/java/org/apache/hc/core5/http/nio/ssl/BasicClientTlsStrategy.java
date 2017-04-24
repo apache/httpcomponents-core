@@ -90,7 +90,7 @@ public class BasicClientTlsStrategy implements TlsStrategy {
             final HttpHost host,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
-            final String... parameters) {
+            final Object attachment) {
         final String scheme = host != null ? host.getSchemeName() : null;
         if ("https".equalsIgnoreCase(scheme)) {
             tlsSession.startTls(sslContext, sslBufferManagement, initializer, verifier);

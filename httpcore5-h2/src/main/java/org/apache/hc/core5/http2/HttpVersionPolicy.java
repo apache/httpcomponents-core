@@ -24,26 +24,10 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http2;
 
-package org.apache.hc.core5.http.nio.ssl;
+public enum HttpVersionPolicy {
 
-import java.net.SocketAddress;
+    FORCE_HTTP_1, FORCE_HTTP_2, NEGOTIATE
 
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
-
-/**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
- *
- * @since 5.0
- */
-public interface TlsStrategy {
-
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
-
-}
+};

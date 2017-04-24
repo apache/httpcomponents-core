@@ -124,6 +124,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.testing.ProtocolScheme;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
@@ -158,7 +159,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     public void setup() throws Exception {
         client = new Http1TestClient(
                 IOReactorConfig.DEFAULT,
-                scheme == ProtocolScheme.HTTPS ? createClientSSLContext() : null);
+                scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
     }
 
     @After
@@ -1353,7 +1354,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 H1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
-                scheme == ProtocolScheme.HTTPS ? createServerSSLContext() : null) {
+                scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null) {
 
             @Override
             protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(

@@ -35,7 +35,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -47,6 +46,7 @@ import org.apache.hc.core5.reactor.ssl.SSLIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -239,9 +239,9 @@ class InternalIOSession implements TlsCapableIOSession {
     }
 
     @Override
-    public SSLSession getSSLSession() {
+    public TlsDetails getTlsDetails() {
         final SSLIOSession sslIoSession = tlsSessionRef.get();
-        return sslIoSession != null ? sslIoSession.getSSLSession() : null;
+        return sslIoSession != null ? sslIoSession.getTlsDetails() : null;
     }
 
     @Override

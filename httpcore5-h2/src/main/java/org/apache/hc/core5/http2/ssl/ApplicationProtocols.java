@@ -25,25 +25,26 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
-
-import java.net.SocketAddress;
-
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+package org.apache.hc.core5.http2.ssl;
 
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
+ * Supported application protocols.
  *
  * @since 5.0
  */
-public interface TlsStrategy {
+public enum ApplicationProtocols {
 
-    void upgrade(
-            TransportSecurityLayer tlsSession,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment);
+    HTTP_2("h2"), HTTP_1_1("http/1.1");
+
+    public final String id;
+
+    ApplicationProtocols(final String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String toString() {
+        return id;
+    }
 
 }

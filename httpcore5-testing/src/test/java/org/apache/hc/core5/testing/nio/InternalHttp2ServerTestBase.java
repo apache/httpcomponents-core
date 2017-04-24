@@ -27,13 +27,9 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import java.net.URL;
-
-import javax.net.ssl.SSLContext;
-
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.testing.ProtocolScheme;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
@@ -58,7 +54,7 @@ public abstract class InternalHttp2ServerTestBase {
         @Override
         protected void before() throws Throwable {
             server = new Http2TestServer(IOReactorConfig.DEFAULT,
-                    scheme == ProtocolScheme.HTTPS ? createServerSSLContext() : null);
+                    scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null);
         }
 
         @Override
@@ -73,22 +69,5 @@ public abstract class InternalHttp2ServerTestBase {
         }
 
     };
-
-    protected SSLContext createServerSSLContext() throws Exception {
-        final URL keyStoreURL = getClass().getResource("/test.keystore");
-        final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
-                .build();
-    }
-
-    protected SSLContext createClientSSLContext() throws Exception {
-        final URL keyStoreURL = getClass().getResource("/test.keystore");
-        final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .build();
-    }
 
 }
