@@ -74,10 +74,9 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                     return;
                 }
                 throw new ProtocolException("Target host is unknown");
-            } else {
-                if (authority.getUserInfo() != null) {
-                    authority = new URIAuthority(authority.getHostName(), authority.getPort());
-                }
+            }
+            if (authority.getUserInfo() != null) {
+                authority = new URIAuthority(authority.getHostName(), authority.getPort());
             }
             request.addHeader(HttpHeaders.HOST, authority);
         }
