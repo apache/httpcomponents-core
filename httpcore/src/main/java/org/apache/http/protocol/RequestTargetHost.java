@@ -70,8 +70,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         }
 
         if (!request.containsHeader(HTTP.TARGET_HOST)) {
-            HttpHost targethost = coreContext.getTargetHost();
-            if (targethost == null) {
+            HttpHost targetHost = coreContext.getTargetHost();
+            if (targetHost == null) {
                 final HttpConnection conn = coreContext.getConnection();
                 if (conn instanceof HttpInetConnection) {
                     // Populate the context with a default HTTP host based on the
@@ -79,17 +79,17 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                     final InetAddress address = ((HttpInetConnection) conn).getRemoteAddress();
                     final int port = ((HttpInetConnection) conn).getRemotePort();
                     if (address != null) {
-                        targethost = new HttpHost(address.getHostName(), port);
+                        targetHost = new HttpHost(address.getHostName(), port);
                     }
                 }
-                if (targethost == null) {
+                if (targetHost == null) {
                     if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
                         return;
                     }
                     throw new ProtocolException("Target host missing");
                 }
             }
-            request.addHeader(HTTP.TARGET_HOST, targethost.toHostString());
+            request.addHeader(HTTP.TARGET_HOST, targetHost.toHostString());
         }
     }
 
