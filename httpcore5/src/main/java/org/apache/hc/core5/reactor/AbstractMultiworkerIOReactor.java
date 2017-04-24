@@ -297,7 +297,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 // Verify I/O dispatchers
                 for (int i = 0; i < this.workerCount; i++) {
                     final Worker worker = this.workers[i];
-                    final Exception ex = worker.getException();
+                    final Throwable ex = worker.getThrowable();
                     if (ex != null) {
                         throw new IOReactorException("I/O dispatch worker terminated abnormally", ex);
                     }
@@ -491,7 +491,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
         final IOReactorImpl dispatcher;
 
-        private volatile Exception exception;
+        private volatile Throwable throwable;
 
         public Worker(final IOReactorImpl dispatcher) {
             super();
@@ -502,13 +502,16 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         public void run() {
             try {
                 this.dispatcher.execute();
+            } catch (final Error ex) {
+                this.throwable = ex;
+                throw ex;
             } catch (final Exception ex) {
-                this.exception = ex;
+                this.throwable = ex;
             }
         }
 
-        public Exception getException() {
-            return this.exception;
+        public Throwable getThrowable() {
+            return this.throwable;
         }
 
     }
