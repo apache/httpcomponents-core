@@ -31,7 +31,7 @@ import java.lang.reflect.Method;
 
 public final class ReflectionSupport {
 
-    public static void callSetter(final Object object, final String setterName, final Class type, final Object value) {
+    public static void callSetter(final Object object, final String setterName, final Class<?> type, final Object value) {
         try {
             final Class<?> clazz = object.getClass();
             final Method method = clazz.getMethod("set" + setterName, type);
