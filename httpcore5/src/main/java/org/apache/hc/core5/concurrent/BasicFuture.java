@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -68,6 +69,9 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     private T getResult() throws ExecutionException {
         if (this.ex != null) {
             throw new ExecutionException(this.ex);
+        }
+        if (cancelled) {
+            throw new CancellationException();
         }
         return this.result;
     }

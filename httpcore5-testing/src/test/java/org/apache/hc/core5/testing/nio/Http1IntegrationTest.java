@@ -52,6 +52,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -1212,9 +1213,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals("Hi back", entity2);
 
         try {
-            final Message<HttpResponse, String> result3 = future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertNull(result3);
-            Assert.assertTrue(future3.isCancelled());
+            future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ignore) {
         }
 
@@ -1222,9 +1222,12 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 new BasicRequestProducer("POST", createRequestURI(serverEndpoint, "/hello-3"),
                         new BasicAsyncEntityProducer("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result4 = future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNull(result4);
-        Assert.assertTrue(future4.isCancelled());
+        try {
+            future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.fail("CancellationException expected");
+        } catch (CancellationException ignore) {
+            Assert.assertTrue(future4.isCancelled());
+        }
     }
 
     @Test
@@ -1276,10 +1279,10 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertTrue(entity2.length() > 0);
 
         try {
-            final Message<HttpResponse, String> result3 = future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertNull(result3);
+            future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.fail("CancellationException expected");
+        } catch (final CancellationException ignore) {
             Assert.assertTrue(future3.isCancelled());
-        } catch (final ExecutionException ignore) {
         }
     }
 
