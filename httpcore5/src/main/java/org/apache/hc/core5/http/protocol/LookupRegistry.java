@@ -44,10 +44,10 @@ public interface LookupRegistry<T> {
     /**
      * Looks up an object matching the given request path.
      *
-     * @param path the request path
+     * @param value the request path
      * @return object or {@code null} if no match is found.
      */
-    T lookup(String string);
+    T lookup(String value);
 
     /**
      * Removes registered object, if exists, for the given pattern.
