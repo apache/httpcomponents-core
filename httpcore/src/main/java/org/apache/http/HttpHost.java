@@ -40,7 +40,6 @@ import org.apache.http.util.LangUtils;
  * Holds all of the variables needed to describe an HTTP connection to a host.
  * This includes remote host name, port and scheme.
  *
- *
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
