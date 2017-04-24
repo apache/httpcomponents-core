@@ -5,29 +5,9 @@ This is a major release that renders HttpCore API incompatible with the stable 4
 and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
 of the latest protocol specification.
 
-Changelog
--------------------
-
-* HTTPCORE-450: Add a Provider parameter in SSLContextBuilder.
-  Contributed by lujianbo <387852424 at qq dot com>, Gary Gregory <ggregory at apache.org>
-
-* HTTPCORE-451: Add a TimeValue class to wrap a long and a TimeUnit.
-  Contributed by Gary Gregory <ggregory at apache.org>
-  
-* HTTPCORE-452: Add a UriRegexMatcher.
-
-* HTTPCORE-453: ServerBootstrap should traverse handler map in insertion order.
-
-Release 5.0-ALPHA2
--------------------
-
-This is a major release that renders HttpCore API incompatible with the stable 4.x branch
-and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
-of the latest protocol specification.
-
 Notable changes and features included in the 5.0 series are:
 
-* Partial support for HTTP/2 protocol and partial conformance to requirements and
+* Partial support for HTTP/2 protocol and conformance to requirements and
   recommendations of the latest HTTP/2 protocol specification (RFC 7540, RFC 7541)
 
   Supported features:
@@ -39,16 +19,15 @@ Notable changes and features included in the 5.0 series are:
     ** message trailers
     ** expect-continue handshake
     ** connection validation (ping)
-    ** TLS 1.2 features
+    ** application-layer protocol negotiation (ALPN) on Java 1.9+
+    ** TLS 1.2 security features
 
    Unsupported features:
 
-    ** application-layer protocol negotiation (ALPN)
     ** padding of outgoing frames
     ** stream priority
     ** plain connection HTTP/1.1 upgrade
     ** CONNECT method
-    ** TLS renegotiation and compression cannot be disabled with Java 1.7 JSSE APIs
 
 * Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol
   specification (RFC 7230, RFC 7231)
@@ -59,11 +38,11 @@ Notable changes and features included in the 5.0 series are:
 
 * Redesigned connection pool implementation with reduced pool lock contention.
 
-* Support for HTTP/1.1 protocol switch / upgrade.
+* Plug-in mechanism for HTTP/1.1 protocol switch / upgrade.
 
 * Package name space changed to 'org.apache.hc.core5'
 
-* Maven group id changed to 'org.apache.httpcomponents.core5' 
+* Maven group id changed to 'org.apache.httpcomponents.core5'
 
 HttpCore 5.0 releases can be co-located with earlier versions.
 
@@ -72,6 +51,53 @@ Please note that as of 5.0 HttpCore requires Java 1.7 or newer.
 Please note that at this point 5.0 APIs are considered API experimental and unstable and are
 expected to change in the coming releases without providing a migration path.
 
+
+Changelog
+-------------------
+
+* Support for HTTP protocol version negotiation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Support TLS ALPN and disable TLS renegotiation via reflection on Java 1.9+.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-452: Add a UriRegexMatcher.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-453: ServerBootstrap should traverse handler map in insertion order.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-451: Add a TimeValue class to wrap a long and a TimeUnit.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* Fixed HTTP/2 server side response message delineation when replying to HEAD requests.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Rewrite of non-blocking HTTP/1.1 connection persistence and re-use code.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* API for graceful shutdown of processes or endpoints
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-450: Add a Provider parameter in SSLContextBuilder.
+  Contributed by lujianbo <387852424 at qq dot com>, Gary Gregory <ggregory at apache.org>
+
+* Improved handling of premature HTTP/1.1 stream termination by non-blocking
+  protocol handlers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Non-blocking connection initializer to support multi-homed remote endpoints.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
+
+Release 5.0-ALPHA2
+-------------------
+
+This is a major release that renders HttpCore API incompatible with the stable 4.x branch
+and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
+of the latest protocol specification.
 
 Changelog
 -------------------
