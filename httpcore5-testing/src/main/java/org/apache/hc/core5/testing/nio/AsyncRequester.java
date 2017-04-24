@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.net.NamedEndpoint;
@@ -49,8 +50,8 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
 
     public AsyncRequester(final IOReactorConfig ioReactorConfig) {
         super(ioReactorConfig,
-                new ThreadFactoryImpl("connector", true),
-                new ThreadFactoryImpl("requester-dispatch", true));
+                new DefaultThreadFactory("connector", true),
+                new DefaultThreadFactory("requester-dispatch", true));
     }
 
     @Override

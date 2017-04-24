@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.net.InetSocketAddress;
 import java.util.Set;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
@@ -47,9 +48,9 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
             final ExceptionListener exceptionListener,
             final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
         super(new DefaultListeningIOReactor(
-                    eventHandlerFactory, ioReactorConfig, new ThreadFactoryImpl("server-dispatch", true), sessionShutdownCallback),
+                    eventHandlerFactory, ioReactorConfig, new DefaultThreadFactory("server-dispatch", true), null, sessionShutdownCallback),
                 exceptionListener,
-                new ThreadFactoryImpl("listener", true));
+                new DefaultThreadFactory("listener", true));
     }
 
     public ListenerEndpoint listen(final InetSocketAddress address) {

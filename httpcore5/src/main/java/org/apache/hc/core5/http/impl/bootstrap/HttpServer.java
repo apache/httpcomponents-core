@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
@@ -93,12 +94,12 @@ public class HttpServer implements GracefullyCloseable {
         this.listenerExecutorService = new ThreadPoolExecutor(
                 1, 1, 0L, TimeUnit.MILLISECONDS,
                 new SynchronousQueue<Runnable>(),
-                new ThreadFactoryImpl("HTTP-listener-" + this.port));
+                new DefaultThreadFactory("HTTP-listener-" + this.port));
         this.workerThreads = new ThreadGroup("HTTP-workers");
         this.workerExecutorService = new WorkerPoolExecutor(
                 0, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
-                new ThreadFactoryImpl("HTTP-worker", this.workerThreads, false));
+                new DefaultThreadFactory("HTTP-worker", this.workerThreads, false));
         this.status = new AtomicReference<>(Status.READY);
     }
 

@@ -63,7 +63,6 @@ class IOReactorImpl implements IOReactor {
     private final AtomicReference<IOReactorStatus> status;
     private final AtomicBoolean shutdownInitiated;
     private final Object shutdownMutex;
-    private final IOReactorExceptionHandler exceptionHandler;
     private final Callback<IOSession> sessionShutdownCallback;
 
     private volatile long lastTimeoutCheck;
@@ -71,12 +70,10 @@ class IOReactorImpl implements IOReactor {
     IOReactorImpl(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
-            final IOReactorExceptionHandler exceptionHandler,
             final Callback<IOSession> sessionShutdownCallback) {
         super();
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
-        this.exceptionHandler = exceptionHandler;
         this.sessionShutdownCallback = sessionShutdownCallback;
         this.shutdownInitiated = new AtomicBoolean(false);
         this.closedSessions = new ConcurrentLinkedQueue<>();
@@ -232,12 +229,6 @@ class IOReactorImpl implements IOReactor {
         selectedKeys.clear();
     }
 
-    private void handleRuntimeException(final RuntimeException ex) {
-        if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
-            throw ex;
-        }
-    }
-
     private void processEvent(final SelectionKey key) {
         final InternalIOSession session = (InternalIOSession) key.attachment();
         try {
@@ -253,7 +244,7 @@ class IOReactorImpl implements IOReactor {
             session.shutdown(ShutdownType.GRACEFUL);
         } catch (final RuntimeException ex) {
             session.shutdown(ShutdownType.IMMEDIATE);
-            handleRuntimeException(ex);
+            throw ex;
         }
     }
 
@@ -288,11 +279,7 @@ class IOReactorImpl implements IOReactor {
                 if (sessionRequest != null) {
                     sessionRequest.completed(session);
                 }
-                try {
-                    session.onConnected();
-                } catch (final RuntimeException ex) {
-                    handleRuntimeException(ex);
-                }
+                session.onConnected();
             } catch (final CancelledKeyException ex) {
                 session.shutdown(ShutdownType.GRACEFUL);
             }
@@ -309,8 +296,6 @@ class IOReactorImpl implements IOReactor {
                 session.onDisconnected();
             } catch (final CancelledKeyException ex) {
                 // ignore and move on
-            } catch (final RuntimeException ex) {
-                handleRuntimeException(ex);
             }
         }
     }
@@ -329,7 +314,7 @@ class IOReactorImpl implements IOReactor {
                 session.shutdown(ShutdownType.GRACEFUL);
             } catch (final RuntimeException ex) {
                 session.shutdown(ShutdownType.IMMEDIATE);
-                handleRuntimeException(ex);
+                throw ex;
             }
         }
     }

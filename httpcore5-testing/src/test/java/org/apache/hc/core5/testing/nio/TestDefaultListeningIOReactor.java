@@ -54,45 +54,47 @@ import org.junit.Test;
  */
 public class TestDefaultListeningIOReactor {
 
-    protected DefaultListeningIOReactor ioreactor;
+    private DefaultListeningIOReactor ioreactor;
+
+    private static class NoopIOEventHandlerFactory implements IOEventHandlerFactory {
+
+        @Override
+        public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+            return new IOEventHandler() {
+
+                @Override
+                public void connected(final IOSession session) {
+                }
+
+                @Override
+                public void inputReady(final IOSession session) {
+                }
+
+                @Override
+                public void outputReady(final IOSession session) {
+                }
+
+                @Override
+                public void timeout(final IOSession session) {
+                }
+
+                @Override
+                public void exception(final IOSession session, final Exception cause) {
+                }
+
+                @Override
+                public void disconnected(final IOSession session) {
+                }
+            };
+        }
+    }
 
     @Before
     public void setup() throws Exception {
         final IOReactorConfig reactorConfig = IOReactorConfig.custom()
                 .setIoThreadCount(1)
                 .build();
-        this.ioreactor = new DefaultListeningIOReactor(new IOEventHandlerFactory() {
-
-            @Override
-            public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-                return new IOEventHandler() {
-
-                    @Override
-                    public void connected(final IOSession session) {
-                    }
-
-                    @Override
-                    public void inputReady(final IOSession session) {
-                    }
-
-                    @Override
-                    public void outputReady(final IOSession session) {
-                    }
-
-                    @Override
-                    public void timeout(final IOSession session) {
-                    }
-
-                    @Override
-                    public void exception(final IOSession session, final Exception cause) {
-                    }
-
-                    @Override
-                    public void disconnected(final IOSession session) {
-                    }
-                };
-            }
-        }, reactorConfig, null);
+        this.ioreactor = new DefaultListeningIOReactor(new NoopIOEventHandlerFactory(), reactorConfig, null, null);
     }
 
     @After
@@ -194,20 +196,20 @@ public class TestDefaultListeningIOReactor {
 
     @Test
     public void testEndpointAlreadyBoundNonFatal() throws Exception {
-        ioreactor.setExceptionHandler(new IOReactorExceptionHandler() {
+        final IOReactorConfig reactorConfig = IOReactorConfig.custom()
+                .setIoThreadCount(1)
+                .build();
+        ioreactor = new DefaultListeningIOReactor(
+                new NoopIOEventHandlerFactory(),
+                reactorConfig,
+                new IOReactorExceptionHandler() {
 
-            @Override
-            public boolean handle(final IOException ex) {
-                return (ex instanceof BindException);
-            }
+                    @Override
+                    public boolean handle(final IOException ex) {
+                        return (ex instanceof BindException);
+                    }
 
-            @Override
-            public boolean handle(final RuntimeException ex) {
-                return false;
-            }
-
-        });
-
+                }, null);
         final Thread t = new Thread(new Runnable() {
 
             @Override

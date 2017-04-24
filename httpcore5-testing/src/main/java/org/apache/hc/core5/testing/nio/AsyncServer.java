@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.util.Set;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -42,7 +43,7 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
 
     public AsyncServer(final IOReactorConfig ioReactorConfig) {
-        super(ioReactorConfig, new ThreadFactoryImpl("listener", true), new ThreadFactoryImpl("server-dispatch", true));
+        super(ioReactorConfig, new DefaultThreadFactory("listener", true), new DefaultThreadFactory("server-dispatch", true));
     }
 
     @Override
@@ -52,7 +53,7 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
             final ThreadFactory threadFactory,
             final Callback<IOSession> sessionShutdownCallback) throws IOException {
         return new DefaultListeningIOReactor(
-                ioEventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
+                ioEventHandlerFactory, ioReactorConfig, threadFactory, null, sessionShutdownCallback);
     }
 
     public ListenerEndpoint listen(final InetSocketAddress address) {

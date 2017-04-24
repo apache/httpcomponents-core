@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
@@ -53,9 +54,9 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
             final ExceptionListener exceptionListener,
             final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
         super(new DefaultConnectingIOReactor(
-                        eventHandlerFactory, ioReactorConfig, new ThreadFactoryImpl("requester-dispatch", true), sessionShutdownCallback),
+                        eventHandlerFactory, ioReactorConfig, new DefaultThreadFactory("requester-dispatch", true), sessionShutdownCallback),
                 exceptionListener,
-                new ThreadFactoryImpl("connector", true));
+                new DefaultThreadFactory("connector", true));
     }
 
     private InetSocketAddress toSocketAddress(final HttpHost host) {

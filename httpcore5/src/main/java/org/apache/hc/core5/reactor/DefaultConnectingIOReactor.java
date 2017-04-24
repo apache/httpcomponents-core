@@ -55,17 +55,18 @@ import org.apache.hc.core5.util.Asserts;
 public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         implements ConnectingIOReactor {
 
+    private final IOReactorConfig reactorConfig;
     private final Queue<SessionRequestImpl> requestQueue;
-
     private final long selectInterval;
     private long lastTimeoutCheck;
 
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig reactorConfig,
+            final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
             final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
-        super(eventHandlerFactory, reactorConfig, threadFactory, sessionShutdownCallback);
+        super(eventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
+        this.reactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.selectInterval = this.reactorConfig.getSelectInterval();
         this.lastTimeoutCheck = System.currentTimeMillis();
@@ -103,7 +104,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         processSessionRequests();
 
         if (readyCount > 0) {
-            final Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
+            final Set<SelectionKey> selectedKeys = selector().selectedKeys();
             for (final SelectionKey key : selectedKeys) {
 
                 processEvent(key);
@@ -115,7 +116,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
         final long currentTime = System.currentTimeMillis();
         if ((currentTime - this.lastTimeoutCheck) >= this.selectInterval) {
             this.lastTimeoutCheck = currentTime;
-            final Set<SelectionKey> keys = this.selector.keys();
+            final Set<SelectionKey> keys = selector().keys();
             processTimeouts(keys);
         }
     }
@@ -197,7 +198,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 callback);
 
         this.requestQueue.add(sessionRequest);
-        this.selector.wakeup();
+        selector().wakeup();
 
         return sessionRequest;
     }
@@ -252,7 +253,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
 
             final SessionRequestHandle requestHandle = new SessionRequestHandle(request);
             try {
-                final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT,
+                final SelectionKey key = socketChannel.register(selector(), SelectionKey.OP_CONNECT,
                         requestHandle);
                 request.setKey(key);
             } catch (final IOException ex) {

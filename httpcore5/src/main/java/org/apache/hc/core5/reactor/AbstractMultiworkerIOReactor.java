@@ -42,9 +42,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
@@ -92,21 +92,18 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
-    protected final IOReactorConfig reactorConfig;
-    protected final Selector selector;
+    private final IOReactorConfig reactorConfig;
+    private final Selector selector;
     private final int workerCount;
     private final IOEventHandlerFactory eventHandlerFactory;
     private final ThreadFactory threadFactory;
     private final Callback<IOSession> sessionShutdownCallback;
     private final IOReactorImpl[] dispatchers;
-    private final Worker[] workers;
+    private final IODispatchWorker[] workers;
     private final Thread[] threads;
+    private final List<ExceptionEvent> auditLog;
     private final AtomicReference<IOReactorStatus> status;
     private final Object shutdownMutex;
-
-    //TODO: make final
-    protected IOReactorExceptionHandler exceptionHandler;
-    protected List<ExceptionEvent> auditLog;
 
     private int currentWorker = 0;
 
@@ -134,12 +131,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         } catch (final IOException ex) {
             throw new IOReactorException("Failure opening selector", ex);
         }
-        this.threadFactory = threadFactory != null ? threadFactory : new DefaultThreadFactory();
+        this.threadFactory = threadFactory != null ? threadFactory : new DefaultThreadFactory("I/O dispatcher", true);
         this.sessionShutdownCallback = sessionShutdownCallback;
         this.auditLog = new ArrayList<>();
         this.workerCount = this.reactorConfig.getIoThreadCount();
         this.dispatchers = new IOReactorImpl[workerCount];
-        this.workers = new Worker[workerCount];
+        this.workers = new IODispatchWorker[workerCount];
         this.threads = new Thread[workerCount];
         this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
         this.shutdownMutex = new Object();
@@ -149,6 +146,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             final IOEventHandlerFactory eventHandlerFactory,
             final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
         this(eventHandlerFactory, null, null, sessionShutdownCallback);
+    }
+
+    Selector selector() {
+        return selector;
     }
 
     @Override
@@ -176,7 +177,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      * @param timestamp the time stamp of the exception. Can be
      * {@code null} in which case the current date / time will be used.
      */
-    protected synchronized void addExceptionEvent(final Throwable ex, final Date timestamp) {
+    void addExceptionEvent(final Throwable ex, final Date timestamp) {
         if (ex == null) {
             return;
         }
@@ -190,17 +191,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
      *
      * @param ex the exception thrown by the I/O reactor.
      */
-    protected void addExceptionEvent(final Throwable ex) {
+    void addExceptionEvent(final Throwable ex) {
         addExceptionEvent(ex, null);
-    }
-
-    /**
-     * Sets exception handler for this I/O reactor.
-     *
-     * @param exceptionHandler the exception handler.
-     */
-    public void setExceptionHandler(final IOReactorExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
     }
 
     /**
@@ -256,13 +248,12 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 final IOReactorImpl dispatcher = new IOReactorImpl(
                         this.eventHandlerFactory,
                         this.reactorConfig,
-                        this.exceptionHandler,
                         this.sessionShutdownCallback);
                 this.dispatchers[i] = dispatcher;
             }
             for (int i = 0; i < this.workerCount; i++) {
                 final IOReactorImpl dispatcher = this.dispatchers[i];
-                this.workers[i] = new Worker(dispatcher);
+                this.workers[i] = new IODispatchWorker(dispatcher);
                 this.threads[i] = this.threadFactory.newThread(this.workers[i]);
             }
 
@@ -296,7 +287,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
                 // Verify I/O dispatchers
                 for (int i = 0; i < this.workerCount; i++) {
-                    final Worker worker = this.workers[i];
+                    final IODispatchWorker worker = this.workers[i];
                     final Throwable ex = worker.getThrowable();
                     if (ex != null) {
                         throw new IOReactorException("I/O dispatch worker terminated abnormally", ex);
@@ -487,13 +478,13 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
     }
 
-    static class Worker implements Runnable {
+    static class IODispatchWorker implements Runnable {
 
         final IOReactorImpl dispatcher;
 
         private volatile Throwable throwable;
 
-        public Worker(final IOReactorImpl dispatcher) {
+        public IODispatchWorker(final IOReactorImpl dispatcher) {
             super();
             this.dispatcher = dispatcher;
         }
@@ -512,17 +503,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
         public Throwable getThrowable() {
             return this.throwable;
-        }
-
-    }
-
-    static class DefaultThreadFactory implements ThreadFactory {
-
-        private final static AtomicLong COUNT = new AtomicLong(1);
-
-        @Override
-        public Thread newThread(final Runnable r) {
-            return new Thread(r, "I/O dispatcher " + COUNT.getAndIncrement());
         }
 
     }

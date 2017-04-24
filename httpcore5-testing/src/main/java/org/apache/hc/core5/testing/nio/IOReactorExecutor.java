@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
@@ -94,7 +95,7 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
         if (ioReactorRef.compareAndSet(null, createIOReactor(
                 ioEventHandlerFactory,
                 ioReactorConfig,
-                workerThreadFactory != null ? workerThreadFactory : new ThreadFactoryImpl("i/o dispatch"),
+                workerThreadFactory != null ? workerThreadFactory : new DefaultThreadFactory("i/o dispatch"),
                 new Callback<IOSession>() {
 
                     @Override

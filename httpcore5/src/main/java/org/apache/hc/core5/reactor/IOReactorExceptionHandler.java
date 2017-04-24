@@ -49,16 +49,4 @@ public interface IOReactorExceptionHandler {
      */
     boolean handle(IOException ex);
 
-    /**
-     * This method is expected to examine the runtime exception passed as
-     * a parameter and decide whether it is safe to continue execution of
-     * the I/O reactor.
-     *
-     * @param ex potentially recoverable runtime exception
-     * @return {@code true} if it is safe to ignore the exception
-     * and continue execution of the I/O reactor; {@code false} if the
-     * I/O reactor must throw {@link RuntimeException} and terminate
-     */
-    boolean handle(RuntimeException ex);
-
 }

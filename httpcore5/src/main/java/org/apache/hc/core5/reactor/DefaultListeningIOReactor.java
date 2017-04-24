@@ -55,6 +55,8 @@ import org.apache.hc.core5.util.Asserts;
 public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         implements ListeningIOReactor {
 
+    private final IOReactorConfig reactorConfig;
+    private final IOReactorExceptionHandler exceptionHandler;
     private final Queue<ListenerEndpointImpl> requestQueue;
     private final Set<ListenerEndpointImpl> endpoints;
     private final Set<SocketAddress> pausedEndpoints;
@@ -65,7 +67,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
      * Creates an instance of DefaultListeningIOReactor with the given configuration.
      *
      * @param eventHandlerFactory the factory to create I/O event handlers.
-     * @param config I/O reactor configuration.
+     * @param ioReactorConfig I/O reactor configuration.
      * @param threadFactory the factory to create threads.
      *   Can be {@code null}.
      * @throws IOReactorException in case if a non-recoverable I/O error.
@@ -74,10 +76,13 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
      */
     public DefaultListeningIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig config,
+            final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
+            final IOReactorExceptionHandler exceptionHandler,
             final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
-        super(eventHandlerFactory, config, threadFactory, sessionShutdownCallback);
+        super(eventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
+        this.reactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
+        this.exceptionHandler = exceptionHandler;
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.endpoints = Collections.synchronizedSet(new HashSet<ListenerEndpointImpl>());
         this.pausedEndpoints = new HashSet<>();
@@ -96,8 +101,9 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
     public DefaultListeningIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
+            final IOReactorExceptionHandler exceptionHandler,
             final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
-        this(eventHandlerFactory, config, null, sessionShutdownCallback);
+        this(eventHandlerFactory, config, null, exceptionHandler, sessionShutdownCallback);
     }
 
     /**
@@ -108,9 +114,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
      *
      * @since 5.0
      */
-    public DefaultListeningIOReactor(
-            final IOEventHandlerFactory eventHandlerFactory) throws IOReactorException {
-        this(eventHandlerFactory, null, null);
+    public DefaultListeningIOReactor(final IOEventHandlerFactory eventHandlerFactory) throws IOReactorException {
+        this(eventHandlerFactory, null, null, null);
     }
 
     @Override
@@ -128,7 +133,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         }
 
         if (readyCount > 0) {
-            final Set<SelectionKey> selectedKeys = this.selector.selectedKeys();
+            final Set<SelectionKey> selectedKeys = selector().selectedKeys();
             for (final SelectionKey key : selectedKeys) {
 
                 processEvent(key);
@@ -150,10 +155,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                     try {
                         socketChannel = serverChannel.accept();
                     } catch (final IOException ex) {
-                        if (this.exceptionHandler == null ||
-                                !this.exceptionHandler.handle(ex)) {
-                            throw new IOReactorException(
-                                    "Failure accepting connection", ex);
+                        if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+                            throw new IOReactorException("Failure accepting connection", ex);
                         }
                     }
                     if (socketChannel == null) {
@@ -162,10 +165,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                     try {
                         prepareSocket(socketChannel.socket());
                     } catch (final IOException ex) {
-                        if (this.exceptionHandler == null ||
-                                !this.exceptionHandler.handle(ex)) {
-                            throw new IOReactorException(
-                                    "Failure initalizing socket", ex);
+                        if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
+                            throw new IOReactorException("Failure initalizing socket", ex);
                         }
                     }
                     enqueuePendingSession(socketChannel, null);
@@ -198,7 +199,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
         Asserts.check(status == IOReactorStatus.INACTIVE || status == IOReactorStatus.ACTIVE, "I/O reactor has been shut down");
         final ListenerEndpointImpl request = createEndpoint(address);
         this.requestQueue.add(request);
-        this.selector.wakeup();
+        selector().wakeup();
         return request;
     }
 
@@ -234,7 +235,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 return;
             }
             try {
-                final SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
+                final SelectionKey key = serverChannel.register(selector(), SelectionKey.OP_ACCEPT);
                 key.attach(request);
                 request.setKey(key);
             } catch (final IOException ex) {
@@ -293,7 +294,7 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
             this.requestQueue.add(request);
         }
         this.pausedEndpoints.clear();
-        this.selector.wakeup();
+        selector().wakeup();
     }
 
 }
