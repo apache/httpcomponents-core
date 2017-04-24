@@ -85,9 +85,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
                 if (targethost == null) {
                     if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
                         return;
-                    } else {
-                        throw new ProtocolException("Target host missing");
                     }
+                    throw new ProtocolException("Target host missing");
                 }
             }
             request.addHeader(HTTP.TARGET_HOST, targethost.toHostString());
