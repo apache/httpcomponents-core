@@ -46,6 +46,13 @@ public class IOReactorException extends IOException {
         }
     }
 
+    public IOReactorException(final String message, final Throwable cause) {
+        super(message);
+        if (cause != null) {
+            initCause(cause);
+        }
+    }
+
     public IOReactorException(final String message) {
         super(message);
     }
