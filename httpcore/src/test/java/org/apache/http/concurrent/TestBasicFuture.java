@@ -26,6 +26,7 @@
  */
 package org.apache.http.concurrent;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -118,7 +119,11 @@ public class TestBasicFuture {
         Assert.assertNull(callback.getException());
         Assert.assertTrue(callback.isCancelled());
 
-        Assert.assertNull(future.get());
+        try {
+            future.get();
+            Assert.fail("CancellationException expected");
+        } catch (final CancellationException ex) {
+        }
         Assert.assertTrue(future.isDone());
         Assert.assertTrue(future.isCancelled());
     }
@@ -175,7 +180,7 @@ public class TestBasicFuture {
         Assert.assertFalse(future.isCancelled());
     }
 
-    @Test
+    @Test(expected = CancellationException.class)
     public void testAsyncCancelled() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<Object>(null);
 
@@ -193,9 +198,7 @@ public class TestBasicFuture {
         };
         t.setDaemon(true);
         t.start();
-        Assert.assertNull(future.get(60, TimeUnit.SECONDS));
-        Assert.assertTrue(future.isDone());
-        Assert.assertTrue(future.isCancelled());
+        future.get(60, TimeUnit.SECONDS);
     }
 
     @Test(expected=TimeoutException.class)

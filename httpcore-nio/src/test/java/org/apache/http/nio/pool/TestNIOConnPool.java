@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -259,8 +260,11 @@ public class TestNIOConnPool {
 
         Assert.assertTrue(future.isDone());
         Assert.assertTrue(future.isCancelled());
-        final LocalPoolEntry entry = future.get();
-        Assert.assertNull(entry);
+        try {
+            future.get();
+            Assert.fail("CancellationException expected");
+        } catch (CancellationException ignore) {
+        }
 
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -1046,8 +1050,11 @@ public class TestNIOConnPool {
         pool.requestCompleted(sessionRequest1);
 
         Assert.assertTrue(future1.isDone());
-        final LocalPoolEntry entry1 = future1.get();
-        Assert.assertNull(entry1);
+        try {
+            future1.get();
+            Assert.fail("CancellationException expected");
+        } catch (CancellationException ignore) {
+        }
 
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
