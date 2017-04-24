@@ -126,7 +126,7 @@ public class ClassicFileServerExample {
         });
         System.out.println("Listening on port " + port);
 
-        server.awaitTermination(TimeValue.MAX_VALUE);
+        server.awaitTermination(TimeValue.ofDays(Long.MAX_VALUE));
 
     }
 

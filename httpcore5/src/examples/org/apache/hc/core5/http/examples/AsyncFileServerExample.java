@@ -200,7 +200,7 @@ public class AsyncFileServerExample {
         ListenerEndpoint listenerEndpoint = server.listen(new InetSocketAddress(port));
         listenerEndpoint.waitFor();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
-        server.awaitShutdown(TimeValue.MAX_VALUE);
+        server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
     }
 
 }
