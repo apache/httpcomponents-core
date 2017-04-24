@@ -40,9 +40,9 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class TimeValue {
 
-    static final int UNDEFINED = -1;
-    public static final TimeValue NEG_ONE_MILLISECONDS = TimeValue.of(UNDEFINED, TimeUnit.MILLISECONDS);
-    public static final TimeValue NEG_ONE_SECONDS = TimeValue.of(UNDEFINED, TimeUnit.SECONDS);
+    static final int INT_UNDEFINED = -1;
+    public static final TimeValue NEG_ONE_MILLISECONDS = TimeValue.of(INT_UNDEFINED, TimeUnit.MILLISECONDS);
+    public static final TimeValue NEG_ONE_SECONDS = TimeValue.of(INT_UNDEFINED, TimeUnit.SECONDS);
     public static final TimeValue ZERO_MILLISECONDS = TimeValue.of(0, TimeUnit.MILLISECONDS);
 
     /**
@@ -81,17 +81,6 @@ public class TimeValue {
     }
 
     /**
-     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns {@link #ZERO_MILLISECONDS}.
-     *
-     * @param timeValue
-     *            may be {@code null}
-     * @return {@code timeValue} or {@link #ZERO_MILLISECONDS}
-     */
-    public static TimeValue defaultsToZeroMillis(final TimeValue timeValue) {
-        return defaultsTo(timeValue, ZERO_MILLISECONDS);
-    }
-
-    /**
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
      * {@link #NEG_ONE_SECONDS}.
      *
@@ -116,6 +105,25 @@ public class TimeValue {
     }
 
     /**
+     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns {@link #ZERO_MILLISECONDS}.
+     *
+     * @param timeValue
+     *            may be {@code null}
+     * @return {@code timeValue} or {@link #ZERO_MILLISECONDS}
+     */
+    public static TimeValue defaultsToZeroMillis(final TimeValue timeValue) {
+        return defaultsTo(timeValue, ZERO_MILLISECONDS);
+    }
+
+    public static boolean isNonNegative(final TimeValue timeValue) {
+        return timeValue != null && timeValue.getDuration() >= 0;
+    }
+
+    public static boolean isPositive(final TimeValue timeValue) {
+        return timeValue != null && timeValue.getDuration() > 0;
+    }
+
+    /**
      * Creates a TimeValue.
      *
      * @param duration
@@ -136,6 +144,10 @@ public class TimeValue {
         return of(hours, TimeUnit.HOURS);
     }
 
+    public static TimeValue ofMicroseconds(final long microseconds) {
+        return of(microseconds, TimeUnit.MICROSECONDS);
+    }
+
     public static TimeValue ofMillis(final long millis) {
         return of(millis, TimeUnit.MILLISECONDS);
     }
@@ -144,16 +156,12 @@ public class TimeValue {
         return of(minutes, TimeUnit.MINUTES);
     }
 
+    public static TimeValue ofNanoseconds(final long nanoseconds) {
+        return of(nanoseconds, TimeUnit.NANOSECONDS);
+    }
+
     public static TimeValue ofSeconds(final long seconds) {
         return of(seconds, TimeUnit.SECONDS);
-    }
-
-    public static boolean isPositive(final TimeValue timeValue) {
-        return timeValue != null && timeValue.getDuration() > 0;
-    }
-
-    public static boolean isNonNegative(final TimeValue timeValue) {
-        return timeValue != null && timeValue.getDuration() >= 0;
     }
 
     private final long duration;
@@ -170,12 +178,33 @@ public class TimeValue {
         return timeUnit.convert(duration, sourceUnit);
     }
 
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof TimeValue) {
+            final TimeValue that = (TimeValue) obj;
+            return this.duration == that.duration &&
+                    LangUtils.equals(this.timeUnit, that.timeUnit);
+        }
+        return false;
+    }
+
     public long getDuration() {
         return duration;
     }
 
     public TimeUnit getTimeUnit() {
         return timeUnit;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, Long.valueOf(duration));
+        hash = LangUtils.hashCode(hash, timeUnit);
+        return hash;
     }
 
     public void sleep() throws InterruptedException {
@@ -224,27 +253,6 @@ public class TimeValue {
 
     public int toSecondsIntBound() {
         return asBoundInt(toSeconds());
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof TimeValue) {
-            final TimeValue that = (TimeValue) obj;
-            return this.duration == that.duration &&
-                    LangUtils.equals(this.timeUnit, that.timeUnit);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, Long.valueOf(duration));
-        hash = LangUtils.hashCode(hash, timeUnit);
-        return hash;
     }
 
     @Override

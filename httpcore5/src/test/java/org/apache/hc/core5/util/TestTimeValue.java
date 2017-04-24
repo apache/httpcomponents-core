@@ -34,10 +34,6 @@ import org.junit.Test;
 
 public class TestTimeValue {
 
-    private void checkToSeconds(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toSeconds(value), TimeValue.of(value, timeUnit).toSeconds());
-    }
-
     private void checkToDays(final long value, final TimeUnit timeUnit) {
         Assert.assertEquals(timeUnit.toDays(value), TimeValue.of(value, timeUnit).toDays());
     }
@@ -46,45 +42,24 @@ public class TestTimeValue {
         Assert.assertEquals(timeUnit.toHours(value), TimeValue.of(value, timeUnit).toHours());
     }
 
-    private void checkToMinutes(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMinutes(value), TimeValue.of(value, timeUnit).toMinutes());
+    private void checkToMicros(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toMicros(value), TimeValue.of(value, timeUnit).toMicros());
     }
 
     private void checkToMillis(final long value, final TimeUnit timeUnit) {
         Assert.assertEquals(timeUnit.toMillis(value), TimeValue.of(value, timeUnit).toMillis());
     }
 
-    private void checkToMicros(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMicros(value), TimeValue.of(value, timeUnit).toMicros());
+    private void checkToMinutes(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toMinutes(value), TimeValue.of(value, timeUnit).toMinutes());
     }
 
     private void checkToNanos(final long value, final TimeUnit timeUnit) {
         Assert.assertEquals(timeUnit.toNanos(value), TimeValue.of(value, timeUnit).toNanos());
     }
 
-    @Test
-    public void test0() {
-        test(0);
-    }
-
-    @Test
-    public void test1() {
-        test(1);
-    }
-
-    @Test
-    public void testNegative1() {
-        test(-1);
-    }
-
-    @Test
-    public void testMaxInt() {
-        test(Integer.MAX_VALUE);
-    }
-
-    @Test
-    public void testMaxLong() {
-        test(Long.MAX_VALUE);
+    private void checkToSeconds(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toSeconds(value), TimeValue.of(value, timeUnit).toSeconds());
     }
 
     private void test(final long value) {
@@ -97,6 +72,70 @@ public class TestTimeValue {
             checkToMicros(value, timeUnit);
             checkToNanos(value, timeUnit);
         }
+    }
+
+    @Test
+    public void test0() {
+        test(0);
+    }
+
+    @Test
+    public void test1() {
+        test(1);
+    }
+
+    private void testFactory(final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit, TimeValue.of(1, timeUnit).getTimeUnit());
+    }
+
+    @Test
+    public void testFactoryForDays() {
+        testFactory(TimeUnit.DAYS);
+    }
+
+    @Test
+    public void testFactoryForHours() {
+        testFactory(TimeUnit.HOURS);
+    }
+
+    @Test
+    public void testFactoryForMicroseconds() {
+        testFactory(TimeUnit.MICROSECONDS);
+    }
+
+    @Test
+    public void testFactoryForMillisseconds() {
+        testFactory(TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testFactoryForMinutes() {
+        testFactory(TimeUnit.MINUTES);
+    }
+
+    @Test
+    public void testFactoryForNanoseconds() {
+        testFactory(TimeUnit.NANOSECONDS);
+    }
+
+    @Test
+    public void testFactoryForSeconds() {
+        testFactory(TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void testMaxInt() {
+        test(Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void testMaxLong() {
+        test(Long.MAX_VALUE);
+    }
+
+    @Test
+    public void testNegative1() {
+        test(-1);
     }
 
 }
