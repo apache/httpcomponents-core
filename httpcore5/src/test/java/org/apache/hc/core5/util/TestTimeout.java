@@ -92,6 +92,45 @@ public class TestTimeout {
         Assert.assertFalse(Timeout.DISABLED.isUndefinedSeconds());
     }
 
+    private void testFactory(final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit, Timeout.of(1, timeUnit).getTimeUnit());
+    }
+
+    @Test
+    public void testFactoryForDays() {
+        testFactory(TimeUnit.DAYS);
+    }
+
+    @Test
+    public void testFactoryForHours() {
+        testFactory(TimeUnit.HOURS);
+    }
+
+    @Test
+    public void testFactoryForMicroseconds() {
+        testFactory(TimeUnit.MICROSECONDS);
+    }
+
+    @Test
+    public void testFactoryForMillisseconds() {
+        testFactory(TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testFactoryForMinutes() {
+        testFactory(TimeUnit.MINUTES);
+    }
+
+    @Test
+    public void testFactoryForNanoseconds() {
+        testFactory(TimeUnit.NANOSECONDS);
+    }
+
+    @Test
+    public void testFactoryForSeconds() {
+        testFactory(TimeUnit.SECONDS);
+    }
+
     @Test
     public void testMaxInt() {
         test(Integer.MAX_VALUE);

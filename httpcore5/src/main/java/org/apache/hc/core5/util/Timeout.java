@@ -48,12 +48,12 @@ public class Timeout extends TimeValue {
     /**
      * An undefined timeout represented as -1 {@code MILLISECONDS}.
      */
-    public static final Timeout UNDEFINED_MILLISECONDS = new Timeout(UNDEFINED, TimeUnit.MILLISECONDS);
+    public static final Timeout UNDEFINED_MILLISECONDS = new Timeout(INT_UNDEFINED, TimeUnit.MILLISECONDS);
 
     /**
      * An undefined timeout represented as -1 {@code SECONDS}.
      */
-    public static final Timeout UNDEFINED_SECONDS = new Timeout(UNDEFINED, TimeUnit.SECONDS);
+    public static final Timeout UNDEFINED_SECONDS = new Timeout(INT_UNDEFINED, TimeUnit.SECONDS);
 
     /**
      * Creates a Timeout.
@@ -93,6 +93,17 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
+     * @param microseconds
+     *            the duration in seconds and the given {@code timeUnit}.
+     * @return a Timeout
+     */
+    public static Timeout ofMicroseconds(final long microseconds) {
+        return of(microseconds, TimeUnit.MICROSECONDS);
+    }
+
+    /**
+     * Creates a Timeout.
+     *
      * @param milliseconds
      *            the duration in milliseconds and the given {@code timeUnit}.
      * @return a Timeout
@@ -115,6 +126,17 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
+     * @param nanoseconds
+     *            the duration in seconds and the given {@code timeUnit}.
+     * @return a Timeout
+     */
+    public static Timeout ofNanoseconds(final long nanoseconds) {
+        return of(nanoseconds, TimeUnit.NANOSECONDS);
+    }
+
+    /**
+     * Creates a Timeout.
+     *
      * @param seconds
      *            the duration in seconds and the given {@code timeUnit}.
      * @return a Timeout
@@ -123,9 +145,10 @@ public class Timeout extends TimeValue {
         return of(seconds, TimeUnit.SECONDS);
     }
 
+
     private static long validateDuration(final long duration) {
-        if (duration < UNDEFINED) {
-            throw new IllegalArgumentException("Duration may not be less than " + UNDEFINED);
+        if (duration < INT_UNDEFINED) {
+            throw new IllegalArgumentException("Duration may not be less than " + INT_UNDEFINED);
         }
         return duration;
     }
@@ -158,7 +181,7 @@ public class Timeout extends TimeValue {
      * @return Whether this timeout is undefined.
      */
     public boolean isUndefinedMilliseconds() {
-        return getDuration() == UNDEFINED && getTimeUnit() == TimeUnit.MILLISECONDS;
+        return getDuration() == INT_UNDEFINED && getTimeUnit() == TimeUnit.MILLISECONDS;
     }
 
     /**
@@ -167,7 +190,7 @@ public class Timeout extends TimeValue {
      * @return Whether this timeout is undefined.
      */
     public boolean isUndefinedSeconds() {
-        return getDuration() == UNDEFINED && getTimeUnit() == TimeUnit.SECONDS;
+        return getDuration() == INT_UNDEFINED && getTimeUnit() == TimeUnit.SECONDS;
     }
 
 }
