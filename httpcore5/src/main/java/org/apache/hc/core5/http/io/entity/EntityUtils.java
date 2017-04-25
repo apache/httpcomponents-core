@@ -201,8 +201,7 @@ public final class EntityUtils {
             return null;
         }
         try {
-            Args.checkContentLength(entity);
-            int i = (int)entity.getContentLength();
+            int i = (int) Args.checkContentLength(entity);
             if (i < 0) {
                 i = 4096;
             }
@@ -226,8 +225,7 @@ public final class EntityUtils {
             return null;
         }
         try {
-            Args.checkContentLength(entity);
-            int i = (int) entity.getContentLength();
+            int i = (int) Args.checkContentLength(entity);
             if (i < 0) {
                 i = 4096;
             }

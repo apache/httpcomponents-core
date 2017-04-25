@@ -165,9 +165,8 @@ public class H2Config {
         }
 
         public Builder setMaxFrameSize(final int maxFrameSize) {
-            Args.checkRange(maxFrameSize, FrameConsts.MIN_FRAME_SIZE, FrameConsts.MAX_FRAME_SIZE,
+            this.maxFrameSize = Args.checkRange(maxFrameSize, FrameConsts.MIN_FRAME_SIZE, FrameConsts.MAX_FRAME_SIZE,
                     "Invalid max frame size");
-            this.maxFrameSize = maxFrameSize;
             return this;
         }
 
