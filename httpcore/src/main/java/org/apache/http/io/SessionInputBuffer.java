@@ -63,7 +63,7 @@ public interface SessionInputBuffer {
      * @return     the total number of bytes read into the buffer, or
      *             {@code -1} if there is no more data because the end of
      *             the stream has been reached.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int read(byte[] b, int off, int len) throws IOException;
 
@@ -77,7 +77,7 @@ public interface SessionInputBuffer {
      * @return     the total number of bytes read into the buffer, or
      *             {@code -1} is there is no more data because the end of
      *             the stream has been reached.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int read(byte[] b) throws IOException;
 
@@ -91,7 +91,7 @@ public interface SessionInputBuffer {
      *
      * @return     the next byte of data, or {@code -1} if the end of the
      *             stream is reached.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int read() throws IOException;
 
@@ -108,7 +108,7 @@ public interface SessionInputBuffer {
      *
      * @param      buffer   the line buffer.
      * @return     one line of characters
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int readLine(CharArrayBuffer buffer) throws IOException;
 
@@ -123,7 +123,7 @@ public interface SessionInputBuffer {
      * specific implementations of this interface.
      *
      * @return HTTP line as a string
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     String readLine() throws IOException;
 
@@ -134,7 +134,7 @@ public interface SessionInputBuffer {
      * @param timeout in milliseconds.
      * @return {@code true} if some data is available in the session
      *   buffer or {@code false} otherwise.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      *
      * @deprecated (4.3) do not use. This function should be provided at the
      *   connection level

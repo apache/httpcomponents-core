@@ -410,7 +410,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      * @param      beginIndex   the beginning index, inclusive.
      * @param      endIndex     the ending index, exclusive.
      * @return     the specified substring.
-     * @exception  StringIndexOutOfBoundsException  if the
+     * @throws  StringIndexOutOfBoundsException  if the
      *             {@code beginIndex} is negative, or
      *             {@code endIndex} is larger than the length of this
      *             buffer, or {@code beginIndex} is larger than
@@ -439,7 +439,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      * @param      beginIndex   the beginning index, inclusive.
      * @param      endIndex     the ending index, exclusive.
      * @return     the specified substring.
-     * @exception  IndexOutOfBoundsException  if the
+     * @throws  IndexOutOfBoundsException  if the
      *             {@code beginIndex} is negative, or
      *             {@code endIndex} is larger than the length of this
      *             buffer, or {@code beginIndex} is larger than
