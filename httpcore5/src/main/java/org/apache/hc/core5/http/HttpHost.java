@@ -35,6 +35,7 @@ import java.util.Locale;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.net.Ports;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
@@ -207,7 +208,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         } else {
             this.schemeName = DEFAULT_SCHEME_NAME;
         }
-        this.port = port;
+        this.port = Ports.check(port);
     }
 
     /**

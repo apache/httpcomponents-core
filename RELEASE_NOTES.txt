@@ -89,8 +89,9 @@ Changelog
 * Non-blocking connection initializer to support multi-homed remote endpoints.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-
-
+* HTTPCORE-458: Validate port values
+  Contributed by Gary Gregory <ggregory at apache.org>
+  
 
 Release 5.0-ALPHA2
 -------------------
