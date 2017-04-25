@@ -58,8 +58,8 @@ public class Ports {
      * @return the port
      *
      * @throws IllegalArgumentException
-     *             if the port parameter is outside the specified range of valid port values, which is between 0 and
-     *             65535, inclusive.
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      */
     public static int check(final int port) {
         return Args.checkRange(port, SCHEME_DEFAULT, MAX_VALUE,
