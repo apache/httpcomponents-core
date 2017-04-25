@@ -236,7 +236,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      *
      * @param      charbuffer   the line buffer.
      * @return     one line of characters
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     @Override
     public int readLine(final CharArrayBuffer charbuffer) throws IOException {
@@ -303,7 +303,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer, BufferInfo {
      * to CR-LF required by the HTTP specification.
      *
      * @return HTTP line as a string
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     private int lineFromLineBuffer(final CharArrayBuffer charbuffer)
             throws IOException {

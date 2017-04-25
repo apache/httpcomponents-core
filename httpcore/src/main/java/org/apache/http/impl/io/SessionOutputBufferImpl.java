@@ -199,7 +199,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      * This method uses CR-LF as a line delimiter.
      *
      * @param      s   the line.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     @Override
     public void writeLine(final String s) throws IOException {
@@ -226,7 +226,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      * This method uses CR-LF as a line delimiter.
      *
      * @param      charbuffer the buffer containing chars of the line.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     @Override
     public void writeLine(final CharArrayBuffer charbuffer) throws IOException {
