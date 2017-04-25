@@ -179,6 +179,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *                  {@code null} indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
      *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      * @since 4.3
      */
     public HttpHost(final InetAddress address, final int port, final String scheme) {
@@ -196,6 +199,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *                  {@code null} indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
      *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      * @since 4.4
      */
     public HttpHost(final InetAddress address, final String hostname, final int port, final String scheme) {
@@ -219,6 +225,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @param port      the port number.
      *                  {@code -1} indicates the scheme default port.
      *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      * @since 4.3
      */
     public HttpHost(final InetAddress address, final int port) {
@@ -231,6 +240,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *
      * @param address   the inet address.
      *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      * @since 4.3
      */
     public HttpHost(final InetAddress address) {
