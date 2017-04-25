@@ -49,13 +49,23 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     private final String hostname;
     private final int port;
 
+    /**
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
+     */
     private URIAuthority(final String userInfo, final String hostname, final int port, final boolean internal) {
         super();
         this.userInfo = userInfo;
         this.hostname = hostname;
-        this.port = port;
+        this.port = Ports.check(port);
     }
 
+    /**
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
+     */
     public URIAuthority(final String userInfo, final String hostname, final int port) {
         super();
         Args.containsNoBlanks(hostname, "Host name");
@@ -64,7 +74,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         }
         this.userInfo = userInfo;
         this.hostname = hostname.toLowerCase(Locale.ROOT);
-        this.port = port;
+        this.port = Ports.check(port);
     }
 
     public URIAuthority(final String hostname, final int port) {
