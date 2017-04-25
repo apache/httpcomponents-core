@@ -85,7 +85,7 @@ public interface SessionInputBuffer {
      * @return     the total number of bytes read into the buffer, or
      *             {@code -1} if there is no more data because the end of
      *             the stream has been reached.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int read(byte[] b, int off, int len, InputStream inputStream) throws IOException;
 
@@ -100,7 +100,7 @@ public interface SessionInputBuffer {
      * @return     the total number of bytes read into the buffer, or
      *             {@code -1} is there is no more data because the end of
      *             the stream has been reached.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int read(byte[] b, InputStream inputStream) throws IOException;
 
@@ -115,7 +115,7 @@ public interface SessionInputBuffer {
      * @param      inputStream Input stream
      * @return     the next byte of data, or {@code -1} if the end of the
      *             stream is reached.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int read(InputStream inputStream) throws IOException;
 
@@ -133,7 +133,7 @@ public interface SessionInputBuffer {
      * @param      buffer   the line buffer.
      * @param      inputStream Input stream
      * @return     one line of characters
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     int readLine(CharArrayBuffer buffer, InputStream inputStream) throws IOException;
 

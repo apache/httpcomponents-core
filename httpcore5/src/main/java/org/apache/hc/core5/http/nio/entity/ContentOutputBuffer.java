@@ -60,7 +60,7 @@ public interface ContentOutputBuffer {
      * @param      b     the data.
      * @param      off   the start offset in the data.
      * @param      len   the number of bytes to write.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     void write(byte[] b, int off, int len) throws IOException;
 
@@ -68,13 +68,13 @@ public interface ContentOutputBuffer {
      * Writes the specified byte to this buffer.
      *
      * @param      b   the {@code byte}.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     void write(int b) throws IOException;
 
     /**
      * Indicates the content has been fully written.
-     * @exception  IOException  if an I/O error occurs.
+     * @throws  IOException  if an I/O error occurs.
      */
     void writeCompleted() throws IOException;
 
