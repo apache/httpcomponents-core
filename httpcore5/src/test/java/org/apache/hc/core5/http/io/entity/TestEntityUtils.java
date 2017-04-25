@@ -60,52 +60,54 @@ public class TestEntityUtils {
 
     @Test
     public void testEmptyContentToByteArray() throws Exception {
-        final NullHttpEntity httpentity = new NullHttpEntity();
-        final byte[] bytes = EntityUtils.toByteArray(httpentity);
-        Assert.assertNull(bytes);
+        try (final NullHttpEntity httpentity = new NullHttpEntity()) {
+            final byte[] bytes = EntityUtils.toByteArray(httpentity);
+            Assert.assertNull(bytes);
+        }
     }
 
     @Test
     public void testMaxIntContentToByteArray() throws Exception {
         final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(content));
-        httpentity.setContentLength(Integer.MAX_VALUE + 100L);
-        try {
-            EntityUtils.toByteArray(httpentity);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(content));
+            httpentity.setContentLength(Integer.MAX_VALUE + 100L);
+            try {
+                EntityUtils.toByteArray(httpentity);
+                Assert.fail("IllegalArgumentException should have been thrown");
+            } catch (final IllegalArgumentException ex) {
+                // expected
+            }
+        }}
 
     @Test
     public void testUnknownLengthContentToByteArray() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentLength(-1L);
-        final byte[] bytes2 = EntityUtils.toByteArray(httpentity);
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.length, bytes2.length);
-        for (int i = 0; i < bytes.length; i++) {
-            Assert.assertEquals(bytes[i], bytes2[i]);
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentLength(-1L);
+            final byte[] bytes2 = EntityUtils.toByteArray(httpentity);
+            Assert.assertNotNull(bytes2);
+            Assert.assertEquals(bytes.length, bytes2.length);
+            for (int i = 0; i < bytes.length; i++) {
+                Assert.assertEquals(bytes[i], bytes2[i]);
+            }
         }
     }
 
     @Test
     public void testKnownLengthContentToByteArray() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentLength(bytes.length);
-        final byte[] bytes2 = EntityUtils.toByteArray(httpentity);
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.length, bytes2.length);
-        for (int i = 0; i < bytes.length; i++) {
-            Assert.assertEquals(bytes[i], bytes2[i]);
-        }
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentLength(bytes.length);
+            final byte[] bytes2 = EntityUtils.toByteArray(httpentity);
+            Assert.assertNotNull(bytes2);
+            Assert.assertEquals(bytes.length, bytes2.length);
+            for (int i = 0; i < bytes.length; i++) {
+                Assert.assertEquals(bytes[i], bytes2[i]);
+            }
+        }}
 
     @Test
     public void testNullEntityToString() throws Exception {
@@ -119,44 +121,44 @@ public class TestEntityUtils {
 
     @Test
     public void testEmptyContentToString() throws Exception {
-        final NullHttpEntity httpentity = new NullHttpEntity();
-        final String s = EntityUtils.toString(httpentity);
-        Assert.assertNull(s);
-    }
+        try (final NullHttpEntity httpentity = new NullHttpEntity()) {
+            final String s = EntityUtils.toString(httpentity);
+            Assert.assertNull(s);
+        }}
 
     @Test
     public void testMaxIntContentToString() throws Exception {
         final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(content));
-        httpentity.setContentLength(Integer.MAX_VALUE + 100L);
-        try {
-            EntityUtils.toString(httpentity);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(content));
+            httpentity.setContentLength(Integer.MAX_VALUE + 100L);
+            try {
+                EntityUtils.toString(httpentity);
+                Assert.fail("IllegalArgumentException should have been thrown");
+            } catch (final IllegalArgumentException ex) {
+                // expected
+            }
+        }}
 
     @Test
     public void testUnknownLengthContentToString() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentLength(-1L);
-        final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
-        Assert.assertEquals("Message content", s);
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentLength(-1L);
+            final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
+            Assert.assertEquals("Message content", s);
+        }}
 
     @Test
     public void testKnownLengthContentToString() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentLength(bytes.length);
-        final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
-        Assert.assertEquals("Message content", s);
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentLength(bytes.length);
+            final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
+            Assert.assertEquals("Message content", s);
+        }}
 
     static final int SWISS_GERMAN_HELLO [] = {
         0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
@@ -181,44 +183,45 @@ public class TestEntityUtils {
     public void testNoCharsetContentToString() throws Exception {
         final String content = constructString(SWISS_GERMAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.ISO_8859_1);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType("text/plain");
-        final String s = EntityUtils.toString(httpentity);
-        Assert.assertEquals(content, s);
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentType("text/plain");
+            final String s = EntityUtils.toString(httpentity);
+            Assert.assertEquals(content, s);
+        }}
 
     @Test
     public void testDefaultCharsetContentToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
         final byte[] bytes = content.getBytes(Charset.forName("KOI8-R"));
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType("text/plain");
-        final String s = EntityUtils.toString(httpentity, "KOI8-R");
-        Assert.assertEquals(content, s);
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentType("text/plain");
+            final String s = EntityUtils.toString(httpentity, "KOI8-R");
+            Assert.assertEquals(content, s);
+        }}
 
     @Test
     public void testContentWithContentTypeToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType("text/plain; charset=UTF-8");
-        final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
-        Assert.assertEquals(content, s);
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentType("text/plain; charset=UTF-8");
+            final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
+            Assert.assertEquals(content, s);
+        }}
+    
     @Test
     public void testContentWithInvalidContentTypeToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
         final byte[] bytes = content.getBytes("UTF-8");
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(new ByteArrayInputStream(bytes));
-        httpentity.setContentType("text/plain; charset=nosuchcharset");
-        final String s = EntityUtils.toString(httpentity, "UTF-8");
-        Assert.assertEquals(content, s);
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContent(new ByteArrayInputStream(bytes));
+            httpentity.setContentType("text/plain; charset=nosuchcharset");
+            final String s = EntityUtils.toString(httpentity, "UTF-8");
+            Assert.assertEquals(content, s);
+        }}
 
     @Test
     public void testExtractNullInput() throws Exception {
@@ -227,37 +230,37 @@ public class TestEntityUtils {
 
     @Test
     public void testExtractNullContentType() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(null);
-        Assert.assertNull(EntityUtils.getContentType(httpentity));
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContentType(null);
+            Assert.assertNull(EntityUtils.getContentType(httpentity));
+        }}
 
     @Test
     public void testExtract() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType("text/plain; charset = UTF-8");
-        final ContentType contentType = EntityUtils.getContentType(httpentity);
-        Assert.assertNotNull(contentType);
-        Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContentType("text/plain; charset = UTF-8");
+            final ContentType contentType = EntityUtils.getContentType(httpentity);
+            Assert.assertNotNull(contentType);
+            Assert.assertEquals("text/plain", contentType.getMimeType());
+            Assert.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+        }}
 
     @Test
     public void testExtractNoCharset() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType("text/plain; param=yadayada");
-        final ContentType contentType = EntityUtils.getContentType(httpentity);
-        Assert.assertNotNull(contentType);
-        Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertNull(contentType.getCharset());
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContentType("text/plain; param=yadayada");
+            final ContentType contentType = EntityUtils.getContentType(httpentity);
+            Assert.assertNotNull(contentType);
+            Assert.assertEquals("text/plain", contentType.getMimeType());
+            Assert.assertNull(contentType.getCharset());
+        }}
 
     @Test(expected = UnsupportedCharsetException.class)
     public void testExtractInvalidCharset() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType("text/plain; charset = stuff");
-        EntityUtils.getContentType(httpentity);
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContentType("text/plain; charset = stuff");
+            EntityUtils.getContentType(httpentity);
+        }}
 
     @Test
     public void testExtracLenienttNullInput() throws Exception {
@@ -266,20 +269,20 @@ public class TestEntityUtils {
 
     @Test
     public void testExtractLenientNullContentType() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType(null);
-        Assert.assertNull(EntityUtils.getContentTypeLenient(httpentity));
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContentType(null);
+            Assert.assertNull(EntityUtils.getContentTypeLenient(httpentity));
+        }}
 
     @Test
     public void testLenientExtractInvalidCharset() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType("text/plain; charset = stuff");
-        final ContentType contentType = EntityUtils.getContentTypeLenient(httpentity);
-        Assert.assertNotNull(contentType);
-        Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(null, contentType.getCharset());
-    }
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity()) {
+            httpentity.setContentType("text/plain; charset = stuff");
+            final ContentType contentType = EntityUtils.getContentTypeLenient(httpentity);
+            Assert.assertNotNull(contentType);
+            Assert.assertEquals("text/plain", contentType.getMimeType());
+            Assert.assertEquals(null, contentType.getCharset());
+        }}
 
     private static void assertNameValuePair (
             final NameValuePair parameter,
@@ -291,16 +294,16 @@ public class TestEntityUtils {
 
     @Test
     public void testParseEntity() throws Exception {
-        final StringEntity entity = new StringEntity("Name1=Value1");
+        try (final StringEntity entity = new StringEntity("Name1=Value1")) {
 
-        entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
-        final List<NameValuePair> result = EntityUtils.parse(entity);
-        Assert.assertEquals(1, result.size());
-        assertNameValuePair(result.get(0), "Name1", "Value1");
+            entity.setContentType(URLEncodedUtils.CONTENT_TYPE);
+            final List<NameValuePair> result = EntityUtils.parse(entity);
+            Assert.assertEquals(1, result.size());
+            assertNameValuePair(result.get(0), "Name1", "Value1");
 
-        entity.setContentType("text/test");
-        Assert.assertTrue(EntityUtils.parse(entity).isEmpty());
-    }
+            entity.setContentType("text/test");
+            Assert.assertTrue(EntityUtils.parse(entity).isEmpty());
+        }}
 
     @Test
     public void testParseUTF8Entity() throws Exception {
@@ -315,12 +318,13 @@ public class TestEntityUtils {
         Assert.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
                 "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);
 
-        final StringEntity entity = new StringEntity(s, ContentType.create(
-                URLEncodedUtils.CONTENT_TYPE, StandardCharsets.UTF_8));
-        final List <NameValuePair> result = EntityUtils.parse(entity);
-        Assert.assertEquals(2, result.size());
-        assertNameValuePair(result.get(0), "russian", ru_hello);
-        assertNameValuePair(result.get(1), "swiss", ch_hello);
+        try (final StringEntity entity = new StringEntity(s,
+                ContentType.create(URLEncodedUtils.CONTENT_TYPE, StandardCharsets.UTF_8))) {
+            final List<NameValuePair> result = EntityUtils.parse(entity);
+            Assert.assertEquals(2, result.size());
+            assertNameValuePair(result.get(0), "russian", ru_hello);
+            assertNameValuePair(result.get(1), "swiss", ch_hello);
+        }
     }
 
     /**
