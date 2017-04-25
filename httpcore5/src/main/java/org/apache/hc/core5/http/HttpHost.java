@@ -69,12 +69,17 @@ public final class HttpHost implements NamedEndpoint, Serializable {
 
     private final InetAddress address;
 
+    /**
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
+     */
     private HttpHost(final String hostname, final int port, final String scheme, final boolean internal) {
         super();
         this.hostname = hostname;
         this.lcHostname = hostname;
         this.schemeName = scheme;
-        this.port = port;
+        this.port = Ports.check(port);
         this.address = null;
     }
 
@@ -87,6 +92,10 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @param scheme    the name of the scheme.
      *                  {@code null} indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      */
     public HttpHost(final String hostname, final int port, final String scheme) {
         super();
@@ -97,7 +106,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         } else {
             this.schemeName = DEFAULT_SCHEME_NAME;
         }
-        this.port = port;
+        this.port = Ports.check(port);
         this.address = null;
     }
 
@@ -107,6 +116,10 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @param hostname  the hostname (IP or DNS name)
      * @param port      the port number.
      *                  {@code -1} indicates the scheme default port.
+     *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      */
     public HttpHost(final String hostname, final int port) {
         this(hostname, port, null);
@@ -119,6 +132,10 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @param scheme    the name of the scheme.
      *                  {@code null} indicates the
      *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      */
     public HttpHost(final String hostname, final String scheme) {
         this(hostname, -1, scheme);
@@ -164,6 +181,10 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * Creates {@code HttpHost} instance with the default scheme and port and the given hostname.
      *
      * @param hostname  the hostname (IP or DNS name)
+     *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
      */
     public HttpHost(final String hostname) {
         this(hostname, -1, null);
@@ -182,6 +203,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
      *             65535, inclusive. {@code -1} indicates the scheme default port.
+     *
      * @since 4.3
      */
     public HttpHost(final InetAddress address, final int port, final String scheme) {
@@ -202,6 +224,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
      *             65535, inclusive. {@code -1} indicates the scheme default port.
+     *
      * @since 4.4
      */
     public HttpHost(final InetAddress address, final String hostname, final int port, final String scheme) {
@@ -228,6 +251,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
      *             65535, inclusive. {@code -1} indicates the scheme default port.
+     *
      * @since 4.3
      */
     public HttpHost(final InetAddress address, final int port) {
@@ -243,6 +267,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
      *             65535, inclusive. {@code -1} indicates the scheme default port.
+     *
      * @since 4.3
      */
     public HttpHost(final InetAddress address) {
@@ -250,6 +275,10 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     }
 
     /**
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
+     *
      * @since 5.0
      */
     public HttpHost(final NamedEndpoint namedEndpoint, final String scheme) {
@@ -257,6 +286,10 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     }
 
     /**
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive. {@code -1} indicates the scheme default port.
+     *
      * @since 5.0
      */
     public HttpHost(final URIAuthority authority) {
