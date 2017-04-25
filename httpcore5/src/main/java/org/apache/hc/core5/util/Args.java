@@ -31,10 +31,6 @@ import java.util.Collection;
 
 public class Args {
 
-    private Args() {
-        // Do not allow utility class to be instantiated.
-    }
-
     public static void check(final boolean expression, final String message) {
         if (!expression) {
             throw new IllegalArgumentException(message);
@@ -53,19 +49,15 @@ public class Args {
         }
     }
 
-    public static <T> T notNull(final T argument, final String name) {
+    public static <T extends CharSequence> T containsNoBlanks(final T argument, final String name) {
         if (argument == null) {
             throw new IllegalArgumentException(name + " may not be null");
         }
-        return argument;
-    }
-
-    public static <T extends CharSequence> T notEmpty(final T argument, final String name) {
-        if (argument == null) {
-            throw new IllegalArgumentException(name + " may not be null");
-        }
-        if (TextUtils.isEmpty(argument)) {
+        if (argument.length() == 0) {
             throw new IllegalArgumentException(name + " may not be empty");
+        }
+        if (TextUtils.containsBlanks(argument)) {
+            throw new IllegalArgumentException(name + " may not contain blanks");
         }
         return argument;
     }
@@ -80,15 +72,12 @@ public class Args {
         return argument;
     }
 
-    public static <T extends CharSequence> T containsNoBlanks(final T argument, final String name) {
+    public static <T extends CharSequence> T notEmpty(final T argument, final String name) {
         if (argument == null) {
             throw new IllegalArgumentException(name + " may not be null");
         }
-        if (argument.length() == 0) {
+        if (TextUtils.isEmpty(argument)) {
             throw new IllegalArgumentException(name + " may not be empty");
-        }
-        if (TextUtils.containsBlanks(argument)) {
-            throw new IllegalArgumentException(name + " may not contain blanks");
         }
         return argument;
     }
@@ -99,6 +88,27 @@ public class Args {
         }
         if (argument.isEmpty()) {
             throw new IllegalArgumentException(name + " may not be empty");
+        }
+        return argument;
+    }
+
+    public static int notNegative(final int n, final String name) {
+        if (n < 0) {
+            throw new IllegalArgumentException(name + " may not be negative");
+        }
+        return n;
+    }
+
+    public static long notNegative(final long n, final String name) {
+        if (n < 0) {
+            throw new IllegalArgumentException(name + " may not be negative");
+        }
+        return n;
+    }
+
+    public static <T> T notNull(final T argument, final String name) {
+        if (argument == null) {
+            throw new IllegalArgumentException(name + " may not be null");
         }
         return argument;
     }
@@ -117,18 +127,8 @@ public class Args {
         return n;
     }
 
-    public static int notNegative(final int n, final String name) {
-        if (n < 0) {
-            throw new IllegalArgumentException(name + " may not be negative");
-        }
-        return n;
-    }
-
-    public static long notNegative(final long n, final String name) {
-        if (n < 0) {
-            throw new IllegalArgumentException(name + " may not be negative");
-        }
-        return n;
+    private Args() {
+        // Do not allow utility class to be instantiated.
     }
 
 }
