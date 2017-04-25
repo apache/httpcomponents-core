@@ -201,8 +201,7 @@ public final class EntityUtils {
             return null;
         }
         try {
-            Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
-                    "HTTP entity too large to be buffered in memory");
+            Args.checkContentLength(entity);
             int i = (int)entity.getContentLength();
             if (i < 0) {
                 i = 4096;
@@ -227,9 +226,8 @@ public final class EntityUtils {
             return null;
         }
         try {
-            Args.check(entity.getContentLength() <= Integer.MAX_VALUE,
-                    "HTTP entity too large to be buffered in memory");
-            int i = (int)entity.getContentLength();
+            Args.checkContentLength(entity);
+            int i = (int) entity.getContentLength();
             if (i < 0) {
                 i = 4096;
             }
@@ -351,7 +349,7 @@ public final class EntityUtils {
             return Collections.emptyList();
         }
         final long len = entity.getContentLength();
-        Args.check(len <= Integer.MAX_VALUE, "HTTP entity is too large");
+        Args.checkRange(len, 0, Integer.MAX_VALUE, "HTTP entity is too large");
         final Charset charset = contentType.getCharset() != null ? contentType.getCharset() : StandardCharsets.ISO_8859_1;
         final InputStream instream = entity.getContent();
         if (instream == null) {

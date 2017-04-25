@@ -167,4 +167,62 @@ public class TestArgs {
         Args.notNegative(-1L, "Number");
     }
 
+    //
+    public void testIntSmallestRangeOK() {
+        Args.checkRange(0, 0, 0, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIntSmallestRangeFailLow() {
+        Args.checkRange(-1, 0, 0, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIntRangeFailLow() {
+        Args.checkRange(-101, -100, 100, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIntRangeFailHigh() {
+        Args.checkRange(101, -100, 100, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIntSmallestRangeFailHigh() {
+        Args.checkRange(1, 0, 0, "Number");
+    }
+
+    public void testIntFullRangeOK() {
+        Args.checkRange(0, Integer.MIN_VALUE, Integer.MAX_VALUE, "Number");
+    }
+
+    //
+    public void testLongSmallestRangeOK() {
+        Args.checkRange(0L, 0L, 0L, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLongSmallestRangeFailLow() {
+        Args.checkRange(-1L, 0L, 0L, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLongRangeFailLow() {
+        Args.checkRange(-101L, -100L, 100L, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLongRangeFailHigh() {
+        Args.checkRange(101L, -100L, 100L, "Number");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLongSmallestRangeFailHigh() {
+        Args.checkRange(1L, 0L, 0L, "Number");
+    }
+
+    public void testLongFullRangeOK() {
+        Args.checkRange(0L, Long.MIN_VALUE, Long.MAX_VALUE, "Number");
+    }
+
 }

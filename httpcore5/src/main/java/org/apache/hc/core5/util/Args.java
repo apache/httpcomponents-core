@@ -29,6 +29,8 @@ package org.apache.hc.core5.util;
 
 import java.util.Collection;
 
+import org.apache.hc.core5.http.EntityDetails;
+
 public class Args {
 
     public static void check(final boolean expression, final String message) {
@@ -47,6 +49,29 @@ public class Args {
         if (!expression) {
             throw new IllegalArgumentException(String.format(message, arg));
         }
+    }
+
+    public static void checkRange(final int value, final int lowInclusive, final int highInclusive,
+            final String message) {
+        if (value < lowInclusive || value > highInclusive) {
+            throw new IllegalArgumentException(String.format("%s: %,d is out of range [%,d, %,d]", message,
+                    Integer.valueOf(value), Integer.valueOf(lowInclusive), Integer.valueOf(highInclusive)));
+        }
+    }
+
+    public static void checkRange(final long value, final long lowInclusive, final long highInclusive,
+            final String message) {
+        if (value < lowInclusive || value > highInclusive) {
+            throw new IllegalArgumentException(String.format("%s: %,d is out of range [%,d, %,d]", message,
+                    Long.valueOf(value), Long.valueOf(lowInclusive), Long.valueOf(highInclusive)));
+        }
+    }
+
+    public static void checkContentLength(final EntityDetails entityDetails) {
+        // -1 is a special value
+        // 0 is allowed as well
+        checkRange(entityDetails.getContentLength(), -1, Integer.MAX_VALUE,
+                "HTTP entity too large to be buffered in memory)");
     }
 
     public static <T extends CharSequence> T containsNoBlanks(final T argument, final String name) {
