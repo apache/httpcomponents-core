@@ -211,7 +211,7 @@ public class TestEntityUtils {
             final String s = EntityUtils.toString(httpentity, "ISO-8859-1");
             Assert.assertEquals(content, s);
         }}
-    
+
     @Test
     public void testContentWithInvalidContentTypeToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
