@@ -53,7 +53,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     private static final long serialVersionUID = -7529410654042457626L;
 
     /** The default scheme is "http". */
-    public static final String DEFAULT_SCHEME_NAME = "http";
+    public static final URIScheme DEFAULT_SCHEME = URIScheme.HTTP;
 
     /** The host to use. */
     private final String hostname;
@@ -91,7 +91,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *                  {@code -1} indicates the scheme default port.
      * @param scheme    the name of the scheme.
      *                  {@code null} indicates the
-     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *                  {@link #DEFAULT_SCHEME default scheme}
      *
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
@@ -104,7 +104,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         if (scheme != null) {
             this.schemeName = scheme.toLowerCase(Locale.ROOT);
         } else {
-            this.schemeName = DEFAULT_SCHEME_NAME;
+            this.schemeName = DEFAULT_SCHEME.id;
         }
         this.port = Ports.check(port);
         this.address = null;
@@ -131,7 +131,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @param hostname  the hostname (IP or DNS name)
      * @param scheme    the name of the scheme.
      *                  {@code null} indicates the
-     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *                  {@link #DEFAULT_SCHEME default scheme}
      *
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
@@ -174,7 +174,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         return new HttpHost(
                 text.toLowerCase(Locale.ROOT),
                 port,
-                scheme != null ? scheme.toLowerCase(Locale.ROOT) : DEFAULT_SCHEME_NAME, true);
+                scheme != null ? scheme.toLowerCase(Locale.ROOT) : DEFAULT_SCHEME.id, true);
     }
 
     /**
@@ -198,7 +198,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *                  {@code -1} indicates the scheme default port.
      * @param scheme    the name of the scheme.
      *                  {@code null} indicates the
-     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *                  {@link #DEFAULT_SCHEME default scheme}
      *
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
@@ -219,7 +219,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      *                  {@code -1} indicates the scheme default port.
      * @param scheme    the name of the scheme.
      *                  {@code null} indicates the
-     *                  {@link #DEFAULT_SCHEME_NAME default scheme}
+     *                  {@link #DEFAULT_SCHEME default scheme}
      *
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
@@ -235,7 +235,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         if (scheme != null) {
             this.schemeName = scheme.toLowerCase(Locale.ROOT);
         } else {
-            this.schemeName = DEFAULT_SCHEME_NAME;
+            this.schemeName = DEFAULT_SCHEME.id;
         }
         this.port = Ports.check(port);
     }
