@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
@@ -48,11 +48,9 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultBHttpServerConnectionFactory
-        implements HttpConnectionFactory<DefaultBHttpServerConnection> {
+public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactory<DefaultBHttpServerConnection> {
 
-    public static final DefaultBHttpServerConnectionFactory INSTANCE = new DefaultBHttpServerConnectionFactory();
-
+    private final String scheme;
     private final H1Config h1Config;
     private final CharCodingConfig charCodingConfig;
     private final ContentLengthStrategy incomingContentStrategy;
@@ -61,6 +59,7 @@ public class DefaultBHttpServerConnectionFactory
     private final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory;
 
     public DefaultBHttpServerConnectionFactory(
+            final String scheme,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final ContentLengthStrategy incomingContentStrategy,
@@ -68,6 +67,7 @@ public class DefaultBHttpServerConnectionFactory
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
         super();
+        this.scheme = scheme;
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.incomingContentStrategy = incomingContentStrategy;
@@ -77,24 +77,25 @@ public class DefaultBHttpServerConnectionFactory
     }
 
     public DefaultBHttpServerConnectionFactory(
+            final String scheme,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
-        this(h1Config, charCodingConfig, null, null, requestParserFactory, responseWriterFactory);
+        this(scheme, h1Config, charCodingConfig, null, null, requestParserFactory, responseWriterFactory);
     }
 
-    public DefaultBHttpServerConnectionFactory(final CharCodingConfig charCodingConfig) {
-        this(null, charCodingConfig, null, null, null, null);
-    }
-
-    public DefaultBHttpServerConnectionFactory() {
-        this(null, null, null, null, null, null);
+    public DefaultBHttpServerConnectionFactory(
+            final String scheme,
+            final H1Config h1Config,
+            final CharCodingConfig charCodingConfig) {
+        this(scheme, h1Config, charCodingConfig, null, null, null, null);
     }
 
     @Override
     public DefaultBHttpServerConnection createConnection(final Socket socket) throws IOException {
         final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(
+                this.scheme,
                 this.h1Config,
                 CharCodingSupport.createDecoder(this.charCodingConfig),
                 CharCodingSupport.createEncoder(this.charCodingConfig),

@@ -91,7 +91,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
     }
 
     @Override
-    public void upgrade(
+    public boolean upgrade(
             final TransportSecurityLayer tlsSession,
             final HttpHost host,
             final SocketAddress localAddress,
@@ -101,7 +101,9 @@ public class H2ServerTlsStrategy implements TlsStrategy {
             tlsSession.startTls(sslContext, sslBufferManagement,
                     H2TlsSupport.enforceRequirements(attachment, initializer),
                     verifier);
+            return true;
         }
+        return false;
     }
 
 }

@@ -38,6 +38,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
@@ -87,9 +88,9 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     @Override
     public void connected(final IOSession session) {
         try {
+            final TlsDetails tlsDetails = ioSession.getTlsDetails();
             switch (versionPolicy) {
                 case NEGOTIATE:
-                    final TlsDetails tlsDetails = ioSession.getTlsDetails();
                     if (tlsDetails != null) {
                         if (ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
                             expectValidH2Preface = true;
@@ -99,7 +100,9 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     }
                     break;
                 case FORCE_HTTP_1:
-                    final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
+                    final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
+                            tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                            ioSession);
                     session.setHandler(new ServerHttp1IOEventHandler(http1StreamHandler));
                     http1StreamHandler.onConnect(null);
                     break;
@@ -134,7 +137,10 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     http2StreamHandler.onConnect(bytebuf.hasRemaining() ? bytebuf : null);
                     http2StreamHandler.onInput();
                 } else {
-                    final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
+                    final TlsDetails tlsDetails = ioSession.getTlsDetails();
+                    final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
+                            tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                            ioSession);
                     session.setHandler(new ServerHttp1IOEventHandler(http1StreamHandler));
                     bytebuf.rewind();
                     http1StreamHandler.onConnect(bytebuf);

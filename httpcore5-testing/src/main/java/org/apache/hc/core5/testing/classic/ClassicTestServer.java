@@ -34,9 +34,11 @@ import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
@@ -131,11 +133,13 @@ public class ClassicTestServer {
         }
     }
 
-    class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
+    static class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
 
         @Override
         public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
-            final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(H1Config.DEFAULT);
+            final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(
+                    socket instanceof SSLSocket ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                    H1Config.DEFAULT);
             conn.bind(socket);
             return conn;
         }

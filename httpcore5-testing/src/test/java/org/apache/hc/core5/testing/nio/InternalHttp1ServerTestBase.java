@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.Rule;
@@ -36,14 +36,14 @@ import org.junit.rules.ExternalResource;
 
 public abstract class InternalHttp1ServerTestBase {
 
-    protected final ProtocolScheme scheme;
+    protected final URIScheme scheme;
 
-    public InternalHttp1ServerTestBase(final ProtocolScheme scheme) {
+    public InternalHttp1ServerTestBase(final URIScheme scheme) {
         this.scheme = scheme;
     }
 
     public InternalHttp1ServerTestBase() {
-        this(ProtocolScheme.HTTP);
+        this(URIScheme.HTTP);
     }
 
     protected Http1TestServer server;
@@ -55,7 +55,7 @@ public abstract class InternalHttp1ServerTestBase {
         protected void before() throws Throwable {
             server = new Http1TestServer(
                     IOReactorConfig.DEFAULT,
-                    scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null);
+                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null);
         }
 
         @Override

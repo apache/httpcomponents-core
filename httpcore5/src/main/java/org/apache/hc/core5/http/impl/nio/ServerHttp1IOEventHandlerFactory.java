@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -53,15 +54,20 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+        final boolean tlsSecured;
         if (tlsStrategy != null) {
-            tlsStrategy.upgrade(
+            tlsSecured = tlsStrategy.upgrade(
                     ioSession,
                     null,
                     ioSession.getLocalAddress(),
                     ioSession.getRemoteAddress(),
                     attachment);
+        } else {
+            tlsSecured = false;
         }
-        return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(ioSession));
+        return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(
+                tlsSecured ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                ioSession));
     }
 
 }

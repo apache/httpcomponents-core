@@ -91,7 +91,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
     }
 
     @Override
-    public void upgrade(
+    public boolean upgrade(
             final TransportSecurityLayer tlsSession,
             final HttpHost host,
             final SocketAddress localAddress,
@@ -101,9 +101,10 @@ public class BasicServerTlsStrategy implements TlsStrategy {
         for (final int securePort: securePorts) {
             if (port == securePort) {
                 tlsSession.startTls(sslContext, sslBufferManagement, initializer, verifier);
-                break;
+                return true;
             }
         }
+        return false;
     }
 
 }

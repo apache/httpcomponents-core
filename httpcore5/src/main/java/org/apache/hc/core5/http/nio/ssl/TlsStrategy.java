@@ -39,7 +39,7 @@ import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
  */
 public interface TlsStrategy {
 
-    void upgrade(
+    boolean upgrade(
             TransportSecurityLayer tlsSession,
             HttpHost host,
             SocketAddress localAddress,

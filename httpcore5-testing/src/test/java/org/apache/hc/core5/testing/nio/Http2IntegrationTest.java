@@ -76,6 +76,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;
@@ -110,7 +111,6 @@ import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
-import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
@@ -128,12 +128,12 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
         return Arrays.asList(new Object[][]{
-                { ProtocolScheme.HTTP },
-                { ProtocolScheme.HTTPS }
+                { URIScheme.HTTP },
+                { URIScheme.HTTPS }
         });
     }
 
-    public Http2IntegrationTest(final ProtocolScheme scheme) {
+    public Http2IntegrationTest(final URIScheme scheme) {
         super(scheme);
     }
 
@@ -145,7 +145,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
     @Before
     public void setup() throws Exception {
         client = new Http2TestClient(IOReactorConfig.DEFAULT,
-                scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
     }
 
     @After

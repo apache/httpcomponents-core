@@ -35,6 +35,7 @@ import java.util.concurrent.ThreadFactory;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
@@ -68,9 +69,9 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
         int port = host.getPort();
         if (port < 0) {
             final String scheme = host.getSchemeName();
-            if ("http".equalsIgnoreCase(scheme)) {
+            if (URIScheme.HTTP.same(scheme)) {
                 port = 80;
-            } else if ("https".equalsIgnoreCase(scheme)) {
+            } else if (URIScheme.HTTPS.same(scheme)) {
                 port = 443;
             }
         }

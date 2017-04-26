@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
@@ -50,8 +50,6 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultBHttpClientConnectionFactory
         implements HttpConnectionFactory<DefaultBHttpClientConnection> {
-
-    public static final DefaultBHttpClientConnectionFactory INSTANCE = new DefaultBHttpClientConnectionFactory();
 
     private final H1Config h1Config;
     private final CharCodingConfig charCodingConfig;
@@ -78,14 +76,16 @@ public class DefaultBHttpClientConnectionFactory
 
     public DefaultBHttpClientConnectionFactory(
             final H1Config h1Config,
-            final CharCodingConfig cconfig,
+            final CharCodingConfig charCodingConfig,
             final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
-        this(h1Config, cconfig, null, null, requestWriterFactory, responseParserFactory);
+        this(h1Config, charCodingConfig, null, null, requestWriterFactory, responseParserFactory);
     }
 
-    public DefaultBHttpClientConnectionFactory(final CharCodingConfig cconfig) {
-        this(null, cconfig, null, null, null, null);
+    public DefaultBHttpClientConnectionFactory(
+            final H1Config h1Config,
+            final CharCodingConfig charCodingConfig) {
+        this(h1Config, charCodingConfig, null, null, null, null);
     }
 
     public DefaultBHttpClientConnectionFactory() {

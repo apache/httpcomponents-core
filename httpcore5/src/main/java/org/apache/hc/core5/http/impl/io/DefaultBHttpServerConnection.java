@@ -58,6 +58,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class DefaultBHttpServerConnection extends BHttpConnectionBase implements HttpServerConnection {
 
+    private final String scheme;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
     private final HttpMessageParser<ClassicHttpRequest> requestParser;
@@ -66,6 +67,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     /**
      * Creates new instance of DefaultBHttpServerConnection.
      *
+     * @param scheme protocol scheme
      * @param h1Config Message h1Config. If {@code null}
      *   {@link H1Config#DEFAULT} will be used.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
@@ -82,6 +84,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      *   {@link DefaultHttpResponseWriterFactory#INSTANCE} will be used.
      */
     public DefaultBHttpServerConnection(
+            final String scheme,
             final H1Config h1Config,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -90,6 +93,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
         super(h1Config, chardecoder, charencoder);
+        this.scheme = scheme;
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
             DefaultHttpRequestParserFactory.INSTANCE).create(h1Config);
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
@@ -101,14 +105,17 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     }
 
     public DefaultBHttpServerConnection(
+            final String scheme,
             final H1Config h1Config,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder) {
-        this(h1Config, chardecoder, charencoder, null, null, null, null);
+        this(scheme, h1Config, chardecoder, charencoder, null, null, null, null);
     }
 
-    public DefaultBHttpServerConnection(final H1Config h1Config) {
-        this(h1Config, null, null);
+    public DefaultBHttpServerConnection(
+            final String scheme,
+            final H1Config h1Config) {
+        this(scheme, h1Config, null, null);
     }
 
     protected void onRequestReceived(final ClassicHttpRequest request) {
@@ -130,6 +137,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
         }
+        request.setScheme(this.scheme);
         this.version = transportVersion;
         onRequestReceived(request);
         incrementRequestCount();

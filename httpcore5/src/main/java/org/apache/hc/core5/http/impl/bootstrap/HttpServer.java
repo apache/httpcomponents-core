@@ -37,9 +37,13 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
@@ -88,7 +92,10 @@ public class HttpServer implements GracefullyCloseable {
         this.ifAddress = ifAddress;
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
         this.serverSocketFactory = serverSocketFactory != null ? serverSocketFactory : ServerSocketFactory.getDefault();
-        this.connectionFactory = connectionFactory != null ? connectionFactory : DefaultBHttpServerConnectionFactory.INSTANCE;
+        this.connectionFactory = connectionFactory != null ? connectionFactory : new DefaultBHttpServerConnectionFactory(
+                this.serverSocketFactory instanceof SSLServerSocketFactory ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                H1Config.DEFAULT,
+                CharCodingConfig.DEFAULT);
         this.sslSetupHandler = sslSetupHandler;
         this.exceptionListener = exceptionListener;
         this.listenerExecutorService = new ThreadPoolExecutor(

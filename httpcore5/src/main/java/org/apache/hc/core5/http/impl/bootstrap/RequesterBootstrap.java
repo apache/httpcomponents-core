@@ -30,6 +30,8 @@ import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -148,7 +150,8 @@ public class RequesterBootstrap {
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 connPool,
                 socketConfig != null ? socketConfig : SocketConfig.DEFAULT,
-                connectFactory != null ? connectFactory : DefaultBHttpClientConnectionFactory.INSTANCE,
+                connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
+                        H1Config.DEFAULT, CharCodingConfig.DEFAULT),
                 sslSocketFactory);
     }
 

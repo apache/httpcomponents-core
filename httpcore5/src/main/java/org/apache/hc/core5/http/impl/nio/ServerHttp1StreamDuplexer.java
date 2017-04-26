@@ -69,6 +69,7 @@ import org.apache.hc.core5.util.Asserts;
 
 public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpRequest, HttpResponse> {
 
+    private final String scheme;
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final H1Config h1Config;
@@ -86,6 +87,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final TlsCapableIOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
+            final String scheme,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
@@ -98,6 +100,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, connectionListener);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
+        this.scheme = scheme;
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
@@ -321,6 +324,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     context);
             pipeline.add(streamHandler);
         }
+        request.setScheme(scheme);
         streamHandler.consumeHeader(request, endStream);
         incoming = streamHandler;
     }

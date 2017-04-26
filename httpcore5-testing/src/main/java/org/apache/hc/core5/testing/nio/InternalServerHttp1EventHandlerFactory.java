@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnectionListener;
@@ -105,7 +106,8 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final ContentLengthStrategy outgoingContentStrategy,
             final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory, h1Config,
+        return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
+                sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id, h1Config,
                 charCodingConfig, connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter,
                 incomingContentStrategy, outgoingContentStrategy, connectionListener, streamListener);
     }

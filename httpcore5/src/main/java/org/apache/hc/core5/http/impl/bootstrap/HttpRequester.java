@@ -46,6 +46,9 @@ import org.apache.hc.core5.http.ConnectionRequestTimeoutException;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
@@ -89,7 +92,8 @@ public class HttpRequester implements GracefullyCloseable {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
-        this.connectFactory = connectFactory != null ? connectFactory : DefaultBHttpClientConnectionFactory.INSTANCE;
+        this.connectFactory = connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
+                H1Config.DEFAULT, CharCodingConfig.DEFAULT);
         this.sslSocketFactory = sslSocketFactory != null ? sslSocketFactory : (SSLSocketFactory) SSLSocketFactory.getDefault();
     }
 
@@ -160,9 +164,9 @@ public class HttpRequester implements GracefullyCloseable {
         final String scheme = targetHost.getSchemeName();
         int port = targetHost.getPort();
         if (port < 0) {
-            if ("http".equalsIgnoreCase(scheme)) {
+            if (URIScheme.HTTP.same(scheme)) {
                 port = 80;
-            } else if ("https".equalsIgnoreCase(scheme)) {
+            } else if (URIScheme.HTTPS.same(scheme)) {
                 port = 443;
             }
         }
@@ -174,7 +178,7 @@ public class HttpRequester implements GracefullyCloseable {
         }
         sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisIntBound());
 
-        if ("https".equalsIgnoreCase(scheme)) {
+        if (URIScheme.HTTPS.same(scheme)) {
             return sslSocketFactory.createSocket(sock, targetHost.getHostName(), port, true);
         } else {
             return sock;

@@ -25,6 +25,27 @@
  *
  */
 
-package org.apache.hc.core5.testing;
+package org.apache.hc.core5.http;
 
-public enum ProtocolScheme { HTTP, HTTPS }
+import org.apache.hc.core5.util.Args;
+
+public enum URIScheme {
+
+    HTTP("http"), HTTPS("https");
+
+    public final String id;
+
+    URIScheme(final String id) {
+        this.id = Args.notBlank(id, "Id");
+    }
+
+    public boolean same(final String scheme) {
+        return id.equalsIgnoreCase(scheme);
+    }
+
+    @Override
+    public String toString() {
+        return id;
+    }
+
+}

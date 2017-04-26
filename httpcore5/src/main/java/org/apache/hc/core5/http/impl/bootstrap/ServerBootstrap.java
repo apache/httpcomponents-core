@@ -32,12 +32,15 @@ import java.util.Map;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocketFactory;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpResponseFactory;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -61,6 +64,7 @@ public class ServerBootstrap {
     private int listenerPort;
     private InetAddress localAddress;
     private SocketConfig socketConfig;
+    private H1Config h1Config;
     private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
@@ -108,9 +112,14 @@ public class ServerBootstrap {
 
     /**
      * Sets connection configuration.
-     * <p>
-     * Please note this value can be overridden by the {@link #setConnectionFactory(
-     *HttpConnectionFactory)} method.
+     */
+    public final ServerBootstrap setH1Config(final H1Config h1Config) {
+        this.h1Config = h1Config;
+        return this;
+    }
+
+    /**
+     * Sets connection configuration.
      */
     public final ServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
@@ -273,11 +282,8 @@ public class ServerBootstrap {
 
         HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactoryCopy = this.connectionFactory;
         if (connectionFactoryCopy == null) {
-            if (this.charCodingConfig != null) {
-                connectionFactoryCopy = new DefaultBHttpServerConnectionFactory(this.charCodingConfig);
-            } else {
-                connectionFactoryCopy = DefaultBHttpServerConnectionFactory.INSTANCE;
-            }
+            final String scheme = serverSocketFactoryCopy instanceof SSLServerSocketFactory ? URIScheme.HTTPS.id : URIScheme.HTTP.id;
+            connectionFactoryCopy = new DefaultBHttpServerConnectionFactory(scheme, this.h1Config, this.charCodingConfig);
         }
 
         ExceptionListener exceptionListenerCopy = this.exceptionListener;

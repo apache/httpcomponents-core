@@ -82,7 +82,7 @@ public class HttpServer {
 
     private HttpServerConnection acceptConnection() throws IOException {
         final Socket socket = this.serversocket.accept();
-        final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(H1Config.DEFAULT);
+        final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(null, H1Config.DEFAULT);
         conn.bind(socket);
         return conn;
     }

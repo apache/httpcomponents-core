@@ -120,8 +120,9 @@ public final class ServerHttp1StreamDuplexerFactory {
         this(httpProcessor, exchangeHandlerFactory, h1Config, charCodingConfig, null, null ,null, connectionListener, streamListener);
     }
 
-    public ServerHttp1StreamDuplexer create(final TlsCapableIOSession ioSession) {
+    public ServerHttp1StreamDuplexer create(final String scheme, final TlsCapableIOSession ioSession) {
         return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
+                scheme,
                 h1Config,
                 charCodingConfig,
                 connectionReuseStrategy,

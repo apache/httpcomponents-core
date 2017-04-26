@@ -58,6 +58,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
     private final Wire wire;
 
     public LoggingBHttpServerConnection(
+            final String scheme,
             final H1Config h1Config,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -65,7 +66,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
-        super(h1Config, chardecoder, charencoder,
+        super(scheme, h1Config, chardecoder, charencoder,
                 incomingContentStrategy, outgoingContentStrategy,
                 requestParserFactory, responseWriterFactory);
         this.id = "http-incoming-" + COUNT.incrementAndGet();
@@ -79,8 +80,8 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
         return id;
     }
 
-    public LoggingBHttpServerConnection(final H1Config h1Config) {
-        this(h1Config, null, null, null, null, null, null);
+    public LoggingBHttpServerConnection(final String scheme, final H1Config h1Config) {
+        this(scheme, h1Config, null, null, null, null, null, null);
     }
 
     @Override

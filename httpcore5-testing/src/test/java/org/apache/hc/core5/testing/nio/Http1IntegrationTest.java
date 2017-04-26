@@ -75,6 +75,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -124,7 +125,6 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
-import org.apache.hc.core5.testing.ProtocolScheme;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
@@ -142,12 +142,12 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
         return Arrays.asList(new Object[][]{
-                { ProtocolScheme.HTTP },
-                { ProtocolScheme.HTTPS }
+                { URIScheme.HTTP },
+                { URIScheme.HTTPS }
         });
     }
 
-    public Http1IntegrationTest(final ProtocolScheme scheme) {
+    public Http1IntegrationTest(final URIScheme scheme) {
         super(scheme);
     }
 
@@ -160,7 +160,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     public void setup() throws Exception {
         client = new Http1TestClient(
                 IOReactorConfig.DEFAULT,
-                scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
     }
 
     @After
@@ -172,7 +172,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
         try {
-            return new URI("http", null, "localhost", serverEndpoint.getPort(), path, null, null);
+            return new URI(scheme.id, null, "localhost", serverEndpoint.getPort(), path, null, null);
         } catch (final URISyntaxException e) {
             throw new IllegalStateException();
         }
@@ -1357,7 +1357,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 H1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
-                scheme == ProtocolScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null) {
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null) {
 
             @Override
             protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(
@@ -1374,6 +1374,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     final ConnectionListener connectionListener,
                     final Http1StreamListener streamListener) {
                 return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
+                        scheme.id,
                         h1Config, connectionConfig, connectionReuseStrategy,
                         incomingMessageParser, outgoingMessageWriter,
                         incomingContentStrategy, outgoingContentStrategy,
