@@ -27,24 +27,9 @@ mvn install
 
 The JAR packages can be found in the target folders of their respective modules
 
-httpcore/target/httpcore5-<VERSION>.jar
-httpcore-osgi/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
+httpcore5/target/httpcore5-<VERSION>.jar
+httpcore5-h2/target/httpcore5-h2-<VERSION>.jar
+httpcore5-testing/target/httpcore5-testing-<VERSION>.jar
+httpcore5-osgi/target/org.apache.httpcomponents.httpcore_<VERSION>.jar
 
 where <VERSION> is the release version
-
-(4) Validating packages
-
-Check for binary compatibility with the previous version with:
-
-mvn clirr:check
-
-Check for proper license headers with:
-
-mvn apache-rat:check
-
-(5) Building documentation
-
-Execute the following command in order to generate javadoc:
-
-mvn compile javadoc:aggregate
-
