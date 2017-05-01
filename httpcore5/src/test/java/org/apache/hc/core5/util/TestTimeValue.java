@@ -138,4 +138,10 @@ public class TestTimeValue {
         test(-1);
     }
 
+    @Test
+    public void testToString() {
+        Assert.assertEquals("9,223,372,036,854,775,807 SECONDS", TimeValue.ofSeconds(Long.MAX_VALUE).toString());
+        Assert.assertEquals("0 MILLISECONDS", TimeValue.ZERO_MILLISECONDS.toString());
+    }
+
 }
