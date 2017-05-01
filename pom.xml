@@ -34,7 +34,7 @@
   <groupId>org.apache.httpcomponents.core5</groupId>
   <artifactId>httpcore5-parent</artifactId>
   <name>Apache HttpComponents Core Parent</name>
-  <version>5.0-alpha3-SNAPSHOT</version>
+  <version>5.0-alpha4-SNAPSHOT</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
