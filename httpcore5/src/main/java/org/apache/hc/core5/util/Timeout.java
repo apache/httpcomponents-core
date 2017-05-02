@@ -27,9 +27,7 @@
 
 package org.apache.hc.core5.util;
 
-import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -152,17 +150,17 @@ public class Timeout extends TimeValue {
 
     /**
      * Parses a Timeout in the format {@code <Integer><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}
-     * 
+     *
      * @param value
      *            the TimeValue to parse
      * @return a new TimeValue
      * @throws ParseException
      *             if the number cannot be parsed
      */
-    public static Timeout parse(String value) throws ParseException {
+    public static Timeout parse(final String value) throws ParseException {
         return TimeValue.parse(value).toTimeout();
     }
-    
+
     private static long validateDuration(final long duration) {
         if (duration < INT_UNDEFINED) {
             throw new IllegalArgumentException("Duration may not be less than " + INT_UNDEFINED);

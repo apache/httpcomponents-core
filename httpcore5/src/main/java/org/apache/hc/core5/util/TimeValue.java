@@ -170,17 +170,18 @@ public class TimeValue {
 
     /**
      * Parses a TimeValue in the format {@code <Integer><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}
-     * 
+     *
      * @param value
      *            the TimeValue to parse
      * @return a new TimeValue
      * @throws ParseException
      *             if the number cannot be parsed
      */
-    public static TimeValue parse(String value) throws ParseException {
-        String split[] = value.split("\\s+");
+    public static TimeValue parse(final String value) throws ParseException {
+        final String split[] = value.split("\\s+");
         if (split.length < 2) {
-            throw new IllegalArgumentException(String.format("Expected format for <Integer><SPACE><TimeUnit>: ", value));
+            throw new IllegalArgumentException(
+                    String.format("Expected format for <Integer><SPACE><TimeUnit>: ", value));
         }
         return TimeValue.of(NumberFormat.getInstance().parse(split[0]).longValue(),
                 TimeUnit.valueOf(split[1].trim().toUpperCase(Locale.ROOT)));
