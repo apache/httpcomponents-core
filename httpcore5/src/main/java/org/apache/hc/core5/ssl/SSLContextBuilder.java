@@ -96,7 +96,7 @@ public class SSLContextBuilder {
 
     /**
      * Sets the SSLContext algorithm name.
-     * 
+     *
      * @param protocol
      *            the SSLContext algorithm name of the requested protocol. See
      *            the SSLContext section in the <a href=
@@ -158,11 +158,8 @@ public class SSLContextBuilder {
             final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
         Args.notNull(file, "Truststore file");
         final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        final FileInputStream instream = new FileInputStream(file);
-        try {
+        try (final FileInputStream instream = new FileInputStream(file)) {
             trustStore.load(instream, storePassword);
-        } finally {
-            instream.close();
         }
         return loadTrustMaterial(trustStore, trustStrategy);
     }
@@ -184,11 +181,8 @@ public class SSLContextBuilder {
             final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
         Args.notNull(url, "Truststore URL");
         final KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        final InputStream instream = url.openStream();
-        try {
+        try (final InputStream instream = url.openStream()) {
             trustStore.load(instream, storePassword);
-        } finally {
-            instream.close();
         }
         return loadTrustMaterial(trustStore, trustStrategy);
     }
@@ -237,11 +231,8 @@ public class SSLContextBuilder {
             final PrivateKeyStrategy aliasStrategy) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, CertificateException, IOException {
         Args.notNull(file, "Keystore file");
         final KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        final FileInputStream instream = new FileInputStream(file);
-        try {
+        try (final FileInputStream instream = new FileInputStream(file)) {
             identityStore.load(instream, storePassword);
-        } finally {
-            instream.close();
         }
         return loadKeyMaterial(identityStore, keyPassword, aliasStrategy);
     }
@@ -260,11 +251,8 @@ public class SSLContextBuilder {
             final PrivateKeyStrategy aliasStrategy) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, CertificateException, IOException {
         Args.notNull(url, "Keystore URL");
         final KeyStore identityStore = KeyStore.getInstance(KeyStore.getDefaultType());
-        final InputStream instream = url.openStream();
-        try {
+        try (final InputStream instream = url.openStream()) {
             identityStore.load(instream, storePassword);
-        } finally {
-            instream.close();
         }
         return loadKeyMaterial(identityStore, keyPassword, aliasStrategy);
     }
