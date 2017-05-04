@@ -12,6 +12,9 @@ Changelog
 * HTTPCORE-460: Add factory methods to DefaultHttpClientIODispatch to handle a null SSLContext.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-461: Add factory methods to DefaultHttpServerIODispatch to handle a null SSLContext.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.6
 -------------------
