@@ -67,7 +67,7 @@ public class Http2SSLRequestExecutionExample {
 
     public final static void main(final String[] args) throws Exception {
         // Trust standard CA and those trusted by our custom strategy
-        final SSLContext sslcontext = SSLContexts.custom()
+        final SSLContext sslContext = SSLContexts.custom()
                 .loadTrustMaterial(new TrustStrategy() {
 
                     @Override
@@ -88,7 +88,7 @@ public class Http2SSLRequestExecutionExample {
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setH2Config(h2Config)
-                .setTlsStrategy(new H2ClientTlsStrategy(sslcontext, new SSLSessionVerifier() {
+                .setTlsStrategy(new H2ClientTlsStrategy(sslContext, new SSLSessionVerifier() {
 
                     @Override
                     public TlsDetails verify(final NamedEndpoint endpoint, final SSLEngine sslEngine) throws SSLException {

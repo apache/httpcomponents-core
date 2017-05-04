@@ -78,7 +78,7 @@ public class ClassicFileServerExample {
             port = Integer.parseInt(args[1]);
         }
 
-        SSLContext sslcontext = null;
+        SSLContext sslContext = null;
         if (port == 8443) {
             // Initialize SSL context
             URL url = ClassicFileServerExample.class.getResource("/my.keystore");
@@ -86,7 +86,7 @@ public class ClassicFileServerExample {
                 System.out.println("Keystore not found");
                 System.exit(1);
             }
-            sslcontext = SSLContexts.custom()
+            sslContext = SSLContexts.custom()
                     .loadKeyMaterial(url, "secret".toCharArray(), "secret".toCharArray())
                     .build();
         }
@@ -99,7 +99,7 @@ public class ClassicFileServerExample {
         final HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(port)
                 .setSocketConfig(socketConfig)
-                .setSslContext(sslcontext)
+                .setSslContext(sslContext)
                 .setExceptionListener(new ExceptionListener() {
 
                     @Override
