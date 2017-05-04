@@ -93,6 +93,20 @@ public class SSLContextBuilder {
         this.trustmanagers = new LinkedHashSet<TrustManager>();
     }
 
+    /**
+     * Sets the SSLContext algorithm name.
+     * 
+     * @param protocol
+     *            the SSLContext algorithm name of the requested protocol. See
+     *            the SSLContext section in the <a href=
+     *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
+     *            Cryptography Architecture Standard Algorithm Name
+     *            Documentation</a> for more information.
+     * @return this builder
+     * @see <a href=
+     *      "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
+     *      Cryptography Architecture Standard Algorithm Name Documentation</a>
+     */
     public SSLContextBuilder useProtocol(final String protocol) {
         this.protocol = protocol;
         return this;
