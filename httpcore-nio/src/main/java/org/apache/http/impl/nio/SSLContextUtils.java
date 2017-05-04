@@ -33,18 +33,18 @@ import java.security.NoSuchAlgorithmException;
 class SSLContextUtils {
 
     static SSLContext getDefault() {
-        SSLContext sslcontext;
+        SSLContext sslContext;
         try {
             try {
-                sslcontext = SSLContext.getInstance("Default");
+                sslContext = SSLContext.getInstance("Default");
             }  catch (final NoSuchAlgorithmException ex) {
-                sslcontext = SSLContext.getInstance("TLS");
+                sslContext = SSLContext.getInstance("TLS");
             }
-            sslcontext.init(null, null, null);
+            sslContext.init(null, null, null);
         } catch (final Exception ex) {
             throw new IllegalStateException("Failure initializing default SSL context", ex);
         }
-        return sslcontext;
+        return sslContext;
     }
 
 }

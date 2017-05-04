@@ -95,7 +95,7 @@ public class SSLContextBuilder {
 
     /**
      * Sets the SSLContext algorithm name.
-     * 
+     *
      * @param protocol
      *            the SSLContext algorithm name of the requested protocol. See
      *            the SSLContext section in the <a href=
@@ -276,26 +276,26 @@ public class SSLContextBuilder {
     }
 
     protected void initSSLContext(
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final Collection<KeyManager> keyManagers,
             final Collection<TrustManager> trustManagers,
             final SecureRandom secureRandom) throws KeyManagementException {
-        sslcontext.init(
+        sslContext.init(
                 !keyManagers.isEmpty() ? keyManagers.toArray(new KeyManager[keyManagers.size()]) : null,
                 !trustManagers.isEmpty() ? trustManagers.toArray(new TrustManager[trustManagers.size()]) : null,
                 secureRandom);
     }
 
     public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException {
-        final SSLContext sslcontext;
+        final SSLContext sslContext;
         final String protocolStr = this.protocol != null ? this.protocol : TLS;
         if (this.provider != null) {
-            sslcontext = SSLContext.getInstance(protocolStr, this.provider);
+            sslContext = SSLContext.getInstance(protocolStr, this.provider);
         } else {
-            sslcontext = SSLContext.getInstance(protocolStr);
+            sslContext = SSLContext.getInstance(protocolStr);
         }
-        initSSLContext(sslcontext, keymanagers, trustmanagers, secureRandom);
-        return sslcontext;
+        initSSLContext(sslContext, keymanagers, trustmanagers, secureRandom);
+        return sslContext;
     }
 
     static class TrustManagerDelegate implements X509TrustManager {

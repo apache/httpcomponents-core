@@ -62,10 +62,10 @@ import org.apache.http.util.Asserts;
  * The resultant instance of {@code SSLIOSession} must be added to the original
  * I/O session as an attribute with the {@link #SESSION_KEY} key.
  * <pre>
- *  SSLContext sslcontext = SSLContext.getInstance("SSL");
- *  sslcontext.init(null, null, null);
+ *  SSLContext sslContext = SSLContext.getInstance("SSL");
+ *  sslContext.init(null, null, null);
  *  SSLIOSession sslsession = new SSLIOSession(
- *      iosession, SSLMode.CLIENT, sslcontext, null);
+ *      iosession, SSLMode.CLIENT, sslContext, null);
  *  iosession.setAttribute(SSLIOSession.SESSION_KEY, sslsession);
  * </pre>
  *
