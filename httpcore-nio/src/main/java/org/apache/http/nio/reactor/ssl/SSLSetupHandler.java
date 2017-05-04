@@ -46,11 +46,11 @@ public interface SSLSetupHandler {
      * can use this callback to customize properties of the {@link SSLEngine}
      * used to establish the SSL session.
      *
-     * @param sslengine the SSL engine.
+     * @param sslEngine the SSL engine.
      * @throws SSLException if case of SSL protocol error.
      */
     //FIXME: fix type
-    void initalize(SSLEngine sslengine) throws SSLException;
+    void initalize(SSLEngine sslEngine) throws SSLException;
 
     /**
      * Triggered when the SSL connection has been established and initial SSL
@@ -59,10 +59,10 @@ public interface SSLSetupHandler {
      * For instance this would be the right place to enforce SSL cipher
      * strength, validate certificate chain and do hostname checks.
      *
-     * @param iosession the underlying IOSession for the SSL connection.
-     * @param sslsession newly created SSL session.
+     * @param ioSession the underlying IOSession for the SSL connection.
+     * @param sslSession newly created SSL session.
      * @throws SSLException if case of SSL protocol error.
      */
-    void verify(IOSession iosession, SSLSession sslsession) throws SSLException;
+    void verify(IOSession ioSession, SSLSession sslSession) throws SSLException;
 
 }
