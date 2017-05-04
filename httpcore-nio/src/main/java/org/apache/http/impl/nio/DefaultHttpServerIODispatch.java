@@ -31,8 +31,8 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpConnectionFactory;
@@ -53,6 +53,42 @@ import org.apache.http.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class DefaultHttpServerIODispatch
                     extends AbstractIODispatch<DefaultNHttpServerConnection> {
+
+    /**
+     * Creates a new instance of this class to be used for dispatching I/O event
+     * notifications to the given protocol handler.
+     *
+     * @param handler the client protocol handler.
+     * @param sslContext an SSLContext or null (for a plain text connection.)
+     * @param config a connection configuration
+     * @return a new instance
+     * @since 4.4.7
+     */
+    public static DefaultHttpServerIODispatch create(final NHttpServerEventHandler handler,
+            final SSLContext sslContext,
+            final ConnectionConfig config) {
+        return sslContext == null ? new DefaultHttpServerIODispatch(handler, config)
+                : new DefaultHttpServerIODispatch(handler, sslContext, config);
+    }
+
+    /**
+     * Creates a new instance of this class to be used for dispatching I/O event
+     * notifications to the given protocol handler.
+     *
+     * @param handler the client protocol handler.
+     * @param sslContext an SSLContext or null (for a plain text connection.)
+     * @param sslHandler customizes various aspects of the TLS/SSL protocol.
+     * @param config a connection configuration
+     * @return a new instance
+     * @since 4.4.7
+     */
+    public static DefaultHttpServerIODispatch create(final NHttpServerEventHandler handler,
+            final SSLContext sslContext,
+            final SSLSetupHandler sslHandler,
+            final ConnectionConfig config) {
+        return sslContext == null ? new DefaultHttpServerIODispatch(handler, config)
+                : new DefaultHttpServerIODispatch(handler, sslContext, sslHandler, config);
+    }
 
     private final NHttpServerEventHandler handler;
     private final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connFactory;
