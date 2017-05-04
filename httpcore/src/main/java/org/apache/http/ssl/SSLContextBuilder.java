@@ -41,6 +41,7 @@ import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.Provider;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -119,6 +120,11 @@ public class SSLContextBuilder {
 
     public SSLContextBuilder setProvider(final Provider provider) {
         this.provider = provider;
+        return this;
+    }
+
+    public SSLContextBuilder setProvider(final String name) {
+        this.provider = Security.getProvider(name);
         return this;
     }
 
