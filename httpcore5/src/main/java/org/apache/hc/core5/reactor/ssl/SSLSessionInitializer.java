@@ -33,7 +33,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 
 /**
  * Callback interface that can be used to customize various aspects of
- * the TLS/SSl protocol.
+ * the TLS/SSL protocol.
  *
  * @since 4.2
  */
