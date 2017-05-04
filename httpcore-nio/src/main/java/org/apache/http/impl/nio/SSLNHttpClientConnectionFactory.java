@@ -70,7 +70,7 @@ public class SSLNHttpClientConnectionFactory
     private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
     private final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
     private final ByteBufferAllocator allocator;
-    private final SSLContext sslcontext;
+    private final SSLContext sslContext;
     private final SSLSetupHandler sslHandler;
     private final ConnectionConfig cconfig;
 
@@ -82,7 +82,7 @@ public class SSLNHttpClientConnectionFactory
      */
     @Deprecated
     public SSLNHttpClientConnectionFactory(
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final HttpResponseFactory responseFactory,
             final ByteBufferAllocator allocator,
@@ -91,7 +91,7 @@ public class SSLNHttpClientConnectionFactory
         Args.notNull(responseFactory, "HTTP response factory");
         Args.notNull(allocator, "Byte buffer allocator");
         Args.notNull(params, "HTTP parameters");
-        this.sslcontext = sslcontext != null ? sslcontext : SSLContexts.createSystemDefault();
+        this.sslContext = sslContext != null ? sslContext : SSLContexts.createSystemDefault();
         this.sslHandler = sslHandler;
         this.allocator = allocator;
         this.incomingContentStrategy = null;
@@ -108,10 +108,10 @@ public class SSLNHttpClientConnectionFactory
      */
     @Deprecated
     public SSLNHttpClientConnectionFactory(
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
-        this(sslcontext, sslHandler, DefaultHttpResponseFactory.INSTANCE,
+        this(sslContext, sslHandler, DefaultHttpResponseFactory.INSTANCE,
                 HeapByteBufferAllocator.INSTANCE, params);
     }
 
@@ -128,7 +128,7 @@ public class SSLNHttpClientConnectionFactory
      * @since 4.3
      */
     public SSLNHttpClientConnectionFactory(
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
@@ -137,7 +137,7 @@ public class SSLNHttpClientConnectionFactory
             final ByteBufferAllocator allocator,
             final ConnectionConfig cconfig) {
         super();
-        this.sslcontext = sslcontext != null ? sslcontext : SSLContexts.createSystemDefault();
+        this.sslContext = sslContext != null ? sslContext : SSLContexts.createSystemDefault();
         this.sslHandler = sslHandler;
         this.incomingContentStrategy = incomingContentStrategy;
         this.outgoingContentStrategy = outgoingContentStrategy;
@@ -151,13 +151,13 @@ public class SSLNHttpClientConnectionFactory
      * @since 4.3
      */
     public SSLNHttpClientConnectionFactory(
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final ByteBufferAllocator allocator,
             final ConnectionConfig cconfig) {
-        this(sslcontext, sslHandler,
+        this(sslContext, sslHandler,
                 null, null, responseParserFactory, requestWriterFactory, allocator, cconfig);
     }
 
@@ -165,12 +165,12 @@ public class SSLNHttpClientConnectionFactory
      * @since 4.3
      */
     public SSLNHttpClientConnectionFactory(
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final ConnectionConfig cconfig) {
-        this(sslcontext, sslHandler,
+        this(sslContext, sslHandler,
                 null, null, responseParserFactory, requestWriterFactory, null, cconfig);
     }
 
@@ -178,10 +178,10 @@ public class SSLNHttpClientConnectionFactory
      * @since 4.3
      */
     public SSLNHttpClientConnectionFactory(
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final ConnectionConfig config) {
-        this(sslcontext, sslHandler, null, null, null, null, null, config);
+        this(sslContext, sslHandler, null, null, null, null, null, config);
     }
 
     /**
@@ -215,16 +215,16 @@ public class SSLNHttpClientConnectionFactory
      */
     protected SSLIOSession createSSLIOSession(
             final IOSession iosession,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler) {
         final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.CLIENT,
-                sslcontext, sslHandler);
+                sslContext, sslHandler);
         return ssliosession;
     }
 
     @Override
     public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
-        final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslcontext, this.sslHandler);
+        final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslContext, this.sslHandler);
         iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         return new DefaultNHttpClientConnection(
                 ssliosession,

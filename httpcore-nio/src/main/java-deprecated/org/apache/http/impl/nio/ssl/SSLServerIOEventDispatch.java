@@ -51,7 +51,7 @@ import org.apache.http.util.Args;
 @Deprecated
 public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
 
-    private final SSLContext sslcontext;
+    private final SSLContext sslContext;
     private final SSLSetupHandler sslHandler;
 
     /**
@@ -61,19 +61,19 @@ public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
      * protocol aspects for HTTP connections.
      *
      * @param handler the server protocol handler.
-     * @param sslcontext the SSL context.
+     * @param sslContext the SSL context.
      * @param sslHandler the SSL setup handler.
      * @param params HTTP parameters.
      */
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
         super(handler, params);
-        Args.notNull(sslcontext, "SSL context");
+        Args.notNull(sslContext, "SSL context");
         Args.notNull(params, "HTTP parameters");
-        this.sslcontext = sslcontext;
+        this.sslContext = sslContext;
         this.sslHandler = sslHandler;
     }
 
@@ -84,14 +84,14 @@ public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
      * protocol aspects for HTTP connections.
      *
      * @param handler the server protocol handler.
-     * @param sslcontext the SSL context.
+     * @param sslContext the SSL context.
      * @param params HTTP parameters.
      */
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final HttpParams params) {
-        this(handler, sslcontext, null, params);
+        this(handler, sslContext, null, params);
     }
 
     /**
@@ -102,15 +102,15 @@ public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
      * a different implementation of SSL I/O session.
      *
      * @param session the underlying I/O session.
-     * @param sslcontext the SSL context.
+     * @param sslContext the SSL context.
      * @param sslHandler the SSL setup handler.
      * @return newly created SSL I/O session.
      */
     protected SSLIOSession createSSLIOSession(
             final IOSession session,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler) {
-        return new SSLIOSession(session, sslcontext, sslHandler);
+        return new SSLIOSession(session, sslContext, sslHandler);
     }
 
     protected NHttpServerIOTarget createSSLConnection(final SSLIOSession ssliosession) {
@@ -119,7 +119,7 @@ public class SSLServerIOEventDispatch extends DefaultServerIOEventDispatch {
 
     @Override
     protected NHttpServerIOTarget createConnection(final IOSession session) {
-        final SSLIOSession ssliosession = createSSLIOSession(session, this.sslcontext, this.sslHandler);
+        final SSLIOSession ssliosession = createSSLIOSession(session, this.sslContext, this.sslHandler);
         session.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
         final NHttpServerIOTarget conn = createSSLConnection(ssliosession);
         try {

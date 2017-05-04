@@ -48,9 +48,9 @@ public class SSLContexts {
      */
     public static SSLContext createDefault() throws SSLInitializationException {
         try {
-            final SSLContext sslcontext = SSLContext.getInstance(SSLContextBuilder.TLS);
-            sslcontext.init(null, null, null);
-            return sslcontext;
+            final SSLContext sslContext = SSLContext.getInstance(SSLContextBuilder.TLS);
+            sslContext.init(null, null, null);
+            return sslContext;
         } catch (final NoSuchAlgorithmException ex) {
             throw new SSLInitializationException(ex.getMessage(), ex);
         } catch (final KeyManagementException ex) {

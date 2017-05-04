@@ -37,18 +37,18 @@ import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
 
 public class ClientConnectionFactory implements NHttpConnectionFactory<DefaultNHttpClientConnection> {
 
-    private final SSLContext sslcontext;
+    private final SSLContext sslContext;
     private final SSLSetupHandler setupHandler;
 
     public ClientConnectionFactory(
-            final SSLContext sslcontext, final SSLSetupHandler setupHandler) {
+            final SSLContext sslContext, final SSLSetupHandler setupHandler) {
         super();
-        this.sslcontext = sslcontext;
+        this.sslContext = sslContext;
         this.setupHandler = setupHandler;
     }
 
-    public ClientConnectionFactory(final SSLContext sslcontext) {
-        this(sslcontext, null);
+    public ClientConnectionFactory(final SSLContext sslContext) {
+        this(sslContext, null);
     }
 
     public ClientConnectionFactory() {
@@ -57,9 +57,9 @@ public class ClientConnectionFactory implements NHttpConnectionFactory<DefaultNH
 
     @Override
     public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
-        if (this.sslcontext != null) {
+        if (this.sslContext != null) {
             final SSLIOSession ssliosession = new SSLIOSession(
-                    iosession, SSLMode.CLIENT, this.sslcontext, this.setupHandler);
+                    iosession, SSLMode.CLIENT, this.sslContext, this.setupHandler);
             iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
             return new LoggingNHttpClientConnection(ssliosession);
         } else {

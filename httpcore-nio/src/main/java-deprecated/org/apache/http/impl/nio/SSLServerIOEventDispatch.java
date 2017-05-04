@@ -72,22 +72,22 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
      * protocol aspects for HTTP connections.
      *
      * @param handler the server protocol handler.
-     * @param sslcontext the SSL context.
+     * @param sslContext the SSL context.
      * @param sslHandler the SSL handler.
      * @param params HTTP parameters.
      */
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLIOSessionHandler sslHandler,
             final HttpParams params) {
         super();
         Args.notNull(handler, "HTTP service handler");
-        Args.notNull(sslcontext, "SSL context");
+        Args.notNull(sslContext, "SSL context");
         Args.notNull(params, "HTTP parameters");
         this.handler = handler;
         this.params = params;
-        this.sslcontext = sslcontext;
+        this.sslcontext = sslContext;
         this.sslHandler = sslHandler;
     }
 
@@ -98,14 +98,14 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
      * protocol aspects for HTTP connections.
      *
      * @param handler the server protocol handler.
-     * @param sslcontext the SSL context.
+     * @param sslContext the SSL context.
      * @param params HTTP parameters.
      */
     public SSLServerIOEventDispatch(
             final NHttpServiceHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final HttpParams params) {
-        this(handler, sslcontext, null, params);
+        this(handler, sslContext, null, params);
     }
 
     /**
@@ -162,15 +162,15 @@ public class SSLServerIOEventDispatch implements IOEventDispatch {
      * a different implementation of SSL I/O session.
      *
      * @param session the underlying I/O session.
-     * @param sslcontext the SSL context.
+     * @param sslContext the SSL context.
      * @param sslHandler the SSL handler.
      * @return newly created SSL I/O session.
      */
     protected SSLIOSession createSSLIOSession(
             final IOSession session,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLIOSessionHandler sslHandler) {
-        return new SSLIOSession(session, sslcontext, sslHandler);
+        return new SSLIOSession(session, sslContext, sslHandler);
     }
 
     @Override

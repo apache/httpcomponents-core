@@ -83,10 +83,10 @@ public class DefaultHttpServerIODispatch
     @Deprecated
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
-        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, sslHandler, params));
+        this(handler, new SSLNHttpServerConnectionFactory(sslContext, sslHandler, params));
     }
 
     /**
@@ -96,9 +96,9 @@ public class DefaultHttpServerIODispatch
     @Deprecated
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final HttpParams params) {
-        this(handler, sslcontext, null, params);
+        this(handler, sslContext, null, params);
     }
 
     /**
@@ -113,10 +113,10 @@ public class DefaultHttpServerIODispatch
      */
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final ConnectionConfig config) {
-        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, sslHandler, config));
+        this(handler, new SSLNHttpServerConnectionFactory(sslContext, sslHandler, config));
     }
 
     /**
@@ -124,9 +124,9 @@ public class DefaultHttpServerIODispatch
      */
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
-            final SSLContext sslcontext,
+            final SSLContext sslContext,
             final ConnectionConfig config) {
-        this(handler, new SSLNHttpServerConnectionFactory(sslcontext, null, config));
+        this(handler, new SSLNHttpServerConnectionFactory(sslContext, null, config));
     }
 
     @Override

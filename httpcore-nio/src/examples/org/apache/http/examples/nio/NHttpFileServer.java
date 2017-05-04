@@ -75,7 +75,7 @@ public class NHttpFileServer {
             port = Integer.parseInt(args[1]);
         }
 
-        SSLContext sslcontext = null;
+        SSLContext sslContext = null;
         if (port == 8443) {
             // Initialize SSL context
             URL url = NHttpFileServer.class.getResource("/my.keystore");
@@ -83,7 +83,7 @@ public class NHttpFileServer {
                 System.out.println("Keystore not found");
                 System.exit(1);
             }
-            sslcontext = SSLContexts.custom()
+            sslContext = SSLContexts.custom()
                     .loadKeyMaterial(url, "secret".toCharArray(), "secret".toCharArray())
                     .build();
         }
@@ -97,7 +97,7 @@ public class NHttpFileServer {
                 .setListenerPort(port)
                 .setServerInfo("Test/1.1")
                 .setIOReactorConfig(config)
-                .setSslContext(sslcontext)
+                .setSslContext(sslContext)
                 .setExceptionLogger(ExceptionLogger.STD_ERR)
                 .registerHandler("*", new HttpFileHandler(docRoot))
                 .create();
