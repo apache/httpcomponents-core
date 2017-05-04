@@ -36,7 +36,7 @@ import org.apache.http.params.HttpParams;
 
 /**
  * Callback interface that can be used to customize various aspects of
- * the TLS/SSl protocol.
+ * the TLS/SSL protocol.
  *
  * @since 4.1
  *
