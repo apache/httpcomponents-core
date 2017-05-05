@@ -90,6 +90,18 @@ public class TestSSLContextBuilder {
     @Test
     public void testBuildAllNull() throws Exception {
         final SSLContext sslContext = SSLContextBuilder.create()
+                .setProtocol(null)
+                .setSecureRandom(null)
+                .loadTrustMaterial((KeyStore) null, null)
+                .loadKeyMaterial((KeyStore) null, null, null)
+                .build();
+        Assert.assertNotNull(sslContext);
+        Assert.assertEquals("TLS", sslContext.getProtocol());
+    }
+
+    @Test
+    public void testBuildAllNull_deprecated() throws Exception {
+        final SSLContext sslContext = SSLContextBuilder.create()
                 .useProtocol(null)
                 .setSecureRandom(null)
                 .loadTrustMaterial((KeyStore) null, null)

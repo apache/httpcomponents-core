@@ -15,6 +15,9 @@ Changelog
 * HTTPCORE-461: Add factory methods to DefaultHttpServerIODispatch to handle a null SSLContext.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-462: Deprecate SSLContextBuilder.useProtocol(String) in favor a new method setProtocol(String).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.6
 -------------------

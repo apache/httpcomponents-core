@@ -107,8 +107,30 @@ public class SSLContextBuilder {
      * @see <a href=
      *      "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
      *      Cryptography Architecture Standard Algorithm Name Documentation</a>
+     * @deprecated Use {@link #setProtocol(String)}.
      */
+    @Deprecated
     public SSLContextBuilder useProtocol(final String protocol) {
+        this.protocol = protocol;
+        return this;
+    }
+
+    /**
+     * Sets the SSLContext algorithm name.
+     *
+     * @param protocol
+     *            the SSLContext algorithm name of the requested protocol. See
+     *            the SSLContext section in the <a href=
+     *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
+     *            Cryptography Architecture Standard Algorithm Name
+     *            Documentation</a> for more information.
+     * @return this builder
+     * @see <a href=
+     *      "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
+     *      Cryptography Architecture Standard Algorithm Name Documentation</a>
+     * @since 4.4.7
+     */
+    public SSLContextBuilder setProtocol(final String protocol) {
         this.protocol = protocol;
         return this;
     }
