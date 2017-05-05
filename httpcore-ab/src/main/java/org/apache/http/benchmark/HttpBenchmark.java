@@ -184,7 +184,7 @@ public class HttpBenchmark {
         SocketFactory socketFactory = null;
         if ("https".equals(host.getSchemeName())) {
             final SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
-            sslContextBuilder.useProtocol("SSL");
+            sslContextBuilder.setProtocol("SSL");
             if (config.isDisableSSLVerification()) {
                 sslContextBuilder.loadTrustMaterial(null, new TrustStrategy() {
 
