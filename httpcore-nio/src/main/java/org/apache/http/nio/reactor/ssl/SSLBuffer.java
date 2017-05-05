@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
  * Managed internal SSL buffer.
  */
 public interface SSLBuffer {
+
     /**
      * Allocates the resources required for this buffer, or returns the resources already allocated for this buffer.
      * Unless {@link #release() } is called, multiple invokations to this method must return the same
@@ -39,15 +40,18 @@ public interface SSLBuffer {
      * @return buffer
      */
     ByteBuffer acquire();
+
     /**
      * Releases the resources for this buffer. If the buffer has already been released, this method does nothing.
      */
     void release();
+
     /**
      * Tests to see if this buffer has been acquired.
      * @return {@code true} if the buffer is acquired, otherwise {@code false}
      */
     boolean isAcquired();
+
     /**
      * Tests to make sure that the buffer has been acquired and the underlying buffer has a position larger than
      * {@code 0}. Essentially the same as {@code isAquired() && acquire().position > 0}.
