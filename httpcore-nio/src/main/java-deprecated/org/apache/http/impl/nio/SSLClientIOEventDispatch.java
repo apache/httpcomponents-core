@@ -61,7 +61,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
     private static final String SSL_SESSION = "SSL_SESSION";
 
     protected final NHttpClientHandler handler;
-    protected final SSLContext sslContext;
+    protected final SSLContext sslcontext;
     protected final SSLIOSessionHandler sslHandler;
     protected final HttpParams params;
 
@@ -87,7 +87,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
         Args.notNull(params, "HTTP parameters");
         this.handler = handler;
         this.params = params;
-        this.sslContext = sslContext;
+        this.sslcontext = sslContext;
         this.sslHandler = sslHandler;
     }
 
@@ -178,7 +178,7 @@ public class SSLClientIOEventDispatch implements IOEventDispatch {
 
         final SSLIOSession sslSession = createSSLIOSession(
                 session,
-                this.sslContext,
+                this.sslcontext,
                 this.sslHandler);
 
         final NHttpClientIOTarget conn = createConnection(
