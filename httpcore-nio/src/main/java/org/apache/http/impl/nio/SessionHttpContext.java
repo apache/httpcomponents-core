@@ -54,4 +54,16 @@ class SessionHttpContext implements HttpContext {
         this.iosession.setAttribute(id, obj);
     }
 
+    /**
+     * @since 4.4.7
+     */
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("[iosession=");
+        sb.append(iosession);
+        sb.append("]");
+        return sb.toString();
+    }
+
 }
