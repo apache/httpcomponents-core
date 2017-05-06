@@ -125,8 +125,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         return requestState == MessageState.COMPLETE && responseState == MessageState.COMPLETE;
     }
 
-    boolean isHeadRequest() {
-        return committedRequest != null && "HEAD".equalsIgnoreCase(committedRequest.getMethod());
+    String getRequestMethod() {
+        return committedRequest != null ? committedRequest.getMethod() : null;
     }
 
     boolean isOutputReady() {

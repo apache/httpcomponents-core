@@ -37,10 +37,10 @@ import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicTokenIterator;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
@@ -97,7 +97,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 return false;
             }
         } else {
-            if (canResponseHaveBody(request, response) && response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
+            final String method = request != null ? request.getMethod() : null;
+            if (MessageSupport.canResponseHaveBody(method, response)
+                    && response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
                 return false;
             }
         }
@@ -132,16 +134,6 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             return false;
         }
         return ver.greaterEquals(HttpVersion.HTTP_1_1);
-    }
-
-    private boolean canResponseHaveBody(final HttpRequest request, final HttpResponse response) {
-        if (request != null && request.getMethod().equalsIgnoreCase("HEAD")) {
-            return false;
-        }
-        final int status = response.getCode();
-        return status >= HttpStatus.SC_SUCCESS
-            && status != HttpStatus.SC_NO_CONTENT
-            && status != HttpStatus.SC_NOT_MODIFIED;
     }
 
 }

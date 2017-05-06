@@ -39,6 +39,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -167,6 +169,22 @@ public class MessageSupport {
         }
         final ParserCursor cursor = new ParserCursor(0, value.length());
         return BasicHeaderValueParser.INSTANCE.parseElements(value, cursor);
+    }
+
+    /**
+     * @since  5.0
+     */
+    public static boolean canResponseHaveBody(final String method, final HttpResponse response) {
+        if ("HEAD".equalsIgnoreCase(method)) {
+            return false;
+        }
+        final int status = response.getCode();
+        if ("CONNECT".equalsIgnoreCase(method) && status == HttpStatus.SC_OK) {
+            return false;
+        }
+        return status >= HttpStatus.SC_SUCCESS
+                && status != HttpStatus.SC_NO_CONTENT
+                && status != HttpStatus.SC_NOT_MODIFIED;
     }
 
 }

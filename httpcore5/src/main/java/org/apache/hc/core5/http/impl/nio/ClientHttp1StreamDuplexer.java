@@ -42,7 +42,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -52,6 +51,7 @@ import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
@@ -268,12 +268,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         if (incoming == null) {
             throw new HttpException("Unexpected response");
         }
-
-        if (incoming.isHeadRequest()) {
-            return null;
-        }
-        final int status = response.getCode();
-        if (status < HttpStatus.SC_SUCCESS || status == HttpStatus.SC_NO_CONTENT || status == HttpStatus.SC_NOT_MODIFIED) {
+        if (!MessageSupport.canResponseHaveBody(incoming.getRequestMethod(), response)) {
             return null;
         }
         final long len = incomingContentStrategy.determineLength(response);
