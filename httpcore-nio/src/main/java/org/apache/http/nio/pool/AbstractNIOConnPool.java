@@ -272,8 +272,10 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         final BasicFuture<E> future = new BasicFuture<E>(callback);
         this.lock.lock();
         try {
-            final long timeout = connectTimeout > 0 ? tunit.toMillis(connectTimeout) : 0;
-            final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state, timeout, leaseTimeout, future);
+            final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state,
+                    connectTimeout >= 0 ? tunit.toMillis(connectTimeout) : -1,
+                    leaseTimeout > 0 ? tunit.toMillis(leaseTimeout) : 0,
+                    future);
             final boolean completed = processPendingRequest(request);
             if (!request.isDone() && !completed) {
                 this.leasingRequests.add(request);
@@ -444,9 +446,10 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
             final SessionRequest sessionRequest = this.ioreactor.connect(
                     remoteAddress, localAddress, route, this.sessionRequestCallback);
-            final int timout = request.getConnectTimeout() < Integer.MAX_VALUE ?
-                    (int) request.getConnectTimeout() : Integer.MAX_VALUE;
-            sessionRequest.setConnectTimeout(timout);
+            final long connectTimeout = request.getConnectTimeout();
+            if (connectTimeout >= 0) {
+                sessionRequest.setConnectTimeout(connectTimeout < Integer.MAX_VALUE ? (int) connectTimeout : Integer.MAX_VALUE);
+            }
             this.pending.add(sessionRequest);
             pool.addPending(sessionRequest, request.getFuture());
             return true;
