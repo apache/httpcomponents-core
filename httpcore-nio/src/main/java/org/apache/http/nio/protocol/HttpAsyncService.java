@@ -277,10 +277,10 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     @Override
     public void exception(
             final NHttpServerConnection conn, final Exception cause) {
+        log(cause);
         final State state = getState(conn);
         if (state == null) {
             shutdownConnection(conn);
-            log(cause);
             return;
         }
         state.setTerminated();
