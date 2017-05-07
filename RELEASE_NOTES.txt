@@ -18,6 +18,9 @@ Changelog
 * HTTPCORE-462: Deprecate SSLContextBuilder.useProtocol(String) in favor a new method setProtocol(String).
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-464: org.apache.http.nio.protocol.HttpAsyncService does not always log exceptions.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.6
 -------------------
