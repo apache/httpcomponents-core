@@ -79,8 +79,8 @@ public class SSLContextBuilder {
     static final String TLS   = "TLS";
 
     private String protocol;
-    private final Set<KeyManager> keymanagers;
-    private final Set<TrustManager> trustmanagers;
+    private final Set<KeyManager> keyManagers;
+    private final Set<TrustManager> trustManagers;
     private SecureRandom secureRandom;
     private Provider provider;
 
@@ -90,15 +90,15 @@ public class SSLContextBuilder {
 
     public SSLContextBuilder() {
         super();
-        this.keymanagers = new LinkedHashSet<KeyManager>();
-        this.trustmanagers = new LinkedHashSet<TrustManager>();
+        this.keyManagers = new LinkedHashSet<KeyManager>();
+        this.trustManagers = new LinkedHashSet<TrustManager>();
     }
 
     /**
-     * Sets the SSLContext algorithm name.
+     * Sets the SSLContext protocol algorithm name.
      *
      * @param protocol
-     *            the SSLContext algorithm name of the requested protocol. See
+     *            the SSLContext protocol algorithm name of the requested protocol. See
      *            the SSLContext section in the <a href=
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
      *            Cryptography Architecture Standard Algorithm Name
@@ -116,10 +116,10 @@ public class SSLContextBuilder {
     }
 
     /**
-     * Sets the SSLContext algorithm name.
+     * Sets the SSLContext protocol algorithm name.
      *
      * @param protocol
-     *            the SSLContext algorithm name of the requested protocol. See
+     *            the SSLContext protocol algorithm name of the requested protocol. See
      *            the SSLContext section in the <a href=
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
      *            Cryptography Architecture Standard Algorithm Name
@@ -168,7 +168,7 @@ public class SSLContextBuilder {
                 }
             }
             for (final TrustManager tm : tms) {
-                this.trustmanagers.add(tm);
+                this.trustManagers.add(tm);
             }
         }
         return this;
@@ -245,7 +245,7 @@ public class SSLContextBuilder {
                 }
             }
             for (final KeyManager km : kms) {
-                keymanagers.add(km);
+                keyManagers.add(km);
             }
         }
         return this;
@@ -322,7 +322,7 @@ public class SSLContextBuilder {
         } else {
             sslContext = SSLContext.getInstance(protocolStr);
         }
-        initSSLContext(sslContext, keymanagers, trustmanagers, secureRandom);
+        initSSLContext(sslContext, keyManagers, trustManagers, secureRandom);
         return sslContext;
     }
 
@@ -447,6 +447,15 @@ public class SSLContextBuilder {
             return this.aliasStrategy.chooseAlias(validAliases, null);
         }
 
+    }
+
+    /**
+     * @since 4.4.7
+     */
+    @Override
+    public String toString() {
+        return "[provider=" + provider + ", protocol=" + protocol + ", keymanagers=" + keyManagers
+                + ", trustmanagers=" + trustManagers + ", secureRandom=" + secureRandom + "]";
     }
 
 }
