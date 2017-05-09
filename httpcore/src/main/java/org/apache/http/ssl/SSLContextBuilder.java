@@ -95,10 +95,10 @@ public class SSLContextBuilder {
     }
 
     /**
-     * Sets the SSLContext algorithm name.
+     * Sets the SSLContext protocol algorithm name.
      *
      * @param protocol
-     *            the SSLContext algorithm name of the requested protocol. See
+     *            the SSLContext protocol algorithm name of the requested protocol. See
      *            the SSLContext section in the <a href=
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
      *            Cryptography Architecture Standard Algorithm Name
@@ -116,10 +116,10 @@ public class SSLContextBuilder {
     }
 
     /**
-     * Sets the SSLContext algorithm name.
+     * Sets the SSLContext protocol algorithm name.
      *
      * @param protocol
-     *            the SSLContext algorithm name of the requested protocol. See
+     *            the SSLContext protocol algorithm name of the requested protocol. See
      *            the SSLContext section in the <a href=
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
      *            Cryptography Architecture Standard Algorithm Name
