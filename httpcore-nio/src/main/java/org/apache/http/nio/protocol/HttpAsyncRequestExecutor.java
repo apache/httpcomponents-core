@@ -222,6 +222,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
     }
 
+    public void preRequest(HttpRequest httpRequest) {
+    }
+
     @Override
     public void outputReady(
             final NHttpClientConnection conn,

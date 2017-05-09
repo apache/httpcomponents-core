@@ -30,6 +30,7 @@ package org.apache.http.impl.nio;
 import java.io.IOException;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
@@ -58,6 +59,9 @@ class NHttpClientEventHandlerAdaptor implements NHttpClientEventHandler {
     public void requestReady(
             final NHttpClientConnection conn) throws IOException, HttpException {
         this.handler.requestReady(conn);
+    }
+
+    public void preRequest(HttpRequest httpRequest) {
     }
 
     @Override
