@@ -449,4 +449,13 @@ public class SSLContextBuilder {
 
     }
 
+    /**
+     * @since 4.4.7
+     */
+    @Override
+    public String toString() {
+        return "[provider=" + provider + ", protocol=" + protocol + ", keymanagers=" + keymanagers
+                + ", trustmanagers=" + trustmanagers + ", secureRandom=" + secureRandom + "]";
+    }
+
 }
