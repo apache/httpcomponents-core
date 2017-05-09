@@ -21,6 +21,9 @@ Changelog
 * HTTPCORE-464: org.apache.http.nio.protocol.HttpAsyncService does not always log exceptions.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-465: Update example NHttpReverseProxy to support SSL to origin servers which use self-signed certificates.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.6
 -------------------

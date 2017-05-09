@@ -31,8 +31,12 @@ import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -50,6 +54,9 @@ import org.apache.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.http.impl.nio.DefaultHttpClientIODispatch;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
+import org.apache.http.impl.nio.DefaultNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.SSLNHttpClientConnectionFactory;
+import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
 import org.apache.http.impl.nio.pool.BasicNIOConnPool;
 import org.apache.http.impl.nio.pool.BasicNIOPoolEntry;
 import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
@@ -95,21 +102,37 @@ import org.apache.http.protocol.ResponseConnControl;
 import org.apache.http.protocol.ResponseContent;
 import org.apache.http.protocol.ResponseDate;
 import org.apache.http.protocol.ResponseServer;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 
 /**
  * Asynchronous, fully streaming HTTP/1.1 reverse proxy.
+ * <p>
+ * Supports SSL to origin servers which use self-signed certificates.
+ * </p>
  */
 public class NHttpReverseProxy {
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1) {
-            System.out.println("Usage: NHttpReverseProxy <hostname> [port]");
+        if (args.length < 2) {
+            System.out.println("Usage: NHttpReverseProxy <HostNameURI> <Port> [\"TrustSelfSignedStrategy\"]");
             System.exit(1);
         }
+        // Extract command line arguments
         URI uri = new URI(args[0]);
-        int port = 8080;
-        if (args.length > 1) {
-            port = Integer.parseInt(args[1]);
+        int port = Integer.parseInt(args[1]);
+        SSLContext sslContext = null;
+        if (args.length > 2 && args[2].equals("TrustSelfSignedStrategy")) {
+            System.out.println("Using TrustSelfSignedStrategy (not for production)");
+            sslContext = SSLContextBuilder.create().loadTrustMaterial(new TrustStrategy() {
+
+                @Override
+                public boolean isTrusted(
+                final X509Certificate[] chain, final String authType) throws CertificateException {
+                    return chain.length == 1;
+                }
+
+            }).build();
         }
 
         // Target host
@@ -151,7 +174,11 @@ public class NHttpReverseProxy {
         HttpAsyncRequester executor = new HttpAsyncRequester(
                 outhttpproc, new ProxyOutgoingConnectionReuseStrategy());
 
-        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, ConnectionConfig.DEFAULT);
+        // Without SSL: ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, ConnectionConfig.DEFAULT);
+        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor,
+                new BasicNIOConnFactory(new DefaultNHttpClientConnectionFactory(ConnectionConfig.DEFAULT),
+                        new SSLNHttpClientConnectionFactory(sslContext, null, ConnectionConfig.DEFAULT)),
+                0);
         connPool.setMaxTotal(100);
         connPool.setDefaultMaxPerRoute(20);
 
@@ -163,8 +190,8 @@ public class NHttpReverseProxy {
                 new ProxyIncomingConnectionReuseStrategy(),
                 handlerRegistry);
 
-        final IOEventDispatch connectingEventDispatch = new DefaultHttpClientIODispatch(
-                clientHandler, ConnectionConfig.DEFAULT);
+        final IOEventDispatch connectingEventDispatch = DefaultHttpClientIODispatch.create(
+                clientHandler, sslContext, ConnectionConfig.DEFAULT);
 
         final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch(
                 serviceHandler, ConnectionConfig.DEFAULT);
@@ -842,12 +869,6 @@ public class NHttpReverseProxy {
     }
 
     static class ProxyConnPool extends BasicNIOConnPool {
-
-        public ProxyConnPool(
-                final ConnectingIOReactor ioreactor,
-                final ConnectionConfig config) {
-            super(ioreactor, config);
-        }
 
         public ProxyConnPool(
                 final ConnectingIOReactor ioreactor,
