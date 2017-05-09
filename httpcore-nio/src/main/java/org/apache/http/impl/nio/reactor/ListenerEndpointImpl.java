@@ -156,4 +156,10 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         }
     }
 
+    @Override
+    public String toString() {
+        return "[address=" + address + ", key=" + key + ", closed=" + closed + ", completed="
+                + completed + ", exception=" + exception + ", callback=" + callback + "]";
+    }
+
 }
