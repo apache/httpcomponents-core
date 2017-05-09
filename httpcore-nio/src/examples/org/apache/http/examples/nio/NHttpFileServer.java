@@ -104,7 +104,8 @@ public class NHttpFileServer {
                 .create();
 
         server.start();
-        System.out.println("Serving " + docRoot + " on " + server.getEndpoint().getAddress());
+        System.out.println("Serving " + docRoot + " on " + server.getEndpoint().getAddress()
+                + (sslContext == null ? "" : " with " + sslContext.getProvider() + " " + sslContext.getProtocol()));
         server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
