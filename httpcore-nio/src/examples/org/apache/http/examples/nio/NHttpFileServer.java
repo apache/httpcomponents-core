@@ -83,6 +83,7 @@ public class NHttpFileServer {
                 System.out.println("Keystore not found");
                 System.exit(1);
             }
+            System.out.println("Loading keystore " + url);
             sslContext = SSLContexts.custom()
                     .loadKeyMaterial(url, "nopassword".toCharArray(), "nopassword".toCharArray())
                     .build();
@@ -103,6 +104,7 @@ public class NHttpFileServer {
                 .create();
 
         server.start();
+        System.out.println("Serving " + docRoot + " on " + server.getEndpoint().getAddress());
         server.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
