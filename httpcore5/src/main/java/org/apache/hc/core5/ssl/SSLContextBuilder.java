@@ -80,8 +80,8 @@ public class SSLContextBuilder {
     static final String TLS   = "TLS";
 
     private String protocol;
-    private final Set<KeyManager> keymanagers;
-    private final Set<TrustManager> trustmanagers;
+    private final Set<KeyManager> keyManagers;
+    private final Set<TrustManager> trustManagers;
     private SecureRandom secureRandom;
     private Provider provider;
 
@@ -91,8 +91,8 @@ public class SSLContextBuilder {
 
     public SSLContextBuilder() {
         super();
-        this.keymanagers = new LinkedHashSet<>();
-        this.trustmanagers = new LinkedHashSet<>();
+        this.keyManagers = new LinkedHashSet<>();
+        this.trustManagers = new LinkedHashSet<>();
     }
 
     /**
@@ -147,7 +147,7 @@ public class SSLContextBuilder {
                 }
             }
             for (final TrustManager tm : tms) {
-                this.trustmanagers.add(tm);
+                this.trustManagers.add(tm);
             }
         }
         return this;
@@ -218,7 +218,7 @@ public class SSLContextBuilder {
                 }
             }
             for (final KeyManager km : kms) {
-                keymanagers.add(km);
+                keyManagers.add(km);
             }
         }
         return this;
@@ -289,7 +289,7 @@ public class SSLContextBuilder {
         } else {
             sslContext = SSLContext.getInstance(protocolStr);
         }
-        initSSLContext(sslContext, keymanagers, trustmanagers, secureRandom);
+        initSSLContext(sslContext, keyManagers, trustManagers, secureRandom);
         return sslContext;
     }
 
@@ -416,6 +416,12 @@ public class SSLContextBuilder {
             return this.aliasStrategy.chooseAlias(validAliases, sslEngine.getSSLParameters());
         }
 
+    }
+
+    @Override
+    public String toString() {
+        return "[provider=" + provider + ", protocol=" + protocol + ", keyManagers=" + keyManagers
+                + ", trustManagers=" + trustManagers + ", secureRandom=" + secureRandom + "]";
     }
 
 }
