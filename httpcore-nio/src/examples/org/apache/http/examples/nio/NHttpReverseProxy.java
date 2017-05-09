@@ -103,7 +103,7 @@ public class NHttpReverseProxy {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("Usage: NHttpReverseProxy <hostname> [port]");
+            System.out.println("Usage: NHttpReverseProxy <hostname[:hostport]> [port]");
             System.exit(1);
         }
         URI uri = new URI(args[0]);
