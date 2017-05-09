@@ -78,13 +78,13 @@ public class NHttpFileServer {
         SSLContext sslContext = null;
         if (port == 8443) {
             // Initialize SSL context
-            URL url = NHttpFileServer.class.getResource("/my.keystore");
+            URL url = NHttpFileServer.class.getResource("/test.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
                 System.exit(1);
             }
             sslContext = SSLContexts.custom()
-                    .loadKeyMaterial(url, "secret".toCharArray(), "secret".toCharArray())
+                    .loadKeyMaterial(url, "nopassword".toCharArray(), "nopassword".toCharArray())
                     .build();
         }
 
