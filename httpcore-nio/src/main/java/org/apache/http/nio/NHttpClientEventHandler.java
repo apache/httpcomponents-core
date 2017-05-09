@@ -30,6 +30,7 @@ package org.apache.http.nio;
 import java.io.IOException;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
 
 /**
  * Abstract client-side HTTP protocol handler.
@@ -59,6 +60,15 @@ public interface NHttpClientEventHandler {
      */
     void requestReady(
             NHttpClientConnection conn) throws IOException, HttpException;
+
+    /**
+     * Triggered when the connection is ready to accept a new HTTP request.
+     *
+     * @see HttpRequest
+     *
+     * @param httpRequest HTTP Request that can be used to extract data from it and use in the reactor thread pool
+     */
+    void preRequest(HttpRequest httpRequest);
 
     /**
      * Triggered when an HTTP response is received. The connection

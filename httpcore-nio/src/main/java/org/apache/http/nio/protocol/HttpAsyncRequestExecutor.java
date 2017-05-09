@@ -191,6 +191,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         if (pipelined && version.lessEquals(HttpVersion.HTTP_1_0)) {
             throw new ProtocolException(version + " cannot be used with request pipelining");
         }
+
+        preRequest(request);
+
         state.setRequest(request);
         if (pipelined) {
             state.getRequestQueue().add(request);
@@ -220,6 +223,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             handler.requestCompleted();
             state.setRequestState(pipelined ? MessageState.READY : MessageState.COMPLETED);
         }
+    }
+
+    public void preRequest(HttpRequest httpRequest) {
     }
 
     @Override
