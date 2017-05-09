@@ -192,4 +192,9 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
     public Set<String> getNames() {
         return new HashSet<String>(this.parameters.keySet());
     }
+
+    @Override
+    public String toString() {
+        return "[parameters=" + parameters + "]";
+    }
 }
