@@ -24,6 +24,9 @@ Changelog
 * HTTPCORE-465: Update example NHttpReverseProxy to support SSL to origin servers which use self-signed certificates.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-466: Round out the SslContextBuilder by adding missing APIs.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.6
 -------------------

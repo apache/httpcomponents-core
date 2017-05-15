@@ -36,6 +36,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.URL;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
@@ -52,6 +54,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -59,6 +62,7 @@ import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.lang3.JavaVersion;
 import org.apache.commons.lang3.SystemUtils;
@@ -71,6 +75,7 @@ import org.junit.Test;
  */
 public class TestSSLContextBuilder {
 
+    private static final String PROVIDER_SUN_JSSE = "SunJSSE";
     private ExecutorService executorService;
 
     @After
@@ -90,13 +95,67 @@ public class TestSSLContextBuilder {
     @Test
     public void testBuildAllNull() throws Exception {
         final SSLContext sslContext = SSLContextBuilder.create()
+                .setKeyStoreType(null)
+                .setKeyManagerFactoryAlgorithm(null)
+                .setTrustManagerFactoryAlgorithm(null)
                 .setProtocol(null)
+                .setProvider((String) null)
                 .setSecureRandom(null)
                 .loadTrustMaterial((KeyStore) null, null)
                 .loadKeyMaterial((KeyStore) null, null, null)
                 .build();
         Assert.assertNotNull(sslContext);
         Assert.assertEquals("TLS", sslContext.getProtocol());
+        Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
+    }
+
+    @Test
+    public void testBuildAllDefaults() throws Exception {
+        final SSLContext sslContext = SSLContextBuilder.create()
+                .setKeyStoreType(KeyStore.getDefaultType())
+                .setKeyManagerFactoryAlgorithm(KeyManagerFactory.getDefaultAlgorithm())
+                .setTrustManagerFactoryAlgorithm(TrustManagerFactory.getDefaultAlgorithm())
+                .setProvider(PROVIDER_SUN_JSSE)
+                .setProtocol("TLS")
+                .setSecureRandom(null)
+                .loadTrustMaterial((KeyStore) null, null)
+                .loadKeyMaterial((KeyStore) null, null, null)
+                .build();
+        Assert.assertNotNull(sslContext);
+        Assert.assertEquals("TLS", sslContext.getProtocol());
+        Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
+    }
+
+    @Test(expected=KeyStoreException.class)
+    public void testBuildNoSuchKeyStoreType() throws Exception {
+        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final String storePassword = "nopassword";
+        final String keyPassword = "password";
+        SSLContextBuilder.create()
+                .setKeyStoreType(" BAD ")
+                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                .build();
+    }
+
+    @Test(expected=NoSuchAlgorithmException.class)
+    public void testBuildNoSuchKeyManagerFactoryAlgorithm() throws Exception {
+        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final String storePassword = "nopassword";
+        final String keyPassword = "password";
+        SSLContextBuilder.create()
+                .setKeyManagerFactoryAlgorithm(" BAD ")
+                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                .build();
+    }
+
+    @Test(expected=NoSuchAlgorithmException.class)
+    public void testBuildNoSuchTrustManagerFactoryAlgorithm() throws Exception {
+        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final String storePassword = "nopassword";
+        SSLContextBuilder.create()
+                .setTrustManagerFactoryAlgorithm(" BAD ")
+                .loadTrustMaterial(resource1, storePassword.toCharArray())
+                .build();
     }
 
     @Test
@@ -637,10 +696,10 @@ public class TestSSLContextBuilder {
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext sslContext=SSLContextBuilder.create()
-                .setProvider(Security.getProvider("SunJSSE"))
+                .setProvider(Security.getProvider(PROVIDER_SUN_JSSE))
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
-        Assert.assertTrue(sslContext.getProvider().getName().equals("SunJSSE"));
+        Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
     }
 
     @Test
@@ -649,10 +708,10 @@ public class TestSSLContextBuilder {
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext sslContext=SSLContextBuilder.create()
-                .setProvider("SunJSSE")
+                .setProvider(PROVIDER_SUN_JSSE)
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
-        Assert.assertTrue(sslContext.getProvider().getName().equals("SunJSSE"));
+        Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
     }
 
 }
