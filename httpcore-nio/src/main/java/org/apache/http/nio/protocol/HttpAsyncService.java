@@ -614,6 +614,17 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     protected HttpAsyncResponseProducer handleException(
             final Exception ex, final HttpContext context) {
+        String message = ex.getMessage();
+        if (message == null) {
+            message = ex.toString();
+        }
+        final HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
+                toStatusCode(ex, context), context);
+        return new ErrorResponseProducer(response,
+                new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
+    }
+
+    protected int toStatusCode(final Exception ex, final HttpContext context) {
         final int code;
         if (ex instanceof MethodNotSupportedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
@@ -624,14 +635,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         } else {
             code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         }
-        String message = ex.getMessage();
-        if (message == null) {
-            message = ex.toString();
-        }
-        final HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
-                code, context);
-        return new ErrorResponseProducer(response,
-                new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
+        return code;
     }
 
     /**

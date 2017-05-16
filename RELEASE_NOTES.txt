@@ -27,6 +27,9 @@ Changelog
 * HTTPCORE-466: Round out the SslContextBuilder by adding missing APIs.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-468: Allow HttpAsyncService subclasses to customize the HTTP status code.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.6
 -------------------
