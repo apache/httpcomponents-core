@@ -1,3 +1,12 @@
+Release 5.0-ALPHA4
+-------------------
+
+Changelog
+-------------------
+
+* HTTPCORE-468: Allow HttpAsyncService subclasses to customize the HTTP status code.
+
+
 Release 5.0-ALPHA3
 -------------------
 

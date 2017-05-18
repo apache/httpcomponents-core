@@ -267,23 +267,28 @@ public class HttpService {
      * @param response the HTTP response.
      */
     protected void handleException(final HttpException ex, final ClassicHttpResponse response) {
-        if (ex instanceof MethodNotSupportedException) {
-            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
-        } else if (ex instanceof UnsupportedHttpVersionException) {
-            response.setCode(HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED);
-        } else if (ex instanceof NotImplementedException) {
-            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
-        } else if (ex instanceof ProtocolException) {
-            response.setCode(HttpStatus.SC_BAD_REQUEST);
-        } else {
-            response.setCode(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
+        response.setCode(toStatusCode(ex, response));
         String message = ex.getMessage();
         if (message == null) {
             message = ex.toString();
         }
-        final StringEntity entity = new StringEntity(message, ContentType.TEXT_PLAIN);
-        response.setEntity(entity);
+        response.setEntity(new StringEntity(message, ContentType.TEXT_PLAIN));
+    }
+
+    protected int toStatusCode(final Exception ex, final ClassicHttpResponse response) {
+        final int code;
+        if (ex instanceof MethodNotSupportedException) {
+            code = HttpStatus.SC_NOT_IMPLEMENTED;
+        } else if (ex instanceof UnsupportedHttpVersionException) {
+            code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
+        } else if (ex instanceof NotImplementedException) {
+            code = HttpStatus.SC_NOT_IMPLEMENTED;
+        } else if (ex instanceof ProtocolException) {
+            code = HttpStatus.SC_BAD_REQUEST;
+        } else {
+            code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+        }
+        return code;
     }
 
     /**

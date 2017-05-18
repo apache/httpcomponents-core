@@ -206,6 +206,14 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     AsyncResponseProducer handleException(final Exception ex) {
+        String message = ex.getMessage();
+        if (message == null) {
+            message = ex.toString();
+        }
+        return new BasicResponseProducer(toStatusCode(ex), message);
+    }
+
+    protected int toStatusCode(final Exception ex) {
         final int code;
         if (ex instanceof MethodNotSupportedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
@@ -218,11 +226,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         } else {
             code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         }
-        String message = ex.getMessage();
-        if (message == null) {
-            message = ex.toString();
-        }
-        return new BasicResponseProducer(code, message);
+        return code;
     }
 
     void consumeHeader(final HttpRequest request, final boolean requestEndStream) throws HttpException, IOException {
