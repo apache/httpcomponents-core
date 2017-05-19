@@ -151,7 +151,7 @@ public class AsyncFileServerExample {
                             System.out.println("File " + file.getPath() + " not found");
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_NOT_FOUND,
-                                    "<html><body><h1>File" + file.getPath() +
+                                    "<html><body><h1>File " + file.getPath() +
                                             " not found</h1></body></html>",
                                     ContentType.TEXT_HTML));
 
