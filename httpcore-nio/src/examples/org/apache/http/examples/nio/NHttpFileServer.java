@@ -158,7 +158,7 @@ public class NHttpFileServer {
 
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
                 NStringEntity entity = new NStringEntity(
-                        "<html><body><h1>File" + file.getPath() +
+                        "<html><body><h1>File " + file.getPath() +
                         " not found</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
                 response.setEntity(entity);
