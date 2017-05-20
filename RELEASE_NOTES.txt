@@ -5,6 +5,10 @@ Changelog
 -------------------
 
 * HTTPCORE-468: Allow HttpAsyncService subclasses to customize the HTTP status code.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-471: Add APIs URIBuilder.localhost() and setHost(InetAddress)
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 5.0-ALPHA3
