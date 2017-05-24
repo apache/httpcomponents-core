@@ -761,7 +761,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             handler = (HttpAsyncRequestHandler<Object>) this.handlerMapper.lookup(request);
         }
         if (handler == null) {
-            handler = new NullRequestHandler();
+            handler = NullRequestHandler.INSTANCE;
         }
         return handler;
     }
