@@ -413,7 +413,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         for (;;) {
             final Command command = ioSession.getCommand();
             if (command != null) {
-                command.cancel();
+                if (command instanceof ExecutionCommand) {
+                    final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
+                    exchangeHandler.failed(new ConnectionClosedException("Connection closed"));
+                    exchangeHandler.releaseResources();
+                } else {
+                    command.cancel();
+                }
             } else {
                 break;
             }
