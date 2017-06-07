@@ -242,8 +242,10 @@ class IOReactorImpl implements IOReactor {
             }
         } catch (final CancelledKeyException ex) {
             session.shutdown(ShutdownType.GRACEFUL);
+        } catch (final IOException ex) {
+            session.onException(ex);
         } catch (final RuntimeException ex) {
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.onException(ex);
             throw ex;
         }
     }
@@ -282,6 +284,11 @@ class IOReactorImpl implements IOReactor {
                 session.onConnected();
             } catch (final CancelledKeyException ex) {
                 session.shutdown(ShutdownType.GRACEFUL);
+            } catch (final IOException ex) {
+                session.onException(ex);
+            } catch (final RuntimeException ex) {
+                session.onException(ex);
+                throw ex;
             }
         }
     }
@@ -312,8 +319,10 @@ class IOReactorImpl implements IOReactor {
                 }
             } catch (final CancelledKeyException ex) {
                 session.shutdown(ShutdownType.GRACEFUL);
+            } catch (final IOException ex) {
+                session.onException(ex);
             } catch (final RuntimeException ex) {
-                session.shutdown(ShutdownType.IMMEDIATE);
+                session.onException(ex);
                 throw ex;
             }
         }

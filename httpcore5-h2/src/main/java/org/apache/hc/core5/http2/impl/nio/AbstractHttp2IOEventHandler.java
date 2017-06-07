@@ -33,6 +33,7 @@ import java.net.SocketAddress;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.io.ShutdownType;
@@ -48,37 +49,37 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void connected(final IOSession session) {
+    public void connected(final IOSession session) throws IOException {
         try {
             streamMultiplexer.onConnect(null);
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamMultiplexer.onException(ex);
         }
     }
 
     @Override
-    public void inputReady(final IOSession session) {
+    public void inputReady(final IOSession session) throws IOException {
         try {
             streamMultiplexer.onInput();
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamMultiplexer.onException(ex);
         }
     }
 
     @Override
-    public void outputReady(final IOSession session) {
+    public void outputReady(final IOSession session) throws IOException {
         try {
             streamMultiplexer.onOutput();
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamMultiplexer.onException(ex);
         }
     }
 
     @Override
-    public void timeout(final IOSession session) {
+    public void timeout(final IOSession session) throws IOException {
         try {
             streamMultiplexer.onTimeout();
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamMultiplexer.onException(ex);
         }
     }

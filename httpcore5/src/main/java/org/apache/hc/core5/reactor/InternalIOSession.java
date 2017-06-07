@@ -99,114 +99,86 @@ class InternalIOSession implements TlsCapableIOSession {
         }
     }
 
-    IOEventHandler getEventHandler() {
+    private IOEventHandler getEventHandler() {
         final IOEventHandler handler = ioSession.getHandler();
         Asserts.notNull(handler, "IO event handler");
         return handler;
     }
 
-    void onConnected() {
-        try {
-            final SSLIOSession tlsSession = tlsSessionRef.get();
-            if (tlsSession != null) {
-                try {
-                    if (!tlsSession.isInitialized()) {
-                        tlsSession.initialize();
-                    }
-                } catch (final Exception ex) {
-                    final IOEventHandler handler = getEventHandler();
-                    handler.exception(tlsSession, ex);
-                }
-            } else {
-                if (connected.compareAndSet(false, true)) {
-                    final IOEventHandler handler = getEventHandler();
-                    handler.connected(ioSession);
-                }
+    void onConnected() throws IOException {
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null) {
+            if (!tlsSession.isInitialized()) {
+                tlsSession.initialize();
             }
-        } catch (final RuntimeException ex) {
-            shutdown(ShutdownType.IMMEDIATE);
-            throw ex;
-        }
-    }
-
-    void onInputReady() {
-        try {
-            final SSLIOSession tlsSession = tlsSessionRef.get();
-            if (tlsSession != null) {
-                try {
-                    if (!tlsSession.isInitialized()) {
-                        tlsSession.initialize();
-                    }
-                    if (tlsSession.isAppInputReady()) {
-                        do {
-                            final IOEventHandler handler = getEventHandler();
-                            handler.inputReady(tlsSession);
-                        } while (tlsSession.hasInputDate());
-                    }
-                    tlsSession.inboundTransport();
-                } catch (final IOException ex) {
-                    final IOEventHandler handler = getEventHandler();
-                    handler.exception(tlsSession, ex);
-                    tlsSession.shutdown(ShutdownType.IMMEDIATE);
-                }
-            } else {
+        } else {
+            if (connected.compareAndSet(false, true)) {
                 final IOEventHandler handler = getEventHandler();
-                handler.inputReady(ioSession);
+                handler.connected(this);
             }
-        } catch (final RuntimeException ex) {
-            shutdown(ShutdownType.IMMEDIATE);
-            throw ex;
         }
     }
 
-    void onOutputReady() {
-        try {
-            final SSLIOSession tlsSession = tlsSessionRef.get();
-            if (tlsSession != null) {
-                try {
-                    if (!tlsSession.isInitialized()) {
-                        tlsSession.initialize();
-                    }
-                    if (tlsSession.isAppOutputReady()) {
-                        final IOEventHandler handler = getEventHandler();
-                        handler.outputReady(tlsSession);
-                    }
-                    tlsSession.outboundTransport();
-                } catch (final IOException ex) {
+    void onInputReady() throws IOException {
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null) {
+            if (!tlsSession.isInitialized()) {
+                tlsSession.initialize();
+            }
+            if (tlsSession.isAppInputReady()) {
+                do {
                     final IOEventHandler handler = getEventHandler();
-                    handler.exception(tlsSession, ex);
-                    tlsSession.shutdown(ShutdownType.IMMEDIATE);
-                }
-            } else {
-                final IOEventHandler handler = getEventHandler();
-                handler.outputReady(ioSession);
+                    handler.inputReady(this);
+                } while (tlsSession.hasInputDate());
             }
-        } catch (final RuntimeException ex) {
-            shutdown(ShutdownType.IMMEDIATE);
-            throw ex;
-        }
-    }
-
-    void onTimeout() {
-        try {
+            tlsSession.inboundTransport();
+        } else {
             final IOEventHandler handler = getEventHandler();
-            handler.timeout(ioSession);
-            final SSLIOSession tlsSession = tlsSessionRef.get();
-            if (tlsSession != null) {
-                if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
-                    // The session failed to terminate cleanly
-                    tlsSession.shutdown(ShutdownType.IMMEDIATE);
-                }
+            handler.inputReady(this);
+        }
+    }
+
+    void onOutputReady() throws IOException {
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null) {
+            if (!tlsSession.isInitialized()) {
+                tlsSession.initialize();
             }
-        } catch (final RuntimeException ex) {
+            if (tlsSession.isAppOutputReady()) {
+                final IOEventHandler handler = getEventHandler();
+                handler.outputReady(this);
+            }
+            tlsSession.outboundTransport();
+        } else {
+            final IOEventHandler handler = getEventHandler();
+            handler.outputReady(this);
+        }
+    }
+
+    void onTimeout() throws IOException {
+        final IOEventHandler handler = getEventHandler();
+        handler.timeout(this);
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null) {
+            if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
+                // The session failed to terminate cleanly
+                tlsSession.shutdown(ShutdownType.IMMEDIATE);
+            }
+        }
+    }
+
+    void onException(final Exception cause) {
+        final IOEventHandler handler = getEventHandler();
+        try {
+            handler.exception(this, cause);
+        } finally {
             shutdown(ShutdownType.IMMEDIATE);
-            throw ex;
         }
     }
 
     void onDisconnected() {
         final IOEventHandler handler = getEventHandler();
-        handler.disconnected(ioSession);
+        handler.disconnected(this);
     }
 
     @Override
@@ -229,7 +201,11 @@ class InternalIOSession implements TlsCapableIOSession {
                     public void execute(final SSLIOSession sslSession) {
                         if (connected.compareAndSet(false, true)) {
                             final IOEventHandler handler = getEventHandler();
-                            handler.connected(sslSession);
+                            try {
+                                handler.connected(InternalIOSession.this);
+                            } catch (final Exception ex) {
+                                handler.exception(InternalIOSession.this, ex);
+                            }
                         }
                     }
 

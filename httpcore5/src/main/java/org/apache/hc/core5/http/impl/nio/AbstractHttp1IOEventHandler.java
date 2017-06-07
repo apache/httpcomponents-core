@@ -33,6 +33,7 @@ import java.net.SocketAddress;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
@@ -47,37 +48,37 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void connected(final IOSession session) {
+    public void connected(final IOSession session) throws IOException {
         try {
             streamDuplexer.onConnect(null);
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamDuplexer.onException(ex);
         }
     }
 
     @Override
-    public void inputReady(final IOSession session) {
+    public void inputReady(final IOSession session) throws IOException {
         try {
             streamDuplexer.onInput();
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamDuplexer.onException(ex);
         }
     }
 
     @Override
-    public void outputReady(final IOSession session) {
+    public void outputReady(final IOSession session) throws IOException {
         try {
             streamDuplexer.onOutput();
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamDuplexer.onException(ex);
         }
     }
 
     @Override
-    public void timeout(final IOSession session) {
+    public void timeout(final IOSession session) throws IOException {
         try {
             streamDuplexer.onTimeout();
-        } catch (final Exception ex) {
+        } catch (final HttpException ex) {
             streamDuplexer.onException(ex);
         }
     }

@@ -55,7 +55,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void connected(final IOSession session) {
+    public void connected(final IOSession session) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug(session + " connected");
         }
@@ -63,7 +63,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void inputReady(final IOSession session) {
+    public void inputReady(final IOSession session) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug(session + " input ready");
         }
@@ -71,7 +71,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void outputReady(final IOSession session) {
+    public void outputReady(final IOSession session) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug(session + " output ready");
         }
@@ -79,7 +79,7 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void timeout(final IOSession session) {
+    public void timeout(final IOSession session) throws IOException {
         if (log.isDebugEnabled()) {
             log.debug(session + " timeout");
         }
