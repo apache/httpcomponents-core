@@ -176,9 +176,8 @@ class IOReactorImpl implements IOReactor {
                 }
 
                 // Exit select loop if graceful shutdown has been completed
-                if (this.status.get().compareTo(IOReactorStatus.SHUTTING_DOWN) == 0
-                        && this.selector.keys().isEmpty()) {
-                    this.status.set(IOReactorStatus.SHUT_DOWN);
+                if (this.status.get().compareTo(IOReactorStatus.SHUTTING_DOWN) == 0 && this.selector.keys().isEmpty()) {
+                    break;
                 }
                 if (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) == 0) {
                     break;
@@ -367,14 +366,23 @@ class IOReactorImpl implements IOReactor {
 
     @Override
     public void initiateShutdown() {
-        if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
-            selector.wakeup();
+        if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.SHUT_DOWN)) {
+            synchronized (this.shutdownMutex) {
+                this.shutdownMutex.notifyAll();
+            }
+        } else if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
+            this.selector.wakeup();
         }
     }
 
     void forceShutdown() {
-        this.status.set(IOReactorStatus.SHUT_DOWN);
-        this.selector.wakeup();
+        final IOReactorStatus previousStatus = this.status.getAndSet(IOReactorStatus.SHUT_DOWN);
+        if (previousStatus.compareTo(IOReactorStatus.ACTIVE) == 0) {
+            this.selector.wakeup();
+        }
+        synchronized (this.shutdownMutex) {
+            this.shutdownMutex.notifyAll();
+        }
     }
 
     @Override
