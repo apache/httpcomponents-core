@@ -27,26 +27,17 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.IOException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 
-/**
- * Abstract exception handler intended to deal with potentially recoverable
- * I/O exceptions thrown by an I/O reactor.
- *
- * @since 4.0
- */
-public interface IOReactorExceptionHandler {
+import org.apache.hc.core5.net.NamedEndpoint;
 
-    /**
-     * This method is expected to examine the I/O exception passed as
-     * a parameter and decide whether it is safe to continue execution of
-     * the I/O reactor.
-     *
-     * @param ex potentially recoverable I/O exception
-     * @return {@code true} if it is safe to ignore the exception
-     * and continue execution of the I/O reactor; {@code false} if the
-     * I/O reactor must throw {@link IOReactorException} and terminate
-     */
-    boolean handle(IOException ex);
+interface InternalDataChannelFactory {
+
+    InternalDataChannel create(
+            SelectionKey key,
+            SocketChannel socketChannel,
+            NamedEndpoint namedEndpoint,
+            Object attachment);
 
 }

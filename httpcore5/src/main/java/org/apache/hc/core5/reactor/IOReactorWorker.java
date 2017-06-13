@@ -27,27 +27,31 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.IOException;
+final class IOReactorWorker implements Runnable {
 
-/**
- * I/O exception that can be thrown by an I/O reactor. Usually exceptions
- * of this type are fatal and are not recoverable.
- *
- * @since 4.0
- */
-public class IOReactorException extends IOException {
+    private final AbstractSingleCoreIOReactor ioReactor;
 
-    private static final long serialVersionUID = -4248110651729635749L;
+    private volatile Throwable throwable;
 
-    public IOReactorException(final String message, final Throwable cause) {
-        super(message);
-        if (cause != null) {
-            initCause(cause);
+    public IOReactorWorker(final AbstractSingleCoreIOReactor ioReactor) {
+        super();
+        this.ioReactor = ioReactor;
+    }
+
+    @Override
+    public void run() {
+        try {
+            this.ioReactor.execute();
+        } catch (final Error ex) {
+            this.throwable = ex;
+            throw ex;
+        } catch (final Exception ex) {
+            this.throwable = ex;
         }
     }
 
-    public IOReactorException(final String message) {
-        super(message);
+    public Throwable getThrowable() {
+        return this.throwable;
     }
 
 }

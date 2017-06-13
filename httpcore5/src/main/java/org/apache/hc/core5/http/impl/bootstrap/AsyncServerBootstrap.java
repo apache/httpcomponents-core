@@ -31,7 +31,6 @@ import java.util.List;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnectionListener;
@@ -53,7 +52,6 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -69,7 +67,6 @@ public class AsyncServerBootstrap {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private TlsStrategy tlsStrategy;
-    private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
 
@@ -136,14 +133,6 @@ public class AsyncServerBootstrap {
      */
     public final AsyncServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
-        return this;
-    }
-
-    /**
-     * Assigns {@link ExceptionListener} instance.
-     */
-    public final AsyncServerBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
-        this.exceptionListener = exceptionListener;
         return this;
     }
 
@@ -232,14 +221,7 @@ public class AsyncServerBootstrap {
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
                 streamHandlerFactory,
                 tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}));
-        try {
-            return new HttpAsyncServer(
-                    ioEventHandlerFactory,
-                    ioReactorConfig,
-                    exceptionListener);
-        } catch (final IOReactorException ex) {
-            throw new IllegalStateException(ex);
-        }
+        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig);
     }
 
     private static class HandlerEntry {

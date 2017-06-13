@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 
 import org.apache.hc.core5.concurrent.Cancellable;
@@ -92,14 +91,13 @@ public interface SessionRequest extends Cancellable {
     TlsCapableIOSession getSession();
 
     /**
-     * Returns {@link IOException} instance if the request could not be
-     * successfully executed due to an I/O error or {@code null} if no
+     * Returns {@link Exception} instance if the request could not be
+     * successfully executed due to an error or {@code null} if no
      * error occurred to this point.
      *
-     * @return I/O exception or {@code null} if no error occurred to
-     * this point.
+     * @return Exception or {@code null} if no error occurred to this point.
      */
-    IOException getException();
+    Exception getException();
 
     /**
      * Waits for completion of this session request.

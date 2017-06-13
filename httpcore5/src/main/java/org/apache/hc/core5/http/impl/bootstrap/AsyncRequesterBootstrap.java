@@ -27,7 +27,6 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -44,7 +43,6 @@ import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -63,7 +61,6 @@ public class AsyncRequesterBootstrap {
     private TimeValue timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
-    private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
@@ -147,14 +144,6 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ExceptionListener} instance.
-     */
-    public final AsyncRequesterBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
-        this.exceptionListener = exceptionListener;
-        return this;
-    }
-
-    /**
      * Assigns {@link ConnectionListener} instance.
      */
     public final AsyncRequesterBootstrap setConnectionListener(final ConnectionListener connectionListener) {
@@ -189,20 +178,18 @@ public class AsyncRequesterBootstrap {
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config != null ? h1Config : H1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
+                connStrategy,
+                null,
+                null,
                 connectionListener,
                 streamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
                 streamDuplexerFactory);
-        try {
-            return new HttpAsyncRequester(
-                    ioReactorConfig,
-                    ioEventHandlerFactory,
-                    connPool,
-                    tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
-                    exceptionListener);
-        } catch (final IOReactorException ex) {
-            throw new IllegalStateException(ex);
-        }
+        return new HttpAsyncRequester(
+                ioReactorConfig,
+                ioEventHandlerFactory,
+                connPool,
+                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy());
     }
 
 }

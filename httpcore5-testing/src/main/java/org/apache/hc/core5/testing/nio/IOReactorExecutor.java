@@ -28,57 +28,35 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.reactor.AbstractMultiworkerIOReactor;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
+import org.apache.hc.core5.reactor.IOReactor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.TimeValue;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
-abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> implements AutoCloseable {
+abstract class IOReactorExecutor<T extends IOReactorService> implements AutoCloseable {
 
     enum Status { READY, RUNNING, TERMINATED }
 
-    private final Logger log = LogManager.getLogger(Http1TestClient.class);
-
     private final IOReactorConfig ioReactorConfig;
-    private final ExceptionListener exceptionListener;
-    private final ExecutorService executorService;
     private final ThreadFactory workerThreadFactory;
     private final AtomicReference<T> ioReactorRef;
     private final AtomicReference<Status> status;
 
-    IOReactorExecutor(
-            final IOReactorConfig ioReactorConfig,
-            final ThreadFactory threadFactory,
-            final ThreadFactory workerThreadFactory) {
+    IOReactorExecutor(final IOReactorConfig ioReactorConfig, final ThreadFactory workerThreadFactory) {
         super();
         this.ioReactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
-        this.exceptionListener = new ExceptionListener() {
-
-            @Override
-            public void onError(final Exception ex) {
-                log.error(ex.getMessage(), ex);
-            }
-
-        };
-        this.executorService = Executors.newSingleThreadExecutor(threadFactory);
         this.workerThreadFactory = workerThreadFactory;
         this.ioReactorRef = new AtomicReference<>(null);
         this.status = new AtomicReference<>(Status.READY);
@@ -105,19 +83,7 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
 
                 }))) {
             if (status.compareAndSet(Status.READY, Status.RUNNING)) {
-                executorService.execute(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        try {
-                            ioReactorRef.get().execute();
-                        } catch (final Exception ex) {
-                            if (exceptionListener != null) {
-                                exceptionListener.onError(ex);
-                            }
-                        }
-                    }
-                });
+                ioReactorRef.get().start();
             }
         } else {
             throw new IllegalStateException("I/O reactor has already been started");
@@ -135,25 +101,20 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
     }
 
     public IOReactorStatus getStatus() {
-        final T ioReactor = ioReactorRef.get();
+        final IOReactor ioReactor = ioReactorRef.get();
         return ioReactor != null ? ioReactor.getStatus() : IOReactorStatus.INACTIVE;
-    }
-
-    public List<ExceptionEvent> getAuditLog() {
-        final T ioReactor = ensureRunning();
-        return ioReactor.getAuditLog();
     }
 
     public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final T ioReactor = ioReactorRef.get();
+        final IOReactor ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             ioReactor.awaitShutdown(waitTime);
         }
     }
 
     public void initiateShutdown() {
-        final T ioReactor = ioReactorRef.get();
+        final IOReactor ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
                 ioReactor.initiateShutdown();
@@ -163,7 +124,7 @@ abstract class IOReactorExecutor<T extends AbstractMultiworkerIOReactor> impleme
 
     public void shutdown(final TimeValue graceTime) {
         Args.notNull(graceTime, "Grace time");
-        final T ioReactor = ioReactorRef.get();
+        final IOReactor ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
                 ioReactor.initiateShutdown();

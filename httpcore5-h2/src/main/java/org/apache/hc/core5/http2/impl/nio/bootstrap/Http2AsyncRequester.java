@@ -30,7 +30,6 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
@@ -39,7 +38,6 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -55,9 +53,8 @@ public class Http2AsyncRequester extends HttpAsyncRequester {
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
             final ControlledConnPool<HttpHost, IOSession> connPool,
-            final TlsStrategy tlsStrategy,
-            final ExceptionListener exceptionListener) throws IOReactorException {
-        super(ioReactorConfig, eventHandlerFactory, connPool, tlsStrategy, exceptionListener);
+            final TlsStrategy tlsStrategy) {
+        super(ioReactorConfig, eventHandlerFactory, connPool, tlsStrategy);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 

@@ -33,6 +33,6 @@ package org.apache.hc.core5.reactor;
  *
  * @since 4.0
  */
-public interface ConnectingIOReactor extends IOReactor, ConnectionInitiator {
+public interface ConnectingIOReactor extends IOReactorService, ConnectionInitiator {
 
 }

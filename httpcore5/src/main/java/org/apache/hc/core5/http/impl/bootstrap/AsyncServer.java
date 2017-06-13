@@ -27,38 +27,20 @@
 
 package org.apache.hc.core5.http.impl.bootstrap;
 
-import java.net.InetSocketAddress;
-import java.util.Set;
-
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.ListenerEndpoint;
 
-public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
+public class AsyncServer extends DefaultListeningIOReactor {
 
     public AsyncServer(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
-            final ExceptionListener exceptionListener,
-            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
-        super(new DefaultListeningIOReactor(
-                    eventHandlerFactory, ioReactorConfig, new DefaultThreadFactory("server-dispatch", true), null, sessionShutdownCallback),
-                exceptionListener,
-                new DefaultThreadFactory("listener", true));
-    }
-
-    public ListenerEndpoint listen(final InetSocketAddress address) {
-        return reactor().listen(address);
-    }
-
-    public Set<ListenerEndpoint> getEndpoints() {
-        return reactor().getEndpoints();
+            final Callback<IOSession> sessionShutdownCallback) {
+        super(eventHandlerFactory, ioReactorConfig, new DefaultThreadFactory("server-dispatch", true), sessionShutdownCallback);
     }
 
 }

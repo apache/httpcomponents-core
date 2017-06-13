@@ -24,31 +24,16 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.bootstrap;
 
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSession;
+package org.apache.hc.core5.reactor;
 
 /**
+ * {@link IOReactor} running as a service.
+ *
  * @since 5.0
  */
-public class HttpAsyncServer extends AsyncServer {
+public interface IOReactorService extends IOReactor {
 
-    public HttpAsyncServer(
-            final IOEventHandlerFactory eventHandlerFactory,
-            final IOReactorConfig ioReactorConfig) {
-        super(eventHandlerFactory, ioReactorConfig, new Callback<IOSession>() {
-
-            @Override
-            public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-            }
-
-        });
-    }
+    void start();
 
 }

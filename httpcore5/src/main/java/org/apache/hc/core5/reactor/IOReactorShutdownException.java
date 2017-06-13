@@ -27,33 +27,15 @@
 
 package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.util.Args;
-
 /**
- * Session request handle class used by I/O reactor implementations to keep
- * a reference to a {@link SessionRequest} along
- * with the time the request was made.
+ * Signals the I/O reator has been shut down or is in the process of shutting down.
  *
- * @since 4.0
+ * @since 5.0
  */
-public class SessionRequestHandle {
+public class IOReactorShutdownException extends IllegalStateException {
 
-    private final SessionRequestImpl sessionRequest;
-    private final long requestTime;
-
-    public SessionRequestHandle(final SessionRequestImpl sessionRequest) {
-        super();
-        Args.notNull(sessionRequest, "Session request");
-        this.sessionRequest = sessionRequest;
-        this.requestTime = System.currentTimeMillis();
-    }
-
-    public SessionRequestImpl getSessionRequest() {
-        return this.sessionRequest;
-    }
-
-    public long getRequestTime() {
-        return this.requestTime;
+    public IOReactorShutdownException(final String message) {
+        super(message);
     }
 
 }

@@ -28,240 +28,118 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.SocketAddress;
-import java.net.UnknownHostException;
-import java.nio.channels.CancelledKeyException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
-import java.util.Queue;
-import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Deque;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
- * Default implementation of {@link ConnectingIOReactor}. This class extends
- * {@link AbstractMultiworkerIOReactor} with capability to connect to remote
- * hosts.
+ * Default implementation of {@link ConnectingIOReactor}.
  *
  * @since 4.0
  */
-public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
-        implements ConnectingIOReactor {
+public class DefaultConnectingIOReactor implements ConnectingIOReactor {
 
-    private final IOReactorConfig reactorConfig;
-    private final Queue<SessionRequestImpl> requestQueue;
-    private final long selectInterval;
-    private long lastTimeoutCheck;
+    private final int workerCount;
+    private final SingleCoreIOReactor[] dispatchers;
+    private final MultiCoreIOReactor ioReactor;
+    private final AtomicInteger currentWorker;
+
+    private final static ThreadFactory THREAD_FACTORY = new DefaultThreadFactory("I/O dispatch", true);
 
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
-            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
-        super(eventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
-        this.reactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
-        this.requestQueue = new ConcurrentLinkedQueue<>();
-        this.selectInterval = this.reactorConfig.getSelectInterval();
-        this.lastTimeoutCheck = System.currentTimeMillis();
+            final Callback<IOSession> sessionShutdownCallback) {
+        Args.notNull(eventHandlerFactory, "Event handler factory");
+        final Deque<ExceptionEvent> auditLog = new ConcurrentLinkedDeque<>();
+        this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
+        this.dispatchers = new SingleCoreIOReactor[workerCount];
+        final Thread[] threads = new Thread[workerCount];
+        for (int i = 0; i < this.dispatchers.length; i++) {
+            final SingleCoreIOReactor dispatcher = new SingleCoreIOReactor(
+                    auditLog,
+                    eventHandlerFactory,
+                    ioReactorConfig,
+                    sessionShutdownCallback);
+            this.dispatchers[i] = dispatcher;
+            threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
+        }
+        this.ioReactor = new MultiCoreIOReactor(this.dispatchers, threads);
+        this.currentWorker = new AtomicInteger(0);
     }
 
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
-            final Callback<IOSession> sessionShutdownCallback) throws IOReactorException {
+            final Callback<IOSession> sessionShutdownCallback) {
         this(eventHandlerFactory, config, null, sessionShutdownCallback);
     }
 
     /**
      * Creates an instance of DefaultConnectingIOReactor with default configuration.
      *
-     * @throws IOReactorException in case if a non-recoverable I/O error.
-     *
      * @since 5.0
      */
-    public DefaultConnectingIOReactor(
-            final IOEventHandlerFactory eventHandlerFactory) throws IOReactorException {
+    public DefaultConnectingIOReactor(final IOEventHandlerFactory eventHandlerFactory) {
         this(eventHandlerFactory, null, null);
     }
 
-    @Override
-    protected void cancelRequests() {
-        SessionRequestImpl request;
-        while ((request = this.requestQueue.poll()) != null) {
-            request.cancel();
-        }
+    public void start() {
+        ioReactor.start();
     }
 
     @Override
-    protected void processEvents(final int readyCount) throws IOReactorException {
-        processSessionRequests();
-
-        if (readyCount > 0) {
-            final Set<SelectionKey> selectedKeys = selector().selectedKeys();
-            for (final SelectionKey key : selectedKeys) {
-
-                processEvent(key);
-
-            }
-            selectedKeys.clear();
-        }
-
-        final long currentTime = System.currentTimeMillis();
-        if ((currentTime - this.lastTimeoutCheck) >= this.selectInterval) {
-            this.lastTimeoutCheck = currentTime;
-            final Set<SelectionKey> keys = selector().keys();
-            processTimeouts(keys);
-        }
+    public IOReactorStatus getStatus() {
+        return ioReactor.getStatus();
     }
 
-    private void processEvent(final SelectionKey key) {
-        try {
-
-            if (key.isConnectable()) {
-
-                final SocketChannel socketChannel = (SocketChannel) key.channel();
-                // Get request handle
-                final SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
-                final SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
-
-                // Finish connection process
-                try {
-                    socketChannel.finishConnect();
-                } catch (final IOException ex) {
-                    sessionRequest.failed(ex);
-                }
-                key.cancel();
-                key.attach(null);
-                if (!sessionRequest.isCompleted()) {
-                    enqueuePendingSession(socketChannel, sessionRequest);
-                } else {
-                    try {
-                        socketChannel.close();
-                    } catch (final IOException ignore) {
-                    }
-                }
-            }
-
-        } catch (final CancelledKeyException ex) {
-            final SessionRequestHandle requestHandle = (SessionRequestHandle) key.attachment();
-            key.attach(null);
-            if (requestHandle != null) {
-                final SessionRequestImpl sessionRequest = requestHandle.getSessionRequest();
-                if (sessionRequest != null) {
-                    sessionRequest.cancel();
-                }
-            }
-        }
-    }
-
-    private void processTimeouts(final Set<SelectionKey> keys) {
-        final long now = System.currentTimeMillis();
-        for (final SelectionKey key : keys) {
-            final Object attachment = key.attachment();
-
-            if (attachment instanceof SessionRequestHandle) {
-                final SessionRequestHandle handle = (SessionRequestHandle) key.attachment();
-                final SessionRequestImpl sessionRequest = handle.getSessionRequest();
-                final int timeout = sessionRequest.getConnectTimeout();
-                if (timeout > 0) {
-                    if (handle.getRequestTime() + timeout < now) {
-                        sessionRequest.timeout();
-                    }
-                }
-            }
-
-        }
-    }
-
-    @Override
     public SessionRequest connect(
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
             final Object attachment,
-            final SessionRequestCallback callback) {
+            final SessionRequestCallback callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");
-        final IOReactorStatus status = getStatus();
-        Asserts.check(status == IOReactorStatus.INACTIVE || status == IOReactorStatus.ACTIVE, "I/O reactor has been shut down");
-        final SessionRequestImpl sessionRequest = new SessionRequestImpl(
-                remoteEndpoint,
-                remoteAddress != null ? remoteAddress : new InetSocketAddress(remoteEndpoint.getHostName(), remoteEndpoint.getPort()),
-                localAddress,
-                attachment,
-                callback);
-
-        this.requestQueue.add(sessionRequest);
-        selector().wakeup();
-
-        return sessionRequest;
-    }
-
-    private void validateAddress(final SocketAddress address) throws UnknownHostException {
-        if (address == null) {
-            return;
+        if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
+            throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
-        if (address instanceof InetSocketAddress) {
-            final InetSocketAddress endpoint = (InetSocketAddress) address;
-            if (endpoint.isUnresolved()) {
-                throw new UnknownHostException(endpoint.getHostName());
-            }
+        final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
+        try {
+            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, attachment, callback);
+        } catch (final IOReactorShutdownException ex) {
+            initiateShutdown();
+            throw ex;
         }
     }
 
-    private void processSessionRequests() throws IOReactorException {
-        SessionRequestImpl request;
-        while ((request = this.requestQueue.poll()) != null) {
-            if (request.isCompleted()) {
-                continue;
-            }
-            final SocketChannel socketChannel;
-            try {
-                socketChannel = SocketChannel.open();
-            } catch (final IOException ex) {
-                request.failed(ex);
-                return;
-            }
-            try {
-                validateAddress(request.getLocalAddress());
-                validateAddress(request.getRemoteAddress());
+    @Override
+    public void initiateShutdown() {
+        ioReactor.initiateShutdown();
+    }
 
-                socketChannel.configureBlocking(false);
-                prepareSocket(socketChannel.socket());
+    @Override
+    public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
+        ioReactor.awaitShutdown(waitTime);
+    }
 
-                if (request.getLocalAddress() != null) {
-                    final Socket sock = socketChannel.socket();
-                    sock.setReuseAddress(this.reactorConfig.isSoReuseAddress());
-                    sock.bind(request.getLocalAddress());
-                }
-                final boolean connected = socketChannel.connect(request.getRemoteAddress());
-                if (connected) {
-                    enqueuePendingSession(socketChannel, request);
-                    continue;
-                }
-            } catch (final IOException ex) {
-                closeChannel(socketChannel);
-                request.failed(ex);
-                return;
-            }
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
+        ioReactor.shutdown(shutdownType);
+    }
 
-            final SessionRequestHandle requestHandle = new SessionRequestHandle(request);
-            try {
-                final SelectionKey key = socketChannel.register(selector(), SelectionKey.OP_CONNECT,
-                        requestHandle);
-                request.setKey(key);
-            } catch (final IOException ex) {
-                closeChannel(socketChannel);
-                throw new IOReactorException("Failure registering channel " +
-                        "with the selector", ex);
-            }
-        }
+    @Override
+    public void close() throws IOException {
+        ioReactor.close();
     }
 
 }

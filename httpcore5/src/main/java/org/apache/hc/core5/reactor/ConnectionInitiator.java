@@ -34,7 +34,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 /**
  * Non-blocking connection initiator.
  *
- * @since 4.0
+ * @since 5.0
  */
 public interface ConnectionInitiator {
 

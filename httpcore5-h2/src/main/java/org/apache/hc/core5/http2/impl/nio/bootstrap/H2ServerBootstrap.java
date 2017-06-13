@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.ConnectionListener;
@@ -59,7 +58,6 @@ import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -76,7 +74,6 @@ public class H2ServerBootstrap {
     private H2Config h2Config;
     private H1Config h1Config;
     private TlsStrategy tlsStrategy;
-    private ExceptionListener exceptionListener;
     private ConnectionListener connectionListener;
     private Http2StreamListener http2StreamListener;
     private Http1StreamListener http1StreamListener;
@@ -152,14 +149,6 @@ public class H2ServerBootstrap {
      */
     public final H2ServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
-        return this;
-    }
-
-    /**
-     * Assigns {@link ExceptionListener} instance.
-     */
-    public final H2ServerBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
-        this.exceptionListener = exceptionListener;
         return this;
     }
 
@@ -264,14 +253,7 @@ public class H2ServerBootstrap {
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener);
-        try {
-            return new HttpAsyncServer(
-                    ioEventHandlerFactory,
-                    ioReactorConfig,
-                    exceptionListener);
-        } catch (final IOReactorException ex) {
-            throw new IllegalStateException(ex);
-        }
+        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig);
     }
 
     private static class HandlerEntry {

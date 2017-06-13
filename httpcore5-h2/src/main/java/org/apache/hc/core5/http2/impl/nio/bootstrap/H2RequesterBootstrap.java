@@ -52,7 +52,6 @@ import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
@@ -252,17 +251,12 @@ public class H2RequesterBootstrap {
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 connectionListener);
-        try {
-            return new Http2AsyncRequester(
-                    versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                    ioReactorConfig,
-                    ioEventHandlerFactory,
-                    connPool,
-                    tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
-                    exceptionListener);
-        } catch (final IOReactorException ex) {
-            throw new IllegalStateException(ex);
-        }
+        return new Http2AsyncRequester(
+                versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
+                ioReactorConfig,
+                ioEventHandlerFactory,
+                connPool,
+                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
     }
 
     private static class PushConsumerEntry {

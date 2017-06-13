@@ -37,17 +37,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
 
-/**
- * Default implementation of {@link IOSession}.
- *
- * @since 4.0
- */
-@Contract(threading = ThreadingBehavior.SAFE)
 class IOSessionImpl implements IOSession {
 
     private final static AtomicLong COUNT = new AtomicLong(0);

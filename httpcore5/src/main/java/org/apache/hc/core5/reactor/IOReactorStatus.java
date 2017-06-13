@@ -35,6 +35,11 @@ package org.apache.hc.core5.reactor;
 public enum IOReactorStatus {
 
     /**
+     * The reactor is inactive / has not been started
+     */
+    INACTIVE,
+
+    /**
      * The reactor is active / processing I/O events.
      */
     ACTIVE,
@@ -47,11 +52,6 @@ public enum IOReactorStatus {
     /**
      * The reactor has shut down.
      */
-    SHUT_DOWN,
-
-    /**
-     * The reactor is inactive / has not been started
-     */
-    INACTIVE
+    SHUT_DOWN
 
 }

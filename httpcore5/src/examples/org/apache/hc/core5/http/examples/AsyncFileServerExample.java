@@ -29,16 +29,13 @@ package org.apache.hc.core5.http.examples;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -87,22 +84,6 @@ public class AsyncFileServerExample {
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .setExceptionListener(new ExceptionListener() {
-
-                    @Override
-                    public void onError(final Exception ex) {
-                        if (ex instanceof ConnectionClosedException) {
-                            return;
-                        }
-                        if (ex instanceof SocketTimeoutException) {
-                            System.out.println("Timeout");
-                        } else if (ex instanceof IOException) {
-                            System.out.println("I/O error: " + ex.getMessage());
-                        } else {
-                            ex.printStackTrace();
-                        }
-                    }
-                })
                 .setConnectionListener(new ConnectionListener() {
 
                     @Override

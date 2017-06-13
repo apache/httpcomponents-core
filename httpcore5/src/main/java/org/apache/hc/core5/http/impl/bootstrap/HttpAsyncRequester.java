@@ -39,7 +39,6 @@ import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
@@ -66,7 +65,6 @@ import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOReactorException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.SessionRequestCallback;
@@ -86,9 +84,8 @@ public class HttpAsyncRequester extends AsyncRequester {
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
             final ControlledConnPool<HttpHost, IOSession> connPool,
-            final TlsStrategy tlsStrategy,
-            final ExceptionListener exceptionListener) throws IOReactorException {
-        super(eventHandlerFactory, ioReactorConfig, exceptionListener, new Callback<IOSession>() {
+            final TlsStrategy tlsStrategy) {
+        super(eventHandlerFactory, ioReactorConfig, new Callback<IOSession>() {
 
             @Override
             public void execute(final IOSession session) {
@@ -98,10 +95,6 @@ public class HttpAsyncRequester extends AsyncRequester {
         });
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.tlsStrategy = tlsStrategy;
-    }
-
-    public void start() throws IOException {
-        execute();
     }
 
     public Future<AsyncClientEndpoint> connect(

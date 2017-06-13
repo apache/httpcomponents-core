@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.IOException;
-
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -57,14 +55,6 @@ public interface IOReactor extends GracefullyCloseable {
      * @return reactor status.
      */
     IOReactorStatus getStatus();
-
-    /**
-     * Starts the reactor and initiates the dispatch of I/O event to I/O session
-     * event handlers.
-     *
-     * @throws IOException in case of an I/O error.
-     */
-    void execute() throws IOException;
 
     /**
      * Initiates shutdown of the reactor without blocking. The reactor is expected

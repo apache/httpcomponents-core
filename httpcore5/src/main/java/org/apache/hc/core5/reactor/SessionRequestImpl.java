@@ -56,7 +56,7 @@ public class SessionRequestImpl implements SessionRequest {
 
     private volatile int connectTimeout;
     private volatile TlsCapableIOSession session = null;
-    private volatile IOException exception = null;
+    private volatile Exception exception = null;
 
     public SessionRequestImpl(
             final NamedEndpoint remoteEndpoint,
@@ -122,7 +122,7 @@ public class SessionRequestImpl implements SessionRequest {
     }
 
     @Override
-    public IOException getException() {
+    public Exception getException() {
         synchronized (this) {
             return this.exception;
         }
@@ -143,7 +143,7 @@ public class SessionRequestImpl implements SessionRequest {
         }
     }
 
-    public void failed(final IOException exception) {
+    public void failed(final Exception exception) {
         if (exception == null) {
             return;
         }
