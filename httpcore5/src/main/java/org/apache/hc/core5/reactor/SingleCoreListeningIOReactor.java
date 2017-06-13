@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
-import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -42,15 +41,18 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 
 class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implements ConnectionAcceptor {
 
     private final IOReactorConfig reactorConfig;
     private final Callback<SocketChannel> callback;
-    private final Queue<ListenerEndpointImpl> requestQueue;
+    private final Queue<ListenerEndpointRequest> requestQueue;
     private final ConcurrentMap<ListenerEndpoint, Boolean> endpoints;
 
     private final AtomicBoolean paused;
@@ -69,7 +71,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
 
     @Override
     void doTerminate() {
-        ListenerEndpointImpl request;
+        ListenerEndpointRequest request;
         while ((request = this.requestQueue.poll()) != null) {
             request.cancel();
         }
@@ -131,41 +133,24 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
         }
     }
 
-    private ListenerEndpointImpl createEndpoint(final SocketAddress address) {
-        return new ListenerEndpointImpl(
-                address,
-                new ListenerEndpointClosedCallback() {
-
-                    @Override
-                    public void endpointClosed(final ListenerEndpoint endpoint) {
-                        endpoints.remove(endpoint);
-                    }
-
-                });
-    }
-
     @Override
-    public ListenerEndpoint listen(final SocketAddress address) {
+    public Future<ListenerEndpoint> listen(final SocketAddress address, final FutureCallback<ListenerEndpoint> callback) {
         if (getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
-        final ListenerEndpointImpl request = createEndpoint(address);
-        this.requestQueue.add(request);
+        final BasicFuture<ListenerEndpoint> future = new BasicFuture<>(callback);
+        this.requestQueue.add(new ListenerEndpointRequest(address, future));
         this.selector.wakeup();
-        return request;
-    }
-
-    private static void closeChannel(final Channel channel) {
-        try {
-            channel.close();
-        } catch (final IOException ignore) {
-        }
+        return future;
     }
 
     private void processSessionRequests() throws IOException {
-        ListenerEndpointImpl request;
+        ListenerEndpointRequest request;
         while ((request = this.requestQueue.poll()) != null) {
-            final SocketAddress address = request.getAddress();
+            if (request.isCancelled()) {
+                continue;
+            }
+            final SocketAddress address = request.address;
             final ServerSocketChannel serverChannel = ServerSocketChannel.open();
             try {
                 final ServerSocket socket = serverChannel.socket();
@@ -175,22 +160,19 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
                 }
                 serverChannel.configureBlocking(false);
                 socket.bind(address, this.reactorConfig.getBacklogSize());
-            } catch (final IOException ex) {
-                closeChannel(serverChannel);
-                request.failed(ex);
-                return;
-            }
-            try {
+
                 final SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
                 key.attach(request);
-                request.setKey(key);
+                final ListenerEndpoint endpoint = new ListenerEndpointImpl(key, socket.getLocalSocketAddress());
+                this.endpoints.put(endpoint, Boolean.TRUE);
+                request.completed(endpoint);
             } catch (final IOException ex) {
-                closeChannel(serverChannel);
-                throw ex;
+                try {
+                    serverChannel.close();
+                } catch (final IOException ignore) {
+                }
+                request.failed(ex);
             }
-
-            this.endpoints.put(request, Boolean.TRUE);
-            request.completed(serverChannel.socket().getLocalSocketAddress());
         }
     }
 
@@ -217,8 +199,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
                 final ListenerEndpoint endpoint = it.next();
                 if (!endpoint.isClosed()) {
                     endpoint.close();
-                    final ListenerEndpointImpl request = createEndpoint(endpoint.getAddress());
-                    this.requestQueue.add(request);
+                    this.requestQueue.add(new ListenerEndpointRequest(endpoint.getAddress(), null));
                 }
                 it.remove();
             }

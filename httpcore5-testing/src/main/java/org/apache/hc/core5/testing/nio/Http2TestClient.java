@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
@@ -48,8 +47,6 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.AsyncPushConsumerRegistry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionRequest;
-import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -117,26 +114,20 @@ public class Http2TestClient extends AsyncRequester {
             final TimeValue timeout,
             final FutureCallback<ClientSessionEndpoint> callback) throws InterruptedException {
         final BasicFuture<ClientSessionEndpoint> future = new BasicFuture<>(callback);
-        requestSession(host, timeout, new SessionRequestCallback() {
+        requestSession(host, timeout, new FutureCallback<IOSession>() {
 
             @Override
-            public void completed(final SessionRequest request) {
-                final IOSession session = request.getSession();
+            public void completed(final IOSession session) {
                 future.completed(new ClientSessionEndpoint(session));
             }
 
             @Override
-            public void failed(final SessionRequest request) {
-                future.failed(request.getException());
+            public void failed(final Exception cause) {
+                future.failed(cause);
             }
 
             @Override
-            public void timeout(final SessionRequest request) {
-                future.failed(new SocketTimeoutException("Connect timeout"));
-            }
-
-            @Override
-            public void cancelled(final SessionRequest request) {
+            public void cancelled() {
                 future.cancel();
             }
         });

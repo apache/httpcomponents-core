@@ -175,8 +175,8 @@ public class Http2ProtocolNegotiationTest {
     @Test
     public void testForceHttp1() throws Exception {
         server.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
@@ -198,8 +198,8 @@ public class Http2ProtocolNegotiationTest {
     @Test
     public void testForceHttp2() throws Exception {
         server.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
@@ -221,8 +221,8 @@ public class Http2ProtocolNegotiationTest {
     @Test
     public void testNegotiateProtocol() throws Exception {
         server.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 

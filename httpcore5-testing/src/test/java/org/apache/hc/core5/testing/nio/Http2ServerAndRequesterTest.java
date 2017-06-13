@@ -151,8 +151,8 @@ public class Http2ServerAndRequesterTest {
     @Test
     public void testSequentialRequests() throws Exception {
         server.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
@@ -194,8 +194,8 @@ public class Http2ServerAndRequesterTest {
     @Test
     public void testSequentialRequestsSameEndpoint() throws Exception {
         server.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
@@ -245,8 +245,8 @@ public class Http2ServerAndRequesterTest {
     @Test
     public void testPipelinedRequests() throws Exception {
         server.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 

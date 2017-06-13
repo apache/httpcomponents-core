@@ -30,8 +30,10 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
@@ -41,8 +43,6 @@ import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionRequest;
-import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -76,22 +76,20 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
         return new InetSocketAddress(hostName, port);
     }
 
-    public SessionRequest requestSession(final HttpHost host, final TimeValue timeout, final SessionRequestCallback callback) {
+    public Future<IOSession> requestSession(final HttpHost host, final TimeValue timeout, final FutureCallback<IOSession> callback) {
         Args.notNull(host, "Host");
-        Args.notNull(timeout, "Timeout");
-        final SessionRequest  sessionRequest = reactor().connect(host, toSocketAddress(host), null, null, callback);
-        sessionRequest.setConnectTimeout(timeout.toMillisIntBound());
-        return sessionRequest;
+        return reactor().connect(host, toSocketAddress(host), null, timeout, null, callback);
     }
 
     @Override
-    public SessionRequest connect(
+    public Future<IOSession> connect(
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
+            final TimeValue timeout,
             final Object attachment,
-            final SessionRequestCallback callback) {
-        return reactor().connect(remoteEndpoint, remoteAddress, localAddress, attachment, callback);
+            final FutureCallback<IOSession> callback) {
+        return reactor().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
     }
 
 }

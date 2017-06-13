@@ -27,20 +27,106 @@
 
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.util.Set;
+import java.util.concurrent.Future;
+
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.reactor.ConnectionAcceptor;
+import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorService;
+import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.util.TimeValue;
 
-public class AsyncServer extends DefaultListeningIOReactor {
+public class AsyncServer implements IOReactorService, ConnectionInitiator, ConnectionAcceptor {
+
+    private final DefaultListeningIOReactor ioReactor;
 
     public AsyncServer(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final Callback<IOSession> sessionShutdownCallback) {
-        super(eventHandlerFactory, ioReactorConfig, new DefaultThreadFactory("server-dispatch", true), sessionShutdownCallback);
+        this.ioReactor = new DefaultListeningIOReactor(
+                eventHandlerFactory,
+                ioReactorConfig,
+                new DefaultThreadFactory("server-dispatch", true),
+                new DefaultThreadFactory("server-listener", true),
+                sessionShutdownCallback);
+    }
+
+    @Override
+    public void start() {
+        ioReactor.start();
+    }
+
+    @Override
+    public Future<IOSession> connect(
+            final NamedEndpoint remoteEndpoint,
+            final SocketAddress remoteAddress,
+            final SocketAddress localAddress,
+            final TimeValue timeout,
+            final Object attachment,
+            final FutureCallback<IOSession> callback) {
+        return ioReactor.connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+    }
+
+    @Override
+    public Future<ListenerEndpoint> listen(final SocketAddress address, final FutureCallback<ListenerEndpoint> callback) {
+        return ioReactor.listen(address, callback);
+    }
+
+    public Future<ListenerEndpoint> listen(final SocketAddress address) {
+        return ioReactor.listen(address, null);
+    }
+
+    @Override
+    public void pause() throws IOException {
+        ioReactor.pause();
+    }
+
+    @Override
+    public void resume() throws IOException {
+        ioReactor.resume();
+    }
+
+    @Override
+    public Set<ListenerEndpoint> getEndpoints() {
+        return ioReactor.getEndpoints();
+    }
+
+    @Override
+    public IOReactorStatus getStatus() {
+        return ioReactor.getStatus();
+    }
+
+    @Override
+    public void initiateShutdown() {
+        ioReactor.initiateShutdown();
+    }
+
+    @Override
+    public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
+        ioReactor.awaitShutdown(waitTime);
+    }
+
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
+        ioReactor.shutdown(shutdownType);
+    }
+
+    @Override
+    public void close() throws IOException {
+        ioReactor.close();
     }
 
 }

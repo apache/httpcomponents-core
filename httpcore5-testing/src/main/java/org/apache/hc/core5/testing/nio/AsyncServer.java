@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Set;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.hc.core5.function.Callback;
@@ -51,11 +52,11 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
             final Callback<IOSession> sessionShutdownCallback) throws IOException {
-        return new DefaultListeningIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory, sessionShutdownCallback);
+        return new DefaultListeningIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory, threadFactory, sessionShutdownCallback);
     }
 
-    public ListenerEndpoint listen(final InetSocketAddress address) {
-        return reactor().listen(address);
+    public Future<ListenerEndpoint> listen(final InetSocketAddress address) {
+        return reactor().listen(address, null);
     }
 
     public Set<ListenerEndpoint> getEndpoints() {

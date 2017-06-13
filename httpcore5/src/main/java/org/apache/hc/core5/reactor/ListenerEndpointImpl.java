@@ -29,36 +29,22 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.io.ShutdownType;
 
-/**
- * Default implementation of {@link ListenerEndpoint}.
- *
- * @since 4.0
- */
-@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public class ListenerEndpointImpl implements ListenerEndpoint {
+class ListenerEndpointImpl implements ListenerEndpoint {
 
-    private volatile boolean completed;
-    private volatile boolean closed;
-    private volatile SelectionKey key;
-    private volatile SocketAddress address;
-    private volatile IOException exception;
+    private final SelectionKey key;
+    private final SocketAddress address;
+    private final AtomicBoolean closed;
 
-    private final ListenerEndpointClosedCallback callback;
-
-    public ListenerEndpointImpl(
-            final SocketAddress address,
-            final ListenerEndpointClosedCallback callback) {
+    public ListenerEndpointImpl(final SelectionKey key, final SocketAddress address) {
         super();
-        Args.notNull(address, "Address");
+        this.key = key;
         this.address = address;
-        this.callback = callback;
+        this.closed = new AtomicBoolean(false);
     }
 
     @Override
@@ -66,98 +52,29 @@ public class ListenerEndpointImpl implements ListenerEndpoint {
         return this.address;
     }
 
-    public boolean isCompleted() {
-        return this.completed;
-    }
-
-    @Override
-    public IOException getException() {
-        return this.exception;
-    }
-
     @Override
     public String toString() {
-        return "[address=" + address + ", key=" + key + ", closed=" + closed + ", completed="
-                + completed + ", exception=" + exception + ", callback=" + callback + "]";
-    }
-
-    @Override
-    public void waitFor() throws InterruptedException {
-        if (this.completed) {
-            return;
-        }
-        synchronized (this) {
-            while (!this.completed) {
-                wait();
-            }
-        }
-    }
-
-    public void completed(final SocketAddress address) {
-        Args.notNull(address, "Address");
-        if (this.completed) {
-            return;
-        }
-        this.completed = true;
-        synchronized (this) {
-            this.address = address;
-            notifyAll();
-        }
-    }
-
-    public void failed(final IOException exception) {
-        if (exception == null) {
-            return;
-        }
-        if (this.completed) {
-            return;
-        }
-        this.completed = true;
-        synchronized (this) {
-            this.exception = exception;
-            notifyAll();
-        }
-    }
-
-    public void cancel() {
-        if (this.completed) {
-            return;
-        }
-        this.completed = true;
-        this.closed = true;
-        synchronized (this) {
-            notifyAll();
-        }
-    }
-
-    protected void setKey(final SelectionKey key) {
-        this.key = key;
+        return "endpoint: " + address;
     }
 
     @Override
     public boolean isClosed() {
-        return this.closed || (this.key != null && !this.key.isValid());
+        return this.closed.get();
     }
 
     @Override
-    public void close() {
-        if (this.closed) {
-            return;
+    public void close() throws IOException {
+        if (closed.compareAndSet(false, true)) {
+            key.cancel();
+            key.channel().close();
         }
-        this.completed = true;
-        this.closed = true;
-        if (this.key != null) {
-            this.key.cancel();
-            final Channel channel = this.key.channel();
-            try {
-                channel.close();
-            } catch (final IOException ignore) {}
-        }
-        if (this.callback != null) {
-            this.callback.endpointClosed(this);
-        }
-        synchronized (this) {
-            notifyAll();
+    }
+
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
+        try {
+            close();
+        } catch (final IOException ignore) {
         }
     }
 

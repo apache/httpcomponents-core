@@ -39,19 +39,23 @@ import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.hc.core5.concurrent.ComplexFuture;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
-class SingleCoreIOReactor extends AbstractSingleCoreIOReactor {
+class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
 
     private final IOEventHandlerFactory eventHandlerFactory;
     private final IOReactorConfig reactorConfig;
     private final Queue<InternalDataChannel> closedSessions;
     private final Queue<SocketChannel> channelQueue;
-    private final Queue<SessionRequestImpl> requestQueue;
+    private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
     private final Callback<IOSession> sessionShutdownCallback;
 
@@ -211,24 +215,28 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor {
         }
     }
 
-    public SessionRequest connect(
+    @Override
+    public Future<IOSession> connect(
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
+            final TimeValue timeout,
             final Object attachment,
-            final SessionRequestCallback callback) throws IOReactorShutdownException {
+            final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");
-        final SessionRequestImpl sessionRequest = new SessionRequestImpl(
+        final ComplexFuture<IOSession> future = new ComplexFuture<>(callback);
+        final IOSessionRequest sessionRequest = new IOSessionRequest(
                 remoteEndpoint,
                 remoteAddress != null ? remoteAddress : new InetSocketAddress(remoteEndpoint.getHostName(), remoteEndpoint.getPort()),
                 localAddress,
+                timeout,
                 attachment,
-                callback);
+                future);
 
         this.requestQueue.add(sessionRequest);
         this.selector.wakeup();
 
-        return sessionRequest;
+        return future;
     }
 
     private void prepareSocket(final Socket socket) throws IOException {
@@ -256,9 +264,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor {
     }
 
     private void processPendingConnectionRequests() {
-        SessionRequestImpl sessionRequest;
+        IOSessionRequest sessionRequest;
         while ((sessionRequest = this.requestQueue.poll()) != null) {
-            if (!sessionRequest.isCompleted()) {
+            if (!sessionRequest.isCancelled()) {
                 final SocketChannel socketChannel;
                 try {
                     socketChannel = SocketChannel.open();
@@ -279,21 +287,20 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor {
         }
     }
 
-    private void processConnectionRequest(final SocketChannel socketChannel, final SessionRequestImpl sessionRequest) throws IOException {
-        validateAddress(sessionRequest.getLocalAddress());
-        validateAddress(sessionRequest.getRemoteAddress());
+    private void processConnectionRequest(final SocketChannel socketChannel, final IOSessionRequest sessionRequest) throws IOException {
+        validateAddress(sessionRequest.localAddress);
+        validateAddress(sessionRequest.remoteAddress);
 
         socketChannel.configureBlocking(false);
         prepareSocket(socketChannel.socket());
 
-        if (sessionRequest.getLocalAddress() != null) {
+        if (sessionRequest.localAddress != null) {
             final Socket sock = socketChannel.socket();
             sock.setReuseAddress(this.reactorConfig.isSoReuseAddress());
-            sock.bind(sessionRequest.getLocalAddress());
+            sock.bind(sessionRequest.localAddress);
         }
-        final boolean connected = socketChannel.connect(sessionRequest.getRemoteAddress());
+        final boolean connected = socketChannel.connect(sessionRequest.remoteAddress);
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
-        sessionRequest.setKey(key);
         final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, new InternalDataChannelFactory() {
 
             @Override
@@ -313,6 +320,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor {
             channel.handleIOEvent(SelectionKey.OP_CONNECT);
         } else {
             key.attach(channel);
+            sessionRequest.assign(channel);
         }
     }
 
@@ -328,7 +336,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor {
     }
 
     private void closePendingConnectionRequests() {
-        SessionRequestImpl sessionRequest;
+        IOSessionRequest sessionRequest;
         while ((sessionRequest = this.requestQueue.poll()) != null) {
             sessionRequest.cancel();
         }

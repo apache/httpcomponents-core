@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
@@ -95,8 +96,8 @@ public class Http2TestServer extends AsyncServer {
                 H1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 sslContext));
-        final ListenerEndpoint listener = listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         return (InetSocketAddress) listener.getAddress();
     }
 
@@ -109,8 +110,8 @@ public class Http2TestServer extends AsyncServer {
                 h1Config,
                 CharCodingConfig.DEFAULT,
                 sslContext));
-        final ListenerEndpoint listener = listen(new InetSocketAddress(0));
-        listener.waitFor();
+        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
         return (InetSocketAddress) listener.getAddress();
     }
 

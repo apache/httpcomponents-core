@@ -27,29 +27,41 @@
 
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorService;
+import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionRequest;
-import org.apache.hc.core5.reactor.SessionRequestCallback;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
-public class AsyncRequester extends DefaultConnectingIOReactor implements ConnectionInitiator {
+public class AsyncRequester implements IOReactorService, ConnectionInitiator {
+
+    private final DefaultConnectingIOReactor ioReactor;
 
     public AsyncRequester(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final Callback<IOSession> sessionShutdownCallback) {
-        super(eventHandlerFactory, ioReactorConfig, new DefaultThreadFactory("requester-dispatch", true), sessionShutdownCallback);
+        this.ioReactor = new DefaultConnectingIOReactor(
+                eventHandlerFactory,
+                ioReactorConfig,
+                new DefaultThreadFactory("requester-dispatch", true),
+                sessionShutdownCallback);
     }
 
     private InetSocketAddress toSocketAddress(final HttpHost host) {
@@ -66,16 +78,55 @@ public class AsyncRequester extends DefaultConnectingIOReactor implements Connec
         return new InetSocketAddress(hostName, port);
     }
 
-    public SessionRequest requestSession(
+    @Override
+    public Future<IOSession> connect(
+            final NamedEndpoint remoteEndpoint,
+            final SocketAddress remoteAddress,
+            final SocketAddress localAddress,
+            final TimeValue timeout,
+            final Object attachment,
+            final FutureCallback<IOSession> callback) {
+        return ioReactor.connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+    }
+
+    public Future<IOSession> requestSession(
             final HttpHost host,
             final TimeValue timeout,
             final Object attachment,
-            final SessionRequestCallback callback) {
+            final FutureCallback<IOSession> callback) {
         Args.notNull(host, "Host");
         Args.notNull(timeout, "Timeout");
-        final SessionRequest  sessionRequest = connect(host, toSocketAddress(host), null, attachment, callback);
-        sessionRequest.setConnectTimeout(timeout.toMillisIntBound());
-        return sessionRequest;
+        return connect(host, toSocketAddress(host), null, timeout, attachment, callback);
+    }
+
+    @Override
+    public void start() {
+        ioReactor.start();
+    }
+
+    @Override
+    public IOReactorStatus getStatus() {
+        return ioReactor.getStatus();
+    }
+
+    @Override
+    public void initiateShutdown() {
+        ioReactor.initiateShutdown();
+    }
+
+    @Override
+    public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
+        ioReactor.awaitShutdown(waitTime);
+    }
+
+    @Override
+    public void shutdown(final ShutdownType shutdownType) {
+        ioReactor.shutdown(shutdownType);
+    }
+
+    @Override
+    public void close() throws IOException {
+        ioReactor.close();
     }
 
 }

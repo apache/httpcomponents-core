@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ContentType;
@@ -178,8 +179,8 @@ public class AsyncFileServerExample {
         });
 
         server.start();
-        ListenerEndpoint listenerEndpoint = server.listen(new InetSocketAddress(port));
-        listenerEndpoint.waitFor();
+        Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
+        ListenerEndpoint listenerEndpoint = future.get();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
     }

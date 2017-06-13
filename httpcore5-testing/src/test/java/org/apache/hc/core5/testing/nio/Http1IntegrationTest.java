@@ -123,7 +123,6 @@ import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -712,10 +711,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
-        final SessionRequest sessionRequest = client.requestSession(
+        final Future<IOSession> sessionFuture = client.requestSession(
                 new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
-        sessionRequest.waitFor();
-        final IOSession ioSession = sessionRequest.getSession();
+        final IOSession ioSession = sessionFuture.get();
         final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession);
 
         final IOEventHandler handler = ioSession.getHandler();

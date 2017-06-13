@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -66,9 +65,7 @@ import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionRequest;
-import org.apache.hc.core5.reactor.SessionRequestCallback;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -126,14 +123,15 @@ public class HttpAsyncRequester extends AsyncRequester {
                 if (poolEntry.hasConnection()) {
                     resultFuture.completed(endpoint);
                 } else {
-                    final SessionRequest sessionRequest = requestSession(host, timeout, attachment, new SessionRequestCallback() {
+                    final Future<IOSession> futute = requestSession(host, timeout, attachment, new FutureCallback<IOSession>() {
 
                         @Override
-                        public void completed(final SessionRequest request) {
-                            final TlsCapableIOSession session = request.getSession();
-                            if (tlsStrategy != null && URIScheme.HTTPS.same(host.getSchemeName())) {
+                        public void completed(final IOSession session) {
+                            if (tlsStrategy != null
+                                    && URIScheme.HTTPS.same(host.getSchemeName())
+                                    && session instanceof TransportSecurityLayer) {
                                 tlsStrategy.upgrade(
-                                        session,
+                                        (TransportSecurityLayer) session,
                                         host,
                                         session.getLocalAddress(),
                                         session.getRemoteAddress(),
@@ -145,25 +143,16 @@ public class HttpAsyncRequester extends AsyncRequester {
                         }
 
                         @Override
-                        public void failed(final SessionRequest request) {
+                        public void failed(final Exception cause) {
                             try {
-                                resultFuture.failed(request.getException());
+                                resultFuture.failed(cause);
                             } finally {
                                 endpoint.releaseAndDiscard();
                             }
                         }
 
                         @Override
-                        public void timeout(final SessionRequest request) {
-                            try {
-                                resultFuture.failed(new SocketTimeoutException("Connect timeout"));
-                            } finally {
-                                endpoint.releaseAndDiscard();
-                            }
-                        }
-
-                        @Override
-                        public void cancelled(final SessionRequest request) {
+                        public void cancelled() {
                             try {
                                 resultFuture.cancel();
                             } finally {
@@ -172,7 +161,7 @@ public class HttpAsyncRequester extends AsyncRequester {
                         }
 
                     });
-                    resultFuture.setDependency(sessionRequest);
+                    resultFuture.setDependency(futute);
                 }
             }
 

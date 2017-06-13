@@ -110,7 +110,6 @@ import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.SessionRequest;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
@@ -1002,10 +1001,8 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
         client.start();
 
-        final SessionRequest sessionRequest = client.requestSession(new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
-        sessionRequest.setConnectTimeout(TIMEOUT.toMillisIntBound());
-        sessionRequest.waitFor();
-        final IOSession session = sessionRequest.getSession();
+        final Future<IOSession> sessionFuture = client.requestSession(new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
+        final IOSession session = sessionFuture.get();
         final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(session);
 
         final HttpRequest request = new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/hello"));

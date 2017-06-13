@@ -28,6 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
@@ -37,13 +38,13 @@ final class InternalConnectChannel extends InternalChannel {
 
     private final SelectionKey key;
     private final SocketChannel socketChannel;
-    private final SessionRequestImpl sessionRequest;
+    private final IOSessionRequest sessionRequest;
     private final InternalDataChannelFactory dataChannelFactory;
 
     InternalConnectChannel(
             final SelectionKey key,
             final SocketChannel socketChannel,
-            final SessionRequestImpl sessionRequest,
+            final IOSessionRequest sessionRequest,
             final InternalDataChannelFactory dataChannelFactory) {
         super();
         this.key = key;
@@ -61,8 +62,8 @@ final class InternalConnectChannel extends InternalChannel {
             final InternalDataChannel dataChannel = dataChannelFactory.create(
                     key,
                     socketChannel,
-                    sessionRequest.getRemoteEndpoint(),
-                    sessionRequest.getAttachment());
+                    sessionRequest.remoteEndpoint,
+                    sessionRequest.attachment);
             key.attach(dataChannel);
             sessionRequest.completed(dataChannel);
             dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
@@ -71,12 +72,12 @@ final class InternalConnectChannel extends InternalChannel {
 
     @Override
     int getTimeout() {
-        return sessionRequest.getConnectTimeout();
+        return sessionRequest.timeout.toMillisIntBound();
     }
 
     @Override
     void onTimeout() throws IOException {
-        sessionRequest.timeout();
+        sessionRequest.failed(new SocketTimeoutException());
     }
 
     @Override

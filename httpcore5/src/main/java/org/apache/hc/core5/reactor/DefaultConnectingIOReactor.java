@@ -31,10 +31,12 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
@@ -42,11 +44,15 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
- * Default implementation of {@link ConnectingIOReactor}.
+ * Multi-core I/O reactor that can act as {@link ConnectionInitiator} Internally
+ * this I/O reactor distributes newly created I/O session equally across multiple
+ * I/O worker threads for a more optimal resource utilization and a better
+ * I/O performance. Usually it is recommended to have one worker I/O reactor
+ * per physical CPU core.
  *
  * @since 4.0
  */
-public class DefaultConnectingIOReactor implements ConnectingIOReactor {
+public class DefaultConnectingIOReactor implements IOReactorService, ConnectionInitiator {
 
     private final int workerCount;
     private final SingleCoreIOReactor[] dispatchers;
@@ -103,19 +109,21 @@ public class DefaultConnectingIOReactor implements ConnectingIOReactor {
         return ioReactor.getStatus();
     }
 
-    public SessionRequest connect(
+    @Override
+    public Future<IOSession> connect(
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
+            final TimeValue timeout,
             final Object attachment,
-            final SessionRequestCallback callback) throws IOReactorShutdownException {
+            final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
         final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, attachment, callback);
+            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
             throw ex;

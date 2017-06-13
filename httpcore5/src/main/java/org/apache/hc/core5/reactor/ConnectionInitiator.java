@@ -28,8 +28,11 @@
 package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
+import java.util.concurrent.Future;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Non-blocking connection initiator.
@@ -44,7 +47,7 @@ public interface ConnectionInitiator {
      * Opening a connection to a remote host usually tends to be a time
      * consuming process and may take a while to complete. One can monitor and
      * control the process of session initialization by means of the
-     * {@link SessionRequest} interface.
+     * {@link Future} interface.
      * <p>
      * There are several parameters one can use to exert a greater control over
      * the process of session initialization:
@@ -59,7 +62,7 @@ public interface ConnectionInitiator {
      * It is often desirable to be able to react to the completion of a session
      * request asynchronously without having to wait for it, blocking the
      * current thread of execution. One can optionally provide an implementation
-     * {@link SessionRequestCallback} instance to get notified of events related
+     * {@link FutureCallback} instance to get notified of events related
      * to session requests, such as request completion, cancellation, failure or
      * timeout.
      *
@@ -67,15 +70,17 @@ public interface ConnectionInitiator {
      * @param remoteAddress remote socket address.
      * @param localAddress local socket address. Can be {@code null},
      *    in which can the default local address and a random port will be used.
+     * @param timeout connect timeout.
      * @param attachment the attachment object. Can be {@code null}.
      * @param callback interface. Can be {@code null}.
      * @return session request object.
      */
-    SessionRequest connect(
+    Future<IOSession> connect(
             NamedEndpoint remoteEndpoint,
             SocketAddress remoteAddress,
             SocketAddress localAddress,
+            TimeValue timeout,
             Object attachment,
-            SessionRequestCallback callback);
+            FutureCallback<IOSession> callback);
 
 }

@@ -30,6 +30,9 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.util.Set;
+import java.util.concurrent.Future;
+
+import org.apache.hc.core5.concurrent.FutureCallback;
 
 /**
  * Non-blocking connection acceptor.
@@ -43,17 +46,12 @@ public interface ConnectionAcceptor {
      * the endpoint is fully initialized it starts accepting incoming
      * connections and propagates I/O activity notifications to the I/O event
      * dispatcher.
-     * <p>
-     * {@link ListenerEndpoint#waitFor()} can be used to wait for the
-     *  listener to be come ready to accept incoming connections.
-     * <p>
-     * {@link ListenerEndpoint#close()} can be used to shut down
-     * the listener even before it is fully initialized.
      *
      * @param address the socket address to listen on.
+     * @param callback the result callback.
      * @return listener endpoint.
      */
-    ListenerEndpoint listen(SocketAddress address);
+    Future<ListenerEndpoint> listen(SocketAddress address, FutureCallback<ListenerEndpoint> callback);
 
     /**
      * Suspends the I/O reactor preventing it from accepting new connections on

@@ -27,8 +27,9 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.IOException;
 import java.net.SocketAddress;
+
+import org.apache.hc.core5.io.GracefullyCloseable;
 
 /**
  * ListenerEndpoint interface represents an endpoint used by an I/O reactor
@@ -36,7 +37,7 @@ import java.net.SocketAddress;
  *
  * @since 4.0
  */
-public interface ListenerEndpoint {
+public interface ListenerEndpoint extends GracefullyCloseable  {
 
     /**
      * Returns the socket address of this endpoint.
@@ -46,22 +47,6 @@ public interface ListenerEndpoint {
     SocketAddress getAddress();
 
     /**
-     * Returns an instance of {@link IOException} thrown during initialization
-     * of this endpoint or {@code null}, if initialization was successful.
-     *
-     * @return I/O exception object or {@code null}.
-     */
-    IOException getException();
-
-    /**
-     * Waits for completion of initialization process of this endpoint.
-     *
-     * @throws InterruptedException in case the initialization process was
-     *   interrupted.
-     */
-    void waitFor() throws InterruptedException;
-
-    /**
      * Determines if this endpoint has been closed and is no longer listens
      * for incoming connections.
      *
@@ -69,11 +54,5 @@ public interface ListenerEndpoint {
      *   {@code false} otherwise.
      */
     boolean isClosed();
-
-    /**
-     * Closes this endpoint. The endpoint will stop accepting incoming
-     * connection.
-     */
-    void close();
 
 }

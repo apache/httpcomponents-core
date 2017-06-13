@@ -33,10 +33,12 @@ import java.nio.channels.SocketChannel;
 import java.util.Deque;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
@@ -44,11 +46,15 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
- * Default implementation of {@link ListeningIOReactor}.
+ * Multi-core I/O reactor that can ask as both {@link ConnectionInitiator}
+ * and {@link ConnectionAcceptor}. Internally this I/O reactor distributes newly created
+ * I/O session equally across multiple I/O worker threads for a more optimal resource
+ * utilization and a better I/O performance. Usually it is recommended to have
+ * one worker I/O reactor per physical CPU core.
  *
  * @since 4.0
  */
-public class DefaultListeningIOReactor implements ListeningIOReactor {
+public class DefaultListeningIOReactor implements IOReactorService, ConnectionInitiator, ConnectionAcceptor {
 
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
@@ -64,7 +70,9 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
      *
      * @param eventHandlerFactory the factory to create I/O event handlers.
      * @param ioReactorConfig I/O reactor configuration.
-     * @param threadFactory the factory to create threads.
+     * @param listenerThreadFactory the factory to create I/O dispatch threads.
+     *   Can be {@code null}.
+     * @param listenerThreadFactory the factory to create listener thread.
      *   Can be {@code null}.
      *
      * @since 5.0
@@ -72,7 +80,8 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
     public DefaultListeningIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
-            final ThreadFactory threadFactory,
+            final ThreadFactory dispatchThreadFactory,
+            final ThreadFactory listenerThreadFactory,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         final Deque<ExceptionEvent> auditLog = new ConcurrentLinkedDeque<>();
@@ -86,7 +95,7 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
                     ioReactorConfig,
                     sessionShutdownCallback);
             this.dispatchers[i] = dispatcher;
-            threads[i + 1] = (threadFactory != null ? threadFactory : DISPATCH_THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
+            threads[i + 1] = (dispatchThreadFactory != null ? dispatchThreadFactory : DISPATCH_THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
         final IOReactor[] ioReactors = new IOReactor[this.workerCount + 1];
         System.arraycopy(this.dispatchers, 0, ioReactors, 1, this.workerCount);
@@ -99,7 +108,7 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
 
         });
         ioReactors[0] = this.listener;
-        threads[0] = (threadFactory != null ? threadFactory : LISTENER_THREAD_FACTORY).newThread(new IOReactorWorker(listener));
+        threads[0] = (listenerThreadFactory != null ? listenerThreadFactory : LISTENER_THREAD_FACTORY).newThread(new IOReactorWorker(listener));
 
         this.ioReactor = new MultiCoreIOReactor(ioReactors, threads);
         this.currentWorker = new AtomicInteger(0);
@@ -118,7 +127,7 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final Callback<IOSession> sessionShutdownCallback) {
-        this(eventHandlerFactory, config, null, sessionShutdownCallback);
+        this(eventHandlerFactory, config, null, null, sessionShutdownCallback);
     }
 
     /**
@@ -129,7 +138,7 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
      * @since 5.0
      */
     public DefaultListeningIOReactor(final IOEventHandlerFactory eventHandlerFactory) {
-        this(eventHandlerFactory, null, null, null);
+        this(eventHandlerFactory, null, null, null, null);
     }
 
     @Override
@@ -138,8 +147,12 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
     }
 
     @Override
-    public ListenerEndpoint listen(final SocketAddress address) {
-        return listener.listen(address);
+    public Future<ListenerEndpoint> listen(final SocketAddress address, final FutureCallback<ListenerEndpoint> callback) {
+        return listener.listen(address, callback);
+    }
+
+    public Future<ListenerEndpoint> listen(final SocketAddress address) {
+        return listen(address, null);
     }
 
     @Override
@@ -171,19 +184,21 @@ public class DefaultListeningIOReactor implements ListeningIOReactor {
         }
     }
 
-    public SessionRequest connect(
+    @Override
+    public Future<IOSession> connect(
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
+            final TimeValue timeout,
             final Object attachment,
-            final SessionRequestCallback callback) throws IOReactorShutdownException {
+            final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
         final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, attachment, callback);
+            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
             throw ex;

@@ -27,14 +27,40 @@
 
 package org.apache.hc.core5.reactor;
 
-/**
- * Listener endpoint callback interface used internally by I/O reactor
- * implementations.
- *
- * @since 4.0
- */
-public interface ListenerEndpointClosedCallback {
+import java.net.SocketAddress;
 
-    void endpointClosed(ListenerEndpoint endpoint);
+import org.apache.hc.core5.concurrent.BasicFuture;
+
+final class ListenerEndpointRequest {
+
+    final SocketAddress address;
+    final BasicFuture<ListenerEndpoint> future;
+
+    ListenerEndpointRequest(final SocketAddress address, final BasicFuture<ListenerEndpoint> future) {
+        this.address = address;
+        this.future = future;
+    }
+
+    public void completed(final ListenerEndpoint endpoint) {
+        if (future != null) {
+            future.completed(endpoint);
+        }
+    }
+
+    public void failed(final Exception cause) {
+        if (future != null) {
+            future.failed(cause);
+        }
+    }
+
+    public void cancel() {
+        if (future != null) {
+            future.cancel();
+        }
+    }
+
+    public boolean isCancelled() {
+        return future != null && future.isCancelled();
+    }
 
 }
