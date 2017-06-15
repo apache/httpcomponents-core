@@ -252,7 +252,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
 
             if (this.maxLineLen > 0) {
                 final int currentLen = this.linebuffer.length()
-                        + (pos > 0 ? pos : this.bufferlen) - this.bufferpos;
+                        + (pos >= 0 ? pos : this.bufferlen) - this.bufferpos;
                 if (currentLen >= this.maxLineLen) {
                     throw new MessageConstraintException("Maximum line length limit exceeded");
                 }

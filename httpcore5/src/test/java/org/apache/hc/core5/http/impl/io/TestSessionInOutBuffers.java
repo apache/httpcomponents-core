@@ -438,6 +438,17 @@ public class TestSessionInOutBuffers {
         }
     }
 
+    @Test //HTTPCORE-472
+    public void testLineLimit3() throws Exception {
+        final String s = "012345678\r\nblaaaaaaaaaaaaaaaaaah";
+        final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
+        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(128);
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(tmp);
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
+        inbuffer1.readLine(chbuffer, inputStream);
+        Assert.assertEquals("012345678", chbuffer.toString());
+    }
+
     @Test
     public void testReadLineFringeCase1() throws Exception {
         final String s = "abc\r\n";
