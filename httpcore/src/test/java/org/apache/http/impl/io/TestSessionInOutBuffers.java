@@ -398,6 +398,15 @@ public class TestSessionInOutBuffers {
         }
     }
 
+    @Test //HTTPCORE-472
+    public void testLineLimit3() throws Exception {
+        final String s = "012345678\r\nblaaaaaaaaaaaaaaaaaah";
+        final byte[] tmp = s.getBytes(Consts.ASCII);
+        final SessionInputBufferMock inbuffer1 = new SessionInputBufferMock(tmp, 10,
+                MessageConstraints.lineLen(20));
+        Assert.assertEquals("012345678", inbuffer1.readLine());
+    }
+
     @Test
     public void testReadLineFringeCase1() throws Exception {
         final String s = "abc\r\n";
