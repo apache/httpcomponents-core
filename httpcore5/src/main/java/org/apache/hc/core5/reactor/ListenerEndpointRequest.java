@@ -27,11 +27,12 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.io.Closeable;
 import java.net.SocketAddress;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 
-final class ListenerEndpointRequest {
+final class ListenerEndpointRequest implements Closeable {
 
     final SocketAddress address;
     final BasicFuture<ListenerEndpoint> future;
@@ -61,6 +62,11 @@ final class ListenerEndpointRequest {
 
     public boolean isCancelled() {
         return future != null && future.isCancelled();
+    }
+
+    @Override
+    public void close() {
+        cancel();
     }
 
 }

@@ -29,7 +29,10 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
@@ -54,6 +57,7 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class DefaultConnectingIOReactor implements IOReactorService, ConnectionInitiator {
 
+    private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
     private final SingleCoreIOReactor[] dispatchers;
     private final MultiCoreIOReactor ioReactor;
@@ -67,7 +71,7 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
             final ThreadFactory threadFactory,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
-        final Deque<ExceptionEvent> auditLog = new ConcurrentLinkedDeque<>();
+        this.auditLog = new ConcurrentLinkedDeque<>();
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.dispatchers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount];
@@ -100,6 +104,7 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
         this(eventHandlerFactory, null, null);
     }
 
+    @Override
     public void start() {
         ioReactor.start();
     }
@@ -107,6 +112,11 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
     @Override
     public IOReactorStatus getStatus() {
         return ioReactor.getStatus();
+    }
+
+    @Override
+    public List<ExceptionEvent> getExceptionLog() {
+        return auditLog.isEmpty() ? Collections.<ExceptionEvent>emptyList() : new ArrayList<>(auditLog);
     }
 
     @Override

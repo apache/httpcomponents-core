@@ -30,7 +30,10 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
@@ -59,6 +62,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
 
+    private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
     private final SingleCoreIOReactor[] dispatchers;
     private final SingleCoreListeningIOReactor listener;
@@ -84,7 +88,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
             final ThreadFactory listenerThreadFactory,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
-        final Deque<ExceptionEvent> auditLog = new ConcurrentLinkedDeque<>();
+        this.auditLog = new ConcurrentLinkedDeque<>();
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.dispatchers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount + 1];
@@ -173,6 +177,11 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     @Override
     public IOReactorStatus getStatus() {
         return ioReactor.getStatus();
+    }
+
+    @Override
+    public List<ExceptionEvent> getExceptionLog() {
+        return auditLog.isEmpty() ? Collections.<ExceptionEvent>emptyList() : new ArrayList<>(auditLog);
     }
 
     private void enqueueChannel(final SocketChannel socketChannel) {

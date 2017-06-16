@@ -25,5 +25,6 @@
     <Root level="fatal">
       <AppenderRef ref="STDOUT" />
     </Root>
+    <Logger name="org.apache.hc.core5.testing" level="warn"/>
   </Loggers>
 </Configuration>

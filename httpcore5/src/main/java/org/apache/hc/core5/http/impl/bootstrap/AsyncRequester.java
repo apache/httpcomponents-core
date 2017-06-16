@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
@@ -41,6 +42,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
+import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
@@ -107,6 +109,11 @@ public class AsyncRequester implements IOReactorService, ConnectionInitiator {
     @Override
     public IOReactorStatus getStatus() {
         return ioReactor.getStatus();
+    }
+
+    @Override
+    public List<ExceptionEvent> getExceptionLog() {
+        return ioReactor.getExceptionLog();
     }
 
     @Override

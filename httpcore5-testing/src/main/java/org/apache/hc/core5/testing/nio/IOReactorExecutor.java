@@ -28,6 +28,8 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -35,8 +37,8 @@ import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOReactor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
@@ -101,20 +103,25 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
     }
 
     public IOReactorStatus getStatus() {
-        final IOReactor ioReactor = ioReactorRef.get();
+        final T ioReactor = ioReactorRef.get();
         return ioReactor != null ? ioReactor.getStatus() : IOReactorStatus.INACTIVE;
+    }
+
+    public List<ExceptionEvent> getExceptionLog() {
+        final T ioReactor = ioReactorRef.get();
+        return ioReactor != null ? ioReactor.getExceptionLog() : Collections.<ExceptionEvent>emptyList();
     }
 
     public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final IOReactor ioReactor = ioReactorRef.get();
+        final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             ioReactor.awaitShutdown(waitTime);
         }
     }
 
     public void initiateShutdown() {
-        final IOReactor ioReactor = ioReactorRef.get();
+        final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
                 ioReactor.initiateShutdown();
@@ -124,7 +131,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
 
     public void shutdown(final TimeValue graceTime) {
         Args.notNull(graceTime, "Grace time");
-        final IOReactor ioReactor = ioReactorRef.get();
+        final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {
                 ioReactor.initiateShutdown();

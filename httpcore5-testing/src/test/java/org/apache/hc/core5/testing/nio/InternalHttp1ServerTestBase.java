@@ -27,14 +27,21 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import java.util.List;
+
 import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
 
 public abstract class InternalHttp1ServerTestBase {
+
+    private final Logger log = LogManager.getLogger(getClass());
 
     protected final URIScheme scheme;
 
@@ -63,7 +70,14 @@ public abstract class InternalHttp1ServerTestBase {
             if (server != null) {
                 try {
                     server.shutdown(TimeValue.ofSeconds(5));
+                    final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
                     server = null;
+                    if (!exceptionLog.isEmpty()) {
+                        for (final ExceptionEvent event: exceptionLog) {
+                            final Throwable cause = event.getCause();
+                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
+                        }
+                    }
                 } catch (final Exception ignore) {
                 }
             }

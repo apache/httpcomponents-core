@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.util.List;
+
 /**
  * {@link IOReactor} running as a service.
  *
@@ -35,5 +37,7 @@ package org.apache.hc.core5.reactor;
 public interface IOReactorService extends IOReactor {
 
     void start();
+
+    List<ExceptionEvent> getExceptionLog();
 
 }

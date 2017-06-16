@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Future;
 
@@ -52,9 +53,12 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -112,7 +116,15 @@ public class Http2ServerAndRequesterTest {
             if (server != null) {
                 try {
                     server.shutdown(ShutdownType.IMMEDIATE);
+                    final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
                     server = null;
+                    if (!exceptionLog.isEmpty()) {
+                        final Logger log = LogManager.getLogger(getClass());
+                        for (final ExceptionEvent event: exceptionLog) {
+                            final Throwable cause = event.getCause();
+                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
+                        }
+                    }
                 } catch (final Exception ignore) {
                 }
             }
@@ -140,7 +152,15 @@ public class Http2ServerAndRequesterTest {
             if (requester != null) {
                 try {
                     requester.shutdown(ShutdownType.IMMEDIATE);
+                    final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
                     requester = null;
+                    if (!exceptionLog.isEmpty()) {
+                        final Logger log = LogManager.getLogger(getClass());
+                        for (final ExceptionEvent event: exceptionLog) {
+                            final Throwable cause = event.getCause();
+                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
+                        }
+                    }
                 } catch (final Exception ignore) {
                 }
             }

@@ -120,6 +120,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
+import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -128,6 +129,8 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -166,6 +169,14 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     public void cleanup() throws Exception {
         if (client != null) {
             client.shutdown(TimeValue.ofSeconds(5));
+            final List<ExceptionEvent> exceptionLog = client.getExceptionLog();
+            if (!exceptionLog.isEmpty()) {
+                final Logger log = LogManager.getLogger(getClass());
+                for (final ExceptionEvent event: exceptionLog) {
+                    final Throwable cause = event.getCause();
+                    log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
+                }
+            }
         }
     }
 
