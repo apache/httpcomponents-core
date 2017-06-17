@@ -24,33 +24,26 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.bootstrap;
 
-import org.apache.hc.core5.function.Callback;
+package org.apache.hc.core5.testing.nio;
+
 import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-/**
- * @since 5.0
- */
-public class HttpAsyncServer extends AsyncServer {
+public class LoggingIOSessionDecorator implements Decorator<IOSession> {
 
-    public HttpAsyncServer(
-            final IOEventHandlerFactory eventHandlerFactory,
-            final Decorator<IOSession> ioSessionDecorator,
-            final IOReactorConfig ioReactorConfig) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, new Callback<IOSession>() {
+    public final static LoggingIOSessionDecorator INSTANCE = new LoggingIOSessionDecorator();
 
-            @Override
-            public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-            }
+    private final Logger wireLog = LogManager.getLogger("org.apache.hc.core5.http.wire");
 
-        });
+    private LoggingIOSessionDecorator() {
     }
 
+    @Override
+    public IOSession decorate(final IOSession ioSession) {
+        final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
+        return new LoggingIOSession(ioSession, sessionLog, wireLog);
+    }
 }

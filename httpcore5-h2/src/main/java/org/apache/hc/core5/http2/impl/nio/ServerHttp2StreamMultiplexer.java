@@ -39,6 +39,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -84,6 +85,15 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
         context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
         return new ServerHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory, context);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder buffer = new StringBuilder();
+        InetAddressUtils.formatAddress(buffer, getRemoteAddress());
+        buffer.append("->");
+        InetAddressUtils.formatAddress(buffer, getLocalAddress());
+        return buffer.toString();
     }
 
 }

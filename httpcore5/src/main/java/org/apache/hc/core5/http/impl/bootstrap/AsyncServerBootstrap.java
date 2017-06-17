@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -52,10 +53,11 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
- * @since 4.4
+ * @since 5.0
  */
 public class AsyncServerBootstrap {
 
@@ -67,6 +69,7 @@ public class AsyncServerBootstrap {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private TlsStrategy tlsStrategy;
+    private Decorator<IOSession> ioSessionDecorator;
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
 
@@ -133,6 +136,14 @@ public class AsyncServerBootstrap {
      */
     public final AsyncServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+    /**
+     * Assigns {@link IOSession} {@link Decorator} instance.
+     */
+    public final AsyncServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
+        this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }
 
@@ -221,7 +232,7 @@ public class AsyncServerBootstrap {
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
                 streamHandlerFactory,
                 tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}));
-        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig);
+        return new HttpAsyncServer(ioEventHandlerFactory, ioSessionDecorator, ioReactorConfig);
     }
 
     private static class HandlerEntry {

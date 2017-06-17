@@ -69,7 +69,6 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOEventHandler;
@@ -79,9 +78,10 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Identifiable;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
-        implements ResourceHolder, UpgradeableHttpConnection {
+        implements Identifiable, ResourceHolder, UpgradeableHttpConnection {
 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
@@ -131,6 +131,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
         this.connState = ConnectionState.READY;
+    }
+
+    @Override
+    public String getId() {
+        return ioSession.getId();
     }
 
     void shutdownSession(final ShutdownType shutdownType) {
@@ -610,17 +615,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     @Override
     public void upgrade(final IOEventHandler eventHandler) {
         ioSession.setHandler(eventHandler);
-    }
-
-    @Override
-    public String toString() {
-        final SocketAddress remoteAddress = ioSession.getRemoteAddress();
-        final SocketAddress localAddress = ioSession.getLocalAddress();
-        final StringBuilder buffer = new StringBuilder();
-        InetAddressUtils.formatAddress(buffer, localAddress);
-        buffer.append("->");
-        InetAddressUtils.formatAddress(buffer, remoteAddress);
-        return buffer.toString();
     }
 
 }

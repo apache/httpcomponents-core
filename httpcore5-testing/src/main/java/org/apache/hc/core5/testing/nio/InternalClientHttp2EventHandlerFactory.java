@@ -45,8 +45,6 @@ import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
@@ -77,33 +75,28 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-        final String id = ioSession.getId();
         if (sslContext != null) {
             ioSession.startTls(sslContext, null ,null, null);
         }
-        final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
-        final LoggingIOSession loggingIOSession = new LoggingIOSession(ioSession, sessionLog);
         final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config,
                 charCodingConfig,
-                new InternalConnectionListener(id, sessionLog),
-                new InternalHttp1StreamListener(id, InternalHttp1StreamListener.Type.CLIENT, sessionLog));
+                LoggingConnectionListener.INSTANCE,
+                LoggingHttp1StreamListener.INSTANCE_CLIENT);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 exchangeHandlerFactory,
                 h2Config,
                 charCodingConfig,
-                new InternalConnectionListener(id, sessionLog),
-                new InternalHttp2StreamListener(id));
-        return new LoggingIOEventHandler(
-                new ClientHttpProtocolNegotiator(
-                        loggingIOSession,
+                LoggingConnectionListener.INSTANCE,
+                LoggingHttp2StreamListener.INSTANCE);
+        return new ClientHttpProtocolNegotiator(
+                        ioSession,
                         http1StreamHandlerFactory,
                         http2StreamHandlerFactory,
                         versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                        new InternalConnectionListener(id, sessionLog)),
-                id, sessionLog);
+                        LoggingConnectionListener.INSTANCE);
    }
 
 }

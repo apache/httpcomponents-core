@@ -37,6 +37,7 @@ import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -80,9 +81,10 @@ public class HttpAsyncRequester extends AsyncRequester {
     public HttpAsyncRequester(
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
+            final Decorator<IOSession> ioSessionDecorator,
             final ControlledConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy) {
-        super(eventHandlerFactory, ioReactorConfig, new Callback<IOSession>() {
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, new Callback<IOSession>() {
 
             @Override
             public void execute(final IOSession session) {

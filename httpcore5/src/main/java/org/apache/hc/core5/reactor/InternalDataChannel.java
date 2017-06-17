@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.SocketChannel;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -59,11 +58,10 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
     private final AtomicBoolean closed;
 
     InternalDataChannel(
-            final SelectionKey key,
-            final SocketChannel socketChannel,
+            final IOSession ioSession,
             final NamedEndpoint namedEndpoint,
             final Queue<InternalDataChannel> closedSessions) {
-        this.ioSession = new IOSessionImpl(key, socketChannel);
+        this.ioSession = ioSession;
         this.namedEndpoint = namedEndpoint;
         this.closedSessions = closedSessions;
         this.tlsSessionRef = new AtomicReference<>(null);

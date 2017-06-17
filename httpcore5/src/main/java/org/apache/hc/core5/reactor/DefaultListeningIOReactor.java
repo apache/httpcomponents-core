@@ -43,6 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
@@ -59,7 +60,7 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class DefaultListeningIOReactor implements IOReactorService, ConnectionInitiator, ConnectionAcceptor {
 
-    private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O dispatch", true);
+    private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O server dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
 
     private final Deque<ExceptionEvent> auditLog;
@@ -86,6 +87,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory dispatchThreadFactory,
             final ThreadFactory listenerThreadFactory,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.auditLog = new ConcurrentLinkedDeque<>();
@@ -97,6 +99,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
                     auditLog,
                     eventHandlerFactory,
                     ioReactorConfig,
+                    ioSessionDecorator,
                     sessionShutdownCallback);
             this.dispatchers[i] = dispatcher;
             threads[i + 1] = (dispatchThreadFactory != null ? dispatchThreadFactory : DISPATCH_THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
@@ -131,7 +134,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final Callback<IOSession> sessionShutdownCallback) {
-        this(eventHandlerFactory, config, null, null, sessionShutdownCallback);
+        this(eventHandlerFactory, config, null, null, null, sessionShutdownCallback);
     }
 
     /**
@@ -142,7 +145,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
      * @since 5.0
      */
     public DefaultListeningIOReactor(final IOEventHandlerFactory eventHandlerFactory) {
-        this(eventHandlerFactory, null, null, null, null);
+        this(eventHandlerFactory, null, null, null, null, null);
     }
 
     @Override

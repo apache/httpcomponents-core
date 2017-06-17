@@ -33,26 +33,21 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
-import javax.net.ssl.SSLContext;
-
+import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
-import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
-import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
-import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsDetails;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.classic.Wire;
 import org.apache.logging.log4j.Logger;
-public class LoggingIOSession implements TlsCapableIOSession {
+public class LoggingIOSession implements IOSession {
 
     private final Logger log;
     private final Wire wirelog;
-    private final TlsCapableIOSession session;
+    private final IOSession session;
     private final ByteChannel channel;
 
-    public LoggingIOSession(final TlsCapableIOSession session, final Logger log, final Logger wirelog) {
+    public LoggingIOSession(final IOSession session, final Logger log, final Logger wirelog) {
         super();
         this.session = session;
         this.log = log;
@@ -60,7 +55,7 @@ public class LoggingIOSession implements TlsCapableIOSession {
         this.channel = wirelog != null ? new LoggingByteChannel() : session.channel();
     }
 
-    public LoggingIOSession(final TlsCapableIOSession session, final Logger log) {
+    public LoggingIOSession(final IOSession session, final Logger log) {
         this(session, log, null);
     }
 
@@ -72,11 +67,17 @@ public class LoggingIOSession implements TlsCapableIOSession {
     @Override
     public void addLast(final Command command) {
         this.session.addLast(command);
+        if (this.log.isDebugEnabled()) {
+            this.log.debug(command.getClass().getSimpleName() + " added last");
+        }
     }
 
     @Override
     public void addFirst(final Command command) {
         this.session.addFirst(command);
+        if (this.log.isDebugEnabled()) {
+            this.log.debug(command.getClass().getSimpleName() + " added first");
+        }
     }
 
     @Override
@@ -168,7 +169,7 @@ public class LoggingIOSession implements TlsCapableIOSession {
     @Override
     public void shutdown(final ShutdownType shutdownType) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Shutdown");
+            this.log.debug(this.session + " Shutdown " + shutdownType);
         }
         this.session.shutdown(shutdownType);
     }
@@ -193,21 +194,11 @@ public class LoggingIOSession implements TlsCapableIOSession {
 
     @Override
     public void setHandler(final IOEventHandler handler) {
-        this.session.setHandler(handler);
-    }
-
-    @Override
-    public TlsDetails getTlsDetails() {
-        return session.getTlsDetails();
-    }
-
-    @Override
-    public void startTls(
-            final SSLContext sslContext,
-            final SSLBufferManagement sslBufferManagement,
-            final SSLSessionInitializer initializer,
-            final SSLSessionVerifier verifier) throws UnsupportedOperationException {
-        session.startTls(sslContext, sslBufferManagement, initializer, verifier);
+        if (handler instanceof HttpConnectionEventHandler) {
+            this.session.setHandler(new LoggingIOEventHandler((HttpConnectionEventHandler) handler, log));
+        } else {
+            this.session.setHandler(handler);
+        }
     }
 
     @Override

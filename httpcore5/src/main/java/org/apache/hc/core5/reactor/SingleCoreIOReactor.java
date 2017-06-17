@@ -45,6 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
@@ -54,11 +55,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private final IOEventHandlerFactory eventHandlerFactory;
     private final IOReactorConfig reactorConfig;
+    private final Decorator<IOSession> ioSessionDecorator;
+    private final Callback<IOSession> sessionShutdownCallback;
     private final Queue<InternalDataChannel> closedSessions;
     private final Queue<SocketChannel> channelQueue;
     private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
-    private final Callback<IOSession> sessionShutdownCallback;
 
     private volatile long lastTimeoutCheck;
 
@@ -66,10 +68,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final Queue<ExceptionEvent> auditLog,
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<IOSession> sessionShutdownCallback) {
         super(auditLog);
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
+        this.ioSessionDecorator = ioSessionDecorator;
         this.sessionShutdownCallback = sessionShutdownCallback;
         this.shutdownInitiated = new AtomicBoolean(false);
         this.closedSessions = new ConcurrentLinkedQueue<>();
@@ -191,7 +195,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             } catch (final ClosedChannelException ex) {
                 return;
             }
-            final InternalDataChannel dataChannel = new InternalDataChannel(key, socketChannel, null, closedSessions);
+            IOSession ioSession = new IOSessionImpl(key, socketChannel);
+            if (ioSessionDecorator != null) {
+                ioSession = ioSessionDecorator.decorate(ioSession);
+            }
+            final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, null, closedSessions);
             dataChannel.setHandler(this.eventHandlerFactory.createHandler(dataChannel, null));
             dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout().toMillisIntBound());
             key.attach(dataChannel);
@@ -314,7 +322,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     final SocketChannel socketChannel,
                     final NamedEndpoint namedEndpoint,
                     final Object attachment) {
-                final InternalDataChannel dataChannel = new InternalDataChannel(key, socketChannel, namedEndpoint, closedSessions);
+                IOSession ioSession = new IOSessionImpl(key, socketChannel);
+                if (ioSessionDecorator != null) {
+                    ioSession = ioSessionDecorator.decorate(ioSession);
+                }
+                final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, namedEndpoint, closedSessions);
                 dataChannel.setHandler(eventHandlerFactory.createHandler(dataChannel, attachment));
                 dataChannel.setSocketTimeout(reactorConfig.getSoTimeout().toMillisIntBound());
                 return dataChannel;

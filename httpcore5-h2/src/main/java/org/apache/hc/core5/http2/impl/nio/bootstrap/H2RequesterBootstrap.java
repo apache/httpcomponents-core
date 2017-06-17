@@ -29,8 +29,8 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -51,6 +51,7 @@ import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
+import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -74,7 +75,7 @@ public class H2RequesterBootstrap {
     private TimeValue timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
-    private ExceptionListener exceptionListener;
+    private Decorator<IOSession> ioSessionDecorator;
     private ConnectionListener connectionListener;
     private Http2StreamListener streamListener;
     private Http1StreamListener http1StreamListener;
@@ -168,10 +169,10 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ExceptionListener} instance.
+     * Assigns {@link IOSession} {@link Decorator} instance.
      */
-    public final H2RequesterBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
-        this.exceptionListener = exceptionListener;
+    public final H2RequesterBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
+        this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }
 
@@ -246,7 +247,7 @@ public class H2RequesterBootstrap {
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connectionListener,
                 streamListener);
-        final ClientHttpProtocolNegotiatorFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
+        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
@@ -255,6 +256,7 @@ public class H2RequesterBootstrap {
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 ioReactorConfig,
                 ioEventHandlerFactory,
+                ioSessionDecorator,
                 connPool,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
     }

@@ -36,6 +36,7 @@ import java.util.concurrent.Future;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionAcceptor;
@@ -57,12 +58,14 @@ public class AsyncServer implements IOReactorService, ConnectionInitiator, Conne
     public AsyncServer(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<IOSession> sessionShutdownCallback) {
         this.ioReactor = new DefaultListeningIOReactor(
                 eventHandlerFactory,
                 ioReactorConfig,
                 new DefaultThreadFactory("server-dispatch", true),
                 new DefaultThreadFactory("server-listener", true),
+                ioSessionDecorator,
                 sessionShutdownCallback);
     }
 

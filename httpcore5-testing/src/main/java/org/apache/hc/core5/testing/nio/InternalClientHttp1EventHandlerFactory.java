@@ -54,8 +54,6 @@ import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /**
  * @since 5.0
@@ -107,14 +105,11 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-        final String id = ioSession.getId();
         if (sslContext != null) {
             ioSession.startTls(sslContext, null ,null, null);
         }
-        final Logger sessionLog = LogManager.getLogger(ioSession.getClass());
-        final Logger wireLog = LogManager.getLogger("org.apache.hc.core5.http.wire");
         final ClientHttp1StreamDuplexer streamDuplexer = createClientHttp1StreamDuplexer(
-                new LoggingIOSession(ioSession, sessionLog, wireLog),
+                ioSession,
                 httpProcessor,
                 h1Config,
                 charCodingConfig,
@@ -123,9 +118,9 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
                 requestWriterFactory.create(),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                new InternalConnectionListener(id, sessionLog),
-                new InternalHttp1StreamListener(id, InternalHttp1StreamListener.Type.CLIENT, sessionLog));
-        return new LoggingIOEventHandler(new ClientHttp1IOEventHandler(streamDuplexer), id, sessionLog);
+                LoggingConnectionListener.INSTANCE,
+                LoggingHttp1StreamListener.INSTANCE_CLIENT);
+        return new ClientHttp1IOEventHandler(streamDuplexer);
     }
 
 }

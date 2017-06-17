@@ -75,6 +75,8 @@ public class Http2ProtocolNegotiationTest {
 
     private static final TimeValue TIMEOUT = TimeValue.ofSeconds(30);
 
+    private final Logger log = LogManager.getLogger(getClass());
+
     private HttpAsyncServer server;
 
     @Rule
@@ -82,6 +84,7 @@ public class Http2ProtocolNegotiationTest {
 
         @Override
         protected void before() throws Throwable {
+            log.debug("Starting up test server");
             server = H2ServerBootstrap.bootstrap()
                     .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(), new SecurePortStrategy() {
 
@@ -104,19 +107,22 @@ public class Http2ProtocolNegotiationTest {
                         }
 
                     })
-                    .setConnectionListener(new InternalConnectionListener("test", LogManager.getLogger(getClass())))
+                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
+                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();
         }
 
         @Override
         protected void after() {
+            log.debug("Shutting down test server");
             if (server != null) {
                 try {
                     server.shutdown(ShutdownType.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
                     server = null;
                     if (!exceptionLog.isEmpty()) {
-                        final Logger log = LogManager.getLogger(getClass());
                         for (final ExceptionEvent event: exceptionLog) {
                             final Throwable cause = event.getCause();
                             log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
@@ -136,24 +142,30 @@ public class Http2ProtocolNegotiationTest {
 
         @Override
         protected void before() throws Throwable {
+            log.debug("Starting up test client");
             requester = H2RequesterBootstrap.bootstrap()
                     .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                     .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
+                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
+                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();
         }
 
         @Override
         protected void after() {
+            log.debug("Shutting down test client");
             if (requester != null) {
                 try {
                     requester.shutdown(ShutdownType.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
                     requester = null;
                     if (!exceptionLog.isEmpty()) {
-                        final Logger log = LogManager.getLogger(getClass());
                         for (final ExceptionEvent event: exceptionLog) {
                             final Throwable cause = event.getCause();
                             log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);

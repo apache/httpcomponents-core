@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
@@ -63,12 +64,13 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
     private final MultiCoreIOReactor ioReactor;
     private final AtomicInteger currentWorker;
 
-    private final static ThreadFactory THREAD_FACTORY = new DefaultThreadFactory("I/O dispatch", true);
+    private final static ThreadFactory THREAD_FACTORY = new DefaultThreadFactory("I/O client dispatch", true);
 
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.auditLog = new ConcurrentLinkedDeque<>();
@@ -80,6 +82,7 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
                     auditLog,
                     eventHandlerFactory,
                     ioReactorConfig,
+                    ioSessionDecorator,
                     sessionShutdownCallback);
             this.dispatchers[i] = dispatcher;
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
@@ -92,7 +95,7 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final Callback<IOSession> sessionShutdownCallback) {
-        this(eventHandlerFactory, config, null, sessionShutdownCallback);
+        this(eventHandlerFactory, config, null, null, sessionShutdownCallback);
     }
 
     /**

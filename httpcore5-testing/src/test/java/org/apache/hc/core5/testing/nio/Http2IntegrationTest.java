@@ -127,6 +127,8 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
+    private final Logger log = LogManager.getLogger(getClass());
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
         return Arrays.asList(new Object[][]{
@@ -146,17 +148,18 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
     @Before
     public void setup() throws Exception {
+        log.debug("Starting up test client");
         client = new Http2TestClient(IOReactorConfig.DEFAULT,
                 scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
     }
 
     @After
     public void cleanup() throws Exception {
+        log.debug("Shutting down test client");
         if (client != null) {
             client.shutdown(TimeValue.ofSeconds(5));
             final List<ExceptionEvent> exceptionLog = client.getExceptionLog();
             if (!exceptionLog.isEmpty()) {
-                final Logger log = LogManager.getLogger(getClass());
                 for (final ExceptionEvent event: exceptionLog) {
                     final Throwable cause = event.getCause();
                     log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);

@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -61,6 +62,7 @@ public class AsyncRequesterBootstrap {
     private TimeValue timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
+    private Decorator<IOSession> ioSessionDecorator;
     private ConnectionListener connectionListener;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
@@ -144,6 +146,14 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
+     * Assigns {@link IOSession} {@link Decorator} instance.
+     */
+    public final AsyncRequesterBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
+        this.ioSessionDecorator = ioSessionDecorator;
+        return this;
+    }
+
+    /**
      * Assigns {@link ConnectionListener} instance.
      */
     public final AsyncRequesterBootstrap setConnectionListener(final ConnectionListener connectionListener) {
@@ -183,11 +193,11 @@ public class AsyncRequesterBootstrap {
                 null,
                 connectionListener,
                 streamListener);
-        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
-                streamDuplexerFactory);
+        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(streamDuplexerFactory);
         return new HttpAsyncRequester(
                 ioReactorConfig,
                 ioEventHandlerFactory,
+                ioSessionDecorator,
                 connPool,
                 tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy());
     }

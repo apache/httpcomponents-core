@@ -24,33 +24,16 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.bootstrap;
 
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSession;
+package org.apache.hc.core5.function;
 
 /**
+ * Abstract decorator.
+ *
  * @since 5.0
  */
-public class HttpAsyncServer extends AsyncServer {
+public interface Decorator<T> {
 
-    public HttpAsyncServer(
-            final IOEventHandlerFactory eventHandlerFactory,
-            final Decorator<IOSession> ioSessionDecorator,
-            final IOReactorConfig ioReactorConfig) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, new Callback<IOSession>() {
-
-            @Override
-            public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
-            }
-
-        });
-    }
+    T decorate(T object);
 
 }

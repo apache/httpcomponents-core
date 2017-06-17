@@ -63,6 +63,7 @@ import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
@@ -399,6 +400,15 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     @Override
     boolean handleTimeout() {
         return false;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder buffer = new StringBuilder();
+        InetAddressUtils.formatAddress(buffer, getRemoteAddress());
+        buffer.append("->");
+        InetAddressUtils.formatAddress(buffer, getLocalAddress());
+        return buffer.toString();
     }
 
     private static class DelayedOutputChannel implements Http1StreamChannel<HttpResponse> {

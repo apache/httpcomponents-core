@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
@@ -52,9 +53,10 @@ public class Http2AsyncRequester extends HttpAsyncRequester {
             final HttpVersionPolicy versionPolicy,
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
+            final Decorator<IOSession> ioSessionDecorator,
             final ControlledConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy) {
-        super(ioReactorConfig, eventHandlerFactory, connPool, tlsStrategy);
+        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, connPool, tlsStrategy);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 

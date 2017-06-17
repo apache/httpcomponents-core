@@ -81,14 +81,14 @@ import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.apache.hc.core5.util.Identifiable;
 
-abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
+abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConnection {
 
     private static final long LINGER_TIME = 1000; // 1 second
 
@@ -170,6 +170,11 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
         this.lowMark = this.remoteConfig.getInitialWindowSize() / 2;
         this.connectionListener = connectionListener;
         this.streamListener = streamListener;
+    }
+
+    @Override
+    public String getId() {
+        return ioSession.getId();
     }
 
     abstract Http2StreamHandler createRemotelyInitiatedStream(
@@ -1225,17 +1230,6 @@ abstract class AbstractHttp2StreamMultiplexer implements HttpConnection {
     @Override
     public SocketAddress getLocalAddress() {
         return ioSession.getLocalAddress();
-    }
-
-    @Override
-    public String toString() {
-        final SocketAddress remoteAddress = ioSession.getRemoteAddress();
-        final SocketAddress localAddress = ioSession.getLocalAddress();
-        final StringBuilder buffer = new StringBuilder();
-        InetAddressUtils.formatAddress(buffer, localAddress);
-        buffer.append("->");
-        InetAddressUtils.formatAddress(buffer, remoteAddress);
-        return buffer.toString();
     }
 
     private static class Continuation {

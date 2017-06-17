@@ -92,7 +92,7 @@ public class TestDefaultListeningIOReactor {
         final IOReactorConfig reactorConfig = IOReactorConfig.custom()
                 .setIoThreadCount(1)
                 .build();
-        this.ioreactor = new DefaultListeningIOReactor(new NoopIOEventHandlerFactory(), reactorConfig, null, null, null);
+        this.ioreactor = new DefaultListeningIOReactor(new NoopIOEventHandlerFactory(), reactorConfig, null);
     }
 
     @After

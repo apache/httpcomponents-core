@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.ShutdownType;
@@ -75,7 +74,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
         if (ioReactorRef.compareAndSet(null, createIOReactor(
                 ioEventHandlerFactory,
                 ioReactorConfig,
-                workerThreadFactory != null ? workerThreadFactory : new DefaultThreadFactory("i/o dispatch"),
+                workerThreadFactory,
                 new Callback<IOSession>() {
 
                     @Override

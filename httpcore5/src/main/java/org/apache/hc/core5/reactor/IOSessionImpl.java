@@ -69,7 +69,7 @@ class IOSessionImpl implements IOSession {
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.socketTimeout = 0;
         this.eventMask = new AtomicInteger(key.interestOps());
-        this.id = "i/o-" + Long.toHexString(COUNT.incrementAndGet());
+        this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
         this.status = new AtomicInteger(ACTIVE);
     }
 

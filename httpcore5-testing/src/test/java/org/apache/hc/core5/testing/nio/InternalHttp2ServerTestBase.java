@@ -60,12 +60,14 @@ public abstract class InternalHttp2ServerTestBase {
 
         @Override
         protected void before() throws Throwable {
+            log.debug("Starting up test server");
             server = new Http2TestServer(IOReactorConfig.DEFAULT,
                     scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null);
         }
 
         @Override
         protected void after() {
+            log.debug("Shutting down test server");
             if (server != null) {
                 try {
                     server.shutdown(TimeValue.ofSeconds(5));

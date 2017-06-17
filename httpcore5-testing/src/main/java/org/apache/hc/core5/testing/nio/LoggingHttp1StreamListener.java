@@ -39,19 +39,19 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-class InternalHttp1StreamListener implements Http1StreamListener {
+public class LoggingHttp1StreamListener implements Http1StreamListener {
 
     enum Type { CLIENT, SERVER }
 
-    private final String id;
+    final static LoggingHttp1StreamListener INSTANCE_CLIENT = new LoggingHttp1StreamListener(Type.CLIENT);
+    final static LoggingHttp1StreamListener INSTANCE_SERVER = new LoggingHttp1StreamListener(Type.SERVER);
+
     private final Type type;
-    private final Logger sessionLog;
+    private final Logger connLog = LogManager.getLogger("org.apache.hc.core5.http.connection");
     private final Logger headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
 
-    public InternalHttp1StreamListener(final String id, final Type type, final Logger sessionLog) {
-        this.id = id;
+    private LoggingHttp1StreamListener(final Type type) {
         this.type = type;
-        this.sessionLog = sessionLog;
     }
 
     private String requestDirection() {
@@ -65,9 +65,9 @@ class InternalHttp1StreamListener implements Http1StreamListener {
     @Override
     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
         if (headerLog.isDebugEnabled()) {
-            headerLog.debug(id + requestDirection() + new RequestLine(request));
+            headerLog.debug(LoggingSupport.getId(connection) + requestDirection() + new RequestLine(request));
             for (final Iterator<Header> it = request.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(id + requestDirection() + it.next());
+                headerLog.debug(LoggingSupport.getId(connection) + requestDirection() + it.next());
             }
         }
     }
@@ -75,20 +75,20 @@ class InternalHttp1StreamListener implements Http1StreamListener {
     @Override
     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
         if (headerLog.isDebugEnabled()) {
-            headerLog.debug(id + responseDirection() + new StatusLine(response));
+            headerLog.debug(LoggingSupport.getId(connection) + responseDirection() + new StatusLine(response));
             for (final Iterator<Header> it = response.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(id + responseDirection() + it.next());
+                headerLog.debug(LoggingSupport.getId(connection) + responseDirection() + it.next());
             }
         }
     }
 
     @Override
     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
-        if (sessionLog.isDebugEnabled()) {
+        if (connLog.isDebugEnabled()) {
             if (keepAlive) {
-                sessionLog.debug(id + " Connection is kept alive");
+                connLog.debug(LoggingSupport.getId(connection) + " Connection is kept alive");
             } else {
-                sessionLog.debug(id + " Connection is not kept alive");
+                connLog.debug(LoggingSupport.getId(connection) + " Connection is not kept alive");
             }
         }
     }

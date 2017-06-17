@@ -38,17 +38,17 @@ import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-class InternalHttp2StreamListener implements Http2StreamListener {
+public class LoggingHttp2StreamListener implements Http2StreamListener {
 
-    private final String id;
+    public final static LoggingHttp2StreamListener INSTANCE = new LoggingHttp2StreamListener();
+
     private final Logger headerLog;
     private final Logger frameLog;
     private final Logger framePayloadLog;
     private final Logger flowCtrlLog;
     private final FramePrinter framePrinter;
 
-    public InternalHttp2StreamListener(final String id) {
-        this.id = id;
+    private LoggingHttp2StreamListener() {
         this.framePrinter = new FramePrinter();
         this.headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
         this.frameLog = LogManager.getLogger("org.apache.hc.core5.http2.frame");
@@ -86,7 +86,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug(id + " << " + headers.get(i));
+                headerLog.debug(LoggingSupport.getId(connection) + " << " + headers.get(i));
             }
         }
     }
@@ -95,7 +95,7 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug(id + " >> " + headers.get(i));
+                headerLog.debug(LoggingSupport.getId(connection) + " >> " + headers.get(i));
             }
         }
     }
@@ -103,34 +103,34 @@ class InternalHttp2StreamListener implements Http2StreamListener {
     @Override
     public void onFrameInput(final HttpConnection connection, final int streamId, final RawFrame frame) {
         if (frameLog.isDebugEnabled()) {
-            logFrameInfo(id + " <<", frame);
+            logFrameInfo(LoggingSupport.getId(connection) + " <<", frame);
         }
         if (framePayloadLog.isDebugEnabled()) {
-            logFramePayload(id + " <<", frame);
+            logFramePayload(LoggingSupport.getId(connection) + " <<", frame);
         }
     }
 
     @Override
     public void onFrameOutput(final HttpConnection connection, final int streamId, final RawFrame frame) {
         if (frameLog.isDebugEnabled()) {
-            logFrameInfo(id + " >>", frame);
+            logFrameInfo(LoggingSupport.getId(connection) + " >>", frame);
         }
         if (framePayloadLog.isDebugEnabled()) {
-            logFramePayload(id + " >>", frame);
+            logFramePayload(LoggingSupport.getId(connection) + " >>", frame);
         }
     }
 
     @Override
     public void onInputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
         if (flowCtrlLog.isDebugEnabled()) {
-            logFlowControl(id + " <<", streamId, delta, actualSize);
+            logFlowControl(LoggingSupport.getId(connection) + " <<", streamId, delta, actualSize);
         }
     }
 
     @Override
     public void onOutputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
         if (flowCtrlLog.isDebugEnabled()) {
-            logFlowControl(id + " >>", streamId, delta, actualSize);
+            logFlowControl(LoggingSupport.getId(connection) + " >>", streamId, delta, actualSize);
         }
     }
 

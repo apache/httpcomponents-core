@@ -70,6 +70,8 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class Http2ServerAndRequesterTest {
 
+    private final Logger log = LogManager.getLogger(getClass());
+
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
         return Arrays.asList(new Object[][]{
@@ -94,12 +96,16 @@ public class Http2ServerAndRequesterTest {
 
         @Override
         protected void before() throws Throwable {
+            log.debug("Starting up test server");
             server = H2ServerBootstrap.bootstrap()
                     .setVersionPolicy(versionPolicy)
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
+                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
+                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
                         @Override
@@ -113,13 +119,13 @@ public class Http2ServerAndRequesterTest {
 
         @Override
         protected void after() {
+            log.debug("Shutting down test server");
             if (server != null) {
                 try {
                     server.shutdown(ShutdownType.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
                     server = null;
                     if (!exceptionLog.isEmpty()) {
-                        final Logger log = LogManager.getLogger(getClass());
                         for (final ExceptionEvent event: exceptionLog) {
                             final Throwable cause = event.getCause();
                             log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
@@ -139,23 +145,28 @@ public class Http2ServerAndRequesterTest {
 
         @Override
         protected void before() throws Throwable {
+            log.debug("Starting up test client");
             requester = H2RequesterBootstrap.bootstrap()
                     .setVersionPolicy(versionPolicy)
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
+                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
+                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();
         }
 
         @Override
         protected void after() {
+            log.debug("Shutting down test client");
             if (requester != null) {
                 try {
                     requester.shutdown(ShutdownType.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
                     requester = null;
                     if (!exceptionLog.isEmpty()) {
-                        final Logger log = LogManager.getLogger(getClass());
                         for (final ExceptionEvent event: exceptionLog) {
                             final Throwable cause = event.getCause();
                             log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);

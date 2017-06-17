@@ -41,16 +41,11 @@ import org.apache.logging.log4j.Logger;
 public class LoggingIOEventHandler implements HttpConnectionEventHandler {
 
     private final HttpConnectionEventHandler handler;
-    private final String id;
     private final Logger log;
 
-    public LoggingIOEventHandler(
-            final HttpConnectionEventHandler handler,
-            final String id,
-            final Logger log) {
+    public LoggingIOEventHandler(final HttpConnectionEventHandler handler, final Logger log) {
         super();
         this.handler = handler;
-        this.id = id;
         this.log = log;
     }
 
@@ -111,9 +106,6 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
 
     @Override
     public void setSocketTimeout(final int timeout) {
-        if (log.isDebugEnabled()) {
-            log.debug(id + " set timeout " + timeout);
-        }
         handler.setSocketTimeout(timeout);
     }
 
@@ -144,17 +136,11 @@ public class LoggingIOEventHandler implements HttpConnectionEventHandler {
 
     @Override
     public void close() throws IOException {
-        if (log.isDebugEnabled()) {
-            log.debug(id + " close");
-        }
         handler.close();
     }
 
     @Override
     public void shutdown(final ShutdownType shutdownType) {
-        if (log.isDebugEnabled()) {
-            log.debug(id + " shutdown");
-        }
         handler.shutdown(shutdownType);
     }
 

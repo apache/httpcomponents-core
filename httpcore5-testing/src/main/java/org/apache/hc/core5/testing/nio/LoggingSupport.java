@@ -24,44 +24,21 @@
  * <http://www.apache.org/>.
  *
  */
-
 package org.apache.hc.core5.testing.nio;
 
-import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.impl.ConnectionListener;
-import org.apache.logging.log4j.Logger;
+import org.apache.hc.core5.util.Identifiable;
 
-class InternalConnectionListener implements ConnectionListener {
+final class LoggingSupport {
 
-    private final String id;
-    private final Logger log;
-
-    public InternalConnectionListener(final String id, final Logger log) {
-        this.log = log;
-        this.id = id;
-    }
-
-    @Override
-    public void onConnect(final HttpConnection connection) {
-        if (log.isDebugEnabled()) {
-            log.debug(id + " " + connection + " connected");
+    static String getId(final Object object) {
+        if (object == null) {
+            return null;
         }
-    }
-
-    @Override
-    public void onDisconnect(final HttpConnection connection) {
-        if (log.isDebugEnabled()) {
-            log.debug(id + " " + connection + " disconnected");
+        if (object instanceof Identifiable) {
+            return ((Identifiable) object).getId();
+        } else {
+            return object.getClass().getSimpleName() + "-" + Integer.toHexString(System.identityHashCode(object));
         }
-    }
-
-    @Override
-    public void onError(final HttpConnection connection, final Exception ex) {
-        if (ex instanceof ConnectionClosedException) {
-            return;
-        }
-        log.error(id + " " + ex.getMessage(), ex);
     }
 
 }

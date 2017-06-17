@@ -36,6 +36,7 @@ import java.util.concurrent.Future;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.io.ShutdownType;
@@ -58,11 +59,13 @@ public class AsyncRequester implements IOReactorService, ConnectionInitiator {
     public AsyncRequester(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<IOSession> sessionShutdownCallback) {
         this.ioReactor = new DefaultConnectingIOReactor(
                 eventHandlerFactory,
                 ioReactorConfig,
                 new DefaultThreadFactory("requester-dispatch", true),
+                ioSessionDecorator,
                 sessionShutdownCallback);
     }
 

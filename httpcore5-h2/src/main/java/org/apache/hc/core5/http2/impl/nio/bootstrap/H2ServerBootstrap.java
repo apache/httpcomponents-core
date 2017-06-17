@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -58,6 +59,7 @@ import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -74,6 +76,7 @@ public class H2ServerBootstrap {
     private H2Config h2Config;
     private H1Config h1Config;
     private TlsStrategy tlsStrategy;
+    private Decorator<IOSession> ioSessionDecorator;
     private ConnectionListener connectionListener;
     private Http2StreamListener http2StreamListener;
     private Http1StreamListener http1StreamListener;
@@ -149,6 +152,14 @@ public class H2ServerBootstrap {
      */
     public final H2ServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+    /**
+     * Assigns {@link IOSession} {@link Decorator} instance.
+     */
+    public final H2ServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
+        this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }
 
@@ -253,7 +264,7 @@ public class H2ServerBootstrap {
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}),
                 connectionListener);
-        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig);
+        return new HttpAsyncServer(ioEventHandlerFactory, ioSessionDecorator, ioReactorConfig);
     }
 
     private static class HandlerEntry {
