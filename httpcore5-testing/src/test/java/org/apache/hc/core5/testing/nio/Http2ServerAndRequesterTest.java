@@ -115,7 +115,7 @@ public class Http2ServerAndRequesterTest {
         protected void after() {
             if (server != null) {
                 try {
-                    server.shutdown(ShutdownType.IMMEDIATE);
+                    server.shutdown(ShutdownType.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
                     server = null;
                     if (!exceptionLog.isEmpty()) {
@@ -151,7 +151,7 @@ public class Http2ServerAndRequesterTest {
         protected void after() {
             if (requester != null) {
                 try {
-                    requester.shutdown(ShutdownType.IMMEDIATE);
+                    requester.shutdown(ShutdownType.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
                     requester = null;
                     if (!exceptionLog.isEmpty()) {
