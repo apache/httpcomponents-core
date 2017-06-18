@@ -96,6 +96,9 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
             if (!tlsSession.isInitialized()) {
                 tlsSession.initialize();
             }
+            if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
+                ioSession.clearEvent(SelectionKey.OP_CONNECT);
+            }
             if ((readyOps & SelectionKey.OP_READ) != 0) {
                 if (tlsSession.isAppInputReady()) {
                     do {
@@ -114,6 +117,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
             }
         } else {
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
+                ioSession.clearEvent(SelectionKey.OP_CONNECT);
                 if (connected.compareAndSet(false, true)) {
                     final IOEventHandler handler = getEventHandler();
                     handler.connected(this);
