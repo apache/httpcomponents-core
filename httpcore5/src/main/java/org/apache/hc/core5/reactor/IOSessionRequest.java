@@ -28,23 +28,27 @@
 package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.concurrent.Cancellable;
-import org.apache.hc.core5.concurrent.ComplexFuture;
+import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
-final class IOSessionRequest implements Cancellable {
+final class IOSessionRequest implements Future<IOSession> {
 
     final NamedEndpoint remoteEndpoint;
     final SocketAddress remoteAddress;
     final SocketAddress localAddress;
     final TimeValue timeout;
     final Object attachment;
-    final ComplexFuture<IOSession> future;
+    final BasicFuture<IOSession> future;
 
     private final AtomicReference<GracefullyCloseable> closeableRef;
 
@@ -54,49 +58,63 @@ final class IOSessionRequest implements Cancellable {
             final SocketAddress localAddress,
             final TimeValue timeout,
             final Object attachment,
-            final ComplexFuture<IOSession> future) {
+            final FutureCallback<IOSession> callback) {
         super();
         this.remoteEndpoint = remoteEndpoint;
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
         this.timeout = timeout;
         this.attachment = attachment;
-        this.future = future;
+        this.future = new BasicFuture<>(callback);
         this.closeableRef = new AtomicReference<>(null);
     }
 
     public void completed(final TlsCapableIOSession ioSession) {
         future.completed(ioSession);
+        closeableRef.set(null);
     }
 
     public void failed(final Exception cause) {
         future.failed(cause);
+        closeableRef.set(null);
     }
 
     public boolean cancel() {
-        return future.cancel();
+        final boolean cancelled = future.cancel();
+        final GracefullyCloseable closeable = closeableRef.getAndSet(null);
+        if (cancelled && closeable != null) {
+            closeable.shutdown(ShutdownType.IMMEDIATE);
+        }
+        return cancelled;
     }
 
+    @Override
+    public boolean cancel(final boolean mayInterruptIfRunning) {
+        return cancel();
+    }
+
+    @Override
     public boolean isCancelled() {
         return future.isCancelled();
     }
 
     public void assign(final GracefullyCloseable closeable) {
         closeableRef.set(closeable);
-        future.setDependency(new Cancellable() {
+    }
 
-            @Override
-            public boolean cancel() {
-                final GracefullyCloseable closeable = closeableRef.getAndSet(null);
-                if (closeable != null) {
-                    closeable.shutdown(ShutdownType.IMMEDIATE);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
+    @Override
+    public boolean isDone() {
+        return future.isDone();
+    }
 
-        });
+    @Override
+    public IOSession get() throws InterruptedException, ExecutionException {
+        return future.get();
+    }
+
+    @Override
+    public IOSession get(final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+        return future.get(timeout, unit);
     }
 
 }

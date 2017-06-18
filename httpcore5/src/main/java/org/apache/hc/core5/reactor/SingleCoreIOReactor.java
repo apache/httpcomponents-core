@@ -42,7 +42,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
@@ -237,19 +236,18 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final Object attachment,
             final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");
-        final ComplexFuture<IOSession> future = new ComplexFuture<>(callback);
         final IOSessionRequest sessionRequest = new IOSessionRequest(
                 remoteEndpoint,
                 remoteAddress != null ? remoteAddress : new InetSocketAddress(remoteEndpoint.getHostName(), remoteEndpoint.getPort()),
                 localAddress,
                 timeout,
                 attachment,
-                future);
+                callback);
 
         this.requestQueue.add(sessionRequest);
         this.selector.wakeup();
 
-        return future;
+        return sessionRequest;
     }
 
     private void prepareSocket(final Socket socket) throws IOException {
