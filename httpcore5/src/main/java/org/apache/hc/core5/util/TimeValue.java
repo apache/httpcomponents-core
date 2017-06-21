@@ -79,7 +79,7 @@ public class TimeValue {
      *            may be {@code null}
      * @return {@code timeValue} or {@code defaultValue}
      */
-    public static TimeValue defaultsTo(final TimeValue timeValue, final TimeValue defaultValue) {
+    public static <T extends TimeValue> T defaultsTo(final T timeValue, final T defaultValue) {
         return timeValue != null ? timeValue : defaultValue;
     }
 
@@ -187,6 +187,23 @@ public class TimeValue {
                 TimeUnit.valueOf(split[1].trim().toUpperCase(Locale.ROOT)));
     }
 
+    /**
+     * Calculates the deadline with the current time in milliseconds and the given time value.
+     * Non-positive time value represents an indefinite timeout without a deadline.
+     *
+     * @param currentTimeMillis current time
+     * @param timeValue time value
+     * @return deadline in milliseconds
+     */
+    public static long calculateDeadline(final long currentTimeMillis, final TimeValue timeValue) {
+        if (TimeValue.isPositive(timeValue)) {
+            final long deadline = currentTimeMillis + timeValue.toMillis();
+            return deadline >= 0 ? deadline : Long.MAX_VALUE;
+        } else {
+            return Long.MAX_VALUE;
+        }
+    }
+
     private final long duration;
 
     private final TimeUnit timeUnit;
@@ -224,7 +241,7 @@ public class TimeValue {
     @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, Long.valueOf(duration));
+        hash = LangUtils.hashCode(hash, duration);
         hash = LangUtils.hashCode(hash, timeUnit);
         return hash;
     }
@@ -279,7 +296,7 @@ public class TimeValue {
 
     @Override
     public String toString() {
-        return String.format("%,d %s", Long.valueOf(duration), timeUnit);
+        return String.format("%,d %s", duration, timeUnit);
     }
 
     public Timeout toTimeout() {

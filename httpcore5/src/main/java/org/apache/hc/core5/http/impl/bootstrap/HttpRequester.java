@@ -67,7 +67,7 @@ import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * @since 5.0
@@ -188,14 +188,13 @@ public class HttpRequester implements GracefullyCloseable {
     public ClassicHttpResponse execute(
             final HttpHost targetHost,
             final ClassicHttpRequest request,
-            final TimeValue connectTimeout,
+            final Timeout connectTimeout,
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(targetHost, "HTTP host");
         Args.notNull(request, "HTTP request");
         final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
-        final TimeValue timeout = connectTimeout != null ? connectTimeout : TimeValue.ZERO_MILLISECONDS;
-
+        final Timeout timeout = Timeout.defaultsToDisabled(connectTimeout);
         try {
             poolEntry = leaseFuture.get(timeout.getDuration(), timeout.getTimeUnit());
         } catch (final InterruptedException ex) {
@@ -300,7 +299,7 @@ public class HttpRequester implements GracefullyCloseable {
     public <T> T  execute(
             final HttpHost targetHost,
             final ClassicHttpRequest request,
-            final TimeValue connectTimeout,
+            final Timeout connectTimeout,
             final HttpContext context,
             final ResponseHandler<T> responseHandler) throws HttpException, IOException {
         try (final ClassicHttpResponse response = execute(targetHost, request, connectTimeout, context)) {

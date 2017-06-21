@@ -32,7 +32,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 class LeaseRequest<T, C extends GracefullyCloseable> {
@@ -45,15 +45,6 @@ class LeaseRequest<T, C extends GracefullyCloseable> {
     private volatile PoolEntry<T, C> result;
     private volatile Exception ex;
 
-    static long calculateDeadline(final long currentTimeMillis, final TimeValue timeValue) {
-        final long time = TimeValue.isPositive(timeValue) ? currentTimeMillis + timeValue.toMillis() : Long.MAX_VALUE;
-        if (time < 0 && TimeValue.isPositive(timeValue)) {
-            return Long.MAX_VALUE;
-        } else {
-            return time;
-        }
-    }
-
     /**
      * Constructor
      *
@@ -65,12 +56,12 @@ class LeaseRequest<T, C extends GracefullyCloseable> {
     public LeaseRequest(
             final T route,
             final Object state,
-            final TimeValue requestTimeout,
+            final Timeout requestTimeout,
             final BasicFuture<PoolEntry<T, C>> future) {
         super();
         this.route = route;
         this.state = state;
-        this.deadline = calculateDeadline(System.currentTimeMillis(), requestTimeout);
+        this.deadline = Timeout.calculateDeadline(System.currentTimeMillis(), requestTimeout);
         this.future = future;
         this.completed = new AtomicBoolean(false);
     }

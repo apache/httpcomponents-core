@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
@@ -68,9 +68,9 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             throw new HttpException("Request method should be set.");
         }
 
-        final TimeValue timeout;
+        final Timeout timeout;
         if (request.containsKey(TIMEOUT)) {
-            timeout = TimeValue.ofMillis((long) request.get(TIMEOUT));
+            timeout = Timeout.ofMillis((long) request.get(TIMEOUT));
         } else {
             timeout = null;
         }

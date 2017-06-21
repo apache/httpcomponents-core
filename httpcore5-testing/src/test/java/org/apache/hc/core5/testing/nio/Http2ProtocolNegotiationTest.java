@@ -59,7 +59,7 @@ import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.CoreMatchers;
@@ -73,7 +73,7 @@ import org.junit.rules.ExternalResource;
 
 public class Http2ProtocolNegotiationTest {
 
-    private static final TimeValue TIMEOUT = TimeValue.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
     private final Logger log = LogManager.getLogger(getClass());
 

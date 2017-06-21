@@ -34,7 +34,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
- * Represents a timeout value as a {@code long} time and {@link TimeUnit}.
+ * Represents a timeout value as a non-negative {@code long} time and {@link TimeUnit}.
  *
  * @since 5.0
  */
@@ -46,17 +46,19 @@ public class Timeout extends TimeValue {
     /**
      * A disabled timeout represented as 0 {@code MILLISECONDS}.
      */
-    public static final Timeout DISABLED = new Timeout(0, TimeUnit.MILLISECONDS);
+    public static final Timeout DISABLED = ZERO_MILLISECONDS;
 
     /**
-     * An undefined timeout represented as -1 {@code MILLISECONDS}.
+     * Returns the given {@code timeout} if it is not {@code null}, if {@code null} then returns
+     * {@link #DISABLED}.
+     *
+     * @param timeout
+     *            may be {@code null}
+     * @return {@code timeValue} or {@link #DISABLED}
      */
-    public static final Timeout UNDEFINED_MILLISECONDS = new Timeout(INT_UNDEFINED, TimeUnit.MILLISECONDS);
-
-    /**
-     * An undefined timeout represented as -1 {@code SECONDS}.
-     */
-    public static final Timeout UNDEFINED_SECONDS = new Timeout(INT_UNDEFINED, TimeUnit.SECONDS);
+    public static Timeout defaultsToDisabled(final Timeout timeout) {
+        return defaultsTo(timeout, DISABLED);
+    }
 
     /**
      * Creates a Timeout.
@@ -161,15 +163,8 @@ public class Timeout extends TimeValue {
         return TimeValue.parse(value).toTimeout();
     }
 
-    private static long validateDuration(final long duration) {
-        if (duration < INT_UNDEFINED) {
-            throw new IllegalArgumentException("Duration may not be less than " + INT_UNDEFINED);
-        }
-        return duration;
-    }
-
     Timeout(final long duration, final TimeUnit timeUnit) {
-        super(validateDuration(duration), Args.notNull(timeUnit, "timeUnit"));
+        super(Args.notNegative(duration, "Duration"), Args.notNull(timeUnit, "timeUnit"));
     }
 
     /**
@@ -187,25 +182,7 @@ public class Timeout extends TimeValue {
      * @return Whether this timeout is disabled.
      */
     public boolean isEnabled() {
-        return !isDisabled() && !(isUndefinedMilliseconds() || isUndefinedSeconds());
-    }
-
-    /**
-     * Whether this timeout is undefined.
-     *
-     * @return Whether this timeout is undefined.
-     */
-    public boolean isUndefinedMilliseconds() {
-        return getDuration() == INT_UNDEFINED && getTimeUnit() == TimeUnit.MILLISECONDS;
-    }
-
-    /**
-     * Whether this timeout is undefined.
-     *
-     * @return Whether this timeout is undefined.
-     */
-    public boolean isUndefinedSeconds() {
-        return getDuration() == INT_UNDEFINED && getTimeUnit() == TimeUnit.SECONDS;
+        return !isDisabled();
     }
 
 }

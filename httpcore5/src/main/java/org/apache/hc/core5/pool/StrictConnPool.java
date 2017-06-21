@@ -51,6 +51,7 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Connection pool with strict max connection limit guarantees.
@@ -148,7 +149,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
 
     public Future<PoolEntry<T, C>> lease(
             final T route, final Object state,
-            final TimeValue requestTimeout,
+            final Timeout requestTimeout,
             final FutureCallback<PoolEntry<T, C>> callback) {
         Args.notNull(route, "Route");
         Args.notNull(requestTimeout, "Request timeout");
@@ -173,11 +174,11 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
 
     @Override
     public Future<PoolEntry<T, C>> lease(final T route, final Object state, final FutureCallback<PoolEntry<T, C>> callback) {
-        return lease(route, state, TimeValue.NEG_ONE_MILLISECONDS, callback);
+        return lease(route, state, Timeout.DISABLED, callback);
     }
 
     public Future<PoolEntry<T, C>> lease(final T route, final Object state) {
-        return lease(route, state, TimeValue.NEG_ONE_MILLISECONDS, null);
+        return lease(route, state, Timeout.DISABLED, null);
     }
 
     @Override

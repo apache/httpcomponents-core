@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Example of POST request with trailers execution using classic I/O.
@@ -67,7 +67,7 @@ public class ClassicPostWithTrailersExecutionExample {
                 .build();
 
         System.out.println(">> Request URI: " + request.getUri());
-        try (ClassicHttpResponse response = httpRequester.execute(target, request, TimeValue.ofSeconds(5), coreContext)) {
+        try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
             System.out.println(requestUri + "->" + response.getCode());
             System.out.println(EntityUtils.toString(response.getEntity()));
             System.out.println("==============");

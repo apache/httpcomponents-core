@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Example of GET requests execution using classic I/O.
@@ -89,7 +89,7 @@ public class ClassicGetExecutionExample {
         for (int i = 0; i < requestUris.length; i++) {
             String requestUri = requestUris[i];
             ClassicHttpRequest request = new BasicClassicHttpRequest("GET", target, requestUri);
-            try (ClassicHttpResponse response = httpRequester.execute(target, request, TimeValue.ofSeconds(5), coreContext)) {
+            try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");

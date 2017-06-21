@@ -45,7 +45,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * @since 5.0
@@ -59,7 +59,7 @@ public class AsyncRequesterBootstrap {
     private ConnectionReuseStrategy connStrategy;
     private int defaultMaxPerRoute;
     private int maxTotal;
-    private TimeValue timeToLive;
+    private Timeout timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
@@ -124,7 +124,7 @@ public class AsyncRequesterBootstrap {
         return this;
     }
 
-    public final AsyncRequesterBootstrap setTimeToLive(final TimeValue timeToLive) {
+    public final AsyncRequesterBootstrap setTimeToLive(final Timeout timeToLive) {
         this.timeToLive = timeToLive;
         return this;
     }

@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -108,7 +109,7 @@ public class TestStrictConnPool {
     public void testLeaseIllegal() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
         try {
-            pool.lease(null, null, TimeValue.ZERO_MILLISECONDS, null);
+            pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
@@ -491,9 +492,9 @@ public class TestStrictConnPool {
 
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
 
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
-        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, TimeValue.of(10, TimeUnit.MILLISECONDS), null);
+        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
+        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, Timeout.ofMillis(10), null);
 
         Assert.assertTrue(future1.isDone());
         final PoolEntry<String, HttpConnection> entry1 = future1.get();
@@ -514,14 +515,14 @@ public class TestStrictConnPool {
     public void testLeaseRequestCanceled() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
 
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
+        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
 
         Assert.assertTrue(future1.isDone());
         final PoolEntry<String, HttpConnection> entry1 = future1.get();
         Assert.assertNotNull(entry1);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
 
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, TimeValue.of(0, TimeUnit.MILLISECONDS), null);
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
         future2.cancel(true);
 
         pool.release(entry1, true);

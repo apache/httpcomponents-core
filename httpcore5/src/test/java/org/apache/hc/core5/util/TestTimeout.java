@@ -89,8 +89,6 @@ public class TestTimeout {
     public void testDisabled() {
         Assert.assertTrue(Timeout.DISABLED.isDisabled());
         Assert.assertFalse(Timeout.DISABLED.isEnabled());
-        Assert.assertFalse(Timeout.DISABLED.isUndefinedMilliseconds());
-        Assert.assertFalse(Timeout.DISABLED.isUndefinedSeconds());
     }
 
     private void testFactory(final TimeUnit timeUnit) {
@@ -142,28 +140,9 @@ public class TestTimeout {
         test(Long.MAX_VALUE);
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testNegative1() {
         test(-1);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testNegative2() {
-        test(-2);
-    }
-
-    @Test
-    public void testUndefinedMilliseconds() {
-        Assert.assertTrue(Timeout.UNDEFINED_MILLISECONDS.isUndefinedMilliseconds());
-        Assert.assertFalse(Timeout.UNDEFINED_MILLISECONDS.isEnabled());
-        Assert.assertFalse(Timeout.UNDEFINED_MILLISECONDS.isDisabled());
-    }
-
-    @Test
-    public void testUndefinedSeconds() {
-        Assert.assertTrue(Timeout.UNDEFINED_SECONDS.isUndefinedSeconds());
-        Assert.assertFalse(Timeout.UNDEFINED_SECONDS.isEnabled());
-        Assert.assertFalse(Timeout.UNDEFINED_SECONDS.isDisabled());
     }
 
     @Test

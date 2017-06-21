@@ -119,7 +119,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
         if (this.connRef.compareAndSet(null, conn)) {
             this.created = currentTimeMillis();
             this.updated = this.created;
-            this.validityDeadline = LeaseRequest.calculateDeadline(this.created, this.timeToLive);
+            this.validityDeadline = TimeValue.calculateDeadline(this.created, this.timeToLive);
             this.expiry = this.validityDeadline;
             this.state = null;
         } else {
@@ -148,7 +148,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
     public void updateExpiry(final TimeValue expiryTime) {
         Args.notNull(expiryTime, "Expiry time");
         final long currentTime = System.currentTimeMillis();
-        final long newExpiry = LeaseRequest.calculateDeadline(currentTime, expiryTime);
+        final long newExpiry = TimeValue.calculateDeadline(currentTime, expiryTime);
         this.expiry = Math.min(newExpiry, getValidityDeadline());
         this.updated = currentTime;
     }

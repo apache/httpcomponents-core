@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * @since 5.0
@@ -58,7 +58,7 @@ public class RequesterBootstrap {
     private SSLSocketFactory sslSocketFactory;
     private int defaultMaxPerRoute;
     private int maxTotal;
-    private TimeValue timeToLive;
+    private Timeout timeToLive;
     private ConnPoolPolicy connPoolPolicy;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
@@ -114,7 +114,7 @@ public class RequesterBootstrap {
         return this;
     }
 
-    public final RequesterBootstrap setTimeToLive(final TimeValue timeToLive) {
+    public final RequesterBootstrap setTimeToLive(final Timeout timeToLive) {
         this.timeToLive = timeToLive;
         return this;
     }

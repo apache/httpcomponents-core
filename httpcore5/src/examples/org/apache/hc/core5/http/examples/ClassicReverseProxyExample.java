@@ -63,6 +63,7 @@ import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Example of embedded HTTP/1.1 reverse proxy using classic I/O.
@@ -220,7 +221,7 @@ public class ClassicReverseProxyExample {
                 }
             }
             final ClassicHttpResponse incomingResponse = requester.execute(
-                    targetHost, outgoingRequest, TimeValue.ofMinutes(1), clientContext);
+                    targetHost, outgoingRequest, Timeout.ofMinutes(1), clientContext);
             outgoingResponse.setCode(incomingResponse.getCode());
             for (Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
                 Header header = it.next();

@@ -33,6 +33,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Socket configuration.
@@ -44,7 +45,7 @@ public class SocketConfig {
 
     public static final SocketConfig DEFAULT = new Builder().build();
 
-    private final TimeValue soTimeout;
+    private final Timeout soTimeout;
     private final boolean soReuseAddress;
     private final TimeValue soLinger;
     private final boolean soKeepAlive;
@@ -54,7 +55,7 @@ public class SocketConfig {
     private final int backlogSize;
 
     SocketConfig(
-            final TimeValue soTimeout,
+            final Timeout soTimeout,
             final boolean soReuseAddress,
             final TimeValue soLinger,
             final boolean soKeepAlive,
@@ -82,7 +83,7 @@ public class SocketConfig {
      * @return the default socket timeout value for blocking I/O operations.
      * @see java.net.SocketOptions#SO_TIMEOUT
      */
-    public TimeValue getSoTimeout() {
+    public Timeout getSoTimeout() {
         return soTimeout;
     }
 
@@ -219,7 +220,7 @@ public class SocketConfig {
 
     public static class Builder {
 
-        private TimeValue soTimeout;
+        private Timeout soTimeout;
         private boolean soReuseAddress;
         private TimeValue soLinger;
         private boolean soKeepAlive;
@@ -229,7 +230,7 @@ public class SocketConfig {
         private int backlogSize;
 
         Builder() {
-            this.soTimeout = TimeValue.ZERO_MILLISECONDS;
+            this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
             this.soKeepAlive = false;
@@ -240,11 +241,11 @@ public class SocketConfig {
         }
 
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
-            this.soTimeout = TimeValue.of(soTimeout, timeUnit);
+            this.soTimeout = Timeout.of(soTimeout, timeUnit);
             return this;
         }
 
-        public Builder setSoTimeout(final TimeValue soTimeout) {
+        public Builder setSoTimeout(final Timeout soTimeout) {
             this.soTimeout = soTimeout;
             return this;
         }
@@ -255,7 +256,7 @@ public class SocketConfig {
         }
 
         public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
-            this.soLinger = TimeValue.of(soLinger, timeUnit);
+            this.soLinger = Timeout.of(soLinger, timeUnit);
             return this;
         }
 
@@ -300,7 +301,7 @@ public class SocketConfig {
 
         public SocketConfig build() {
             return new SocketConfig(
-                    soTimeout != null ? soTimeout : TimeValue.ZERO_MILLISECONDS,
+                    Timeout.defaultsToDisabled(soTimeout),
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
                     soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize);
