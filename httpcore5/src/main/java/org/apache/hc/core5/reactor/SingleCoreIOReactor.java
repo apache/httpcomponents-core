@@ -55,6 +55,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final IOEventHandlerFactory eventHandlerFactory;
     private final IOReactorConfig reactorConfig;
     private final Decorator<IOSession> ioSessionDecorator;
+    private final IOSessionListener sessionListener;
     private final Callback<IOSession> sessionShutdownCallback;
     private final Queue<InternalDataChannel> closedSessions;
     private final Queue<SocketChannel> channelQueue;
@@ -68,11 +69,13 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
             final Decorator<IOSession> ioSessionDecorator,
+            final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         super(auditLog);
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
         this.ioSessionDecorator = ioSessionDecorator;
+        this.sessionListener = sessionListener;
         this.sessionShutdownCallback = sessionShutdownCallback;
         this.shutdownInitiated = new AtomicBoolean(false);
         this.closedSessions = new ConcurrentLinkedQueue<>();
@@ -198,7 +201,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             if (ioSessionDecorator != null) {
                 ioSession = ioSessionDecorator.decorate(ioSession);
             }
-            final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, null, closedSessions);
+            final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, null, sessionListener, closedSessions);
             dataChannel.setHandler(this.eventHandlerFactory.createHandler(dataChannel, null));
             dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout().toMillisIntBound());
             key.attach(dataChannel);
@@ -324,7 +327,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 if (ioSessionDecorator != null) {
                     ioSession = ioSessionDecorator.decorate(ioSession);
                 }
-                final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, namedEndpoint, closedSessions);
+                final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, namedEndpoint, sessionListener, closedSessions);
                 dataChannel.setHandler(eventHandlerFactory.createHandler(dataChannel, attachment));
                 dataChannel.setSocketTimeout(reactorConfig.getSoTimeout().toMillisIntBound());
                 return dataChannel;

@@ -30,7 +30,6 @@ package org.apache.hc.core5.http2.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -49,7 +48,6 @@ public final class ServerHttp2StreamMultiplexerFactory {
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final H2Config h2Config;
     private final CharCodingConfig charCodingConfig;
-    private final ConnectionListener connectionListener;
     private final Http2StreamListener streamListener;
 
     public ServerHttp2StreamMultiplexerFactory(
@@ -57,13 +55,11 @@ public final class ServerHttp2StreamMultiplexerFactory {
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
-            final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.connectionListener = connectionListener;
         this.streamListener = streamListener;
     }
 
@@ -75,7 +71,6 @@ public final class ServerHttp2StreamMultiplexerFactory {
                 exchangeHandlerFactory,
                 charCodingConfig,
                 h2Config,
-                connectionListener,
                 streamListener);
     }
 

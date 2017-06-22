@@ -33,6 +33,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 
 /**
  * @since 5.0
@@ -41,9 +42,10 @@ public class HttpAsyncServer extends AsyncServer {
 
     public HttpAsyncServer(
             final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig ioReactorConfig,
             final Decorator<IOSession> ioSessionDecorator,
-            final IOReactorConfig ioReactorConfig) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, new Callback<IOSession>() {
+            final IOSessionListener sessionListener) {
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener, new Callback<IOSession>() {
 
             @Override
             public void execute(final IOSession session) {

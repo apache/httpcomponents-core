@@ -88,6 +88,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
             final ThreadFactory dispatchThreadFactory,
             final ThreadFactory listenerThreadFactory,
             final Decorator<IOSession> ioSessionDecorator,
+            final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.auditLog = new ConcurrentLinkedDeque<>();
@@ -100,6 +101,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
                     eventHandlerFactory,
                     ioReactorConfig,
                     ioSessionDecorator,
+                    sessionListener,
                     sessionShutdownCallback);
             this.dispatchers[i] = dispatcher;
             threads[i + 1] = (dispatchThreadFactory != null ? dispatchThreadFactory : DISPATCH_THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
@@ -134,7 +136,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final Callback<IOSession> sessionShutdownCallback) {
-        this(eventHandlerFactory, config, null, null, null, sessionShutdownCallback);
+        this(eventHandlerFactory, config, null, null, null, null, sessionShutdownCallback);
     }
 
     /**
@@ -145,7 +147,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
      * @since 5.0
      */
     public DefaultListeningIOReactor(final IOEventHandlerFactory eventHandlerFactory) {
-        this(eventHandlerFactory, null, null, null, null, null);
+        this(eventHandlerFactory, null, null);
     }
 
     @Override

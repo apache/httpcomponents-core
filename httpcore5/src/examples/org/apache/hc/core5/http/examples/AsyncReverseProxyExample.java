@@ -57,7 +57,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
@@ -106,23 +105,6 @@ public class AsyncReverseProxyExample {
 
         final HttpAsyncRequester requester = AsyncRequesterBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .setConnectionListener(new ConnectionListener() {
-
-                    @Override
-                    public void onConnect(final HttpConnection connection) {
-                        System.out.println("[proxy->origin] connection open " + connection);
-                    }
-
-                    @Override
-                    public void onDisconnect(final HttpConnection connection) {
-                        System.out.println("[proxy->origin] connection closed " + connection);
-                    }
-
-                    @Override
-                    public void onError(final HttpConnection connection, final Exception ex) {
-                    }
-
-                })
                 .setConnPoolListener(new ConnPoolListener<HttpHost>() {
 
                     @Override
@@ -164,23 +146,6 @@ public class AsyncReverseProxyExample {
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .setConnectionListener(new ConnectionListener() {
-
-                    @Override
-                    public void onConnect(final HttpConnection connection) {
-                        System.out.println("[client->proxy] connection open " + connection);
-                    }
-
-                    @Override
-                    public void onDisconnect(final HttpConnection connection) {
-                        System.out.println("[client->proxy] connection closed " + connection);
-                    }
-
-                    @Override
-                    public void onError(final HttpConnection connection, final Exception ex) {
-                    }
-
-                })
                 .setStreamListener(new Http1StreamListener() {
 
                     @Override

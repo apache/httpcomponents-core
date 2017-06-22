@@ -79,7 +79,6 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -1382,14 +1381,13 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
                     final ContentLengthStrategy incomingContentStrategy,
                     final ContentLengthStrategy outgoingContentStrategy,
-                    final ConnectionListener connectionListener,
                     final Http1StreamListener streamListener) {
                 return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                         scheme.id,
                         h1Config, connectionConfig, connectionReuseStrategy,
                         incomingMessageParser, outgoingMessageWriter,
                         incomingContentStrategy, outgoingContentStrategy,
-                        connectionListener, streamListener) {
+                        streamListener) {
 
                     @Override
                     protected ContentEncoder handleOutgoingMessage(

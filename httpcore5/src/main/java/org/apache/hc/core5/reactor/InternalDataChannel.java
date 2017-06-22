@@ -52,6 +52,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
 
     private final IOSession ioSession;
     private final NamedEndpoint namedEndpoint;
+    private final IOSessionListener sessionListener;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<InternalDataChannel> closedSessions;
     private final AtomicBoolean connected;
@@ -60,10 +61,12 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
     InternalDataChannel(
             final IOSession ioSession,
             final NamedEndpoint namedEndpoint,
+            final IOSessionListener sessionListener,
             final Queue<InternalDataChannel> closedSessions) {
         this.ioSession = ioSession;
         this.namedEndpoint = namedEndpoint;
         this.closedSessions = closedSessions;
+        this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>(null);
         this.connected = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
@@ -95,6 +98,9 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
         if (tlsSession != null) {
             if (!tlsSession.isInitialized()) {
                 tlsSession.initialize();
+                if (sessionListener != null) {
+                    sessionListener.tlsStarted(tlsSession);
+                }
             }
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
                 ioSession.clearEvent(SelectionKey.OP_CONNECT);
@@ -102,32 +108,53 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
             if ((readyOps & SelectionKey.OP_READ) != 0) {
                 if (tlsSession.isAppInputReady()) {
                     do {
+                        if (sessionListener != null) {
+                            sessionListener.inputReady(this);
+                        }
                         final IOEventHandler handler = getEventHandler();
                         handler.inputReady(this);
                     } while (tlsSession.hasInputDate());
                 }
                 tlsSession.inboundTransport();
+                if (sessionListener != null) {
+                    sessionListener.tlsInbound(tlsSession);
+                }
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 if (tlsSession.isAppOutputReady()) {
+                    if (sessionListener != null) {
+                        sessionListener.outputReady(this);
+                    }
                     final IOEventHandler handler = getEventHandler();
                     handler.outputReady(this);
                 }
                 tlsSession.outboundTransport();
+                if (sessionListener != null) {
+                    sessionListener.tlsOutbound(tlsSession);
+                }
             }
         } else {
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
                 ioSession.clearEvent(SelectionKey.OP_CONNECT);
                 if (connected.compareAndSet(false, true)) {
+                    if (sessionListener != null) {
+                        sessionListener.connected(this);
+                    }
                     final IOEventHandler handler = getEventHandler();
                     handler.connected(this);
                 }
             }
             if ((readyOps & SelectionKey.OP_READ) != 0) {
+                if (sessionListener != null) {
+                    sessionListener.inputReady(this);
+                }
                 final IOEventHandler handler = getEventHandler();
                 handler.inputReady(this);
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                if (sessionListener != null) {
+                    sessionListener.outputReady(this);
+                }
                 final IOEventHandler handler = getEventHandler();
                 handler.outputReady(this);
             }
@@ -155,10 +182,16 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
     @Override
     void onException(final Exception cause) {
         final IOEventHandler handler = getEventHandler();
+        if (sessionListener != null) {
+            sessionListener.exception(this, cause);
+        }
         handler.exception(this, cause);
     }
 
     void disconnected() {
+        if (sessionListener != null) {
+            sessionListener.disconnected(this);
+        }
         final IOEventHandler handler = getEventHandler();
         handler.disconnected(this);
     }
@@ -184,8 +217,14 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                         if (connected.compareAndSet(false, true)) {
                             final IOEventHandler handler = getEventHandler();
                             try {
+                                if (sessionListener != null) {
+                                    sessionListener.connected(InternalDataChannel.this);
+                                }
                                 handler.connected(InternalDataChannel.this);
                             } catch (final Exception ex) {
+                                if (sessionListener != null) {
+                                    sessionListener.exception(InternalDataChannel.this, ex);
+                                }
                                 handler.exception(InternalDataChannel.this, ex);
                             }
                         }

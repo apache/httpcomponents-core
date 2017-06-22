@@ -48,6 +48,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -59,6 +60,7 @@ public class AsyncServer implements IOReactorService, ConnectionInitiator, Conne
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final Decorator<IOSession> ioSessionDecorator,
+            final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         this.ioReactor = new DefaultListeningIOReactor(
                 eventHandlerFactory,
@@ -66,6 +68,7 @@ public class AsyncServer implements IOReactorService, ConnectionInitiator, Conne
                 new DefaultThreadFactory("server-dispatch", true),
                 new DefaultThreadFactory("server-listener", true),
                 ioSessionDecorator,
+                sessionListener,
                 sessionShutdownCallback);
     }
 

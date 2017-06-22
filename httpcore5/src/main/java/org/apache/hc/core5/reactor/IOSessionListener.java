@@ -24,24 +24,32 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpConnection;
+package org.apache.hc.core5.reactor;
 
 /**
- * Connection event listener.
+ * {@link IOSession} even listener.
  *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.STATELESS)
-public interface ConnectionListener {
+public interface IOSessionListener {
 
-    void onConnect(HttpConnection connection);
+    void tlsStarted(IOSession session);
 
-    void onError(HttpConnection connection, Exception ex);
+    void tlsInbound(IOSession session);
 
-    void onDisconnect(HttpConnection connection);
+    void tlsOutbound(IOSession session);
+
+    void connected(IOSession session);
+
+    void inputReady(IOSession session);
+
+    void outputReady(IOSession session);
+
+    void timeout(IOSession session);
+
+    void exception(IOSession session, Exception ex);
+
+    void disconnected(IOSession session);
 
 }

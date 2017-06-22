@@ -59,7 +59,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
             final ThreadFactory threadFactory,
             final Callback<IOSession> sessionShutdownCallback) throws IOException {
         return new DefaultConnectingIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory,
-                LoggingIOSessionDecorator.INSTANCE, sessionShutdownCallback);
+                LoggingIOSessionDecorator.INSTANCE, LoggingIOSessionListener.INSTANCE, sessionShutdownCallback);
     }
 
     private InetSocketAddress toSocketAddress(final HttpHost host) {

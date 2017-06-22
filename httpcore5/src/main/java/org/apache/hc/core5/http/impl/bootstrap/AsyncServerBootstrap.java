@@ -34,7 +34,6 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -54,6 +53,7 @@ import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -70,7 +70,7 @@ public class AsyncServerBootstrap {
     private ConnectionReuseStrategy connStrategy;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
-    private ConnectionListener connectionListener;
+    private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
 
     private AsyncServerBootstrap() {
@@ -148,10 +148,10 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link ConnectionListener} instance.
+     * Assigns {@link IOSessionListener} instance.
      */
-    public final AsyncServerBootstrap setConnectionListener(final ConnectionListener connectionListener) {
-        this.connectionListener = connectionListener;
+    public final AsyncServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
+        this.sessionListener = sessionListener;
         return this;
     }
 
@@ -227,12 +227,11 @@ public class AsyncServerBootstrap {
                 DefaultHttpResponseWriterFactory.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                connectionListener,
                 streamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
                 streamHandlerFactory,
                 tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}));
-        return new HttpAsyncServer(ioEventHandlerFactory, ioSessionDecorator, ioReactorConfig);
+        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
     }
 
     private static class HandlerEntry {

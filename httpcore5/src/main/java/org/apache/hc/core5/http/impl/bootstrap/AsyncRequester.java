@@ -49,6 +49,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -60,12 +61,14 @@ public class AsyncRequester implements IOReactorService, ConnectionInitiator {
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final Decorator<IOSession> ioSessionDecorator,
+            final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         this.ioReactor = new DefaultConnectingIOReactor(
                 eventHandlerFactory,
                 ioReactorConfig,
                 new DefaultThreadFactory("requester-dispatch", true),
                 ioSessionDecorator,
+                sessionListener,
                 sessionShutdownCallback);
     }
 

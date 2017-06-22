@@ -33,7 +33,6 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -60,6 +59,7 @@ import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -77,7 +77,7 @@ public class H2ServerBootstrap {
     private H1Config h1Config;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
-    private ConnectionListener connectionListener;
+    private IOSessionListener sessionListener;
     private Http2StreamListener http2StreamListener;
     private Http1StreamListener http1StreamListener;
 
@@ -164,10 +164,10 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link ConnectionListener} instance.
+     * Assigns {@link IOSessionListener} instance.
      */
-    public final H2ServerBootstrap setConnectionListener(final ConnectionListener connectionListener) {
-        this.connectionListener = connectionListener;
+    public final H2ServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
+        this.sessionListener = sessionListener;
         return this;
     }
 
@@ -244,7 +244,6 @@ public class H2ServerBootstrap {
                 exchangeHandlerFactory,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                connectionListener,
                 http2StreamListener);
         final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
@@ -256,15 +255,13 @@ public class H2ServerBootstrap {
                 DefaultHttpResponseWriterFactory.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                connectionListener,
                 http1StreamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}),
-                connectionListener);
-        return new HttpAsyncServer(ioEventHandlerFactory, ioSessionDecorator, ioReactorConfig);
+                tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}));
+        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
     }
 
     private static class HandlerEntry {

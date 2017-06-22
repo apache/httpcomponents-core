@@ -34,7 +34,6 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
@@ -54,6 +53,7 @@ import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -76,7 +76,7 @@ public class H2RequesterBootstrap {
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
-    private ConnectionListener connectionListener;
+    private IOSessionListener sessionListener;
     private Http2StreamListener streamListener;
     private Http1StreamListener http1StreamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
@@ -177,10 +177,10 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ConnectionListener} instance.
+     * Assigns {@link IOSessionListener} instance.
      */
-    public final H2RequesterBootstrap setConnectionListener(final ConnectionListener connectionListener) {
-        this.connectionListener = connectionListener;
+    public final H2RequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
+        this.sessionListener = sessionListener;
         return this;
     }
 
@@ -238,25 +238,23 @@ public class H2RequesterBootstrap {
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config != null ? h1Config : H1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                connectionListener,
                 http1StreamListener);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 pushConsumerRegistry,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                connectionListener,
                 streamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
-                versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                connectionListener);
+                versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE);
         return new Http2AsyncRequester(
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 ioReactorConfig,
                 ioEventHandlerFactory,
                 ioSessionDecorator,
+                sessionListener,
                 connPool,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
     }

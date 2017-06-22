@@ -39,7 +39,6 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
@@ -66,7 +65,6 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
-    private final ConnectionListener connectionListener;
     private final ByteBuffer bytebuf;
 
     private volatile boolean expectValidH2Preface;
@@ -75,13 +73,11 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
             final TlsCapableIOSession ioSession,
             final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
-            final HttpVersionPolicy versionPolicy,
-            final ConnectionListener connectionListener) {
+            final HttpVersionPolicy versionPolicy) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-        this.connectionListener = connectionListener;
         this.bytebuf = ByteBuffer.allocate(1024);
     }
 
@@ -164,16 +160,10 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     @Override
     public void exception(final IOSession session, final Exception cause) {
         session.shutdown(ShutdownType.IMMEDIATE);
-        if (connectionListener != null) {
-            connectionListener.onError(this, cause);
-        }
     }
 
     @Override
     public void disconnected(final IOSession session) {
-        if (connectionListener != null) {
-            connectionListener.onDisconnect(this);
-        }
     }
 
     @Override

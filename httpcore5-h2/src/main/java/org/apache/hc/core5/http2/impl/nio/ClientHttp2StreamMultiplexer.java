@@ -30,7 +30,6 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -58,10 +57,8 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
-            final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
-        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig,
-                h2Config, connectionListener, streamListener);
+        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config, streamListener);
         this.pushHandlerFactory = pushHandlerFactory;
     }
 
@@ -71,8 +68,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig) {
-        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory,
-                h2Config, charCodingConfig, null, null);
+        this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, null);
     }
 
     public ClientHttp2StreamMultiplexer(

@@ -107,7 +107,7 @@ public class Http2ProtocolNegotiationTest {
                         }
 
                     })
-                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
@@ -149,7 +149,7 @@ public class Http2ProtocolNegotiationTest {
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
-                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)

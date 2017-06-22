@@ -66,6 +66,7 @@ import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
@@ -82,9 +83,10 @@ public class HttpAsyncRequester extends AsyncRequester {
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<IOSession> ioSessionDecorator,
+            final IOSessionListener sessionListener,
             final ControlledConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, new Callback<IOSession>() {
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener, new Callback<IOSession>() {
 
             @Override
             public void execute(final IOSession session) {

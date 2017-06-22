@@ -33,13 +33,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 
-import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.classic.Wire;
 import org.apache.logging.log4j.Logger;
+
 public class LoggingIOSession implements IOSession {
 
     private final Logger log;
@@ -194,11 +194,7 @@ public class LoggingIOSession implements IOSession {
 
     @Override
     public void setHandler(final IOEventHandler handler) {
-        if (handler instanceof HttpConnectionEventHandler) {
-            this.session.setHandler(new LoggingIOEventHandler((HttpConnectionEventHandler) handler, log));
-        } else {
-            this.session.setHandler(handler);
-        }
+        this.session.setHandler(handler);
     }
 
     @Override

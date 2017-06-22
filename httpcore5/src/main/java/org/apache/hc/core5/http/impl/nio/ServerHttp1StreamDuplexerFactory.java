@@ -35,7 +35,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -62,7 +61,6 @@ public final class ServerHttp1StreamDuplexerFactory {
     private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-    private final ConnectionListener connectionListener;
     private final Http1StreamListener streamListener;
 
     public ServerHttp1StreamDuplexerFactory(
@@ -75,7 +73,6 @@ public final class ServerHttp1StreamDuplexerFactory {
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
@@ -91,7 +88,6 @@ public final class ServerHttp1StreamDuplexerFactory {
                 DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.connectionListener = connectionListener;
         this.streamListener = streamListener;
     }
 
@@ -103,11 +99,10 @@ public final class ServerHttp1StreamDuplexerFactory {
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
-            final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         this(httpProcessor, exchangeHandlerFactory, h1Config, charCodingConfig,
                 connectionReuseStrategy, requestParserFactory, responseWriterFactory,
-                null, null, connectionListener, streamListener);
+                null, null, streamListener);
     }
 
     public ServerHttp1StreamDuplexerFactory(
@@ -115,9 +110,8 @@ public final class ServerHttp1StreamDuplexerFactory {
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
-            final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, h1Config, charCodingConfig, null, null ,null, connectionListener, streamListener);
+        this(httpProcessor, exchangeHandlerFactory, h1Config, charCodingConfig, null, null ,null, streamListener);
     }
 
     public ServerHttp1StreamDuplexer create(final String scheme, final TlsCapableIOSession ioSession) {
@@ -130,7 +124,6 @@ public final class ServerHttp1StreamDuplexerFactory {
                 responseWriterFactory.create(),
                 incomingContentStrategy,
                 outgoingContentStrategy,
-                connectionListener,
                 streamListener);
     }
 

@@ -37,7 +37,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -95,12 +94,10 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final NHttpMessageWriter<HttpRequest> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         return new ClientHttp1StreamDuplexer(ioSession, httpProcessor, h1Config, charCodingConfig,
                 connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter,
-                incomingContentStrategy, outgoingContentStrategy,
-                connectionListener, streamListener);
+                incomingContentStrategy, outgoingContentStrategy, streamListener);
     }
 
     @Override
@@ -118,7 +115,6 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
                 requestWriterFactory.create(),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                LoggingConnectionListener.INSTANCE,
                 LoggingHttp1StreamListener.INSTANCE_CLIENT);
         return new ClientHttp1IOEventHandler(streamDuplexer);
     }

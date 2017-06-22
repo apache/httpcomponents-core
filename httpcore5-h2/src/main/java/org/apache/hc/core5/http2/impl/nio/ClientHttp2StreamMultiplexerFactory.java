@@ -30,7 +30,6 @@ package org.apache.hc.core5.http2.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -49,7 +48,6 @@ public final class ClientHttp2StreamMultiplexerFactory {
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final H2Config h2Config;
     private final CharCodingConfig charCodingConfig;
-    private final ConnectionListener connectionListener;
     private final Http2StreamListener streamListener;
 
     public ClientHttp2StreamMultiplexerFactory(
@@ -57,34 +55,30 @@ public final class ClientHttp2StreamMultiplexerFactory {
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
-            final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.pushHandlerFactory = pushHandlerFactory;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.connectionListener = connectionListener;
         this.streamListener = streamListener;
     }
 
     public ClientHttp2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
-        this(httpProcessor, pushHandlerFactory, null, null, connectionListener, streamListener);
+        this(httpProcessor, pushHandlerFactory, null, null, streamListener);
     }
 
     public ClientHttp2StreamMultiplexerFactory(
             final HttpProcessor httpProcessor,
-            final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
-        this(httpProcessor, null, connectionListener, streamListener);
+        this(httpProcessor, null, streamListener);
     }
 
     public ClientHttp2StreamMultiplexer create(final TlsCapableIOSession ioSession) {
         return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
-                pushHandlerFactory, h2Config, charCodingConfig, connectionListener, streamListener);
+                pushHandlerFactory, h2Config, charCodingConfig, streamListener);
     }
 
 }

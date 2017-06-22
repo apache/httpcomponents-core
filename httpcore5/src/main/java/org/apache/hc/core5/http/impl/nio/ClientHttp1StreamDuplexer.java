@@ -47,7 +47,6 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -93,9 +92,8 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final NHttpMessageWriter<HttpRequest> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
-        super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, connectionListener);
+        super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :

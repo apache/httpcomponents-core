@@ -40,6 +40,7 @@ import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -54,9 +55,10 @@ public class Http2AsyncRequester extends HttpAsyncRequester {
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<IOSession> ioSessionDecorator,
+            final IOSessionListener sessionListener,
             final ControlledConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy) {
-        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, connPool, tlsStrategy);
+        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, sessionListener, connPool, tlsStrategy);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 

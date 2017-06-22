@@ -38,7 +38,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -102,12 +101,11 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final ConnectionListener connectionListener,
             final Http1StreamListener streamListener) {
         return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                 sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id, h1Config,
                 charCodingConfig, connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter,
-                incomingContentStrategy, outgoingContentStrategy, connectionListener, streamListener);
+                incomingContentStrategy, outgoingContentStrategy, streamListener);
     }
 
     @Override
@@ -126,7 +124,6 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
                 responseWriterFactory.create(),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                LoggingConnectionListener.INSTANCE,
                 LoggingHttp1StreamListener.INSTANCE_SERVER);
         return new ServerHttp1IOEventHandler(streamDuplexer);
     }

@@ -82,21 +82,18 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config,
                 charCodingConfig,
-                LoggingConnectionListener.INSTANCE,
                 LoggingHttp1StreamListener.INSTANCE_CLIENT);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 exchangeHandlerFactory,
                 h2Config,
                 charCodingConfig,
-                LoggingConnectionListener.INSTANCE,
                 LoggingHttp2StreamListener.INSTANCE);
         return new ClientHttpProtocolNegotiator(
                         ioSession,
                         http1StreamHandlerFactory,
                         http2StreamHandlerFactory,
-                        versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                        LoggingConnectionListener.INSTANCE);
+                        versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE);
    }
 
 }

@@ -40,7 +40,6 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
@@ -73,7 +72,6 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
-    private final ConnectionListener connectionListener;
 
     private volatile ByteBuffer preface;
 
@@ -81,13 +79,11 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             final TlsCapableIOSession ioSession,
             final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
-            final HttpVersionPolicy versionPolicy,
-            final ConnectionListener connectionListener) {
+            final HttpVersionPolicy versionPolicy) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-        this.connectionListener = connectionListener;
     }
 
     @Override
@@ -159,9 +155,6 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        if (connectionListener != null) {
-            connectionListener.onError(this, new SocketTimeoutException());
-        }
         try {
             for (;;) {
                 final Command command = ioSession.getCommand();
@@ -185,9 +178,6 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void disconnected(final IOSession session) {
-        if (connectionListener != null) {
-            connectionListener.onDisconnect(this);
-        }
         for (;;) {
             final Command command = ioSession.getCommand();
             if (command != null) {

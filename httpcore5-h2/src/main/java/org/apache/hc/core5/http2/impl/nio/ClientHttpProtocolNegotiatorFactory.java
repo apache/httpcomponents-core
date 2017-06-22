@@ -29,7 +29,6 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -45,17 +44,14 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
-    private final ConnectionListener connectionListener;
 
     public ClientHttpProtocolNegotiatorFactory(
             final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
-            final HttpVersionPolicy versionPolicy,
-            final ConnectionListener connectionListener) {
+            final HttpVersionPolicy versionPolicy) {
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-        this.connectionListener = connectionListener;
     }
 
     @Override
@@ -64,8 +60,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
                 ioSession,
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
-                attachment instanceof HttpVersionPolicy ? (HttpVersionPolicy) attachment : versionPolicy,
-                connectionListener);
+                attachment instanceof HttpVersionPolicy ? (HttpVersionPolicy) attachment : versionPolicy);
     }
 
 }

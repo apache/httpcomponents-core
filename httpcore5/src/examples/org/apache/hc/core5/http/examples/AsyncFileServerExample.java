@@ -37,13 +37,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
@@ -85,24 +83,6 @@ public class AsyncFileServerExample {
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .setConnectionListener(new ConnectionListener() {
-
-                    @Override
-                    public void onConnect(final HttpConnection connection) {
-                        System.out.println(connection + " connected");
-                    }
-
-                    @Override
-                    public void onError(final HttpConnection connection, final Exception ex) {
-                        System.err.println(connection + " error: " + ex.getMessage());
-                    }
-
-                    @Override
-                    public void onDisconnect(final HttpConnection connection) {
-                        System.out.println(connection + " disconnected");
-                    }
-
-                })
                 .register("*", new RequestConsumerSupplier<Message<HttpRequest, Void>>() {
 
                     @Override

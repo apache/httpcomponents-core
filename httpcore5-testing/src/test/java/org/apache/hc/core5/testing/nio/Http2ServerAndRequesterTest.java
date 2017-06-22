@@ -103,7 +103,7 @@ public class Http2ServerAndRequesterTest {
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
@@ -151,7 +151,7 @@ public class Http2ServerAndRequesterTest {
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
-                    .setConnectionListener(LoggingConnectionListener.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)

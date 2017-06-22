@@ -31,7 +31,6 @@ import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandlerFactory;
@@ -45,6 +44,7 @@ import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -63,7 +63,7 @@ public class AsyncRequesterBootstrap {
     private ConnPoolPolicy connPoolPolicy;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
-    private ConnectionListener connectionListener;
+    private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
 
@@ -154,10 +154,10 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ConnectionListener} instance.
+     * Assigns {@link IOSessionListener} instance.
      */
-    public final AsyncRequesterBootstrap setConnectionListener(final ConnectionListener connectionListener) {
-        this.connectionListener = connectionListener;
+    public final AsyncRequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
+        this.sessionListener = sessionListener;
         return this;
     }
 
@@ -191,13 +191,13 @@ public class AsyncRequesterBootstrap {
                 connStrategy,
                 null,
                 null,
-                connectionListener,
                 streamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(streamDuplexerFactory);
         return new HttpAsyncRequester(
                 ioReactorConfig,
                 ioEventHandlerFactory,
                 ioSessionDecorator,
+                sessionListener,
                 connPool,
                 tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy());
     }

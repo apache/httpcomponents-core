@@ -29,7 +29,6 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
@@ -47,19 +46,16 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
-    private final ConnectionListener connectionListener;
 
     public ServerHttpProtocolNegotiatorFactory(
             final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory,
             final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory,
             final HttpVersionPolicy versionPolicy,
-            final TlsStrategy tlsStrategy,
-            final ConnectionListener connectionListener) {
+            final TlsStrategy tlsStrategy) {
         this.http1StreamDuplexerFactory = Args.notNull(http1StreamDuplexerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamMultiplexerFactory = Args.notNull(http2StreamMultiplexerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.tlsStrategy = tlsStrategy;
-        this.connectionListener = connectionListener;
     }
 
     @Override
@@ -72,11 +68,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
                     ioSession.getRemoteAddress(),
                     attachment != null ? attachment : versionPolicy);
         }
-        return new ServerHttpProtocolNegotiator(ioSession,
-                http1StreamDuplexerFactory,
-                http2StreamMultiplexerFactory,
-                versionPolicy,
-                connectionListener);
+        return new ServerHttpProtocolNegotiator(ioSession, http1StreamDuplexerFactory, http2StreamMultiplexerFactory, versionPolicy);
     }
 
 }

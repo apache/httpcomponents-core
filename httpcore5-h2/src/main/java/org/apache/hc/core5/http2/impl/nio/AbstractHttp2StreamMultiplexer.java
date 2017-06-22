@@ -57,7 +57,6 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
@@ -117,7 +116,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     private final Lock outputLock;
     private final AtomicInteger outputRequests;
     private final AtomicInteger lastStreamId;
-    private final ConnectionListener connectionListener;
     private final Http2StreamListener streamListener;
 
     private ConnectionHandshake connState = ConnectionHandshake.READY;
@@ -139,7 +137,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             final HttpProcessor httpProcessor,
             final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
-            final ConnectionListener connectionListener,
             final Http2StreamListener streamListener) {
         this.mode = Args.notNull(mode, "Mode");
         this.ioSession = Args.notNull(ioSession, "IO session");
@@ -168,7 +165,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
         this.remoteConfig = H2Config.DEFAULT;
         this.lowMark = this.remoteConfig.getInitialWindowSize() / 2;
-        this.connectionListener = connectionListener;
         this.streamListener = streamListener;
     }
 
@@ -388,9 +384,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     }
 
     public final void onConnect(final ByteBuffer prefeed) throws HttpException, IOException {
-        if (connectionListener != null) {
-            connectionListener.onConnect(this);
-        }
         if (prefeed != null) {
             inputBuffer.put(prefeed);
         }
@@ -563,9 +556,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 break;
             }
         }
-        if (connectionListener != null) {
-            connectionListener.onDisconnect(this);
-        }
     }
 
     private void processPendingCommands() throws IOException, HttpException {
@@ -634,9 +624,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     }
 
     public final void onException(final Exception cause) {
-        if (connectionListener != null) {
-            connectionListener.onError(this, cause);
-        }
         try {
             for (;;) {
                 final AsyncPingHandler pingHandler = pingHandlers.poll();

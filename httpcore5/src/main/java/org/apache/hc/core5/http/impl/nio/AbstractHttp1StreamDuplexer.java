@@ -56,7 +56,6 @@ import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
@@ -95,7 +94,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private final NHttpMessageParser<IncomingMessage> incomingMessageParser;
     private final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter;
     private final ByteBuffer contentBuffer;
-    private final ConnectionListener connectionListener;
     private final Lock outputLock;
     private final AtomicInteger outputRequests;
 
@@ -111,8 +109,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final NHttpMessageParser<IncomingMessage> incomingMessageParser,
-            final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter,
-            final ConnectionListener connectionListener) {
+            final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         final int bufferSize = this.h1Config.getBufferSize();
@@ -127,7 +124,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.incomingMessageParser = incomingMessageParser;
         this.outgoingMessageWriter = outgoingMessageWriter;
         this.contentBuffer = ByteBuffer.allocate(this.h1Config.getBufferSize());
-        this.connectionListener = connectionListener;
         this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
         this.connState = ConnectionState.READY;
@@ -148,7 +144,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
-    void shutdownSession(final Exception exception) throws IOException {
+    void shutdownSession(final Exception exception) {
         connState = ConnectionState.SHUTDOWN;
         try {
             terminate(exception);
@@ -224,9 +220,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     public final void onConnect(final ByteBuffer prefeed) throws HttpException, IOException {
-        if (connectionListener != null) {
-            connectionListener.onConnect(this);
-        }
         if (prefeed != null) {
             inbuf.put(prefeed);
         }
@@ -387,28 +380,19 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     public final void onException(final Exception ex) {
-        if (connectionListener != null) {
-            connectionListener.onError(this, ex);
-        }
-        try {
-            shutdownSession(ex);
-            for (;;) {
-                final Command command = ioSession.getCommand();
-                if (command != null) {
-                    if (command instanceof ExecutionCommand) {
-                        final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
-                        exchangeHandler.failed(ex);
-                        exchangeHandler.releaseResources();
-                    } else {
-                        command.cancel();
-                    }
+        shutdownSession(ex);
+        for (;;) {
+            final Command command = ioSession.getCommand();
+            if (command != null) {
+                if (command instanceof ExecutionCommand) {
+                    final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
+                    exchangeHandler.failed(ex);
+                    exchangeHandler.releaseResources();
                 } else {
-                    break;
+                    command.cancel();
                 }
-            }
-        } catch (IOException ex2) {
-            if (connectionListener != null) {
-                connectionListener.onError(this, ex2);
+            } else {
+                break;
             }
         }
     }
@@ -430,9 +414,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
         }
         releaseResources();
-        if (connectionListener != null) {
-            connectionListener.onDisconnect(this);
-        }
     }
 
     void requestShutdown(final ShutdownType shutdownType) {

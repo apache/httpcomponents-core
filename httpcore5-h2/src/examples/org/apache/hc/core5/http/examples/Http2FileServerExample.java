@@ -45,7 +45,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.impl.ConnectionListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
@@ -89,24 +88,6 @@ public class Http2FileServerExample {
 
         final HttpAsyncServer server = H2ServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .setConnectionListener(new ConnectionListener() {
-
-                    @Override
-                    public void onConnect(final HttpConnection connection) {
-                        System.out.println(connection + " connected");
-                    }
-
-                    @Override
-                    public void onError(final HttpConnection connection, final Exception ex) {
-                        System.err.println(connection + " error: " + ex.getMessage());
-                    }
-
-                    @Override
-                    public void onDisconnect(final HttpConnection connection) {
-                        System.out.println(connection + " disconnected");
-                    }
-
-                })
                 .setStreamListener(new Http2StreamListener() {
 
                     @Override
