@@ -48,7 +48,6 @@ class IOSessionImpl implements IOSession {
     private final SocketChannel channel;
     private final String id;
     private final AtomicInteger status;
-    private final AtomicInteger eventMask;
     private final Deque<Command> commandQueue;
 
     private volatile IOEventHandler eventHandler;
@@ -68,7 +67,6 @@ class IOSessionImpl implements IOSession {
         this.channel = Args.notNull(socketChannel, "Socket channel");
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.socketTimeout = 0;
-        this.eventMask = new AtomicInteger(key.interestOps());
         this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
         this.status = new AtomicInteger(ACTIVE);
     }
@@ -130,11 +128,7 @@ class IOSessionImpl implements IOSession {
         if (this.status.get() == CLOSED) {
             return;
         }
-        final int currentValue = this.eventMask.get();
-        if (newValue == currentValue) {
-            return;
-        }
-        if (this.eventMask.compareAndSet(currentValue, newValue)) {
+        synchronized (this.key) {
             this.key.interestOps(newValue);
             this.key.selector().wakeup();
         }
@@ -145,14 +139,9 @@ class IOSessionImpl implements IOSession {
         if (this.status.get() == CLOSED) {
             return;
         }
-        for (;;) {
-            final int currentValue = this.eventMask.get();
-            final int newValue = currentValue | op;
-            if (this.eventMask.compareAndSet(currentValue, newValue)) {
-                this.key.interestOps(newValue);
-                this.key.selector().wakeup();
-                return;
-            }
+        synchronized (this.key) {
+            this.key.interestOps(this.key.interestOps() | op);
+            this.key.selector().wakeup();
         }
     }
 
@@ -161,14 +150,9 @@ class IOSessionImpl implements IOSession {
         if (this.status.get() == CLOSED) {
             return;
         }
-        for (;;) {
-            final int currentValue = this.eventMask.get();
-            final int newValue = currentValue & ~op;
-            if (this.eventMask.compareAndSet(currentValue, newValue)) {
-                this.key.interestOps(newValue);
-                this.key.selector().wakeup();
-                return;
-            }
+        synchronized (this.key) {
+            this.key.interestOps(this.key.interestOps() & ~op);
+            this.key.selector().wakeup();
         }
     }
 
