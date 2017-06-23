@@ -307,6 +307,20 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         }
     }
 
+    private void streamDataFrame(
+            final int streamId,
+            final AtomicInteger streamOutputWindow,
+            final ByteBuffer payload,
+            final int chunk) throws IOException {
+        final RawFrame dataFrame = frameFactory.createData(streamId, payload, false);
+        if (streamListener != null) {
+            streamListener.onFrameOutput(this, streamId, dataFrame);
+        }
+        updateOutputWindow(0, connOutputWindow, -chunk);
+        updateOutputWindow(streamId, streamOutputWindow, -chunk);
+        outputBuffer.write(dataFrame, ioSession.channel());
+    }
+
     private int streamData(
             final int streamId, final AtomicInteger streamOutputWindow, final ByteBuffer payload) throws IOException {
         if (outputBuffer.isEmpty() && outputQueue.isEmpty()) {
@@ -319,28 +333,18 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             final int chunk;
             if (payload.remaining() <= maxPayloadSize) {
                 chunk = payload.remaining();
-                final RawFrame dataFrame = frameFactory.createData(streamId, payload, false);
-                if (streamListener != null) {
-                    streamListener.onFrameOutput(this, streamId, dataFrame);
-                }
-                outputBuffer.write(dataFrame, ioSession.channel());
+                streamDataFrame(streamId, streamOutputWindow, payload, chunk);
             } else {
                 chunk = maxPayloadSize;
                 final int originalLimit = payload.limit();
                 try {
                     payload.limit(payload.position() + chunk);
-                    final RawFrame dataFrame = frameFactory.createData(streamId, payload, false);
-                    if (streamListener != null) {
-                        streamListener.onFrameOutput(this, streamId, dataFrame);
-                    }
-                    outputBuffer.write(dataFrame, ioSession.channel());
+                    streamDataFrame(streamId, streamOutputWindow, payload, chunk);
                 } finally {
                     payload.limit(originalLimit);
                 }
             }
             payload.position(payload.position() + chunk);
-            updateOutputWindow(0, connOutputWindow, -chunk);
-            updateOutputWindow(streamId, streamOutputWindow, -chunk);
             ioSession.setEvent(SelectionKey.OP_WRITE);
             return chunk;
         } else {
