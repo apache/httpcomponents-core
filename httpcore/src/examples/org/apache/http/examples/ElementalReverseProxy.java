@@ -38,9 +38,7 @@ import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
@@ -169,22 +167,18 @@ public class ElementalReverseProxy {
 
             // Set up HTTP protocol processor for incoming connections
             final HttpProcessor inhttpproc = new ImmutableHttpProcessor(
-                    new HttpRequestInterceptor[] {
-                            new RequestContent(),
-                            new RequestTargetHost(),
-                            new RequestConnControl(),
-                            new RequestUserAgent("Test/1.1"),
-                            new RequestExpectContinue(true)
-             });
+                    new ResponseDate(),
+                    new ResponseServer("Test/1.1"),
+                    new ResponseContent(),
+                    new ResponseConnControl());
 
             // Set up HTTP protocol processor for outgoing connections
             final HttpProcessor outhttpproc = new ImmutableHttpProcessor(
-                    new HttpResponseInterceptor[] {
-                            new ResponseDate(),
-                            new ResponseServer("Test/1.1"),
-                            new ResponseContent(),
-                            new ResponseConnControl()
-            });
+                    new RequestContent(),
+                    new RequestTargetHost(),
+                    new RequestConnControl(),
+                    new RequestUserAgent("Test/1.1"),
+                    new RequestExpectContinue(true));
 
             // Set up outgoing request executor
             final HttpRequestExecutor httpexecutor = new HttpRequestExecutor();
